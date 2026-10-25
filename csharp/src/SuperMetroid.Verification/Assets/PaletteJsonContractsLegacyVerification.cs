@@ -70,14 +70,14 @@ internal static class PaletteJsonContractsLegacyVerification
             var expected = new GameplayColours(new SpriteColourSets());
             migrated.ApplyRoomEntry(actual); roomStock.ApplyRoomEntry(expected);
             AssertTrue(new CgramPalettes(actual.AsPaletteColors()).ImageEquals(new CgramPalettes(expected.AsPaletteColors())), "legacy inherits exact room-entry colors");
-            for (int frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
+            for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
             {
                 migrated.ApplyRecoveryLights(actual, frame); roomStock.ApplyRecoveryLights(expected, frame);
                 AssertTrue(new CgramPalettes(actual.AsPaletteColors()).ImageEquals(new CgramPalettes(expected.AsPaletteColors())), "legacy inherits exact room recovery colors");
             }
             migrated.ApplyFinal(actual);
             AssertEqual(PackPaletteContractColor((JsonObject)oldRoom.Required("finalRoom").Required(0)),
-                actual.Colors[MotherBrainRoomColorRomDataConstants.FirstColor], "legacy retains edited final-room colors");
+                actual.Colors[MotherBrainRoomColorDestinations.FirstColor], "legacy retains edited final-room colors");
         }
 
         JsonObject rainbow = documents["Mother Brain rainbow"];

@@ -88,15 +88,15 @@ internal static class MotherBrainRoomColorsVerification
                 ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain room colors are null.");
         document.Flash[0][0] = Change(document.Flash[0][0]);
-        document.FinalRoom[MotherBrainRoomColorRomData.SliceColors] =
-            Change(document.FinalRoom[MotherBrainRoomColorRomData.SliceColors]);
+        document.FinalRoom[MotherBrainRoomColorDefinitions.SliceColors] =
+            Change(document.FinalRoom[MotherBrainRoomColorDefinitions.SliceColors]);
         document.PhaseTwoAttack[0] = Change(document.PhaseTwoAttack[0]);
         document.PhaseTwoRearLeg[0] = Change(document.PhaseTwoRearLeg[0]);
         (document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[0] = Change(document.InitialGlassShard[0]);
         (document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[0] = Change(document.InitialTubeProjectile[0]);
         (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights."))[0][0] = Change(document.RecoveryLights[0][0]);
-        document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsSliceColors] =
-            Change(document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsSliceColors]);
+        document.RecoveryLights[0][MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors] =
+            Change(document.RecoveryLights[0][MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors]);
         using (var file = File.Create(replacement))
             MotherBrainRoomColorFile.Write(file, document);
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
@@ -108,11 +108,11 @@ internal static class MotherBrainRoomColorsVerification
             edited.MotherBrainRoomColors),
             "installed Mother Brain room colors reach the production enemy binding");
         AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,
-            MotherBrainRoomColorRomDataConstants.FirstColor, 1, flash: true);
+            MotherBrainRoomColorDestinations.FirstColor, 1, flash: true);
         AssertEdited(nameof(MotherBrainFakeDeath.StopMotherBrainRoomPalette), behavior => behavior.FakeDeath.StopMotherBrainRoomPalette, original, edited,
-            MotherBrainRoomColorRomDataConstants.SecondColor, 2);
+            MotherBrainRoomColorDestinations.SecondColor, 2);
         AssertEdited(nameof(MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics), behavior => behavior.Ascent.SetupMotherBrainPhaseTwoGraphics, original, edited,
-            MotherBrainRoomColorRomDataConstants.PhaseTwoAttackColor, 2);
+            MotherBrainRoomColorDestinations.PhaseTwoAttackColor, 2);
         AssertRoomEntryEdited(original, edited);
         AssertRecoveryLightsEdited(original, edited);
 
@@ -203,7 +203,7 @@ internal static class MotherBrainRoomColorsVerification
         Seed(installedCgram);
         var native = CreateEnemy(nativeCgram, extracted);
         var runtime = CreateEnemy(installedCgram, installed);
-        for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
+        for (ushort frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
         {
             native.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
             runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
@@ -212,7 +212,7 @@ internal static class MotherBrainRoomColorsVerification
         }
         try
         {
-            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(MotherBrainRoomColorRomData.RecoveryLightsFrames);
+            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(MotherBrainRoomColorDefinitions.RecoveryLightsFrames);
             throw new InvalidOperationException("A Mother Brain recovery-light frame past the seventh was accepted.");
         }
         catch (InvalidDataException)
@@ -234,11 +234,11 @@ internal static class MotherBrainRoomColorsVerification
             edited.MotherBrainRoomColors);
         stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
         replacement.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsFirstColor] !=
+            editedCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsFirstColor],
             "first recovery-light slice edit reaches live CGRAM");
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsSecondColor] !=
+            editedCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsSecondColor],
             "second recovery-light slice edit reaches live CGRAM");
         AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "recovery-light edits change only two selected CGRAM words");
@@ -257,11 +257,11 @@ internal static class MotherBrainRoomColorsVerification
             edited.MotherBrainRoomColors);
         stockEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
         editedEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialGlassShardColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialGlassShardColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.InitialGlassShardColor] !=
+            editedCgram.Colors[MotherBrainRoomColorDestinations.InitialGlassShardColor],
             "room-entry glass edit reaches the production color copy");
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialTubeProjectileColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialTubeProjectileColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.InitialTubeProjectileColor] !=
+            editedCgram.Colors[MotherBrainRoomColorDestinations.InitialTubeProjectileColor],
             "room-entry tube edit reaches the production color copy");
         AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "room-entry edits change only the two selected CGRAM colors");

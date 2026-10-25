@@ -68,6 +68,34 @@ internal static class MotherBrainSourceDefinitions
         internal const int HealthRearLegPointerTable = 0xade742;
     }
 
+    /// <summary>Mother Brain's room, attack, room-entry and room-light colour images.</summary>
+    internal static class RoomColors
+    {
+        /// <summary>The bank of the room-flash list at $A9:D046 and the bank-local palette pointers it names.</summary>
+        internal const int FlashBank = 0xa90000;
+
+        /// <summary>$A9:94B4, phase two's fifteen attack colours.</summary>
+        internal const int PhaseTwoAttackColors = 0xa994b4;
+
+        /// <summary>$A9:9494, phase two's fifteen rear-leg colours: the normal rear-leg image the rainbow also restores.</summary>
+        internal const int PhaseTwoRearLegColors = Palettes.NormalRearLegColors;
+
+        /// <summary>$A9:9514, the room-entry glass-shard colours.</summary>
+        internal const int InitialGlassShardColors = 0xa99514;
+
+        /// <summary>$A9:94F4, the room-entry tube-projectile colours.</summary>
+        internal const int InitialTubeProjectileColors = 0xa994f4;
+
+        /// <summary>$AD:F3D3, the first room-light image shown; the following images sit at descending addresses.</summary>
+        internal const int RecoveryLightsFirstColors = 0xadf3d3;
+
+        /// <summary>The bytes of one room-light image, two fourteen-colour slices: the stride between images, descending.</summary>
+        internal const int RecoveryLightsImageBytes = 2 * MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * ColorWordBytes;
+
+        /// <summary>The source of room-light image <paramref name="index"/> (0..6): $AD:F3D3 minus the index's images.</summary>
+        internal static int RecoveryLightsColors(int index) => RecoveryLightsFirstColors - index * RecoveryLightsImageBytes;
+    }
+
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>
     internal static class Shitroid
     {

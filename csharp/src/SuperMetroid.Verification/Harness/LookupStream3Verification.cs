@@ -2330,8 +2330,8 @@ internal static class LookupStream3Verification
             {
                 int address = 0xadf3d3 - frame * 0x38 + color * 2;
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                int destination = color < 14 ? MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor + color :
-                    MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor + color - 14;
+                int destination = color < 14 ? MotherBrainRoomColorDestinations.RecoveryLightsFirstColor + color :
+                    MotherBrainRoomColorDestinations.RecoveryLightsSecondColor + color - 14;
                 AssertEqual(expected, actual.Colors[destination], "stream 3 all native recovery light words");
             }
         }
@@ -2354,8 +2354,8 @@ internal static class LookupStream3Verification
                             ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
                                 expectedRgb.Required("green").GetValue<int>() << 5 |
                                 expectedRgb.Required("blue").GetValue<int>() << 10);
-                            int destination = checkColor < 14 ? MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor + checkColor :
-                                MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor + checkColor - 14;
+                            int destination = checkColor < 14 ? MotherBrainRoomColorDestinations.RecoveryLightsFirstColor + checkColor :
+                                MotherBrainRoomColorDestinations.RecoveryLightsSecondColor + checkColor - 14;
                             AssertEqual(expected, actual.Colors[destination], "stream 3 independent recovery light edit");
                         }
                     }
@@ -2420,21 +2420,21 @@ internal static class LookupStream3Verification
             "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
-            ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * MotherBrainRoomColorRomDataTooling.TimedEntryByteCount));
-            int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset;
-            int source = (MotherBrainRoomColorRomData.SourceBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
+            ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
+            int operand = MotherBrainSourceDefinitions.RoomColors.FlashBank + entry + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset;
+            int source = (MotherBrainSourceDefinitions.RoomColors.FlashBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
             var actual = new GameplayColours(new SpriteColourSets());
             stock.ApplyFlash(actual, frame);
-            for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors * 2; color++)
+            for (int color = 0; color < MotherBrainRoomColorDefinitions.SliceColors * 2; color++)
             {
                 int address = source + color * sizeof(ushort);
                 ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                int destination = color < MotherBrainRoomColorRomData.SliceColors
-                    ? MotherBrainRoomColorRomDataConstants.FirstColor + color
-                    : MotherBrainRoomColorRomDataConstants.SecondColor + color - MotherBrainRoomColorRomData.SliceColors;
+                int destination = color < MotherBrainRoomColorDefinitions.SliceColors
+                    ? MotherBrainRoomColorDestinations.FirstColor + color
+                    : MotherBrainRoomColorDestinations.SecondColor + color - MotherBrainRoomColorDefinitions.SliceColors;
                 AssertEqual(native, actual.Colors[destination], "stream 3 all native room-flash colors");
-                if (color >= MotherBrainRoomColorRomData.SliceColors)
-                    AssertEqual(native, actual.Colors[MotherBrainRoomColorRomDataConstants.MirroredSecondColor + color - MotherBrainRoomColorRomData.SliceColors], "stream 3 native room-flash mirror");
+                if (color >= MotherBrainRoomColorDefinitions.SliceColors)
+                    AssertEqual(native, actual.Colors[MotherBrainRoomColorDestinations.MirroredSecondColor + color - MotherBrainRoomColorDefinitions.SliceColors], "stream 3 native room-flash mirror");
             }
         }
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
@@ -2790,11 +2790,11 @@ internal static class LookupStream3Verification
             "stock attack palette calculates every color without a stored row");
         var native = new GameplayColours(new SpriteColourSets());
         stock.ApplyPhaseTwoInitial(native);
-        for (int color = 0; color < MotherBrainRoomColorRomData.PhaseTwoColors; color++)
+        for (int color = 0; color < MotherBrainRoomColorDefinitions.PhaseTwoColors; color++)
         {
-            int address = MotherBrainRoomColorRomData.PhaseTwoAttackSource + color * sizeof(ushort);
+            int address = MotherBrainSourceDefinitions.RoomColors.PhaseTwoAttackColors + color * sizeof(ushort);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, native.Colors[MotherBrainRoomColorRomDataConstants.PhaseTwoAttackColor + color],
+            AssertEqual(expected, native.Colors[MotherBrainRoomColorDestinations.PhaseTwoAttackColor + color],
                 "attack palette exact native color and CGRAM destination");
             foreach (string component in new[] { "red", "green", "blue" })
             {
@@ -2819,12 +2819,12 @@ internal static class LookupStream3Verification
         {
             var cgram = new GameplayColours(new SpriteColourSets());
             palette.ApplyPhaseTwoInitial(cgram);
-            for (int color = 0; color < MotherBrainRoomColorRomData.PhaseTwoColors; color++)
+            for (int color = 0; color < MotherBrainRoomColorDefinitions.PhaseTwoColors; color++)
             {
                 AssertEqual(Word(expected.Required("phaseTwoAttack").Required(color)),
-                    cgram.Colors[MotherBrainRoomColorRomDataConstants.PhaseTwoAttackColor + color], "independent attack color preserved");
+                    cgram.Colors[MotherBrainRoomColorDestinations.PhaseTwoAttackColor + color], "independent attack color preserved");
                 AssertEqual(Word(expected.Required("phaseTwoRearLeg").Required(color)),
-                    cgram.Colors[MotherBrainRoomColorRomDataConstants.PhaseTwoRearLegColor + color], "paired rear palette remains independent");
+                    cgram.Colors[MotherBrainRoomColorDestinations.PhaseTwoRearLegColor + color], "paired rear palette remains independent");
             }
         }
     }
@@ -2845,7 +2845,7 @@ internal static class LookupStream3Verification
         AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
-            int address = MotherBrainRoomColorRomData.SourceBank + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FinalPalette + color * sizeof(ushort);
+            int address = MotherBrainSourceDefinitions.RoomColors.FlashBank + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FinalPalette + color * sizeof(ushort);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, Word(document.FinalRoom[color]), "final-room direct native word");
         }
@@ -2909,10 +2909,10 @@ internal static class LookupStream3Verification
                 document, ArtworkJson.Options)), current);
         var document = Read();
         var stock = Load(document);
-        for (int color = 0; color < MotherBrainRoomColorRomData.InitialColors; color++)
+        for (int color = 0; color < MotherBrainRoomColorDefinitions.InitialColors; color++)
         {
-            int glassAddress = MotherBrainRoomColorRomData.InitialGlassShardSource + color * sizeof(ushort);
-            int tubeAddress = MotherBrainRoomColorRomData.InitialTubeProjectileSource + color * sizeof(ushort);
+            int glassAddress = MotherBrainSourceDefinitions.RoomColors.InitialGlassShardColors + color * sizeof(ushort);
+            int tubeAddress = MotherBrainSourceDefinitions.RoomColors.InitialTubeProjectileColors + color * sizeof(ushort);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(glassAddress), Word((document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[color]), "glass direct native color");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), "tube direct native color");
         }

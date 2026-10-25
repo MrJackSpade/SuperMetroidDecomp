@@ -90,14 +90,14 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("Mother Brain room", PaletteContractDocument(new MotherBrainRoomColorDocument
         {
             Version = MotherBrainRoomColorFormat.Version,
-            Flash = PaletteContractRows(MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount, MotherBrainRoomColorRomData.SliceColors * 2),
-            FinalRoom = PaletteContractColors(MotherBrainRoomColorRomData.SliceColors * 2),
-            PhaseTwoAttack = PaletteContractColors(MotherBrainRoomColorRomData.PhaseTwoColors),
-            PhaseTwoRearLeg = PaletteContractColors(MotherBrainRoomColorRomData.PhaseTwoColors),
-            InitialGlassShard = PaletteContractColors(MotherBrainRoomColorRomData.InitialColors),
-            InitialTubeProjectile = PaletteContractColors(MotherBrainRoomColorRomData.InitialColors),
-            RecoveryLights = PaletteContractRows(MotherBrainRoomColorRomData.RecoveryLightsFrames,
-                MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2),
+            Flash = PaletteContractRows(MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount, MotherBrainRoomColorDefinitions.SliceColors * 2),
+            FinalRoom = PaletteContractColors(MotherBrainRoomColorDefinitions.SliceColors * 2),
+            PhaseTwoAttack = PaletteContractColors(MotherBrainRoomColorDefinitions.PhaseTwoColors),
+            PhaseTwoRearLeg = PaletteContractColors(MotherBrainRoomColorDefinitions.PhaseTwoColors),
+            InitialGlassShard = PaletteContractColors(MotherBrainRoomColorDefinitions.InitialColors),
+            InitialTubeProjectile = PaletteContractColors(MotherBrainRoomColorDefinitions.InitialColors),
+            RecoveryLights = PaletteContractRows(MotherBrainRoomColorDefinitions.RecoveryLightsFrames,
+                MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2),
         }), json => _ = MotherBrainRoomColorFile.Read(json));
         MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs, bool trailing) => Enumerable.Range(0, count)
             .Select(frame => new MotherBrainRainbowPaletteFrameDocument { Body = PaletteContractColors(body, frame),

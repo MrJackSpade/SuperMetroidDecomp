@@ -51,104 +51,104 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>Applies the color row of one room-flash frame.</summary>
-    /// <param name="cgram">Destination color memory; twelve colors at indices 52..63 and 83..94 are replaced, with the second slice mirrored to 115..126.</param>
+    /// <param name="gameplayColours">Destination color memory; twelve colors at indices 52..63 and 83..94 are replaced, with the second slice mirrored to 115..126.</param>
     /// <param name="frame">The flash frame, 0..13.</param>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the fourteen authored frames.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFlash(GameplayColours cgram, int frame)
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
+    public void ApplyFlash(GameplayColours gameplayColours, int frame)
     {
         if ((uint)frame >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException($"Mother Brain room-flash frame {frame} is not authored.");
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
+        Ensure.NotNull(gameplayColours);
+        for (int color = 0; color < MotherBrainRoomColorDefinitions.SliceColors; color++)
         {
-            new MotherBrainColours(cgram).RoomFirst.Write(color, flash.Color(frame, color));
-            Bgr555 second = flash.Color(frame, MotherBrainRoomColorRomData.SliceColors + color);
-            new MotherBrainColours(cgram).RoomSecond.Write(color, second);
-            new MotherBrainColours(cgram).RoomSecondMirror.Write(color, second);
+            new MotherBrainColours(gameplayColours).RoomFirst.Write(color, flash.Color(frame, color));
+            Bgr555 second = flash.Color(frame, MotherBrainRoomColorDefinitions.SliceColors + color);
+            new MotherBrainColours(gameplayColours).RoomSecond.Write(color, second);
+            new MotherBrainColours(gameplayColours).RoomSecondMirror.Write(color, second);
         }
     }
 
     /// <summary>Applies the final grey room colors when the flash program is stopped.</summary>
-    /// <param name="cgram">Destination color memory; the same 52..63, 83..94 and mirrored 115..126 slices as <see cref="ApplyFlash"/> are replaced.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFinal(GameplayColours cgram) => ApplyRoom(cgram, finalRoom);
+    /// <param name="gameplayColours">Destination color memory; the same 52..63, 83..94 and mirrored 115..126 slices as <see cref="ApplyFlash"/> are replaced.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
+    public void ApplyFinal(GameplayColours gameplayColours) => ApplyRoom(gameplayColours, finalRoom);
 
     /// <summary>Installs the two nontransparent OBJ palettes before phase two starts.</summary>
-    /// <param name="cgram">Destination color memory; attack colors 161..175 and rear-leg colors 177..191 are replaced while palette color zero is preserved.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyPhaseTwoInitial(GameplayColours cgram)
+    /// <param name="gameplayColours">Destination color memory; attack colors 161..175 and rear-leg colors 177..191 are replaced while palette color zero is preserved.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
+    public void ApplyPhaseTwoInitial(GameplayColours gameplayColours)
     {
-        Ensure.NotNull(cgram);
-        for (int index = 0; index < MotherBrainRoomColorRomData.PhaseTwoColors; index++)
+        Ensure.NotNull(gameplayColours);
+        for (int index = 0; index < MotherBrainRoomColorDefinitions.PhaseTwoColors; index++)
         {
-            new MotherBrainColours(cgram).PhaseTwoAttack.Write(index,
+            new MotherBrainColours(gameplayColours).PhaseTwoAttack.Write(index,
                 phaseTwoAttack.Color(index));
-            new MotherBrainColours(cgram).PhaseTwoRearLegs.Write(index,
+            new MotherBrainColours(gameplayColours).PhaseTwoRearLegs.Write(index,
                 phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, index));
         }
     }
 
     /// <summary>Installs room-entry glass-shard and tube-projectile sprite colors.</summary>
-    /// <param name="cgram">Destination color memory; glass colors 177..191 and tube-projectile colors 241..255 are replaced without their transparent color-zero entries.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyRoomEntry(GameplayColours cgram)
+    /// <param name="gameplayColours">Destination color memory; glass colors 177..191 and tube-projectile colors 241..255 are replaced without their transparent color-zero entries.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
+    public void ApplyRoomEntry(GameplayColours gameplayColours)
     {
-        Ensure.NotNull(cgram);
-        for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
+        Ensure.NotNull(gameplayColours);
+        for (int index = 0; index < MotherBrainRoomColorDefinitions.InitialColors; index++)
         {
-            new MotherBrainColours(cgram).GlassShards.Write(index,
+            new MotherBrainColours(gameplayColours).GlassShards.Write(index,
                 initialGlassShard.Color(index));
-            new MotherBrainColours(cgram).TubeProjectiles.Write(index,
+            new MotherBrainColours(gameplayColours).TubeProjectiles.Write(index,
                 initialTubeProjectile.Color(index));
         }
     }
 
     /// <summary>$AD:F209, FadeOutBackgroundForBabyMetroidDeathSequence: immediately blacks
     /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
-    /// <param name="cgram">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public static void ApplyBabyMetroidDeathBlackout(GameplayColours cgram)
+    /// <param name="gameplayColours">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
+    public static void ApplyBabyMetroidDeathBlackout(GameplayColours gameplayColours)
     {
-        Ensure.NotNull(cgram);
-        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsSliceColors; index++)
+        Ensure.NotNull(gameplayColours);
+        for (int index = 0; index < MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors; index++)
         {
-            new MotherBrainColours(cgram).RecoveryLightsFirst.Write(index, Bgr555.Black);
-            new MotherBrainColours(cgram).RecoveryLightsSecond.Write(index, Bgr555.Black);
+            new MotherBrainColours(gameplayColours).RecoveryLightsFirst.Write(index, Bgr555.Black);
+            new MotherBrainColours(gameplayColours).RecoveryLightsSecond.Write(index, Bgr555.Black);
         }
     }
 
     /// <summary>Applies one room-light image after the Baby Metroid cutscene.</summary>
-    /// <param name="cgram">Destination color memory receiving fourteen-color slices at indices 49..62 and 81..94.</param>
+    /// <param name="gameplayColours">Destination color memory receiving fourteen-color slices at indices 49..62 and 81..94.</param>
     /// <param name="frame">Recovery image 0..6 in playback order, corresponding to native source $AD:F3D3 - frame * $38; this call does not advance the cutscene's timer.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the seven authored images.</exception>
-    public void ApplyRecoveryLights(GameplayColours cgram, int frame)
+    public void ApplyRecoveryLights(GameplayColours gameplayColours, int frame)
     {
-        Ensure.NotNull(cgram);
-        if ((uint)frame >= MotherBrainRoomColorRomData.RecoveryLightsFrames)
+        Ensure.NotNull(gameplayColours);
+        if ((uint)frame >= MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
 
-        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsSliceColors;
+        for (int index = 0; index < MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors;
              index++)
         {
-            new MotherBrainColours(cgram).RecoveryLightsFirst.Write(index,
+            new MotherBrainColours(gameplayColours).RecoveryLightsFirst.Write(index,
                 recoveryLights.Color(frame, index));
-            new MotherBrainColours(cgram).RecoveryLightsSecond.Write(index,
-                recoveryLights.Color(frame, MotherBrainRoomColorRomData.RecoveryLightsSliceColors + index));
+            new MotherBrainColours(gameplayColours).RecoveryLightsSecond.Write(index,
+                recoveryLights.Color(frame, MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors + index));
         }
     }
 
     /// <summary>Writes final room colors into both room slices and mirrors the second slice.</summary>
-    private static void ApplyRoom(GameplayColours cgram, FinalRoomPalette colors)
+    private static void ApplyRoom(GameplayColours gameplayColours, FinalRoomPalette colors)
     {
-        Ensure.NotNull(cgram);
-        for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)
+        Ensure.NotNull(gameplayColours);
+        for (int index = 0; index < MotherBrainRoomColorDefinitions.SliceColors; index++)
         {
-            new MotherBrainColours(cgram).RoomFirst.Write(index, colors[index]);
-            Bgr555 second = colors[MotherBrainRoomColorRomData.SliceColors + index];
-            new MotherBrainColours(cgram).RoomSecond.Write(index, second);
-            new MotherBrainColours(cgram).RoomSecondMirror.Write(index, second);
+            new MotherBrainColours(gameplayColours).RoomFirst.Write(index, colors[index]);
+            Bgr555 second = colors[MotherBrainRoomColorDefinitions.SliceColors + index];
+            new MotherBrainColours(gameplayColours).RoomSecond.Write(index, second);
+            new MotherBrainColours(gameplayColours).RoomSecondMirror.Write(index, second);
         }
     }
 
@@ -172,24 +172,24 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Builds room wall and shadow ramps plus the selected panel and lens accents.</summary>
         private static Bgr555 Calculate(int color)
         {
-            if (color < MotherBrainRoomColorRomData.RoomShadowFirst)
-                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight, MotherBrainFinalRoomPaintDefinitions.WallDark, color - MotherBrainRoomColorRomData.RoomWallFirst,
-                    MotherBrainRoomColorRomData.RoomWallCount - 1);
+            if (color < MotherBrainRoomColorDefinitions.RoomShadowFirst)
+                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight, MotherBrainFinalRoomPaintDefinitions.WallDark, color - MotherBrainRoomColorDefinitions.RoomWallFirst,
+                    MotherBrainRoomColorDefinitions.RoomWallCount - 1);
             // Native shadow red is5,4,3,1: ceiling interpolation. Green7,5,4,2
             // and blue8,6,4,2 use nearest interpolation. This is an exact sequence
             // relationship, not a claim about a historical palette tool.
-            if (color < MotherBrainRoomColorRomData.RoomShadowFirst + MotherBrainRoomColorRomData.RoomShadowCount)
+            if (color < MotherBrainRoomColorDefinitions.RoomShadowFirst + MotherBrainRoomColorDefinitions.RoomShadowCount)
                 return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, Bgr555.Black,
                     MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1,
-                    MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor), color - MotherBrainRoomColorRomData.RoomShadowFirst,
-                    MotherBrainRoomColorRomData.RoomShadowCount - 1, ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
-            if (color <= MotherBrainRoomColorRomData.RoomOutlineColor)
+                    MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor), color - MotherBrainRoomColorDefinitions.RoomShadowFirst,
+                    MotherBrainRoomColorDefinitions.RoomShadowCount - 1, ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
+            if (color <= MotherBrainRoomColorDefinitions.RoomOutlineColor)
                 return PanelColorAt(color);
-            if (color < MotherBrainRoomColorRomData.RoomDarkGrayColor)
-                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorRomData.RoomGrayFirst,
-                    MotherBrainRoomColorRomData.RoomGrayCount - 1);
+            if (color < MotherBrainRoomColorDefinitions.RoomDarkGrayColor)
+                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorDefinitions.RoomGrayFirst,
+                    MotherBrainRoomColorDefinitions.RoomGrayCount - 1);
             if (!Enum.IsDefined((AccentColor)color))
-                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorRomData.WhiteColor);
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor);
             return (AccentColor)color switch
             {
                 // Metal contour shadow is half the low gray surface intensity.
@@ -223,26 +223,26 @@ public sealed class MotherBrainRoomColorPresentation
             /// <summary>Amber panel light, $A9:D096 between black slots at D092/D094/D098; its pixel role remains unresolved.</summary>
             Amber = 10,
             /// <summary>Panel outline field.</summary>
-            Outline = MotherBrainRoomColorRomData.RoomOutlineColor,
+            Outline = MotherBrainRoomColorDefinitions.RoomOutlineColor,
         }
 
         /// <summary>The final-room color indexes past the gray ramp that own individual paint; the rest are stock white.</summary>
         private enum AccentColor
         {
             /// <summary>Metal contour shadow.</summary>
-            DarkGray = MotherBrainRoomColorRomData.RoomDarkGrayColor,
+            DarkGray = MotherBrainRoomColorDefinitions.RoomDarkGrayColor,
             /// <summary>Red lens.</summary>
-            RedLens = MotherBrainRoomColorRomData.RoomRedFirst,
+            RedLens = MotherBrainRoomColorDefinitions.RoomRedFirst,
             /// <summary>Red lens shade.</summary>
-            RedLensShade = MotherBrainRoomColorRomData.RoomRedFirst + 1,
+            RedLensShade = MotherBrainRoomColorDefinitions.RoomRedFirst + 1,
             /// <summary>Blue lens.</summary>
-            BlueLens = MotherBrainRoomColorRomData.RoomBlueFirst,
+            BlueLens = MotherBrainRoomColorDefinitions.RoomBlueFirst,
             /// <summary>Blue lens shade.</summary>
-            BlueLensShade = MotherBrainRoomColorRomData.RoomBlueFirst + 1,
+            BlueLensShade = MotherBrainRoomColorDefinitions.RoomBlueFirst + 1,
             /// <summary>Repeated metal contour shadow.</summary>
-            RepeatedDarkGray = MotherBrainRoomColorRomData.RoomRepeatedDarkGrayColor,
+            RepeatedDarkGray = MotherBrainRoomColorDefinitions.RoomRepeatedDarkGrayColor,
             /// <summary>Warm glow accent.</summary>
-            Glow = MotherBrainRoomColorRomData.RoomGlowColor,
+            Glow = MotherBrainRoomColorDefinitions.RoomGlowColor,
         }
     }
     /// <summary>Interpolates RGB5 channels with nearest rounding, or ceiling rounding for shadow red.</summary>
@@ -266,23 +266,23 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Builds cyan and flame ramps and reuses health-palette tissue colors.</summary>
         private static Bgr555 Calculate(int color)
         {
-            if (color < MotherBrainRoomColorRomData.AttackFlameFirst)
+            if (color < MotherBrainRoomColorDefinitions.AttackFlameFirst)
                 return InterpolateShade(MotherBrainAttackPaintDefinitions.RingHighlight, MotherBrainAttackPaintDefinitions.RingEdge,
-                    color - MotherBrainRoomColorRomData.AttackCyanFirst,
-                    MotherBrainRoomColorRomData.AttackCyanCount - 1);
-            if (color < MotherBrainRoomColorRomData.AttackTissueFirst)
+                    color - MotherBrainRoomColorDefinitions.AttackCyanFirst,
+                    MotherBrainRoomColorDefinitions.AttackCyanCount - 1);
+            if (color < MotherBrainRoomColorDefinitions.AttackTissueFirst)
                 return InterpolateShade(MotherBrainAttackPaintDefinitions.CoreHighlight, MotherBrainAttackPaintDefinitions.CoreEdge,
-                    color - MotherBrainRoomColorRomData.AttackFlameFirst,
-                    MotherBrainRoomColorRomData.AttackFlameCount - 1);
-            if (color < MotherBrainRoomColorRomData.AttackGrayFirst)
+                    color - MotherBrainRoomColorDefinitions.AttackFlameFirst,
+                    MotherBrainRoomColorDefinitions.AttackFlameCount - 1);
+            if (color < MotherBrainRoomColorDefinitions.AttackGrayFirst)
                 return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body,
-                    MotherBrainRoomColorRomData.AttackBodyTissueFirst + color - MotherBrainRoomColorRomData.AttackTissueFirst);
-            if (color == MotherBrainRoomColorRomData.WhiteColor)
-                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorRomData.WhiteColor);
+                    MotherBrainRoomColorDefinitions.AttackBodyTissueFirst + color - MotherBrainRoomColorDefinitions.AttackTissueFirst);
+            if (color == MotherBrainRoomColorDefinitions.WhiteColor)
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor);
             return InterpolateShade(MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight, MotherBrainAttackPaintDefinitions.ShellOutline,
-                color - MotherBrainRoomColorRomData.AttackGrayFirst
-                - (color > MotherBrainRoomColorRomData.WhiteColor ? 1 : 0),
-                MotherBrainRoomColorRomData.AttackGrayLast - MotherBrainRoomColorRomData.AttackGrayFirst - 1);
+                color - MotherBrainRoomColorDefinitions.AttackGrayFirst
+                - (color > MotherBrainRoomColorDefinitions.WhiteColor ? 1 : 0),
+                MotherBrainRoomColorDefinitions.AttackGrayLast - MotherBrainRoomColorDefinitions.AttackGrayFirst - 1);
         }
         /// <summary>Interpolates an attack shade between its painted endpoints with nearest rounding.</summary>
         private static Bgr555 InterpolateShade(Bgr555 first, Bgr555 last, int shade, int intervals)
@@ -310,16 +310,16 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Builds the glass face ramp and reuses the room's metal accents.</summary>
         private Bgr555 Calculate(int color)
         {
-            if (color < MotherBrainRoomColorRomData.GlassRampFirst)
-                return room[MotherBrainRoomColorRomData.RoomGrayFirst + color];
-            if (color < MotherBrainRoomColorRomData.GlassDarkGrayColor)
-                return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorRomData.RoomOutlineColor],
-                    color - MotherBrainRoomColorRomData.GlassRampFirst, MotherBrainRoomColorRomData.GlassRampCount - 1);
+            if (color < MotherBrainRoomColorDefinitions.GlassRampFirst)
+                return room[MotherBrainRoomColorDefinitions.RoomGrayFirst + color];
+            if (color < MotherBrainRoomColorDefinitions.GlassDarkGrayColor)
+                return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorDefinitions.RoomOutlineColor],
+                    color - MotherBrainRoomColorDefinitions.GlassRampFirst, MotherBrainRoomColorDefinitions.GlassRampCount - 1);
             if (!Enum.IsDefined((AccentColor)color))
                 return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
             return (AccentColor)color switch
             {
-                AccentColor.DarkGray => room[MotherBrainRoomColorRomData.RoomDarkGrayColor],
+                AccentColor.DarkGray => room[MotherBrainRoomColorDefinitions.RoomDarkGrayColor],
                 AccentColor.Neutral => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
                 _ => throw new InvalidOperationException($"Undefined {nameof(AccentColor)} {color}."),
             };
@@ -329,7 +329,7 @@ public sealed class MotherBrainRoomColorPresentation
         private enum AccentColor
         {
             /// <summary>Glass dark gray, shared with the room's metal contour shadow.</summary>
-            DarkGray = MotherBrainRoomColorRomData.GlassDarkGrayColor,
+            DarkGray = MotherBrainRoomColorDefinitions.GlassDarkGrayColor,
             /// <summary>Glass neutral casing highlight.</summary>
             Neutral = 12,
         }
@@ -351,10 +351,10 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Selects a supplied or room-derived tube-projectile color.</summary>
         public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
         /// <summary>Uses shared casing highlight, stock black, and room outline colors.</summary>
-        private Bgr555 Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
-            ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorRomData.RoomEntryBlackColor
+        private Bgr555 Calculate(int color) => color < MotherBrainRoomColorDefinitions.TubeNeutralCount
+            ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorDefinitions.RoomEntryBlackColor
                 ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color)
-                : room[MotherBrainRoomColorRomData.RoomOutlineColor + color - MotherBrainRoomColorRomData.TubeNeutralCount];
+                : room[MotherBrainRoomColorDefinitions.RoomOutlineColor + color - MotherBrainRoomColorDefinitions.TubeNeutralCount];
     }
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     internal sealed class RoomFlash
@@ -430,7 +430,7 @@ public sealed class MotherBrainRoomColorPresentation
                 _ => finalRoom[color - 4],
             };
             return endpoint.Map((_, a) => (a * (frame + 1) /
-                    MotherBrainRoomColorRomData.RecoveryLightsFrames));
+                    MotherBrainRoomColorDefinitions.RecoveryLightsFrames));
         }
     }
 }

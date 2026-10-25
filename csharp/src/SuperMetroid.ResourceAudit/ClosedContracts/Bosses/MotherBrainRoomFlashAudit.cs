@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
@@ -38,14 +39,14 @@ internal static class MotherBrainRoomFlashAudit
         int before = report.ReferenceCount;
         foreach (ushort operand in operands)
             report.Require(ResourceDomains.MotherBrainRoomFlash, nameof(MotherBrainRoomPaletteProgramDefinitions),
-                Key(checked((ushort)(operand - MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset))), source, exports);
+                Key(checked((ushort)(operand - SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset))), source, exports);
         report.Coverage.Add(new(ResourceDomains.MotherBrainRoomFlash, report.ReferenceCount - before,
             exports.Count(ResourceDomains.MotherBrainRoomFlash)));
     }
 
     /// <summary>Formats a Mother Brain room-flash pointer with its native source bank for resource indexing.</summary>
     private static string Key(ushort pointer) => ResourceIndex.Address(
-        MotherBrainRoomColorRomData.SourceBank >> 16, pointer);
+        MotherBrainSourceDefinitions.RoomColors.FlashBank >> 16, pointer);
 
     /// <summary>Only declared pointer slots and color payload ranges may be read; mutations are forbidden.</summary>
     [CpuBusBoundary("exact bus test: declares the Mother Brain room palette pointer slots and color ranges the importer may read")]
@@ -56,20 +57,20 @@ internal static class MotherBrainRoomFlashAudit
         var source = new SyntheticCartridge(
             address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."));
         for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
-            source.SetWord(MotherBrainRoomColorRomData.SourceBank |
+            source.SetWord(MotherBrainSourceDefinitions.RoomColors.FlashBank |
                 MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(index), syntheticPalettePointer);
         void AddColors(int start, int count) => source.DeclareZero(start, count * sizeof(ushort));
-        AddColors(MotherBrainRoomColorRomData.SourceBank | syntheticPalettePointer,
-            MotherBrainRoomColorRomData.SliceColors * 2);
-        AddColors(MotherBrainRoomColorRomData.SourceBank | MotherBrainRoomFlashSourceDefinitions.FinalPalette,
-            MotherBrainRoomColorRomData.SliceColors * 2);
-        AddColors(MotherBrainRoomColorRomData.PhaseTwoAttackSource, MotherBrainRoomColorRomData.PhaseTwoColors);
-        AddColors(MotherBrainRoomColorRomData.PhaseTwoRearLegSource, MotherBrainRoomColorRomData.PhaseTwoColors);
-        AddColors(MotherBrainRoomColorRomData.InitialGlassShardSource, MotherBrainRoomColorRomData.InitialColors);
-        AddColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource, MotherBrainRoomColorRomData.InitialColors);
-        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsFrames; index++)
-            AddColors(MotherBrainRoomColorRomData.RecoveryLightsSource(index),
-                MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | syntheticPalettePointer,
+            MotherBrainRoomColorDefinitions.SliceColors * 2);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | MotherBrainRoomFlashSourceDefinitions.FinalPalette,
+            MotherBrainRoomColorDefinitions.SliceColors * 2);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoAttackColors, MotherBrainRoomColorDefinitions.PhaseTwoColors);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoRearLegColors, MotherBrainRoomColorDefinitions.PhaseTwoColors);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.InitialGlassShardColors, MotherBrainRoomColorDefinitions.InitialColors);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.InitialTubeProjectileColors, MotherBrainRoomColorDefinitions.InitialColors);
+        for (int index = 0; index < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; index++)
+            AddColors(MotherBrainSourceDefinitions.RoomColors.RecoveryLightsColors(index),
+                MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2);
         return source;
     }
 }

@@ -54,10 +54,10 @@ internal static class CinematicPresentationContractChecks
                     _ = door.Characters;
                     door.LoadNormalColors(screen.SpriteRow(2));
                     door.LoadEscapeColors(screen.SpriteRow(7));
-                    door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount - 1);
-                    door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount);
-                    door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount - 1);
-                    door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount);
+                    door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationRowCount - 1);
+                    door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationRowCount);
+                    door.PlatformFrame(CeresDoorVisualDefinitions.PlatformFrameCount - 1);
+                    door.PlatformFrame(CeresDoorVisualDefinitions.PlatformFrameCount);
                     timer.Draw(countdown, sprites, timerSheet);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 18, out _);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 0, out _);

@@ -189,13 +189,13 @@ internal static class EnemyContentIdentityFixtureVerification
                 Characters("gunship-" + index, GunshipLiftoffTransferDefinitions.ByteCount, index)).ToArray();
             Register("gunship-order");
             if (edit == "gunship-order") Array.Reverse(gunship);
-            var door = CeresDoorVisualFiles.Read(Png("ceres-door-tiles", CeresDoorVisualRomData.TileByteCount), Json(new CeresDoorVisualDocument
+            var door = CeresDoorVisualFiles.Read(Png("ceres-door-tiles", CeresDoorVisualDefinitions.CharacterBytes), Json(new CeresDoorVisualDocument
             {
-                Version = 1, Normal = Colors("ceres-door-normal", CeresDoorVisualRomData.SetupColorCount),
-                Escape = Colors("ceres-door-escape", CeresDoorVisualRomData.SetupColorCount),
-                Animation = ColorRows("ceres-door-animation", CeresDoorVisualRomData.AnimationRowCount, CeresDoorVisualRomData.AnimationColorCount),
-                Mode7DoorFrames = Enumerable.Range(0, CeresDoorVisualRomData.Mode7FrameCount)
-                    .Select(index => Words("ceres-door-mode7-" + index, CeresDoorVisualRomData.Mode7FrameByteCount).Select(word => (int)word).ToArray()).ToArray(),
+                Version = 1, Normal = Colors("ceres-door-normal", CeresDoorVisualDefinitions.SetupColorCount),
+                Escape = Colors("ceres-door-escape", CeresDoorVisualDefinitions.SetupColorCount),
+                Animation = ColorRows("ceres-door-animation", CeresDoorVisualDefinitions.AnimationRowCount, CeresDoorVisualDefinitions.AnimationColorCount),
+                Mode7DoorFrames = Enumerable.Range(0, CeresDoorVisualDefinitions.PlatformFrameCount)
+                    .Select(index => Words("ceres-door-mode7-" + index, CeresDoorVisualDefinitions.PlatformCellCount).Select(word => (int)word).ToArray()).ToArray(),
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(definition =>
                 KeyValuePair.Create(definition.Sheet, Characters(definition.FileName, definition.ByteCount)))));

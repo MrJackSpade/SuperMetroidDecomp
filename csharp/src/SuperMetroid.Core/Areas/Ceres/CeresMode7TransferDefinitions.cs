@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -125,12 +126,12 @@ public static class CeresMode7TransferDefinitions
     /// <summary>Canonical two-phase four-cell platform composition. Selected light/dark left-cap identities, phase membership and the four-cell cap/interior/interior/cap topology are the exact authored strip imagery; generating different choices would change its drawn ends or width. Interior and paired right-cap atlas addresses calculate. This does not select animation timing, map placement, pixels or paint.</summary>
     internal static byte PlatformTile(int frame, int column)
     {
-        if ((uint)frame >= CeresDoorVisualRomData.Mode7FrameCount)
+        if ((uint)frame >= CeresDoorVisualDefinitions.PlatformFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)column >= CeresDoorVisualRomData.Mode7FrameByteCount)
+        if ((uint)column >= CeresDoorVisualDefinitions.PlatformCellCount)
             throw new ArgumentOutOfRangeException(nameof(column));
         byte left = frame == 0 ? LightPlatformLeftCap : DarkPlatformLeftCap;
-        return column == 0 ? left : column == CeresDoorVisualRomData.Mode7FrameByteCount - 1
+        return column == 0 ? left : column == CeresDoorVisualDefinitions.PlatformCellCount - 1
             ? (byte)(PlatformRightCapPair + frame) : (byte)(left + 1);
     }
 

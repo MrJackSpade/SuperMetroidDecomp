@@ -124,13 +124,13 @@ public sealed class RoomPaletteFxSystem
             return;
 
         // Palette FX and animated tiles have separate owners and bitsets.
-        byte paletteFxBits = record.PaletteFxBitset;
-        if (paletteFxBits == 0)
+        RoomFxEffectSlots paletteFxSlots = record.PaletteFxSlots;
+        if (paletteFxSlots == RoomFxEffectSlots.None)
             return;
 
         for (int bit = 0; bit < SlotCount; bit++)
         {
-            if ((paletteFxBits & (1 << bit)) == 0)
+            if (!paletteFxSlots.Includes(bit))
                 continue;
 
             PaletteFxObject definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);

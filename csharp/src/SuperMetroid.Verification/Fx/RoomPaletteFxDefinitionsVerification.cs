@@ -91,8 +91,11 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            var definition = new RoomFxRecordDefinition(null, false, 0, 0, 0,
-                0, 0, 0, 0, 0, unchecked((byte)(1 << bit)), 0, 0);
+            var definition = RoomFxRecordCodec.Terminator with
+            {
+                Terminates = false,
+                PaletteFxSlots = RoomFxEffectSlotSet.Slot(bit),
+            };
             var systemSession = new PaletteFxSessionState();
             var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition, (AreaId)area,
                 equippedItems: 0, areaMiniBossDefeated: false);

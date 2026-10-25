@@ -57,20 +57,20 @@ internal static class RoomFxPaletteBlendsVerification
             ReadOnlySpan<Bgr555> compiled = catalog.Resolve(id);
 
             (RoomLayer3FxState state, CartridgeReadGuard bus, GameplayColours cgram) =
-                ConstructBlendLoad(catalog, tilemaps, (byte)id);
+                ConstructBlendLoad(catalog, tilemaps, id);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex + index],
-                    $"room-FX blend {(int)id:X2} installed load color {index}");
-            AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} load does not read bank-$89");
+                    $"room-FX blend {id} installed load color {index}");
+            AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} load does not read bank-$89");
 
-            _ = state.ApplyEntry(cgram.BackgroundSets, SelectCompiledBlendRecord((byte)id));
+            _ = state.ApplyEntry(cgram.BackgroundSets, SelectCompiledBlendRecord(id));
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex + index],
-                    $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
-            AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} FX entry does not read bank-$89");
+                    $"room-FX blend {id} installed FX-entry color {index}");
+            AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} FX entry does not read bank-$89");
         }
         (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, GameplayColours emptyCgram) =
-            ConstructBlendLoad(catalog, tilemaps, 0);
+            ConstructBlendLoad(catalog, tilemaps, RoomFxPaletteBlend.None);
         _ = emptyState;
         AssertEqual(0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
         AssertEqual(0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
@@ -175,7 +175,7 @@ internal static class RoomFxPaletteBlendsVerification
             "room-FX blend edit changes the authored color");
         (_, CartridgeReadGuard bus, GameplayColours cgram) = ConstructBlendLoad(
             edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
-            (byte)RoomFxPaletteBlend.Lava);
+            RoomFxPaletteBlend.Lava);
         AssertEqual(expected, cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
         AssertEqual(0, bus.ForbiddenReadAttempts, "edited room-FX blend does not read native palette table");
@@ -200,7 +200,7 @@ internal static class RoomFxPaletteBlendsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static ConstructBlendLoadResult
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
-            RoomFxLayer3TilemapCatalog tilemaps, byte selection)
+            RoomFxLayer3TilemapCatalog tilemaps, RoomFxPaletteBlend selection)
     {
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
@@ -218,10 +218,10 @@ internal static class RoomFxPaletteBlendsVerification
     }
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
-    private static RoomFxRecordDefinition SelectCompiledBlendRecord(byte selection) =>
+    private static RoomFxRecordDefinition SelectCompiledBlendRecord(RoomFxPaletteBlend selection) =>
         RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
-        ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
+        ?? throw new InvalidDataException($"No compiled default room-FX record selects blend {selection}.");
 
     /// <summary>Wraps fixture memory with a guard against installed palette-table reads from bank $89.</summary>
     private static CartridgeReadGuard NewForbiddenRoomFxPaletteBus(TestAddressSpace inner) =>

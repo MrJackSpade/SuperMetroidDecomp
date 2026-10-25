@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Fx;
@@ -9,6 +10,33 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class FxNativeWords
 {
+    /// <summary>A <see cref="RoomFxType"/> value naming no effect, standing for a dispatcher byte that names none.</summary>
+    internal const RoomFxType UndefinedFxType = (RoomFxType)ushort.MaxValue;
+
+    /// <summary>A <see cref="LayerBlendingConfiguration"/> value naming no configuration, standing for a byte that names none.</summary>
+    internal const LayerBlendingConfiguration UndefinedLayerBlend = (LayerBlendingConfiguration)ushort.MaxValue;
+
+    /// <summary>A <see cref="RoomFxPaletteBlend"/> value naming no blend, standing for a selector byte that names none.</summary>
+    internal const RoomFxPaletteBlend UndefinedPaletteBlend = (RoomFxPaletteBlend)byte.MaxValue;
+
+    /// <summary>
+    /// The effect a native record's dispatcher byte <paramref name="word"/> names, or <see cref="UndefinedFxType"/> when it
+    /// names none: a domain sweep over native bytes keeps testing rejection now that the identity's values are arbitrary.
+    /// </summary>
+    internal static RoomFxType FxType(int word) =>
+        word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.TryDecode((ushort)word, out RoomFxType type)
+            ? type : UndefinedFxType;
+
+    /// <summary>The layer-blending configuration native byte <paramref name="word"/> names, or <see cref="UndefinedLayerBlend"/>.</summary>
+    internal static LayerBlendingConfiguration LayerBlend(int word) =>
+        word is >= 0 and <= ushort.MaxValue && RoomFxRecordCodec.LayerBlends.TryDecode((ushort)word, out LayerBlendingConfiguration configuration)
+            ? configuration : UndefinedLayerBlend;
+
+    /// <summary>The palette blend native selector byte <paramref name="word"/> names, or <see cref="UndefinedPaletteBlend"/>.</summary>
+    internal static RoomFxPaletteBlend PaletteBlend(int word) =>
+        word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.TryDecode((ushort)word, out RoomFxPaletteBlend blend)
+            ? blend : UndefinedPaletteBlend;
+
     /// <summary>The bank-$87 object header naming each <see cref="AnimatedTileObject"/>; zero names no object.</summary>
     internal static readonly NativeWordIdentities<AnimatedTileObject> AnimatedTileObjects = new(new Dictionary<AnimatedTileObject, ushort>
     {

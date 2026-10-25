@@ -30,14 +30,14 @@ public static class RoomFxPaletteBlendFile
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxPaletteBlendDefinitions.ColorCount)
-                throw new InvalidDataException($"Room-FX blend {(int)id:X2} requires three colors.");
+                throw new InvalidDataException($"Room-FX blend {id} requires three colors.");
             var words = new Bgr555[colors.Length];
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5? color = colors[index];
                 if (color is null || (uint)color.Red > 31 ||
                     (uint)color.Green > 31 || (uint)color.Blue > 31)
-                    throw new InvalidDataException($"Room-FX blend {(int)id:X2} color {index} requires RGB components from zero through 31.");
+                    throw new InvalidDataException($"Room-FX blend {id} color {index} requires RGB components from zero through 31.");
                 words[index] = color.ToBgr555();
             }
             return new(id, words[0], words[1], words[2]);

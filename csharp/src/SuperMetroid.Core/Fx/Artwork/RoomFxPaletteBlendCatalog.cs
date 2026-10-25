@@ -66,7 +66,7 @@ public sealed class RoomFxPaletteBlendCatalog
         RoomFxPaletteBlend.MaridiaWaterB => maridiaWaterB,
         RoomFxPaletteBlend.MaridiaWaterC => maridiaWaterC,
         RoomFxPaletteBlend.MaridiaWaterD => maridiaWaterD,
-        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend ${(int)selection:X2} is not an authored retail selection."),
-        _ => throw new InvalidDataException($"Room-FX palette blend ${(int)selection:X2} is not an authored retail selection."),
+        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {selection} is not an authored retail selection."),
+        _ => throw new InvalidDataException($"Room-FX palette blend {selection} is not an authored retail selection."),
     };
 }

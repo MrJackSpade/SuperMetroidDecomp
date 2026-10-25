@@ -238,13 +238,13 @@ internal static class RoomFxRetailInventoryVerification
         {
             byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
                 RoomFxRomDataRecordTooling.PaletteBlendOffset);
-            AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains((RoomFxPaletteBlend)blend),
+            AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains(FxNativeWords.PaletteBlend(blend)),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
         }
         RoomFxType expectedType = expectedRecord == 0
             ? RoomFxType.None
-            : RoomFxTypes.FromRecordByte(
+            : SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Decode(
                 ReadRetailFxRecordByte(
                     bus,
                     expectedRecord,

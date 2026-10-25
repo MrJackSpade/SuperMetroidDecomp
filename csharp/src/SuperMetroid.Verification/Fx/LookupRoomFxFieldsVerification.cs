@@ -99,20 +99,24 @@ internal static class LookupRoomFxFieldsVerification
     /// <summary>Checks the FX countdown byte at offset eight.</summary>
     private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
     /// <summary>Checks the effect discriminator byte at offset nine.</summary>
-    private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => record.Type);
+    private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => RoomFxRecordCodec.TypeByte(record.Type));
     /// <summary>Checks ordinary layer blend settings at offset ten.</summary>
-    private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => record.DefaultLayerBlend);
+    private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => RoomFxRecordCodec.LayerBlendByte(record.DefaultLayerBlend));
     /// <summary>Checks the layer-three blend override at offset eleven.</summary>
-    private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => record.Layer3LayerBlend);
+    private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => RoomFxRecordCodec.LayerBlendByte(record.Layer3LayerBlend));
     /// <summary>Checks liquid rendering flags at offset twelve.</summary>
-    private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => record.LiquidOptions);
+    private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordCodec.LiquidOptionsByte(record.LiquidOptions));
     /// <summary>Checks selected palette effect bits at offset thirteen.</summary>
-    private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1, record => record.PaletteFxBitset);
+    private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1, record => RoomFxRecordCodec.SlotsByte(record.PaletteFxSlots));
     /// <summary>Checks selected animated-tile bits at offset fourteen.</summary>
-    private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1, record => record.AnimatedTileBitset);
+    private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1, record => RoomFxRecordCodec.SlotsByte(record.AnimatedTileSlots));
     /// <summary>Checks the palette blend selector at offset fifteen.</summary>
-    private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => record.PaletteBlend);
-    /// <summary>Compares a compiled field and overlapping byte and word views with the original record.</summary>
+    private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordCodec.PaletteBlendByte(record.PaletteBlend));
+    /// <summary>
+    /// Compares a compiled field and overlapping byte and word views with the original record. The typed fields are
+    /// encoded back through the record codec (#1415), so each check asserts the import decodes the cartridge byte to the
+    /// typed value.
+    /// </summary>
     private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
     {

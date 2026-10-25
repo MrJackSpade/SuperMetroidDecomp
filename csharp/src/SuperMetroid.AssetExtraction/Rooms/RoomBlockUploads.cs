@@ -145,7 +145,7 @@ internal static class RoomBlockUploads
         {
             for (int bit = 0; bit < AreaAnimatedTileObjectDefinitions.ObjectsPerArea; bit++)
             {
-                if ((record.AnimatedTileBitset & (1 << bit)) == 0)
+                if (!record.AnimatedTileSlots.Includes(bit))
                     continue;
                 foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, AreaAnimatedTileObjectDefinitions.Read(room.AreaIndex, bit)))
                     yield return frame;
@@ -288,7 +288,7 @@ internal static class RoomBlockUploads
 
     /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
     private static IEnumerable<RoomFxType> EffectsIn(CartridgeRoomState state) =>
-        (state.Fx?.Records ?? []).Select(record => RoomFxTypes.FromRecordByte(record.Type, $"room FX {state.Fx?.Name}"))
+        (state.Fx?.Records ?? []).Select(record => record.Type)
             .Where(RoomLayer3FxState.ShowsPage).Distinct();
 
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>

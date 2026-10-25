@@ -19,9 +19,9 @@ public sealed class RoomSpikeAnimatedTilesState
     public RoomSpikeAnimatedTilesState(RoomFxDefinition? fx, DoorDefinition? door, AreaId area)
     {
         if (fx?.Select(door) is not { } record) return;
-        byte bits = record.AnimatedTileBitset;
-        for (int bit = 0; bit < 8; bit++)
-            if ((bits & (1 << bit)) != 0 &&
+        RoomFxEffectSlots slots = record.AnimatedTileSlots;
+        for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
+            if (slots.Includes(bit) &&
                 AreaAnimatedTileObjectDefinitions.Read(area, bit) == AnimatedTileObject.HorizontalSpikes)
             {
                 animation.LoadDefinition(AnimatedTileObject.HorizontalSpikes);

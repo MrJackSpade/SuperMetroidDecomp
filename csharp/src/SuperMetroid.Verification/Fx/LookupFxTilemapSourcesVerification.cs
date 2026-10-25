@@ -30,7 +30,7 @@ internal static class LookupFxTilemapSourcesVerification
     internal static void VerifyFxTilemapSourceAddresses(ISnesAddressSpace rom)
     {
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,
-            type => 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type));
+            type => 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type)));
         original.Add(RoomFxType.TourianEntranceStatue, 0x8a0000 | ReadVerificationWord(rom, 0x83ac16));
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

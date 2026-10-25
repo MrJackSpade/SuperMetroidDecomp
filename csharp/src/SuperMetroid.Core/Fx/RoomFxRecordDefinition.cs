@@ -1,8 +1,12 @@
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One immutable bank-$83 room-FX record, with its native field identities preserved.</summary>
+/// <summary>
+/// One room-FX record, its fields decoded at import into the effect, blends, liquid options, effect slots and palette
+/// blend they select (#1415).
+/// </summary>
 /// <remarks><c>Door</c> is the door the record applies to, or null for the list's default record or its terminator;
 /// <c>Terminates</c> ends the list without selecting FX.</remarks>
 public sealed record RoomFxRecordDefinition(
@@ -12,12 +16,12 @@ public sealed record RoomFxRecordDefinition(
     ushort TargetYPosition,
     ushort PackedYVelocity,
     byte Timer,
-    byte Type,
-    byte DefaultLayerBlend,
-    byte Layer3LayerBlend,
-    byte LiquidOptions,
-    byte PaletteFxBitset,
-    byte AnimatedTileBitset,
-    byte PaletteBlend)
+    RoomFxType Type,
+    LayerBlendingConfiguration DefaultLayerBlend,
+    LayerBlendingConfiguration Layer3LayerBlend,
+    RoomLiquidOptions LiquidOptions,
+    RoomFxEffectSlots PaletteFxSlots,
+    RoomFxEffectSlots AnimatedTileSlots,
+    RoomFxPaletteBlend PaletteBlend)
 {
 }

@@ -22,10 +22,10 @@ public sealed class RoomTreadmillAnimatedTilesState
     public RoomTreadmillAnimatedTilesState(RoomFxDefinition? fx, DoorDefinition? door, AreaId area)
     {
         if (fx?.Select(door) is not { } record) return;
-        byte bits = record.AnimatedTileBitset;
-        for (int bit = 0; bit < 8; bit++)
+        RoomFxEffectSlots slots = record.AnimatedTileSlots;
+        for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
         {
-            if ((bits & (1 << bit)) == 0) continue;
+            if (!slots.Includes(bit)) continue;
             AnimatedTileObject definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
             WreckedShipTreadmillDirection? direction = definition switch
             {

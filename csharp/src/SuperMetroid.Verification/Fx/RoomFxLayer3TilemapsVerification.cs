@@ -114,7 +114,7 @@ internal static class RoomFxLayer3TilemapsVerification
         out CartridgeReadGuard guarded)
     {
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
-            candidate.DoorPointer == 0 && candidate.Type == (byte)type)
+            candidate.DoorPointer == 0 && candidate.Type == type)
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
         guarded = NewForbiddenRoomFxTilemapBus(memory);

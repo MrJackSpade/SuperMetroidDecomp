@@ -45,21 +45,31 @@ public static class RoomFxPaletteBlendDefinitions
         }
     }
 
-    /// <summary>Creates the exact JSON blend key for a supported native byte-offset selector into $89:AA02, not a sequential palette ordinal.</summary>
-    /// <param name="id">One of the eight selectors exposed by <see cref="Ids"/>; selection zero is the runtime clear operation and has no resource key.</param>
-    /// <returns><c>blend-</c> followed by the selector's two uppercase hexadecimal digits.</returns>
-    /// <exception cref="InvalidDataException">The selector is not one of the eight catalogued blends.</exception>
-    public static string Key(RoomFxPaletteBlend id)
+    /// <summary>
+    /// The installed document's key for <paramref name="id"/>. The keys keep the names the installed file has always
+    /// used, so renaming or renumbering a blend never changes an installed or overridden key (#1415).
+    /// </summary>
+    /// <param name="id">One of the eight blends exposed by <see cref="Ids"/>; <see cref="RoomFxPaletteBlend.None"/> clears the blend and has no resource key.</param>
+    /// <exception cref="InvalidDataException">The blend is not one of the eight catalogued blends.</exception>
+    public static string Key(RoomFxPaletteBlend id) => id switch
     {
-        ValidateSelector(id);
-        return $"blend-{(byte)id:X2}";
-    }
+        RoomFxPaletteBlend.Lava => "blend-02",
+        RoomFxPaletteBlend.LandingSiteRain => "blend-22",
+        RoomFxPaletteBlend.MaridiaWaterA => "blend-42",
+        RoomFxPaletteBlend.WaterAndAcid => "blend-48",
+        RoomFxPaletteBlend.Fog => "blend-62",
+        RoomFxPaletteBlend.MaridiaWaterB => "blend-E2",
+        RoomFxPaletteBlend.MaridiaWaterC => "blend-E8",
+        RoomFxPaletteBlend.MaridiaWaterD => "blend-EE",
+        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
+        _ => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
+    };
 
     /// <summary>Requires one of the eight authored nonzero palette blend selectors.</summary>
     private static void ValidateSelector(RoomFxPaletteBlend id)
     {
         if (id is not (RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.Fog or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD))
-            throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued.");
+            throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued.");
     }
     /// <summary>
     /// The six liquid blends use black as their third color. Weather's independent
@@ -69,8 +79,8 @@ public static class RoomFxPaletteBlendDefinitions
     {
         RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => Bgr555.Black,
         RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.Fog => null,
-        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued."),
-        _ => throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued."),
+        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
+        _ => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
     };
     /// <summary>RoomFxPaletteBlend.Lava shares full red; Maridia A/B/D share a zero-red dark-blue primary.</summary>
     public static int? CalculatedPairRed(RoomFxPaletteBlend id, bool isPrimary)

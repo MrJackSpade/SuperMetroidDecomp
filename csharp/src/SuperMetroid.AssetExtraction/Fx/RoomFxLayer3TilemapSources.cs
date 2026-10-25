@@ -23,12 +23,12 @@ internal static class RoomFxLayer3TilemapSources
         throw new InvalidDataException($"Room-FX type {type} has no BG3 tilemap page.");
     }
 
-    /// <summary>The first of <paramref name="id"/>'s three adjacent blend colours: the selector is a byte offset into the colour table.</summary>
+    /// <summary>The first of <paramref name="id"/>'s three adjacent blend colours: the record's selector byte is an offset into the colour table.</summary>
     /// <exception cref="InvalidDataException"><paramref name="id"/> is not a retail blend.</exception>
     internal static SnesAddress PaletteBlend(RoomFxPaletteBlend id)
     {
         if (!RoomFxPaletteBlendDefinitions.Ids.Contains(id))
             throw new InvalidDataException($"Room-FX palette blend {id} is not a retail selector.");
-        return RoomFxLayer3SourceDefinitions.PaletteBlendColors.AddWithinBank((int)id);
+        return RoomFxLayer3SourceDefinitions.PaletteBlendColors.AddWithinBank(RoomFxRecordWords.PaletteBlends.Word(id));
     }
 }

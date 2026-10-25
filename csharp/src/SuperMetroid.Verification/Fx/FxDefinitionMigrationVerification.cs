@@ -100,7 +100,21 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(RoomFxLayer3TilemapSources.Page(RoomFxType.Water), RoomFxLayer3TilemapSources.Page(RoomFxType.TourianEntranceStatue),
             "the statue effect shows the water page");
         AssertEqual(0x89aa02 + 0x62, RoomFxLayer3TilemapSources.PaletteBlend(RoomFxPaletteBlend.Fog).Value, "fog blend source");
-        Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources and effect page sources keep their values.");
+        // The FX records hold decoded fields; the record codec encodes them back to the bytes the catalog held before.
+        RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbState2.Records[0];
+        AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
+        AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.Layer3LayerBlend, "Climb layer-three blend");
+        AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
+        AssertEqual(RoomFxEffectSlots.Slot3 | RoomFxEffectSlots.Slot4 | RoomFxEffectSlots.Slot5, climb.PaletteFxSlots, "Climb palette-effect slots");
+        AssertEqual((byte)0x04, RoomFxRecordCodec.TypeByte(climb.Type), "Climb type byte");
+        AssertEqual((byte)0x1e, RoomFxRecordCodec.LayerBlendByte(climb.Layer3LayerBlend), "Climb blend byte");
+        AssertEqual((byte)0x38, RoomFxRecordCodec.SlotsByte(climb.PaletteFxSlots), "Climb palette-effect byte");
+        AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
+        AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");
+        AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
+        AssertEqual("blend-EE", RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
+        AssertEqual((byte)0x80, RoomFxRecordCodec.SlotsByte(RoomFxEffectSlotSet.Slot(7)), "eighth effect slot");
+        Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");
     }
 
     /// <summary>Runs the focused room-effect definition-migration check.</summary>

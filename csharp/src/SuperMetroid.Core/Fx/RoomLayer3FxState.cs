@@ -220,15 +220,11 @@ public sealed class RoomLayer3FxState
         TargetSurface = new(0, definition.TargetYPosition);
         YVelocity = new(definition.PackedYVelocity);
         Timer = WrappingCountdown.FromRaw(definition.Timer);
-        LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
+        LiquidOptions = definition.LiquidOptions;
         Surface = new(0, BaseY.Whole);
 
-        Type = RoomFxTypes.FromRecordByte(
-            definition.Type,
-            $"room FX {source.Fx?.Name}");
-        LayerBlendConfiguration = LayerBlendingConfigurations.FromRecordByte(
-            definition.Layer3LayerBlend,
-            $"room FX {source.Fx?.Name}");
+        Type = definition.Type;
+        LayerBlendConfiguration = definition.Layer3LayerBlend;
         animatedTiles.Load(Type);
         ApplyPaletteBlend(colours, definition.PaletteBlend);
 
@@ -459,20 +455,17 @@ public sealed class RoomLayer3FxState
         TargetSurface = new(0, definition.TargetYPosition);
         YVelocity = new(definition.PackedYVelocity);
         Timer = WrappingCountdown.FromRaw(definition.Timer);
-        LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
-        LayerBlendConfiguration = LayerBlendingConfigurations.FromRecordByte(
-            definition.Layer3LayerBlend, "LoadFxEntry");
+        LiquidOptions = definition.LiquidOptions;
+        LayerBlendConfiguration = definition.Layer3LayerBlend;
         ApplyPaletteBlend(colours, definition.PaletteBlend);
-        return LayerBlendingConfigurations.FromRecordByte(
-            definition.DefaultLayerBlend, "LoadFxEntry");
+        return definition.DefaultLayerBlend;
     }
 
     /// <summary>Applies the selected FX blend colors from installed presentation data.</summary>
-    private void ApplyPaletteBlend(BackgroundColourSets colours, byte selection)
+    private void ApplyPaletteBlend(BackgroundColourSets colours, RoomFxPaletteBlend selection)
     {
         (PaletteBlendColors ?? throw new InvalidOperationException(
-            "Room FX requires installed palette-blend colors.")).Apply(colours,
-            ClosedNativeWords.Decode<RoomFxPaletteBlend>(selection, "room-FX palette blend"));
+            "Room FX requires installed palette-blend colors.")).Apply(colours, selection);
     }
 
     /// <summary>

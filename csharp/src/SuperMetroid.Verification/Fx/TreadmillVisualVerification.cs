@@ -37,11 +37,12 @@ internal static class TreadmillVisualVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
-            byte bits = record == 0 ? (byte)0 : RoomFxDefinitions.RecordAt(record).AnimatedTileBitset;
-            Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
-            if ((bits & 12) == 0) continue;
+            RoomFxEffectSlots slots = record == 0 ? RoomFxEffectSlots.None : RoomFxDefinitions.RecordAt(record).AnimatedTileSlots;
+            Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation slots={slots} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
+            // The Wrecked Ship's third and fourth slots are the rightward and leftward treadmills.
+            if (!slots.Includes(2) && !slots.Includes(3)) continue;
             var images = new HashSet<string>();
-            int[] sources = (bits & 4) != 0
+            int[] sources = slots.Includes(2)
                 ? [AnimatedTileImageSources.Treadmill(0), AnimatedTileImageSources.Treadmill(1),
                     AnimatedTileImageSources.Treadmill(2), AnimatedTileImageSources.Treadmill(3)]
                 : [AnimatedTileImageSources.Treadmill(3), AnimatedTileImageSources.Treadmill(2),

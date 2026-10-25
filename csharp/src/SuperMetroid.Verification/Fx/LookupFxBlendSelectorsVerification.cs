@@ -7,6 +7,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Checks the eight FX blend selectors, cartridge source addresses, and CGRAM application.</summary>
@@ -19,13 +21,13 @@ internal static class LookupFxBlendSelectorsVerification
     internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
-        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDefinitions.Ids.Select(id => (byte)id)), "Original blend selector order/domain");
+        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDefinitions.Ids.Select(id => (byte)SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(id))), "Original blend selector order/domain");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (original.Contains(id))
-                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDefinitions.Key((RoomFxPaletteBlend)id), "Original document key");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.Key((RoomFxPaletteBlend)id), "Unknown selector key rejects");
+                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDefinitions.Key(FxNativeWords.PaletteBlend(id)), "Original document key");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.Key(FxNativeWords.PaletteBlend(id)), "Unknown selector key rejects");
         }
     }
 
@@ -39,8 +41,8 @@ internal static class LookupFxBlendSelectorsVerification
         {
             byte id = (byte)value;
             if (OriginalFxBlendIds().Contains(id))
-                AssertEqual(nativeBase + id, RoomFxLayer3TilemapSources.PaletteBlend((RoomFxPaletteBlend)id).Value, "Original indexed color address");
-            else AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapSources.PaletteBlend((RoomFxPaletteBlend)id).Value, "Noncatalogued source rejects");
+                AssertEqual(nativeBase + id, RoomFxLayer3TilemapSources.PaletteBlend(FxNativeWords.PaletteBlend(id)).Value, "Original indexed color address");
+            else AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapSources.PaletteBlend(FxNativeWords.PaletteBlend(id)).Value, "Noncatalogued source rejects");
         }
     }
 
@@ -69,9 +71,9 @@ internal static class LookupFxBlendSelectorsVerification
                 cgram.AsPaletteColors().SetColor(25, Bgr555.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(26, Bgr555.FromWord(0x2345)); cgram.AsPaletteColors().SetColor(27, Bgr555.FromWord(0x3456));
                 if (selectionIndex >= 0)
                 {
-                    var colors = catalog.Resolve((RoomFxPaletteBlend)id);
+                    var colors = catalog.Resolve(FxNativeWords.PaletteBlend(id));
                     AssertEqual(3, colors.Length, "Exactly three loaded colors");
-                    catalog.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
+                    catalog.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
                     for (int color = 0; color < 3; color++)
                     {
                         // Calculated stock black components have their own native proofs.
@@ -85,15 +87,15 @@ internal static class LookupFxBlendSelectorsVerification
                 }
                 else
                 {
-                    AssertThrows<InvalidDataException>(() => { _ = catalog.Resolve((RoomFxPaletteBlend)id); }, "Unknown resolve selector rejects including zero");
+                    AssertThrows<InvalidDataException>(() => { _ = catalog.Resolve(FxNativeWords.PaletteBlend(id)); }, "Unknown resolve selector rejects including zero");
                     if (id == 0)
                     {
-                        catalog.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
+                        catalog.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
                         AssertEqual(0x1234, cgram.Colors[25], "Zero preserves color25");
                         AssertEqual(0x2345, cgram.Colors[26], "Zero preserves color26");
                         AssertEqual(0, cgram.Colors[27], "Zero clears color27 only");
                     }
-                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id), "Unknown apply selector rejects");
+                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id)), "Unknown apply selector rejects");
                 }
             }
         }

@@ -674,7 +674,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Generates sixteen RNG-positioned boss drops and marks the death drop as requested.</summary>
     private void RequestSporeSpawnDeathDrops(SporeSpawnEnemyState state)
     {
-        for (int drop = 0; drop < 16; drop++)
+        for (int index = 0; index < 16; index++)
         {
             int random = _room.Random.Generate();
             Position16<RoomPixels> drop = new((ushort)(random % 128 + 64), (ushort)(SnesLittleEndian.HighByte(random) % 64 + 528));

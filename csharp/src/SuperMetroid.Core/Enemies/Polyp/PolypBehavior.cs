@@ -264,7 +264,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             (half == QuadraticSpeedHalf.Negative ? 4 : 0);
         int fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
         projectile.Variable1 = fraction;
-        uint fractionalSum = (uint)projectile.Position.Y.Fraction + fraction;
+        uint fractionalSum = (uint)projectile.Position.Y.Fraction + (uint)fraction;
         projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
         if (fractionalSum > ushort.MaxValue)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));

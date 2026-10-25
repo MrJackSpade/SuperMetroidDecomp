@@ -506,7 +506,7 @@ internal static class RoomFxRetailInventoryVerification
         SuperMetroidAddressSpace bus,
         ushort objectPointer,
         ushort expectedInstruction,
-        ushort expectedSize,
+        int expectedSize,
         ushort expectedDestination,
         ushort expectedFirstSource,
         string name)

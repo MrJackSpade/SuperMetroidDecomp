@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Harness;
 /// <param name="Fourth">The fourth.</param>
 /// <param name="Fifth">The fifth.</param>
 /// <param name="Sixth">The sixth.</param>
-internal readonly record struct LookupStream5Expected(short First, short Second, short Third, short Fourth, ushort Fifth, ushort Sixth);
+internal readonly record struct LookupStream5Expected(int First, int Second, int Third, int Fourth, ushort Fifth, ushort Sixth);

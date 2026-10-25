@@ -811,7 +811,7 @@ internal sealed class TorizoAttacks
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
         projectile.Position = projectile.Position.WithWhole(request.PlmBlock.ToRoomPixels() + definition.Offset);
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition.YVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(definition.YVelocity));
         projectile.Variable1 = definition.Acceleration;
         return projectile;
     }

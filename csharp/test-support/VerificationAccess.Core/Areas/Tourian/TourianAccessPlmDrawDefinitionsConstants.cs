@@ -16,7 +16,7 @@ internal static class TourianAccessPlmDrawDefinitionsConstants
     };
 
     /// <summary>The rows and air word of <paramref name="request"/> when it is a Tourian access draw.</summary>
-    internal static bool TryDescribe(PlmDraw request, out int rows, out ushort word)
+    internal static bool TryDescribe(PlmDraw request, out int rows, out int word)
     {
         bool found = PlmDraw.TryFrame(request, out TourianAccessDraw frame);
         rows = 0;

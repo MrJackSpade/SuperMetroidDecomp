@@ -101,6 +101,6 @@ internal static class BossDisplayBindingsOracleVerification
     };
 
     /// <summary>Arranges one hitbox's bounds and callbacks in cartridge record order.</summary>
-    private static ushort[] Words(short left, short top, short right, short bottom, ushort touch, ushort shot) =>
+    private static ushort[] Words(int left, int top, int right, int bottom, ushort touch, ushort shot) =>
         [unchecked((ushort)left), unchecked((ushort)top), unchecked((ushort)right), unchecked((ushort)bottom), touch, shot];
 }

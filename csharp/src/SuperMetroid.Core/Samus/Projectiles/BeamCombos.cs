@@ -390,8 +390,8 @@ internal sealed class BeamCombos
     {
         if (targetDelta < 0)
             return unchecked((short)(speed + BeamComboDefinitions.WaveSpeedLimit - 1)) >= 0 ?
-                unchecked((short)(speed - BeamComboDefinitions.WaveAcceleration)) : speed;
+                unchecked((short)(speed - BeamComboDefinitions.WaveAcceleration)) : checked((short)speed);
         return unchecked((short)(speed - BeamComboDefinitions.WaveSpeedLimit)) < 0 ?
-            unchecked((short)(speed + BeamComboDefinitions.WaveAcceleration)) : speed;
+            unchecked((short)(speed + BeamComboDefinitions.WaveAcceleration)) : checked((short)speed);
     }
 }

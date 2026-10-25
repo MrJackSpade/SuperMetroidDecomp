@@ -50,7 +50,7 @@ internal static class CompiledProjectileMathVerification
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new SnesByteAngle(unchecked((byte)angle)), radius));
         var arc = new Action<RoomEnemyProjectileSlot, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new SnesBearing(bearing)));
-        var echo = new Func<SnesAngle, byte, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
+        var echo = new Func<SnesAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader
         // ignores) and every radius byte. The reference uses the cartridge's positive half,

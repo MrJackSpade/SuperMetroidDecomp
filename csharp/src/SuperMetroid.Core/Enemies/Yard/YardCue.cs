@@ -9,8 +9,7 @@ internal abstract record YardCue
     }
 
     /// <summary>Moves the Yard by a signed pixel offset in X and Y (<c>MoveByPixelsInY</c>, $A3:CC5F).</summary>
-    /// <param name="Offset">The cue's signed pixel offset.</param>
-    /// <param name="OffsetY">The cue's second, vertical signed pixel offset.</param>
+    /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
     internal sealed record MoveBy(Offset16<RoomPixels> Offset) : YardCue;
 
     /// <summary>Sets the attachment direction and the airborne facing it implies (<c>DirectionInY</c>, $A3:CC48).</summary>

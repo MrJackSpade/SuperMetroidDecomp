@@ -25,7 +25,7 @@ internal static class IntroScientistSpriteArtworkVerification
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ushort palette = IntroBabyActorDefinitions.DeliveredBaby.PaletteBits;
+        ushort palette = checked((ushort)IntroBabyActorDefinitions.DeliveredBaby.PaletteBits);
         foreach (CinematicSpriteFrameDefinition definition in
             IntroScientistSpriteDefinitions.Frames)
         {

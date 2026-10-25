@@ -187,7 +187,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative than a conventional two's-complement negation.
         int magnitude = unchecked((ushort)Math.Abs((int)sine));
         int sineHighByte = SnesLittleEndian.HighByte(magnitude);
-        uint product = sineHighByte * (uint)speed;
+        uint product = (uint)sineHighByte * (uint)speed;
         int fraction = unchecked((ushort)product);
         int whole = SnesFixedPosition.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))
@@ -199,7 +199,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             whole = unchecked((ushort)~whole);
         }
 
-        uint fractionalSum = (uint)position.Fraction + fraction;
+        uint fractionalSum = (uint)position.Fraction + (uint)fraction;
         return new(
             unchecked((ushort)(position.Whole + whole + (SnesCarry.OutOfWord(fractionalSum)))),
             unchecked((ushort)fractionalSum));

@@ -23,8 +23,8 @@ internal static class FakeKraidRecordStateVerification
         state.SpitDecisionTimer = WrappingCountdown.Start(1);
 
         slot.Clear();
-        AssertEqual<short>(0, state.WalkDelta, "a kill empties WalkDelta");
-        AssertEqual<short>(0, state.FacingDelta, "a kill empties FacingDelta");
+        AssertEqual(0, state.WalkDelta, "a kill empties WalkDelta");
+        AssertEqual(0, state.FacingDelta, "a kill empties FacingDelta");
         AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.WalkStepTimer, "a kill empties WalkStepTimer");
         AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.SpitDecisionTimer, "a kill empties SpitDecisionTimer");
         Console.WriteLine("FakeKraid record state: a kill empties every value the record holds.");

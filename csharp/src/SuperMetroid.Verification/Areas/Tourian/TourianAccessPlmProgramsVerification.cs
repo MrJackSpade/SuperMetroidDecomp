@@ -59,7 +59,7 @@ internal static class TourianAccessPlmProgramsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryDescribe(NativePlmDraws.At<TourianAccessDraw>(pointer), out int rows, out ushort word), "Tourian draw descriptor ownership");
+            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryDescribe(NativePlmDraws.At<TourianAccessDraw>(pointer), out int rows, out int word), "Tourian draw descriptor ownership");
             AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryGet(NativePlmDraws.At<TourianAccessDraw>(pointer), out var dto), "Tourian draw DTO ownership");
             if (index < 0)
             {

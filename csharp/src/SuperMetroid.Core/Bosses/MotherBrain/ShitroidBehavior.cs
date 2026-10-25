@@ -718,7 +718,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
         // The recoil strength is eight times the damage, kept to sixteen bits as the damage word's
         // multiple is, and capped at 240.
-        int magnitude = Math.Min(unchecked((ushort)(8 * collisionDamage)), 240);
+        int magnitude = Math.Min((int)unchecked((ushort)(8 * collisionDamage)), 240);
         state.Velocity += new EightEightVector<RoomPixels>(
             new SnesSignedEightEight(EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle())),
             new SnesSignedEightEight(EnemyMath.MultiplySineSample(

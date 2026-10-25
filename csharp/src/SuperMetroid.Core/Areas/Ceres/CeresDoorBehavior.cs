@@ -293,7 +293,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         CountdownStep burst = WrappingCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
         state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Value;
 
-        (int xOffset, int yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);
+        Offset16<RoomPixels> burstOffset = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);
+        int xOffset = burstOffset.X;
+        int yOffset = burstOffset.Y;
         Position16<RoomPixels> explosion = new(
             unchecked((ushort)(slot.Position.X.Whole + xOffset)), unchecked((ushort)(slot.Position.Y.Whole + yOffset)));
 

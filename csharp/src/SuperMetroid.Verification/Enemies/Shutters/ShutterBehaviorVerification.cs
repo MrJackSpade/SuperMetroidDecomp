@@ -170,10 +170,10 @@ internal static class ShutterBehaviorVerification
     {
         for (int index = 0; index < GrowingShutterSpeedRecordCount; index++)
         {
-            SnesSignedSixteenSixteen speed = GrowingShutterDefinitions.Speed((ushort)index);
+            SignedSixteenSixteen speed = GrowingShutterDefinitions.Speed((ushort)index);
             short whole = speed.WholePixels;
             ushort fraction = speed.Fraction;
-            SnesSignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(speed);
+            SignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(speed);
             AssertEqual(unchecked((short)(-whole - (fraction == 0 ? 0 : 1))), upward.WholePixels, $"growth speed {index}: upward whole pixels borrow for a nonzero fraction");
             AssertEqual(unchecked((ushort)-fraction), upward.Fraction, $"growth speed {index}: upward fraction is the negated fraction word");
         }
@@ -213,8 +213,8 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyHorizontalShutterVelocityWords()
     {
         var state = new HorizontalShutterEnemyState();
-        SnesSignedSixteenSixteen right = SnesSignedSixteenSixteen.FromParts(-2, 40000);
-        SnesSignedSixteenSixteen left = SnesSignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
+        SignedSixteenSixteen right = SignedSixteenSixteen.FromParts(-2, 40000);
+        SignedSixteenSixteen left = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.RightVelocity = right;
         state.LeftVelocity = left;
         AssertEqual(right, state.RightVelocity, "rightward velocity round-trips through its slot words");
@@ -248,8 +248,8 @@ internal static class ShutterBehaviorVerification
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedUpperY), state.UpperEndpoint, $"{context}: upper endpoint");
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedLowerY), state.LowerEndpoint, $"{context}: lower endpoint");
-            SnesSignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8);
-            SnesSignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8 + 4);
+            SignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8);
+            SignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8 + 4);
             AssertEqual(down, state.DownVelocity,
                 $"{context}: downward velocity is the speed record's first entry");
             AssertEqual(up, state.UpVelocity,
@@ -264,8 +264,8 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyVerticalShutterVelocityWords()
     {
         var state = new VerticalShutterEnemyState();
-        SnesSignedSixteenSixteen down = SnesSignedSixteenSixteen.FromParts(-2, 40000);
-        SnesSignedSixteenSixteen up = SnesSignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
+        SignedSixteenSixteen down = SignedSixteenSixteen.FromParts(-2, 40000);
+        SignedSixteenSixteen up = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.DownVelocity = down;
         state.UpVelocity = up;
         AssertEqual(down, state.DownVelocity, "downward velocity round-trips through its slot words");

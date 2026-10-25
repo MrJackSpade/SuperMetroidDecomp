@@ -495,7 +495,7 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(swingOverride, swing.ToJsonString());
         var swingEdited = installation.LoadProjectiles();
         AssertTrue(swingEdited.SelectedSha256 != grappleFlareEdited.SelectedSha256, "Swing-only edit changes content identity");
-        AssertEqual((byte)17, (swingEdited.GrappleTiles.SwingFrames ?? throw new InvalidOperationException("Verification requires swingEdited.GrappleTiles.SwingFrames.")).Resolve(new SnesByteAngle(0)), "Installer selects edited swing frame");
+        AssertEqual((byte)17, (swingEdited.GrappleTiles.SwingFrames ?? throw new InvalidOperationException("Verification requires swingEdited.GrappleTiles.SwingFrames.")).Resolve(new ByteAngle(0)), "Installer selects edited swing frame");
         File.WriteAllText(swingStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Swing override cannot hide corrupt stock");
         File.Move(swingStock, swingStock + ".invalid");

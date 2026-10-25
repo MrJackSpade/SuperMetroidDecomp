@@ -177,7 +177,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.NorfairSwoopSetup:
                 state.Function = RidleyAiFunction.NorfairSwoopMoveToStart;
                 state.SwoopPhaseTimer = WrappingCountdown.Start(10);
-                state.SwoopAngleAccumulator = SnesAngle.Zero;
+                state.SwoopAngleAccumulator = RotationAngle.Zero;
                 NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(slot, state);
                 return;
 

@@ -26,7 +26,7 @@ internal static class TourianStatueSoulExitVerification
             RoomEnemyProjectileSlot soul = enemies.Projectiles.EnemyProjectiles[0];
             soul.PreInstruction = EnemyProjectilePreInstruction.TourianStatueSoulMotion;
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));
-            soul.Velocity = soul.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(-RisePixels * 256))));
+            soul.Velocity = soul.Velocity.WithY(new SignedEightEight(unchecked((ushort)(-RisePixels * 256))));
 
             AssertTrue(enemies.TourianUnlockBehavior.TryStepTourianUnlockEffect(soul), $"soul motion runs from Y {start}");
 

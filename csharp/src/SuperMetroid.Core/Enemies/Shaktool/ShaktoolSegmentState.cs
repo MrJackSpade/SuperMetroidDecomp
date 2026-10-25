@@ -12,9 +12,9 @@ public sealed class ShaktoolSegmentState
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<ShaktoolProgram> Program { get; set; }
     /// <summary>The chain's target heading, also advanced during straightening and used by attack movement cues.</summary>
-    public SnesAngle TargetAngle { get; internal set; }
+    public RotationAngle TargetAngle { get; internal set; }
     /// <summary>The angle around the immediately preceding segment; its table index selects the orbit displacement.</summary>
-    public SnesAngle OrbitAngle { get; internal set; }
+    public RotationAngle OrbitAngle { get; internal set; }
     /// <summary>
     /// The unsigned orbital increment per gameplay update in raw angle units, from 0 through 1020: an authored
     /// curling rate, four times the whole table steps left to a target, or the straightening step. The motion flags
@@ -51,8 +51,8 @@ public sealed class ShaktoolSegmentState
     /// <summary>Empties every value, when a kill empties the segment's common record.</summary>
     internal void ClearWithRecord()
     {
-        TargetAngle = SnesAngle.Zero;
-        OrbitAngle = SnesAngle.Zero;
+        TargetAngle = RotationAngle.Zero;
+        OrbitAngle = RotationAngle.Zero;
         AngularVelocity = 0;
         ResetOrientation();
         OwnerSlotIndex = 0;

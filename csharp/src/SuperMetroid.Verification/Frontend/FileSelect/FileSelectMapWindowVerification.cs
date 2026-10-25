@@ -111,9 +111,9 @@ internal static class FileSelectMapWindowVerification
         {
             AssertEqual(tick == 40, returning.Step(), "Maridia return is twelve updates shorter than expansion");
             AssertEqual(8 + 4 * tick, returning.TopLeft.X, "return subtracts native negative left velocity");
-            AssertEqual(SnesSixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.BottomRight.X, "return retains right fraction");
-            AssertEqual(SnesSixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.TopLeft.Y, "return retains top fraction");
-            AssertEqual(SnesSixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.BottomRight.Y, "return retains bottom fraction");
+            AssertEqual(SixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.BottomRight.X, "return retains right fraction");
+            AssertEqual(SixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.TopLeft.Y, "return retains top fraction");
+            AssertEqual(SixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.BottomRight.Y, "return retains bottom fraction");
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");

@@ -34,7 +34,7 @@ internal static class GrappleBodyPlacementVerification
         var stock = GrappleSwingFrameCatalog.Load(new MemoryStream(json));
         var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
         {
-            Version = 1, Frames = Enumerable.Range(0, 256).Select(angle => (stock.Resolve(new SnesByteAngle((byte)angle)) + 11) & 31).ToArray(),
+            Version = 1, Frames = Enumerable.Range(0, 256).Select(angle => (stock.Resolve(new ByteAngle((byte)angle)) + 11) & 31).ToArray(),
         })));
         foreach (bool installed in new[] { false, true })
         foreach (bool replaceArt in new[] { false, true })
@@ -48,9 +48,9 @@ internal static class GrappleBodyPlacementVerification
             g.RopeLength = (ushort)(raw & 127);
             g.ValidateAnchorBlock = (raw & 1) != 0;
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
-            g.Angle = SnesAngle.FromRaw(unchecked((ushort)(raw ^ 0x4080)));
-            g.MirroredAngle = SnesAngle.FromRaw((ushort)raw);
-            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + SnesAngle.FromRaw(unchecked((ushort)raw)).TableIndex);
+            g.Angle = RotationAngle.FromRaw(unchecked((ushort)(raw ^ 0x4080)));
+            g.MirroredAngle = RotationAngle.FromRaw((ushort)raw);
+            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + RotationAngle.FromRaw(unchecked((ushort)raw)).TableIndex);
             int table = left ? 0x9bc2c2 : 0x9bc302;
             sbyte x = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2));
             sbyte y = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2 + 1));
@@ -73,8 +73,8 @@ internal static class GrappleBodyPlacementVerification
         {
             var native = PrepareRetailSamusFixture(new SamusState()); var changed = PrepareRetailSamusFixture(new SamusState());
             native.Grapple.SwingFrames = stock; changed.Grapple.SwingFrames = edited;
-            SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
-            SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
+            SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, RotationAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
+            SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, RotationAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
             for (int tick = 0; tick < 16; tick++)
             {
                 ControllerButton input = (SuperMetroid.Core.Input.ControllerButton.X | (tick < 8 ? SuperMetroid.Core.Input.ControllerButton.Left : SuperMetroid.Core.Input.ControllerButton.Right));

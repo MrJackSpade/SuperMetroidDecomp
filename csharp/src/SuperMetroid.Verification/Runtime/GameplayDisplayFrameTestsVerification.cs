@@ -228,8 +228,8 @@ internal static class GameplayDisplayFrameTestsVerification
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
         getaway.GetawayActive = true;
-        getaway.FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33);
-        getaway.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SnesSignedEightEight.FromSignedRaw(240);
+        getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
+        getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
         getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
         getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,

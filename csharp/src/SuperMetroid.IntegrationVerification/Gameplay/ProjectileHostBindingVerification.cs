@@ -174,7 +174,7 @@ internal static class ProjectileHostBindingVerification
         CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), (expected.FlarePlacement ?? throw new InvalidOperationException("Verification requires expected.FlarePlacement.")));
         if (actual.GrappleSwingFrames is null || expected.SwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
         for (int angle = 0; angle < 256; angle++)
-            if (actual.GrappleSwingFrames.Resolve(new SnesByteAngle((byte)angle)) != expected.SwingFrames.Resolve(new SnesByteAngle((byte)angle)))
+            if (actual.GrappleSwingFrames.Resolve(new ByteAngle((byte)angle)) != expected.SwingFrames.Resolve(new ByteAngle((byte)angle)))
                 throw new InvalidDataException("Host restored stale Grapple swing frames.");
     }
 

@@ -129,7 +129,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
     };
     spinLeft.HorizontalSpeed.BaseSpeed = spinLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(spinLeft, SamusPoseId.SpinJumpLeftPose);
-    int spinStartX = (SnesSixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction;
+    int spinStartX = (SixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction;
     SamusAerialMovement.StepSpinJump(
 
         level,
@@ -137,7 +137,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
         (ControllerButton.Left | ControllerButton.A),
         nmiFrameCounter: 0);
     AssertEqual(-0x00016000,
-        ((SnesSixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
+        ((SixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
         "left spin jump reaches native cap");
     AssertEqual(SamusAccelerationMode.Decelerating, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.Position.X.Whole, "left spin jump whole X");
@@ -457,7 +457,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         {
             Radius = new(5, 12),
             YDirection = SamusVerticalDirection.Up,
-            YSpeed = new SnesUnsignedSixteenSixteen(3, 0x4567),
+            YSpeed = new UnsignedSixteenSixteen(3, 0x4567),
         },
     };
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
@@ -498,7 +498,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         {
             Radius = new(5, 19),
             YDirection = SamusVerticalDirection.Up,
-            YSpeed = new SnesUnsignedSixteenSixteen(4, 0x2345),
+            YSpeed = new UnsignedSixteenSixteen(4, 0x2345),
         },
     };
     AssertTrue(SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
@@ -532,7 +532,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         {
             Radius = new(5, 12),
             YDirection = SamusVerticalDirection.Up,
-            YSpeed = new SnesUnsignedSixteenSixteen(2, 0x3456),
+            YSpeed = new UnsignedSixteenSixteen(2, 0x3456),
         },
     };
     AssertTrue(SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
@@ -566,8 +566,8 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Kinematics =
         {
             YDirection = SamusVerticalDirection.Down,
-            YSpeed = new SnesUnsignedSixteenSixteen(speed, subspeed),
-            YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800),
+            YSpeed = new UnsignedSixteenSixteen(speed, subspeed),
+            YAcceleration = new UnsignedSixteenSixteen(0, 0x2800),
             Radius = new(5, 12),
         },
     };
@@ -877,7 +877,7 @@ internal static void VerifySamusLiquidPhysics()
         controllerInput: ControllerButton.B,
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401);
-    sample.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
+    sample.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
     AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
@@ -932,7 +932,7 @@ internal static void VerifySamusLiquidPhysics()
             {
                 Radius = new(5, 12),
                 YDirection = SamusVerticalDirection.Up,
-                YSpeed = new SnesUnsignedSixteenSixteen(1, 0),
+                YSpeed = new UnsignedSixteenSixteen(1, 0),
             },
         };
         WritePoseDefinition(bus, (int)released.Pose, [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
@@ -990,7 +990,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounte
         {
             Radius = new(5, 12),
             YDirection = SamusVerticalDirection.Down,
-            YSpeed = new SnesUnsignedSixteenSixteen(0, 0x8000),
+            YSpeed = new UnsignedSixteenSixteen(0, 0x8000),
         },
     };
     partialWaterSpaceJump.LiquidPhysics.ConfigureWater(surfaceY: 128);
@@ -1017,7 +1017,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounte
         {
             Radius = new(5, 12),
             YDirection = SamusVerticalDirection.Down,
-            YSpeed = new SnesUnsignedSixteenSixteen(3, 0),
+            YSpeed = new UnsignedSixteenSixteen(3, 0),
         },
     };
     WritePoseDefinition(bus, (int)SamusPoseId.ScrewAttackRightPose,
@@ -1206,7 +1206,7 @@ internal static void VerifySamusAtmosphericEffects()
     };
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     SamusPoseMetadata.RefreshCollisionRadii(landing);
-    landing.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 1);
+    landing.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 1);
     landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Norfair, 0);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1249,13 +1249,13 @@ internal static void VerifySamusAtmosphericEffects()
         landing.LiquidPhysics.BeginFrameSoundRequests();
         landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
             landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-            new SnesUnsignedSixteenSixteen(whole, 0));
+            new UnsignedSixteenSixteen(whole, 0));
         AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count, $"whole speed ${whole:X4} with no sub-speed lands silently");
     }
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-        new SnesUnsignedSixteenSixteen(0x8005, 1));
+        new UnsignedSixteenSixteen(0x8005, 1));
     AssertEqual(new SoundRequest(Library3Sound.Landing, SoundQueueLimit.Max6),
         landing.LiquidPhysics.SoundRequests.Single(), "whole speed $8005 is below five as a signed word");
     landing.LiquidPhysics.CinematicFunctionActive = true;

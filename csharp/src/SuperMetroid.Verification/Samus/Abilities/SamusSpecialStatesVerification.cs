@@ -424,7 +424,7 @@ internal static void VerifySamusXray()
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
     AssertEqual(2, standing.AnimationFrame, "command five starts X-ray frame two");
     AssertEqual(0x3f, standing.AnimationFrameTimer.RawValue, "command five X-ray timer");
-    AssertEqual(SnesAngle.QuarterTurn.TableIndex, standing.Xray.Angle.TableIndex,
+    AssertEqual(RotationAngle.QuarterTurn.TableIndex, standing.Xray.Angle.TableIndex,
         "right X-ray initial angle");
     AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
@@ -469,13 +469,13 @@ internal static void VerifySamusXray()
     // After n widening calls the speed is n steps and the width is the triangular number n(n+1)/2 of steps.
     const int wideningCalls = 26;
     AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
-    AssertEqual(SnesSignedSixteenSixteen.FromRaw(wideningCalls * (wideningCalls + 1) / 2 *
+    AssertEqual(SignedSixteenSixteen.FromRaw(wideningCalls * (wideningCalls + 1) / 2 *
             checked((int)XrayScopeDefinitions.Window.WideningStep)), standing.Xray.AngularHalfWidth,
         "call 26 width is 351 widening steps, carrying into whole units exactly");
     standing.Xray.StepBeam(standing, ControllerButton.B);
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
     AssertEqual(10, standing.Xray.AngularWidth, "full beam clamps width ten");
-    AssertEqual(SnesSignedSixteenSixteen.FromParts(10, 0), standing.Xray.AngularHalfWidth,
+    AssertEqual(SignedSixteenSixteen.FromParts(10, 0), standing.Xray.AngularHalfWidth,
         "full beam clears width fraction");
 
     // `$88:88B8/$88DC` puts this standing-right fixture's origin at screen (103,184).
@@ -622,7 +622,7 @@ internal static void VerifySamusXray()
         "deferred setup starts beam ownership before pose-command arbitration");
     AssertEqual(XraySuspendedSubsystems.All, interrupted.Xray.SuspendedSubsystems,
         "deferred setup immediately disables all four native subsystems");
-    AssertEqual(SnesAngle.ThreeQuarterTurn.TableIndex, interrupted.Xray.Angle.TableIndex,
+    AssertEqual(RotationAngle.ThreeQuarterTurn.TableIndex, interrupted.Xray.Angle.TableIndex,
         "deferred left-facing setup publishes native angle C0");
     AssertEqual(SamusSpecialPaletteType.None, interrupted.Xray.SpecialPaletteKind,
         "deferred setup does not install command-five palette ownership early");
@@ -652,7 +652,7 @@ internal static void VerifySamusXray()
         var sample = new SamusState { Pose = pose };
         SamusPoseMetadata.RefreshCollisionRadii(sample);
         SamusPresentation.InitializeAnimation(sample);
-        sample.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(ySpeed, ySubspeed);
+        sample.Kinematics.YSpeed = new UnsignedSixteenSixteen(ySpeed, ySubspeed);
         return sample;
     }
 

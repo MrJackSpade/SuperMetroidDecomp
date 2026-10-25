@@ -49,8 +49,8 @@ internal sealed class NorfairRidleyMovement
     /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
     /// <param name="divisor">The inertia divisor, at least one.</param>
     /// <param name="reversalBoost">The extra speed a reversal subtracts or adds first, 0 through 65535.</param>
-    private static SnesSignedEightEight AccelerateNorfairRidleyAxis(
-        SnesSignedEightEight axisVelocity,
+    private static SignedEightEight AccelerateNorfairRidleyAxis(
+        SignedEightEight axisVelocity,
         int position,
         int target,
         int divisor,
@@ -91,7 +91,7 @@ internal sealed class NorfairRidleyMovement
             Add(step);
             if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity.RawValue)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity.RawValue;
         }
-        return new SnesSignedEightEight(checked((ushort)velocity));
+        return new SignedEightEight(checked((ushort)velocity));
 
         void Add(int operand) => velocity = SnesCarry.AddWithCarry(checked((ushort)velocity), checked((ushort)operand), ref carry);
         void Subtract(int operand) => velocity = SnesCarry.SubtractWithBorrow(checked((ushort)velocity), checked((ushort)operand), ref carry);

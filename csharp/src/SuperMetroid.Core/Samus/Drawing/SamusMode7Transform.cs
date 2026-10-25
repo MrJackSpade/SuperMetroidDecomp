@@ -60,6 +60,6 @@ public readonly record struct SamusMode7Transform(
     private static ushort MultiplySigned8Point8(int distance, int coefficient)
     {
         int product = unchecked((short)distance) * coefficient;
-        return unchecked((ushort)SnesEightEight.WholeOf(product));
+        return unchecked((ushort)EightEight.WholeOf(product));
     }
 }

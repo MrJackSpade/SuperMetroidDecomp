@@ -198,10 +198,10 @@ public static class SamusGrappleBeamDrawing
         // $94:AFCF recalculates the draw vector from endpoint-minus-flare geometry. This
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
-        SnesAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
+        RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
         // Preserve the fractional word across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
-        int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)
+        int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).TableIndex)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
         int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle.TableIndex)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
@@ -213,8 +213,8 @@ public static class SamusGrappleBeamDrawing
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
         SpriteMirror mirror = ((flipBits & 1 << 6) != 0 ? SpriteMirror.Horizontal : SpriteMirror.None) |
             ((flipBits & 1 << 7) != 0 ? SpriteMirror.Vertical : SpriteMirror.None);
-        int screenXFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
-        int screenYFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
+        int screenXFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
+        int screenYFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
         // Native enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing)
@@ -241,8 +241,8 @@ public static class SamusGrappleBeamDrawing
                 }
             }
 
-            int screenX = SnesFixedPosition.WholeOf(screenXFixed);
-            int screenY = SnesFixedPosition.WholeOf(screenYFixed);
+            int screenX = FixedCoordinate.WholeOf(screenXFixed);
+            int screenY = FixedCoordinate.WholeOf(screenYFixed);
             // Native ticks this slot before the visibility check, then abandons
             // the remaining rope slots entirely at the first off-screen segment.
             if ((screenX | screenY) >= GrappleBeamDefinitions.Rendering.ViewportExtent)

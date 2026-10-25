@@ -105,7 +105,7 @@ public sealed class TourianStatueSequence
     /// the first quarter-pixel step already reads -1. The descent stops at its authored distance, so the offset stays
     /// between minus that distance and zero.
     /// </summary>
-    public int VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-Descent));
+    public int VerticalOffset => unchecked((short)SixteenSixteen.WholeOf(-Descent));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current BG2 position for presentation with the corresponding NMI OBJ buffer.</summary>
@@ -137,7 +137,7 @@ public sealed class TourianStatueSequence
         SpawnAnimatedObjects();
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked))
         {
-            Descent = SnesSixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
+            Descent = SixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
             plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();

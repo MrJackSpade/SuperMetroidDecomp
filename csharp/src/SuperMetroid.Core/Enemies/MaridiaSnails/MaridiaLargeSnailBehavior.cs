@@ -255,7 +255,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                         level,
                         slot,
                         EnemyMath.ReadQuadraticEnemySpeed(
-                            checked((ushort)SnesEightEight.WholeOf(state.YSpeedTableIndex)),
+                            checked((ushort)EightEight.WholeOf(state.YSpeedTableIndex)),
                             negative: false)))
                 {
                     return;
@@ -282,7 +282,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // native AND $7F00 is retained even though valid bounce indexes stay below
                 // $4000; it documents the exact table-index formation seen in a debugger.
                 int tableIndex = checked((ushort)
-                    SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits));
+                    EightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
@@ -303,7 +303,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomLevelData level)
     {
         int byteOffset = state.MovingLeft ? (ushort)132 : (ushort)128;
-        SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
+        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)

@@ -32,15 +32,15 @@ internal static class FixedPointVocabularyVerification
         foreach (int whole in new[] { 0, 1, 2, 3, 7, 8, 0x7fff, 0x8000, 0xffff })
         foreach (int fraction in new[] { 0, 1, 0x7fff, 0x8000, 0xffff })
         {
-            var speed = new SnesUnsignedSixteenSixteen(whole, fraction);
-            var capSpeed = new SnesUnsignedSixteenSixteen(cap, 0);
+            var speed = new UnsignedSixteenSixteen(whole, fraction);
+            var capSpeed = new UnsignedSixteenSixteen(cap, 0);
             bool replaced = unchecked((short)(whole - cap)) >= 0 && unchecked((short)fraction) >= 0;
             AssertEqual(replaced, speed.WordsAtLeast(capSpeed), $"cap {cap} against {whole:X4}.{fraction:X4}");
             if (replaced != (speed.RawValue >= capSpeed.RawValue))
                 disagreements++;
         }
         AssertTrue(disagreements > 0, "some samples separate the word test from an unsigned 32-bit comparison");
-        AssertTrue(!new SnesUnsignedSixteenSixteen(3, 0x8000).WordsAtLeast(new SnesUnsignedSixteenSixteen(2, 0)),
+        AssertTrue(!new UnsignedSixteenSixteen(3, 0x8000).WordsAtLeast(new UnsignedSixteenSixteen(2, 0)),
             "a fraction word of $8000 fails the cap although 3.8000 exceeds 2.0000");
     }
 
@@ -62,21 +62,21 @@ internal static class FixedPointVocabularyVerification
                 if (fraction != 0)
                     negatedWithFraction++;
             }
-            SnesSignedSixteenSixteen actual = EnemyMath.ReadEightBitSineFixedProduct(new SnesByteAngle(angle), (ushort)radius);
+            SignedSixteenSixteen actual = EnemyMath.ReadEightBitSineFixedProduct(new ByteAngle(angle), (ushort)radius);
             AssertEqual(unchecked((short)whole), actual.WholePixels, $"sine product whole, angle {angle:X2} radius {radius:X3}");
             AssertEqual(fraction, actual.Fraction, $"sine product fraction, angle {angle:X2} radius {radius:X3}");
         }
         AssertTrue(negatedWithFraction > 0, "the samples include a negated product with a nonzero fraction");
     }
 
-    /// <summary><see cref="SnesBearing.ToTableAngle"/> is the replaced <c>0x40 - bearing</c> for every byte.</summary>
+    /// <summary><see cref="Bearing.ToTableAngle"/> is the replaced <c>0x40 - bearing</c> for every byte.</summary>
     private static void VerifyBearingConversion()
     {
         for (int bearing = 0; bearing <= byte.MaxValue; bearing++)
         {
-            AssertEqual(unchecked((byte)(0x40 - bearing)), new SnesBearing((byte)bearing).ToTableAngle().RawValue,
+            AssertEqual(unchecked((byte)(0x40 - bearing)), new Bearing((byte)bearing).ToTableAngle().RawValue,
                 $"bearing {bearing:X2} in the table convention");
-            AssertEqual((byte)bearing, new SnesBearing((byte)bearing).ReinterpretAsTableAngle().RawValue,
+            AssertEqual((byte)bearing, new Bearing((byte)bearing).ReinterpretAsTableAngle().RawValue,
                 $"bearing {bearing:X2} read unconverted");
         }
     }

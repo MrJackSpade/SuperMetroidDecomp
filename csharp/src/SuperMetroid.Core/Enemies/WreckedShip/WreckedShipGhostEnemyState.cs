@@ -49,7 +49,7 @@ public sealed class WreckedShipGhostEnemyState
     /// Extended words $01 (fraction) and $02 (whole pixels): the visible ghost's signed 16.16 vertical speed in pixels
     /// per update, accelerating toward <see cref="BobbingOrigin"/> with the cartridge's carry and wraparound.
     /// </summary>
-    public SnesSignedSixteenSixteen VerticalVelocity { get; internal set; }
+    public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>
     /// Extended word $05: Samus's horizontal movement class, 0 moving left, 1 stationary or 2 moving right. With

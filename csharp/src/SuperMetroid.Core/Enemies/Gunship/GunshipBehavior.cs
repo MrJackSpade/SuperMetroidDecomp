@@ -375,9 +375,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Adds the same 16.16 Y displacement to Samus and all three ship components.</summary>
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
     {
-        uint samusFixed = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
+        uint samusFixed = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
         samusFixed = unchecked(samusFixed + delta);
-        samus.Position = samus.Position.WithWholeY(SnesFixedPosition.WholeOf(unchecked((int)samusFixed)));
+        samus.Position = samus.Position.WithWholeY(FixedCoordinate.WholeOf(unchecked((int)samusFixed)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(unchecked((ushort)samusFixed));
 
         for (int component = 0; component < 3; component++)
@@ -385,7 +385,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
             uint fixedPosition = slot.Position.Y.RawValue;
             fixedPosition = unchecked(fixedPosition + delta);
-            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
+            slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(fixedPosition)));
         }
     }
 
@@ -624,8 +624,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             bottomPart.EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
 
         uint samusY = samus.Kinematics.Position.Y.RawValue;
-        samusY = unchecked(samusY - SnesSixteenSixteen.FromEightEight((uint)bottomPart.EscapeVelocity));
-        samus.Kinematics.Position = samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(samusY));
+        samusY = unchecked(samusY - SixteenSixteen.FromEightEight((uint)bottomPart.EscapeVelocity));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithY(FixedCoordinate.FromRaw(samusY));
         MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }
 

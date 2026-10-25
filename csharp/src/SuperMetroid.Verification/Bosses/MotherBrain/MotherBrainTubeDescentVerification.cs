@@ -25,15 +25,15 @@ internal static class MotherBrainTubeDescentVerification
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
         enemies.MotherBrainBehavior.FakeDeath.InitializeMotherBrainFallingTube(tube);
         Action<RoomEnemySlot> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
-        uint expectedPosition = SnesSixteenSixteen.FromWhole((uint)tube.Position.Y.Whole);
+        uint expectedPosition = SixteenSixteen.FromWhole((uint)tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
         ushort previousHeadY = state.Head.Position.Y.Whole;
         int frame;
         for (frame = 0; frame < 200; frame++)
         {
             speed += 6;
-            expectedPosition += SnesSixteenSixteen.FromEightEight((uint)speed);
-            ushort expectedY = SnesFixedPosition.WholeOf(unchecked((int)expectedPosition));
+            expectedPosition += SixteenSixteen.FromEightEight((uint)speed);
+            ushort expectedY = FixedCoordinate.WholeOf(unchecked((int)expectedPosition));
             ushort expectedHead = (ushort)Math.Min(expectedY - 56, 196);
             step(tube);
             AssertEqual(expectedY, tube.Position.Y.Whole, $"Tube native acceleration at frame {frame}");

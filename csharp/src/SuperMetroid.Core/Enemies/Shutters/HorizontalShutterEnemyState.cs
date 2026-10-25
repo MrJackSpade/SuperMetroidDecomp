@@ -23,13 +23,13 @@ public sealed class HorizontalShutterEnemyState
     /// Rightward signed 16.16 velocity in pixels per update, also supplied to an overlapping Samus's extra-X
     /// displacement.
     /// </summary>
-    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
+    public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
     /// Leftward signed 16.16 velocity in pixels per update, also supplied to an overlapping Samus's extra-X
     /// displacement.
     /// </summary>
-    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record holding the rightward and leftward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
@@ -71,7 +71,7 @@ public sealed class HorizontalShutterEnemyState
     {
         Function = null;
         FunctionTimer = WrappingCountdown.Start(0);
-        RightVelocity = SnesSignedSixteenSixteen.Zero;
-        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        RightVelocity = SignedSixteenSixteen.Zero;
+        LeftVelocity = SignedSixteenSixteen.Zero;
     }
 }

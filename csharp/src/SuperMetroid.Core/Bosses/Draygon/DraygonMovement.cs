@@ -25,7 +25,7 @@ internal sealed class DraygonMovement
         uint position = body.Position.X.RawValue;
         uint velocity = state.SwoopVelocity;
         position = rightward ? unchecked(position + velocity) : unchecked(position - velocity);
-        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
+        body.Position = body.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
     }
 
     /// <summary>Emits a breath bubble every 128 body frames when a sprite slot is available.</summary>
@@ -43,8 +43,8 @@ internal sealed class DraygonMovement
     }
 
     /// <summary>Adds or subtracts a sine-derived magnitude with native 16.16 wraparound.</summary>
-    internal static SnesFixedPosition AddDraygonAngleMagnitude(
-        SnesFixedPosition position,
+    internal static FixedCoordinate AddDraygonAngleMagnitude(
+        FixedCoordinate position,
         uint magnitude,
         bool subtract)
     {
@@ -52,6 +52,6 @@ internal sealed class DraygonMovement
         fixedPosition = subtract
             ? unchecked(fixedPosition - magnitude)
             : unchecked(fixedPosition + magnitude);
-        return SnesFixedPosition.FromRaw(fixedPosition);
+        return FixedCoordinate.FromRaw(fixedPosition);
     }
 }

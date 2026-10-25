@@ -95,7 +95,7 @@ public sealed class SamusCeresRidleyEjectionState
             PushDirection = unchecked((short)(screenX - 128)) < 0
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
-            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
+            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
 
             // `$90:E12E` initializes only handler state on this call. `$90:E1C8` does not
             // perform the first collision/movement pass until the following frame.
@@ -141,7 +141,7 @@ public sealed class SamusCeresRidleyEjectionState
             uint accelerated = unchecked(
                 samus.Kinematics.VerticalSpeedFixed +
                 (samus.Kinematics.YAcceleration.RawValue));
-            samus.Kinematics.YSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
+            samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
         }
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 

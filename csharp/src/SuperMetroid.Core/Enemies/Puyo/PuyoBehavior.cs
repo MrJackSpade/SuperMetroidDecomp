@@ -278,7 +278,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int packed = Hop(state).YIndexDelta;
-        int displacement = SnesSixteenSixteen.FromEightEight(packed);
+        int displacement = SixteenSixteen.FromEightEight(packed);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
@@ -312,7 +312,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
-        int speedRow = SnesEightEight.WholeOf(cappedIndex) * QuadraticSpeedRecordSize;
+        int speedRow = EightEight.WholeOf(cappedIndex) * QuadraticSpeedRecordSize;
         int verticalOffset = state.Falling ? 0 : 4;
         int verticalDisplacement = EnemyQuadraticSpeedDefinitions.ReadDisplacement(speedRow + verticalOffset);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
@@ -349,10 +349,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
         // hop's $0140 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;
-        int whole = unchecked((short)(SnesEightEight.WholeOf(xSpeed)));
+        int whole = unchecked((short)(EightEight.WholeOf(xSpeed)));
         if (state.Direction == PuyoDirection.Left)
             whole = unchecked((short)-whole);
-        int horizontalDisplacement = SnesSixteenSixteen.FromWhole(whole);
+        int horizontalDisplacement = SixteenSixteen.FromWhole(whole);
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,

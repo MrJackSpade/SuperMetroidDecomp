@@ -181,7 +181,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int displacement = SnesSixteenSixteen.FromWhole(state.WalkDelta);
+            int displacement = SixteenSixteen.FromWhole(state.WalkDelta);
             reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -287,8 +287,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;
-        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(checked((short)(spikePixelsPerFrame * SubpixelsPerPixel))),
-            new SnesSignedEightEight(0));
+        projectile.Velocity = new(SignedEightEight.FromSignedRaw(checked((short)(spikePixelsPerFrame * SubpixelsPerPixel))),
+            new SignedEightEight(0));
         state.SpawnedSpikeCount++;
         return true;
     }
@@ -309,7 +309,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int nextVelocity = unchecked((short)(oldVelocity + 64));
         if (nextVelocity >= 0 && oldVelocity >= 960)
             nextVelocity = 1024;
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)nextVelocity)));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)nextVelocity)));
     }
 
     /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c> at <c>$86:9E83</c>.</summary>

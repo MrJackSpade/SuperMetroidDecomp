@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
 /// <param name="Fourth">The fourth.</param>
-internal readonly record struct ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(SnesAngle First, SnesAngle Second, int Third, int Fourth);
+internal readonly record struct ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(RotationAngle First, RotationAngle Second, int Third, int Fourth);

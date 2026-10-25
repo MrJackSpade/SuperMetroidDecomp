@@ -61,7 +61,7 @@ public sealed class NinjaSpacePirateEnemyState
     /// update until the midpoint and falls back to zero, or the divekick's vertical speed, which starts at 1,536 and
     /// falls by 64 per update. Its sign is load-bearing: the divekick rise ends on the update the speed turns negative.
     /// </summary>
-    public SnesSignedEightEight Speed { get; internal set; }
+    public SignedEightEight Speed { get; internal set; }
 
     /// <summary>
     /// The room position recorded at initialization, once the Pirate stands at its starting post; a divekick landing
@@ -78,7 +78,7 @@ public sealed class NinjaSpacePirateEnemyState
     /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping as the cartridge's
     /// sixteen-bit speed does.
     /// </summary>
-    internal void ChangeSpeed(int delta) => Speed = new SnesSignedEightEight(unchecked((ushort)(Speed.RawValue + delta)));
+    internal void ChangeSpeed(int delta) => Speed = new SignedEightEight(unchecked((ushort)(Speed.RawValue + delta)));
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

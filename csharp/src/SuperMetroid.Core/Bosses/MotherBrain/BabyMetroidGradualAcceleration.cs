@@ -29,10 +29,10 @@ internal static class BabyMetroidGradualAcceleration
     /// <param name="divisor">The distance divisor, 1 through 16.</param>
     /// <param name="wrongWayOffScreenSpeed">The extra speed a reversal adds while the mover is off screen.</param>
     /// <param name="isVaguelyOffScreen">Whether the mover is off screen, consulted only when reversing.</param>
-    public static SnesSignedEightEight AccelerateHorizontally(
+    public static SignedEightEight AccelerateHorizontally(
         int position,
         int target,
-        SnesSignedEightEight velocity,
+        SignedEightEight velocity,
         int divisor,
         int wrongWayOffScreenSpeed,
         Func<bool> isVaguelyOffScreen)
@@ -88,7 +88,7 @@ internal static class BabyMetroidGradualAcceleration
     /// <param name="target">The target's whole Y coordinate.</param>
     /// <param name="velocity">The mover's Y velocity.</param>
     /// <param name="divisor">The distance divisor, 1 through 16.</param>
-    public static SnesSignedEightEight AccelerateVertically(int position, int target, SnesSignedEightEight velocity, int divisor)
+    public static SignedEightEight AccelerateVertically(int position, int target, SignedEightEight velocity, int divisor)
     {
         bool carry = true;
         int distance = Subtract(position, target);
@@ -144,7 +144,7 @@ internal static class BabyMetroidGradualAcceleration
     private static int Wrap(int value) => unchecked((ushort)value);
 
     /// <summary>A chain word as the velocity it encodes.</summary>
-    private static SnesSignedEightEight Velocity(int word) => new(checked((ushort)word));
+    private static SignedEightEight Velocity(int word) => new(checked((ushort)word));
 
     /// <summary>Tests the word sign bit before choosing an acceleration or reversal branch.</summary>
     private static bool IsNegative(int word) => unchecked((short)word) < 0;

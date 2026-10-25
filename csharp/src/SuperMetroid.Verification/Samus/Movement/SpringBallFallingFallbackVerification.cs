@@ -44,8 +44,8 @@ internal static class SpringBallFallingFallbackVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
-        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0xe000);
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0xe000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         ushort x0 = samus.Position.X.Whole;
 

@@ -43,7 +43,7 @@ internal static class GrappleRopeGeometryVerification
             int angle = direction > 0 ? 32 : 224;
             int dx = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b443 + angle * 2) * 2048;
             int dy = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) * 2048;
-            int x = unchecked(SnesSixteenSixteen.FromWhole(origin - 4)), y = 124 << 16;
+            int x = unchecked(SixteenSixteen.FromWhole(origin - 4)), y = 124 << 16;
             var expected = new List<GrappleRopeGeometryExpected>();
             int visited = 0;
             if ((short)length >= 0)
@@ -52,7 +52,7 @@ internal static class GrappleRopeGeometryVerification
                 for (int segment = 0; segment < count; segment++)
                 {
                     visited++;
-                    ushort sx = SnesFixedPosition.WholeOf(x), sy = SnesFixedPosition.WholeOf(y);
+                    ushort sx = FixedCoordinate.WholeOf(x), sy = FixedCoordinate.WholeOf(y);
                     if (SnesLittleEndian.HighByte(unchecked((ushort)(sx | sy))) != 0) break;
                     expected.Add(new GrappleRopeGeometryExpected((byte)sx, (byte)sy));
                     x = unchecked(x + dx); y = unchecked(y + dy);

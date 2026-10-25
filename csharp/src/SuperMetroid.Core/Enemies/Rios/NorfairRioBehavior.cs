@@ -107,10 +107,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // (random >> 1) & 2 selects one of two adjacent signed 8.8 Y speeds; that
                 // expression is already the byte offset into the word table.
                 state.Velocity = new EightEightVector<RoomPixels>(
-                    new SnesSignedEightEight(RioLaunchDefinitions.NorfairXVelocity),
-                    new SnesSignedEightEight(RioLaunchDefinitions.NorfairYVelocity(random)));
+                    new SignedEightEight(RioLaunchDefinitions.NorfairXVelocity),
+                    new SignedEightEight(RioLaunchDefinitions.NorfairYVelocity(random)));
                 if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
-                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 InstallNorfairRioInstructionList(
                     slot,
                     state,
@@ -142,7 +142,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - NorfairRioGravity))));
+                state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - NorfairRioGravity))));
                 if (state.Velocity.Y.SignedRawValue < 0)
                     BeginNorfairRioReturn(slot, state);
                 return;
@@ -159,7 +159,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - NorfairRioGravity))));
+                state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - NorfairRioGravity))));
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
@@ -257,7 +257,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         NorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-1)));
         InstallNorfairRioInstructionList(
             slot,
             state,
@@ -276,7 +276,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
         {
-            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+            state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
         }
     }
 

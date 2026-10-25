@@ -24,7 +24,7 @@ internal static class SamusGrappleMovementAccess
             SamusState samus,
             Position16<RoomPixels> anchor,
             byte ropeLength,
-            SnesAngle angle,
+            RotationAngle angle,
             short angularVelocity,
             bool faceRight)
         {

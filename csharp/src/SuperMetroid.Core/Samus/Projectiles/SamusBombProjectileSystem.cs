@@ -499,7 +499,7 @@ public sealed class SamusBombProjectileSystem
             slot.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(launch.XVelocity);
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
             // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
-            slot.BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.FromParts(
+            slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
                 unchecked((short)-(launch.YSpeed.Whole + verticalModifier)), launch.YSpeed.Fraction);
             slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
         }
@@ -680,7 +680,7 @@ public sealed class SamusBombProjectileSystem
     {
         // Gravity adds with the fraction carrying into the whole word and the whole word wrapping at sixteen bits,
         // which is the signed 16.16 value's wrapping addition.
-        slot.BombSpreadVerticalVelocity += SnesSignedSixteenSixteen.FromParts(
+        slot.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
             unchecked((short)samus.YAcceleration.Whole), samus.YAcceleration.Fraction);
 
         int previousY = slot.Position.Y.Whole;

@@ -22,14 +22,14 @@ internal static class WallSpacePirateRecordStateVerification
         state.WallJumpDestination = new Position16<RoomPixels>(1, 0);
         state.ClimbDirection = Enum.GetValues<WallSpacePirateClimbDirection>()[^1];
         state.WallJumpArcCenter = new Position16<RoomPixels>(1, 0);
-        state.WallJumpArcAngle = SnesAngle.FromTableIndex(1);
+        state.WallJumpArcAngle = RotationAngle.FromTableIndex(1);
 
         slot.Clear();
         AssertEqual<WallSpacePirateFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.WallJumpDestination, "a kill empties WallJumpDestination");
         AssertEqual<WallSpacePirateClimbDirection>(default(WallSpacePirateClimbDirection), state.ClimbDirection, "a kill empties ClimbDirection");
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.WallJumpArcCenter, "a kill empties WallJumpArcCenter");
-        AssertEqual<SnesAngle>(SnesAngle.FromTableIndex(0), state.WallJumpArcAngle, "a kill empties WallJumpArcAngle");
+        AssertEqual<RotationAngle>(RotationAngle.FromTableIndex(0), state.WallJumpArcAngle, "a kill empties WallJumpArcAngle");
         Console.WriteLine("WallSpacePirate record state: a kill empties every value the record holds.");
     }
 

@@ -14,7 +14,7 @@ internal sealed class EndingPostShot
     /// <summary>Current size of the rotating shot graphic, clamped at the native minimum.</summary>
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
-    public SnesAngle Angle { get; private set; } = SnesAngle.Zero;
+    public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
     /// <summary>Number of the subtitle and logo parts shown so far.</summary>
     public int PartsShown { get; private set; }
     /// <summary>Indicates that the shot graphic has reached its minimum scale.</summary>

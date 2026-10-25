@@ -60,8 +60,8 @@ internal static class YardAirborneVerification
             (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(
-                SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialX)),
-                SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
+                SignedSixteenSixteen.FromRaw(unchecked((int)initialX)),
+                SignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -74,13 +74,13 @@ internal static class YardAirborneVerification
                 {
                     x = unchecked(x + vx);
                     uint changed = unchecked(vx + ((vx & 0x80000000) != 0 ? 0x1000u : 0xFFFFF000u));
-                    vx = SnesSixteenSixteen.WholeOf(changed) == 0
-                        ? SnesSixteenSixteen.Compose((ushort)SnesSixteenSixteen.WholeOf(vx), (ushort)SnesSixteenSixteen.FractionOf(changed)) : changed;
+                    vx = SixteenSixteen.WholeOf(changed) == 0
+                        ? SixteenSixteen.Compose((ushort)SixteenSixteen.WholeOf(vx), (ushort)SixteenSixteen.FractionOf(changed)) : changed;
                 }
                 y = unchecked(y + vy);
                 uint accelerated = unchecked(vy + 0x2000);
-                vy = unchecked((short)(SnesSixteenSixteen.WholeOf(accelerated) - 4)) < 0
-                    ? accelerated : SnesSixteenSixteen.Compose((ushort)SnesSixteenSixteen.WholeOf(vy), (ushort)SnesSixteenSixteen.FractionOf(accelerated));
+                vy = unchecked((short)(SixteenSixteen.WholeOf(accelerated) - 4)) < 0
+                    ? accelerated : SixteenSixteen.Compose((ushort)SixteenSixteen.WholeOf(vy), (ushort)SixteenSixteen.FractionOf(accelerated));
                 enemies.StepFrame(new RoomEnemyFrame { Camera = new(384, 384), TimeIsFrozen = false, Samus = samus, Level = level });
                 AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
                 AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");

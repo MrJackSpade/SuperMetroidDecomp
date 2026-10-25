@@ -88,9 +88,9 @@ internal sealed class PhantoonPresentation
         // in the wrong direction. The native divisor is an eight-bit register; the steps left are 1 through the
         // denominator (at most 12), because the first and last steps return above, so it never wraps or reaches zero.
         int remainingSteps = denominator - numerator + 1;
-        int quotient = SnesEightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
+        int quotient = EightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return SnesLittleEndian.HighByte((ushort)(SnesEightEight.FromWhole(current) + signedStep));
+        return SnesLittleEndian.HighByte((ushort)(EightEight.FromWhole(current) + signedStep));
     }
 
     /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>

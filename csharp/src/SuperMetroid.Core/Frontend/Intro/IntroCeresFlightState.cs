@@ -40,7 +40,7 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     private int zoom = 512;
     /// <summary>Mode 7 rotation index used to derive the four matrix entries.</summary>
-    private SnesAngle angle = SnesAngle.FromTableIndex(224);
+    private RotationAngle angle = RotationAngle.FromTableIndex(224);
     /// <summary>
     /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
     /// lowered one level every other update in the final fade, stopping at zero.
@@ -270,7 +270,7 @@ internal sealed class IntroCeresFlightState
         // $BE22 queues the second $300-byte map immediately behind the front view in the
         // same decompressed stream; the rear view's phase selects it in the composed image.
         background = new(new(unchecked((ushort)-32), 0), new(unchecked((ushort)-128), 0));
-        angle = SnesAngle.FromTableIndex(32);
+        angle = RotationAngle.FromTableIndex(32);
 
         // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
         // remain cartridge streams; the compiled definitions supply callback identity,
@@ -318,7 +318,7 @@ internal sealed class IntroCeresFlightState
 
         // $BFDA drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
         // image in two native bands: +16 until 3072, then +32 until 8192.
-        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SnesSixteenSixteen.FromWhole(1) / 8));
+        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SixteenSixteen.FromWhole(1) / 8));
         if (zoom < 3072)
             zoom += 16;
         else if (zoom < 8192)
@@ -433,7 +433,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Adds a fractional X delta and wraps the actor within the native 512-pixel span.</summary>
     private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
-        SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % 512)));
     }
 
@@ -457,7 +457,7 @@ internal sealed class IntroCeresFlightState
         }
         stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer +
             CeresFlightActorDefinitions.FrontStarAcceleration));
-        var velocity = new SnesSignedEightEight(checked((ushort)stars.GeneralTimer));
+        var velocity = new SignedEightEight(checked((ushort)stars.GeneralTimer));
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));

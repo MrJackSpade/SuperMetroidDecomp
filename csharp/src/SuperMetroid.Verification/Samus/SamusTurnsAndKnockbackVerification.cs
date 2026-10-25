@@ -88,7 +88,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         {
             Position = new(new(x, 0x4321), new(48, 0x1234)), Radius = new(5, 5),
         };
-        var result = SamusBlockCollision.ProbeWallHorizontal(level, probeState, null, SnesSixteenSixteen.FromWhole(distance));
+        var result = SamusBlockCollision.ProbeWallHorizontal(level, probeState, null, SixteenSixteen.FromWhole(distance));
         AssertEqual(hit, result.Collided, "wall probe detects the constructed wall");
         AssertEqual(x, probeState.Position.X.Whole, "wall probe preserves whole-pixel X");
         AssertEqual(fraction, probeState.Position.X.Fraction, "wall probe preserves native fractional write");
@@ -197,13 +197,13 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.BaseSpeed = endpoint.HorizontalSpeed.BaseSpeed.WithFraction(0x4800);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-        endpoint.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(SnesFixedPosition.WholeOf(unchecked((int)extra)), (ushort)extra);
+        endpoint.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(FixedCoordinate.WholeOf(unchecked((int)extra)), (ushort)extra);
         for (int tick = 0; tick < 6; tick++)
             SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new SharedRandom() });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(endpoint), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
-        AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
+        AssertEqual(FixedCoordinate.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
         AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn endpoint retains fractional dash speed");
 
         endpoint.Pose = source;
@@ -360,7 +360,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
     // likewise leaves the Dash pair/flag alone. Seed a visible fractional value here so
     // an over-broad wall-jump cleanup cannot masquerade as a harmless zero-state write.
-    eligible.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x7000);
+    eligible.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x7000);
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialPoseTransitions.ApplyWallJumpTrigger(eligible);
@@ -857,7 +857,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         KnockbackTimer = WrappingCountdown.Start(0),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
-    floorClipOverlap.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0xffff, 0xac00);
+    floorClipOverlap.Kinematics.YSpeed = new UnsignedSixteenSixteen(0xffff, 0xac00);
     floorClipOverlap.Kinematics.YDirection = SamusVerticalDirection.None;
     floorClipOverlap.PoseHistory.PreviousPose =
         SamusPoseId.TurningLeftToRightJumpAimDownPose;

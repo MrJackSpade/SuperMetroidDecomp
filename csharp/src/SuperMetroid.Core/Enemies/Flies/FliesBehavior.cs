@@ -31,7 +31,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new FlyEnemyState
         {
-            Angle = SnesAngle.Zero,
+            Angle = RotationAngle.Zero,
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -96,7 +96,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 
         MoveFlyAccordingToAngle(slot, state);
         state.AdvanceCircle(rotation == RotationDirection.Clockwise);
-        if (state.Angle == SnesAngle.Zero)
+        if (state.Angle == RotationAngle.Zero)
         {
             state.Function = rotation == RotationDirection.Clockwise
                 ? FlyEnemyFunction.AntiClockwiseCircle
@@ -139,8 +139,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle.TableIndex;
-        slot.Position = slot.Position.AdvanceX(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex + 64))).ToSixteenSixteenDelta());
-        slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceX(new SignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex + 64))).ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceY(new SignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
     }
 
     /// <summary>Applies the fixed-point dive or retreat velocity to the enemy position.</summary>

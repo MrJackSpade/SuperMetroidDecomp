@@ -79,8 +79,8 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor RawWidthRule = new(
         RawWidthId,
         "Raw storage-width or layout operation",
-        "{0}; name what it means: a byte lane (SnesLittleEndian), an 8.8 or 16.16 fixed-point part (SnesSignedEightEight, " +
-            "SnesSignedSixteenSixteen, SnesFixedPosition), a bank and offset (SnesAddress), a packed field, a screen or tile " +
+        "{0}; name what it means: a byte lane (SnesLittleEndian), an 8.8 or 16.16 fixed-point part (SignedEightEight, " +
+            "SignedSixteenSixteen, FixedCoordinate), a bank and offset (SnesAddress), a packed field, a screen or tile " +
             "conversion, or a fraction scale; the same shift can mean any of these, so choose the actual one ({1})",
         "Design",
         DiagnosticSeverity.Warning,

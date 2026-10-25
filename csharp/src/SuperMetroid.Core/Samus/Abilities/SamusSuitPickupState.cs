@@ -257,7 +257,7 @@ public sealed class SamusSuitPickupState
     /// <summary>Moves the beam's left and right endpoints apart uniformly before curved widening begins.</summary>
     private void StepUniformWidening()
     {
-        int amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int amount = unchecked((byte)EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
         // Window columns are eight bits wide: both edges wrap within the screen row.
         int left = unchecked((byte)(checked((byte)_lightBeamLeft.X) - amount));
         int right = unchecked((byte)(checked((byte)_lightBeamRight.X) + amount));
@@ -277,7 +277,7 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        int amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int amount = unchecked((byte)EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
         int oldLeft = checked((byte)_lightBeamLeft.X);
         int left = unchecked((byte)(oldLeft - amount));
         int right = checked((byte)_lightBeamRight.X);
@@ -336,7 +336,7 @@ public sealed class SamusSuitPickupState
 
         // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
         // stays far inside the range where the cartridge's signed comparison is this ordinary one.
-        _lightBeamScanlines += SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
+        _lightBeamScanlines += EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
         // The final curved column is wiped by this many scanlines from the top. Native's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
@@ -393,7 +393,7 @@ public sealed class SamusSuitPickupState
 
     /// <summary>A horizontal unsigned 8.8 speed from its raw word; the vertical axis is unused.</summary>
     private static EightEightVector<ScreenPixels> WideningVelocity(int speed) =>
-        new(new SnesSignedEightEight(checked((ushort)speed)), new SnesSignedEightEight(0));
+        new(new SignedEightEight(checked((ushort)speed)), new SignedEightEight(0));
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

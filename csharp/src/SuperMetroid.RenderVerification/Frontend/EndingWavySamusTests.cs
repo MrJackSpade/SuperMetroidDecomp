@@ -76,7 +76,7 @@ internal static class EndingWavySamusTests
             if (age < 2) return 0;
             int offset = (-2 + (age - 1) * 16 + (line % 64) * 4) & 0x1ff;
             short sample = NativeWaveSample(rom, offset);
-            int displacement = SnesSixteenSixteen.Multiply(Math.Abs((int)sample), 0x4000);
+            int displacement = SixteenSixteen.Multiply(Math.Abs((int)sample), 0x4000);
             if (sample < 0) displacement = -displacement;
             if ((line / 64 & 1) != 0) displacement = -displacement;
             return unchecked((ushort)displacement);

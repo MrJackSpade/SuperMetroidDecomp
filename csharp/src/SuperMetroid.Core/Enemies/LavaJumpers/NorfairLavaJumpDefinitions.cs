@@ -7,12 +7,12 @@ internal static class NorfairLavaJumpDefinitions
     /// The four signed 8.8 Y velocities at <c>$A2:BE86-$BE8D</c>. Native AI selects a
     /// two-byte record with <c>HIBYTE(random) &amp; 6</c>.
     /// </summary>
-    private static readonly SnesSignedEightEight[] InitialVerticalVelocities =
+    private static readonly SignedEightEight[] InitialVerticalVelocities =
     [
-        SnesSignedEightEight.FromSignedRaw(-2049),
-        SnesSignedEightEight.FromSignedRaw(-1794),
-        SnesSignedEightEight.FromSignedRaw(-1601),
-        SnesSignedEightEight.FromSignedRaw(-1281),
+        SignedEightEight.FromSignedRaw(-2049),
+        SignedEightEight.FromSignedRaw(-1794),
+        SignedEightEight.FromSignedRaw(-1601),
+        SignedEightEight.FromSignedRaw(-1281),
     ];
 
     /// <summary>Selects the exact launch velocity from the current native RNG word.</summary>

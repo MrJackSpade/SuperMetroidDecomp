@@ -340,7 +340,7 @@ internal sealed class RoomLoader
         // hurt check from it. The $22 branch locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
-        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new SnesFixedPosition(station.SamusPosition.X, 0)).WithY(new SnesFixedPosition(station.SamusPosition.Y, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.SamusPosition.Y, 0));
         samus.Control.LockHandlers();
 
         // The special loader still executes the normal room-object teardown before it

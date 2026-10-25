@@ -14,26 +14,26 @@ internal static class MamaTurtleOwnedStateVerification
     {
         var state = new MamaTurtleEnemyState
         {
-            Velocity = new(SnesSignedSixteenSixteen.FromParts(2, 0xf800), SnesSignedSixteenSixteen.FromParts(1, 0x2000)),
-            XAcceleration = SnesSignedSixteenSixteen.FromParts(0, 0x1000),
+            Velocity = new(SignedSixteenSixteen.FromParts(2, 0xf800), SignedSixteenSixteen.FromParts(1, 0x2000)),
+            XAcceleration = SignedSixteenSixteen.FromParts(0, 0x1000),
         };
         MamaTurtleBehavior.AddAndClampMamaTurtleHorizontalAcceleration(state);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(3, 0x0800), state.Velocity.X, "the fraction carries and the whole speed caps at three");
+        AssertEqual(SignedSixteenSixteen.FromParts(3, 0x0800), state.Velocity.X, "the fraction carries and the whole speed caps at three");
 
-        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(2, 0x8000));
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(2, 0x8000));
         MamaTurtleBehavior.ReverseMamaTurtleAtWall(state);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-3, 0x8000), state.Velocity.X, "a wall reversal negates 2.5 to -2.5");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-1, 0xf000), state.XAcceleration, "a wall reversal negates a sixteenth exactly without a carry");
+        AssertEqual(SignedSixteenSixteen.FromParts(-3, 0x8000), state.Velocity.X, "a wall reversal negates 2.5 to -2.5");
+        AssertEqual(SignedSixteenSixteen.FromParts(-1, 0xf000), state.XAcceleration, "a wall reversal negates a sixteenth exactly without a carry");
 
-        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(-1, 0));
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(-1, 0));
         MamaTurtleBehavior.ReverseMamaTurtleAtWall(state);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "the carry-in wraps a -1 whole-pixel reversal to zero");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-1, 0x1000), state.XAcceleration, "the carried reversal skips the acceleration's final increment");
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "the carry-in wraps a -1 whole-pixel reversal to zero");
+        AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x1000), state.XAcceleration, "the carried reversal skips the acceleration's final increment");
 
         state.Function = MamaTurtleAiFunction.Hovering;
         state.ClearWithRecord();
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "a kill empties the whole horizontal pixels");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(1, 0x2000), state.Velocity.Y, "the vertical velocity outlives the kill");
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "a kill empties the whole horizontal pixels");
+        AssertEqual(SignedSixteenSixteen.FromParts(1, 0x2000), state.Velocity.Y, "the vertical velocity outlives the kill");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk and cleared record match.");
     }

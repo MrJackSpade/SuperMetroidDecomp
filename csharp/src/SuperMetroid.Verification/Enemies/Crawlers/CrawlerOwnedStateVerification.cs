@@ -24,7 +24,7 @@ internal static class CrawlerOwnedStateVerification
         CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared, null);
         CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
         ushort speed = CrawlerSpeedDefinitions.ForParameter(2);
-        AssertEqual(new EightEightVector<RoomPixels>(new SnesSignedEightEight(unchecked((ushort)-speed)), new SnesSignedEightEight(speed)),
+        AssertEqual(new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),
             state.Velocity, "the reset speed with the X sign the properties select");
         AssertEqual<CrawlerEnemyFunction?>(CrawlerEnemyFunction.InstructionPending, state.Function, "a new crawler waits for its instruction");
 

@@ -12,9 +12,9 @@ internal readonly record struct CinematicFadeColor(ushort Red, ushort Green, ush
 {
     /// <summary>The live 8.8 value of a target colour: each five-bit component as the whole part.</summary>
     internal static CinematicFadeColor Target(Bgr555 color) => new(
-        (ushort)SnesEightEight.FromWhole((ushort)color.Red),
-        (ushort)SnesEightEight.FromWhole((ushort)color.Green),
-        (ushort)SnesEightEight.FromWhole((ushort)color.Blue));
+        (ushort)EightEight.FromWhole((ushort)color.Red),
+        (ushort)EightEight.FromWhole((ushort)color.Green),
+        (ushort)EightEight.FromWhole((ushort)color.Blue));
 
     /// <summary>One thirty-second of a target colour in 8.8 form: <c>component &lt;&lt; 3</c>, the literal shifts at $8B:8C19-$8C59.</summary>
     internal static CinematicFadeColor Step(Bgr555 color) => new(

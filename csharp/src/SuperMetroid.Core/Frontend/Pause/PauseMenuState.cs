@@ -593,7 +593,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
     private Position16<MapTiles> SamusMapCell() =>
-        roomMapPosition + new Offset16<MapTiles>(checked((short)(SnesEightEight.WholeOf(samus.Position.X.Whole))), checked((short)((SnesEightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
+        roomMapPosition + new Offset16<MapTiles>(checked((short)(EightEight.WholeOf(samus.Position.X.Whole))), checked((short)((EightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
 
     /// <summary>Draws the animated Samus map marker at the scrolled screen position.</summary>
     private void DrawMapPositionIndicator()

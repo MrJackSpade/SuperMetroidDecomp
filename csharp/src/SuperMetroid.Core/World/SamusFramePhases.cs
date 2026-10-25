@@ -1299,7 +1299,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         bool drainedLanded = drainedLanding is not null;
         if (!frame.DeathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
         {
-            SnesUnsignedSixteenSixteen impactYSpeed = drainedLanding is { } drainedSpeed
+            UnsignedSixteenSixteen impactYSpeed = drainedLanding is { } drainedSpeed
                 ? drainedSpeed.ImpactYSpeed
                 : samus.Kinematics.YSpeed;
             samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(

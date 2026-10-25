@@ -32,7 +32,7 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <param name="angle">Beam center aim; only its 256-unit-turn table index is used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Angular width in 8.8 table units, $0200 through $0C00; its whole part is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
     public void Step(bool active, Position16<RoomPixels> head,
-        SnesAngle angle, int angularWidth)
+        RotationAngle angle, int angularWidth)
     {
         if (!active)
         {
@@ -62,12 +62,12 @@ public sealed class MotherBrainRainbowBeamEffect
 
     /// <summary>Resolves the beam's cone from its two angular edges, using native quadrant dispatch and mouth offsets.</summary>
     private void ResolveGeometry(Position16<RoomPixels> head,
-        SnesAngle angle, int angularWidth)
+        RotationAngle angle, int angularWidth)
     {
-        int halfWidth = SnesEightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
+        int halfWidth = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
         int a = angle.ToByteAngle().AddTableUnits(-halfWidth).RawValue;
         int b = angle.ToByteAngle().AddTableUnits(halfWidth).RawValue;
-        int quadrant = (a / SnesAngle.QuarterTurn.TableIndex) * 4 + b / SnesAngle.QuarterTurn.TableIndex;
+        int quadrant = (a / RotationAngle.QuarterTurn.TableIndex) * 4 + b / RotationAngle.QuarterTurn.TableIndex;
         var direction = MotherBrainBeamQuadrants.DirectionForPair(quadrant);
         // Native DE5E is an RTS: retain the previous geometry for a beam straddling left.
         if (direction == MotherBrainBeamDirection.Retain) return;

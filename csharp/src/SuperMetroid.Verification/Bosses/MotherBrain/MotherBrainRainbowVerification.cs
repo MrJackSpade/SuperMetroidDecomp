@@ -23,7 +23,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     // The helpers add a signed 8.8 velocity to the whole Y word and only the high
     // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.
     static ushort YEightEight(SamusState state) =>
-        unchecked((ushort)((SnesEightEight.FromWhole(state.Position.Y.Whole)) | SnesLittleEndian.HighByte(state.Kinematics.Position.Y.Fraction)));
+        unchecked((ushort)((EightEight.FromWhole(state.Position.Y.Whole)) | SnesLittleEndian.HighByte(state.Kinematics.Position.Y.Fraction)));
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var samus = new SamusState
@@ -82,7 +82,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x0022);
     samus.Position = samus.Position.WithWholeY(100);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x0033);
-    movement.RainbowBeamAngle = SnesAngle.Zero;
+    movement.RainbowBeamAngle = RotationAngle.Zero;
     ushort beamBefore = YEightEight(samus);
     MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(samus);
     AssertEqual(0x1000, unchecked((ushort)(YEightEight(samus) - beamBefore)),
@@ -107,7 +107,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
     samus.Position = samus.Position.WithWholeY(0x0030);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x9999);
-    movement.RainbowBeamAngle = SnesAngle.HalfTurn;
+    movement.RainbowBeamAngle = RotationAngle.HalfTurn;
     MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(samus);
     AssertTrue(samus.Position.Y.Whole == 0x0030 && samus.Kinematics.Position.Y.Fraction == 0 && !ceiling.ReachedVerticalBoundary,
         "rainbow ceiling clamp is hidden from caller carry");

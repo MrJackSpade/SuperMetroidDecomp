@@ -72,10 +72,10 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
             state.Program = new AnimationProgramCursor<DachoraProgram>(slow, 3);
-            state.Speed = SnesSignedSixteenSixteen.FromParts(3, 0xf000);
+            state.Speed = SignedSixteenSixteen.FromParts(3, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             AssertEqual(new AnimationProgramCursor<DachoraProgram>(fast, 3), state.Program, $"Dachora {slow} speeds up at the same pose");
-            state.Speed = SnesSignedSixteenSixteen.FromParts(7, 0xf000);
+            state.Speed = SignedSixteenSixteen.FromParts(7, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             AssertEqual(new AnimationProgramCursor<DachoraProgram>(fastest, 3), state.Program, $"Dachora {fast} speeds up at the same pose");
         }

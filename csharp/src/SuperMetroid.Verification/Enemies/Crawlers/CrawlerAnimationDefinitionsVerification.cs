@@ -86,22 +86,22 @@ internal static class CrawlerAnimationDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             var state = new CrawlerEnemyState { SurfaceTableOffset = speciesOffset };
 
-            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffff));
+            state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideRight)),
                 state.Program, $"crawler production right surface {speciesOffset}");
-            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(1));
+            state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
             setHorizontal(slot, state);
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideLeft)),
                 state.Program, $"crawler production left surface {speciesOffset}");
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xffff));
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
             setVertical(slot, state);
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideDown)),
                 state.Program, $"crawler production down surface {speciesOffset}");
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(1));
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
             setVertical(slot, state);
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideUp)),

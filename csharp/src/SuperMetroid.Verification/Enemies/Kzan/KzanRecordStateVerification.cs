@@ -21,14 +21,14 @@ internal static class KzanRecordStateVerification
         state.FallWaitTimer = WrappingCountdown.Start(1);
         state.RisingTarget = new Position16<RoomPixels>(1, 0);
         state.FallingTarget = new Position16<RoomPixels>(1, 0);
-        state.InitialFallingSpeed = SnesSignedSixteenSixteen.FromParts(1, 0);
+        state.InitialFallingSpeed = SignedSixteenSixteen.FromParts(1, 0);
 
         slot.Clear();
         AssertEqual<KzanEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.FallWaitTimer, "a kill empties FallWaitTimer");
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.RisingTarget, "a kill empties RisingTarget");
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.FallingTarget, "a kill empties FallingTarget");
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.InitialFallingSpeed, "a kill empties InitialFallingSpeed");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.InitialFallingSpeed, "a kill empties InitialFallingSpeed");
         Console.WriteLine("Kzan record state: a kill empties every value the record holds.");
     }
 

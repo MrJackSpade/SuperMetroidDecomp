@@ -18,7 +18,7 @@ internal sealed class MotherBrainFallingTubeState
     }
 
     /// <summary>The signed 8.8 fall speed per update, increased by six 256ths each update.</summary>
-    public SnesSignedEightEight FallSpeed { get; internal set; }
+    public SignedEightEight FallSpeed { get; internal set; }
 
     /// <summary>The updates before the next smoke puff, counted down past zero.</summary>
     public WrappingCountdown SmokeDelay { get; internal set; }

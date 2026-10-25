@@ -32,7 +32,7 @@ internal static class XrayScopeDefinitionsVerification
                 $"X-ray animation boundary {index} follows its predecessor");
         }
 
-        AssertEqual(SnesAngle.HalfTurn.TableIndex + 1,
+        AssertEqual(RotationAngle.HalfTurn.TableIndex + 1,
             XrayScopeDefinitions.Window.AbsoluteTangentWordCount,
             "X-ray absolute tangent table includes both half-turn endpoints");
         AssertEqual(XrayScopeDefinitionsPaletteConstants.SamusCgramIndex + 4,

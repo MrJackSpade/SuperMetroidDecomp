@@ -199,7 +199,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         if (unchecked((short)(y - 218)) < 0)
             return false;
-        acceleration = unchecked((ushort)Math.Min(acceleration + SnesEightEight.FromWhole(1), SnesEightEight.FromWhole(31)));
+        acceleration = unchecked((ushort)Math.Min(acceleration + EightEight.FromWhole(1), EightEight.FromWhole(31)));
         int accelerationWhole = SnesLittleEndian.HighByte(acceleration);
 
         byte speedFraction = SnesLittleEndian.LowByte(speed);
@@ -233,7 +233,7 @@ internal static class CrocomireStateQuantitiesVerification
         CrocomireDeathState death = behavior.Access.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
         ushort fraction = 0;
         ushort whole = 0;
-        state.SkeletonVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
+        state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
         body.Position = body.Position.WithWhole(new(100, 54));
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
@@ -243,7 +243,7 @@ internal static class CrocomireStateQuantitiesVerification
         // The drift right of the broken wall, while the skeleton is left of X 224.
         for (int frame = 1; frame <= delay; frame++)
         {
-            NativeAccelerate(ref fraction, ref whole, SnesSixteenSixteen.FromEightEight(128u), 2);
+            NativeAccelerate(ref fraction, ref whole, SixteenSixteen.FromEightEight(128u), 2);
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             if (frame == delay)
                 fraction = 0;
@@ -255,7 +255,7 @@ internal static class CrocomireStateQuantitiesVerification
         // The arc into the arena, falling 224/256 pixel a frame, until the skeleton passes X 576.
         for (int frame = 1; frame <= 400; frame++)
         {
-            NativeAccelerate(ref fraction, ref whole, SnesSixteenSixteen.FromEightEight(8u), 5);
+            NativeAccelerate(ref fraction, ref whole, SixteenSixteen.FromEightEight(8u), 5);
             position = position.WithY(NativeAdvance(position.Y, SnesLittleEndian.Word(0, 224), 0));
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             behavior.Skeleton.RunCrocomireSkeletonArc(state);
@@ -269,7 +269,7 @@ internal static class CrocomireStateQuantitiesVerification
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.SkeletonFallsApart);
         for (int frame = 1; frame <= 20; frame++)
         {
-            NativeAccelerate(ref fraction, ref whole, SnesSixteenSixteen.FromEightEight(16u), 6);
+            NativeAccelerate(ref fraction, ref whole, SixteenSixteen.FromEightEight(16u), 6);
             behavior.Skeleton.RunCrocomireSkeletonCollapse(state);
             AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"skeleton collapse frame {frame}: speed fraction word");
             AssertEqual(whole, state.SkeletonVelocity.WholeWord, $"skeleton collapse frame {frame}: speed whole word");
@@ -288,16 +288,16 @@ internal static class CrocomireStateQuantitiesVerification
     /// <summary>The cartridge's split 16.16 speed update: add, then clamp the whole word and keep the fraction.</summary>
     private static void NativeAccelerate(ref ushort fraction, ref ushort whole, uint delta, ushort maximumWhole)
     {
-        uint speed = unchecked(SnesSixteenSixteen.Compose(whole, fraction) + delta);
-        if (SnesFixedPosition.WholeOf(unchecked((int)speed)) >= maximumWhole)
-            speed = SnesSixteenSixteen.Compose(maximumWhole, unchecked((ushort)SnesSixteenSixteen.FractionOf(speed)));
-        fraction = unchecked((ushort)SnesSixteenSixteen.FractionOf(speed));
-        whole = SnesFixedPosition.WholeOf(unchecked((int)speed));
+        uint speed = unchecked(SixteenSixteen.Compose(whole, fraction) + delta);
+        if (FixedCoordinate.WholeOf(unchecked((int)speed)) >= maximumWhole)
+            speed = SixteenSixteen.Compose(maximumWhole, unchecked((ushort)SixteenSixteen.FractionOf(speed)));
+        fraction = unchecked((ushort)SixteenSixteen.FractionOf(speed));
+        whole = FixedCoordinate.WholeOf(unchecked((int)speed));
     }
 
     /// <summary>The cartridge's 32-bit position add of a split whole and fraction speed.</summary>
-    private static SnesFixedPosition NativeAdvance(SnesFixedPosition position, ushort fraction, ushort whole) =>
-        SnesFixedPosition.FromRaw(unchecked(position.RawValue + SnesSixteenSixteen.Compose(whole, fraction)));
+    private static FixedCoordinate NativeAdvance(FixedCoordinate position, ushort fraction, ushort whole) =>
+        FixedCoordinate.FromRaw(unchecked(position.RawValue + SixteenSixteen.Compose(whole, fraction)));
 
     /// <summary>
     /// The melt shake counter starts from zero, so its first dissolve frame wraps it to the native word's maximum,

@@ -88,5 +88,5 @@ internal static class IntroRinkaDefinitions
     };
 
     /// <summary>The Rinkas' shared half-pixel X/Y velocity.</summary>
-    public static SnesSignedSixteenSixteen HalfPixel { get; } = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen HalfPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 }

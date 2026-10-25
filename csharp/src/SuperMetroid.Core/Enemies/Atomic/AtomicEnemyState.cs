@@ -25,10 +25,10 @@ public sealed class AtomicEnemyState
     public AtomicHorizontalMovement? HorizontalMovement { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel speed per AI update for down and right movement, the positive half of the linear-speed record selected by parameter two.</summary>
-    public SnesSignedSixteenSixteen Speed { get; internal set; }
+    public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel speed per AI update for up and left movement, the negative half of the same record.</summary>
-    public SnesSignedSixteenSixteen NegativeSpeed { get; internal set; }
+    public SignedSixteenSixteen NegativeSpeed { get; internal set; }
 
     /// <summary>Empties the movement selections the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()

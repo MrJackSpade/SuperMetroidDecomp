@@ -1120,7 +1120,7 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileDefinitions.SegmentAssetFor(SnesAngle.FromRaw((ushort)angle));
+            var asset = GrappleTileDefinitions.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle));
             AssertEqual(expected, GrappleTileDefinitions.TransferFor(asset).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
@@ -1236,7 +1236,7 @@ internal static class LookupStream3Verification
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
-            AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new SnesByteAngle((byte)angle)), "stream 3 native calculated swing art frame");
+            AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new ByteAngle((byte)angle)), "stream 3 native calculated swing art frame");
         AssertTrue(swingFrames.frames is null, "stream 3 stock swing frame lookup discarded");
         int[] editedFrames = Enumerable.Range(0, 256).Select(angle => (int)rom.ReadCartridgeByte(0x9bc1c2 + angle)).ToArray();
         for (int editedAngle = 0; editedAngle < 256; editedAngle++)
@@ -1246,7 +1246,7 @@ internal static class LookupStream3Verification
             var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
             { Version = 1, Frames = editedFrames })));
             for (int angle = 0; angle < 256; angle++)
-                AssertEqual((byte)editedFrames[angle], edited.Resolve(new SnesByteAngle((byte)angle)), "stream 3 independently edited swing art frame");
+                AssertEqual((byte)editedFrames[angle], edited.Resolve(new ByteAngle((byte)angle)), "stream 3 independently edited swing art frame");
             editedFrames[editedAngle] = original;
         }
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);

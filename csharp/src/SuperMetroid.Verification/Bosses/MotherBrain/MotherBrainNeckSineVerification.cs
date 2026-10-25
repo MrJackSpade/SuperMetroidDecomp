@@ -23,19 +23,19 @@ internal static class MotherBrainNeckSineVerification
                 AssertEqual(
                     expected,
                     MotherBrainNeckKinematics.CalculateSignedComponent(
-                        new SnesByteAngle(unchecked((byte)angle)),
+                        new ByteAngle(unchecked((byte)angle)),
                         unchecked((ushort)distance)),
                     $"Mother Brain neck component angle {angle:X2}, distance {distance:X2}");
             }
 
-            ushort lowerAngle = SnesAngle.FromTableIndex(unchecked((byte)angle)).RawValue;
-            ushort upperAngle = SnesAngle.FromTableIndex(unchecked((byte)(255 - angle))).RawValue;
+            ushort lowerAngle = RotationAngle.FromTableIndex(unchecked((byte)angle)).RawValue;
+            ushort upperAngle = RotationAngle.FromTableIndex(unchecked((byte)(255 - angle))).RawValue;
             Position16<RoomPixels>[] expectedGeometry = ReferenceMotherBrainNeckGeometry(
                 rom,
                 body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
-            ImmutableArray<Position16<RoomPixels>> actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), SnesAngle.FromRaw(lowerAngle), SnesAngle.FromRaw(upperAngle), MotherBrainNeckJointDefinitions.InitialDistances);
+            ImmutableArray<Position16<RoomPixels>> actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), RotationAngle.FromRaw(lowerAngle), RotationAngle.FromRaw(upperAngle), MotherBrainNeckJointDefinitions.InitialDistances);
             AssertSequenceEqual(expectedGeometry, actualGeometry,
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }
@@ -53,8 +53,8 @@ internal static class MotherBrainNeckSineVerification
     {
         ushort referenceX = unchecked((ushort)(body.X - 0x0050));
         ushort referenceY = unchecked((ushort)(body.Y + 0x002e));
-        byte lower = SnesAngle.FromRaw(lowerAngle).TableIndex;
-        byte upper = SnesAngle.FromRaw(upperAngle).TableIndex;
+        byte lower = RotationAngle.FromRaw(lowerAngle).TableIndex;
+        byte upper = RotationAngle.FromRaw(upperAngle).TableIndex;
 
         Position16<RoomPixels> Lower(ushort distance) => new(
             unchecked((ushort)(referenceX + 0x0070 +
@@ -89,6 +89,6 @@ internal static class MotherBrainNeckSineVerification
     {
         int address = EnemyMathReferenceData.SignedSine + angle * 2;
         short sine = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-        return unchecked((short)(SnesEightEight.Multiply(sine, (sbyte)distance)));
+        return unchecked((short)(EightEight.Multiply(sine, (sbyte)distance)));
     }
 }

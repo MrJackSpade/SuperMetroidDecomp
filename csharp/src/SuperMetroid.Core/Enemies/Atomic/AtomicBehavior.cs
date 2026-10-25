@@ -30,9 +30,9 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         // Keeping all four words exactly avoids the one-subpixel errors caused by rebuilding
         // the negative pair from a C# integer after the fact.
         int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
-        SnesSignedSixteenSixteen positive =
+        SignedSixteenSixteen positive =
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        SnesSignedSixteenSixteen negative =
+        SignedSixteenSixteen negative =
             EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
         state.Speed = positive;
         state.NegativeSpeed = negative;
@@ -95,9 +95,9 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reproduces each movement target's unusual ordering: add the signed whole word first,
     /// then add the fractional word and increment the already-updated whole on carry.
     /// </summary>
-    private static SnesFixedPosition AddAtomicVelocity(
-        SnesFixedPosition position,
-        SnesSignedSixteenSixteen velocity)
+    private static FixedCoordinate AddAtomicVelocity(
+        FixedCoordinate position,
+        SignedSixteenSixteen velocity)
     {
         int whole = unchecked((ushort)(position.Whole + velocity.WholeWord));
         uint fractionalSum = (uint)position.Fraction + velocity.Fraction;

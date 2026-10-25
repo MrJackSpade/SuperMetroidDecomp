@@ -424,7 +424,7 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
-        SnesUnsignedSixteenSixteen impactYSpeed)
+        UnsignedSixteenSixteen impactYSpeed)
     {
         Ensure.NotNull(samus);
 

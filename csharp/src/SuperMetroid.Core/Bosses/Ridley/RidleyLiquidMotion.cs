@@ -11,7 +11,7 @@ internal static class RidleyLiquidMotion
     /// <param name="target">The liquid's target height, 0 through 65535.</param>
     /// <param name="velocity">The liquid's velocity.</param>
     /// <param name="delay">The delay before the liquid moves, 0 through 65535.</param>
-    internal static void Publish(EnemyRoomFx roomFx, RidleyEnemyState state, int target, SnesSignedEightEight velocity, int delay)
+    internal static void Publish(EnemyRoomFx roomFx, RidleyEnemyState state, int target, SignedEightEight velocity, int delay)
     {
         state.FxTargetYPosition = target;
         state.FxTimer = delay;

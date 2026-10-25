@@ -98,7 +98,7 @@ internal static class RidleyFullMovieVerification
         body.SpritemapPointer = 0xe9e9; body.Properties = EnemyPropertyWord.FromNativeWord(0x3800);
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = WrappingCountdown.Start(10);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x0300));
         state.TailFunctionIndex = RidleyTailFunction.None;
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
@@ -166,7 +166,7 @@ internal static class RidleyFullMovieVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(211, 346));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x400));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x400));
         state.FacingDirection = RidleyFacing.Right; state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.GrabState = RidleyGrabState.Released; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
@@ -188,7 +188,7 @@ internal static class RidleyFullMovieVerification
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
         body.Position = new(new(172, 0x6300), new(345, 0x0a00));
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x2b0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x3cd));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(0x2b0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x3cd));
         state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
         state.GrabState = RidleyGrabState.Released; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -200,7 +200,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)31, state.FunctionTimer.RawValue, "native lunge grab falls through countdown");
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x419));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x419));
         state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.FunctionTimer = WrappingCountdown.Start(0x29);
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -212,7 +212,7 @@ internal static class RidleyFullMovieVerification
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {
             state.Function = function; state.FunctionTimer = WrappingCountdown.Start(0);
-            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffca)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xfecb));
+            state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffca)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0xfecb));
             state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
             runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, samus, 0, runtime.Room.LevelData);
             AssertEqual((ushort)0xffca, state.Velocity.X.RawValue, "native expiry skips X acceleration");
@@ -420,7 +420,7 @@ internal static class RidleyFullMovieVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[16];
         projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
-        projectile.Velocity = new(new SnesSignedEightEight(0xfb64), new SnesSignedEightEight(0xfe1b));
+        projectile.Velocity = new(new SignedEightEight(0xfb64), new SignedEightEight(0xfe1b));
         projectile.Radius = new(6, 6);
         AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Horizontal), "source1248 fireball crosses empty square-slope quadrant horizontally");
         AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Vertical), "source1248 fireball clears terrain vertically");
@@ -428,10 +428,10 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)0xf000, projectile.Position.X.Fraction, "native source1249 fireball X fraction");
         AssertEqual((ushort)0x52, projectile.Position.Y.Whole, "native source1249 fireball Y");
         AssertEqual((ushort)0xf400, projectile.Position.Y.Fraction, "native source1249 fireball Y fraction");
-        projectile.Position = projectile.Position.WithWholeX(60).WithFractionX(0).WithWholeY(84); projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0xff00));
+        projectile.Position = projectile.Position.WithWholeX(60).WithFractionX(0).WithWholeY(84); projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0xff00));
         AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Horizontal), "occupied top-left quarter stops horizontal motion");
         AssertEqual((ushort)62, projectile.Position.X.Whole, "native square reaction snaps to eight-pixel edge even when initially embedded");
-        projectile.Position = projectile.Position.WithWholeX(52).WithWholeY(94).WithFractionY(0); projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0xff00));
+        projectile.Position = projectile.Position.WithWholeX(52).WithWholeY(94).WithFractionY(0); projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0xff00));
         AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Vertical), "occupied top-left quarter stops vertical motion");
         AssertEqual((ushort)94, projectile.Position.Y.Whole, "native square reaction snaps below occupied quarter");
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
@@ -556,7 +556,7 @@ internal static class RidleyFullMovieVerification
         {
             TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray(),
             IdealInterSegmentTailAngle = 16, TailAngleDelta = 2,
-            TailMinimumClockwiseAngle = SnesAngle.FromRaw(0x3fc0), TailMaximumCounterClockwiseAngle = SnesAngle.FromRaw(0x4010),
+            TailMinimumClockwiseAngle = RotationAngle.FromRaw(0x3fc0), TailMaximumCounterClockwiseAngle = RotationAngle.FromRaw(0x4010),
             ClockwiseWhipTarget = null,
             CounterClockwiseWhipTarget = null,
         };

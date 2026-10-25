@@ -577,7 +577,7 @@ internal sealed class CrocomireFight
         // The instruction callbacks pass INT16_SHL16(±4) into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
         slot.DefinitionId == EnemyDefinitionId.Crocomire &&
-        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SnesSixteenSixteen.FromWhole(pixels));
+        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SixteenSixteen.FromWhole(pixels));
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
@@ -608,7 +608,7 @@ internal sealed class CrocomireFight
             RoomEnemyProjectileKind.CrocomireProjectile,
             graphicsIndex: EnemyPaletteBits.Palette5);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
-        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(-512), new SnesSignedEightEight(1));
+        projectile.Velocity = new(SignedEightEight.FromSignedRaw(-512), new SignedEightEight(1));
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));
         projectile.GeneralTimer = 0;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

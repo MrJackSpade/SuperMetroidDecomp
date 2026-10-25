@@ -34,7 +34,7 @@ internal static class GunshipDustDefinitionsVerification
                 // enters the actual allocator/header initializer with stale slot values.
                 samus.Position = samus.Position.WithWhole(new((ushort)origin, (ushort)(ushort.MaxValue - origin)));
                 slot.Position = slot.Position.WithFractionY(0xffff).WithFractionX(0xffff);
-                slot.Velocity = new(new SnesSignedEightEight(0x1234), new SnesSignedEightEight(0x1234));
+                slot.Velocity = new(new SignedEightEight(0x1234), new SignedEightEight(0x1234));
                 spawn(parameter, samus);
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");

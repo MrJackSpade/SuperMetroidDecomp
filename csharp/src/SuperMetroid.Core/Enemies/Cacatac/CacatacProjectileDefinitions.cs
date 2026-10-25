@@ -31,16 +31,16 @@ internal static class CacatacProjectileDefinitions
     /// (signed 8.8 raw 512) toward its negative or positive side.
     /// </summary>
     private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(
-        SnesSignedEightEight.FromSignedRaw(-512),
-        SnesSignedEightEight.FromSignedRaw(512));
+        SignedEightEight.FromSignedRaw(-512),
+        SignedEightEight.FromSignedRaw(512));
 
     /// <summary>
     /// Native immediate operands $86:D9CF/$86:D9D5: a diagonal spike moves one and a half pixels per
     /// update on each axis (signed 8.8 raw 384) toward its negative or positive side.
     /// </summary>
     private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(
-        SnesSignedEightEight.FromSignedRaw(-384),
-        SnesSignedEightEight.FromSignedRaw(384));
+        SignedEightEight.FromSignedRaw(-384),
+        SignedEightEight.FromSignedRaw(384));
 
     /// <summary>
     /// $86:D96A CacatacSpike_InstListPointers: dispatch the spike direction and

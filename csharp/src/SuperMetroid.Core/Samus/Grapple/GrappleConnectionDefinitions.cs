@@ -15,10 +15,10 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     private static readonly SpecialConnection[] AuthoredStops =
     [
-        new(SnesAngle.FromTableIndex(0xd6, 0x80), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
-        new(SnesAngle.FromTableIndex(0xb3, 0x80), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
-        new(SnesAngle.FromTableIndex(0x6a, 0x80), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
-        new(SnesAngle.FromTableIndex(0x73, 0x80), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
+        new(RotationAngle.FromTableIndex(0xd6, 0x80), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
+        new(RotationAngle.FromTableIndex(0xb3, 0x80), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
+        new(RotationAngle.FromTableIndex(0x6a, 0x80), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
+        new(RotationAngle.FromTableIndex(0x73, 0x80), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
     ];
 
     /// <summary>One collision-stop record.</summary>
@@ -26,7 +26,7 @@ internal static class GrappleConnectionDefinitions
     /// <param name="Pose">Samus's pose at the stop.</param>
     /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>
     /// <param name="Function">The connection function installed at the stop.</param>
-    internal readonly record struct SpecialConnection(SnesAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionFunction Function);
+    internal readonly record struct SpecialConnection(RotationAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionFunction Function);
 
     /// <summary>Number of native special-angle records, in their native order.</summary>
     internal static int SpecialAngleCount => AuthoredStops.Length * 2;
@@ -36,7 +36,7 @@ internal static class GrappleConnectionDefinitions
     {
         if ((uint)index >= SpecialAngleCount) throw new ArgumentOutOfRangeException(nameof(index));
         SpecialConnection stop = AuthoredStops[index >> 1];
-        return (index & 1) == 0 ? stop : new(SnesAngle.FromRaw(unchecked((ushort)(0x0100 - stop.Angle.RawValue))), SamusPoseMirror.Of(stop.Pose),
+        return (index & 1) == 0 ? stop : new(RotationAngle.FromRaw(unchecked((ushort)(0x0100 - stop.Angle.RawValue))), SamusPoseMirror.Of(stop.Pose),
             stop.SamusOffset.MirroredX(), stop.Function);
     }
 

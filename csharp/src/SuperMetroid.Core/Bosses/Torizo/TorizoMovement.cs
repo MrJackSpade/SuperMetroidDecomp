@@ -211,7 +211,7 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        int displacement = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+        int displacement = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
         if (_terrain.MoveEnemyVertically(level, torizo, displacement))
         {
             int velocity = state.Velocity.Y.SignedRawValue;
@@ -219,12 +219,12 @@ internal sealed class TorizoMovement
             {
                 _earthquake.EarthquakeType = 4;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(256));
+                state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
             }
             return;
         }
 
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 40))));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 40))));
     }
 
     /// <summary>Advances a jump across slopes; landing restores the saved list and triggers the impact quake.</summary>
@@ -236,16 +236,16 @@ internal sealed class TorizoMovement
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             torizo,
-            SnesSixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue));
+            SixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue));
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
 
         if (_terrain.MoveEnemyVertically(
                 level,
                 torizo,
-                SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue)))
+                SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue)))
         {
             TorizoBody.StartTorizoBodyProgram(torizo, state, state.ReturnCursor);
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(256));
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
             _earthquake.EarthquakeType = 4;
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
             return;
@@ -278,7 +278,7 @@ internal sealed class TorizoMovement
         }
 
         int fallingSpeed = Math.Min(Math.Abs(state.Velocity.X.SignedRawValue) + 1, 15);
-        if (!_terrain.MoveEnemyVertically(level, torizo, SnesSixteenSixteen.FromWhole(fallingSpeed)))
+        if (!_terrain.MoveEnemyVertically(level, torizo, SixteenSixteen.FromWhole(fallingSpeed)))
         {
             // $AA:C752 swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
@@ -312,7 +312,7 @@ internal sealed class TorizoMovement
         int fallingSpeed = Math.Min(
             Math.Abs(state.Velocity.X.SignedRawValue) + 1,
             15);
-        if (!_terrain.MoveEnemyVertically(level, torizo, SnesSixteenSixteen.FromWhole(fallingSpeed)))
+        if (!_terrain.MoveEnemyVertically(level, torizo, SixteenSixteen.FromWhole(fallingSpeed)))
         {
             TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0

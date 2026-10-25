@@ -18,7 +18,7 @@ internal static class ShitroidRecordStateVerification
         var state = new ShitroidEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<ShitroidAiFunction>()[^1];
-        state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(1), default);
+        state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(1), default);
         state.PalettePhase = 1;
         state.PaletteTimer = 1;
         state.PaletteDelay = 1;

@@ -131,20 +131,20 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             if (!attacks)
                 continue;
 
-            AssertEqual(default(SnesBearing), state.AimAngle, $"{context} aims straight along X");
+            AssertEqual(default(Bearing), state.AimAngle, $"{context} aims straight along X");
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
             AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, state.Function, $"{context} begins extending");
             AssertEqual(32, state.SegmentRadius, $"{context} radius is half the capped distance");
-            AssertEqual(SnesAngle.QuarterTurn, state.CurlAngle, $"{context} curl is a quarter turn minus the aim");
+            AssertEqual(RotationAngle.QuarterTurn, state.CurlAngle, $"{context} curl is a quarter turn minus the aim");
         }
 
         foreach ((int aim, int curl, bool mirrored, int direction) in new[] { new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(240, 80, false, 0), new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(200, 120, false, 6), new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(150, 170, true, 5) })
         {
             (_, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(301);
             state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
-            state.AimAngle = new SnesBearing(checked((byte)aim));
+            state.AimAngle = new Bearing(checked((byte)aim));
             YappingMawBehavior.BeginYappingMawExtension(slot, state);
-            AssertEqual(SnesAngle.FromTableIndex(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
+            AssertEqual(RotationAngle.FromTableIndex(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
             AssertEqual(mirrored, state.MirroredBend, $"Yapping Maw aim {aim} bend");
             AssertEqual(direction, state.DirectionIndex, $"Yapping Maw aim {aim} sector");
         }

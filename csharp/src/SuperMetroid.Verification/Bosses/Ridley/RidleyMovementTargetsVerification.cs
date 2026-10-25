@@ -71,7 +71,7 @@ internal static class RidleyMovementTargetsVerification
         {
             state.HealthStage = (ushort)raw;
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[Math.Min(raw, 2)];
-            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             slot.Position = slot.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
             beginCarry(slot, state);
             ushort x = carry[Math.Min(raw, 2)];
@@ -94,15 +94,15 @@ internal static class RidleyMovementTargetsVerification
             state.HealthStage = health;
             foreach (bool down in new[] { false, true })
             {
-                state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+                state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
                 pogo(slot, state, null, down ? VerticalDirection.Down : VerticalDirection.Up);
                 ushort target = (down ? descending : ascending)[(int)facing];
                 AssertEqual(Expected(x, target, hover[health]), state.Velocity.X.RawValue, "Pogo side target and health divisor reach motion");
             }
-            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             moveSide(slot, state, null);
             AssertEqual(Expected(x, ground[(int)facing], 0), state.Velocity.X.RawValue, "Ground side target reaches motion");
-            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Function = RidleyAiFunction.NorfairCarryRelease;
             state.FunctionTimer = WrappingCountdown.Start(1);
             run(slot, state, null, 0, null);
@@ -116,7 +116,7 @@ internal static class RidleyMovementTargetsVerification
         {
             state.HealthStage = (ushort)health;
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[health % 3];
-            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             // Start ahead of the lunge stopping boundary for each facing.
             ushort startX = state.FacingDirection == RidleyFacing.Right ? (ushort)128 : (ushort)384;
             slot.Position = slot.Position.WithWhole(new(startX, 128));

@@ -62,8 +62,8 @@ internal static class NativeSnapshotImportMotherBrainVerification
             state.NeckJoints[joint] = new(W(record), W(record + 2));
             state.NeckJointDistances[joint] = W(record + 4);
         }
-        state.LowerNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
-        state.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
+        state.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
+        state.UpperNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         state.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         state.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         state.LowerNeckMovementIndex = ClosedNativeWordDecoding.Decode<MotherBrainNeckMovement>(
@@ -87,8 +87,8 @@ internal static class NativeSnapshotImportMotherBrainVerification
             W(MotherBrainMemory.DeathBeamNext + 2), W(MotherBrainMemory.DeathBeamNext),
             W(MotherBrainMemory.DeathBeamNext + 6), W(MotherBrainMemory.DeathBeamNext + 4));
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(W(MotherBrainMemory.DeathBeamNext + 8)),
-            new SnesSignedEightEight(W(MotherBrainMemory.DeathBeamNext + 10)));
+            new SignedEightEight(W(MotherBrainMemory.DeathBeamNext + 8)),
+            new SignedEightEight(W(MotherBrainMemory.DeathBeamNext + 10)));
         state.HandBeamNextAngle = W(MotherBrainMemory.DeathBeamNext + 12);
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle);
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
@@ -197,8 +197,8 @@ internal static class NativeSnapshotImportMotherBrainVerification
         sequence.FinishSamusOff.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));
         sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
-        sequence.LowerNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
-        sequence.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
+        sequence.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
+        sequence.UpperNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         sequence.State.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         sequence.State.LowerNeckMovementIndex = ClosedNativeWordDecoding.Decode<MotherBrainNeckMovement>(

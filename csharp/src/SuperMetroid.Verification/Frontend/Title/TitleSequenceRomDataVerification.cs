@@ -103,7 +103,7 @@ internal static class TitleSequenceRomDataVerification
             "title timeout takes priority over same-frame confirmation");
         AssertTrue(!skipped.FileSelectRequested, "timeout routes only to the attract dispatcher");
 
-        AssertEqual(SnesAngle.Zero, TitleSequenceDefinitions.Scenes.Rotation,
+        AssertEqual(RotationAngle.Zero, TitleSequenceDefinitions.Scenes.Rotation,
             "title Mode-7 scenes use typed zero rotation");
         Console.WriteLine(
             "  Title: ROM catalog, complete natural phase chain, Mode-7 transforms, " +

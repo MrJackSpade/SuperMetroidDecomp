@@ -209,7 +209,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.MaximumXRadius = SporeSpawnDescentMaximumXRadius;
         state.AngleDelta = 1;
-        state.Angle = SnesAngle.ThreeQuarterTurn;
+        state.Angle = RotationAngle.ThreeQuarterTurn;
     }
 
     /// <summary>Ports the table-backed ellipse in <c>SporeSpawn_Func_2</c> at $A5:EB52.</summary>
@@ -222,7 +222,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWholeY(unchecked((ushort)(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                new SnesByteAngle(unchecked((byte)(2 * (state.Angle.TableIndex - SnesAngle.QuarterTurn.TableIndex)))),
+                new ByteAngle(unchecked((byte)(2 * (state.Angle.TableIndex - RotationAngle.QuarterTurn.TableIndex)))),
                 unchecked((ushort)(state.MaximumXRadius - 16))))));
 
         // The phase advances by the signed delta and wraps around the turn.
@@ -232,12 +232,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>SporeSpawn_Func_3</c> at $A5:EB9B.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
-        SnesByteAngle direction = EnemyMath.CalculateBearing(
+        ByteAngle direction = EnemyMath.CalculateBearing(
             new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole)))).ToTableAngle();
-        state.DeathAngle = SnesAngle.FromTableIndex(direction.RawValue);
+        state.DeathAngle = RotationAngle.FromTableIndex(direction.RawValue);
         state.DeathVelocityMagnitude = new(
-            SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
-            SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));
+            SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
+            SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));
     }
 
     /// <summary>Ports <c>SporeSpawn_Func_4</c> at $A5:EBEE.</summary>
@@ -251,8 +251,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.ToByteAngle())
             ? -state.DeathVelocityMagnitude.Y.RawValue
             : state.DeathVelocityMagnitude.Y.RawValue;
-        body.Position = body.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
-        body.Position = body.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
+        body.Position = body.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
+        body.Position = body.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
 
         if (EnemyMath.WrappedMagnitude(unchecked((ushort)(body.Position.X.Whole - SporeSpawnDeathCenterX))) < 8 &&
             EnemyMath.WrappedMagnitude(unchecked((ushort)(body.Position.Y.Whole - SporeSpawnDeathCenterY))) < 8)

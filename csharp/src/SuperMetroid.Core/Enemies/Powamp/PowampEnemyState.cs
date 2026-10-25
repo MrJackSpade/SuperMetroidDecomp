@@ -16,7 +16,7 @@ public sealed class PowampEnemyState
     public bool IsBalloon { get; internal set; }
 
     /// <summary>The body's vertical displacement per AI update; negative values move upward.</summary>
-    public SnesSignedSixteenSixteen YVelocity { get; internal set; }
+    public SignedSixteenSixteen YVelocity { get; internal set; }
 
     /// <summary>The balloon's original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations.</summary>
     public Position16<RoomPixels> BalloonSpawn { get; internal set; }
@@ -50,7 +50,7 @@ public sealed class PowampEnemyState
     {
         IsBalloon = false;
         RefusesContact = false;
-        YVelocity = SnesSignedSixteenSixteen.Zero;
+        YVelocity = SignedSixteenSixteen.Zero;
         BalloonSpawn = Position16<RoomPixels>.Zero;
         WiggleIndex = 0;
         WiggleTimer = WrappingCountdown.Start(0);

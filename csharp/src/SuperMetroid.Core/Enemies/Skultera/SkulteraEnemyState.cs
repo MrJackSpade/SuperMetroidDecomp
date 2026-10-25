@@ -16,13 +16,13 @@ public sealed class SkulteraEnemyState
     public SkulteraEnemyFunction? Function { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per swimming update to the right, from the positive half of the population's linear-speed record.</summary>
-    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
+    public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per swimming update to the left, from the negative half of the population's linear-speed record.</summary>
-    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>The vertical oscillation's phase; only its table index is meaningful, and it wraps after a full turn.</summary>
-    public SnesAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; internal set; }
 
     /// <summary>Vertical oscillation radius in pixels, population parameter two's low byte (0 through 255).</summary>
     public int Radius { get; internal set; }
@@ -49,8 +49,8 @@ public sealed class SkulteraEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        RightVelocity = SnesSignedSixteenSixteen.Zero;
-        LeftVelocity = SnesSignedSixteenSixteen.Zero;
-        Angle = SnesAngle.Zero;
+        RightVelocity = SignedSixteenSixteen.Zero;
+        LeftVelocity = SignedSixteenSixteen.Zero;
+        Angle = RotationAngle.Zero;
     }
 }

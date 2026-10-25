@@ -35,9 +35,9 @@ internal static class RetailRidleyCaptureTests
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
             (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
-            ridley.FloorMatrixA = new SnesSignedEightEight(scale); ridley.FloorMatrixD = new SnesSignedEightEight(scale);
-            ridley.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(tilt);
-            ridley.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(unchecked((short)-tilt));
+            ridley.FloorMatrixA = new SignedEightEight(scale); ridley.FloorMatrixD = new SignedEightEight(scale);
+            ridley.FloorMatrixB = SignedEightEight.FromSignedRaw(tilt);
+            ridley.FloorMatrixC = SignedEightEight.FromSignedRaw(unchecked((short)-tilt));
             ridley.FloorCenter = new Position16<Mode7Pixels>(128, 120);
             ridley.FloorOffset = new Offset16<Mode7Pixels>(7, unchecked(scroll));
             // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).

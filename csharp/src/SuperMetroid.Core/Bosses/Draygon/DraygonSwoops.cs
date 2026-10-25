@@ -53,7 +53,7 @@ internal sealed class DraygonSwoops
         while (true)
         {
             speed += state.SwoopAcceleration;
-            int candidate = unchecked((ushort)(yPosition - (SnesEightEight.WholeOf(speed.Y.RawValue))));
+            int candidate = unchecked((ushort)(yPosition - (EightEight.WholeOf(speed.Y.RawValue))));
             if (unchecked((short)(candidate - state.LeftSideReset.Y)) < 0)
                 break;
 
@@ -229,7 +229,7 @@ internal sealed class DraygonSwoops
     /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>
     /// <param name="frameCount">The path's entries.</param>
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
-        state.SwoopVelocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
+        state.SwoopVelocity = SixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
 
     /// <summary>Ports the regional four-pixel upward retreat at <c>$A5:9154</c>.</summary>
     internal void FlyDraygonStraightUp(

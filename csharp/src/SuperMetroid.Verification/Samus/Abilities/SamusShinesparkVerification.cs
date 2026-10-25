@@ -171,7 +171,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             $"pose ${(int)targetPose:X2} publishes one launch sound");
         AssertTrue(!directional.Shinespark.ConsumeLaunchSoundRequest(),
             $"pose ${(int)targetPose:X2} launch sound is one-shot");
-        directional.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
+        directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
         uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
         uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
         directional.Shinespark.Step(new SamusTerrain { Level = directionLevel }, directional, new ShinesparkFrame { NmiFrameCounter = 0 });
@@ -212,7 +212,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
         externallyReversedSpark,
         SamusPoseId.ShinesparkVerticalRightPose);
-    externallyReversedSpark.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
+    externallyReversedSpark.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
     uint reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y.RawValue;
     externallyReversedSpark.Shinespark.Step(new SamusTerrain { Level = directionLevel }, externallyReversedSpark, new ShinesparkFrame { NmiFrameCounter = 0 });
@@ -283,7 +283,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
         horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
-    horizontal.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
+    horizontal.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     var shineBombPlms = PlmFixtures.Unbound();
 
     uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
@@ -511,7 +511,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 
         // A departing echo seven short of the largest radius wraps to zero on its next expansion and is drawn on Samus.
         var echo = new SamusShinesparkState.ReleasedEchoSlot();
-        echo.Initialize(SnesAngle.Zero, samus.Position.Whole);
+        echo.Initialize(RotationAngle.Zero, samus.Position.Whole);
         echo.Radius = SamusShinesparkState.ReleasedEchoSlot.LargestRadius - 7;
         AssertTrue(SamusShinesparkState.StepReleasedCrashEcho(samus, new Position16<RoomPixels>(0, 0), echo),
             "a wrapped echo stays inside the viewport");

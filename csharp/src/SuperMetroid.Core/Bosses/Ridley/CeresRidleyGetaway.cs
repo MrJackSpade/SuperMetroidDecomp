@@ -62,7 +62,7 @@ internal sealed class CeresRidleyGetaway
         state.GetawayActive = true;
         state.GetawayFinished = false;
         state.GetawayFrameIndex = 0;
-        state.FloorAngle = SnesAngle.FromRaw(1);
+        state.FloorAngle = RotationAngle.FromRaw(1);
         state.FloorOffset = new Offset16<Mode7Pixels>(-128, 32);
         state.FloorZoom = 2048;
         state.FloorMatrixA = CeresRidleyBehavior.FloorUnitCoefficient;
@@ -177,8 +177,8 @@ internal sealed class CeresRidleyGetaway
     /// Negates a signed 8.8 coefficient the way the getaway's two's-complement negate does: the most negative value,
     /// which has no positive counterpart, negates to itself.
     /// </summary>
-    internal static SnesSignedEightEight NegateFloorCoefficient(SnesSignedEightEight coefficient) =>
-        SnesSignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
+    internal static SignedEightEight NegateFloorCoefficient(SignedEightEight coefficient) =>
+        SignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
 
     /// <summary>
     /// The perspective floor's transform as the getaway last turned and moved it, before room shake, or null while the
@@ -194,9 +194,9 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
     {
-        SnesByteAngle angle = state.FloorAngle.ToByteAngle();
-        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
-        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
+        ByteAngle angle = state.FloorAngle.ToByteAngle();
+        var diagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+        var offDiagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
         state.FloorMatrixA = diagonal;
         state.FloorMatrixB = offDiagonal;
         state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);

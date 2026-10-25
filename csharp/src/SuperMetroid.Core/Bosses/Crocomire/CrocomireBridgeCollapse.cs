@@ -54,7 +54,7 @@ internal sealed class CrocomireBridgeCollapse
         state.DeathSequenceIndex = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
-        state.StartVerticalMotion(SnesEightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
+        state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         body.Radius = body.Radius.WithY(16);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BridgeCollapse;
         CrocomireDeathState death = _access.RequireCrocomireDeath();
@@ -217,7 +217,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-        state.VerticalSpeed = SnesEightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
+        state.VerticalSpeed = EightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
     }
 
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
@@ -246,13 +246,13 @@ internal sealed class CrocomireBridgeCollapse
         state.VerticalAcceleration = acceleration;
         // The speed grows by the acceleration's whole part read as 1/256 pixels.
         int speed = ClampWholePixels(
-            state.VerticalSpeed + SnesEightEight.WholeOf(acceleration), CrocomireBehavior.MaximumSinkSpeedWhole);
+            state.VerticalSpeed + EightEight.WholeOf(acceleration), CrocomireBehavior.MaximumSinkSpeedWhole);
         state.VerticalSpeed = speed;
 
         int travelled = state.VerticalSubpixel + speed;
-        state.VerticalSubpixel = SnesEightEight.FractionOf(travelled);
+        state.VerticalSubpixel = EightEight.FractionOf(travelled);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(
-            body.Position.Y.Whole + SnesEightEight.WholeOf(travelled))));
+            body.Position.Y.Whole + EightEight.WholeOf(travelled))));
     }
 
     /// <summary>
@@ -260,8 +260,8 @@ internal sealed class CrocomireBridgeCollapse
     /// fraction kept, as the sink's byte-wise clamps leave it.
     /// </summary>
     private static int ClampWholePixels(int value, int maximumWhole) =>
-        SnesEightEight.FromWhole(Math.Min(SnesEightEight.WholeOf(value), maximumWhole)) +
-        SnesEightEight.FractionOf(value);
+        EightEight.FromWhole(Math.Min(EightEight.WholeOf(value), maximumWhole)) +
+        EightEight.FractionOf(value);
 
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
@@ -276,21 +276,21 @@ internal sealed class CrocomireBridgeCollapse
 
         _bg2.UpdateCrocomireBg2Scroll(state);
         int acceleration = Math.Min(
-            state.VerticalAcceleration + SnesEightEight.FromWhole(1),
-            SnesEightEight.FromWhole(CrocomireBehavior.MaximumRiseAccelerationWhole));
+            state.VerticalAcceleration + EightEight.FromWhole(1),
+            EightEight.FromWhole(CrocomireBehavior.MaximumRiseAccelerationWhole));
         state.VerticalAcceleration = acceleration;
 
         // The speed loses the acceleration's whole part read as 1/256 pixels; a speed that would fall below zero
         // stalls just under one pixel per frame instead of reversing.
-        int speed = state.VerticalSpeed - SnesEightEight.WholeOf(acceleration);
+        int speed = state.VerticalSpeed - EightEight.WholeOf(acceleration);
         if (speed < 0)
             speed = CrocomireBehavior.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;
 
         int remaining = state.VerticalSubpixel - speed;
-        state.VerticalSubpixel = SnesEightEight.FractionOf(remaining);
+        state.VerticalSubpixel = EightEight.FractionOf(remaining);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(
-            body.Position.Y.Whole + SnesEightEight.WholeOf(remaining))));
+            body.Position.Y.Whole + EightEight.WholeOf(remaining))));
     }
 
     /// <summary>Selects the body melting program for the rows still above the acid.</summary>
@@ -352,9 +352,9 @@ internal sealed class CrocomireBridgeCollapse
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
         projectile.GraphicsIndex = EnemyPaletteBits.Palette2;
     }
 }

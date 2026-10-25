@@ -28,7 +28,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// Signed 8.8 vertical velocity. Gravity adds to its word, which the jump compares unsigned with the animation
     /// switch velocity (<see cref="ApplyGravity"/>), and the follower shows only while it is negative.
     /// </summary>
-    public SnesSignedEightEight YVelocity { get; internal set; }
+    public SignedEightEight YVelocity { get; internal set; }
 
     /// <summary>Parent variant's immutable population position (Y at the lava surface).</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
@@ -42,7 +42,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity's word, wrapping as the cartridge's addition does.</summary>
     /// <param name="gravity">The 8.8 gravity step.</param>
     internal void ApplyGravity(int gravity) =>
-        YVelocity = new SnesSignedEightEight(unchecked((ushort)(YVelocity.RawValue + gravity)));
+        YVelocity = new SignedEightEight(unchecked((ushort)(YVelocity.RawValue + gravity)));
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()

@@ -5,4 +5,4 @@ namespace SuperMetroid.RenderVerification.Areas;
 /// <param name="B">The b.</param>
 /// <param name="C">The c.</param>
 /// <param name="D">The d.</param>
-internal readonly record struct Mode7Matrix(SnesSignedEightEight A, SnesSignedEightEight B, SnesSignedEightEight C, SnesSignedEightEight D);
+internal readonly record struct Mode7Matrix(SignedEightEight A, SignedEightEight B, SignedEightEight C, SignedEightEight D);

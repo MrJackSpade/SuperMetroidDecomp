@@ -166,9 +166,9 @@ public sealed class CrocomireEnemyState
     /// <summary>
     /// While the skeleton breaks out and collapses: its 16.16 horizontal speed in room pixels per frame.
     /// </summary>
-    internal SnesSignedSixteenSixteen SkeletonVelocity
+    internal SignedSixteenSixteen SkeletonVelocity
     {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)checked((ushort)_projectileSubpixelOrSkeletonWholeWord)), checked((ushort)_reactionSpeedOrSkeletonFractionWord));
+        get => SignedSixteenSixteen.FromParts(unchecked((short)checked((ushort)_projectileSubpixelOrSkeletonWholeWord)), checked((ushort)_reactionSpeedOrSkeletonFractionWord));
         set
         {
             _reactionSpeedOrSkeletonFractionWord = value.Fraction;

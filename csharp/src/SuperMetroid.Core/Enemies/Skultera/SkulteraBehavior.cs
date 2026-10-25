@@ -70,16 +70,16 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraEnemyFunction.SwimmingRight;
 
         int speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * 8));
-        SnesSignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
+        SignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightVelocity = right;
-        SnesSignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
+        SignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
         state.LeftVelocity = left;
 
         // Parameter two packs radius in its low byte and unsigned initial angle delta in
         // its high byte. The delta becomes negative only when a turn negates it.
         state.Radius = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
         state.AngleDelta = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
-        state.Angle = SnesAngle.Zero;
+        state.Angle = RotationAngle.Zero;
         state.TurnFinished = false;
         state.CurrentYOffset = 0;
         state.PreviousYOffset = EnemyMath.ReadEightBitNegativeSineProduct(
@@ -143,7 +143,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             checked((ushort)state.Radius));
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
-        if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(yDifference)))
+        if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(yDifference)))
         {
             BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
         }

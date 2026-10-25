@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="ImpactYSpeed">The 16.16 Y-speed magnitude after shared speed calculations but before the drained collision handler clears it; retained for landing effects.</param>
 public readonly record struct DrainedSamusMovementResult(
     bool Landed,
-    SnesUnsignedSixteenSixteen ImpactYSpeed);
+    UnsignedSixteenSixteen ImpactYSpeed);

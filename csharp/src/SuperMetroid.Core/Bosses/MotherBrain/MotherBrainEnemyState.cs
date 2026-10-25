@@ -157,9 +157,9 @@ public sealed class MotherBrainEnemyState
     public Position16<RoomPixels>[] NeckJoints { get; } = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
 
     /// <summary>Lower-neck angle; the neck dispatchers add and subtract the angular speed with full-turn wraparound, and its table index places joints 0 through 2.</summary>
-    public SnesAngle LowerNeckAngle { get; internal set; }
+    public RotationAngle LowerNeckAngle { get; internal set; }
     /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its table index places joints 3 and 4.</summary>
-    public SnesAngle UpperNeckAngle { get; internal set; }
+    public RotationAngle UpperNeckAngle { get; internal set; }
     /// <summary>Neck angular speed in 8.8 angle units, added or subtracted by both neck motion dispatchers each enabled update; every producer writes a positive speed of at most $0900.</summary>
     public int NeckAngleDelta { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
@@ -350,7 +350,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
     /// <summary>Current native angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
-    public SnesAngle RainbowBeamAngle { get; internal set; }
+    public RotationAngle RainbowBeamAngle { get; internal set; }
     /// <summary>Rainbow-beam angular width in 8.8 table units, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
     public int RainbowBeamAngularWidth { get; internal set; }
     /// <summary>Whether this body-function call requested a rainbow palette step; cleared at the beginning of every enemy frame.</summary>

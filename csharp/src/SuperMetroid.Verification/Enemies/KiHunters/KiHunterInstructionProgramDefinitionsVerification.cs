@@ -137,7 +137,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         void VerifySwoopAngularMotion(bool swoopLeft)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) = CreatePair();
-            SnesSignedSixteenSixteen acceleration = swoopLeft
+            SignedSixteenSixteen acceleration = swoopLeft
                 ? KiHunterMotionDefinitions.LeftSwoopAcceleration
                 : KiHunterMotionDefinitions.RightSwoopAcceleration;
             ushort accelerationWhole = acceleration.WholeWord;
@@ -145,8 +145,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
             ushort angle = swoopLeft ? (ushort)255 : (ushort)128;
             state.Function = KiHunterEnemyFunction.Swooping;
-            state.AngularVelocity = SnesSignedSixteenSixteen.Zero;
-            state.AngularAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction);
+            state.AngularVelocity = SignedSixteenSixteen.Zero;
+            state.AngularAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction);
             state.MaximumAngularVelocity = unchecked((short)cap);
             state.SwoopAngle = angle;
             state.AnimationChangeAngle = swoopLeft ? 240 : 144;
@@ -190,7 +190,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
                 enemies.KiHunterBehavior.RunKiHunterMainAi(body, frame);
                 string side = swoopLeft ? "left" : "right";
-                AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), state.AngularVelocity,
+                AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), state.AngularVelocity,
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
                 AssertEqual(angle, state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
                 AssertEqual(ended ? KiHunterEnemyFunction.FlyingPatrol : KiHunterEnemyFunction.Swooping, state.Function,

@@ -262,7 +262,7 @@ internal sealed class CrocomireMelting
     /// <summary>Restores the BG2 presentation and actor state after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
-        state.StartVerticalMotion(SnesEightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
+        state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         _bg2.ClearCrocomireBg2WorkingTilemap();
         _bg2.WriteCrocomireBg2Words(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();

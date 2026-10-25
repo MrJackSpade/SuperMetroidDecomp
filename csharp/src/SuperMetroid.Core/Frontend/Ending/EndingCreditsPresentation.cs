@@ -64,7 +64,7 @@ internal static class EndingCreditsPresentation
                 // Fixed addition belongs to backdrop and eligible OBJ, not BG1.
                 if (ending.Flyaway.FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
                 if (UsesFlyawayFloorPriority(ending)) layers.Add(new ObjPriorityRenderLayer(0, ending.Flyaway.FlyawayFixedColor));
-                int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
+                int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
                 int b = Scale(ReadSine(ending.Stage.FloorAngle.ToByteAngle()), ending.Stage.FloorZoom);
                 layers.Add(new Mode7RenderLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
                     CurrentFloorCenter(ending),
@@ -99,7 +99,7 @@ internal static class EndingCreditsPresentation
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
     private static AffineTransform PostShotTransform(EndingCreditsState ending)
     {
-            int a = Scale(ReadSine(ending.PostShot.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle()), ending.PostShot.Scale);
+            int a = Scale(ReadSine(ending.PostShot.Angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.PostShot.Scale);
             int b = Scale(ReadSine(ending.PostShot.Angle.ToByteAngle()), ending.PostShot.Scale);
             return new((short)a, (short)b, unchecked((short)-b), (short)a,
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
@@ -205,7 +205,7 @@ internal static class EndingCreditsPresentation
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>
-    internal static short ReadSine(SnesByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
+    internal static short ReadSine(ByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
 
     /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
     private static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true
@@ -213,5 +213,5 @@ internal static class EndingCreditsPresentation
 
     /// <summary>Multiplies a signed Mode 7 component by the scene's positive 8.8 zoom scalar.</summary>
     private static short Scale(int component, int scalar) =>
-        unchecked((short)SnesEightEight.Multiply(component, scalar));
+        unchecked((short)EightEight.Multiply(component, scalar));
 }

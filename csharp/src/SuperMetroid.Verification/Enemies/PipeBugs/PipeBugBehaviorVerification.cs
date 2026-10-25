@@ -91,7 +91,7 @@ internal static class PipeBugBehaviorVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             slot.SetSpawnParameter2(24);
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
-            AssertEqual(SnesSignedSixteenSixteen.FromRaw(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
+            AssertEqual(SignedSixteenSixteen.FromRaw(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Function = PipeBugEnemyFunction.YellowArcRight;
             state.ArcRising = true;
             state.ArcCounter = 1;
@@ -99,7 +99,7 @@ internal static class PipeBugBehaviorVerification
             for (int update = 0; update < expected.Length; update++)
             {
                 enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
-                AssertEqual(SnesFixedPosition.FromRaw(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
+                AssertEqual(FixedCoordinate.FromRaw(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
                 AssertEqual(expected[update].Counter, state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
                 if (update < 2)

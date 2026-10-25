@@ -203,7 +203,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = EnemyMath.ReadQuadraticEnemySpeed(
-            unchecked((byte)(SnesEightEight.WholeOf(state.BounceSpeedAccumulator))),
+            unchecked((byte)(EightEight.WholeOf(state.BounceSpeedAccumulator))),
             negative: false);
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
@@ -247,9 +247,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int verticalDisplacement = unchecked(
             EnemyMath.ReadQuadraticEnemySpeed(
-                unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
+                unchecked((byte)(EightEight.WholeOf(state.TravelSpeedAccumulator))),
                 negative: false) +
-            SnesSixteenSixteen.FromWhole(state.VerticalCompensation.Y));
+            SixteenSixteen.FromWhole(state.VerticalCompensation.Y));
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
 
@@ -286,24 +286,24 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int displacement = ReadBoulderHorizontalDisplacement(state);
         uint position = slot.Position.X.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
+        slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
     }
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         EnemyMath.ReadQuadraticEnemySpeed(
-            unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
+            unchecked((byte)(EightEight.WholeOf(state.TravelSpeedAccumulator))),
             negative: state.DirectionSelector != 0);
 
     /// <summary>Adds or subtracts a quadratic table sample from the actor's wrapped 16.16 Y position.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            unchecked((byte)(SnesEightEight.WholeOf(accumulator))),
+            unchecked((byte)(EightEight.WholeOf(accumulator))),
             direction == VerticalDirection.Up);
         uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
+        slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
     }
 
     /// <summary>

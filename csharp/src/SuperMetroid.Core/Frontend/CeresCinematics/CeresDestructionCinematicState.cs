@@ -137,7 +137,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     internal int Zoom { get; private set; } = CeresDestructionSceneDefinitions.Motion.IdentityScale;
     /// <summary>Mode-7 rotation angle sampled from the compiled signed sine table.</summary>
-    private SnesAngle angle;
+    private RotationAngle angle;
     /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
     [IntegerQuantity("screen brightness level, zero through fifteen")]
     private int brightness;
@@ -512,7 +512,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
         actors.Clear();
         Background = FixedPosition<Mode7Pixels>.Zero;
-        angle = SnesAngle.Zero;
+        angle = RotationAngle.Zero;
         Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         brightness = 0;
         fadeCounter = 1;
@@ -894,7 +894,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
     private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
-        SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
@@ -903,10 +903,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
-        uint fixedPosition = new SnesFixedPosition(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
-        uint fixedVelocity = SnesSixteenSixteen.FromEightEight((uint)velocity);
+        uint fixedPosition = new FixedCoordinate(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
+        uint fixedVelocity = SixteenSixteen.FromEightEight((uint)velocity);
         fixedPosition = unchecked(fixedPosition - fixedVelocity);
-        actor.Position = actor.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
+        actor.Position = actor.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
     }
 
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>

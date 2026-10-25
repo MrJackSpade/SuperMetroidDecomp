@@ -60,7 +60,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)
             throw new ArgumentOutOfRangeException(nameof(slot));
-        return SnesFixedPosition.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
+        return FixedCoordinate.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
     }
 
     /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the BG2 vertical scroll.</summary>

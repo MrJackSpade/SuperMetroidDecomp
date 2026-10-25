@@ -93,8 +93,8 @@ internal static class BeamSpeedRowsVerification
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
                     var fired = projectiles.Slots[0];
-                    x = unchecked((new SnesFixedPosition(fired.Position.X.Whole, fired.Position.X.Fraction).RawValue) - (uint)SnesSixteenSixteen.FromEightEight(vx));
-                    y = unchecked((new SnesFixedPosition(fired.Position.Y.Whole, fired.Position.Y.Fraction).RawValue) - (uint)SnesSixteenSixteen.FromEightEight(vy));
+                    x = unchecked((new FixedCoordinate(fired.Position.X.Whole, fired.Position.X.Fraction).RawValue) - (uint)SixteenSixteen.FromEightEight(vx));
+                    y = unchecked((new FixedCoordinate(fired.Position.Y.Whole, fired.Position.Y.Fraction).RawValue) - (uint)SixteenSixteen.FromEightEight(vy));
                 }
                 else
                 {
@@ -104,14 +104,14 @@ internal static class BeamSpeedRowsVerification
                     vy = unchecked((short)(vy + (short)retail.ReadCartridgeWord((table + direction * 4 + 2)) +
                         (weapon == 1 ? (short)retail.ReadCartridgeWord((0x90c367 + direction * 2)) : 0)));
                 }
-                x = unchecked(x + (uint)SnesSixteenSixteen.FromEightEight(vx));
-                y = unchecked(y + (uint)SnesSixteenSixteen.FromEightEight(vy));
+                x = unchecked(x + (uint)SixteenSixteen.FromEightEight(vx));
+                y = unchecked(y + (uint)SixteenSixteen.FromEightEight(vy));
                 var owner = projectiles.Slots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
                 AssertEqual((short)vx, owner.Velocity.X.SignedRawValue, "Native missile acceleration X across ignition and movement");
                 AssertEqual((short)vy, owner.Velocity.Y.SignedRawValue, "Native missile acceleration Y across ignition and movement");
-                AssertEqual(x, new SnesFixedPosition(owner.Position.X.Whole, owner.Position.X.Fraction).RawValue, "Missile X trajectory retains fixed-point carry");
-                AssertEqual(y, new SnesFixedPosition(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
+                AssertEqual(x, new FixedCoordinate(owner.Position.X.Whole, owner.Position.X.Fraction).RawValue, "Missile X trajectory retains fixed-point carry");
+                AssertEqual(y, new FixedCoordinate(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
             }
         }
         Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");

@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <param name="MaximumSpeed">Whole and fractional pixels per frame that accelerated base speed is capped at.</param>
 /// <param name="Deceleration">Whole and fractional pixels per frame removed from base speed while decelerating.</param>
 public readonly record struct SpeedTableEntry(
-    SnesSignedSixteenSixteen Acceleration,
-    SnesSignedSixteenSixteen MaximumSpeed,
-    SnesSignedSixteenSixteen Deceleration)
+    SignedSixteenSixteen Acceleration,
+    SignedSixteenSixteen MaximumSpeed,
+    SignedSixteenSixteen Deceleration)
 {
 }

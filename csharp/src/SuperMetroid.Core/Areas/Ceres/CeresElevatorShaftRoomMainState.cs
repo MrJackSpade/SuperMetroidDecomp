@@ -171,7 +171,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(
-        MatrixA: (short)SnesEightEight.FromWhole(1),
+        MatrixA: (short)EightEight.FromWhole(1),
         MatrixB: 0,
         MatrixC: 0,
         Center: CeresShaftRotationCenter);

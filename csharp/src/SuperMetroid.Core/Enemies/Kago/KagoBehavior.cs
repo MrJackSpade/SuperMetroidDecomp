@@ -286,19 +286,19 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A wall ends the rising phase immediately in the cartridge: both X velocity
             // and the upward component are replaced before selecting the falling list.
-            projectile.Velocity = new(new SnesSignedEightEight(0), SnesSignedEightEight.FromSignedRaw(256));
+            projectile.Velocity = new(new SignedEightEight(0), SignedEightEight.FromSignedRaw(256));
             BeginKagoBugFall(projectile);
             return;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Velocity = projectile.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(256));
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(256));
             BeginKagoBugFall(projectile);
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
             BeginKagoBugFall(projectile);
     }
@@ -313,7 +313,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // and deliberately postpones both vertical motion and gravity until the next frame.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
             return;
         }
 
@@ -324,7 +324,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
     }
 
     /// <summary>Switches an airborne bug to the falling list when rising ends or a wall interrupts it.</summary>
@@ -342,7 +342,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
         int upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
         RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
         int sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
@@ -359,7 +359,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             jumpLeft = (upwardMagnitude & KagoDefinitions.LeftJumpBit) != 0;
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(jumpLeft
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(jumpLeft
             ? unchecked((ushort)-KagoBugHorizontalSpeed)
             : KagoBugHorizontalSpeed));
         projectile.PreInstruction =

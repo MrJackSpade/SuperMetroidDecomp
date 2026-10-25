@@ -32,11 +32,11 @@ internal static class RidleyInertiaVerification
                 short distance = unchecked((short)raw);
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => short.MinValue, _ => short.MaxValue }));
                 slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
-                state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
+                state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ceres(slot, state, new(0xff00, 0x100), index);
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.Velocity.X.RawValue, "Ceres actual X acceleration");
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.Velocity.Y.RawValue, "Ceres actual wrapped Y acceleration");
-                state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
+                state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ushort boost = (ushort)(raw % 3 * 16);
                 norfair(slot, state, new Position16<RoomPixels>(0xff00, 0x100), index, boost);
                 AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, divisor, boost), state.Velocity.X.RawValue, "Norfair actual X acceleration");

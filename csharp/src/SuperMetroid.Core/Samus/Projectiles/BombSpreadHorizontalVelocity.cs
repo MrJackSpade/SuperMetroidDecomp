@@ -41,13 +41,13 @@ public readonly record struct BombSpreadHorizontalVelocity
     public BombSpreadHorizontalVelocity Reversed() => new(!MovingLeft, WholePixels, FractionSteps);
 
     /// <summary>The per-frame displacement as a signed 16.16 value: leftward travel is negative.</summary>
-    public SnesSignedSixteenSixteen Displacement
+    public SignedSixteenSixteen Displacement
     {
         get
         {
-            SnesSignedSixteenSixteen speed = SnesSignedSixteenSixteen.FromParts(
+            SignedSixteenSixteen speed = SignedSixteenSixteen.FromParts(
                 checked((short)WholePixels), checked((ushort)(FractionSteps * 256)));
-            return MovingLeft ? SnesSignedSixteenSixteen.Zero - speed : speed;
+            return MovingLeft ? SignedSixteenSixteen.Zero - speed : speed;
         }
     }
 }

@@ -51,11 +51,11 @@ internal static class StatueWalkDefinitionsVerification
             uint start = 0x01008123;
             carry(slot, statue, samus, level, record);
             AssertEqual(record, statue.CarryRecord, "Chozo carry record");
-            uint x = unchecked(start + (uint)(SnesSixteenSixteen.FromEightEight(velocity)));
-            uint y = start + (uint)(SnesSixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");
+            uint x = unchecked(start + (uint)(SixteenSixteen.FromEightEight(velocity)));
+            uint y = start + (uint)(SixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");
             AssertEqual((ushort)x, slot.Position.X.Fraction, "Chozo real fractional X");
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)y)), slot.Position.Y.Whole, "Chozo real absolute Y movement");
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)y)), slot.Position.Y.Whole, "Chozo real absolute Y movement");
             AssertEqual((ushort)y, slot.Position.Y.Fraction, "Chozo real fractional Y");
             AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
             AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");

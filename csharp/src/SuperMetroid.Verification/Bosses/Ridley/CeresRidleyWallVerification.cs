@@ -24,7 +24,7 @@ internal static class CeresRidleyWallVerification
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function = RidleyAiFunction.CeresLungeMain;
         ridley.FunctionTimer = WrappingCountdown.Start(100);
         ridley.MovementAnimationEnabled = true;
-        ridley.Velocity = ridley.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-768)));
+        ridley.Velocity = ridley.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
@@ -43,7 +43,7 @@ internal static class CeresRidleyWallVerification
         // Stop further attack acceleration so this checks one impact's lifetime, not
         // repeated wall contacts refreshing its timer.
         ridley.Function = RidleyAiFunction.WaitBeforeRoar;
-        ridley.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        ridley.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);

@@ -78,7 +78,7 @@ public sealed class BabyMetroidCutsceneState
     public int Speed { get; private set; }
 
     /// <summary>Heading of the curved entrance; only its table index is passed to shared component math.</summary>
-    public SnesAngle Angle { get; private set; }
+    public RotationAngle Angle { get; private set; }
 
     /// <summary>Native function timer, decremented with 16-bit wrap and BMI tests.</summary>
     public WrappingCountdown FunctionTimer { get; private set; }
@@ -197,7 +197,7 @@ public sealed class BabyMetroidCutsceneState
         Position = FixedPosition<RoomPixels>.FromWhole(new(320, 96)).WithFractionsOf(previousOccupant);
         Velocity = default;
         Speed = 0;
-        Angle = SnesAngle.Zero;
+        Angle = RotationAngle.Zero;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
         FunctionTimer = WrappingCountdown.Start(248);
     }
@@ -263,7 +263,7 @@ public sealed class BabyMetroidCutsceneState
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    Angle = SnesAngle.FromTableIndex(216);
+                    Angle = RotationAngle.FromTableIndex(216);
                     Speed = 2560;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                     FunctionTimer = WrappingCountdown.Start(10);
@@ -272,7 +272,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: SnesAngle.FromRaw(45056), targetSpeed: 2560);
+                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromRaw(45056), targetSpeed: 2560);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
@@ -282,7 +282,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: SnesAngle.FromRaw(33280), targetSpeed: 3584);
+                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: RotationAngle.FromRaw(33280), targetSpeed: 3584);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);
@@ -613,7 +613,7 @@ public sealed class BabyMetroidCutsceneState
                 // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue - 1))));
+                Velocity = Velocity.WithY(new SignedEightEight(unchecked((ushort)(Velocity.Y.RawValue - 1))));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
@@ -819,8 +819,8 @@ public sealed class BabyMetroidCutsceneState
         int xVelocity = Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(xVelocity) - 32);
         Velocity = new(
-            SnesSignedEightEight.FromSignedRaw((short)(xVelocity < 0 ? -magnitude : magnitude)),
-            new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
+            SignedEightEight.FromSignedRaw((short)(xVelocity < 0 ? -magnitude : magnitude)),
+            new SignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
     }
 
     /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=$80, selecting the shade it shows.</summary>
@@ -873,7 +873,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from native sine values.</summary>
     private void UpdateSpeedAndAngle(
         int angleDelta,
-        SnesAngle targetAngle,
+        RotationAngle targetAngle,
         int targetSpeed)
     {
         // `$CF31` changes speed by exactly `$20` and clamps rather than crossing the target.
@@ -887,7 +887,7 @@ public sealed class BabyMetroidCutsceneState
 
         // The turn stops at the target angle: the signed difference from the target says
         // whether this step would carry the heading past it.
-        SnesAngle candidateAngle = Angle.AddRaw(angleDelta);
+        RotationAngle candidateAngle = Angle.AddRaw(angleDelta);
         if (angleDelta < 0)
         {
             Angle = unchecked((short)(candidateAngle.RawValue - targetAngle.RawValue)) >= 0
@@ -901,10 +901,10 @@ public sealed class BabyMetroidCutsceneState
                 : targetAngle;
         }
 
-        SnesByteAngle angle = new(Angle.TableIndex);
+        ByteAngle angle = new(Angle.TableIndex);
         Velocity = new(
-            new SnesSignedEightEight(CalculateVelocityComponent(Speed, angle)),
-            new SnesSignedEightEight(CalculateVelocityComponent(Speed, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            new SignedEightEight(CalculateVelocityComponent(Speed, angle)),
+            new SignedEightEight(CalculateVelocityComponent(Speed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the cartridge's bit-8-to-23 result.</summary>
@@ -912,7 +912,7 @@ public sealed class BabyMetroidCutsceneState
     /// <param name="angle">The sine-table angle.</param>
     internal static ushort CalculateVelocityComponent(
         int speed,
-        SnesByteAngle angle)
+        ByteAngle angle)
     {
         // Bank `$86:C27A` multiplies unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.
@@ -1016,16 +1016,16 @@ public sealed class BabyMetroidCutsceneState
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
+            Velocity = Velocity.WithY(new SignedEightEight(unchecked((ushort)velocity)));
+            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.Y.RawValue)))));
             if (unchecked((short)(prediction - targetY)) < 0)
                 return false;
         }
         else
         {
             int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
+            Velocity = Velocity.WithY(new SignedEightEight(unchecked((ushort)velocity)));
+            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.Y.RawValue)))));
             int predictedDifference = unchecked((short)(prediction - targetY));
             if (predictedDifference > 0)
                 return false;
@@ -1042,8 +1042,8 @@ public sealed class BabyMetroidCutsceneState
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
+            Velocity = Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
+            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.X.RawValue)))));
             if (unchecked((short)(prediction - targetX)) < 0)
                 return false;
         }
@@ -1052,8 +1052,8 @@ public sealed class BabyMetroidCutsceneState
             // Native deliberately sends exact equality through the left branch; unlike Y,
             // there is no BEQ before BPL at `$A9:F619-$F61B`.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
+            Velocity = Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
+            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.X.RawValue)))));
             int predictedDifference = unchecked((short)(prediction - targetX));
             if (predictedDifference > 0)
                 return false;

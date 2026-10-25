@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// <param name="Negative">Velocity toward left or upward movement for the selected cardinal or diagonal magnitude.</param>
 /// <param name="Positive">Velocity toward right or downward movement for the same magnitude.</param>
 internal readonly record struct CacatacSpikeSpeedPair(
-    SnesSignedEightEight Negative,
-    SnesSignedEightEight Positive);
+    SignedEightEight Negative,
+    SignedEightEight Positive);

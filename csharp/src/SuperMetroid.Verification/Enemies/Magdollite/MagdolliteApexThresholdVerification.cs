@@ -61,7 +61,7 @@ internal static class MagdolliteApexThresholdVerification
                 enemies.MagdolliteBehavior.InitializeMagdollite(member, null);
             }
             MagdolliteEnemyState head = enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Magdollite head has no state.");
-            head.UpwardVelocity = SnesSignedSixteenSixteen.Zero - SnesSignedSixteenSixteen.FromRaw(onePixel + onePixel / 2);
+            head.UpwardVelocity = SignedSixteenSixteen.Zero - SignedSixteenSixteen.FromRaw(onePixel + onePixel / 2);
             RoomEnemySlot body = enemies.SlotTable.Slots[1];
             MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Function = MagdolliteEnemyFunction.BodyRising;
@@ -70,10 +70,10 @@ internal static class MagdolliteApexThresholdVerification
             body.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
 
             rise(body, state, null);
-            AssertEqual(new SnesFixedPosition(670, onePixel / 2), body.Position.Y, "Magdollite arm's first rise leaves half a pixel");
+            AssertEqual(new FixedCoordinate(670, onePixel / 2), body.Position.Y, "Magdollite arm's first rise leaves half a pixel");
             AssertEqual(new Offset16<RoomPixels>(0, -2), state.RiseDisplacement, "Magdollite arm's first rise is two whole pixels");
             rise(body, state, null);
-            AssertEqual(new SnesFixedPosition(669, 0), body.Position.Y, "Magdollite arm's second rise carries the half pixel");
+            AssertEqual(new FixedCoordinate(669, 0), body.Position.Y, "Magdollite arm's second rise carries the half pixel");
             AssertEqual(new Offset16<RoomPixels>(0, -3), state.RiseDisplacement, "Magdollite arm's rise displacement counts whole-pixel moves");
             AssertEqual(1, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
         }
@@ -93,7 +93,7 @@ internal static class MagdolliteApexThresholdVerification
                 initialize(member, null);
             }
             MagdolliteEnemyState head = (enemies.MagdolliteStates[headSlot] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot]."));
-            (head ?? throw new InvalidOperationException("Verification requires head.")).UpwardVelocity = SnesSignedSixteenSixteen.Zero;
+            (head ?? throw new InvalidOperationException("Verification requires head.")).UpwardVelocity = SignedSixteenSixteen.Zero;
             RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
             MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
             (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MagdolliteEnemyFunction.BodyRising;

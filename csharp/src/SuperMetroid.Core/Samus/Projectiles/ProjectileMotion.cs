@@ -51,10 +51,10 @@ internal sealed class ProjectileMotion
         }
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
-        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + directionOffset))))));
-        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + directionOffset))))));
 
@@ -146,10 +146,10 @@ internal sealed class ProjectileMotion
         ISamusRoomPlms? roomPlms)
     {
         int direction = slot.PackedDirection.DirectionIndex;
-        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
-        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
@@ -199,10 +199,10 @@ internal sealed class ProjectileMotion
         // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
-        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
@@ -218,9 +218,9 @@ internal sealed class ProjectileMotion
         else
         {
             int acceleration = SamusFiringTableDefinitions.MissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
                 unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
-            slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
                 unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))))));
         }
 
@@ -287,9 +287,9 @@ internal sealed class ProjectileMotion
         {
             int acceleration =
                 SamusFiringTableDefinitions.SuperMissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
                 unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
-            slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
                 unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))))));
         }
 
@@ -404,7 +404,7 @@ internal sealed class ProjectileMotion
             return;
 
         int velocity = axis == Axis.Vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
-        int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs(velocity));
+        int wholeMagnitude = EightEight.WholeOf(Math.Abs(velocity));
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {
@@ -466,7 +466,7 @@ internal sealed class ProjectileMotion
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
         // high byte skip reaction and are left for the later 64-pixel viewport deletion.
         int roomWidthInScreens = (level.Size.X + 15) >> 4;
-        if ((SnesEightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
+        if ((EightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
             level, slot, horizontalMovement: true, roomPlms: roomPlms);
@@ -481,7 +481,7 @@ internal sealed class ProjectileMotion
         slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
         int roomHeightInScreens = (level.Size.Y + 15) >> 4;
-        if ((SnesEightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)
+        if ((EightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
             level, slot, horizontalMovement: false, roomPlms: roomPlms);

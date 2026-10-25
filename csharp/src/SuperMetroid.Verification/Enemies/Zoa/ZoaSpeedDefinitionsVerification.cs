@@ -19,7 +19,7 @@ internal static class ZoaSpeedDefinitionsVerification
         int Record(int stage)
         {
             int address = ZoaSpeedSources.SpeedTable + stage * ZoaSpeedSources.RecordBytes;
-            return unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(address), Word(address + 2))));
+            return unchecked(unchecked((int)SixteenSixteen.Compose(Word(address), Word(address + 2))));
         }
         AssertEqual(4, ZoaSpeedDefinitions.StageSpeedEighths.Length, "Zoa has four speed stages");
         for (int stage = 0; stage < ZoaSpeedDefinitions.StageSpeedEighths.Length; stage++)
@@ -49,7 +49,7 @@ internal static class ZoaSpeedDefinitionsVerification
                     actor.Position = new(new(128, (ushort)fraction), new(128, 123));
                     shoot(actor, state, Position16<RoomPixels>.Zero);
                     uint expected = unchecked(0x00800000u + (uint)fraction + (uint)displacement);
-                    AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), actor.Position.X.Whole, "Zoa real signed whole displacement");
+                    AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actor.Position.X.Whole, "Zoa real signed whole displacement");
                     AssertEqual((ushort)expected, actor.Position.X.Fraction, "Zoa real fractional carry/borrow");
                     AssertEqual((ushort)128, actor.Position.Y.Whole, "Zoa shooting preserves Y");
                     AssertEqual((ushort)123, actor.Position.Y.Fraction, "Zoa shooting preserves sub-Y");

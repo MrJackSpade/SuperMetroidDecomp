@@ -66,7 +66,7 @@ public sealed class SamusShinesparkState
     /// Its storage is shared with the suit pickup's scratch, which can replace it (see
     /// <see cref="ApplySuitPickupScratch"/>); the adds wrap at 32 bits exactly as the cartridge's word pair does.
     /// </summary>
-    public SnesSignedSixteenSixteen VerticalAcceleration { get; private set; }
+    public SignedSixteenSixteen VerticalAcceleration { get; private set; }
 
     /// <summary>
     /// Mirrors suit HDMA writes to shared WRAM $0DEC/$0DEE (substate/light-beam
@@ -76,7 +76,7 @@ public sealed class SamusShinesparkState
     /// <param name="substate">The suit pickup's stage number, which becomes the acceleration's whole word.</param>
     /// <param name="lightBeamPosition">The suit pickup's light-beam word, which becomes the acceleration's fraction.</param>
     internal void ApplySuitPickupScratch(int substate, int lightBeamPosition) =>
-        VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)substate), lightBeamPosition);
+        VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)substate), lightBeamPosition);
 
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
     public ShinesparkPhase Phase { get; internal set; }
@@ -174,10 +174,10 @@ public sealed class SamusShinesparkState
     public int CrashRadius { get; private set; }
 
     /// <summary>First byte-angle formerly stored in speed-echo X speed slot zero.</summary>
-    public SnesAngle FirstCrashEchoAngle { get; private set; }
+    public RotationAngle FirstCrashEchoAngle { get; private set; }
 
     /// <summary>Second byte-angle, exactly 128 degrees-of-256 opposite the first.</summary>
-    public SnesAngle SecondCrashEchoAngle { get; private set; }
+    public RotationAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>
     /// The crash echoes' angular travel, 0 through <see cref="LargestCrashAngularTravel"/>. Its storage is the
@@ -247,7 +247,7 @@ public sealed class SamusShinesparkState
     {
         FirstReleasedCrashEchoSlot.Clear();
         SecondReleasedCrashEchoSlot.Clear();
-        FirstCrashEchoAngle = SecondCrashEchoAngle = SnesAngle.Zero;
+        FirstCrashEchoAngle = SecondCrashEchoAngle = RotationAngle.Zero;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
     }
@@ -325,11 +325,11 @@ public sealed class SamusShinesparkState
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter =
             new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter);
-        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(8, 0);
+        samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(8, 0);
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpDirection = 0;
 
-        VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(7, 0);
+        VerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
         StartStopTimer = WrappingCountdown.Start(30);
         ShineTimer = WrappingCountdown.Start(60);
         PaletteType = SamusSpecialPaletteType.Shinesparking;
@@ -797,8 +797,8 @@ false);
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
-        SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
+        FirstCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
+        SecondCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         CrashAngularDelta = facingLeft ? 4 : -4;
         FirstReleasedCrashEchoSlot.DisableDrawing();
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
@@ -860,8 +860,8 @@ false);
                     Phase = ShinesparkPhase.CrashEchoCircle;
                     StartStopTimer = WrappingCountdown.Start(30);
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
-                    FirstCrashEchoAngle = SnesAngle.Zero;
-                    SecondCrashEchoAngle = SnesAngle.Zero;
+                    FirstCrashEchoAngle = RotationAngle.Zero;
+                    SecondCrashEchoAngle = RotationAngle.Zero;
                 }
                 break;
 
@@ -943,7 +943,7 @@ false);
         }
 
         ShineTimer = WrappingCountdown.Start(1);
-        VerticalAcceleration = SnesSignedSixteenSixteen.Zero;
+        VerticalAcceleration = SignedSixteenSixteen.Zero;
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
 false,             CrashSequenceFinished: true);
@@ -982,10 +982,10 @@ false,             CrashSequenceFinished: true);
             _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
         };
         echo.Radius = unchecked((ushort)projectile.Velocity.X.SignedRawValue);
-        echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
+        echo.Angle = RotationAngle.FromTableIndex(unchecked((byte)projectile.Variable));
         if (!StepReleasedCrashEcho(samus, layer1,
             echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
-        projectile.Velocity = projectile.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)echo.Radius)));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)echo.Radius)));
         projectile.Position = projectile.Position.WithWhole(echo.Position);
         return true;
     }
@@ -1030,19 +1030,19 @@ false,             CrashSequenceFinished: true);
 
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
     internal static Offset16<RoomPixels> ProjectileSinLookup(
-        SnesAngle angle,
+        RotationAngle angle,
         int radius)
     {
         int x = LookupSignedComponent(angle, radius);
         int y = LookupSignedComponent(
-            angle.AddRaw(-SnesAngle.QuarterTurn.RawValue),
+            angle.AddRaw(-RotationAngle.QuarterTurn.RawValue),
             radius);
         return new(unchecked((short)x), unchecked((short)y));
     }
 
     /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table routine.</summary>
     private static ushort LookupSignedComponent(
-        SnesAngle angle,
+        RotationAngle angle,
         int radius)
     {
         // Native multiplies the positive half-wave, discards the fraction, then
@@ -1088,15 +1088,15 @@ false,             CrashSequenceFinished: true);
         ISamusRoomPlms? plms)
     {
         ShineTimer = WrappingCountdown.Start(15);
-        uint accelerated = unchecked(SnesSixteenSixteen.Compose(
+        uint accelerated = unchecked(SixteenSixteen.Compose(
             samus.HorizontalSpeed.ExtraRunSpeed.Whole,
-            samus.HorizontalSpeed.ExtraRunSpeed.Fraction) + SnesSixteenSixteen.Compose(
+            samus.HorizontalSpeed.ExtraRunSpeed.Fraction) + SixteenSixteen.Compose(
                 samus.Kinematics.YAcceleration.Whole,
                 samus.Kinematics.YAcceleration.Fraction));
-        samus.HorizontalSpeed.ExtraRunSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
+        samus.HorizontalSpeed.ExtraRunSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
         if (unchecked((short)(samus.HorizontalSpeed.ExtraRunSpeed.Whole - 15)) >= 0)
         {
-            samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(15, 0);
+            samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(15, 0);
         }
 
         var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
@@ -1112,20 +1112,20 @@ false,             CrashSequenceFinished: true);
         ISamusRoomPlms? plms)
     {
         ShineTimer = WrappingCountdown.Start(15);
-        VerticalAcceleration += SnesSignedSixteenSixteen.FromRaw(unchecked((int)SnesSixteenSixteen.Compose(
+        VerticalAcceleration += SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(
             samus.Kinematics.YAcceleration.Whole,
             samus.Kinematics.YAcceleration.Fraction)));
         uint acceleration = unchecked((uint)VerticalAcceleration.RawValue);
 
-        uint speed = unchecked(SnesSixteenSixteen.Compose(
+        uint speed = unchecked(SixteenSixteen.Compose(
             samus.Kinematics.YSpeed.Whole,
             samus.Kinematics.YSpeed.Fraction) + acceleration);
-        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
+        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
 
         // The native clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the wrapped speed words even after movement reaches its cap.
         uint displacementSpeed = unchecked((short)(samus.Kinematics.YSpeed.Whole - 14)) >= 0
-            ? SnesSixteenSixteen.Compose(14, samus.Kinematics.YSpeed.Fraction)
+            ? SixteenSixteen.Compose(14, samus.Kinematics.YSpeed.Fraction)
             : speed;
         int upwardDisplacement = unchecked(-(int)displacementSpeed);
         upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
@@ -1137,7 +1137,7 @@ false,             CrashSequenceFinished: true);
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
         int collisionMagnitude = unchecked(-upwardDisplacement);
-        int collisionMagnitudeWhole = unchecked((short)SnesSixteenSixteen.WholeOf(collisionMagnitude));
+        int collisionMagnitudeWhole = unchecked((short)SixteenSixteen.WholeOf(collisionMagnitude));
         if (unchecked((short)(collisionMagnitudeWhole - 15)) >= 0)
         {
             collisionMagnitude = unchecked((int)(
@@ -1149,7 +1149,7 @@ false,             CrashSequenceFinished: true);
         // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
-            SnesFixedPosition.WholeOf(collisionMagnitude), unchecked((ushort)collisionMagnitude));
+            FixedCoordinate.WholeOf(collisionMagnitude), unchecked((ushort)collisionMagnitude));
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemyIndex);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
@@ -1166,7 +1166,7 @@ false,             CrashSequenceFinished: true);
         /// <summary>Drawing enable, independent of the slot's current projectile owner.</summary>
         public bool Active { get; private set; }
         /// <summary>Byte-angle used to place the departing echo around Samus.</summary>
-        public SnesAngle Angle { get; set; }
+        public RotationAngle Angle { get; set; }
         /// <summary>
         /// Expanding radius in pixels, 0 through <see cref="LargestRadius"/>, retained in the owning projectile's X
         /// velocity word: zero when the echo departs and raised only by <see cref="ExpandRadius"/>. The sine lookup
@@ -1196,7 +1196,7 @@ false,             CrashSequenceFinished: true);
         public void DisableDrawing() => Active = false;
 
         /// <summary>Activates a departing echo at its crash position with zero projectile radius.</summary>
-        public void Initialize(SnesAngle angle, Position16<RoomPixels> position)
+        public void Initialize(RotationAngle angle, Position16<RoomPixels> position)
         {
             Active = true;
             Angle = angle;
@@ -1210,7 +1210,7 @@ false,             CrashSequenceFinished: true);
         public void Clear()
         {
             Active = false;
-            Angle = SnesAngle.Zero;
+            Angle = RotationAngle.Zero;
             Radius = 0;
             Position = Position16<RoomPixels>.Zero;
         }

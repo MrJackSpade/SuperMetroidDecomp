@@ -7,8 +7,8 @@ public static class YardVelocityDefinitions
     /// <summary>Equivalent to native XOR $FFFF then increment; negation wraps at sixteen bits.</summary>
     public static EightEightVector<RoomPixels> Apply(int magnitude, int direction)
     {
-        var positive = new SnesSignedEightEight(checked((ushort)magnitude));
-        var negative = new SnesSignedEightEight(unchecked((ushort)-magnitude));
+        var positive = new SignedEightEight(checked((ushort)magnitude));
+        var negative = new SignedEightEight(unchecked((ushort)-magnitude));
         return direction switch
         {
             0 or 4 => new(negative, negative),

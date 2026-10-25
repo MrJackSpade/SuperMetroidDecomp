@@ -32,7 +32,7 @@ internal static class RidleyDeathAccelerationVerification
         foreach (int velocity in velocities)
         {
             slot.Position = new(new(unchecked((ushort)(128 + distance)), 0x8123), new(unchecked((ushort)(328 - distance)), 0x8123));
-            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(unchecked((ushort)velocity)), new SnesSignedEightEight(unchecked((ushort)velocity)));
+            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)velocity)), new SignedEightEight(unchecked((ushort)velocity)));
             state.FunctionTimer = WrappingCountdown.Start(20);
             step(slot, state);
             AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.X.Whole, 128, 16, 16), state.Velocity.X.RawValue, "Death phase native X acceleration");

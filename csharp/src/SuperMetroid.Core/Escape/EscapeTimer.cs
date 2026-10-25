@@ -176,7 +176,7 @@ public sealed class EscapeTimer
         int axesInPosition = 0;
 
         // X advances by 224/256 (0.875) pixel and clamps at pixel 220.
-        int settledX = (ushort)SnesEightEight.FromWhole(220);
+        int settledX = (ushort)EightEight.FromWhole(220);
         int nextX = unchecked((ushort)(Position.X + 224));
         if (nextX >= settledX)
         {
@@ -187,7 +187,7 @@ public sealed class EscapeTimer
 
         // Y moves upward by 193/256 pixel and clamps at pixel 48. The unsigned comparison
         // reproduces CMP/BCS after 16-bit wrapped subtraction.
-        int settledY = (ushort)SnesEightEight.FromWhole(48);
+        int settledY = (ushort)EightEight.FromWhole(48);
         int nextY = unchecked((ushort)(Position.Y - 193));
         if (nextY < settledY)
         {

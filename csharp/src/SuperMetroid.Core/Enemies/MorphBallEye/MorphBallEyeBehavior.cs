@@ -193,7 +193,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Calculates the cartridge angle from signed wrapped eye-to-Samus displacement.</summary>
-    private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
+    private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))).ReinterpretAsTableAngle().ToAngle();
 
@@ -249,8 +249,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state = body.RequireSpeciesState<MorphBallEyeEnemyState>();
 
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
-        MorphBallEyeBeam.AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
-        MorphBallEyeBeam.AngularHalfWidthGrowth = SnesSignedSixteenSixteen.Zero;
+        MorphBallEyeBeam.AngularHalfWidth = SignedSixteenSixteen.Zero;
+        MorphBallEyeBeam.AngularHalfWidthGrowth = SignedSixteenSixteen.Zero;
         MorphBallEyeBeam.ColorIndex = 0;
         state.IsActivated = true;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;

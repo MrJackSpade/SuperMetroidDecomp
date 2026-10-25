@@ -45,7 +45,7 @@ internal sealed class EndingStage
     internal int FloorZoom { get; set; } = EndingMotionDefinitions.IdentityScale;
 
     /// <summary>Mode-7 byte-angle shared by the escape and planet scenes.</summary>
-    internal SnesAngle FloorAngle { get; set; }
+    internal RotationAngle FloorAngle { get; set; }
 
     /// <summary>Scroll of the post-credits text map; only the vertical axis moves, during the item-percentage scroll-down.</summary>
     internal Position16<BgPlanePixels> PostCreditsScroll { get; set; }
@@ -224,13 +224,13 @@ internal sealed class EndingStage
                 {
                     sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsMoving);
                     // The Y subposition word doubles as the low velocity word.
-                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction((ushort)(SnesSixteenSixteen.FromWhole(1) / 4)));
+                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction((ushort)(SixteenSixteen.FromWhole(1) / 4)));
                     sprite.GeneralTimer = 0;
                 }
                 break;
             case CinematicSpritePreInstruction.ZebesExplosionStarsMoving:
-                int velocity = unchecked((int)(SnesSixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
-                sprite.GeneralTimer = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
+                int velocity = unchecked((int)(SixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
+                sprite.GeneralTimer = unchecked((ushort)(SixteenSixteen.WholeOf(velocity)));
                 uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
                 sprite.Position = new(
                     IntroCinematicMotion.Unpacked(position),

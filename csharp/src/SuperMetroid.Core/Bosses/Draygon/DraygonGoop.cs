@@ -49,8 +49,8 @@ internal sealed class DraygonGoop
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
-        state.SwoopVelocity = SnesSixteenSixteen.FromWhole(1u);
-        state.GoopYOscillationAngle = SnesAngle.Zero;
+        state.SwoopVelocity = SixteenSixteen.FromWhole(1u);
+        state.GoopYOscillationAngle = RotationAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
         // the body reset opcode replaces all four lists. Preserve the literal write.
         _parts.StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingRightNearSwoopApex);
@@ -243,12 +243,12 @@ internal sealed class DraygonGoop
     /// <summary>Moves a Draygon projectile in 16.16 space by its angle and speed.</summary>
     internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile)
     {
-        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.X.RawValue, checked((ushort)projectile.Variable0))));
-        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1))));
-        int xDisplacement = EnemyMath.CosineIsNegative(new SnesByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -xMagnitude : xMagnitude;
-        int yDisplacement = EnemyMath.SineIsNegative(new SnesByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -yMagnitude : yMagnitude;
-        projectile.Position = projectile.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
-        projectile.Position = projectile.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
+        int xMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(projectile.Velocity.X.RawValue, checked((ushort)projectile.Variable0))));
+        int yMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1))));
+        int xDisplacement = EnemyMath.CosineIsNegative(new ByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -xMagnitude : xMagnitude;
+        int yDisplacement = EnemyMath.SineIsNegative(new ByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -yMagnitude : yMagnitude;
+        projectile.Position = projectile.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
+        projectile.Position = projectile.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
     }
 
     /// <summary>Deletes a projectile that has left Draygon's room (<c>$86:E722</c>).</summary>

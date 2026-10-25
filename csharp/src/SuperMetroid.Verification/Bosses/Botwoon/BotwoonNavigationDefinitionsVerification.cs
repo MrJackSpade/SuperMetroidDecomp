@@ -282,7 +282,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             };
             runMovement(head, state);
             // At the exact target the cartridge's angle routine yields 129; the movement angle is a quarter turn minus it.
-            AssertEqual(SnesAngle.FromTableIndex(191), state.MovementAngle,
+            AssertEqual(RotationAngle.FromTableIndex(191), state.MovementAngle,
                 $"Botwoon hole {holeIndex} exact-target movement angle");
             AssertEqual(hole.Target.X, head.Position.X.Whole,
                 $"Botwoon hole {holeIndex} exact-target X");

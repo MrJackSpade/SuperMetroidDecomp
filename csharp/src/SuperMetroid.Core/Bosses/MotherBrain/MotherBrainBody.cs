@@ -404,19 +404,19 @@ internal sealed class MotherBrainBody
             graphicsIndex: 64);
         beam.Variable0 = 0;
         beam.Variable1 = 0;
-        beam.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.GraphicsIndex = 1024;
         beam.Position = beam.Position.WithWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + 64)), unchecked((ushort)(state.Body.Position.Y.Whole - 48))));
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
-        SnesByteAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
-            .ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
+        ByteAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
+            .ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue);
         state.HandBeamNextAngle = angle.RawValue;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(3072, angle)),
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(3072, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            new SignedEightEight(EnemyMath.MultiplySineSample(3072, angle)),
+            new SignedEightEight(EnemyMath.MultiplySineSample(3072, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
 
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }

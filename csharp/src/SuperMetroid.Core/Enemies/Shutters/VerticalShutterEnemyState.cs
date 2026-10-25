@@ -23,13 +23,13 @@ public sealed class VerticalShutterEnemyState
     /// </summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
     /// <summary>Downward signed 16.16 velocity in pixels per update, from the common linear-speed table.</summary>
-    public SnesSignedSixteenSixteen DownVelocity { get; internal set; }
+    public SignedSixteenSixteen DownVelocity { get; internal set; }
 
     /// <summary>
     /// Upward signed 16.16 velocity in pixels per update; its fraction is added together with the negative whole part,
     /// not negated independently.
     /// </summary>
-    public SnesSignedSixteenSixteen UpVelocity { get; internal set; }
+    public SignedSixteenSixteen UpVelocity { get; internal set; }
 
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record containing the downward and upward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
@@ -69,7 +69,7 @@ public sealed class VerticalShutterEnemyState
     {
         Function = null;
         FunctionTimer = WrappingCountdown.Start(0);
-        DownVelocity = SnesSignedSixteenSixteen.Zero;
-        UpVelocity = SnesSignedSixteenSixteen.Zero;
+        DownVelocity = SignedSixteenSixteen.Zero;
+        UpVelocity = SignedSixteenSixteen.Zero;
     }
 }

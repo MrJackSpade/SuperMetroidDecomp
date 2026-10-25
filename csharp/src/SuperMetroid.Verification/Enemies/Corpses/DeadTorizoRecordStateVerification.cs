@@ -15,7 +15,7 @@ internal static class DeadTorizoRecordStateVerification
         var state = new DeadTorizoEnemyState(slot, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 }, new CorpseRotTable(1));
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = DeadTorizoFunction.Rotting;
-        state.Velocity = new(new SnesSignedEightEight(2), new SnesSignedEightEight(9));
+        state.Velocity = new(new SignedEightEight(2), new SignedEightEight(9));
 
         slot.Clear();
         AssertEqual<DeadTorizoFunction?>(null, state.Function, "a kill empties the function");

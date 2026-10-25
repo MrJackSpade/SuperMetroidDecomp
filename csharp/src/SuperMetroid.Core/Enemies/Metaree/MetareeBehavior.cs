@@ -157,7 +157,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyTerrain.EnemyHasSolidHighBitBelow(
                 level,
                 slot,
-                SnesSixteenSixteen.FromWhole(state.YVelocity)))
+                SixteenSixteen.FromWhole(state.YVelocity)))
         {
             slot.InstructionTimer = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);

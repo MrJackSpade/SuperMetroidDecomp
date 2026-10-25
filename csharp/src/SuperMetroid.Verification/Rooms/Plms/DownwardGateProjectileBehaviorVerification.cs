@@ -39,7 +39,7 @@ internal static class DownwardGateProjectileBehaviorVerification
                 ? sleeping.Cursor.Program
                 : throw new InvalidOperationException("The gate lost its typed program.");
             gate.GeneralTimer = DownwardGateDefinitions.OneBlockDistance - 1;
-            gate.Velocity = gate.Velocity.WithY(new SnesSignedEightEight(256));
+            gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
             DownwardGateProjectileProgram resumed = DownwardGateProjectileAnimations.Resumption[current];
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.Cursor.Program == resumed, $"a block's travel resumes {current} with {resumed}");

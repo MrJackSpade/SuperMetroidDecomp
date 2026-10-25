@@ -292,7 +292,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         int velocity)
     {
-        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(new SignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
     }
 
     /// <summary>Advances one spike vertically using its signed 8.8 velocity as a 16.16 delta.</summary>
@@ -300,7 +300,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         int velocity)
     {
-        projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceY(new SignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
     }
 
     /// <summary>

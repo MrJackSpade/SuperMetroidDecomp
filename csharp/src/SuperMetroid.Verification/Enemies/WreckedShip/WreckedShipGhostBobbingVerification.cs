@@ -37,7 +37,7 @@ internal static class WreckedShipGhostBobbingVerification
                 Function = WreckedShipGhostAiFunction.BobbingWhileVisible,
                 PhaseTimer = WrappingCountdown.Start(120),
                 BobbingOrigin = new(0, originY),
-                VerticalVelocity = SnesSignedSixteenSixteen.FromParts(whole, 0),
+                VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };
             slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -45,7 +45,7 @@ internal static class WreckedShipGhostBobbingVerification
 
             AssertEqual(expectedY, slot.Position.Y.Whole, $"Ghost {context}: position");
             AssertEqual((ushort)0, slot.Position.Y.Fraction, $"Ghost {context}: subposition");
-            AssertEqual(SnesSignedSixteenSixteen.FromRaw(expectedVelocity), state.VerticalVelocity, $"Ghost {context}: speed");
+            AssertEqual(SignedSixteenSixteen.FromRaw(expectedVelocity), state.VerticalVelocity, $"Ghost {context}: speed");
         }
         Console.WriteLine("  Wrecked Ship ghost bobbing: speed carries and the origin compares by the wrapped difference.");
     }

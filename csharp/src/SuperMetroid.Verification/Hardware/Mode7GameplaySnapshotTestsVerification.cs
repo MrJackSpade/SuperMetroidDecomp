@@ -51,8 +51,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
-        getaway.FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33);
-        getaway.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SnesSignedEightEight.FromSignedRaw(240);
+        getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
+        getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
         getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
         getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).

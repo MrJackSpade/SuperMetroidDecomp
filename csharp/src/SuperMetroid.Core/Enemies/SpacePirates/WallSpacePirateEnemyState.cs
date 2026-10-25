@@ -44,12 +44,12 @@ public sealed class WallSpacePirateEnemyState
     /// for a leftward jump, stepped after each position calculation. A rightward jump steps down through zero to its
     /// endpoint, so the wrap is load-bearing.
     /// </summary>
-    public SnesAngle WallJumpArcAngle { get; internal set; }
+    public RotationAngle WallJumpArcAngle { get; internal set; }
 
     /// <summary>The rightward jump's endpoint, table index 190 for slow jumps or 192 for fast ones; reaching it installs the right-wall landing.</summary>
-    public SnesAngle RightJumpTargetAngle { get; internal set; }
+    public RotationAngle RightJumpTargetAngle { get; internal set; }
     /// <summary>The leftward jump's endpoint, table index 66 for slow jumps or 64 for fast ones; reaching it installs the left-wall landing.</summary>
-    public SnesAngle LeftJumpTargetAngle { get; internal set; }
+    public RotationAngle LeftJumpTargetAngle { get; internal set; }
     /// <summary>Table units the jump angle steps each update, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
     public int JumpAngleDelta { get; internal set; }
     /// <summary>Host diagnostic count of successfully allocated lasers since this enemy state was initialized; shared projectile-pool exhaustion does not increment it.</summary>
@@ -62,6 +62,6 @@ public sealed class WallSpacePirateEnemyState
         WallJumpDestination = Position16<RoomPixels>.Zero;
         ClimbDirection = default;
         WallJumpArcCenter = Position16<RoomPixels>.Zero;
-        WallJumpArcAngle = SnesAngle.FromTableIndex(0);
+        WallJumpArcAngle = RotationAngle.FromTableIndex(0);
     }
 }

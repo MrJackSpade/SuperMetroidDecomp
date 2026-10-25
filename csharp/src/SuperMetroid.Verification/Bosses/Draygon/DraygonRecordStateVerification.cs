@@ -27,7 +27,7 @@ internal static class DraygonRecordStateVerification
 
         state.Function = DraygonAiFunction.Dying;
         state.SwoopEndOffset = 40;
-        state.SwoopVelocity = SnesSixteenSixteen.Compose(2, 0x8000);
+        state.SwoopVelocity = SixteenSixteen.Compose(2, 0x8000);
         body.Clear();
         AssertEqual((DraygonAiFunction)0, state.Function, "a body kill empties the function");
         AssertEqual(0, state.SwoopOffset, "a body kill empties the timer word");

@@ -16,14 +16,14 @@ internal static class MotherBrainFallingTubeRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = MotherBrainTubeFunction.MainTube_Falling;
         state.FloorY = 208;
-        state.FallSpeed = new SnesSignedEightEight(6);
+        state.FallSpeed = new SignedEightEight(6);
         state.SmokeDelay = WrappingCountdown.Start(8);
         state.SmokePositionIndex = 3;
 
         slot.Clear();
         AssertEqual<MotherBrainTubeFunction?>(null, state.Function, "a kill empties the function");
         AssertEqual(0, state.FloorY, "a kill empties the floor");
-        AssertEqual(default(SnesSignedEightEight), state.FallSpeed, "a kill empties the fall speed");
+        AssertEqual(default(SignedEightEight), state.FallSpeed, "a kill empties the fall speed");
         AssertEqual(WrappingCountdown.Start(0), state.SmokeDelay, "a kill empties the smoke delay");
         AssertEqual(0, state.SmokePositionIndex, "a kill empties the smoke position");
         Console.WriteLine("Mother Brain falling tube record state: a kill empties every value the record holds.");

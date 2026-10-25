@@ -45,9 +45,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The rightward laser velocity, two pixels per update; only its X is meaningful.</summary>
     private static readonly EightEightVector<RoomPixels> WorkRobotFacingRightVelocity = new(512, 0);
     /// <summary>What gravity adds to a falling unpowered robot's speed each airborne update: half a pixel.</summary>
-    private static readonly SnesSignedSixteenSixteen WorkRobotGravity = SnesSignedSixteenSixteen.FromParts(0, 32768);
+    private static readonly SignedSixteenSixteen WorkRobotGravity = SignedSixteenSixteen.FromParts(0, 32768);
     /// <summary>The speed an unpowered robot starts falling at: one pixel per update.</summary>
-    private static readonly SnesSignedSixteenSixteen WorkRobotInitialFallVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+    private static readonly SignedSixteenSixteen WorkRobotInitialFallVelocity = SignedSixteenSixteen.FromParts(1, 0);
 
     /// <summary>Library-two sound queued by a robot footstep.</summary>
     private static readonly SoundEffectId WorkRobotFootstepSound =
@@ -242,7 +242,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                SnesSixteenSixteen.FromWhole(step.HorizontalPixels)))
+                SixteenSixteen.FromWhole(step.HorizontalPixels)))
         {
             state.LaserCooldown = state.LaserCooldown.AddFrames(8);
             return step.WallProgram;
@@ -250,7 +250,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(slot, samus))
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)step.HorizontalPixels), 0));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(unchecked((short)step.HorizontalPixels), 0));
         }
 
         if (!step.CheckLedge)
@@ -312,7 +312,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
     {
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
             robot.Position.X.Whole < samus.Position.X.Whole ? (short)4 : (short)-4, 0));
     }
 
@@ -450,7 +450,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             definition.ProjectileKind(),
             unchecked((ushort)(robot.TileIndexBase | robot.PaletteIndex)));
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
                 unchecked((ushort)-128),

@@ -32,7 +32,7 @@ public static class EndingShipShake
     private const int SlowPositiveSteps = SlowFirstPositiveRun + SlowSecondPositiveRun;
 
     /// <summary>The displacement of one whole cycle, fast or slow: two pixels.</summary>
-    private static readonly int CycleDisplacement = SnesSignedSixteenSixteen.FromParts(2, 0).RawValue;
+    private static readonly int CycleDisplacement = SignedSixteenSixteen.FromParts(2, 0).RawValue;
     /// <summary>The per-step fast delta that yields the cycle displacement.</summary>
     private static readonly int FastAmplitude =
         CycleDisplacement / (2 * FastPositiveSteps - EndingMotionDefinitions.PlanetFastPatternLength);

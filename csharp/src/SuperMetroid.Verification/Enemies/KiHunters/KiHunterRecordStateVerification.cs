@@ -25,7 +25,7 @@ internal static class KiHunterRecordStateVerification
         state.DetachedSpeedAccumulator = 1;
         state.AnimationChangeAngle = 1;
         state.SwoopAngle = 1;
-        state.WingArcAngle = SnesAngle.FromTableIndex(1);
+        state.WingArcAngle = RotationAngle.FromTableIndex(1);
 
         slot.Clear();
         AssertEqual<KiHunterEnemyFunction?>(null, state.Function, "a kill empties Function");
@@ -35,7 +35,7 @@ internal static class KiHunterRecordStateVerification
         AssertEqual<int>(0, state.DetachedSpeedAccumulator, "a kill empties DetachedSpeedAccumulator");
         AssertEqual<int>(0, state.AnimationChangeAngle, "a kill empties AnimationChangeAngle");
         AssertEqual<int>(0, state.SwoopAngle, "a kill empties SwoopAngle");
-        AssertEqual<SnesAngle>(SnesAngle.FromTableIndex(0), state.WingArcAngle, "a kill empties WingArcAngle");
+        AssertEqual<RotationAngle>(RotationAngle.FromTableIndex(0), state.WingArcAngle, "a kill empties WingArcAngle");
         Console.WriteLine("KiHunter record state: a kill empties every value the record holds.");
     }
 

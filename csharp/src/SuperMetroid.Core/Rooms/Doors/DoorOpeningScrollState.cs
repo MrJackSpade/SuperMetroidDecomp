@@ -132,15 +132,15 @@ internal sealed class DoorOpeningScrollState
     /// </summary>
     internal static FixedVector<RoomPixels> GetSamusStep(DoorDefinition door)
     {
-        int magnitude = SnesSixteenSixteen.FromEightEight(door.SamusSpeed.StepSubpixels(door.Orientation.Direction));
-        var step = SnesSignedSixteenSixteen.FromRaw(magnitude);
-        var back = SnesSignedSixteenSixteen.FromRaw(-magnitude);
+        int magnitude = SixteenSixteen.FromEightEight(door.SamusSpeed.StepSubpixels(door.Orientation.Direction));
+        var step = SignedSixteenSixteen.FromRaw(magnitude);
+        var back = SignedSixteenSixteen.FromRaw(-magnitude);
         return door.Orientation.Direction switch
         {
-            DoorDirection.Right => new(step, SnesSignedSixteenSixteen.Zero),
-            DoorDirection.Left => new(back, SnesSignedSixteenSixteen.Zero),
-            DoorDirection.Down => new(SnesSignedSixteenSixteen.Zero, step),
-            DoorDirection.Up => new(SnesSignedSixteenSixteen.Zero, back),
+            DoorDirection.Right => new(step, SignedSixteenSixteen.Zero),
+            DoorDirection.Left => new(back, SignedSixteenSixteen.Zero),
+            DoorDirection.Down => new(SignedSixteenSixteen.Zero, step),
+            DoorDirection.Up => new(SignedSixteenSixteen.Zero, back),
             _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
         };
     }
@@ -187,7 +187,7 @@ internal sealed class DoorOpeningScrollState
     public void PlaceSamusOnElevator(Position16<RoomPixels> position) =>
         SamusPosition = new FixedPosition<RoomPixels>(
             SamusPosition.X.WithWhole(position.X),
-            new SnesFixedPosition(position.Y, 0));
+            new FixedCoordinate(position.Y, 0));
 
     /// <summary>
     /// Applies <c>Irq_FollowDoorTransition</c>'s layer-one destination snap after the

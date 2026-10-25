@@ -38,7 +38,7 @@ internal static class NorfairLavaJumperBehaviorVerification
             "lava-jumper hidden pose");
 
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
-        parentState.YVelocity = SnesSignedEightEight.FromSignedRaw(-1080); // Past the native switch velocity, still rising.
+        parentState.YVelocity = SignedEightEight.FromSignedRaw(-1080); // Past the native switch velocity, still rising.
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
         AssertEqual(AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Jump), parentState.Program,
             "real lava-jumper rise handoff starts the jump animation");

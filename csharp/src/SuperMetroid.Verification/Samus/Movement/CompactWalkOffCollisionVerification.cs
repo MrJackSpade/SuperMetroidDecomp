@@ -29,7 +29,7 @@ internal static class CompactWalkOffCollisionVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x6400);
-            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(2, 0xf400);
+            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0xf400);
             SamusPoseId target = left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, target);
             AssertEqual(0x00edffffu, samus.Kinematics.Position.Y.RawValue, "compact walk-off uses native floor center/subpixel correction");

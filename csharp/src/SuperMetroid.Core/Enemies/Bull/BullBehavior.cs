@@ -109,8 +109,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the cartridge's zero-up angle.</summary>
-    private static SnesAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
-        SnesAngle.NormalizeTableIndex(EnemyMath.CalculateBearing(
+    private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
+        RotationAngle.NormalizeTableIndex(EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
@@ -163,21 +163,21 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
             slot.Position.X,
-            ReadBullSignedSine(unchecked(new SnesByteAngle((byte)(state.Angle + EnemyByteAngleDefinitions.QuarterTurn)))),
+            ReadBullSignedSine(unchecked(new ByteAngle((byte)(state.Angle + EnemyByteAngleDefinitions.QuarterTurn)))),
             state.Speed));
         slot.Position = slot.Position.WithY(AddBullComponent(
             slot.Position.Y,
-            ReadBullSignedSine(unchecked(new SnesByteAngle((byte)state.Angle))),
+            ReadBullSignedSine(unchecked(new ByteAngle((byte)state.Angle))),
             state.Speed));
     }
 
     /// <summary>Reads the cartridge's signed sine sample for one byte-sized Bull heading.</summary>
-    internal static short ReadBullSignedSine(SnesByteAngle angle) =>
+    internal static short ReadBullSignedSine(ByteAngle angle) =>
         EnemyTrigonometryTables.SignedSixteenBitSine(angle);
 
     /// <summary>Applies Bull's 24-bit sine-times-speed displacement and native negative-fraction rule.</summary>
-    private static SnesFixedPosition AddBullComponent(
-        SnesFixedPosition position,
+    private static FixedCoordinate AddBullComponent(
+        FixedCoordinate position,
         int sine,
         int speed)
     {
@@ -189,7 +189,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         int sineHighByte = SnesLittleEndian.HighByte(magnitude);
         uint product = (uint)sineHighByte * (uint)speed;
         int fraction = unchecked((ushort)product);
-        int whole = SnesFixedPosition.WholeOf(unchecked((int)product));
+        int whole = FixedCoordinate.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))
         {
             if (fraction == 0)

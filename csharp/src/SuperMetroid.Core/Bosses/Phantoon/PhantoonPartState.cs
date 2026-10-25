@@ -119,7 +119,7 @@ public sealed class PhantoonPartState
     /// <summary>The tentacles' signed 8.8 swoop velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> SwoopVelocity
     {
-        get => new(new SnesSignedEightEight(checked((ushort)_wordC)), new SnesSignedEightEight(checked((ushort)_wordD)));
+        get => new(new SignedEightEight(checked((ushort)_wordC)), new SignedEightEight(checked((ushort)_wordD)));
         internal set
         {
             _wordC = value.X.RawValue;

@@ -7,10 +7,10 @@ internal static class SamusVerticalMotionDefinitions
     /// $90:9EB5/9EB7 YSpeed/YSubSpeedWhenBouncingInMorphBall; the second rebound subtracts one from the whole word, and
     /// both NTSC rebounds have zero fractional speed.
     /// </summary>
-    internal static SnesUnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
+    internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
     /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids.</summary>
-    internal static SnesUnsignedSixteenSixteen BombJump(SamusLiquidMedium medium) => SplitSpeed(medium switch
+    internal static UnsignedSixteenSixteen BombJump(SamusLiquidMedium medium) => SplitSpeed(medium switch
     {
         SamusLiquidMedium.Air => 0x02c0,
         SamusLiquidMedium.Water or SamusLiquidMedium.LavaOrAcid => 0x0010,
@@ -18,7 +18,7 @@ internal static class SamusVerticalMotionDefinitions
     });
 
     /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed.</summary>
-    internal static SnesUnsignedSixteenSixteen Knockback(SamusLiquidMedium medium) => SplitSpeed(medium switch
+    internal static UnsignedSixteenSixteen Knockback(SamusLiquidMedium medium) => SplitSpeed(medium switch
     {
         SamusLiquidMedium.Air => 0x0500,
         SamusLiquidMedium.Water or SamusLiquidMedium.LavaOrAcid => 0x0200,
@@ -30,7 +30,7 @@ internal static class SamusVerticalMotionDefinitions
     /// by medium, jump equipment and whether Samus kicks away from a wall. Each
     /// original whole/fraction pair is the split representation of one 8.8 speed.
     /// </summary>
-    internal static SnesUnsignedSixteenSixteen Launch(SamusLiquidMedium medium, bool highJump, SamusLaunchKind kind) =>
+    internal static UnsignedSixteenSixteen Launch(SamusLiquidMedium medium, bool highJump, SamusLaunchKind kind) =>
         SplitSpeed(medium switch
         {
             SamusLiquidMedium.Air => kind == SamusLaunchKind.WallJump ? highJump ? 0x0580 : 0x04a0 : highJump ? 0x0600 : 0x04e0,
@@ -40,7 +40,7 @@ internal static class SamusVerticalMotionDefinitions
         });
 
     /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: whole acceleration is zero in all three media.</summary>
-    internal static SnesUnsignedSixteenSixteen Gravity(SamusLiquidMedium medium) => new SnesUnsignedSixteenSixteen(0, medium switch
+    internal static UnsignedSixteenSixteen Gravity(SamusLiquidMedium medium) => new UnsignedSixteenSixteen(0, medium switch
     {
         SamusLiquidMedium.Air => 0x1c00,
         SamusLiquidMedium.Water => 0x0800,
@@ -49,6 +49,6 @@ internal static class SamusVerticalMotionDefinitions
     });
 
     /// <summary>Splits a native 8.8 launch magnitude into the separate whole and 16.16 fractional words Samus stores.</summary>
-    private static SnesUnsignedSixteenSixteen SplitSpeed(int speed) =>
-        new(SnesEightEight.WholeOf(speed), SnesSixteenSixteen.FractionOf(SnesSixteenSixteen.FromEightEight(speed)));
+    private static UnsignedSixteenSixteen SplitSpeed(int speed) =>
+        new(EightEight.WholeOf(speed), SixteenSixteen.FractionOf(SixteenSixteen.FromEightEight(speed)));
 }

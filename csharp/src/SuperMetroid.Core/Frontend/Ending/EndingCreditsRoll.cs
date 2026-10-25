@@ -125,7 +125,7 @@ internal sealed class EndingCreditsRoll
         for (int colour = 0; colour < row.Count; colour++)
         {
             Bgr555 target = StaticPaletteColor(EndingPaletteId.PostCredits, row, colour);
-            row.Write(colour, target.Map((_, channel) => SnesEightEight.Multiply(channel << 3, step)));
+            row.Write(colour, target.Map((_, channel) => EightEight.Multiply(channel << 3, step)));
         }
     }
 

@@ -80,10 +80,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.Velocity = new EightEightVector<RoomPixels>(
-                    new SnesSignedEightEight(RioLaunchDefinitions.RioXVelocity),
-                    new SnesSignedEightEight(RioLaunchDefinitions.RioYVelocity));
+                    new SignedEightEight(RioLaunchDefinitions.RioXVelocity),
+                    new SignedEightEight(RioLaunchDefinitions.RioYVelocity));
                 if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
-                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 InstallRioInstructionList(
                     slot,
                     state,
@@ -114,7 +114,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
-                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
@@ -127,7 +127,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
+                state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
                 if (state.Velocity.Y.SignedRawValue < 0)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
@@ -151,7 +151,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
-                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -166,7 +166,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 else
                 {
-                    state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
+                    state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
                 }
                 return;
 
@@ -181,16 +181,16 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
-                        new SnesSignedEightEight(unchecked((ushort)-1)));
+                        new SignedEightEight(unchecked((ushort)-1)));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
                 }
 
-                SnesByteAngle angle = EnemyMath.CalculateBearing(
+                ByteAngle angle = EnemyMath.CalculateBearing(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle();
-                state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(ReadRioSignedSineCosineSample(
+                state.Velocity = state.Velocity.WithX(new SignedEightEight(ReadRioSignedSineCosineSample(
                     angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn))));
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(angle)));
+                state.Velocity = state.Velocity.WithY(new SignedEightEight(ReadRioSignedSineCosineSample(angle)));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
                     slot,
@@ -235,7 +235,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.Y.SignedRawValue)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-state.Velocity.Y.SignedRawValue)));
         state.Function = RioEnemyFunction.BouncingBackToPerch;
     }
 
@@ -243,7 +243,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reads one sign-extended entry from kSinCosTable8bit_Sext at $A0:B443. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    internal static ushort ReadRioSignedSineCosineSample(SnesByteAngle angle) =>
+    internal static ushort ReadRioSignedSineCosineSample(ByteAngle angle) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>

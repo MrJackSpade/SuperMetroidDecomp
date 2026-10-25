@@ -68,7 +68,7 @@ public static class TitleSequenceDefinitions
         /// <summary>The unscaled zoom, in 1/256 units; reaching it completes the final zoom.</summary>
         public const int IdentityScale = 256;
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
-        public static SnesAngle Rotation => SnesAngle.Zero;
+        public static RotationAngle Rotation => RotationAngle.Zero;
     }
 
     /// <summary>Where the logo and copyright draw and with which sprite palettes.</summary>

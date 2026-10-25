@@ -73,7 +73,7 @@ public static class SamusInsideBlockReactions
                     speed.SpeedBoostCounter = default;
                     speed.EchoSoundFlag = 0;
                     speed.ExtraRunSpeed = default;
-                    speed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & (ushort)short.MaxValue);
+                    speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & (ushort)short.MaxValue);
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandDefinitions.SurfacePhysics(
@@ -88,12 +88,12 @@ public static class SamusInsideBlockReactions
                             SetExtra(physics.StationaryDisplacement);
                             break;
                         case SamusVerticalDirection.Up:
-                            SnesSignedSixteenSixteen limit = physics.UpwardSpeedLimit;
+                            SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
                             // The original compares the middle words of the 16.16 speed and limit, then
                             // replaces the speed's whole pixels and fraction with the limit's.
-                            if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > SnesEightEight.WholeOf(limit.RawValue))
+                            if ((ushort)(EightEight.WholeOf(body.VerticalSpeedFixed)) > EightEight.WholeOf(limit.RawValue))
                             {
-                                body.YSpeed = new SnesUnsignedSixteenSixteen(limit.WholeWord, limit.Fraction);
+                                body.YSpeed = new UnsignedSixteenSixteen(limit.WholeWord, limit.Fraction);
                             }
                             SetExtra(physics.MovingDisplacement);
                             break;
@@ -146,10 +146,10 @@ public static class SamusInsideBlockReactions
                 return;
             // The original checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
-            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
+            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
                 rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry, 0));
         }
-        void SetExtra(SnesSignedSixteenSixteen displacement)
+        void SetExtra(SignedSixteenSixteen displacement)
         {
             body.ExtraDisplacement = body.ExtraDisplacement.WithY(displacement);
         }
@@ -220,7 +220,7 @@ public static class SamusInsideBlockReactions
             displacement = 0;
             return true;
         }
-        if (body.YDirection == SamusVerticalDirection.None && (ushort)(SnesEightEight.WholeOf((uint)displacement)) > SnesEightEight.WholeOf(QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue))
+        if (body.YDirection == SamusVerticalDirection.None && (ushort)(EightEight.WholeOf((uint)displacement)) > EightEight.WholeOf(QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue))
             displacement = (displacement & ~(ushort.MaxValue << 8)) | QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue;
         surfaceContact = true;
         return false;

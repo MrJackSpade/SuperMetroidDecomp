@@ -27,7 +27,7 @@ public sealed class MamaTurtleEnemyState
     /// Signed 16.16 horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall
     /// reversal negates it with the cartridge's carry quirk.
     /// </summary>
-    public SnesSignedSixteenSixteen XAcceleration { get; internal set; }
+    public SignedSixteenSixteen XAcceleration { get; internal set; }
 
     /// <summary>
     /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record: no

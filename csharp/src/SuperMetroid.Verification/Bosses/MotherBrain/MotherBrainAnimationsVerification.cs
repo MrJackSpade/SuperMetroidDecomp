@@ -223,7 +223,7 @@ internal static class MotherBrainAnimationsVerification
         enemies.VerificationServices().NextRandom = () => 0;
         enemies.VerificationServices().ReadRandom = () => 0;
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
-        state.HandBeamNextVelocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
+        state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
         RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, 0);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());

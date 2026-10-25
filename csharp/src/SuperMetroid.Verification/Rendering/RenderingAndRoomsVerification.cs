@@ -499,8 +499,8 @@ internal static void VerifyMovedSamusCameraTracking()
     // The complete fixed-point difference matters: 200.8000 -> 201.4000 is +0.C000;
     // adding 1.0 yields a camera delta of 1.C000.
     camera.SetPosition(new Position16<RoomPixels>(100, 0));
-    previous = previous.WithX(new SnesFixedPosition(200, 0x8000));
-    current = current.WithX(new SnesFixedPosition(201, 0x4000));
+    previous = previous.WithX(new FixedCoordinate(200, 0x8000));
+    current = current.WithX(new FixedCoordinate(201, 0x4000));
     camera.TrackMovedSamusHorizontally(
         previous,
         current,

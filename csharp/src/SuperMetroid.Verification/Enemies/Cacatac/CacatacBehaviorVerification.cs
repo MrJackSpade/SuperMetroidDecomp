@@ -60,7 +60,7 @@ internal static class CacatacBehaviorVerification
     {
         const int onePixel = 65536;
         const int halfPixel = onePixel / 2;
-        var oneAndAHalfPixels = SnesSignedSixteenSixteen.FromRaw(onePixel + halfPixel);
+        var oneAndAHalfPixels = SignedSixteenSixteen.FromRaw(onePixel + halfPixel);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
         enemies.VerificationServices().NextRandom = () => 100;
@@ -72,25 +72,25 @@ internal static class CacatacBehaviorVerification
         AssertEqual(new Position16<RoomPixels>(unchecked((ushort)(8 - 16)), 112), state.LeftPatrolLimit, "Cacatac left limit wraps below the room's left edge");
         AssertEqual(new Position16<RoomPixels>(24, 112), state.RightPatrolLimit, "Cacatac right limit is one block right of spawn");
 
-        state.LeftVelocity = SnesSignedSixteenSixteen.Zero - oneAndAHalfPixels;
+        state.LeftVelocity = SignedSixteenSixteen.Zero - oneAndAHalfPixels;
         slot.Position = slot.Position.WithFractionX(checked(halfPixel));
         enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new SnesFixedPosition(7, 0), slot.Position.X, "Cacatac leftward step borrows its fraction");
+        AssertEqual(new FixedCoordinate(7, 0), slot.Position.X, "Cacatac leftward step borrows its fraction");
         AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac keeps walking left of a limit that wrapped to the far right");
         AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, "Cacatac keeps its leftward patrol");
 
         // One pixel right of the wrapped limit: the step lands half a pixel past it and turns.
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolLimit.X + 1)));
         enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new SnesFixedPosition(unchecked((ushort)(state.LeftPatrolLimit.X - 1)), checked(halfPixel)), slot.Position.X,
+        AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolLimit.X - 1)), checked(halfPixel)), slot.Position.X,
             "Cacatac steps past its wrapped left limit");
         AssertEqual(CacatacDirection.Right, state.Direction, "Cacatac turns right once past its wrapped left limit");
         AssertEqual(CacatacEnemyFunction.MovingRight, state.Function, "Cacatac patrols right after the turn");
 
         state.RightVelocity = oneAndAHalfPixels;
-        slot.Position = slot.Position.WithX(new SnesFixedPosition(22, checked(halfPixel)));
+        slot.Position = slot.Position.WithX(new FixedCoordinate(22, checked(halfPixel)));
         enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new SnesFixedPosition(24, 0), slot.Position.X, "Cacatac rightward step carries its fraction into the whole X");
+        AssertEqual(new FixedCoordinate(24, 0), slot.Position.X, "Cacatac rightward step carries its fraction into the whole X");
         AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac turns left on reaching its right limit");
         AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, "Cacatac patrols left after the turn");
         Console.WriteLine("  Cacatac patrol: the 16.16 steps carry and borrow, and both turns follow the wrapped distance to the limit.");

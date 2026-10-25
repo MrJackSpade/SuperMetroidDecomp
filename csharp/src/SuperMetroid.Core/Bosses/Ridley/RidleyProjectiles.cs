@@ -40,8 +40,8 @@ internal sealed class RidleyProjectiles
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(ridley);
         int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.Position.Y.Whole - 43;
-        SnesByteAngle angle = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
+        ByteAngle angle = EnemyMath.CalculateBearing(
+            new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY)))).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue);
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
@@ -67,8 +67,8 @@ internal sealed class RidleyProjectiles
         // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds $0500.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle)),
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            new SignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle)),
+            new SignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
@@ -130,7 +130,7 @@ internal sealed class RidleyProjectiles
             : RidleyFireballProgram.HorizontalCenter));
         center.Position = center.Position.WithWhole(position);
         // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
-        center.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        center.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         center.RemainingAfterburns = remaining;
     }
 

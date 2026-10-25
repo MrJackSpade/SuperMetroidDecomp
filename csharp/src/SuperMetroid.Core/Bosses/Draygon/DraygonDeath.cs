@@ -44,7 +44,7 @@ internal sealed class DraygonDeath
         // Retail quarters both coordinates before calculating this angle. That is not an
         // algebraic simplification: logical shifts discard low coordinate bits and thereby
         // select slightly different table vectors near the destination.
-        SnesByteAngle movementAngle = EnemyMath.CalculateBearing(new(
+        ByteAngle movementAngle = EnemyMath.CalculateBearing(new(
             unchecked((short)(64 - (body.Position.X.Whole >> 2))),
             unchecked((short)(120 - (body.Position.Y.Whole >> 2))))).ToTableAngle();
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
@@ -192,16 +192,16 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>Moves the body along a native sine-table angle at the supplied speed.</summary>
-    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, SnesByteAngle movementAngle, int speed)
+    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, ByteAngle movementAngle, int speed)
     {
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
             checked((ushort)speed),
-            angleOffset: SnesAngle.QuarterTurn.TableIndex));
+            angleOffset: RotationAngle.QuarterTurn.TableIndex));
         uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
             checked((ushort)speed),
-            angleOffset: SnesAngle.HalfTurn.TableIndex));
+            angleOffset: RotationAngle.HalfTurn.TableIndex));
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
             body.Position.X,
             xMagnitude,

@@ -130,9 +130,9 @@ internal sealed class MotherBrainRainbowAttackPhases
         // `$A9:BB82` aims from brain position (+16,+4) to Samus. Bank `$A0:C0B1` consumes
         // signed 16-bit offsets; `$A9:BBA0-$BBA8` converts its clockwise-up angle to the
         // rainbow beam's anti-clockwise-down convention with `-$angle + $80`.
-        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
+        RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
             samus.Position.Whole - (_state.BrainPosition + new Offset16<RoomPixels>(16, 4)));
-        _movement.RainbowBeamAngle = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
+        _movement.RainbowBeamAngle = RotationAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
     }
 
     /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown underflows.</summary>

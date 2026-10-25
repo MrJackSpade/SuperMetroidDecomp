@@ -88,7 +88,7 @@ internal sealed class KraidBackground
         int denominator = 13 - step;
         int fixedDelta = Math.Abs(target - current) * 256 / denominator;
         int signedDelta = target < current ? -fixedDelta : fixedDelta;
-        return SnesEightEight.WholeOf(signedDelta + SnesEightEight.FromWhole(current));
+        return EightEight.WholeOf(signedDelta + EightEight.FromWhole(current));
     }
 
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a slot is free.</summary>
@@ -103,8 +103,8 @@ internal sealed class KraidBackground
             graphicsIndex: EnemyPaletteBits.Palette3);
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(checked((ushort)xPosition), 312));
-        rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(0));
-        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((_access.ReadKraidRandomNumber() & 63) + 64))));
+        rock.Velocity = rock.Velocity.WithX(new SignedEightEight(0));
+        rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_access.ReadKraidRandomNumber() & 63) + 64))));
         rock.GraphicsIndex = EnemyPaletteBits.Palette3;
         return true;
     }

@@ -334,7 +334,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonHoleDefinition hole =
             BotwoonNavigationDefinitions.HoleAt(state.TargetHoleIndex);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
-        SnesBearing bearing = EnemyMath.CalculateBearing(new(
+        Bearing bearing = EnemyMath.CalculateBearing(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
         state.MovementAngle = bearing.ToTableAngle().ToAngle();
 
@@ -593,7 +593,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         head.Layer = 2;
-        SnesBearing bearing = EnemyMath.CalculateBearing(
+        Bearing bearing = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
         InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(bearing));
         state.SpitAngle = bearing.ToTableAngle().ToAngle();
@@ -679,7 +679,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int startOffset)
     {
         int speed = BotwoonSpeedDefinitions.ForHealthPhase(state.HealthPhase).SpitSpeed;
-        SnesByteAngle angle = state.SpitAngle.AddTableUnits(startOffset).ToByteAngle();
+        ByteAngle angle = state.SpitAngle.AddTableUnits(startOffset).ToByteAngle();
         for (int projectile = 0; projectile < count; projectile++)
         {
             SpawnBotwoonSpit(head, angle, speed);
@@ -720,7 +720,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
             checked((ushort)(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)),
             negative: false);
-        head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
+        head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(head.Position.Y.Whole - 200)) < 0)
         {
             state.DeathFallAccumulator += BotwoonDeathFallAcceleration;
@@ -834,15 +834,15 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the native angle table's signed X/Y displacement to the head.</summary>
     private static void AddBotwoonAngleVector(
         RoomEnemySlot head,
-        SnesByteAngle angle,
+        ByteAngle angle,
         int magnitude)
     {
         int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)magnitude));
         int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)magnitude));
         int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
-        head.Position = head.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
-        head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
+        head.Position = head.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
+        head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
     }
 
     /// <summary>Requires the initialized Botwoon head in physical slot zero.</summary>
@@ -939,7 +939,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.BotwoonBody,
             unchecked((ushort)(head.TileIndexBase | head.PaletteIndex)));
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-        segment.Velocity = segment.Velocity.WithY(new SnesSignedEightEight(0));
+        segment.Velocity = segment.Velocity.WithY(new SignedEightEight(0));
 
         // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
         // $10; argument zero is the tail cap and begins at $30.
@@ -1040,12 +1040,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int randomEnemyCounter)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            unchecked((ushort)(SnesEightEight.WholeOf(segment.Velocity.Y.RawValue))),
+            unchecked((ushort)(EightEight.WholeOf(segment.Velocity.Y.RawValue))),
             negative: false);
-        segment.Position = segment.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
+        segment.Position = segment.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(segment.Position.Y.Whole - 200)) < 0)
         {
-            segment.Velocity = segment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(segment.Velocity.Y.RawValue + 192))));
+            segment.Velocity = segment.Velocity.WithY(new SignedEightEight(unchecked((ushort)(segment.Velocity.Y.RawValue + 192))));
             segment.InstructionTimer = WrappingCountdown.Start(0);
             ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
             return;
@@ -1071,7 +1071,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="head">Botwoon's head.</param>
     /// <param name="angle">The spit's direction.</param>
     /// <param name="speed">The spit speed, 0 through 65535.</param>
-    internal void SpawnBotwoonSpit(RoomEnemySlot head, SnesByteAngle angle, int speed)
+    internal void SpawnBotwoonSpit(RoomEnemySlot head, ByteAngle angle, int speed)
     {
         RoomEnemyProjectileSlot? spit = _projectiles.AllocateEnemyProjectile();
         if (spit is null)
@@ -1090,9 +1090,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // not lose their subpixel motion.
         int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)speed));
         int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)speed));
-        spit.Velocity = spit.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
+        spit.Velocity = spit.Velocity.WithX(new SignedEightEight(FixedCoordinate.WholeOf(xMagnitude)));
         spit.Variable0 = unchecked((ushort)xMagnitude);
-        spit.Velocity = spit.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));
+        spit.Velocity = spit.Velocity.WithY(new SignedEightEight(FixedCoordinate.WholeOf(yMagnitude)));
         spit.Variable1 = unchecked((ushort)yMagnitude);
     }
 
@@ -1101,12 +1101,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot spit,
         Position16<RoomPixels> camera)
     {
-        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.X.RawValue, checked((ushort)spit.Variable0))));
-        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.Y.RawValue, checked((ushort)spit.Variable1))));
-        int xDisplacement = EnemyMath.CosineIsNegative(new SnesByteAngle(unchecked((byte)(spit.DirectionParameter)))) ? -xMagnitude : xMagnitude;
-        int yDisplacement = EnemyMath.SineIsNegative(new SnesByteAngle(unchecked((byte)(spit.DirectionParameter)))) ? -yMagnitude : yMagnitude;
-        spit.Position = spit.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
-        spit.Position = spit.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
+        int xMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(spit.Velocity.X.RawValue, checked((ushort)spit.Variable0))));
+        int yMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(spit.Velocity.Y.RawValue, checked((ushort)spit.Variable1))));
+        int xDisplacement = EnemyMath.CosineIsNegative(new ByteAngle(unchecked((byte)(spit.DirectionParameter)))) ? -xMagnitude : xMagnitude;
+        int yDisplacement = EnemyMath.SineIsNegative(new ByteAngle(unchecked((byte)(spit.DirectionParameter)))) ? -yMagnitude : yMagnitude;
+        spit.Position = spit.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
+        spit.Position = spit.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
 
         if (unchecked((short)(spit.Position.X.Whole - camera.X)) < 0 ||
             unchecked((short)(camera.X + 256 - spit.Position.X.Whole)) < 0 ||

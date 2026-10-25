@@ -37,7 +37,7 @@ public sealed class ProjectileInheritanceRecords
     internal void Record(SamusCollisionDirection direction, int signedDisplacement)
     {
         int offset = RecordOffset(direction);
-        WriteWord(offset, SnesFixedPosition.WholeOf(signedDisplacement));
+        WriteWord(offset, FixedCoordinate.WholeOf(signedDisplacement));
         WriteWord(offset + 2, unchecked((ushort)signedDisplacement));
     }
 

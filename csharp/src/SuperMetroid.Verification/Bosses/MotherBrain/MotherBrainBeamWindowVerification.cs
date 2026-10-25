@@ -36,7 +36,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertTrue(beam.Geometry is null, "no geometry is published before the first build");
         AssertTrue(RainbowBeamWindowBuilder.Build(null).All(line => line == MotherBrainBeamLine.None),
             "a missing geometry misses every line");
-        void Step() => beam.Step(true, new(100, 95), SnesAngle.QuarterTurn, Width(64));
+        void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
         Step();
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
         AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96, MotherBrainBeamDirection.Right),
@@ -82,7 +82,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "new attack resets HDMA color");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
-            beam.Step(true, new(100, 95), SnesAngle.FromTableIndex(angle), 512);
+            beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512);
             bool up = angle is 96 or 128 or 160;
             MotherBrainBeamLine expected = angle switch
             {
@@ -96,13 +96,13 @@ internal static class MotherBrainBeamWindowVerification
                 $"native quadrant {angle} stays on its ray side of the mouth");
         }
         MotherBrainRainbowBeamGeometry? retained = beam.Geometry;
-        beam.Step(true, new(100, 95), SnesAngle.ThreeQuarterTurn, 512);
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512);
         AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
-        beam.Step(true, new(356, 95), SnesAngle.QuarterTurn, Width(64));
+        beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
         AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
         AssertEqual(new MotherBrainBeamLine(0x73, 0xff), RainbowBeamWindowBuilder.Build(beam.Geometry)[100],
             "low-byte mouth X rasterizes like the unwrapped head");
-        AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), SnesAngle.QuarterTurn, Width(64)),
+        AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), RotationAngle.QuarterTurn, Width(64)),
             "a mouth above the work area fails during the simulation update");
         VerifyGoldenWindows(beam.PresentationColors);
         Console.WriteLine("  Mother Brain beam: native apex, HDMA split, HUD exclusion, retained geometry, color stride/reset, owned capture and golden windows agree.");
@@ -119,7 +119,7 @@ internal static class MotherBrainBeamWindowVerification
         string Build(int x, int y, byte angle, ushort width)
         {
             beam.Step(false, default, default, 0);
-            beam.Step(true, new(unchecked((ushort)x), (ushort)y), SnesAngle.FromTableIndex(angle), width);
+            beam.Step(true, new(unchecked((ushort)x), (ushort)y), RotationAngle.FromTableIndex(angle), width);
             return Digest(RainbowBeamWindowBuilder.Build(beam.Geometry));
         }
         AssertEqual("481275D4FA0BB34E", Build(100, 95, 64, Width(64)), "right dispatcher golden");
@@ -142,18 +142,18 @@ internal static class MotherBrainBeamWindowVerification
 
         // Retain after a prior build, in the same active run.
         beam.Step(false, default, default, 0);
-        beam.Step(true, new(100, 95), SnesAngle.FromTableIndex(128), Width(32));
-        beam.Step(true, new(100, 95), SnesAngle.ThreeQuarterTurn, 512);
+        beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(128), Width(32));
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512);
         AssertEqual("BB8664C54614AA03", Digest(RainbowBeamWindowBuilder.Build(beam.Geometry)), "retain keeps the previous build");
         // Retain after deactivation and reactivation.
         beam.Step(false, default, default, 0);
-        beam.Step(true, new(40, 150), SnesAngle.ThreeQuarterTurn, 512);
+        beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, 512);
         AssertEqual("BB8664C54614AA03", Digest(RainbowBeamWindowBuilder.Build(beam.Geometry)),
             "retain after reactivation still shows the build from the earlier attack");
     }
 
     /// <summary>Native 8.8 angular-width word for a whole number of 256-unit-turn table units.</summary>
-    private static ushort Width(int wholeTableUnits) => (ushort)SnesEightEight.FromWhole(wholeTableUnits);
+    private static ushort Width(int wholeTableUnits) => (ushort)EightEight.FromWhole(wholeTableUnits);
 
     /// <summary>Hashes each line's left and right columns, in line order, for a stable comparison.</summary>
     private static string Digest(MotherBrainBeamLine[] lines)

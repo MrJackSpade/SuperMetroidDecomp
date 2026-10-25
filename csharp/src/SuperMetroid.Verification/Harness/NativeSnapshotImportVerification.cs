@@ -143,7 +143,7 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
         samus.HorizontalSpeed.EchoSoundFlag = W(NativeSnapshotMemory.SpeedEchoSoundLatch);
-        samus.HorizontalSpeed.TotalSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed));
+        samus.HorizontalSpeed.TotalSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed));
         runtime.Projectiles.SlotTable.ProjectileCounter = W(NativeSnapshotMemory.ProjectileCount);
         runtime.Projectiles.Charge.PreviousBeamChargeCounter = W(NativeSnapshotMemory.PreviousCharge);
         runtime.Projectiles.Firing.ProjectileInvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ProjectileInteractionImmunity));
@@ -188,16 +188,16 @@ internal static class NativeSnapshotImportVerification
         samus.PoseHistory.PreviousDirectionAndMovement = W(NativeSnapshotMemory.PreviousDirection);
         samus.PoseHistory.LastDifferentPose = (SamusPoseId)W(NativeSnapshotMemory.LastDifferentPose);
         samus.PoseHistory.LastDifferentDirectionAndMovement = W(NativeSnapshotMemory.LastDifferentDirection);
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.BaseSpeed), W(NativeSnapshotMemory.BaseFraction));
-        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.BaseSpeed), W(NativeSnapshotMemory.BaseFraction));
+        samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationModeImport.FromNative(W(NativeSnapshotMemory.AccelerationMode));
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
-        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
+        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
         samus.Kinematics.YDirection = ClosedNativeWordDecoding.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
         samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
-        samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
+        samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
@@ -257,7 +257,7 @@ internal static class NativeSnapshotImportVerification
         runtime.RoomLayer3Fx.LavaAcidBg3PreInstructionInstalled = true;
         runtime.RoomLayer3Fx.LiquidMotionStopped = !lavaAcidObjectLive;
         runtime.RoomLayer3Fx.TidePhase = W(NativeSnapshotMemory.TidePhase);
-        runtime.RoomLayer3Fx.TideFixedOffset = unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
+        runtime.RoomLayer3Fx.TideFixedOffset = unchecked((int)(SixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
         runtime.RoomLayer3Fx.BaseY = runtime.RoomLayer3Fx.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
         runtime.RoomLayer3Fx.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomLayer3Fx);
@@ -393,7 +393,7 @@ internal static class NativeSnapshotImportVerification
         projectile.Position = projectile.Position.WithWhole(new(
             W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index)));
         projectile.Velocity = new(
-            new SnesSignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
-            new SnesSignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
     }
 }

@@ -24,7 +24,7 @@ internal static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
 
-    AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionSceneDefinitions.Motion.ApproachAngle,
+    AssertEqual(RotationAngle.FromTableIndex(0x20), CeresDestructionSceneDefinitions.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");
     AssertTrue(
         (CeresVramLayout.ObjectCharacters.Offset * 2) +

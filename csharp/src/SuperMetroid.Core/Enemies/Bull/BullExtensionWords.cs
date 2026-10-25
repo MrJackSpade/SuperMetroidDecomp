@@ -11,7 +11,7 @@ internal sealed class BullExtensionWords
     internal int MaxSpeed { get; set; }
 
     /// <summary>Latest target bearing toward Samus, retained separately from the flight angle.</summary>
-    internal SnesAngle AngleToSamus { get; set; }
+    internal RotationAngle AngleToSamus { get; set; }
 
     /// <summary>Committed travel bearing in 256ths of a turn, used while integrating the Bull's position.</summary>
     internal int Angle { get; set; }

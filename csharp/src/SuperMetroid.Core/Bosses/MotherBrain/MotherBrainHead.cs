@@ -218,8 +218,8 @@ internal sealed class MotherBrainHead
     {
         if (state.NeckMovementEnabled)
         {
-            SnesAngle lowerAngle = state.LowerNeckAngle;
-            SnesAngle upperAngle = state.UpperNeckAngle;
+            RotationAngle lowerAngle = state.LowerNeckAngle;
+            RotationAngle upperAngle = state.UpperNeckAngle;
             MotherBrainNeckMovement lowerIndex = state.LowerNeckMovementIndex;
             MotherBrainNeckMovement upperIndex = state.UpperNeckMovementIndex;
             MotherBrainNeckKinematics.StepAngles(
@@ -327,7 +327,7 @@ internal sealed class MotherBrainHead
                 return null;
             }
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
-                SpawnMotherBrainOnionRing(state, unchecked(new SnesByteAngle((byte)state.OnionRingsTargetAngle)));
+                SpawnMotherBrainOnionRing(state, unchecked(new ByteAngle((byte)state.OnionRingsTargetAngle)));
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
@@ -399,7 +399,7 @@ internal sealed class MotherBrainHead
     {
         RoomEnemySlot head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
-        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
+        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue).RawValue;
 
         // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps
@@ -432,7 +432,7 @@ internal sealed class MotherBrainHead
         // subposition. Every 8.8 motion delta has a zero low byte, so that value naturally
         // survives fractional motion and becomes the terminal Ridley-afterburn count.
         bomb.Position = bomb.Position.WithFractionX(unchecked((byte)afterburnCount)).WithFractionY(0);
-        bomb.Velocity = new(new SnesSignedEightEight(224), new SnesSignedEightEight(256));
+        bomb.Velocity = new(new SignedEightEight(224), new SignedEightEight(256));
         bomb.Variable0 = 112; // Horizontal speed restored after each floor bounce.
         bomb.Variable1 = 0;      // Byte offset into the ten-word acceleration table.
         bomb.DirectionParameter = afterburnCount;
@@ -446,7 +446,7 @@ internal sealed class MotherBrainHead
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
-        SnesByteAngle angle)
+        ByteAngle angle)
     {
         RoomEnemyProjectileSlot? ring = _projectiles.AllocateEnemyProjectile();
         if (ring is null)
@@ -459,10 +459,10 @@ internal sealed class MotherBrainHead
         ring.Variable0 = 8;
         ring.Variable1 = 0;
         ring.DirectionParameter = angle.RawValue;
-        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplySineSample(1104, angle)));
-        ring.Velocity = ring.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplySineSample(
+        ring.Velocity = ring.Velocity.WithX(new SignedEightEight(EnemyMath.MultiplySineSample(1104, angle)));
+        ring.Velocity = ring.Velocity.WithY(new SignedEightEight(EnemyMath.MultiplySineSample(
             1104,
-            angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
 
         // `$C2F3` falls through into `$C320`, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.
@@ -538,7 +538,7 @@ internal sealed class MotherBrainHead
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
             graphicsIndex: 0);
-        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.GraphicsIndex = 0;
         _projectileAttacks.RunMotherBrainRainbowChargingPreInstruction(projectile);

@@ -388,18 +388,18 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.DragonFireball,
             unchecked((ushort)(body.PaletteIndex | body.TileIndexBase)));
         projectile.Position = projectile.Position.WithY(new(unchecked((ushort)(body.Position.Y.Whole - 28)), 0));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(DragonFireballInitialYVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(DragonFireballInitialYVelocity));
 
         if (bodyState.FacingLeft)
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 12)));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballLeftXVelocity));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(DragonFireballLeftXVelocity));
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingLeft));
         }
         else
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + 12)));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballRightXVelocity));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(DragonFireballRightXVelocity));
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingRight));
         }
         projectile.Position = projectile.Position.WithFractionX(0);
@@ -414,7 +414,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
         {
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
                 projectile.Velocity.Y.RawValue + DragonFireballGravity))));
             if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
                 return;
@@ -427,7 +427,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             projectile.Velocity.Y.RawValue + DragonFireballGravity))));
 
         // $86:B5B9 retains fireballs above the viewport; horizontal distance is never consulted.

@@ -774,7 +774,7 @@ internal static class LookupStream4Verification
         {
             ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            return unchecked((int)(SnesSixteenSixteen.FromWhole((uint)whole) | fraction));
+            return unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction));
         }
         for (int index = 0; index < 16; index++)
             AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");
@@ -800,9 +800,9 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
+                AssertEqual(RotationAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
@@ -811,7 +811,7 @@ internal static class LookupStream4Verification
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
             AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");

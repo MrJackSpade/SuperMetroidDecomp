@@ -258,17 +258,17 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The carry spiral's target and initial center, ($100, $180).</summary>
     internal static readonly Position16<RoomPixels> DraygonSpiralTarget = new(256, 384);
     /// <summary>Initial angular position used when the Samus-carry spiral begins: three quarters of a turn.</summary>
-    internal static readonly SnesAngle DraygonInitialSpiralAngle = SnesAngle.ThreeQuarterTurn;
+    internal static readonly RotationAngle DraygonInitialSpiralAngle = RotationAngle.ThreeQuarterTurn;
     /// <summary>Initial per-frame angular step of the Samus-carry spiral: eight table units, slowed by 1/256 unit each frame.</summary>
-    internal static readonly SnesAngle DraygonInitialSpiralAngleDelta = SnesAngle.FromTableIndex(8);
+    internal static readonly RotationAngle DraygonInitialSpiralAngleDelta = RotationAngle.FromTableIndex(8);
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
-    internal static readonly SnesSignedSixteenSixteen DraygonSpiralRadiusGrowth = SnesSignedSixteenSixteen.FromParts(0, 8192);
+    internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromParts(0, 8192);
     /// <summary>Largest radius reached by the expanding carry spiral.</summary>
     internal const ushort DraygonMaximumSpiralRadius = 160;
     /// <summary>Upper room boundary for the spiral center's vertical lift.</summary>
     internal const ushort DraygonMinimumSpiralCenterY = 64;
     /// <summary>The spiral center's per-frame 16.16 lift, -$0000.4000.</summary>
-    internal static readonly SnesSignedSixteenSixteen DraygonSpiralCenterLift = SnesSignedSixteenSixteen.FromRaw(-16384);
+    internal static readonly SignedSixteenSixteen DraygonSpiralCenterLift = SignedSixteenSixteen.FromRaw(-16384);
     /// <summary>Number of AI calls in Draygon's tail-whip phase.</summary>
     internal const ushort DraygonTailWhipDuration = 64;
     /// <summary>Countdown value that triggers the first tail-whip animation step.</summary>

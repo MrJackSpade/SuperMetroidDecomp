@@ -38,7 +38,7 @@ internal static class SpatialValuesVerification
         AssertEqual(FixedVector<RoomPixels>.FromWords(7, 0x8000, 3, 0x4000), wholeX, "whole X replacement keeps X fraction and Y");
         var fractionY = words.WithFractionY(0x0001);
         AssertEqual(FixedVector<RoomPixels>.FromWords(0xfffe, 0x8000, 3, 0x0001), fractionY, "fraction Y replacement keeps Y whole and X");
-        var axisY = words.WithY(SnesSignedSixteenSixteen.Zero);
+        var axisY = words.WithY(SignedSixteenSixteen.Zero);
         AssertEqual(FixedVector<RoomPixels>.FromWords(0xfffe, 0x8000, 0, 0), axisY, "axis replacement keeps the other axis");
 
         // Carry from the fraction, borrow into it, and 32-bit wrap on each axis independently.
@@ -68,17 +68,17 @@ internal static class SpatialValuesVerification
     /// <summary>Checks axis-specific movement and word replacement on unsigned fixed room positions.</summary>
     private static void VerifyFixedPositionOperations()
     {
-        var position = new FixedPosition<RoomPixels>(new SnesFixedPosition(0x0100, 0xffff), new SnesFixedPosition(0x0200, 0x0001));
+        var position = new FixedPosition<RoomPixels>(new FixedCoordinate(0x0100, 0xffff), new FixedCoordinate(0x0200, 0x0001));
         AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200), position.Whole, "whole position drops subpixels");
         AssertEqual(0x0100ffffu, position.X.RawValue, "X assembles as unsigned 16.16");
-        var advanced = position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(1));
-        AssertEqual(new SnesFixedPosition(0x0101, 0), advanced.X, "advance carries into the whole word");
+        var advanced = position.AdvanceX(SignedSixteenSixteen.FromRaw(1));
+        AssertEqual(new FixedCoordinate(0x0101, 0), advanced.X, "advance carries into the whole word");
         AssertEqual(position.Y, advanced.Y, "advancing X leaves Y");
         var translated = position - new Offset16<RoomPixels>(0, 0x0201);
-        AssertEqual(new SnesFixedPosition(0xffff, 0x0001), translated.Y, "whole translation wraps and keeps the subpixel");
+        AssertEqual(new FixedCoordinate(0xffff, 0x0001), translated.Y, "whole translation wraps and keeps the subpixel");
         AssertEqual(position.X, translated.X, "translating Y leaves X");
         var halves = position.WithFractionX(0).WithWholeY(7);
-        AssertEqual(new FixedPosition<RoomPixels>(new SnesFixedPosition(0x0100, 0), new SnesFixedPosition(7, 0x0001)), halves,
+        AssertEqual(new FixedPosition<RoomPixels>(new FixedCoordinate(0x0100, 0), new FixedCoordinate(7, 0x0001)), halves,
             "half-word replacement touches only the named word");
     }
 }

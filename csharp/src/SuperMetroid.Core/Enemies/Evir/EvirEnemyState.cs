@@ -37,9 +37,9 @@ public sealed class EvirEnemyState
     /// <summary>Where this actor is in its animation.</summary>
     internal AnimationProgramCursor<EvirProgram>? Program { get; set; }
     /// <summary>The body's downward vertical velocity per AI update, from the positive half of its linear-speed record.</summary>
-    public SnesSignedSixteenSixteen DownVelocity { get; internal set; }
+    public SignedSixteenSixteen DownVelocity { get; internal set; }
     /// <summary>The body's upward vertical velocity per AI update, from the negative half of its linear-speed record.</summary>
-    public SnesSignedSixteenSixteen UpVelocity { get; internal set; }
+    public SignedSixteenSixteen UpVelocity { get; internal set; }
     /// <summary>The projectile's velocity per AI update, calculated from its launch angle.</summary>
     public FixedVector<RoomPixels> ProjectileVelocity { get; internal set; }
     /// <summary>Whether the projectile is in flight; flight selects the normal projectile animation.</summary>

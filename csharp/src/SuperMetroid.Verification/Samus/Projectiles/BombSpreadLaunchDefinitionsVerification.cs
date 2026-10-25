@@ -15,7 +15,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
     {
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.SlotCount).Select(i =>
             new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.FuseTimers+i*2)),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2)), new SnesUnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2)), new UnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSubspeeds+i*2))))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
@@ -36,7 +36,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
                 AssertEqual(BombSpreadHorizontalVelocity.FromLaunchWord(expected.XVelocity),slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
                 AssertEqual(expected.XVelocity, slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
-                var launchVelocity=SnesSignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSpeed.Fraction);
+                var launchVelocity=SignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSpeed.Fraction);
                 AssertEqual(launchVelocity,slot.BombSpreadLaunchVelocity,"Spread hold modifier, negated whole velocity and authored fraction");
                 AssertEqual(launchVelocity,slot.BombSpreadVerticalVelocity,"Spread live velocity starts at the launch velocity");
                 AssertEqual(y, slot.BombSpreadYVelocity,"Spread whole velocity word");
@@ -92,8 +92,8 @@ internal static class BombSpreadLaunchDefinitionsVerification
         {
             uint fractionalSum = (uint)velocityFraction + gravityFraction;
             ushort expectedWhole = unchecked((ushort)(velocityWhole + (fractionalSum > ushort.MaxValue ? 1 : 0)));
-            var accelerated = SnesSignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction) +
-                SnesSignedSixteenSixteen.FromParts(0, gravityFraction);
+            var accelerated = SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction) +
+                SignedSixteenSixteen.FromParts(0, gravityFraction);
             AssertEqual(new VerifyBombSpreadMotionWrapsCase(expectedWhole, unchecked((ushort)fractionalSum)), new VerifyBombSpreadMotionWrapsCase(accelerated.WholeWord, accelerated.Fraction),
                 $"spread gravity from {velocityWhole:X4}.{velocityFraction:X4} carries and wraps like the split words");
         }

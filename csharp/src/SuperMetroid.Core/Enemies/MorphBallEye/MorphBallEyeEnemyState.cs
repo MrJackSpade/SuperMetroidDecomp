@@ -20,7 +20,7 @@ public sealed class MorphBallEyeEnemyState
     /// <summary>
     /// Zero-up, clockwise, 1/256-turn aim angle.
     /// </summary>
-    public SnesAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; internal set; }
 
     /// <summary>Activation/deactivation countdown.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
@@ -32,7 +32,7 @@ public sealed class MorphBallEyeEnemyState
     internal void ClearWithRecord()
     {
         IsActivated = false;
-        Angle = SnesAngle.FromTableIndex(0);
+        Angle = RotationAngle.FromTableIndex(0);
         FunctionTimer = WrappingCountdown.Start(0);
         Function = null;
     }

@@ -105,7 +105,7 @@ public sealed class DraygonEnemyState
     /// movement update, wrapping around the turn, which the bob depends on. The body's height is 384 plus the cosine
     /// of this phase times 32.
     /// </summary>
-    public SnesAngle GoopYOscillationAngle { get; internal set; }
+    public RotationAngle GoopYOscillationAngle { get; internal set; }
 
     /// <summary>Native long count initialized to sixteen when a firing pass begins.</summary>
     public WrappingCountdown GoopCounter { get; internal set; }
@@ -120,7 +120,7 @@ public sealed class DraygonEnemyState
     /// It is cleared by a grab and grows by one eighth of a pixel per spiral frame, so its whole part advances every
     /// eighth frame; the spiral ends when the whole part reaches 160.
     /// </summary>
-    public SnesSignedSixteenSixteen SpiralXRadius { get; internal set; }
+    public SignedSixteenSixteen SpiralXRadius { get; internal set; }
 
     /// <summary>
     /// Native center point <c>$7E:7810/$7812</c> of the carry spiral, initialized to ($100, $180).
@@ -134,12 +134,12 @@ public sealed class DraygonEnemyState
     /// Draygon's position around the carry spiral, in 256ths of a turn: three quarters when a grab starts, advanced by
     /// the whole table units of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
     /// </summary>
-    public SnesAngle SpiralAngle { get; internal set; }
+    public RotationAngle SpiralAngle { get; internal set; }
     /// <summary>
     /// Angular step of the carry spiral per frame: eight table units when a grab starts, slowed by 1/256 unit each
     /// spiral frame before it is applied, so the orbit decelerates as the radius grows.
     /// </summary>
-    public SnesAngle SpiralAngleDelta { get; internal set; }
+    public RotationAngle SpiralAngleDelta { get; internal set; }
 
     /// <summary>Native <c>$7E:7818</c> countdown for an incidental 64-frame tail whip.</summary>
     public WrappingCountdown TailWhipTimer { get; internal set; }
@@ -241,10 +241,10 @@ public sealed class DraygonEnemyState
     /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
     internal uint SwoopVelocity
     {
-        get => SnesSixteenSixteen.Compose(checked((ushort)_velocityWholeWord), checked((ushort)_velocityFractionWord));
+        get => SixteenSixteen.Compose(checked((ushort)_velocityWholeWord), checked((ushort)_velocityFractionWord));
         set
         {
-            _velocityWholeWord = unchecked((ushort)SnesSixteenSixteen.WholeOf(value));
+            _velocityWholeWord = unchecked((ushort)SixteenSixteen.WholeOf(value));
             _velocityFractionWord = unchecked((ushort)value);
         }
     }

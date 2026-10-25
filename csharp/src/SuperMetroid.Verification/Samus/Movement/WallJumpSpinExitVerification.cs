@@ -48,7 +48,7 @@ internal static class WallJumpSpinExitVerification
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(3);
-            samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
+            samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x6000);
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
             runtime.StepFrame(0);

@@ -34,7 +34,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor SplitFixedPointRule = new(
         SplitFixedPointId,
         "Fixed-point value split into primitives",
-        "'{0}' and '{1}' carry one fixed-point value as two primitives; use SnesSignedSixteenSixteen, SnesUnsignedSixteenSixteen or SnesFixedPosition",
+        "'{0}' and '{1}' carry one fixed-point value as two primitives; use SignedSixteenSixteen, UnsignedSixteenSixteen or FixedCoordinate",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -43,11 +43,11 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor RawAngleRule = new(
         RawAngleId,
         "Angle held as a raw byte or word",
-        "'{0}' holds an angle as {1}; use SnesAngle, SnesByteAngle or SnesBearing",
+        "'{0}' holds an angle as {1}; use RotationAngle, ByteAngle or Bearing",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Angles carry their convention in their type: SnesAngle (8.8), SnesByteAngle (table) or SnesBearing (#1326).");
+        description: "Angles carry their convention in their type: RotationAngle (8.8), ByteAngle (table) or Bearing (#1326).");
 
     private static readonly DiagnosticDescriptor CarryProtocolRule = new(
         CarryProtocolId,

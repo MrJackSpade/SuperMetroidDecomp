@@ -400,11 +400,11 @@ internal static class CoreAccess
     extension(SamusShinesparkState self)
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
-        internal SnesAngle FirstReleasedCrashEchoAngle =>
+        internal RotationAngle FirstReleasedCrashEchoAngle =>
             self.FirstReleasedCrashEchoSlot.Angle;
 
         /// <summary>Angular-travel word of departing crash-echo projectile slot four.</summary>
-        internal SnesAngle SecondReleasedCrashEchoAngle =>
+        internal RotationAngle SecondReleasedCrashEchoAngle =>
             self.SecondReleasedCrashEchoSlot.Angle;
 
         /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>

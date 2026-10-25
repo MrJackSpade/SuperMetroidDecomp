@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class RoomPlmFx(RoomLayer3FxState fx, Func<SamusState?> samus) : IRoomPlmFx
 {
     /// <inheritdoc/>
-    public SnesFixedPosition BaseY => fx.BaseY;
+    public FixedCoordinate BaseY => fx.BaseY;
 
     /// <inheritdoc/>
     public Position16<RoomPixels> TargetSurface => fx.TargetSurface;

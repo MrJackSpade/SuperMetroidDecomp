@@ -45,9 +45,9 @@ internal sealed class FallingSparksBehavior
         // `$86:F391` zeros both ordinary velocity words, then calls the shared RNG. The
         // horizontal table is one record short. The compiled definition retains the
         // final RNG outcome's instruction-byte overread, including its signed delta.
-        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         Func<int> nextRandom = _room.Random.Generate;
-        SnesSignedSixteenSixteen launch = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
+        SignedSixteenSixteen launch = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
         projectile.Variable1 = launch.WholeWord;
         projectile.Variable0 = launch.Fraction;
 
@@ -73,7 +73,7 @@ internal sealed class FallingSparksBehavior
             }
 
             uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 16384;
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)acceleratedFraction)));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)acceleratedFraction)));
             int acceleratedWhole = unchecked((ushort)(
                 projectile.Velocity.Y.RawValue + SnesCarry.OutOfWord(acceleratedFraction)));
 
@@ -81,7 +81,7 @@ internal sealed class FallingSparksBehavior
             // four. The fractional word still received its $4000 increment immediately
             // before this test, reproducing the cartridge's slightly asymmetric cap.
             if (acceleratedWhole < 4)
-                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(checked((ushort)acceleratedWhole)));
+                projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(checked((ushort)acceleratedWhole)));
         }
 
         AddFallingSparkVerticalVelocity(projectile);
@@ -132,7 +132,7 @@ internal sealed class FallingSparksBehavior
         // The same aliased pair now represents vertical -0.5 in 16.16. Because the whole
         // word is negative, later frames skip collision and gravity while the impact spark
         // arcs upward through its eleven-frame blinking animation.
-        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(short.MinValue), SnesSignedEightEight.FromSignedRaw(-1));
+        projectile.Velocity = new(SignedEightEight.FromSignedRaw(short.MinValue), SignedEightEight.FromSignedRaw(-1));
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 2)));
     }
 

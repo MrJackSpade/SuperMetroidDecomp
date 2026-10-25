@@ -34,7 +34,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Samus's facing must remain stable for this many tracking calls.</summary>
     private const ushort WreckedShipGhostStableDirectionDuration = 16;
     /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
-    private static readonly SnesSignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+    private static readonly SignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
     /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
     private const int WreckedShipGhostVerticalAccelerationFraction = 6144;
     /// <summary>The movement class, horizontal or vertical, of Samus holding still on that axis: the middle of three.</summary>
@@ -305,7 +305,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         int acceleration = (slot.Position.Whole - state.BobbingOrigin).Y < 0
             ? WreckedShipGhostVerticalAccelerationFraction
             : -WreckedShipGhostVerticalAccelerationFraction;
-        state.VerticalVelocity += SnesSignedSixteenSixteen.FromRaw(acceleration);
+        state.VerticalVelocity += SignedSixteenSixteen.FromRaw(acceleration);
 
         state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
         if (!state.PhaseTimer.IsZero)

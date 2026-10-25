@@ -116,17 +116,17 @@ public static class SamusGrappleMovement
     /// and high bytes are last frame's, and the second rotate carries the low bit into the
     /// top. A negative velocity then sets the top ten bits.
     /// </summary>
-    private static SnesSignedSixteenSixteen QuarterExtensionVelocity(
-        int velocity, SnesSignedSixteenSixteen previous)
+    private static SignedSixteenSixteen QuarterExtensionVelocity(
+        int velocity, SignedSixteenSixteen previous)
     {
         uint pair = ((uint)((ushort)previous.WholePixels & 0xff00) << 16) | // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
             ((uint)(ushort)velocity << 8) | // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
             (uint)(previous.Fraction & 0x00ff); // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
         uint rotated = (pair >> 2) | ((pair & 1) << 31);
-        int whole = SnesFixedPosition.WholeOf(unchecked((int)rotated));
+        int whole = FixedCoordinate.WholeOf(unchecked((int)rotated));
         if (velocity < 0)
             whole |= ushort.MaxValue & ~63; // The rotate's sign fills the top ten bits.
-        return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));
+        return SignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));
     }
 
     /// <summary>
@@ -318,7 +318,7 @@ public static class SamusGrappleMovement
         // art: it computes velocity and queues the release function for the following frame.
         if ((controllerInput & ControllerButton.X) == ControllerButton.None)
         {
-            if (grapple.AngularVelocity == 0 && grapple.Angle == SnesAngle.HalfTurn)
+            if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
@@ -372,7 +372,7 @@ public static class SamusGrappleMovement
             // native validation seam so a future dynamic/breakable PLM cannot leave a rope
             // attached to air. A motionless straight-down body queues `$C8C5`; a moving
             // pendulum uses the already translated velocity-preserving release handoff.
-            if (grapple.AngularVelocity == 0 && grapple.Angle == SnesAngle.HalfTurn)
+            if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
@@ -978,7 +978,7 @@ public static class SamusGrappleMovement
         // BA61 and BA9B both derive the angle from the body position that fired the beam,
         // before command 9/10 changes pose and snaps Samus to the rope. The angle is stored
         // as an integer byte in the high half of the native word; its fraction becomes zero.
-        SnesAngle angle = CalculateAngleFromXY(samus.Position.Whole - grapple.Anchor);
+        RotationAngle angle = CalculateAngleFromXY(samus.Position.Whole - grapple.Anchor);
         grapple.Angle = angle;
         grapple.MirroredAngle = grapple.Angle;
         grapple.AngularVelocity = 0;
@@ -1088,7 +1088,7 @@ public static class SamusGrappleMovement
     /// The return byte is measured clockwise from negative Y: $00 up, $40 right, $80 down,
     /// and $C0 left. Division truncates exactly as the SNES unsigned divide registers do.
     /// </summary>
-    internal static SnesAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
+    internal static RotationAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
     {
         int x = delta.X;
         int y = delta.Y;
@@ -1097,7 +1097,7 @@ public static class SamusGrappleMovement
         int absoluteX = Math.Abs(x);
         int absoluteY = Math.Abs(y);
         if (absoluteX == 0 && absoluteY == 0)
-            return SnesAngle.Zero;
+            return RotationAngle.Zero;
 
         // The assembly advances its pointer byte offset by four for negative X and two
         // for negative Y, then indexes a word table. Converted to a zero-based entry index,
@@ -1105,22 +1105,22 @@ public static class SamusGrappleMovement
         int quadrant = (xNegative ? 2 : 0) | (yNegative ? 1 : 0);
         if (absoluteY < absoluteX)
         {
-            int eighths = (SnesEightEight.FromWhole(absoluteY) / absoluteX) >> 3;
-            return SnesAngle.NormalizeTableIndex(quadrant switch
+            int eighths = (EightEight.FromWhole(absoluteY) / absoluteX) >> 3;
+            return RotationAngle.NormalizeTableIndex(quadrant switch
             {
-                0 => eighths + SnesAngle.QuarterTurn.TableIndex,
-                1 => SnesAngle.QuarterTurn.TableIndex - eighths,
-                2 => SnesAngle.ThreeQuarterTurn.TableIndex - eighths,
-                _ => SnesAngle.ThreeQuarterTurn.TableIndex + eighths,
+                0 => eighths + RotationAngle.QuarterTurn.TableIndex,
+                1 => RotationAngle.QuarterTurn.TableIndex - eighths,
+                2 => RotationAngle.ThreeQuarterTurn.TableIndex - eighths,
+                _ => RotationAngle.ThreeQuarterTurn.TableIndex + eighths,
             });
         }
 
-        int reciprocalEighths = (SnesEightEight.FromWhole(absoluteX) / absoluteY) >> 3;
-        return SnesAngle.NormalizeTableIndex(quadrant switch
+        int reciprocalEighths = (EightEight.FromWhole(absoluteX) / absoluteY) >> 3;
+        return RotationAngle.NormalizeTableIndex(quadrant switch
         {
-            0 => SnesAngle.HalfTurn.TableIndex - reciprocalEighths,
+            0 => RotationAngle.HalfTurn.TableIndex - reciprocalEighths,
             1 => unchecked((byte)reciprocalEighths),
-            2 => reciprocalEighths + SnesAngle.HalfTurn.TableIndex,
+            2 => reciprocalEighths + RotationAngle.HalfTurn.TableIndex,
             _ => 256 - reciprocalEighths,
         });
     }

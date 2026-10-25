@@ -402,10 +402,10 @@ internal sealed class NoobTubeBehavior
     }
 
     /// <summary>Advances the shard's separate 16.16 horizontal position, kept in its projectile variables one and zero.</summary>
-    private static void AdvanceNoobTubeShardX(RoomEnemyProjectileSlot projectile, SnesSignedEightEight velocity)
+    private static void AdvanceNoobTubeShardX(RoomEnemyProjectileSlot projectile, SignedEightEight velocity)
     {
-        SnesFixedPosition x = EnemyMath.AddEightBitVelocity(
-            new SnesFixedPosition(checked((ushort)projectile.Variable1), checked((ushort)projectile.Variable0)), velocity);
+        FixedCoordinate x = EnemyMath.AddEightBitVelocity(
+            new FixedCoordinate(checked((ushort)projectile.Variable1), checked((ushort)projectile.Variable0)), velocity);
         projectile.Variable1 = x.Whole;
         projectile.Variable0 = x.Fraction;
     }
@@ -416,9 +416,9 @@ internal sealed class NoobTubeBehavior
         int angleStep)
     {
         // The native even table offset ORs in a quarter turn: the angle's bit 6.
-        int sine = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)((projectile.Velocity.X.RawValue >> 1) | 64))));
-        AdvanceNoobTubeShardX(projectile, SnesSignedEightEight.FromSignedRaw(checked((short)(sine >> 2))));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
+        int sine = EnemyTrigonometryTables.SignedSine(unchecked(new ByteAngle((byte)((projectile.Velocity.X.RawValue >> 1) | 64))));
+        AdvanceNoobTubeShardX(projectile, SignedEightEight.FromSignedRaw(checked((short)(sine >> 2))));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
 
     /// <summary>Advances the bubble by its vertical velocity and publishes its separately accumulated horizontal word.</summary>
@@ -457,10 +457,10 @@ internal sealed class NoobTubeBehavior
                 projectile.Position = projectile.Position.WithWholeX(oddFrame ? checked((ushort)projectile.Variable1) : NoobTubeDebrisDefinitions.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), NoobTubeDebrisDefinitions.ShardFallYVelocity);
+                projectile.Velocity = new(new SignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), NoobTubeDebrisDefinitions.ShardFallYVelocity);
                 break;
             case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())));
+                projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())));
                 break;
             case NoobTubeProjectileCueKind.SetPreInstruction:
                 projectile.PreInstruction = cue.PreInstruction;

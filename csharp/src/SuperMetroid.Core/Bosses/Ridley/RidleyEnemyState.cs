@@ -64,9 +64,9 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the angular step (zero through eight) used by shared tail segment motion and stagger propagation.</summary>
     public int TailAngleDelta { get; internal set; }
     /// <summary>Gets the facing-dependent lowest angle clockwise tail movement may reach.</summary>
-    public SnesAngle TailMinimumClockwiseAngle { get; internal set; }
+    public RotationAngle TailMinimumClockwiseAngle { get; internal set; }
     /// <summary>Gets the facing-dependent highest angle counterclockwise tail movement may reach.</summary>
-    public SnesAngle TailMaximumCounterClockwiseAngle { get; internal set; }
+    public RotationAngle TailMaximumCounterClockwiseAngle { get; internal set; }
     /// <summary>
     /// Gets the tail angle (see <see cref="RidleyTailSegment.Angle"/>) a clockwise whip stops at, or null while no clockwise
     /// whip is aimed. Aimed targets lie within a quarter turn of straight down.
@@ -105,7 +105,7 @@ public sealed class RidleyEnemyState
     /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
     public WrappingCountdown SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
-    public SnesAngle SwoopAngleAccumulator { get; internal set; }
+    public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
     /// Gets the 8.8 swoop speed magnitude (zero through 1280, in 1/256 pixels per update), converged 32 at a time toward
     /// each phase's target before resolving axis velocities.
@@ -180,7 +180,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (native byte offset twice this).</summary>
     public int GetawayFrameIndex { get; internal set; }
     /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
-    public SnesAngle FloorAngle { get; internal set; }
+    public RotationAngle FloorAngle { get; internal set; }
     /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
     public Offset16<Mode7Pixels> FloorOffset { get; internal set; }
     /// <summary>
@@ -189,13 +189,13 @@ public sealed class RidleyEnemyState
     /// </summary>
     public int FloorZoom { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 A coefficient, computed from zoom-scaled cosine.</summary>
-    public SnesSignedEightEight FloorMatrixA { get; internal set; }
+    public SignedEightEight FloorMatrixA { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 B coefficient, computed from zoom-scaled sine.</summary>
-    public SnesSignedEightEight FloorMatrixB { get; internal set; }
+    public SignedEightEight FloorMatrixB { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 C coefficient, the negated B coefficient.</summary>
-    public SnesSignedEightEight FloorMatrixC { get; internal set; }
+    public SignedEightEight FloorMatrixC { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 D coefficient, equal to its A coefficient.</summary>
-    public SnesSignedEightEight FloorMatrixD { get; internal set; }
+    public SignedEightEight FloorMatrixD { get; internal set; }
     /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 center, initialized to ($40,$40) and cleared on completion.</summary>
     public Position16<Mode7Pixels> FloorCenter { get; internal set; }
     /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the Mode-7 getaway.</summary>

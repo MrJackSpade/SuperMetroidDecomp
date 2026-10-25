@@ -79,7 +79,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 return;
 
             case NorfairLavaJumpingEnemyFunction.BeginJump:
-                state.YVelocity = new SnesSignedEightEight(NorfairLavaJumpDefinitions.InitialVerticalVelocity(random));
+                state.YVelocity = new SignedEightEight(NorfairLavaJumpDefinitions.InitialVerticalVelocity(random));
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
                 LastNorfairLavaJumpingEnemySoundEffect = EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound;

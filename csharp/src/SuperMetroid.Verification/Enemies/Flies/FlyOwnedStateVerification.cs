@@ -23,16 +23,16 @@ internal static class FlyOwnedStateVerification
         for (int update = 1; update < 16; update++)
         {
             state.AdvanceCircle(clockwise: true);
-            AssertTrue(state.Angle != SnesAngle.Zero, $"circling update {update} is mid-revolution");
+            AssertTrue(state.Angle != RotationAngle.Zero, $"circling update {update} is mid-revolution");
         }
         state.AdvanceCircle(clockwise: true);
-        AssertEqual(SnesAngle.Zero, state.Angle, "sixteen circling updates complete a revolution");
+        AssertEqual(RotationAngle.Zero, state.Angle, "sixteen circling updates complete a revolution");
         state.AdvanceCircle(clockwise: false);
         AssertEqual((byte)240, state.Angle.TableIndex, "an anticlockwise step from zero wraps to the last step");
 
         state.TargetHeight = new Position16<RoomPixels>(0, 0x0123);
         slot.Clear();
-        AssertEqual(SnesAngle.Zero, state.Angle, "a kill empties the phase");
+        AssertEqual(RotationAngle.Zero, state.Angle, "a kill empties the phase");
         AssertEqual(Position16<RoomPixels>.Zero, state.TargetHeight, "a kill empties the target height");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Fly owned state: the circling revolution, its wrap and the cleared record match.");

@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// An unsigned native 16.16 speed kept as the cartridge's two words: a whole word and a fraction word, each 0 through
-/// 65535. Samus's speeds are magnitudes in this form; their direction is held separately.
+/// An unsigned 16.16 fixed-point speed kept as its two halves: a whole part and a fraction, each 0 through 65535.
+/// Samus's speeds are magnitudes in this form; their direction is held separately.
 /// </summary>
 [EncodingOwner("unsigned 16.16 fixed-point number")]
-public readonly record struct SnesUnsignedSixteenSixteen
+public readonly record struct UnsignedSixteenSixteen
 {
     /// <summary>Holds the two words, each checked to lie within a native word.</summary>
-    public SnesUnsignedSixteenSixteen(int whole, int fraction)
+    public UnsignedSixteenSixteen(int whole, int fraction)
     {
         Whole = Ensure.BetweenInclusive(0, ushort.MaxValue, whole);
         Fraction = Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
@@ -25,17 +25,17 @@ public readonly record struct SnesUnsignedSixteenSixteen
     public uint RawValue => ((uint)Whole << 16) | (uint)Fraction;
 
     /// <summary>Splits an unsigned 32-bit value into its whole and fraction words.</summary>
-    public static SnesUnsignedSixteenSixteen FromRaw(uint rawValue) =>
+    public static UnsignedSixteenSixteen FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
     /// <summary>This speed with its whole word replaced.</summary>
-    public SnesUnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
+    public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 
     /// <summary>
     /// The cartridge's cap test: each word is compared with the cap's word on its own, and both differences must have
     /// the sign bit clear. This is not an unsigned 32-bit comparison; a fraction word of $8000 or more fails it even
     /// when the whole word is above the cap.
     /// </summary>
-    public bool WordsAtLeast(SnesUnsignedSixteenSixteen cap) =>
+    public bool WordsAtLeast(UnsignedSixteenSixteen cap) =>
         unchecked((short)(Whole - cap.Whole)) >= 0 && unchecked((short)(Fraction - cap.Fraction)) >= 0;
 }

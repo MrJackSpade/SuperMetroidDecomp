@@ -22,7 +22,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int offset = 0; offset <= 758; offset++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic native word window");
         for (int offset = 0; offset <= 756; offset++)
-            AssertEqual(unchecked((int)SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))),
+            AssertEqual(unchecked((int)SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))),
                 EnemyQuadraticSpeedDefinitions.ReadDisplacement(offset), "quadratic native displacement window");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(-1), "quadratic negative offset");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
@@ -36,8 +36,8 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (bool negative in new[] { false, true })
         {
             int offset = index * 8 + (negative ? 4 : 0);
-            uint expected = unchecked(origin + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset))));
-            rock.Position = rock.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
+            uint expected = unchecked(origin + (SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset))));
+            rock.Position = rock.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
             rock.Variable1 = 0xdead;
             addRock(rock, index, negative ? QuadraticSpeedHalf.Negative : QuadraticSpeedHalf.Positive);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
@@ -48,7 +48,7 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (bool negative in new[] { false, true })
         {
             int offset = index * 8 + (negative ? 4 : 0);
-            AssertEqual(unchecked((int)SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))), shared(index, negative),
+            AssertEqual(unchecked((int)SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))), shared(index, negative),
                 "quadratic shared production reader");
         }
         var beetom = new Func<int, int, int>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
@@ -88,11 +88,11 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (bool negative in new[] { false, true })
         {
             int offset = record * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0);
-            maw.Extension = SnesSignedSixteenSixteen.FromRaw(unchecked((int)start));
+            maw.Extension = SignedSixteenSixteen.FromRaw(unchecked((int)start));
             maw.QuadraticSpeedRecord = record;
             maw.QuadraticSpeedNegative = negative;
             mawAdditions++;
-            uint expected = unchecked(start + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))));
+            uint expected = unchecked(start + (SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))));
             addMaw(maw);
             AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
             AssertEqual(new VerifyCompiledQuadraticEnemySpeedsCase(record + 1, negative), new VerifyCompiledQuadraticEnemySpeedsCase(maw.QuadraticSpeedRecord, maw.QuadraticSpeedNegative), "Yapping Maw record advance");

@@ -18,19 +18,19 @@ internal static class DachoraRecordStateVerification
         var state = new DachoraEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        state.Speed = SnesSignedSixteenSixteen.FromParts(3, 0x8000);
+        state.Speed = SignedSixteenSixteen.FromParts(3, 0x8000);
         state.PhaseTimer = WrappingCountdown.Start(5);
         state.Speed = state.Speed.WithFraction(0);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(5, 0), state.Speed,
+        AssertEqual(SignedSixteenSixteen.FromParts(5, 0), state.Speed,
             "a run that begins after a countdown starts from the countdown's last value");
 
-        state.VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(1, 2);
+        state.VerticalAcceleration = SignedSixteenSixteen.FromParts(1, 2);
         state.SetPaletteCycle(frame: 3, ticks: 4);
         state.Function = Enum.GetValues<DachoraAiFunction>()[^1];
 
         slot.Clear();
-        AssertEqual(SnesSignedSixteenSixteen.Zero, state.Speed, "a kill empties the speed");
-        AssertEqual(SnesSignedSixteenSixteen.Zero, state.VerticalAcceleration, "a kill empties the acceleration");
+        AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "a kill empties the speed");
+        AssertEqual(SignedSixteenSixteen.Zero, state.VerticalAcceleration, "a kill empties the acceleration");
         AssertEqual(0, state.PaletteFrame, "a kill empties the palette frame");
         AssertEqual(0, state.PaletteTicks, "a kill empties the palette ticks");
         AssertEqual<DachoraAiFunction?>(null, state.Function, "a kill empties the function");

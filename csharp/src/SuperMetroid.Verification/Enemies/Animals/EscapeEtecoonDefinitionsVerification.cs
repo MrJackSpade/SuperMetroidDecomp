@@ -198,7 +198,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
         AssertTrue(state.PreInstruction is not null, "an initialized escape Etecoon has a pre-instruction");
-        state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0x0380), default);
+        state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0x0380), default);
 
         etecoon.Clear();
         AssertEqual<EscapeEtecoonPreInstruction?>(null, state.PreInstruction, "a kill empties the pre-instruction");

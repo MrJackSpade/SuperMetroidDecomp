@@ -90,7 +90,7 @@ internal static class GrappleConnectionDefinitionsVerification
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
             metadataPose = samus.Pose = (SamusPoseId)sourcePose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
-            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0);
+            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0);
             var g = samus.Grapple;
             g.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -132,7 +132,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             int address = 0x9bc43e + i * 10;
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
-            return new GrappleConnectionDefinitions.SpecialConnection(SnesAngle.FromRaw(checked(Word(address))), (SamusPoseId)Word(address + 2),
+            return new GrappleConnectionDefinitions.SpecialConnection(RotationAngle.FromRaw(checked(Word(address))), (SamusPoseId)Word(address + 2),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
                 SamusGrappleConnectionNative.Functions.Decode(Word(address + 8), "grapple connection function"));
         }).ToArray();
@@ -148,7 +148,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new(100, 200));
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
-            g.Angle = SnesAngle.FromRaw((ushort)angle);
+            g.Angle = RotationAngle.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle.RawValue == angle);
             AssertEqual(index >= 0, special(samus, g, new(100, 200), out _), "Exact native special angle, no tolerance");
             if (index < 0)

@@ -53,9 +53,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             : -WaverHorizontalSpeedFixed;
         var state = new WaverEnemyState
         {
-            XVelocity = SnesSignedSixteenSixteen.FromRaw(signedSpeed),
+            XVelocity = SignedSixteenSixteen.FromRaw(signedSpeed),
             CurrentInstructionListIndex = WaverAnimationSelector.None,
-            Angle = SnesAngle.Zero,
+            Angle = RotationAngle.Zero,
             SpinFinished = false,
             RequestedInstructionListIndex = facingRight ? WaverAnimationSelector.FacingRight : WaverAnimationSelector.None,
         };
@@ -86,7 +86,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             // `$A3:875F-$8781` negates the overlapping velocity bytes and writes them back
             // as two words. For every initialized Waver this is exactly a signed 16.16
             // negation; expressing that value directly preserves the native ±1.5 px/frame.
-            state.XVelocity = SnesSignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
+            state.XVelocity = SignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
             state.RequestedInstructionListIndex =
                 (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
                 WaverAnimationSelector.FacingRight;
@@ -97,7 +97,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             int verticalPixels = EnemyMath.ReadEightBitNegativeSineProduct(
                 state.Angle.ToByteAngle(),
                 WaverVerticalRadius);
-            if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(verticalPixels)))
+            if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(verticalPixels)))
             {
                 state.ReflectWave();
             }

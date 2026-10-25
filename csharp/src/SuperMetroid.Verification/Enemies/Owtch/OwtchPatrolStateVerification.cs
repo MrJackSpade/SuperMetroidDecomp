@@ -21,14 +21,14 @@ internal static class OwtchPatrolStateVerification
             new FrameCounters(0));
 
         (RoomEnemySystem enemies, RoomEnemySlot slot, OwtchEnemyState state) = NewOwtch(OwtchBehaviorState.MovingRight);
-        state.RightVelocity = SnesSignedSixteenSixteen.FromParts(1, 32768);
+        state.RightVelocity = SignedSixteenSixteen.FromParts(1, 32768);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(49152);
         enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
         AssertEqual((ushort)102, slot.Position.X.Whole, "Owtch rightward speed carries its fraction into the whole pixel");
         AssertEqual((ushort)16384, slot.Position.X.Fraction, "Owtch rightward fraction after the carry");
 
         (enemies, slot, state) = NewOwtch(OwtchBehaviorState.MovingLeft);
-        state.LeftVelocity = SnesSignedSixteenSixteen.FromParts(-2, 32768);
+        state.LeftVelocity = SignedSixteenSixteen.FromParts(-2, 32768);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(16384);
         enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
         AssertEqual((ushort)98, slot.Position.X.Whole, "Owtch leftward speed wraps its whole word");

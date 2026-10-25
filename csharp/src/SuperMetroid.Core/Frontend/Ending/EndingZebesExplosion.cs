@@ -42,7 +42,7 @@ internal sealed class EndingZebesExplosion
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionStars, EndingSpriteRole.ExplosionStars);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
-        _stage.FloorAngle = SnesAngle.Zero;
+        _stage.FloorAngle = RotationAngle.Zero;
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();
         BeginExplosionCrossfade();

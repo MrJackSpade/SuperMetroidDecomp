@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
-            state.Speed = SnesSignedSixteenSixteen.FromParts(8, 0);
+            state.Speed = SignedSixteenSixteen.FromParts(8, 0);
             state.SetPaletteCycle(frame, ticks: 1);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             CheckLive(DachoraPalettePhase.Speed, frame);

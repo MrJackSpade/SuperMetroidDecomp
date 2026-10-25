@@ -97,13 +97,13 @@ of the behavior stays explicit: `WrappingCounter` for counters, or a named opera
 
 ## Fixed-point values, angles and carries
 
-A whole value and its fraction are one quantity. Speeds and accelerations are `SnesSignedSixteenSixteen` or
-`SnesUnsignedSixteenSixteen`; a position with its subpixel is a `SnesFixedPosition`. Code never carries the two words
+A whole value and its fraction are one quantity. Speeds and accelerations are `SignedSixteenSixteen` or
+`UnsignedSixteenSixteen`; a position with its subpixel is a `FixedCoordinate`. Code never carries the two words
 side by side, in a tuple or as two parameters (SME6351).
 
-An angle's type states its convention (SME6352). `SnesAngle` is the 8.8 turn word whose high byte indexes the tables;
-`SnesByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `AddTableUnits` wrapping in one byte; and
-`SnesBearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
+An angle's type states its convention (SME6352). `RotationAngle` is the 8.8 turn word whose high byte indexes the tables;
+`ByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `AddTableUnits` wrapping in one byte; and
+`Bearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
 reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
 in table units stay integers.
 

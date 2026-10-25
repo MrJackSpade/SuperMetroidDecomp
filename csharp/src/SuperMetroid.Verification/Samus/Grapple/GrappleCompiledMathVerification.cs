@@ -23,7 +23,7 @@ internal static class GrappleCompiledMathVerification
 
         // No bus argument is accepted by either production delegate. This makes an
         // accidental ROM dependency a failing contract, not merely equal output.
-        var point = new Func<SamusGrappleState, byte, int, GrappleCollisionPoint>((grapple, angle, distance) => SamusGrappleSwing.CalculateCollisionPoint(grapple, new SnesByteAngle(angle), distance));
+        var point = new Func<SamusGrappleState, byte, int, GrappleCollisionPoint>((grapple, angle, distance) => SamusGrappleSwing.CalculateCollisionPoint(grapple, new ByteAngle(angle), distance));
         var release = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PropelSamusFromSwing);
         var state = new SamusState();
         MotherBrainRinkaDoorSpawnExpected[] anchors = [new MotherBrainRinkaDoorSpawnExpected(0, 0), new MotherBrainRinkaDoorSpawnExpected(7, 8), new MotherBrainRinkaDoorSpawnExpected(128, 255), new MotherBrainRinkaDoorSpawnExpected(4095, 4096), new MotherBrainRinkaDoorSpawnExpected(65520, 65535), new MotherBrainRinkaDoorSpawnExpected(65535, 0)];
@@ -62,12 +62,12 @@ internal static class GrappleCompiledMathVerification
             SamusVerticalDirection direction = velocity < 0
                 ? vertical < 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up
                 : vertical >= 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
-            state.Grapple.Angle = SnesAngle.FromTableIndex(unchecked((byte)angle)).AddRaw(0xff);
+            state.Grapple.Angle = RotationAngle.FromTableIndex(unchecked((byte)angle)).AddRaw(0xff);
             state.Grapple.AngularVelocity = (short)velocity;
             release(state, state.Grapple);
-            if (state.Kinematics.YSpeed.Whole != SnesSixteenSixteen.WholeOf(expectedY) || state.Kinematics.YSpeed.Fraction != SnesSixteenSixteen.FractionOf(expectedY) ||
-                state.Kinematics.YDirection != direction || state.HorizontalSpeed.BaseSpeed.Whole != SnesSixteenSixteen.WholeOf(expectedX) ||
-                state.HorizontalSpeed.BaseSpeed.Fraction != SnesSixteenSixteen.FractionOf(expectedX) || state.HorizontalSpeed.AccelerationMode != SamusAccelerationMode.Decelerating)
+            if (state.Kinematics.YSpeed.Whole != SixteenSixteen.WholeOf(expectedY) || state.Kinematics.YSpeed.Fraction != SixteenSixteen.FractionOf(expectedY) ||
+                state.Kinematics.YDirection != direction || state.HorizontalSpeed.BaseSpeed.Whole != SixteenSixteen.WholeOf(expectedX) ||
+                state.HorizontalSpeed.BaseSpeed.Fraction != SixteenSixteen.FractionOf(expectedX) || state.HorizontalSpeed.AccelerationMode != SamusAccelerationMode.Decelerating)
                 throw new InvalidDataException($"Compiled grapple release differs: angle={angle:X2}, velocity={velocity}.");
             releaseCount++;
         }

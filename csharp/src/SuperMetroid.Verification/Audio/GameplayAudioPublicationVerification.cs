@@ -25,12 +25,12 @@ internal static class GameplayAudioPublicationVerification
 
         // Use real native landing publishers, not direct injection into private lists.
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
-            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new SnesUnsignedSixteenSixteen(5, 0));
+            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));
         // The echo's queue call is admitted with the earlier landing already queued (formerly the accumulator $0103).
         AssertEqual(SoundQueueAdmission.Admitted(1), publication.QueueEcho(runtime),
             "echo sees earlier landing sound in the same queue");
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
-            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new SnesUnsignedSixteenSixteen(1, 1));
+            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(1, 1));
         publication.PublishPrefix(runtime);
         publication.PublishPrefix(runtime);
 

@@ -13,7 +13,7 @@ internal static class SamusStandaloneSpeedsVerification
         static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {
             ushort Word(int offset) => SnesLittleEndian.Word(readByte(a + offset), readByte(a + offset + 1));
-            SnesSignedSixteenSixteen Pair(int offset) => SnesSignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
+            SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }
         var actual = new SamusHorizontalSpeedState();
@@ -30,7 +30,7 @@ internal static class SamusStandaloneSpeedsVerification
             foreach (byte multiplier in new byte[] { 0, 1, 255 })
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                actual.BaseSpeed = reference.BaseSpeed = new SnesUnsignedSixteenSixteen(raw, raw);
+                actual.BaseSpeed = reference.BaseSpeed = new UnsignedSixteenSixteen(raw, raw);
                 actual.AccelerationMode = reference.AccelerationMode = mode;
                 actual.DecelerationMultiplier = reference.DecelerationMultiplier = multiplier;
                 uint expected = calculate(native);

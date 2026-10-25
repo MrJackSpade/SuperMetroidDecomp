@@ -136,8 +136,8 @@ internal static class MotherBrainEncodingDomainsVerification
     private static void VerifyNeckAngleWrapThroughDispatcher()
     {
         // Bobbing down from just above zero wraps past a full turn, which compares above the floor, so it keeps going.
-        SnesAngle lower = SnesAngle.FromRaw(100);
-        SnesAngle upper = SnesAngle.FromRaw(20480);
+        RotationAngle lower = RotationAngle.FromRaw(100);
+        RotationAngle upper = RotationAngle.FromRaw(20480);
         MotherBrainNeckMovement lowerMovement = MotherBrainNeckMovement.BobDown;
         MotherBrainNeckMovement upperMovement = MotherBrainNeckMovement.None;
         MotherBrainNeckKinematics.StepAngles(ref lower, ref upper, ref lowerMovement, ref upperMovement,
@@ -148,8 +148,8 @@ internal static class MotherBrainEncodingDomainsVerification
         AssertEqual(20480, upper.RawValue, "an idle upper neck does not move");
 
         // The upper neck's raised limit leads the lower angle; near a full turn that target wraps below the candidate.
-        lower = SnesAngle.FromRaw(64000);
-        upper = SnesAngle.FromRaw(65000);
+        lower = RotationAngle.FromRaw(64000);
+        upper = RotationAngle.FromRaw(65000);
         lowerMovement = MotherBrainNeckMovement.None;
         upperMovement = MotherBrainNeckMovement.BobUp;
         MotherBrainNeckKinematics.StepAngles(ref lower, ref upper, ref lowerMovement, ref upperMovement,

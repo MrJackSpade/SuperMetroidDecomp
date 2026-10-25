@@ -110,7 +110,7 @@ public sealed class BullEnemyState
     }
 
     /// <summary>Native extension offset $02: latest bearing toward Samus with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
-    public SnesAngle AngleToSamus
+    public RotationAngle AngleToSamus
     {
         get => _words.AngleToSamus;
         internal set => _words.AngleToSamus = value;

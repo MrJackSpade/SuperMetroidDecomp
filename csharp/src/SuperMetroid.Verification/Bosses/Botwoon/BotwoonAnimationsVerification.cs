@@ -52,9 +52,9 @@ internal static class BotwoonAnimationsVerification
         for (int angle = 0; angle < 256; angle++)
         {
             ushort moving = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
-            CompareBotwoonHead(rom, moving, BotwoonHeadProgram.MovingToward(new SnesBearing((byte)angle)), $"moving angle ${angle:X2}", drawn);
+            CompareBotwoonHead(rom, moving, BotwoonHeadProgram.MovingToward(new Bearing((byte)angle)), $"moving angle ${angle:X2}", drawn);
             ushort spitting = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
-            CompareBotwoonHead(rom, spitting, BotwoonHeadProgram.SpittingToward(new SnesBearing((byte)angle)), $"spitting angle ${angle:X2}", drawn);
+            CompareBotwoonHead(rom, spitting, BotwoonHeadProgram.SpittingToward(new Bearing((byte)angle)), $"spitting angle ${angle:X2}", drawn);
             compared += 2;
         }
         for (int octant = 0; octant < 8; octant++)
@@ -107,7 +107,7 @@ internal static class BotwoonAnimationsVerification
             aimHead(volleyEnemies, volleyHead, volleyState, samus);
             byte aim = EnemyMath.CalculateBearing(new(dx, dy)).RawValue;
             byte spitAngle = unchecked((byte)(64 - aim));
-            AssertEqual(SnesAngle.FromTableIndex(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
+            AssertEqual(RotationAngle.FromTableIndex(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
             int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
@@ -160,7 +160,7 @@ internal static class BotwoonAnimationsVerification
                 $"segment selector ${selector:X2}");
         }
 
-        Action<RoomEnemySlot, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new SnesByteAngle(angle), speed);
+        Action<RoomEnemySlot, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new ByteAngle(angle), speed);
         spawnSpit(enemies.SlotTable.Slots[0], 0x40, 0x0180);
         RoomEnemyProjectileSlot spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonProjectileAnimation { Segment: null }, "the real spit producer starts the typed spit animation");

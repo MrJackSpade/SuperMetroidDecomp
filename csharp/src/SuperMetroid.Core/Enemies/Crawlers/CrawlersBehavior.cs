@@ -93,7 +93,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Crawler speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
             }
             int speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
-            velocity = new(new SnesSignedEightEight(checked((ushort)speed)), new SnesSignedEightEight(checked((ushort)speed)));
+            velocity = new(new SignedEightEight(checked((ushort)speed)), new SignedEightEight(checked((ushort)speed)));
         }
 
         // The low two population-property bits encode which side of the starting block the
@@ -129,7 +129,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         int velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
-        state.Velocity = new(new SnesSignedEightEight(checked((ushort)velocity)), new SnesSignedEightEight(checked((ushort)velocity)));
+        state.Velocity = new(new SignedEightEight(checked((ushort)velocity)), new SignedEightEight(checked((ushort)velocity)));
         state.Velocity = (slot.Properties.FamilyData & 3) switch
         {
             0 => state.Velocity.ReversedX(),
@@ -187,7 +187,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.ConsecutiveTurnCounter = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+            int tangent = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
             if (_terrain.MoveEnemyVertically(level, slot, tangent))
             {
                 state.Velocity = state.Velocity.ReversedX();
@@ -337,7 +337,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.ConsecutiveTurnCounter = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+            int tangent = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
             if (!_terrain.MoveEnemyVertically(level, slot, tangent))
                 return;
 
@@ -410,7 +410,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Velocity = new EightEightVector<RoomPixels>(128, 128);
             }
-            state.FallingYVelocity = SnesSignedSixteenSixteen.Zero;
+            state.FallingYVelocity = SignedSixteenSixteen.Zero;
             state.ConsecutiveTurnCounter = 0;
             state.Function = state.NonFallingFunction;
             return;
@@ -420,7 +420,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The native routine contains this zero-velocity escape even though ordinary falls
         // immediately gain gravity. Retain it for ROM-modified parameter/state combinations.
-        if (state.FallingYVelocity == SnesSignedSixteenSixteen.Zero)
+        if (state.FallingYVelocity == SignedSixteenSixteen.Zero)
             state.Function = CrawlerEnemyFunction.CrawlingVertically;
     }
 
@@ -503,7 +503,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return CrawlerSlopeDefinitions.Scale(velocity.X.RawValue, slopeShape);
             }
         }
-        return SnesSixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
+        return SixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
     }
 
     /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
@@ -514,8 +514,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static int Shift8AddMagnitude(int velocity, int wholePixels)
     {
         int signedVelocity = unchecked((short)velocity);
-        int bias = SnesSixteenSixteen.FromWhole(wholePixels);
-        return unchecked((SnesSixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
+        int bias = SixteenSixteen.FromWhole(wholePixels);
+        return unchecked((SixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
     }
 
     /// <summary>Reverses a native 16-bit velocity word with wraparound semantics.</summary>

@@ -580,9 +580,9 @@ internal static class MapPresentationVerification
         };
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
         {
-            nativeBeamSequence.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+            nativeBeamSequence.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
             installedBeamSequence.Step(true, new(100, 95),
-                SnesAngle.QuarterTurn, 0x4000);
+                RotationAngle.QuarterTurn, 0x4000);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
                 nativeBeamSequence.ColorIndex == installedBeamSequence.ColorIndex &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,
@@ -686,13 +686,13 @@ internal static class MapPresentationVerification
         {
             PresentationColors = runtime.BossArtwork.MotherBrainRainbowColors,
         };
-        stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.Geometry == editedBeam.Geometry,
             "beam initial-color edit changes only color, not HDMA geometry");
-        stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.ColorIndex == editedBeam.ColorIndex &&
             stockBeam.Geometry == editedBeam.Geometry,

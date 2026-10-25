@@ -18,10 +18,10 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusHorizontalSpeedState
 {
     /// <summary>Samus's base horizontal speed, <c>samus_x_base_speed</c>/<c>subspeed</c> at WRAM <c>$0B46</c>/<c>$0B48</c>.</summary>
-    public SnesUnsignedSixteenSixteen BaseSpeed { get; set; }
+    public UnsignedSixteenSixteen BaseSpeed { get; set; }
 
     /// <summary>The run-button/speed-booster addition to horizontal speed at WRAM <c>$0B42</c>/<c>$0B44</c>.</summary>
-    public SnesUnsignedSixteenSixteen ExtraRunSpeed { get; set; }
+    public UnsignedSixteenSixteen ExtraRunSpeed { get; set; }
 
     /// <summary>
     /// Native <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
@@ -135,7 +135,7 @@ public sealed class SamusHorizontalSpeedState
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
     /// <summary>The total horizontal speed produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>/<c>$0DBE</c>.</summary>
-    public SnesUnsignedSixteenSixteen TotalSpeed { get; internal set; }
+    public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
     /// Speed divisor, 0 through 65535: total speed is halved this many times, capped at four
@@ -232,9 +232,9 @@ public sealed class SamusHorizontalSpeedState
                 SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceDefinitions.ReadResetWord(0));
             }
 
-            if (ExtraRunSpeed.WordsAtLeast(new SnesUnsignedSixteenSixteen(7, 0)))
+            if (ExtraRunSpeed.WordsAtLeast(new UnsignedSixteenSixteen(7, 0)))
             {
-                ExtraRunSpeed = new SnesUnsignedSixteenSixteen(7, 0);
+                ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0);
                 PublishBoostContactDamage();
                 return;
             }
@@ -254,9 +254,9 @@ public sealed class SamusHorizontalSpeedState
         // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
         // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
         // clamps there on the following call before another 0.1000 can be added.
-        if (ExtraRunSpeed.WordsAtLeast(new SnesUnsignedSixteenSixteen(2, 0)))
+        if (ExtraRunSpeed.WordsAtLeast(new UnsignedSixteenSixteen(2, 0)))
         {
-            ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
+            ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
             PublishBoostContactDamage();
             return;
         }
@@ -582,7 +582,7 @@ public sealed class SamusHorizontalSpeedState
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(ExtraRunSpeed.RawValue + SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration);
-        ExtraRunSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
+        ExtraRunSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
     }
 
     /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
@@ -894,7 +894,7 @@ public sealed class SamusHorizontalSpeedState
         uint total = unchecked(baseSpeed + ExtraRunSpeed.RawValue);
         int shift = Math.Min(SpeedDivisor, 4);
         total >>= shift;
-        TotalSpeed = SnesUnsignedSixteenSixteen.FromRaw(total);
+        TotalSpeed = UnsignedSixteenSixteen.FromRaw(total);
         return total;
     }
 
@@ -919,7 +919,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Publishes a 16.16 result to the separate base-speed whole and fractional WRAM words.</summary>
     private void SetBaseFixed(uint value)
     {
-        BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(value);
+        BaseSpeed = UnsignedSixteenSixteen.FromRaw(value);
     }
 
     /// <summary>
@@ -929,15 +929,15 @@ public sealed class SamusHorizontalSpeedState
     /// Combining them as ordinary fixed-point multiplication would be cleaner, but would not be
     /// what the cartridge executes.
     /// </summary>
-    private SnesSignedSixteenSixteen ScaledDeceleration(SpeedTableEntry entry)
+    private SignedSixteenSixteen ScaledDeceleration(SpeedTableEntry entry)
     {
         if (DecelerationMultiplier == 0)
             return entry.Deceleration;
 
         int wholeProduct = DecelerationMultiplier * entry.Deceleration.WholeWord;
-        int fractionProduct = DecelerationMultiplier * SnesEightEight.WholeOf(entry.Deceleration.Fraction);
-        return SnesSignedSixteenSixteen.FromParts(
-            unchecked((short)SnesEightEight.WholeOf(wholeProduct)),
+        int fractionProduct = DecelerationMultiplier * EightEight.WholeOf(entry.Deceleration.Fraction);
+        return SignedSixteenSixteen.FromParts(
+            unchecked((short)EightEight.WholeOf(wholeProduct)),
             unchecked((ushort)fractionProduct));
     }
 
@@ -958,7 +958,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static int ClampDisplacement(int displacement)
     {
-        int high = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
+        int high = unchecked((short)(SixteenSixteen.WholeOf(displacement)));
         int low = unchecked((ushort)displacement);
 
         if (high < 0)
@@ -971,7 +971,7 @@ public sealed class SamusHorizontalSpeedState
             high = 15;
         }
 
-        return unchecked((int)(SnesSixteenSixteen.Compose((ushort)high, low)));
+        return unchecked((int)(SixteenSixteen.Compose((ushort)high, low)));
     }
 
 }

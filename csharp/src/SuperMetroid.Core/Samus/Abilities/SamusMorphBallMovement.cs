@@ -184,7 +184,7 @@ public static class SamusMorphBallMovement
         bool hitCeiling;
         if (samus.MorphBallBounceState != SamusBallBounceState.None &&
             samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
-            samus.Kinematics.ExtraDisplacement.Y != SnesSignedSixteenSixteen.Zero)
+            samus.Kinematics.ExtraDisplacement.Y != SignedSixteenSixteen.Zero)
         {
             // `$90:91E5-$921D` gives an external producer priority over the rebound arc.
             // It cancels the stored bounce velocity, forces direction down, and executes
@@ -396,7 +396,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         {
             newSpeed = unchecked(oldSpeed - acceleration);
         }
-        state.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(newSpeed))), unchecked((ushort)newSpeed));
+        state.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(newSpeed))), unchecked((ushort)newSpeed));
 
         int displacement = state.YDirection == SamusVerticalDirection.Down
             ? unchecked((int)oldSpeed)

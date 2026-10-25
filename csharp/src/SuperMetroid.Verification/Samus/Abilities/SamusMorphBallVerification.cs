@@ -216,7 +216,7 @@ empty, samus, nmiFrameCounter: 1);
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostedRoll);
     boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
-    boostedRoll.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+    boostedRoll.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     SamusMorphBallMovement.StepGrounded(empty, boostedRoll, nmiFrameCounter: 0);
     AssertEqual(34, boostedRoll.Position.X.Whole,
         "grounded moving ball adds inherited 1.8000 extra speed to native 0.C000 base");
@@ -233,7 +233,7 @@ empty, samus, nmiFrameCounter: 1);
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostedFall);
-    boostedFall.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+    boostedFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     boostedFall.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusMorphBallMovement.StepFalling(
 
@@ -254,7 +254,7 @@ empty, samus, nmiFrameCounter: 1);
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(opposedDirectionFall);
-    opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+    opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     opposedDirectionFall.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusMorphBallMovement.StepFalling(
 
@@ -274,7 +274,7 @@ empty, samus, nmiFrameCounter: 1);
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostedSpring);
-    boostedSpring.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+    boostedSpring.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     boostedSpring.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusMorphBallMovement.StepSpringBallInAir(
 
@@ -293,7 +293,7 @@ empty, samus, nmiFrameCounter: 1);
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostedTransition);
-    boostedTransition.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+    boostedTransition.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     SamusMorphBallMovement.StepTransition(
 
         empty,
@@ -374,12 +374,12 @@ empty, samus, nmiFrameCounter: 1);
     // magnitude. The collision launches bounce one with the two constants at `$90:9EB5`.
     samus.Position = samus.Position.WithWhole(new(48, 55));
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-    samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0);
+    samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0);
     samus.Kinematics.YAcceleration = default;
     MorphBallMovementResult hardLanding = SamusMorphBallMovement.StepFalling(
 floor, samus, controllerInput: 0, nmiFrameCounter: 0);
     AssertTrue(hardLanding.Landed, "hard ball fall collides with floor");
-    samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
+    samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     AssertTrue(!SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "hard landing launches first rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
@@ -392,7 +392,7 @@ floor, samus, controllerInput: 0, nmiFrameCounter: 0);
     // launches the smaller second rebound; state two finally installs stable ground art.
     samus.Position = samus.Position.WithWholeY(57);
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-    samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
+    samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
     AssertTrue(!SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "first-bounce collision launches second rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "second rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.SecondRebound, samus.MorphBallBounceState, "second rebound state");
@@ -456,9 +456,9 @@ tunnel, SamusPoseId.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
         };
         SamusPoseMetadata.RefreshCollisionRadii(fallingUnmorph);
         SamusPresentation.InitializeAnimation(fallingUnmorph);
-        fallingUnmorph.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x3456);
+        fallingUnmorph.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
         fallingUnmorph.Kinematics.YDirection = SamusVerticalDirection.Down;
-        fallingUnmorph.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
+        fallingUnmorph.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0x8000);
 
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(fallingUnmorph, 
@@ -539,7 +539,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
     // instead clears that state and immediately relaunches through Make_Samus_Jump.
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallFallingRightPose);
-    spring.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0);
+    spring.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0);
     spring.Kinematics.YDirection = SamusVerticalDirection.Down;
     AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, controllerInput: 0),
         "Spring Ball hard impact rebounds");
@@ -567,7 +567,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         SamusPoseMetadata.RefreshCollisionRadii(impact);
         SamusPresentation.InitializeAnimation(impact);
         impact.Kinematics.YSpeed = impact.Kinematics.YSpeed.WithWhole(impactSpeed);
-        impact.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+        impact.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
         impact.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         bool grounded = springEquipped
             ? SamusPosturePoseTransitions.ApplySpringBallLanding(impact, controllerInput: 0)
@@ -805,8 +805,8 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     SamusBombProjectileSlot bouncingSpread = spreadBombs.Slots[2];
     bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
     bouncingSpread.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(0);
-    bouncingSpread.BombSpreadVerticalVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
-    bouncingSpread.BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.FromParts(-2, 0x8000);
+    bouncingSpread.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
+    bouncingSpread.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(-2, 0x8000);
     spreadBombs.StepFrame(new SamusTerrain { Level = floor }, spreadSamus, 0, 0);
     AssertEqual(63, bouncingSpread.Position.Y.Whole,
         "spread-bomb floor collision undoes penetrating Y movement");
@@ -1530,7 +1530,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     };
     SamusPoseMetadata.RefreshCollisionRadii(bombJump);
     SamusPresentation.InitializeAnimation(bombJump);
-    bombJump.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x4000);
+    bombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     AssertThrows<ArgumentOutOfRangeException>(
         () => bombJump.RequestMorphedBombJump(0),
         "bomb-jump direction zero rejected");
@@ -1562,7 +1562,7 @@ empty, bombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
     // `$90:8F1B` interprets a wrapped whole word as signed underflow. It switches to down,
     // installs diagonal deceleration mode two, and `$90:E032` relinquishes control before
     // making another vertical move. The normal type-four ball handler owns the descent.
-    bombJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0xffff, 0);
+    bombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(0xffff, 0);
     SamusBombJumpMovement.Step(
 empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
@@ -1585,7 +1585,7 @@ empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
     };
     SamusPoseMetadata.RefreshCollisionRadii(straightBombJump);
     SamusPresentation.InitializeAnimation(straightBombJump);
-    straightBombJump.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x4000);
+    straightBombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     straightBombJump.RequestMorphedBombJump(2);
     SamusBombJumpMovement.Start(straightBombJump);
     ushort straightXSubposition = straightBombJump.Kinematics.Position.X.Fraction;
@@ -1603,7 +1603,7 @@ ceiling, straightBombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
     // state instead of throwing solely because the art still names a grounded ball.
     straightBombJump.Position = straightBombJump.Position.WithWholeY(55);
     straightBombJump.Kinematics.YDirection = SamusVerticalDirection.Down;
-    straightBombJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0);
+    straightBombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0);
     straightBombJump.Kinematics.YAcceleration = default;
     MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(
 floor, straightBombJump, nmiFrameCounter: 0);

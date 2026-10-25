@@ -1,11 +1,12 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// The native 8.8 layout as raw arithmetic (#223): whole units in the high byte and 1/256ths in the low byte, as
-/// 8.8 velocities, speeds and displacements keep them. The <c>int</c> overloads keep two's-complement sign.
+/// Arithmetic on 8.8 fixed-point numbers (#223, #1420): whole units above eight fraction bits of 1/256th each, the
+/// precision the game's velocities, speeds and displacements step in. The <c>int</c> overloads keep two's-complement
+/// sign.
 /// </summary>
 [EncodingOwner("8.8 fixed-point number")]
-public static class SnesEightEight
+public static class EightEight
 {
     /// <summary>Eight low bits represent one unit's fractional portion in a native 8.8 word.</summary>
     private const int FractionBits = 8;

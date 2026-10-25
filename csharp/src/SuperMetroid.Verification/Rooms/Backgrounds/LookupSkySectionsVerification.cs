@@ -31,7 +31,7 @@ internal static class LookupSkySectionsVerification
             {
                 int source = 0x88aec1 + index * 8;
                 int slot = (ReadVerificationWord(rom, source + 6) - 0x9f80) / 4;
-                uint velocity = SnesSixteenSixteen.Compose(ReadVerificationWord(rom, source + 4), ReadVerificationWord(rom, source + 2));
+                uint velocity = SixteenSixteen.Compose(ReadVerificationWord(rom, source + 4), ReadVerificationWord(rom, source + 2));
                 expectedSlots[slot] = unchecked(expectedSlots[slot] + velocity);
             }
             expectedSlots[22] = 0;
@@ -49,7 +49,7 @@ internal static class LookupSkySectionsVerification
                 ushort next = index + 1 < originalCount ? ReadVerificationWord(rom, source + 8) : end;
                 if (worldY < top || worldY >= next) continue;
                 int slot = (ReadVerificationWord(rom, source + 6) - 0x9f80) / 4;
-                expected = SnesFixedPosition.WholeOf(unchecked((int)expectedSlots[slot]));
+                expected = FixedCoordinate.WholeOf(unchecked((int)expectedSlots[slot]));
                 break;
             }
             ushort actual = (layer with { VerticalScroll = unchecked((ushort)(worldY - 32)) }).GameplayLineScrolls(1)[0];

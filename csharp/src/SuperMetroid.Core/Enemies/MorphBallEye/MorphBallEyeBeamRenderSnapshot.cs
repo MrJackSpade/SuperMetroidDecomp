@@ -17,6 +17,6 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 public readonly record struct MorphBallEyeBeamRenderSnapshot(
     MorphBallEyeBeamPhase Phase,
     Position16<RoomPixels> WorldPosition,
-    SnesAngle Angle,
+    RotationAngle Angle,
     int AngularWidth,
     Bgr555 Color);

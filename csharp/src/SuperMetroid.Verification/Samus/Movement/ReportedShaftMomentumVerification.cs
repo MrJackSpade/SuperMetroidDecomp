@@ -23,15 +23,15 @@ internal static class ReportedShaftMomentumVerification
         samus.Kinematics.Radius = new(5, 12);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x6000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         for (ushort frame = 0; frame < 8; frame++)
         {
             // Whole and fractional X as one 16.16 position, so the accepted displacement
             // is the exact difference across the movement step.
-            int xBefore = SnesSixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
+            int xBefore = SixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             SamusAerialMovement.StepSpinJump(level, samus, 0, frame);
-            int xAfter = SnesSixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
+            int xAfter = SixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");
             AssertEqual(1, samus.HorizontalSpeed.BaseSpeed.Whole, "retained spin whole speed");

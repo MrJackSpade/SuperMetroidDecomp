@@ -198,7 +198,7 @@ public sealed class ScrollBoundaryCamera
 
         if (SignedDifference(IdealPosition.X, Position.X.Whole) < 0)
         {
-            Position = Position.WithX((SnesSignedSixteenSixteen.Zero - Speed.X).AddTo(Position.X.Whole, Position.X.Fraction));
+            Position = Position.WithX((SignedSixteenSixteen.Zero - Speed.X).AddTo(Position.X.Whole, Position.X.Fraction));
             HandleScrollingLeft();
         }
         else
@@ -273,7 +273,7 @@ public sealed class ScrollBoundaryCamera
 
         if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
-            Position = Position.WithY((SnesSignedSixteenSixteen.Zero - Speed.Y).AddTo(Position.Y.Whole, Position.Y.Fraction));
+            Position = Position.WithY((SignedSixteenSixteen.Zero - Speed.Y).AddTo(Position.Y.Whole, Position.Y.Fraction));
             HandleScrollingUp();
         }
         else
@@ -310,8 +310,8 @@ public sealed class ScrollBoundaryCamera
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
-        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
-        int currentCell = row + (SnesEightEight.WholeOf(Position.X.Whole));
+        int row = (EightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
+        int currentCell = row + (EightEight.WholeOf(Position.X.Whole));
 
         if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.RedBoundary)
         {
@@ -363,8 +363,8 @@ public sealed class ScrollBoundaryCamera
         if (timeIsFrozen)
             return;
 
-        int centeredXScreen = SnesEightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
-        int preClampCell = (SnesEightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
+        int centeredXScreen = EightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
+        int preClampCell = (EightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
 
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
         // red and green cells permit the ROM's $1F-pixel lower alignment. Crucially, the
@@ -381,7 +381,7 @@ public sealed class ScrollBoundaryCamera
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
-        int currentCell = (SnesEightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
+        int currentCell = (EightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
         if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.RedBoundary)
         {
             // A red current cell pushes downward toward its bottom boundary. As in the X
@@ -437,7 +437,7 @@ public sealed class ScrollBoundaryCamera
         if (SignedDifference(IdealPosition.X, Position.X.Whole) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
-            Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
+            Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
         int roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
@@ -449,8 +449,8 @@ public sealed class ScrollBoundaryCamera
 
         // The horizontal routines sample the row containing the screen's vertical center
         // (Y+$80), then the screen immediately to the right of the camera's high X byte.
-        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
-        int rightCell = row + (SnesEightEight.WholeOf(Position.X.Whole)) + 1;
+        int row = (EightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
+        int rightCell = row + (EightEight.WholeOf(Position.X.Whole)) + 1;
         if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.RedBoundary)
             return;
 
@@ -468,7 +468,7 @@ public sealed class ScrollBoundaryCamera
         if (SignedDifference(Position.X.Whole, IdealPosition.X) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
-            Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
+            Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
         if ((short)Position.X.Whole < 0)
@@ -477,8 +477,8 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
-        int currentCell = row + (SnesEightEight.WholeOf(Position.X.Whole));
+        int row = (EightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
+        int currentCell = row + (EightEight.WholeOf(Position.X.Whole));
         if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
@@ -504,7 +504,7 @@ public sealed class ScrollBoundaryCamera
         if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
-            Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
+            Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
         int boundary = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
@@ -540,7 +540,7 @@ public sealed class ScrollBoundaryCamera
         if (SignedDifference(Position.Y.Whole, IdealPosition.Y) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
-            Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
+            Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
         if ((short)Position.Y.Whole < 0)
@@ -563,8 +563,8 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Samples the scroll cell at the camera's horizontal midpoint for vertical boundaries.</summary>
     private int VerticalCellIndex()
     {
-        int xScreenAtCenter = SnesEightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
-        int yScreen = SnesEightEight.WholeOf(Position.Y.Whole);
+        int xScreenAtCenter = EightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
+        int yScreen = EightEight.WholeOf(Position.Y.Whole);
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 
@@ -583,14 +583,14 @@ public sealed class ScrollBoundaryCamera
     /// $0001:0000. Modular arithmetic keeps the routine's noted subpixel corner case, where
     /// the result can still be less than 1.0.
     /// </summary>
-    private static SnesSignedSixteenSixteen CalculateDistanceMovedPlusOne(
-        SnesFixedPosition previous,
-        SnesFixedPosition current)
+    private static SignedSixteenSixteen CalculateDistanceMovedPlusOne(
+        FixedCoordinate previous,
+        FixedCoordinate current)
     {
         uint distance = SignedDifference(current.Whole, previous.Whole) >= 0
             ? unchecked(current.RawValue - previous.RawValue + 65536u)
             : unchecked(previous.RawValue - current.RawValue + 65536u);
-        return SnesSignedSixteenSixteen.FromRaw(unchecked((int)distance));
+        return SignedSixteenSixteen.FromRaw(unchecked((int)distance));
     }
 
     /// <summary>Writes only the horizontal integer camera word, preserving its fraction and vertical axis.</summary>

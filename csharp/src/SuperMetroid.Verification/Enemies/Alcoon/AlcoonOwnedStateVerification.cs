@@ -20,14 +20,14 @@ internal static class AlcoonOwnedStateVerification
         var state = new AlcoonEnemyState
         {
             Function = AlcoonEnemyFunction.WalkingAndFiring,
-            Velocity = new(SnesSignedSixteenSixteen.FromParts(-2, 0), SnesSignedSixteenSixteen.FromParts(-4, 0x8000)),
+            Velocity = new(SignedSixteenSixteen.FromParts(-2, 0), SignedSixteenSixteen.FromParts(-4, 0x8000)),
             SpawnPosition = new(0x0300, 0x0180),
             LandingPosition = new(0x0300, 0x01a0),
-            YAcceleration = SnesSignedSixteenSixteen.FromParts(0, 0x8000),
+            YAcceleration = SignedSixteenSixteen.FromParts(0, 0x8000),
             StepCounter = WrappingCountdown.Start(2),
         };
         AssertThrows<InvalidOperationException>(
-            () => state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(1, 1)),
+            () => state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(1, 1)),
             "Alcoon rejects a horizontal velocity fraction");
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -36,7 +36,7 @@ internal static class AlcoonOwnedStateVerification
         AssertEqual(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties the velocity");
         AssertEqual(new Position16<RoomPixels>(0x0300, 0), state.SpawnPosition, "a kill empties the spawn Y and keeps the spawn X");
         AssertEqual(new Position16<RoomPixels>(0x0300, 0x01a0), state.LandingPosition, "the landing position outlives the kill");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0x8000), state.YAcceleration, "the acceleration outlives the kill");
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), state.YAcceleration, "the acceleration outlives the kill");
         AssertEqual((ushort)2, state.StepCounter.RawValue, "the step counter outlives the kill");
         Console.WriteLine("Alcoon owned state: the horizontal velocity rule and the cleared record match.");
     }

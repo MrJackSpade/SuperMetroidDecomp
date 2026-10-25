@@ -77,6 +77,6 @@ internal sealed class GradualPaletteTransition
                          (denominator - zeroBasedStep);
         if (destination < current)
             fixedDelta = -fixedDelta;
-        return SnesEightEight.WholeOf(SnesEightEight.FromWhole(current) + fixedDelta);
+        return EightEight.WholeOf(EightEight.FromWhole(current) + fixedDelta);
     }
 }

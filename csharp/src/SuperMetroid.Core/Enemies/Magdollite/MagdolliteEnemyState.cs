@@ -70,12 +70,12 @@ public sealed class MagdolliteEnemyState
     /// Signed 16.16 downward velocity in room pixels per update, from the population's linear speed record; the falling
     /// arm consumes the head's copy.
     /// </summary>
-    public SnesSignedSixteenSixteen DownwardVelocity { get; internal set; }
+    public SignedSixteenSixteen DownwardVelocity { get; internal set; }
     /// <summary>
     /// Signed 16.16 upward velocity in room pixels per update: the speed record's separately authored negative half,
     /// not a negation; the rising arm consumes the head's copy.
     /// </summary>
-    public SnesSignedSixteenSixteen UpwardVelocity { get; internal set; }
+    public SignedSixteenSixteen UpwardVelocity { get; internal set; }
     /// <summary>Native finishedGrowingFlag at extension offset $18, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }
     /// <summary>Native notEmergedFlag at extension offset $1A: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>

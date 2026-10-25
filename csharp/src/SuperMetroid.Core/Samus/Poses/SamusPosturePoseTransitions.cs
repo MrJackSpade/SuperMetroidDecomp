@@ -217,10 +217,10 @@ internal static class SamusPosturePoseTransitions
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
+level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
-                samus.Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
+                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
@@ -329,10 +329,10 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
                     $"Morph entry {targetPose} expanded radius {previousRadius} -> {samus.Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
+level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
-                samus.Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
+                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
@@ -500,9 +500,9 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
             // clears the extra words, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             uint combined = unchecked(samus.HorizontalSpeed.BaseFixed +
-                SnesSixteenSixteen.Compose(samus.HorizontalSpeed.ExtraRunSpeed.Whole,
+                SixteenSixteen.Compose(samus.HorizontalSpeed.ExtraRunSpeed.Whole,
                     samus.HorizontalSpeed.ExtraRunSpeed.Fraction));
-            samus.HorizontalSpeed.BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(combined);
+            samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(combined);
             // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
             samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);

@@ -15,7 +15,7 @@ public readonly record struct PowerBombRadius
     public int RawValue { get; }
 
     /// <summary>The whole pixels of the value, 0 through 255; the fraction is dropped.</summary>
-    public int WholePixels => SnesUnsignedEightEight.Whole(checked((ushort)RawValue));
+    public int WholePixels => UnsignedEightEight.Whole(checked((ushort)RawValue));
 
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;
@@ -25,7 +25,7 @@ public readonly record struct PowerBombRadius
         new(Ensure.BetweenInclusive(0, ushort.MaxValue, rawValue));
 
     /// <summary>A whole number of pixels, 0 through 255, with no fraction.</summary>
-    public static PowerBombRadius FromWholePixels(int pixels) => FromRaw(SnesEightEight.FromWhole(Ensure.BetweenInclusive(0, byte.MaxValue, pixels)));
+    public static PowerBombRadius FromWholePixels(int pixels) => FromRaw(EightEight.FromWhole(Ensure.BetweenInclusive(0, byte.MaxValue, pixels)));
 
     /// <summary>This value advanced by <paramref name="other"/>, wrapping through 65535 and zero.</summary>
     public PowerBombRadius WrappingAdd(PowerBombRadius other) => Wrap(RawValue + other.RawValue);

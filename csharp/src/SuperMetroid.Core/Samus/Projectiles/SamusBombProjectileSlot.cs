@@ -49,10 +49,10 @@ public sealed class SamusBombProjectileSlot
     public BombSpreadHorizontalVelocity BombSpreadHorizontal { get; internal set; }
 
     /// <summary>The spread bomb's signed 16.16 vertical velocity; Samus's gravity accelerates it every frame.</summary>
-    public SnesSignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
+    public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
 
     /// <summary>The upward launch velocity, signed 16.16, that a floor bounce restores.</summary>
-    public SnesSignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
+    public SignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
 
     /// <summary>
     /// The word called <c>projectile_variables[5+Index]</c> by bank $90 and
@@ -77,7 +77,7 @@ public sealed class SamusBombProjectileSlot
         BombTimer = WrappingCountdown.Start(0);
         IsBombSpread = false;
         BombSpreadHorizontal = default;
-        BombSpreadVerticalVelocity = SnesSignedSixteenSixteen.Zero;
-        BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.Zero;
+        BombSpreadVerticalVelocity = SignedSixteenSixteen.Zero;
+        BombSpreadLaunchVelocity = SignedSixteenSixteen.Zero;
     }
 }

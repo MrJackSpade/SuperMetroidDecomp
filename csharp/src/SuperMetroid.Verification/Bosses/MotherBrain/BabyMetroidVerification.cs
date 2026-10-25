@@ -104,7 +104,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
-    AssertEqual(SuperMetroid.Core.Hardware.SnesAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
+    AssertEqual(SuperMetroid.Core.Spatial.RotationAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
     AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
     AssertEqual(0xf772, baby.Velocity.X.RawValue, "Baby first ROM sine X velocity");
     AssertEqual(0x051e, baby.Velocity.Y.RawValue, "Baby first ROM cosine Y velocity");

@@ -14,14 +14,14 @@ wrapping coordinate family and its fixed-point axes:
 - `Offset16`: the signed difference of two wrapping coordinates; the game tests the sign of wrapped differences.
 - `Extent16`: radii are added to and subtracted from wrapping coordinates, and some actors store a negated contour as
   their radius, which is then compared as a large unsigned extent.
-- `SnesFixedPosition`, `SnesSignedSixteenSixteen`, `SnesSignedEightEight`: the per-axis fixed-point words, whose
+- `FixedCoordinate`, `SignedSixteenSixteen`, `SignedEightEight`: the per-axis fixed-point words, whose
   carries and 32-bit wraps the movement routines reproduce.
 
 These types are each the single owner of their representation (`[EncodingOwner]`), and SME6347 allows a narrow
 width nowhere else in gameplay (`docs/cartridge-encoding.md`). A value that only passes through a coordinate (a
 local holding one axis, a parameter carrying a whole word, a Mode 7 matrix coefficient) is an `int`: the owner's
-operations take `int` and check that the value is already a word (`Position16.WithX`, `SnesFixedPosition.WithWhole`,
-`FixedPosition.WithWholeX`, `SnesSignedSixteenSixteen.FromParts`), so the wrap stays in the arithmetic that produces
+operations take `int` and check that the value is already a word (`Position16.WithX`, `FixedCoordinate.WithWhole`,
+`FixedPosition.WithWholeX`, `SignedSixteenSixteen.FromParts`), so the wrap stays in the arithmetic that produces
 the word, written where it happens, and never in the width of a variable. This is a statement about the game's
 geometry, not about the processor.
 
@@ -71,11 +71,11 @@ coordinates (`AffineTransform`'s signed 8.8 matrix coefficients) store `int`.
 | `Position16<TSpace>` | `ushort X, Y`, wrapping at 16 bits | Whole-pixel positions, camera and scroll positions, block/screen/tile/cell coordinates, image pixels. |
 | `Offset16<TSpace>` | `short X, Y`, wrapping at 16 bits | Signed displacements and relative offsets (draw-list steps, part offsets, anchors relative to an origin). |
 | `Extent16<TSpace>` | `ushort X, Y` | Sizes and half-extents (radii); the owning member name says which. Grid sizes own `Area`, `Contains`, `RowMajorIndex` and `CellAtRowMajorIndex`. |
-| `FixedPosition<TSpace>` | `SnesFixedPosition X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus, enemy, camera and cinematic positions with subpixels. |
-| `FixedVector<TSpace>` | `SnesSignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
-| `EightEightVector<TSpace>` | `SnesSignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToSixteenSixteen()` promotes them for `FixedPosition.Advance`. |
+| `FixedPosition<TSpace>` | `FixedCoordinate X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus, enemy, camera and cinematic positions with subpixels. |
+| `FixedVector<TSpace>` | `SignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
+| `EightEightVector<TSpace>` | `SignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToSixteenSixteen()` promotes them for `FixedPosition.Advance`. |
 
-The native per-axis arithmetic lives once in `SnesSignedSixteenSixteen` and `SnesFixedPosition`
+The native per-axis arithmetic lives once in `SignedSixteenSixteen` and `FixedCoordinate`
 (whole/fraction assembly, carry/borrow, 32-bit wrap, half-word replacement). The two-dimensional
 types delegate to it and never re-derive it.
 
@@ -86,7 +86,7 @@ Integer arithmetic that builds a coordinate wraps explicitly where the game wrap
 native code works in 16-bit words and a later bounds check rejects the wrapped value (collision and PLM grid probes),
 or a stepped coordinate decremented or incremented through the compatibility counter (`WrappingCounter`). The result
 is held as an `int` until it reaches its owner, whose `int` operations (`Position16.Of`, `Offset16.Of`,
-`Extent16.Of`, `SnesFixedPosition.Of`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
+`Extent16.Of`, `FixedCoordinate.Of`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
 left unwrapped fails where it is stored instead of being truncated there.
 
 ## Operations
@@ -98,13 +98,13 @@ left unwrapped fails where it is stored instead of being truncated there.
   `FixedVector ± FixedVector` (fraction carry/borrow, 32-bit wrap per axis), and
   `FixedPosition ± Offset16` / `FixedVector ± Offset16` (whole words only, wrapping at sixteen
   bits, fractions unchanged — the platform pushes into Samus's external displacement).
-- Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SnesSignedSixteenSixteen)`.
+- Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SignedSixteenSixteen)`.
 - Exact native construction: `FixedPosition.FromWords/FromWhole`, `FixedVector.FromWords`,
-  `FixedVector.FromWholePixels(Offset16)`, `SnesFixedPosition.FromRaw/RawValue` for one unsigned
-  16.16 axis; `SnesSignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
-  `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `SnesFixedPosition.Of`, each checked against its word.
+  `FixedVector.FromWholePixels(Offset16)`, `FixedCoordinate.FromRaw/RawValue` for one unsigned
+  16.16 axis; `SignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
+  `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `FixedCoordinate.Of`, each checked against its word.
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
-  one word: `SnesFixedPosition.WithWhole/WithFraction`, `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
+  one word: `FixedCoordinate.WithWhole/WithFraction`, `SignedSixteenSixteen.WithWholePixels/WithFraction`,
   `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and
   `FixedVector.WithWhole/WithWholeX/WithWholeY/WithFractionY`.
 - Reflection and reversal: `Offset16.MirroredX` (X negated, wrapping; Y kept) for facing-mirrored

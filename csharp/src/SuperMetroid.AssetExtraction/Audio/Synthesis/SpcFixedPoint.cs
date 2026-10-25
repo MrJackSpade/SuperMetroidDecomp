@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -28,10 +29,10 @@ internal static class SpcFixedPoint
     public static byte Fraction(int value) => unchecked((byte)value);
 
     /// <summary>The 8.8 word with whole part <paramref name="whole"/> and no fraction.</summary>
-    public static ushort FromWhole(int whole) => unchecked((ushort)(SnesEightEight.FromWhole(whole)));
+    public static ushort FromWhole(int whole) => unchecked((ushort)(EightEight.FromWhole(whole)));
 
     /// <summary>The 8.8 word with whole part <paramref name="whole"/> and fraction <paramref name="fraction"/>.</summary>
-    public static ushort Compose(int whole, int fraction) => unchecked((ushort)((SnesEightEight.FromWhole(whole)) | fraction));
+    public static ushort Compose(int whole, int fraction) => unchecked((ushort)((EightEight.FromWhole(whole)) | fraction));
 
     /// <summary>Replaces only the whole byte, as the driver's single-byte stores to a word's high half do.</summary>
     public static ushort WithWhole(int value, int whole) => Compose(whole, Fraction(value));

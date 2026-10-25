@@ -1,12 +1,12 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// The native 16.16 layout as raw arithmetic (#223): a whole word in the upper sixteen bits and a fraction word in
-/// the lower sixteen, for routines that combine or split velocities, speeds and positions in registers. The
-/// <c>int</c> overloads keep two's-complement sign (arithmetic shifts); the <c>uint</c> overloads are unsigned.
+/// Arithmetic on 16.16 fixed-point numbers (#223, #1420): sixteen whole bits above sixteen fraction bits, for the
+/// motion that combines or splits velocities, speeds and positions. The <c>int</c> overloads keep two's-complement
+/// sign (arithmetic shifts); the <c>uint</c> overloads are unsigned.
 /// </summary>
 [EncodingOwner("16.16 fixed-point number")]
-public static class SnesSixteenSixteen
+public static class SixteenSixteen
 {
     /// <summary>Sixteen low bits represent one pixel's fractional portion in a native 16.16 word.</summary>
     private const int FractionBits = 16;

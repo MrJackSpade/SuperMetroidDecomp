@@ -17,9 +17,9 @@ internal static class FallingSpeedRecurrenceVerification
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose };
             SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
-            samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
+            samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
             samus.HorizontalSpeed.AccelerationMode = previousMode;
-            samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(extraWhole, extraFraction);
+            samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(extraWhole, extraFraction);
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingLeftPose);
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating,
                 samus.HorizontalSpeed.AccelerationMode, "fall entry selects acceleration mode from extra speed");
@@ -32,7 +32,7 @@ internal static class FallingSpeedRecurrenceVerification
             var speed = new SamusHorizontalSpeedState
             {
                 AccelerationMode = SamusAccelerationMode.Decelerating,
-                BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x9800),
+                BaseSpeed = new UnsignedSixteenSixteen(2, 0x9800),
             };
             speed.SelectEnvironmentSpeedTable(medium);
             for (int frame = 0; frame < 20; frame++)

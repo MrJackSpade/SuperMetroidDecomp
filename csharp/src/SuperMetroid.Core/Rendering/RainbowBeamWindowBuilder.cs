@@ -47,7 +47,7 @@ internal static class RainbowBeamWindowBuilder
         if (originY is <= MotherBrainBeamDefinitions.FirstLine or >= MotherBrainBeamDefinitions.EndLine)
             throw new ArgumentOutOfRangeException(nameof(geometry), originY,
                 "Rainbow-beam mouth Y is outside its native scanline work area.");
-        int origin = SnesEightEight.FromWhole(beam.MouthScreenX);
+        int origin = EightEight.FromWhole(beam.MouthScreenX);
         var data = new ushort[MotherBrainBeamDefinitions.EndLine];
         Array.Fill(data, MissedLineWord);
         int count = originY - MotherBrainBeamDefinitions.FirstLine;
@@ -60,8 +60,8 @@ internal static class RainbowBeamWindowBuilder
         {
             int leftAngle = up ? b : a;
             int rightAngle = up ? a : b;
-            bool leftNegative = leftAngle >= SnesAngle.HalfTurn.TableIndex;
-            bool rightNegative = rightAngle >= SnesAngle.HalfTurn.TableIndex;
+            bool leftNegative = leftAngle >= RotationAngle.HalfTurn.TableIndex;
+            bool rightNegative = rightAngle >= RotationAngle.HalfTurn.TableIndex;
             int leftStep = Tangent(leftNegative ? -leftAngle : leftAngle) * (leftNegative ? -1 : 1);
             int rightStep = Tangent(rightNegative ? -rightAngle : rightAngle) * (rightNegative ? -1 : 1);
             int index = up ? count + 1 : count + 2;
@@ -71,7 +71,7 @@ internal static class RainbowBeamWindowBuilder
             {
                 left = Math.Clamp(left + leftStep, 0, ushort.MaxValue);
                 rightEdge = Math.Clamp(rightEdge + rightStep, 0, ushort.MaxValue);
-                int word = SnesEightEight.WholeOf(left) | (rightEdge & RightScreenEdge);
+                int word = EightEight.WholeOf(left) | (rightEdge & RightScreenEdge);
                 // Down-left uses zero as its off-screen sentinel; the other routines
                 // test FFFF. Keep that asymmetry instead of normalizing the native edges.
                 bool empty = down && leftNegative && rightNegative ? word == 0 : word == ushort.MaxValue;
@@ -98,7 +98,7 @@ internal static class RainbowBeamWindowBuilder
             {
                 edge += slope;
                 if (edge > ushort.MaxValue) break;
-                data[index] = (ushort)(SnesEightEight.WholeOf(edge) | RightScreenEdge);
+                data[index] = (ushort)(EightEight.WholeOf(edge) | RightScreenEdge);
             }
         }
     }

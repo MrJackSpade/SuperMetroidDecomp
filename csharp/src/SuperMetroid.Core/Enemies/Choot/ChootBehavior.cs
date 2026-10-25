@@ -119,7 +119,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         int upwardDisplacement = EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: true);
         uint fixedY = slot.Position.Y.RawValue;
         fixedY = unchecked(fixedY + (uint)upwardDisplacement);
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(fixedY)));
+        slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(fixedY)));
 
         state.YSpeedTableIndex -= 2;
         if (state.YSpeedTableIndex >= 0)
@@ -178,7 +178,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             tableIndex += 2;
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)EnemyMath.ReadQuadraticEnemySpeed(tableIndex, negative: false));
-            int wholeDistance = SnesFixedPosition.WholeOf(unchecked((int)accumulatedDistance));
+            int wholeDistance = FixedCoordinate.WholeOf(unchecked((int)accumulatedDistance));
             if (unchecked((short)(wholeDistance - jumpHeight)) >= 0)
                 return tableIndex;
         }

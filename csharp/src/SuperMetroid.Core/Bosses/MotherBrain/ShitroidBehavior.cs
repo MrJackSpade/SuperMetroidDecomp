@@ -606,13 +606,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             target.X,
             state.Velocity.X.RawValue,
             acceleration);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(checked((ushort)xVelocity)));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(checked((ushort)xVelocity)));
         (bool yArrived, int yVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.Y.Whole,
             target.Y,
             state.Velocity.Y.RawValue,
             acceleration);
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(checked((ushort)yVelocity)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(checked((ushort)yVelocity)));
         return xArrived && yArrived;
     }
 
@@ -634,7 +634,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         velocityWord = unchecked((ushort)velocity);
 
         int predicted = unchecked((short)(
-            current + unchecked((sbyte)(SnesEightEight.WholeOf(velocityWord))) - target));
+            current + unchecked((sbyte)(EightEight.WholeOf(velocityWord))) - target));
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
         if (crossed)
             velocityWord = 0;
@@ -669,15 +669,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the
             // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
-            SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
+            RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)),
                 unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-            SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
+            RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.Velocity += new EightEightVector<RoomPixels>(
-                new SnesSignedEightEight(EnemyMath.MultiplySineSample(64, angle.ToByteAngle())),
-                new SnesSignedEightEight(EnemyMath.MultiplySineSample(
+                new SignedEightEight(EnemyMath.MultiplySineSample(64, angle.ToByteAngle())),
+                new SignedEightEight(EnemyMath.MultiplySineSample(
                     64,
-                    angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
+                    angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle())));
             return;
         }
 
@@ -712,18 +712,18 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         BreakReleasedShitroidFollow(state);
-        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
+        RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
             unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.Position.X.Whole)),
             unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.Position.Y.Whole))));
-        SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
+        RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
         // The recoil strength is eight times the damage, kept to sixteen bits as the damage word's
         // multiple is, and capped at 240.
         int magnitude = Math.Min((int)unchecked((ushort)(8 * collisionDamage)), 240);
         state.Velocity += new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle())),
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(
+            new SignedEightEight(EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle())),
+            new SignedEightEight(EnemyMath.MultiplySineSample(
                 (ushort)magnitude,
-                angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
+                angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle())));
     }
 
     /// <summary>Ports <c>Shitroid_Powerbomb</c> at <c>$A9:EFBA</c>.</summary>

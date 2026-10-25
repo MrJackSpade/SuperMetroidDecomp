@@ -207,7 +207,8 @@ internal static class RoomBackgroundsFixtures
             FloorTileSheet.Tiles / FloorTileSheet.TilesPerRow * FloorTileSheet.TilePixels);
         SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [FloorTileSheet.FrameName] = default },
             size, "seeded Mode 7 tiles", SpriteImageColours.FullPalette);
-        return new FloorTileSheet(default, sheet, [.. Enumerable.Repeat((BgArtworkShown?)default(BgArtworkShown), FloorTileSheet.Tiles)]);
+        return new FloorTileSheet(default, sheet, [.. Enumerable.Repeat((BgArtworkShown?)default(BgArtworkShown), FloorTileSheet.Tiles)],
+            new byte[FloorMap.Cells]);
     }
 
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>

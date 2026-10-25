@@ -23,34 +23,19 @@ public static class CinematicGlowPaletteFxColorDefinitions
     /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
     private const ushort GunshipColorByte = 0x01fe;
 
-    /// <summary>Calculates both glow definitions in native definition order without retaining an array.</summary>
-    private sealed class ProgramEntries : IReadOnlyList<CinematicGlowPaletteFxColorDefinition>
-    {
-        /// <summary>One old Mother Brain light loop and one cinematic gunship loop.</summary>
-        public int Count => 2;
-        /// <summary>Selects the three-color, six-frame light pulse or one-color, five-frame gunship glow.</summary>
-        public CinematicGlowPaletteFxColorDefinition this[int index] =>
-            index switch
-            {
-                0 => new(
-                    CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
-                    PaletteFxObject.OldMotherBrainFightBackgroundLights, PaletteFxProgram.OldMotherBrainFightBGLights1, MotherBrainColorByte,
-                    colorsPerFrame: 3, frameDuration: 6),
-                1 => new(
-                    CinematicGlowPaletteFxProgramOwner.GunshipGlow,
-                    PaletteFxObject.GunshipGlow, PaletteFxProgram.GunshipGlow1, GunshipColorByte,
-                    colorsPerFrame: 1, frameDuration: 5),
-                _ => throw new ArgumentOutOfRangeException(nameof(index)),
-            };
-        /// <summary>Yields the Mother Brain then gunship glow program definitions.</summary>
-        public IEnumerator<CinematicGlowPaletteFxColorDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++)
-                yield return this[index];
-        }
-        /// <summary>Enumerates the same program pair through the non-generic collection interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-    /// <summary>The old-Mother-Brain and gunship glow programs in definition order.</summary>
-    public static IReadOnlyList<CinematicGlowPaletteFxColorDefinition> All { get; } = new ProgramEntries();
+    /// <summary>
+    /// The old-Mother-Brain and gunship glow programs in definition order: the three-color, six-frame light pulse,
+    /// then the one-color, five-frame gunship glow.
+    /// </summary>
+    public static IReadOnlyList<CinematicGlowPaletteFxColorDefinition> All { get; } =
+    [
+        new(
+            CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
+            PaletteFxObject.OldMotherBrainFightBackgroundLights, PaletteFxProgram.OldMotherBrainFightBGLights1, MotherBrainColorByte,
+            colorsPerFrame: 3, frameDuration: 6),
+        new(
+            CinematicGlowPaletteFxProgramOwner.GunshipGlow,
+            PaletteFxObject.GunshipGlow, PaletteFxProgram.GunshipGlow1, GunshipColorByte,
+            colorsPerFrame: 1, frameDuration: 5),
+    ];
 }

@@ -17,27 +17,32 @@ public static class RoomScrollStates
     public static byte ToStorageByte(this RoomScrollState state) => (byte)state;
 
     /// <summary>
-    /// The state a stored scroll-grid byte holds. The conversion is lossless: a byte that names no state, such as the
-    /// adjacent byte the camera's bottom-row read observes, travels through unchanged so callers can still tell it apart.
+    /// The state a stored scroll-grid byte gives the camera, which tells zero, one and every other value apart: a byte
+    /// past the three authored states, such as one a short explicit table copies from the following room definition,
+    /// scrolls as <see cref="RoomScrollState.Green"/> does.
     /// </summary>
-    public static RoomScrollState FromStorageByte(byte value) => (RoomScrollState)value;
+    public static RoomScrollState FromStorageByte(byte value) => value switch
+    {
+        0 => RoomScrollState.RedBoundary,
+        1 => RoomScrollState.Blue,
+        _ => RoomScrollState.Green,
+    };
 
     /// <summary>Whether <paramref name="value"/> is one of the three authored scroll states.</summary>
-    public static bool IsAuthoredByte(byte value) => Enum.IsDefined(FromStorageByte(value));
+    public static bool IsAuthoredByte(byte value) => Enum.IsDefined((RoomScrollState)value);
     /// <summary>
     /// Converts a cartridge-authored byte into its named state and reports the owning data
     /// source when an untranslated value enters a logical room cell.
     /// </summary>
     public static RoomScrollState FromAuthoredByte(byte value, string sourceContext)
     {
-        RoomScrollState state = FromStorageByte(value);
-        if (!Enum.IsDefined(state))
+        if (!IsAuthoredByte(value))
         {
             throw new NotSupportedException(
                 $"Room scroll state ${value:X2} from {sourceContext} is not translated.");
         }
 
-        return state;
+        return FromStorageByte(value);
     }
 
     /// <summary>Rejects undefined values passed through a typed host-side API.</summary>

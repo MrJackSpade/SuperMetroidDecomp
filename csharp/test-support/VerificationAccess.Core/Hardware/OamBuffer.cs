@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Rendering;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// SNES Object Attribute Memory staging buffer used by Super Metroid at WRAM
@@ -87,7 +89,7 @@ public sealed class OamBuffer
         {
             // $81:8907 parks a clipped sprite beyond the visible screen.
             calculatedX = ParkedX;
-            calculatedY = SnesPpuLayout.ScreenHeightPixels;
+            calculatedY = ScreenGeometry.ScreenHeightPixels;
         }
 
         int spriteIndex = NextByteOffset >> 2;
@@ -187,10 +189,10 @@ public sealed class OamBuffer
     {
         byte wrappedY = (byte)unsignedYSum;
         if (!offsetIsNegative)
-            return unsignedYSum >= ByteRange || wrappedY >= SnesPpuLayout.ScreenHeightPixels;
+            return unsignedYSum >= ByteRange || wrappedY >= ScreenGeometry.ScreenHeightPixels;
 
         // This is the deliberately literal form of $81:8800-$81:881C. Negative offsets
         // may legitimately wrap into $E0-$FF to appear partly above the screen.
-        return (unsignedYSum & ByteRange) != 0 ? wrappedY >= SnesPpuLayout.ScreenHeightPixels : wrappedY < SnesPpuLayout.ScreenHeightPixels;
+        return (unsignedYSum & ByteRange) != 0 ? wrappedY >= ScreenGeometry.ScreenHeightPixels : wrappedY < ScreenGeometry.ScreenHeightPixels;
     }
 }

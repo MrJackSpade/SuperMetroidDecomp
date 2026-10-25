@@ -27,7 +27,7 @@ internal static class D3D11FrameReadback
         {
             self.owner.VerifyOwner(); ObjectDisposedException.ThrowIf(self.disposed, self);
             if (self.renderedIdentity is null) throw new InvalidOperationException("No successful frame submission is available for readback.");
-            const int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
+            const int width = ScreenGeometry.ScreenWidthPixels, height = ScreenGeometry.ScreenHeightPixels;
             using ID3D11Texture2D staging = self.owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
                 width, height, 1, 1, BindFlags.None, ResourceUsage.Staging, CpuAccessFlags.Read));
             self.owner.Context.CSSetUnorderedAccessView(0, null);

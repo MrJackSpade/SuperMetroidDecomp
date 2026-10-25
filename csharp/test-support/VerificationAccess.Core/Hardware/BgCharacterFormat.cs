@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using SuperMetroid.Core.Rendering;
+using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Hardware;
 
@@ -22,7 +23,7 @@ public sealed class BgCharacterFormat
     public const int BytesPerPlanePairRow = PlanesPerPair;
 
     /// <summary>Bytes of one plane pair across the character's eight rows; the next pair starts this far on.</summary>
-    public const int BytesPerPlanePair = SnesPpuLayout.BackgroundTileSizePixels * BytesPerPlanePairRow;
+    public const int BytesPerPlanePair = ScreenGeometry.BackgroundTileSizePixels * BytesPerPlanePairRow;
 
     /// <summary>Captures the native two- or four-plane character depth used for palette and row strides.</summary>
     internal BgCharacterFormat(int bitsPerPixel) => BitsPerPixel = bitsPerPixel;
@@ -52,7 +53,7 @@ public sealed class BgCharacterFormat
     public int ColorIndexAt(ReadOnlySpan<byte> vram, int rowByteOffset, int column)
     {
         // The leftmost pixel is each plane byte's most significant bit.
-        int bit = SnesPpuLayout.BackgroundTileSizePixels - 1 - column;
+        int bit = ScreenGeometry.BackgroundTileSizePixels - 1 - column;
         int color = (vram[rowByteOffset] >> bit & 1) | (vram[rowByteOffset + 1] >> bit & 1) << 1;
         if (BitsPerPixel == FourBitsPerPixelDepth)
         {

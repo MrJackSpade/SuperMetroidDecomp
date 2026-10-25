@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -73,11 +73,11 @@ internal static class RoomFxNativeSources
 
     /// <summary>The liquid BG3 tilemap: one screen wide, two screens tall (32 by 64 characters).</summary>
     public static Extent16<TilemapCells> LiquidTilemapSize =>
-        new(SnesPpuLayout.TilemapPageWidthInTiles, 2 * SnesPpuLayout.TilemapPageWidthInTiles);
+        new(ScreenGeometry.TilemapScreenWidthInTiles, 2 * ScreenGeometry.TilemapScreenWidthInTiles);
 
     /// <summary>Rain and fog's BG3 tilemap: one 32-by-32 screen.</summary>
     public static Extent16<TilemapCells> FullScreenAtmosphereTilemapSize =>
-        new(SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles);
+        new(ScreenGeometry.TilemapScreenWidthInTiles, ScreenGeometry.TilemapScreenWidthInTiles);
 
     /// <summary>
     /// First word cleared by <c>Clear_FX_Tilemap</c> at $82:E566 and

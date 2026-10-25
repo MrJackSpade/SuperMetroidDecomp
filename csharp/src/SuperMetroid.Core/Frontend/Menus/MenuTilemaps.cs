@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
@@ -7,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal sealed class MenuTilemaps
 {
     /// <summary>Words in one 32x32 screen.</summary>
-    internal const int ScreenWords = SnesPpuLayout.TilemapPageWordCount;
+    internal const int ScreenWords = ScreenGeometry.TilemapScreenCellCount;
 
     /// <summary>The four screens, in their order: BG1, the area map's second screen, BG2, the area background.</summary>
     internal readonly ushort[] words = new ushort[4 * ScreenWords];

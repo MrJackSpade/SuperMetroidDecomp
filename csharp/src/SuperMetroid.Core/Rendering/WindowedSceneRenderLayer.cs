@@ -27,7 +27,7 @@ public sealed record WindowedSceneRenderLayer : RenderLayer
     {
         Ensure.NotNull(scene);
         if (left < 0 || top < 0 || right < left || bottom < top ||
-            right > SnesPpuLayout.ScreenWidthPixels || bottom > SnesPpuLayout.ScreenHeightPixels)
+            right > ScreenGeometry.ScreenWidthPixels || bottom > ScreenGeometry.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(left));
         foreach (RenderLayer layer in scene.Layers)
             if (layer is WindowedSceneRenderLayer) throw new ArgumentException("Nested scene insertions are unsupported.", nameof(scene));

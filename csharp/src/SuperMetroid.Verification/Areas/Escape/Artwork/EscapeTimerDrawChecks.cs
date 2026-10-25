@@ -74,7 +74,7 @@ internal static class EscapeTimerDrawChecks
         for (int index = 0; index < expected.Length; index++)
         {
             AssertEqual(expected[index], actual[index],
-                $"{message}: pixel ({index % SnesPpuLayout.ScreenSize.X}, {index / SnesPpuLayout.ScreenSize.X}) colour");
+                $"{message}: pixel ({index % ScreenGeometry.ScreenSize.X}, {index / ScreenGeometry.ScreenSize.X}) colour");
             if (expected[index] != backdrop[index])
                 opaque++;
         }

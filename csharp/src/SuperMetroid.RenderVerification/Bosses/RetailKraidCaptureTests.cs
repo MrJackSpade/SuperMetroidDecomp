@@ -165,7 +165,7 @@ internal static class RetailKraidCaptureTests
     /// </summary>
     private static Action<DisplayPacket> RequireSteadyHud(SuperMetroidRuntime runtime, string context)
     {
-        const int hudPixels = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.GameplayHudHeightPixels;
+        const int hudPixels = ScreenGeometry.ScreenWidthPixels * ScreenGeometry.GameplayHudHeightPixels;
         RgbaPixel[] before = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).AsSpan(0, hudPixels).ToArray();
         int frame = 0;
         return packet =>

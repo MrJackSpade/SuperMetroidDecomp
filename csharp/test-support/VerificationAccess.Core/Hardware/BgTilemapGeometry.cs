@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Rendering;
 using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// A background tilemap's geometry as BGnSC selects it (#223): one, two (horizontal or vertical) or four
-/// 32×32-character screens. Each screen is a contiguous <see cref="SnesPpuLayout.TilemapPageWordCount"/>-word
+/// 32×32-character screens. Each screen is a contiguous <see cref="ScreenGeometry.TilemapScreenCellCount"/>-word
 /// block stored row by row; screens are ordered left to right, then top to bottom.
 /// </summary>
 [PpuLayoutAccess]
@@ -15,9 +16,9 @@ public readonly record struct BgTilemapGeometry
     public BgTilemapGeometry(Extent16<TilemapCells> sizeInCharacters)
     {
         int widthInCharacters = sizeInCharacters.X, heightInCharacters = sizeInCharacters.Y;
-        if (widthInCharacters is not (SnesPpuLayout.TilemapPageWidthInTiles or 2 * SnesPpuLayout.TilemapPageWidthInTiles))
+        if (widthInCharacters is not (ScreenGeometry.TilemapScreenWidthInTiles or 2 * ScreenGeometry.TilemapScreenWidthInTiles))
             throw new ArgumentOutOfRangeException(nameof(widthInCharacters), widthInCharacters, "A BGSC tilemap is one or two screens wide.");
-        if (heightInCharacters is not (SnesPpuLayout.TilemapPageWidthInTiles or 2 * SnesPpuLayout.TilemapPageWidthInTiles))
+        if (heightInCharacters is not (ScreenGeometry.TilemapScreenWidthInTiles or 2 * ScreenGeometry.TilemapScreenWidthInTiles))
             throw new ArgumentOutOfRangeException(nameof(heightInCharacters), heightInCharacters, "A BGSC tilemap is one or two screens tall.");
         SizeInCharacters = sizeInCharacters;
     }
@@ -27,11 +28,11 @@ public readonly record struct BgTilemapGeometry
 
     /// <summary>Wraps a scrolled horizontal pixel into the map; scrolling past either edge repeats the map.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WrapX(int pixelX) => pixelX & (SizeInCharacters.X * SnesPpuLayout.BackgroundTileSizePixels - 1);
+    public int WrapX(int pixelX) => pixelX & (SizeInCharacters.X * ScreenGeometry.BackgroundTileSizePixels - 1);
 
     /// <summary>Wraps a scrolled vertical pixel into the map.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WrapY(int pixelY) => pixelY & (SizeInCharacters.Y * SnesPpuLayout.BackgroundTileSizePixels - 1);
+    public int WrapY(int pixelY) => pixelY & (SizeInCharacters.Y * ScreenGeometry.BackgroundTileSizePixels - 1);
 
     /// <summary>
     /// The VRAM word holding the entry for a character position: the screen containing it, then the
@@ -40,11 +41,11 @@ public readonly record struct BgTilemapGeometry
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int EntryWordAddress(int tilemapBaseWord, Position16<TilemapCells> character)
     {
-        const int screenSize = SnesPpuLayout.TilemapPageWidthInTiles;
+        const int screenSize = ScreenGeometry.TilemapScreenWidthInTiles;
         int characterX = character.X, characterY = character.Y;
         int screensPerRow = SizeInCharacters.X / screenSize;
         int screen = characterY / screenSize * screensPerRow + characterX / screenSize;
         int withinScreen = characterY % screenSize * screenSize + characterX % screenSize;
-        return SnesVramAddressing.WrapWord(tilemapBaseWord + screen * SnesPpuLayout.TilemapPageWordCount + withinScreen);
+        return SnesVramAddressing.WrapWord(tilemapBaseWord + screen * ScreenGeometry.TilemapScreenCellCount + withinScreen);
     }
 }

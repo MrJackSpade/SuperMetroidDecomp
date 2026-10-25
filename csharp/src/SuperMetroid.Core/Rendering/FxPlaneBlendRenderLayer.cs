@@ -36,11 +36,11 @@ public sealed record FxPlaneBlendRenderLayer : RenderLayer
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));
         if (firstRow < 0 || firstRow + mapHeightTiles > Layer3Plane.Rows) throw new ArgumentOutOfRangeException(nameof(firstRow));
-        if (firstScanline is < 0 or > SnesPpuLayout.ScreenHeightPixels)
+        if (firstScanline is < 0 or > ScreenGeometry.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(firstScanline));
         if (operation is not (ExpandedColorMathOperation.Add or ExpandedColorMathOperation.Subtract))
             throw new ArgumentOutOfRangeException(nameof(operation));
-        Ensure.LengthEqual(scrolls, SnesPpuLayout.ScreenHeightPixels);
+        Ensure.LengthEqual(scrolls, ScreenGeometry.ScreenHeightPixels);
         Plane = Ensure.NotNull(plane);
         FirstRow = firstRow;
         MapHeightTiles = mapHeightTiles;

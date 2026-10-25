@@ -13,7 +13,7 @@ public sealed class DisplayPacket
     /// <summary>RGBA color filling every output pixel when this is a solid-color packet; otherwise <see langword="null"/>. Outer brightness passes are still applied.</summary>
     public RgbaPixel? SolidColor { get; }
     /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
-    public Extent16<ScreenPixels> Size { get; } = SnesPpuLayout.ScreenSize;
+    public Extent16<ScreenPixels> Size { get; } = ScreenGeometry.ScreenSize;
     /// <summary>
     /// The fades the screen passes through after the scene's own brightness, in order. Do not multiply them into a single
     /// factor: each rounds its own result.

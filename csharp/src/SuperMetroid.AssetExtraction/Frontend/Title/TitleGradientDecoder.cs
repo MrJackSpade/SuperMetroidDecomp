@@ -20,7 +20,7 @@ public static class TitleGradientDecoder
             cartridge.ReadCartridgeWord(pointer);
         byte[] fixedWrites = Expand(cartridge, table);
         byte[] control = Expand(cartridge, FrontendSourceDefinitions.TitleGradientBlendTable);
-        var result = new TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
+        var result = new TitleGradientLine[ScreenGeometry.ScreenHeightPixels];
         byte red = 0, green = 0, blue = 0;
         for (int line = 0; line < result.Length; line++)
         {
@@ -36,7 +36,7 @@ public static class TitleGradientDecoder
     /// <summary>Expands one direct-mode HDMA table, retaining the last write after its zero terminator.</summary>
     private static byte[] Expand(IImportCartridgeSource cartridge, int cursor)
     {
-        var result = new byte[SnesPpuLayout.ScreenHeightPixels];
+        var result = new byte[ScreenGeometry.ScreenHeightPixels];
         int line = 0;
         byte previous = 0;
         while (line < result.Length)

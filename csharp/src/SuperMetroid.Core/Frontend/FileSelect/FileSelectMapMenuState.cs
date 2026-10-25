@@ -233,7 +233,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(marker),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapDefinitions.ReturnSetupFrames - 1 =>
                 Insert(Frame(), Area(), FileSelectMapDefinitions.EntryWindowLeft, FileSelectMapDefinitions.EntryWindowTop,
-                    FileSelectMapDefinitions.EntryWindowRight + 1, SnesPpuLayout.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
+                    FileSelectMapDefinitions.EntryWindowRight + 1, ScreenGeometry.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => Frame(),
             FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
@@ -249,7 +249,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
         Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
         int top = (byte)topLeft.Y;
-        int bottom = Math.Min(SnesPpuLayout.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
+        int bottom = Math.Min(ScreenGeometry.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
         int left = (byte)topLeft.X, right = (byte)bottomRight.X;
         // The legacy HDMA projection performs no row copies for a wholly off-screen
         // interval or crossed horizontal edges; resolve that before contract validation.

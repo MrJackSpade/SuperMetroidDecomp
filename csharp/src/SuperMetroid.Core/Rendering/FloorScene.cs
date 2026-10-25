@@ -45,7 +45,7 @@ public sealed record FloorScene
         Brightness = Ensure.BetweenInclusive(0, FadeLevel.Full, brightness);
         Paint = paint;
         Background = background;
-        if (!gradient.IsEmpty && gradient.Length != Hardware.SnesPpuLayout.ScreenHeightPixels)
+        if (!gradient.IsEmpty && gradient.Length != ScreenGeometry.ScreenHeightPixels)
             throw new ArgumentException("Title gradient requires 224 scanlines.", nameof(gradient));
         foreach (var line in gradient)
             if (!IsTitleGradientControl(line.Control))

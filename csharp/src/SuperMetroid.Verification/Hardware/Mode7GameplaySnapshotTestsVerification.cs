@@ -33,7 +33,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         {
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
             var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
-            var layer = new GameplayFloorRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, ToColors(palette)), AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), SnesPpuLayout.GameplayHudHeightPixels);
+            var layer = new GameplayFloorRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, ToColors(palette)), AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), ScreenGeometry.GameplayHudHeightPixels);
             var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
             AssertEqual(layer, (GameplayFloorRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)

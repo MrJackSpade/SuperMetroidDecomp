@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class RoomTilemapOverlay
 {
     /// <summary>Tilemap words in a two-screen tilemap.</summary>
-    public const int WordCount = 2 * SnesPpuLayout.TilemapPageWordCount;
+    public const int WordCount = 2 * ScreenGeometry.TilemapScreenCellCount;
 
     /// <summary>Marks a tilemap word the overlay leaves to the level data.</summary>
     public const int Unwritten = -1;

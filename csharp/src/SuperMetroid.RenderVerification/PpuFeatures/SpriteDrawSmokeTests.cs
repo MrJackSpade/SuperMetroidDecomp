@@ -81,7 +81,7 @@ internal static class SpriteDrawSmokeTests
 
             void ExpectPixel(int x, int y, RgbaPixel expected, string what)
             {
-                RgbaPixel actual = pixels[y * SnesPpuLayout.ScreenWidthPixels + x];
+                RgbaPixel actual = pixels[y * ScreenGeometry.ScreenWidthPixels + x];
                 if (actual.R != expected.R || actual.G != expected.G || actual.B != expected.B)
                     throw new InvalidOperationException($"{device.Kind}: {what}: pixel ({x},{y}) is {actual}, expected {expected}.");
             }

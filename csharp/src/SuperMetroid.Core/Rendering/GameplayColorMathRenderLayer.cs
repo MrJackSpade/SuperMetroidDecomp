@@ -35,7 +35,7 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
         Ensure.NotNull(gameplay);
         if (subscreenUsesBg2 && !blend.BlendsWithSubscreen)
             throw new ArgumentException("BG2 subscreen requires subscreen arithmetic.", nameof(subscreenUsesBg2));
-        Ensure.LengthEqual(lines, SnesPpuLayout.ScreenHeightPixels);
+        Ensure.LengthEqual(lines, ScreenGeometry.ScreenHeightPixels);
         Gameplay = gameplay;
         this.lines = lines.ToArray();
         RevealBlocks = revealBlocks;

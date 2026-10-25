@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
@@ -26,10 +27,10 @@ public sealed record PhantoonWave(int Mode, int Phase, int Amplitude, int BaseSc
     public ImmutableArray<ushort> GameplayScrolls()
     {
         ushort[] cycle = Cycle();
-        int lines = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
+        int lines = ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels;
         var scrolls = new ushort[lines];
         for (int line = 0; line < lines; line++)
-            scrolls[line] = cycle[(line + SnesPpuLayout.GameplayHudHeightPixels) % cycle.Length];
+            scrolls[line] = cycle[(line + ScreenGeometry.GameplayHudHeightPixels) % cycle.Length];
         return ImmutableArray.Create(scrolls);
     }
 }

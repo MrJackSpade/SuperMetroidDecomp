@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -90,8 +91,8 @@ public static class XrayRevealTilemap
         ushort ReadBg1(int x, int y)
         {
             var cell = new Position16<BgPlanePixels>(
-                unchecked((ushort)(scroll.X + (((x & 63) * SnesPpuLayout.BackgroundTileSizePixels - scroll.X) & (XrayTilemapLayout.TilemapPixelWidth - 1)))),
-                unchecked((ushort)(scroll.Y + (((y & 31) * SnesPpuLayout.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
+                unchecked((ushort)(scroll.X + (((x & 63) * ScreenGeometry.BackgroundTileSizePixels - scroll.X) & (XrayTilemapLayout.TilemapPixelWidth - 1)))),
+                unchecked((ushort)(scroll.Y + (((y & 31) * ScreenGeometry.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
             return bg1.TryTileAt(cell, out SnesBgTilemapWord tile) ? tile.Raw : (ushort)0;
         }
         void CopyMetatile(int destination, int metatile)

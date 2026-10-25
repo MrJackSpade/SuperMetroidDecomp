@@ -78,19 +78,12 @@ public sealed class SamusDeathSequenceState
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        var initialFrames =
-            SamusDeathSequenceDefinitions.InitialFramesByMovementType;
-        if ((byte)sourceMovementType >= initialFrames.Length)
-        {
-            throw new InvalidDataException(
-                $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
-        }
 
         FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
-        ushort initialFrame = initialFrames[(byte)sourceMovementType];
+        ushort initialFrame = SamusDeathSequenceDefinitions.InitialFrame(sourceMovementType);
 
         // Native initializes pose `$D7/$D8` normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced

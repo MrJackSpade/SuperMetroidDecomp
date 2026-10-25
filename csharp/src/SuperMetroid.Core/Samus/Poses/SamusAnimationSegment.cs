@@ -72,12 +72,12 @@ internal sealed class SamusAnimationSegment
         if ((uint)offset >= Length) throw new ArgumentOutOfRangeException(nameof(offset));
         if (offset < delays.Length) return delays[offset];
         int operand = offset - delays.Length;
-        if (operand == 0) return (byte)Command;
+        if (operand == 0) return SamusAnimationOpcodeCodec.Opcode(Command);
         return Command switch
         {
             SamusAnimationCommand.RepeatFrom => (byte)(CommandOffset - RepeatOffset),
             SamusAnimationCommand.TurnTransition or SamusAnimationCommand.Transition =>
-                operand == 1 ? (byte)UnequippedGrounded : (byte)0,
+                operand == 1 ? SamusPoseNumbering.Number(UnequippedGrounded) : (byte)0,
             SamusAnimationCommand.Hold or SamusAnimationCommand.LoopUnlessLowEnergy or
                 SamusAnimationCommand.InstallDrainedFall or SamusAnimationCommand.ItemAirborneTransition or
                 SamusAnimationCommand.WallJumpSelect or SamusAnimationCommand.ItemTransition or
@@ -85,11 +85,11 @@ internal sealed class SamusAnimationSegment
             {
                 1 => unchecked((byte)Item.ToEquipmentWord()),
                 2 => SnesLittleEndian.HighByte(Item.ToEquipmentWord()),
-                3 => (byte)UnequippedGrounded,
+                3 => SamusPoseNumbering.Number(UnequippedGrounded),
                 // $FC's equipped pose immediately follows its unequipped pose.
-                4 => (byte)(Command == SamusAnimationCommand.ItemTransition ? EquippedGrounded : UnequippedAirborne),
-                5 => (byte)EquippedGrounded,
-                _ => (byte)EquippedAirborne,
+                4 => SamusPoseNumbering.Number(Command == SamusAnimationCommand.ItemTransition ? EquippedGrounded : UnequippedAirborne),
+                5 => SamusPoseNumbering.Number(EquippedGrounded),
+                _ => SamusPoseNumbering.Number(EquippedAirborne),
             },
             _ => throw new InvalidOperationException($"Undefined SamusAnimationCommand {Command}."),
         };

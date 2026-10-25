@@ -23,7 +23,7 @@ internal static class XrayTilemapVerification
             definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
-        ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(248, 248), new(16, 16), area);
+        ushort[] Build(AreaId area = AreaId.Brinstar) => XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(248, 248), new(16, 16), area);
         void Set(int index, RoomCollisionType type, byte bts)
         {
             level.SetPlmForegroundEntry(index, (ushort)((int)type << 12));
@@ -54,7 +54,7 @@ internal static class XrayTilemapVerification
         AssertEqual(basis[1024], edge[1024], "last first-screen column does not write into the second screen");
         Set(40, RoomCollisionType.SpecialBlock, 0x82);
         AssertEqual(0xb6 * 4, Build()[14], "Brinstar-only reveal is applied in Brinstar");
-        AssertEqual(basis[14], Build((byte)AreaId.Crateria)[14], "Brinstar-only reveal preserves copied art elsewhere");
+        AssertEqual(basis[14], Build(AreaId.Crateria)[14], "Brinstar-only reveal preserves copied art elsewhere");
         Console.WriteLine("  X-ray tilemap: BG1 screen wrapping, four-piece reveals, left predecessor, right-edge suppression and area gate agree.");
     }
 }

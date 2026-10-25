@@ -374,7 +374,7 @@ public sealed class SamusBombProjectileSystem
         // The outer $90:BF9D test uses held Shoot. Both item branches eventually call
         // helper two, which separately insists on the newly-pressed bit.
         const ControllerButton shoot = ControllerButton.X;
-        if ((controllerInput & shoot) == 0)
+        if ((controllerInput & shoot) == ControllerButton.None)
             return null;
 
         bool placingPowerBomb = samus.SelectedHudItem == HudItem.PowerBomb;
@@ -444,7 +444,7 @@ public sealed class SamusBombProjectileSystem
         SamusState samus,
         ControllerButton controllerInput)
     {
-        bool shootHeld = (controllerInput & ControllerButton.X) != 0;
+        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         if (!shootHeld)
         {
             // The outer Morph-Ball handler cancels charge before testing HUD selection
@@ -466,7 +466,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
         }
 
-        if ((controllerInput & ControllerButton.Down) != 0 &&
+        if ((controllerInput & ControllerButton.Down) != ControllerButton.None &&
             (samus.BombSpreadChargeTimeoutCounter &
                 MorphBallBombDefinitions.DownChargeTimeoutMask) <
                 MorphBallBombDefinitions.DownChargeTimeoutMask)
@@ -513,7 +513,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing only the cooldown's low byte after the first bomb.</summary>
     private bool TryReserveBombSlot(ControllerButton controllerNewInput, ControllerButton shoot)
     {
-        if ((controllerNewInput & shoot) == 0)
+        if ((controllerNewInput & shoot) == ControllerButton.None)
             return false;
 
         // $90:C0E7 allows the first bomb regardless of cooldown. With any active bomb,
@@ -593,7 +593,7 @@ public sealed class SamusBombProjectileSystem
             // retail producer installs another family in these semantic slots; seeing
             // one means the host-side slot model was mutated inconsistently.
             throw new InvalidDataException(
-                $"Bomb slot {slot.Index} has invalid projectile family ${(ushort)typeFamily:X4}.");
+                $"Bomb slot {slot.Index} has invalid projectile family {typeFamily}.");
         }
 
         bool explosionStarted = false;
@@ -939,7 +939,7 @@ public sealed class SamusBombProjectileSystem
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
                 // caller-composition error rather than untranslated cartridge behavior.
                 throw new InvalidOperationException(
-                    $"Bombed block reaction type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
+                    $"Bombed block reaction type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -998,7 +998,7 @@ public sealed class SamusBombProjectileSystem
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed shootable type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
+                    $"Bombed shootable type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -1033,7 +1033,7 @@ public sealed class SamusBombProjectileSystem
         // type 5/D either resolves to its parent or returned before this dispatcher. Keep
         // the guard for corrupted packed words, but do not label it missing behavior.
         throw new InvalidDataException(
-            $"Bombed block reaction reached impossible type ${(int)block.CollisionType:X1}/" +
+            $"Bombed block reaction reached impossible type {block.CollisionType}/" +
             $"BTS ${block.Bts.Value:X2} at ({x},{y}).");
     }
 
@@ -1076,7 +1076,7 @@ public sealed class SamusBombProjectileSystem
             SamusBombProjectileSlot slot = _slots[slotIndex];
             if (slot.Damage == 0 ||
                 (slot.Type & SamusProjectileTypeWord.LiveMarker) != 0 ||
-                slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.BeamExplosion ||
+                slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.BeamExplosion) ||
                 (slot.Direction & SamusProjectileDirectionMasks.Spent) != 0)
             {
                 continue;

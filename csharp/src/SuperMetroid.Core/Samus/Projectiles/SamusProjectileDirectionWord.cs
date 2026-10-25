@@ -17,8 +17,8 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
 
     /// <summary>Direction-table index, 0 through 15, held in the word's low four bits; 0 through 9 name a direction.</summary>
     public int DirectionIndex => Raw & DirectionMask;
-    /// <summary>Named direction represented by the low nibble.</summary>
-    public SamusProjectileDirection Direction => (SamusProjectileDirection)DirectionIndex;
+    /// <summary>The direction the low nibble names, or null for the six indices past the ten directions.</summary>
+    public SamusProjectileDirection? Direction => SamusProjectileDirectionCodec.TryFromAimIndex(DirectionIndex);
 
     /// <summary>
     /// Native pre-instructions treat any state in bits 4–7 as a lifecycle transition and

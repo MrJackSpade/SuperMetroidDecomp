@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -9,10 +10,27 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// </summary>
 public sealed class XrayRevealVisualCatalog
 {
-    /// <summary>Installed visual operands indexed by collision nibble and BTS byte.</summary>
+    /// <summary>The number of BTS values a collision type's visuals span.</summary>
+    private const int BtsValueCount = byte.MaxValue + 1;
+
+    /// <summary>The collision types in the order the visual store lays out their BTS spans.</summary>
+    private static readonly RoomCollisionType[] TypeOrder =
+    [
+        RoomCollisionType.Air, RoomCollisionType.Slope, RoomCollisionType.SpikeAir, RoomCollisionType.SpecialAir,
+        RoomCollisionType.ShootableAir, RoomCollisionType.HorizontalExtension, RoomCollisionType.UnusedAir,
+        RoomCollisionType.BombableAir, RoomCollisionType.SolidBlock, RoomCollisionType.DoorBlock,
+        RoomCollisionType.SpikeBlock, RoomCollisionType.SpecialBlock, RoomCollisionType.ShootableBlock,
+        RoomCollisionType.VerticalExtension, RoomCollisionType.GrappleBlock, RoomCollisionType.BombableBlock,
+    ];
+
+    /// <summary>Each collision type's position in <see cref="TypeOrder"/>.</summary>
+    private static readonly FrozenDictionary<RoomCollisionType, int> TypePosition =
+        TypeOrder.Select((type, position) => (type, position)).ToFrozenDictionary(entry => entry.type, entry => entry.position);
+
+    /// <summary>Installed visual operands indexed by collision type and BTS byte.</summary>
     /// <remarks>
-    /// Issue #1037: the exact index is (type &lt;&lt; 8) | bts over 16 native
-    /// collision nibbles and 256 unsigned BTS values. Of 4096 possible
+    /// Issue #1037: the index is the type's position times the 256 unsigned BTS values, plus the BTS, over the 16
+    /// collision types. Of 4096 possible
     /// slots, the pinned NTSC J/U v1.0 ROM has 305 drawable pairs; the
     /// constructor requires exactly those pairs and rejects duplicates.
     /// Stock operands come from bank-$91 reveal command records and all
@@ -22,7 +40,10 @@ public sealed class XrayRevealVisualCatalog
     /// single ROM-derived formula can reproduce every valid installation:
     /// retain this bounded indexed store for the selected visual data.
     /// </remarks>
-    private readonly XrayRevealVisualWords?[] words = new XrayRevealVisualWords?[16 * 256];
+    private readonly XrayRevealVisualWords?[] words = new XrayRevealVisualWords?[16 * BtsValueCount];
+
+    /// <summary>Where a collision type and BTS pair's visuals sit in the store.</summary>
+    private static int Index(RoomCollisionType type, int bts) => TypePosition[type] * BtsValueCount + bts;
 
     /// <summary>Creates a complete visual replacement for every drawable native rule.</summary>
     /// <param name="entries">Exactly one set of visual operands for each drawable collision-nibble/BTS pair; native command selection and copy geometry remain fixed.</param>
@@ -39,7 +60,7 @@ public sealed class XrayRevealVisualCatalog
             if (native is not { } definition || !IsDrawable(definition.Command))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/BTS ${bts:X2} has no drawable cartridge rule.");
-            int index = ((int)type << 8) | bts;
+            int index = Index(type, bts);
             if (words[index] is not null)
                 throw new InvalidDataException(
                     $"X-ray visual {type}/BTS ${bts:X2} appears more than once.");
@@ -51,7 +72,7 @@ public sealed class XrayRevealVisualCatalog
         {
             bool drawable = XrayRevealTable.Find(type, unchecked((byte)bts)) is { } definition &&
                 IsDrawable(definition.Command);
-            if (drawable != (words[((int)type << 8) | bts] is not null))
+            if (drawable != (words[Index(type, bts)] is not null))
                 throw new InvalidDataException(
                     $"X-ray visual catalog does not cover cartridge rule {type}/BTS ${bts:X2}.");
         }
@@ -84,7 +105,7 @@ public sealed class XrayRevealVisualCatalog
     {
         if (XrayRevealTable.Find(type, bts) is not { } native) return null;
         if (!IsDrawable(native.Command)) return native;
-        XrayRevealVisualWords visual = words[((int)type << 8) | bts] ??
+        XrayRevealVisualWords visual = words[Index(type, bts)] ??
             throw new InvalidDataException($"Missing X-ray visual {type}/BTS ${bts:X2}.");
         return native with
         {

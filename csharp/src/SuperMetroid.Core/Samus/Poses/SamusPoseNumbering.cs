@@ -1,0 +1,33 @@
+namespace SuperMetroid.Core.Samus.Poses;
+
+/// <summary>
+/// The cartridge's pose numbering: pose <c>n</c> is the <c>n</c>th record of the 253-record pose tables, and the
+/// three numbers past them read adjacent code. Core keeps the numbers only where the cartridge's arithmetic on them
+/// is gameplay-observable or an installed table is laid out by them: the animation delay streams name their
+/// transition poses by number, the HUD's posture admission and the adjacent-code poses' delay programs over-read
+/// tables by number, and the installed Samus artwork holds one entry per numbered pose. This is the one place a pose
+/// becomes its number or a number its pose.
+/// </summary>
+[SnesEncodingOwner]
+internal static class SamusPoseNumbering
+{
+    /// <summary>The number of poses with records in the cartridge's pose tables.</summary>
+    internal const int RecordCount = 253;
+
+    /// <summary>The poses with records, in number order.</summary>
+    internal static IReadOnlyList<SamusPoseId> Recorded { get; } =
+        [.. Enumerable.Range(0, RecordCount).Select(number => FromNumber(number))];
+
+    /// <summary>The pose's number.</summary>
+    internal static byte Number(SamusPoseId pose) => (byte)pose;
+
+    /// <summary>The pose a number names.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The number is outside a byte.</exception>
+    internal static SamusPoseId FromNumber(int number) =>
+        (uint)number <= byte.MaxValue
+            ? (SamusPoseId)number
+            : throw new ArgumentOutOfRangeException(nameof(number), number, "A pose number is one byte.");
+
+    /// <summary>Whether the pose has a record in the pose tables, rather than reading the code past them.</summary>
+    internal static bool HasRecord(SamusPoseId pose) => Number(pose) < RecordCount;
+}

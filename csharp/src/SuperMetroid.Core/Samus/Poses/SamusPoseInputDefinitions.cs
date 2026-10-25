@@ -54,85 +54,20 @@ internal static class SamusPoseInputDefinitions
         SamusPoseInputList.MoonwalkTurnJumpAimDownLeftPoseList,
         SamusPoseInputList.MoonwalkTurnJumpAimDownRightPoseList,
     }.ToFrozenSet();
-    /// <summary>Pose $45, UNUSED_TransitionTable_45_91A7CC: preserved unused transition target.</summary>
-    internal const SamusPoseId UnusedPose45 = (SamusPoseId)0x45;
-    /// <summary>Pose $46, UNUSED_TransitionTable_46_91A7E0: preserved unused transition target.</summary>
-    internal const SamusPoseId UnusedPose46 = (SamusPoseId)0x46;
-
-    /// <summary>Pose $39, TransitionTable pointer at $91:9F54: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose39 = (SamusPoseId)0x39;
-    /// <summary>Pose $3A, TransitionTable pointer at $91:9F56: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose3A = (SamusPoseId)0x3a;
-    /// <summary>Pose $3F, TransitionTable pointer at $91:9F60: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose3F = (SamusPoseId)0x3f;
-    /// <summary>Pose $40, TransitionTable pointer at $91:9F62: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose40 = (SamusPoseId)0x40;
-    /// <summary>Pose $5D, TransitionTable pointer at $91:9F9C: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose5D = (SamusPoseId)0x5d;
-    /// <summary>Pose $5E, TransitionTable pointer at $91:9F9E: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose5E = (SamusPoseId)0x5e;
-    /// <summary>Pose $5F, TransitionTable pointer at $91:9FA0: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose5F = (SamusPoseId)0x5f;
-    /// <summary>Pose $60, TransitionTable pointer at $91:9FA2: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose60 = (SamusPoseId)0x60;
-    /// <summary>Pose $61, TransitionTable pointer at $91:9FA4: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose61 = (SamusPoseId)0x61;
-    /// <summary>Pose $62, TransitionTable pointer at $91:9FA6: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose62 = (SamusPoseId)0x62;
-    /// <summary>Pose $AC, TransitionTable pointer at $91:A03A: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseAC = (SamusPoseId)0xac;
-    /// <summary>Pose $AD, TransitionTable pointer at $91:A03C: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseAD = (SamusPoseId)0xad;
-    /// <summary>Pose $AE, TransitionTable pointer at $91:A03E: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseAE = (SamusPoseId)0xae;
-    /// <summary>Pose $AF, TransitionTable pointer at $91:A040: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseAF = (SamusPoseId)0xaf;
-    /// <summary>Pose $B0, TransitionTable pointer at $91:A042: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseB0 = (SamusPoseId)0xb0;
-    /// <summary>Pose $B1, TransitionTable pointer at $91:A044: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseB1 = (SamusPoseId)0xb1;
-    /// <summary>Pose $C5, TransitionTable pointer at $91:A06C: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseC5 = (SamusPoseId)0xc5;
-    /// <summary>Pose $C6, TransitionTable pointer at $91:A06E: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePoseC6 = (SamusPoseId)0xc6;
-    /// <summary>Pose $20, TransitionTable pointer at $91:9F22: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose20 = (SamusPoseId)0x20;
-    /// <summary>Pose $21, TransitionTable pointer at $91:9F24: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose21 = (SamusPoseId)0x21;
-    /// <summary>Pose $22, TransitionTable pointer at $91:9F26: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose22 = (SamusPoseId)0x22;
-    /// <summary>Pose $24, TransitionTable pointer at $91:9F2A: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose24 = (SamusPoseId)0x24;
-    /// <summary>Pose $23, TransitionTable pointer at $91:9F28: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose23 = (SamusPoseId)0x23;
-    /// <summary>Pose $42, TransitionTable pointer at $91:9F66: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose42 = (SamusPoseId)0x42;
-    /// <summary>Pose $47, TransitionTable pointer at $91:9F70: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose47 = (SamusPoseId)0x47;
-    /// <summary>Pose $48, TransitionTable pointer at $91:9F72: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose48 = (SamusPoseId)0x48;
-    /// <summary>Pose $5B, TransitionTable pointer at $91:9F98: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose5B = (SamusPoseId)0x5b;
-    /// <summary>Pose $5C, TransitionTable pointer at $91:9F9A: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose5C = (SamusPoseId)0x5c;
-    /// <summary>Pose $63, TransitionTable pointer at $91:9FA8: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose63 = (SamusPoseId)0x63;
-    /// <summary>Pose $64, TransitionTable pointer at $91:9FAA: preserved native input-dispatch identity.</summary>
-    private const SamusPoseId NativePose64 = (SamusPoseId)0x64;
 
     /// <summary>Maps a supported pose to its bank-91 transition list, preserving shared and empty-list identities.</summary>
     /// <returns>False only when the pose lies beyond the native 253-pose dispatch table.</returns>
     internal static bool TryGetInputList(SamusPoseId pose, out SamusPoseInputList inputList)
     {
-        // Indexes past the 253 native poses read adjacent bank-$91 code, not a graph.
-        if ((int)pose >= SuperMetroid.Core.Samus.Artwork.SamusBodyArtworkCatalog.PoseCount)
+        // The poses past the 253 native records read adjacent bank-$91 code, not a graph.
+        if (pose is SamusPoseId.AdjacentCodePoseFD or SamusPoseId.AdjacentCodePoseFE or SamusPoseId.AdjacentCodePoseFF)
         {
             inputList = default;
             return false;
         }
         inputList = pose switch
         {
-            SamusPoseId.TurningRightToLeftJumpPose or SamusPoseId.TurningLeftToRightJumpPose or SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or NativePose39 or NativePose3A or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose or NativePose3F or NativePose40 or SamusPoseId.TurningRightToLeftCrouchingPose or SamusPoseId.TurningLeftToRightCrouchingPose or NativePose5D or NativePose5E or NativePose5F or NativePose60 or NativePose61 or NativePose62 or SamusPoseId.TurningRightToLeftFallingPose or SamusPoseId.TurningLeftToRightFallingPose or SamusPoseId.TurningRightToLeftJumpAimUpPose or SamusPoseId.TurningLeftToRightJumpAimUpPose or SamusPoseId.TurningRightToLeftJumpAimDownPose or SamusPoseId.TurningLeftToRightJumpAimDownPose or SamusPoseId.TurningRightToLeftFallingAimUpPose or SamusPoseId.TurningLeftToRightFallingAimUpPose or SamusPoseId.TurningRightToLeftFallingAimDownPose or SamusPoseId.TurningLeftToRightFallingAimDownPose or SamusPoseId.TurningRightToLeftCrouchingAimUpPose or SamusPoseId.TurningLeftToRightCrouchingAimUpPose or SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or SamusPoseId.TurningRightToLeftAimDiagonalUpPose or SamusPoseId.TurningLeftToRightAimDiagonalUpPose or SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or SamusPoseId.GrappleStandingRightPose or SamusPoseId.GrappleStandingLeftPose or SamusPoseId.GrappleStandingDownRightPose or SamusPoseId.GrappleStandingDownLeftPose or NativePoseAC or NativePoseAD or NativePoseAE or NativePoseAF or NativePoseB0 or NativePoseB1 or SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose or SamusPoseId.GrappleCrouchingRightPose or SamusPoseId.GrappleCrouchingLeftPose or SamusPoseId.GrappleCrouchingDownRightPose or SamusPoseId.GrappleCrouchingDownLeftPose or SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose or NativePoseC5 or NativePoseC6 or SamusPoseId.ShinesparkHorizontalRightPose or SamusPoseId.ShinesparkHorizontalLeftPose or SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose or SamusPoseId.ShinesparkDiagonalRightPose or SamusPoseId.ShinesparkDiagonalLeftPose or SamusPoseId.CrystalFlashRightPose or SamusPoseId.CrystalFlashLeftPose or SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose or SamusPoseId.XrayingCrouchingRightPose or SamusPoseId.XrayingCrouchingLeftPose or SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc or SamusPoseId.UnusedPoseDd or SamusPoseId.UnusedPoseDe or SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose or SamusPoseId.CrouchingTransitionAimUpRightPose or SamusPoseId.CrouchingTransitionAimUpLeftPose or SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or SamusPoseId.StandingTransitionAimUpRightPose or SamusPoseId.StandingTransitionAimUpLeftPose or SamusPoseId.StandingTransitionAimDiagonalUpRightPose or SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or SamusPoseId.StandingTransitionAimDiagonalDownRightPose or SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => EmptyTransitionList,
+            SamusPoseId.TurningRightToLeftJumpPose or SamusPoseId.TurningLeftToRightJumpPose or SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or SamusPoseId.UnusedPose39 or SamusPoseId.UnusedPose3A or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose or SamusPoseId.UnusedPose3F or SamusPoseId.UnusedPose40 or SamusPoseId.TurningRightToLeftCrouchingPose or SamusPoseId.TurningLeftToRightCrouchingPose or SamusPoseId.UnusedPose5D or SamusPoseId.UnusedPose5E or SamusPoseId.UnusedPose5F or SamusPoseId.UnusedPose60 or SamusPoseId.UnusedPose61 or SamusPoseId.UnusedPose62 or SamusPoseId.TurningRightToLeftFallingPose or SamusPoseId.TurningLeftToRightFallingPose or SamusPoseId.TurningRightToLeftJumpAimUpPose or SamusPoseId.TurningLeftToRightJumpAimUpPose or SamusPoseId.TurningRightToLeftJumpAimDownPose or SamusPoseId.TurningLeftToRightJumpAimDownPose or SamusPoseId.TurningRightToLeftFallingAimUpPose or SamusPoseId.TurningLeftToRightFallingAimUpPose or SamusPoseId.TurningRightToLeftFallingAimDownPose or SamusPoseId.TurningLeftToRightFallingAimDownPose or SamusPoseId.TurningRightToLeftCrouchingAimUpPose or SamusPoseId.TurningLeftToRightCrouchingAimUpPose or SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or SamusPoseId.TurningRightToLeftAimDiagonalUpPose or SamusPoseId.TurningLeftToRightAimDiagonalUpPose or SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or SamusPoseId.GrappleStandingRightPose or SamusPoseId.GrappleStandingLeftPose or SamusPoseId.GrappleStandingDownRightPose or SamusPoseId.GrappleStandingDownLeftPose or SamusPoseId.UnusedPoseAC or SamusPoseId.UnusedPoseAD or SamusPoseId.UnusedPoseAE or SamusPoseId.UnusedPoseAF or SamusPoseId.UnusedPoseB0 or SamusPoseId.UnusedPoseB1 or SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose or SamusPoseId.GrappleCrouchingRightPose or SamusPoseId.GrappleCrouchingLeftPose or SamusPoseId.GrappleCrouchingDownRightPose or SamusPoseId.GrappleCrouchingDownLeftPose or SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose or SamusPoseId.UnusedPoseC5 or SamusPoseId.UnusedPoseC6 or SamusPoseId.ShinesparkHorizontalRightPose or SamusPoseId.ShinesparkHorizontalLeftPose or SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose or SamusPoseId.ShinesparkDiagonalRightPose or SamusPoseId.ShinesparkDiagonalLeftPose or SamusPoseId.CrystalFlashRightPose or SamusPoseId.CrystalFlashLeftPose or SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose or SamusPoseId.XrayingCrouchingRightPose or SamusPoseId.XrayingCrouchingLeftPose or SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc or SamusPoseId.UnusedPoseDd or SamusPoseId.UnusedPoseDe or SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose or SamusPoseId.CrouchingTransitionAimUpRightPose or SamusPoseId.CrouchingTransitionAimUpLeftPose or SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or SamusPoseId.StandingTransitionAimUpRightPose or SamusPoseId.StandingTransitionAimUpLeftPose or SamusPoseId.StandingTransitionAimDiagonalUpRightPose or SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or SamusPoseId.StandingTransitionAimDiagonalDownRightPose or SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => EmptyTransitionList,
             SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose => ForwardFacingPowerSuitPoseList,
             SamusPoseId.FacingRightNormalPose or SamusPoseId.StandingAimUpRightPose or SamusPoseId.StandingAimDiagonalUpRightPose or SamusPoseId.StandingAimDiagonalDownRightPose or SamusPoseId.NormalLandingRightPose or SamusPoseId.SpinLandingRightPose or SamusPoseId.LandingAimUpRightPose or SamusPoseId.LandingAimDiagonalUpRightPose or SamusPoseId.LandingAimDiagonalDownRightPose or SamusPoseId.FiringLandingRightPose => FacingRightNormalPoseList,
             SamusPoseId.FacingLeftNormalPose or SamusPoseId.StandingAimUpLeftPose or SamusPoseId.StandingAimDiagonalUpLeftPose or SamusPoseId.StandingAimDiagonalDownLeftPose or SamusPoseId.NormalLandingLeftPose or SamusPoseId.SpinLandingLeftPose or SamusPoseId.LandingAimUpLeftPose or SamusPoseId.LandingAimDiagonalUpLeftPose or SamusPoseId.LandingAimDiagonalDownLeftPose or SamusPoseId.FiringLandingLeftPose => FacingLeftNormalPoseList,
@@ -154,9 +89,9 @@ internal static class SamusPoseInputDefinitions
             SamusPoseId.MorphBallMovingRightPose => MorphBallMovingRightPoseList,
             SamusPoseId.MorphBallMovingLeftPose => MorphBallMovingLeftPoseList,
             SamusPoseId.MorphBallGroundLeftPose => MorphBallGroundLeftPoseList,
-            NativePose20 or NativePose21 or NativePose22 or NativePose24 => UnusedPose20List,
-            NativePose23 => UnusedPose23List,
-            NativePose42 => UnusedPose42List,
+            SamusPoseId.UnusedPose20 or SamusPoseId.UnusedPose21 or SamusPoseId.UnusedPose22 or SamusPoseId.UnusedPose24 => UnusedPose20List,
+            SamusPoseId.UnusedPose23 => UnusedPose23List,
+            SamusPoseId.UnusedPose42 => UnusedPose42List,
             SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingAimDiagonalUpRightPose or SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimUpRightPose => CrouchingRightPoseList,
             SamusPoseId.CrouchingLeftPose or SamusPoseId.CrouchingAimDiagonalUpLeftPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose or SamusPoseId.CrouchingAimUpLeftPose => CrouchingLeftPoseList,
             SamusPoseId.FallingRightPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimDiagonalUpRightPose or SamusPoseId.FallingAimDiagonalDownRightPose => FallingRightPoseList,
@@ -165,24 +100,24 @@ internal static class SamusPoseInputDefinitions
             SamusPoseId.MorphBallFallingLeftPose => MorphBallFallingLeftPoseList,
             SamusPoseId.UnusedKnockbackRightPose => UnusedKnockbackRightPoseList,
             SamusPoseId.UnusedKnockbackLeftPose => UnusedKnockbackLeftPoseList,
-            UnusedPose45 => UnusedPose45List,
-            UnusedPose46 => UnusedPose46List,
-            NativePose47 => UnusedPose47List,
-            NativePose48 => UnusedPose48List,
+            SamusPoseId.UnusedPose45 => UnusedPose45List,
+            SamusPoseId.UnusedPose46 => UnusedPose46List,
+            SamusPoseId.UnusedPose47 => UnusedPose47List,
+            SamusPoseId.UnusedPose48 => UnusedPose48List,
             SamusPoseId.MoonwalkFacingLeftPose or SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimDownLeftPose => MoonwalkFacingLeftPoseList,
             SamusPoseId.MoonwalkFacingRightPose or SamusPoseId.MoonwalkAimUpRightPose or SamusPoseId.MoonwalkAimDownRightPose => MoonwalkFacingRightPoseList,
             SamusPoseId.KnockbackRightPose => KnockbackRightPoseList,
             SamusPoseId.KnockbackLeftPose => KnockbackLeftPoseList,
-            NativePose5B => UnusedPose5BList,
-            NativePose5C => UnusedPose5CList,
+            SamusPoseId.UnusedPose5B => UnusedPose5BList,
+            SamusPoseId.UnusedPose5C => UnusedPose5CList,
             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallMovingRightPose => SpringBallGroundRightPoseList,
             SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingLeftPose => SpringBallGroundLeftPoseList,
             SamusPoseId.SpringBallFallingRightPose => SpringBallFallingRightPoseList,
             SamusPoseId.SpringBallFallingLeftPose => SpringBallFallingLeftPoseList,
             SamusPoseId.SpringBallJumpRightPose => SpringBallJumpRightPoseList,
             SamusPoseId.SpringBallJumpLeftPose => SpringBallJumpLeftPoseList,
-            NativePose63 => UnusedPose63List,
-            NativePose64 => UnusedPose64List,
+            SamusPoseId.UnusedPose63 => UnusedPose63List,
+            SamusPoseId.UnusedPose64 => UnusedPose64List,
             SamusPoseId.UnusedPose65 => UnusedPose65List,
             SamusPoseId.UnusedPose66 => UnusedPose66List,
             SamusPoseId.WallJumpRightPose => WallJumpRightPoseList,
@@ -220,7 +155,7 @@ internal static class SamusPoseInputDefinitions
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose => MoonwalkTurnJumpAimDownRightPoseList,
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
-                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose ${(int)pose:X2} has no compiled input graph."),
+                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose {pose} has no compiled input graph."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
         return true;
@@ -238,19 +173,40 @@ internal static class SamusPoseInputDefinitions
     /// </summary>
     internal static ControllerButton MirrorButtons(ControllerButton input) =>
         (input & ~(ControllerButton.Left | ControllerButton.Right)) |
-        ((input & ControllerButton.Left) != 0 ? ControllerButton.Right : 0) |
-        ((input & ControllerButton.Right) != 0 ? ControllerButton.Left : 0);
+        ((input & ControllerButton.Left) != ControllerButton.None ? ControllerButton.Right : ControllerButton.None) |
+        ((input & ControllerButton.Right) != ControllerButton.None ? ControllerButton.Left : ControllerButton.None);
 
     /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
     internal static bool Has(ControllerButton input, CanonicalPoseButtons required) =>
         (input & Buttons(required)) == Buttons(required);
 
     /// <summary>
-    /// The buttons an authored chord names: canonical pose bits use the SNES joypad layout, with the
-    /// default action buttons standing for their bindings.
+    /// Each canonical chord button and the controller button that stands for it: the transition tables name the
+    /// default action buttons (R and L aim, X shoots, A jumps) for their bindings.
     /// </summary>
-    [ControllerWordBoundary("authored pose chords are joypad-layout words until #1301 types them")]
-    private static ControllerButton Buttons(CanonicalPoseButtons chord) => (ControllerButton)(ushort)chord;
+    private static readonly (CanonicalPoseButtons Chord, ControllerButton Button)[] ChordButtons =
+    [
+        (CanonicalPoseButtons.AimUp, ControllerButton.R),
+        (CanonicalPoseButtons.AimDown, ControllerButton.L),
+        (CanonicalPoseButtons.Shoot, ControllerButton.X),
+        (CanonicalPoseButtons.Jump, ControllerButton.A),
+        (CanonicalPoseButtons.Right, ControllerButton.Right),
+        (CanonicalPoseButtons.Left, ControllerButton.Left),
+        (CanonicalPoseButtons.Down, ControllerButton.Down),
+        (CanonicalPoseButtons.Up, ControllerButton.Up),
+    ];
+
+    /// <summary>The controller buttons an authored chord names.</summary>
+    private static ControllerButton Buttons(CanonicalPoseButtons chord)
+    {
+        ControllerButton buttons = ControllerButton.None;
+        foreach ((CanonicalPoseButtons bit, ControllerButton button) in ChordButtons)
+        {
+            if ((chord & bit) == bit)
+                buttons |= button;
+        }
+        return buttons;
+    }
 
     /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>

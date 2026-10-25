@@ -46,7 +46,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 int source = SamusSourceDefinitions.MovementBank.Value | (list + frame * sizeof(ushort));
                 ushort expected = importBus.ReadCartridgeWord(source);
                 var effects = new SamusAtmosphericEffectsState();
-                effects.SetSlot(0, type, frame, 2, new(128, 128));
+                effects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 OamBuffer oam;
@@ -60,7 +60,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             }
 
             var missing = new SamusAtmosphericEffectsState();
-            missing.SetSlot(0, 1, 0, 2, new(128, 128));
+            missing.SetSlot(0, SamusAtmosphericEffectType.FootstepSplash, 0, 2, new(128, 128));
             AssertThrows<InvalidOperationException>(() =>
             {
                 var oamFrame = new SpriteFrameBuffer();
@@ -72,7 +72,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
 
             SeedNullAtmosphericPointerWram(runtimeBus);
             var mutable = new SamusAtmosphericEffectsState();
-            mutable.SetSlot(0, 2, 0, 2, new(128, 128));
+            mutable.SetSlot(0, SamusAtmosphericEffectType.AlternateFootstepSplash, 0, 2, new(128, 128));
             OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame =>
                 mutable.UpdateAndDraw(frame, new(0, 0), 128));
             OamBuffer emptyOam = SpriteFrameBuffer.DrawnOam(frame =>

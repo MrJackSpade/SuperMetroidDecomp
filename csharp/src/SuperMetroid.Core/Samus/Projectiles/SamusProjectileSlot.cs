@@ -87,7 +87,7 @@ public sealed class SamusProjectileSlot
         PackedType.Family is not (
             SamusProjectileFamily.PowerBomb or
             SamusProjectileFamily.Bomb) &&
-        PackedType.FamilyValue < (ushort)SamusProjectileFamily.BeamExplosion;
+        !PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.BeamExplosion);
 
     /// <summary>Clears the words owned by $90:ADB7; trail and auxiliary words survive reuse.</summary>
     internal void ClearFields()

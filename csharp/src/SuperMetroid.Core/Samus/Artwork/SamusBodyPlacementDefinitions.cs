@@ -12,7 +12,7 @@ internal static class SamusBodyPlacementDefinitions
     /// </summary>
     internal static sbyte DefaultGraphicsYOffset(SamusPoseId pose)
     {
-        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
+        if (!SamusPoseNumbering.HasRecord(pose)) throw new ArgumentOutOfRangeException(nameof(pose));
         return unchecked((sbyte)SuperMetroid.Core.Samus.Poses.SamusPoseProjectileOriginDefinitions.ReadYOffset(pose));
     }
     /// <summary>$90:8D28..8D37: normal/spin landing, each with right/left four-byte rows.</summary>

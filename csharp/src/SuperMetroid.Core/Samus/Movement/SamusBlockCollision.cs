@@ -340,7 +340,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.VerticalExtension:
                     default:
                         throw new InvalidDataException(
-                            $"Block {block.Index} type ${(int)block.CollisionType:X1} escaped the " +
+                            $"Block {block.Index} type {block.CollisionType} escaped the " +
                             "complete horizontal collision dispatcher.");
                 }
 
@@ -534,8 +534,11 @@ public static class SamusBlockCollision
                         blockX,
                         acceptedDisplacement,
                         targetCenter,
+                        // The cartridge tests the direction's low bit: right, down and the non-directional
+                        // probe react as a floor, left and up as a ceiling.
                         reactsDownward: move.BlockReactionDirection is { } reactionDirection
-                            ? ((ushort)reactionDirection & 1) != 0
+                            ? reactionDirection is SamusCollisionDirection.Right or SamusCollisionDirection.Down or
+                                SamusCollisionDirection.NonDirectionalProbe
                             : acceptedDisplacement >= 0);
                     break;
 
@@ -723,7 +726,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.VerticalExtension:
                 default:
                     throw new InvalidDataException(
-                        $"Block {block.Index} type ${(int)block.CollisionType:X1} escaped the " +
+                        $"Block {block.Index} type {block.CollisionType} escaped the " +
                         "complete vertical collision dispatcher.");
             }
 
@@ -1140,7 +1143,7 @@ public static class SamusBlockCollision
             if ((uint)targetIndex >= (uint)blockCount)
             {
                 throw new InvalidDataException(
-                    $"Collision extension block {block.Index} type ${(int)block.CollisionType:X1}/" +
+                    $"Collision extension block {block.Index} type {block.CollisionType}/" +
                     $"BTS ${block.Bts.Value:X2} resolves outside room level data.");
             }
             block = level.GetCollisionBlockByIndex(targetIndex);

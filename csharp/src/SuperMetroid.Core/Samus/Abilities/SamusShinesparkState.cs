@@ -609,12 +609,12 @@ public sealed class SamusShinesparkState
                 SamusPoseId.UnusedPoseC5 or
                 SamusPoseId.UnusedPoseC6 => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
-                $"Pose ${(int)targetPose:X2} is not one of the six directional shinespark poses."),
+                $"Pose {targetPose} is not one of the six directional shinespark poses."),
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
                 SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
-                $"Pose ${(int)targetPose:X2} is not one of the six directional shinespark poses."),
+                $"Pose {targetPose} is not one of the six directional shinespark poses."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
 
@@ -773,7 +773,7 @@ false);
                 suitOffset, phaseOffset, out palette);
         if (!catalogued)
             throw new InvalidDataException(
-                $"Shinespark palette type {(int)PaletteType} offset {PaletteFrameOffset} is not compiled.");
+                $"Shinespark palette type {PaletteType} offset {PaletteFrameOffset} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
             "Shinespark palette requires installed color assets.")).Apply(colours, palette);
 

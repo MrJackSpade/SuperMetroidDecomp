@@ -23,7 +23,7 @@ public static class XrayRevealTilemap
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
     public static ushort[] Build(RoomLevelData level, IBgTileSource bg1,
         Position16<RoomPixels> bg1Scroll, Position16<RoomPixels> layer1Position,
-        byte area, XrayRevealVisualCatalog? visuals = null)
+        AreaId area, XrayRevealVisualCatalog? visuals = null)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(bg1);
@@ -64,7 +64,7 @@ public static class XrayRevealTilemap
                         CopyMetatile(destination, replacement);
                     continue;
                 }
-                if (reveal.Command == XrayRevealCommand.CopyBrinstar && area != (byte)AreaId.Brinstar)
+                if (reveal.Command == XrayRevealCommand.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
                 CopyMetatile(destination, reveal.TopLeft);
                 // The last column of screen one suppresses right-hand writes. Screen

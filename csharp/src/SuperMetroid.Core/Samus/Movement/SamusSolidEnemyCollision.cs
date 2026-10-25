@@ -40,7 +40,8 @@ public static class SamusSolidEnemyCollision
         Ensure.NotNull(state);
         Ensure.NotNull(interactiveEnemies);
 
-        if ((uint)direction > (uint)SamusCollisionDirection.Down)
+        if (direction is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right or
+            SamusCollisionDirection.Up or SamusCollisionDirection.Down))
             throw new ArgumentOutOfRangeException(nameof(direction));
 
         // `$A0:A90A-$A0:A9B7` constructs only a whole-pixel target for the broad overlap

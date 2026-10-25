@@ -33,13 +33,13 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908b93 + type * 2));
             byte frameCount = checked((byte)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908bef + type * 2)));
             AssertEqual(frameCount,
-                SamusAtmosphericAnimationDefinitions.FrameCount(type),
+                SamusAtmosphericAnimationDefinitions.FrameCount((SamusAtmosphericEffectType)type),
                 $"atmospheric type {type} frame count");
 
             for (byte frame = 0; frame < frameCount; frame++)
             {
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x900000 | (pointer + frame * 2))),
-                    SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame),
+                    SamusAtmosphericAnimationDefinitions.FrameTimer((SamusAtmosphericEffectType)type, frame),
                     $"atmospheric type {type} frame {frame} timer");
             }
         }
@@ -62,13 +62,13 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             SamusLiquidDamageDefinitions.Acid));
 
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericAnimationDefinitions.FrameCount(0),
+            () => SamusAtmosphericAnimationDefinitions.FrameCount(SamusAtmosphericEffectType.Inactive),
             "inactive atmospheric type has no animation definition");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericAnimationDefinitions.FrameCount(8),
+            () => SamusAtmosphericAnimationDefinitions.FrameCount((SamusAtmosphericEffectType)8),
             "atmospheric type past active domain");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericAnimationDefinitions.FrameTimer(1, 4),
+            () => SamusAtmosphericAnimationDefinitions.FrameTimer(SamusAtmosphericEffectType.FootstepSplash, 4),
             "atmospheric frame past authored type-one cadence");
 
         Console.WriteLine(
@@ -87,14 +87,14 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             // types below the native Y clip so their unrelated body-art catalog
             // is not needed; direct small sprites still exercise installed art.
             ushort drawY = type is 3 or 5 ? (ushort)0x0100 : (ushort)100;
-            byte frameCount = SamusAtmosphericAnimationDefinitions.FrameCount(type);
+            byte frameCount = SamusAtmosphericAnimationDefinitions.FrameCount((SamusAtmosphericEffectType)type);
             for (byte frame = 0; frame < frameCount; frame++)
             {
                 ushort expectedTimer =
-                    SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame);
+                    SamusAtmosphericAnimationDefinitions.FrameTimer((SamusAtmosphericEffectType)type, frame);
 
                 var effects = new SamusAtmosphericEffectsState();
-                effects.SetSlot(0, type, frame, animationTimer: 1, anchor: new(100, drawY));
+                effects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, animationTimer: 1, anchor: new(100, drawY));
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
@@ -107,7 +107,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                     $"production atmospheric type {type} frame {frame} expiry handoff");
 
                 effects.Clear();
-                effects.SetSlot(0, type, frame, animationTimer: 0x8001,
+                effects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, animationTimer: 0x8001,
                     anchor: new(100, drawY));
                 oamFrame.BeginFrame();
                 effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
@@ -128,7 +128,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
     private static void VerifyNullAtmosphericPointerDrawsNothing()
     {
         var effects = new SamusAtmosphericEffectsState();
-        effects.SetSlot(0, 2, 0, animationTimer: 2,
+        effects.SetSlot(0, SamusAtmosphericEffectType.AlternateFootstepSplash, 0, animationTimer: 2,
             anchor: new(100, 100));
         var oamFrame = new SpriteFrameBuffer();
         oamFrame.BeginFrame();

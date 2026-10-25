@@ -106,10 +106,10 @@ public static class SamusOverreadFiles
                 SnesAddress last = record.AddWithinBank(ProjectileTrailPlacementSources.RecordByteCount - 1);
                 if (!record.IsUpperLoRomWindow || last.Offset < record.Offset)
                 {
-                    entry[0] = (byte)TrailOverrunEntryKind.Scratch;
+                    entry[0] = TrailOverrunEntryFormat.ToByte(TrailOverrunEntryKind.Scratch);
                     continue;
                 }
-                entry[0] = (byte)TrailOverrunEntryKind.Placement;
+                entry[0] = TrailOverrunEntryFormat.ToByte(TrailOverrunEntryKind.Placement);
                 RomDataReader.ReadFixedBank(cartridge, record, ProjectileTrailPlacementSources.RecordByteCount).CopyTo(entry[1..]);
             }
             lists.Add(list.ToString(), Convert.ToBase64String(bytes));

@@ -60,8 +60,8 @@ internal static class SamusAerialPoseTransitions
             // normal-jump records when aim or Shoot cancels rotation. A different movement
             // family is owned by the spin-direction or landing initializers instead.
             throw new InvalidOperationException(
-                $"Compact-jump-to-normal-jump transition ${(int)sourcePose:X2} -> " +
-                $"${(int)targetPose:X2} is not a same-facing retail route.");
+                $"Compact-jump-to-normal-jump transition {sourcePose} -> " +
+                $"{targetPose} is not a same-facing retail route.");
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
@@ -107,7 +107,7 @@ internal static class SamusAerialPoseTransitions
 
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
-        if ((controllerNewInput & ControllerButton.X) != 0)
+        if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
             samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -149,7 +149,7 @@ internal static class SamusAerialPoseTransitions
         if ((!jumping && !falling) || (!turnsLeft && !turnsRight))
         {
             throw new InvalidOperationException(
-                $"Aerial turn ${(int)sourcePose:X2} -> ${(int)genericTargetPose:X2} is not a verified type-2/type-6 transition.");
+                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a verified type-2/type-6 transition.");
         }
 
         // These are literal copies of `$91:F9D6` and `$91:F9E0`. Directions four and five
@@ -167,7 +167,7 @@ internal static class SamusAerialPoseTransitions
                 7 => SamusPoseId.TurningLeftToRightJumpPose,
                 8 => SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose,
                 9 => SamusPoseId.TurningLeftToRightJumpAimUpPose,
-                _ => throw new InvalidDataException($"Jump pose ${(int)sourcePose:X2} has invalid shot direction ${shotDirection:X2}."),
+                _ => throw new InvalidDataException($"Jump pose {sourcePose} has invalid shot direction ${shotDirection:X2}."),
             }
             : shotDirection switch
             {
@@ -179,14 +179,14 @@ internal static class SamusAerialPoseTransitions
                 7 => SamusPoseId.TurningLeftToRightFallingPose,
                 8 => SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose,
                 9 => SamusPoseId.TurningLeftToRightFallingAimUpPose,
-                _ => throw new InvalidDataException($"Fall pose ${(int)sourcePose:X2} has invalid shot direction ${shotDirection:X2}."),
+                _ => throw new InvalidDataException($"Fall pose {sourcePose} has invalid shot direction ${shotDirection:X2}."),
             };
 
         if ((turnsLeft && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
             (turnsRight && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))
         {
             throw new InvalidOperationException(
-                $"Aerial turn source ${(int)sourcePose:X2} has direction metadata inconsistent with ${(int)genericTargetPose:X2}.");
+                $"Aerial turn source {sourcePose} has direction metadata inconsistent with {genericTargetPose}.");
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
@@ -226,7 +226,7 @@ internal static class SamusAerialPoseTransitions
             (!SamusPoseMetadata.IsWallJumpPose(samus.Pose) && !SamusPoseMetadata.IsSpinJumpPose(samus.Pose)))
         {
             throw new InvalidOperationException(
-                $"Spin direction transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not verified.");
+                $"Spin direction transition {samus.Pose} -> {targetPose} is not verified.");
         }
 
         SamusFacingDirection oldDirection = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -281,7 +281,7 @@ internal static class SamusAerialPoseTransitions
         // spinning and still wall-jumps.
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
-                $"Wall-jump trigger requires cached spin movement, not ${(byte)SamusPoseMetadata.ReadMovementType(samus):X2}.");
+                $"Wall-jump trigger requires cached spin movement, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
         SamusPoseId targetPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
         if (level is not null)
@@ -345,7 +345,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (samus.Pose is not (SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose))
         {
             throw new InvalidOperationException(
-                $"Grapple wall jump requires contact pose $B8/$B9, not ${(int)samus.Pose:X2}.");
+                $"Grapple wall jump requires contact pose $B8/$B9, not {samus.Pose}.");
         }
 
         // `$9B:C9D5-$C9EB` tests the contact pose's X-direction byte, not its descriptive
@@ -406,7 +406,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // outputs are exactly the standing/aim/crouch set above. Other releases use
             // separate grapple wall-jump or swing-release handlers, not this API.
             throw new InvalidOperationException(
-                $"Grapple drop transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a retail dropped-table route.");
+                $"Grapple drop transition {samus.Pose} -> {targetPose} is not a retail dropped-table route.");
         }
 
         // EnemyDeathAnimation requests this cleanup for a grapple-killed enemy even
@@ -819,7 +819,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (samus.Pose is not (SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose))
         {
             throw new InvalidOperationException(
-                $"Directional shinespark transition requires windup pose, not ${(int)samus.Pose:X2}.");
+                $"Directional shinespark transition requires windup pose, not {samus.Pose}.");
         }
 
         samus.Shinespark.BeginDirectionalLaunch(samus, targetPose);
@@ -893,7 +893,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // the ordinary jump initializer. Movement-specific launches (damage boost,
             // grapple, bomb jump, wall jump, and Shinespark) own separate entry points.
             throw new InvalidOperationException(
-                $"Ordinary jump transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not an active retail route for this initializer.");
+                $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active retail route for this initializer.");
         }
 
         samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
@@ -905,7 +905,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         SamusAerialMovement.InitializeJump(samus);
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & ControllerButton.X) != 0)
+            (controllerNewInput & ControllerButton.X) != ControllerButton.None)
         {
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
@@ -946,7 +946,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     internal static void PublishNormalJumpPoseShotDirection(SamusState samus, ControllerButton controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & ControllerButton.X) != 0)
+            (controllerNewInput & ControllerButton.X) != ControllerButton.None)
             samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
     }
 
@@ -972,7 +972,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // A cross-family request therefore violates the method contract rather than
             // identifying an untranslated member of the admitted family.
             throw new InvalidOperationException(
-                $"Aerial aim/fire/forward transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is outside the same-facing family handled by this operation.");
+                $"Aerial aim/fire/forward transition {samus.Pose} -> {targetPose} is outside the same-facing family handled by this operation.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -987,7 +987,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // Every retail member admitted above has the same collision radius. A mismatch
             // can only come from inconsistent/corrupt pose metadata, not an omitted route.
             throw new InvalidDataException(
-                $"Aerial pose ${(int)targetPose:X2} unexpectedly changes radius {oldRadius} -> {samus.Kinematics.Radius.Y} inside an equal-radius transition family.");
+                $"Aerial pose {targetPose} unexpectedly changes radius {oldRadius} -> {samus.Kinematics.Radius.Y} inside an equal-radius transition family.");
         }
         // Both normal-jump and falling targets run their movement initializer.
         // Preserve base velocity, but derive acceleration mode from extra dash speed.
@@ -1037,7 +1037,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // This is the exact precondition of the collision-aware compact-pose helper.
             // Other aerial changes use ApplyAerialAimTransition or a movement-specific API.
             throw new InvalidOperationException(
-                $"Compact aerial transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a same-family ROM route.");
+                $"Compact aerial transition {samus.Pose} -> {targetPose} is not a same-family ROM route.");
         }
 
         SamusPoseId sourcePose = samus.Pose;

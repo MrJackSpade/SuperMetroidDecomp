@@ -161,8 +161,8 @@ internal static class SamusBodyArtworkVerification
         {
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, type, 0, 2, new(128, 128));
-            installedEffects.SetSlot(0, type, 0, 2, new(128, 128));
+            nativeEffects.SetSlot(0, (SamusAtmosphericEffectType)type, 0, 2, new(128, 128));
+            installedEffects.SetSlot(0, (SamusAtmosphericEffectType)type, 0, 2, new(128, 128));
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame, new(0, 0), 128,
@@ -185,8 +185,8 @@ internal static class SamusBodyArtworkVerification
                 $"atmospheric type {type} frame {frame} imported exact native attributes");
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, type, frame, 2, new(128, 128));
-            installedEffects.SetSlot(0, type, frame, 2, new(128, 128));
+            nativeEffects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
+            installedEffects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 SamusBodySheetFixtures.ForAtmosphere(atmosphere: stock.Atmosphere)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame,
@@ -469,8 +469,8 @@ internal static class SamusBodyArtworkVerification
             "edited Samus spritemap part changes production OAM X by one pixel");
         var stockSplash = new SamusAtmosphericEffectsState();
         var editedSplash = new SamusAtmosphericEffectsState();
-        stockSplash.SetSlot(0, 3, 0, 2, new(128, 128));
-        editedSplash.SetSlot(0, 3, 0, 2, new(128, 128));
+        stockSplash.SetSlot(0, SamusAtmosphericEffectType.DivingSplash, 0, 2, new(128, 128));
+        editedSplash.SetSlot(0, SamusAtmosphericEffectType.DivingSplash, 0, 2, new(128, 128));
         OamBuffer stockSplashOam = SpriteFrameBuffer.DrawnOam(frame => stockSplash.UpdateAndDraw(frame, new(0, 0), 128,
             SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
         OamBuffer editedSplashOam = SpriteFrameBuffer.DrawnOam(frame => editedSplash.UpdateAndDraw(frame, new(0, 0), 128,
@@ -480,8 +480,8 @@ internal static class SamusBodyArtworkVerification
             "edited water-entry spritemap reaches the production atmospheric owner");
         var stockDirect = new SamusAtmosphericEffectsState();
         var editedDirect = new SamusAtmosphericEffectsState();
-        stockDirect.SetSlot(0, 1, 0, 2, new(128, 128));
-        editedDirect.SetSlot(0, 1, 0, 2, new(128, 128));
+        stockDirect.SetSlot(0, SamusAtmosphericEffectType.FootstepSplash, 0, 2, new(128, 128));
+        editedDirect.SetSlot(0, SamusAtmosphericEffectType.FootstepSplash, 0, 2, new(128, 128));
         OamBuffer stockDirectOam = SpriteFrameBuffer.DrawnOam(frame => stockDirect.UpdateAndDraw(frame,
             Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
         OamBuffer editedDirectOam = SpriteFrameBuffer.DrawnOam(frame => editedDirect.UpdateAndDraw(frame,

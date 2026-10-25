@@ -37,9 +37,8 @@ public sealed class SamusPoseHistoryState
         {
             // $90:9D35 compares the raw movement byte, so a byte outside the movement-type
             // domain is simply not one of the two admitted movements.
-            byte movement = SnesLittleEndian.HighByte(checked((ushort)LastDifferentDirectionAndMovement));
-            return Enum.IsDefined((SamusMovementType)movement) &&
-                (SamusMovementType)movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
+            return SamusPoseRecordCodec.HistoryMovement(checked((ushort)LastDifferentDirectionAndMovement)) is
+                SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
         }
     }
 

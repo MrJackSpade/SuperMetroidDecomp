@@ -8,20 +8,18 @@ public static class ProjectileTrailDefinitions
     /// <summary>The thirty-nine selections each side's table holds.</summary>
     private const int TableSelections = 39;
 
-    /// <summary>The non-beam trail selections with a trail program; every other one draws none.</summary>
-    private enum SpecialSelection
-    {
-        /// <summary>$90:B5FB/B5FD: native missile trail selection index.</summary>
-        Missile = 0x20,
-        /// <summary>$90:B5FD: super-missile selector after native family-to-index conversion.</summary>
-        SuperMissile = 0x21,
-        /// <summary>$90:B603/$B651: first of the three Spazer SBA trail selections.</summary>
-        SpazerSbaFirst = 0x24,
-        /// <summary>$90:B605/$B653: middle Spazer SBA selector uses distinct left/right ice trails.</summary>
-        SpazerSbaMiddle = 0x25,
-        /// <summary>$90:B607/$B655: final Spazer SBA selector shares the left ice trail on both sides.</summary>
-        SpazerSbaLast = 0x26,
-    }
+    // The non-beam trail selections with a trail program; every other selection from the first special one draws none.
+
+    /// <summary>$90:B5FB/B5FD: the missile trail selection, the first special selection.</summary>
+    private const int MissileSelection = 32;
+    /// <summary>$90:B5FD: the super-missile selection after the native family-to-index conversion.</summary>
+    private const int SuperMissileSelection = 33;
+    /// <summary>$90:B603/$B651: the first of the three Spazer SBA trail selections.</summary>
+    private const int SpazerSbaFirstSelection = 36;
+    /// <summary>$90:B605/$B653: the middle Spazer SBA selection, with distinct left and right ice trails.</summary>
+    private const int SpazerSbaMiddleSelection = 37;
+    /// <summary>$90:B607/$B655: the final Spazer SBA selection, sharing the left ice trail on both sides.</summary>
+    private const int SpazerSbaLastSelection = 38;
 
     /// <summary>
     /// The program <paramref name="side"/> runs for low-six-bit selection <paramref name="selection"/>. Native indexes each
@@ -41,17 +39,14 @@ public static class ProjectileTrailDefinitions
     /// <summary>Chooses a left or right trail program from beam effects and special projectile selectors.</summary>
     private static ProjectileTrailProgram Select(int selection, bool right)
     {
-        if (selection >= (int)SpecialSelection.Missile)
+        if (selection >= MissileSelection)
         {
-            var special = (SpecialSelection)selection;
-            if (!Enum.IsDefined(special))
-                return ProjectileTrailProgram.Empty;
-            return special switch
+            return selection switch
             {
-                SpecialSelection.Missile or SpecialSelection.SuperMissile => right ? ProjectileTrailProgram.Empty : ProjectileTrailProgram.Missile,
-                SpecialSelection.SpazerSbaFirst or SpecialSelection.SpazerSbaLast => ProjectileTrailProgram.LeftIce,
-                SpecialSelection.SpazerSbaMiddle => right ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.LeftIce,
-                _ => throw new InvalidOperationException($"Undefined SpecialSelection {special}."),
+                MissileSelection or SuperMissileSelection => right ? ProjectileTrailProgram.Empty : ProjectileTrailProgram.Missile,
+                SpazerSbaFirstSelection or SpazerSbaLastSelection => ProjectileTrailProgram.LeftIce,
+                SpazerSbaMiddleSelection => right ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.LeftIce,
+                _ => ProjectileTrailProgram.Empty,
             };
         }
         var type = new SamusProjectileTypeWord((ushort)selection);

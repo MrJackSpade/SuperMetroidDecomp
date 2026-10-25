@@ -15,7 +15,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Number of four-byte frame selectors, stored one after another.</summary>
     public const int FrameCount = 1143;
     /// <summary>Number of native Samus pose entries with body-art selectors.</summary>
-    public const int PoseCount = 253;
+    public const int PoseCount = SamusPoseNumbering.RecordCount;
     /// <summary>Number of upper-body definition groups.</summary>
     public const int TopSetCount = 13;
     /// <summary>Number of lower-body definition groups.</summary>
@@ -106,10 +106,10 @@ public sealed class SamusBodyArtworkCatalog
             .Where(index => parts.BottomSetStarts[index] != SamusBodyDefinitionLayout.DefaultBottomStart(index))
             .ToDictionary(index => index, index => parts.BottomSetStarts[index]);
         this.poseFirstFrames = Enumerable.Range(0, parts.PoseFirstFrames.Length)
-            .Where(pose => parts.PoseFirstFrames[pose] != SamusBodyPoseDefinitions.DefaultFirstFrame((SamusPoseId)pose))
+            .Where(pose => parts.PoseFirstFrames[pose] != SamusBodyPoseDefinitions.DefaultFirstFrame(SamusPoseNumbering.FromNumber(pose)))
             .ToDictionary(pose => pose, pose => parts.PoseFirstFrames[pose]);
         this.graphicsYOffsets = Enumerable.Range(0, parts.GraphicsYOffsets.Length)
-            .Where(index => parts.GraphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)index))
+            .Where(index => parts.GraphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(SamusPoseNumbering.FromNumber(index)))
             .ToDictionary(index => index, index => parts.GraphicsYOffsets[index]);
         if (parts.LandingYOffsets.Any(value => value > byte.MaxValue))
             throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
@@ -179,9 +179,9 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Gets each lower-body definition group's resolved first record.</summary>
     public ReadOnlySpan<int> BottomSetStarts => Enumerable.Range(0, BottomSetCount).Select(index => SetStart(false, index)).ToArray();
     /// <summary>Gets each pose's resolved first frame.</summary>
-    public ReadOnlySpan<int> PoseFirstFrames => Enumerable.Range(0, PoseCount).Select(pose => PoseFirstFrame((SamusPoseId)pose)).ToArray();
+    public ReadOnlySpan<int> PoseFirstFrames => Enumerable.Range(0, PoseCount).Select(pose => PoseFirstFrame(SamusPoseNumbering.FromNumber(pose))).ToArray();
     /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
-    public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset((SamusPoseId)index)).ToArray();
+    public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
     public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>Gets the resolved posture-transition vertical-offset table.</summary>
@@ -239,8 +239,8 @@ public sealed class SamusBodyArtworkCatalog
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     public sbyte GraphicsYOffset(SamusPoseId pose) =>
-        (int)pose < PoseCount ? graphicsYOffsets.TryGetValue((int)pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
-            throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored graphics Y offset.");
+        SamusPoseNumbering.HasRecord(pose) ? graphicsYOffsets.TryGetValue(SamusPoseNumbering.Number(pose), out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
+            throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
     /// <summary>Resolves a frame-selector byte through edited values, aliases, or compiled defaults.</summary>
@@ -258,14 +258,14 @@ public sealed class SamusBodyArtworkCatalog
     public IReadOnlyList<SamusBodyTileDefinition> BottomSet(int set) => bottom[set];
 
     /// <summary>Resolves an edited pose's first frame or the compiled stock one.</summary>
-    private int PoseFirstFrame(SamusPoseId pose) => poseFirstFrames.TryGetValue((int)pose, out int value)
+    private int PoseFirstFrame(SamusPoseId pose) => poseFirstFrames.TryGetValue(SamusPoseNumbering.Number(pose), out int value)
         ? value : SamusBodyPoseDefinitions.DefaultFirstFrame(pose);
 
     /// <summary>The frame <paramref name="animationFrame"/> places after the pose's first.</summary>
     public SamusBodyFrameSelection Frame(SamusPoseId pose, int animationFrame)
     {
-        if ((int)pose >= PoseCount)
-            throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored Samus body frame list.");
+        if (!SamusPoseNumbering.HasRecord(pose))
+            throw new InvalidDataException($"Pose {pose} has no authored Samus body frame list.");
         int index = PoseFirstFrame(pose) + animationFrame;
         if ((uint)index >= FrameCount)
             throw new InvalidDataException($"Samus frame {index} is outside extracted visual selectors.");
@@ -305,7 +305,7 @@ public sealed class SamusBodyArtworkCatalog
     public bool TryFrame(SamusPoseId pose, int animationFrame, out SamusBodyFrameSelection frame)
     {
         frame = default;
-        int index = (int)pose < PoseCount ? PoseFirstFrame(pose) + animationFrame : -1;
+        int index = SamusPoseNumbering.HasRecord(pose) ? PoseFirstFrame(pose) + animationFrame : -1;
         if ((uint)index >= FrameCount)
             return false;
         frame = FrameAt(index);

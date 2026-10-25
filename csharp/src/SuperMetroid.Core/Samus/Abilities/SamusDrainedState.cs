@@ -288,7 +288,7 @@ public sealed class SamusDrainedState
             SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
         {
             throw new InvalidOperationException(
-                $"Drained falling command requires pose $E8/$E9, not ${(int)samus.Pose:X2}.");
+                $"Drained falling command requires pose $E8/$E9, not {samus.Pose}.");
         }
 
         // Command `$F7` writes `$90:94CB` into the single physical movement-handler word.

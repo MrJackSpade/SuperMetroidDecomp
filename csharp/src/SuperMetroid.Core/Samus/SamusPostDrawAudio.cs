@@ -41,7 +41,7 @@ public static class SamusPostDrawAudio
         // Resume on the NEXT post-draw pass, after the spin-stop command. The runtime
         // supplies normalized controls, so X here is the configured Shoot action.
         if (samus.ProjectileFlareCounter >= BeamChargeDefinitions.ChargeSoundStartCounter &&
-            (controllerInput & ControllerButton.X) != 0)
+            (controllerInput & ControllerButton.X) != ControllerButton.None)
             samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
     }
 }

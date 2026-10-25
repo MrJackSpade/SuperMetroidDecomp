@@ -46,23 +46,20 @@ public sealed class SamusAtmosphericEffectsState
     /// and debugger experiments can seed the exact packed state without a fake water room.
     /// </summary>
     /// <param name="slotIndex">Zero-based slot index, 0..3, corresponding to native byte offsets 0, 2, 4, and 6.</param>
-    /// <param name="type">Native graphics type 0..7; a zero packed frame/type word is inactive.</param>
+    /// <param name="type">The effect; an inactive effect with frame zero leaves the slot empty.</param>
     /// <param name="animationFrame">Low-byte animation index; interpreted against the selected type when updated.</param>
     /// <param name="animationTimer">Literal native countdown word, including signed delayed-start sentinels such as $8002.</param>
     /// <param name="anchor">Room-space anchor in whole pixels, stored with native 16-bit wrapping.</param>
     public void SetSlot(
         int slotIndex,
-        byte type,
+        SamusAtmosphericEffectType type,
         byte animationFrame,
         ushort animationTimer,
         Position16<RoomPixels> anchor)
     {
         ValidateSlotIndex(slotIndex);
-        if (type > 7)
-            throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must fit the native 0..7 table.");
-
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
-        slot.FrameAndType = unchecked(SnesLittleEndian.Word(animationFrame, type));
+        slot.SetFrameAndType(type, animationFrame);
         slot.AnimationTimer = WrappingCountdown.FromRaw(animationTimer);
         slot.Position = anchor;
     }
@@ -115,10 +112,10 @@ public sealed class SamusAtmosphericEffectsState
                 // packed word. That ordering is why a newly created timer-three frame is
                 // visible for two calls before frame one begins.
                 slot.AnimationTimer =
-                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
+                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
                 slot.FrameAndType = unchecked((ushort)(slot.FrameAndType + 1));
                 if (slot.AnimationFrame >=
-                    SamusAtmosphericAnimationDefinitions.FrameCount((byte)type))
+                    SamusAtmosphericAnimationDefinitions.FrameCount(type))
                 {
                     slot.FrameAndType = 0;
                     continue;
@@ -131,7 +128,7 @@ public sealed class SamusAtmosphericEffectsState
                 if (slot.AnimationTimer.RawValue != DelayedStartMarker)
                     continue;
                 slot.AnimationTimer =
-                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
+                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
             }
 
             switch (type)

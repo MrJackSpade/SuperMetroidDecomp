@@ -61,7 +61,7 @@ internal sealed class ProjectileTerrainCollision
             : (short)0));
         slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(0));
 
-        SamusProjectileDirection direction = slot.PackedDirection.Direction;
+        SamusProjectileDirection? direction = slot.PackedDirection.Direction;
         bool collided = false;
         if (direction is
             SamusProjectileDirection.UpRight or
@@ -517,7 +517,7 @@ internal sealed class ProjectileTerrainCollision
         // The native kill dispatcher clears families beyond missiles immediately. A Super
         // Missile's supplemental probe can collide again after becoming an explosion;
         // restarting its animation here would extend both its lifetime and damage.
-        if (slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb)
+        if (slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.PowerBomb))
         {
             _animation.ClearProjectile(slot);
             return;

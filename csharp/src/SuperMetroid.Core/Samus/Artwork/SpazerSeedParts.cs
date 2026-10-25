@@ -5,6 +5,13 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Builds one ordinary Spazer seed as a four-cell diagonal or two-cell axial strip.</summary>
 internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>The seed direction each seed glyph phase draws: the four diagonals, then the four axes.</summary>
+    private static readonly SpazerSeedDirection[] PhaseDirections =
+    [
+        SpazerSeedDirection.UpRight, SpazerSeedDirection.DownRight, SpazerSeedDirection.DownLeft, SpazerSeedDirection.UpLeft,
+        SpazerSeedDirection.Down, SpazerSeedDirection.Left, SpazerSeedDirection.Up, SpazerSeedDirection.Right,
+    ];
+
     /// <summary>Diagonal seeds use four cells; axial seeds use two.</summary>
     public int Count => pose < 4 ? 4 : 2;
     /// <summary>Places one native seed glyph along the selected diagonal or axial footprint.</summary>
@@ -14,7 +21,7 @@ internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSprit
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int size = SpazerCompositionGeometryDefinitions.TileSize;
-            var direction = (SpazerSeedDirection)pose;
+            SpazerSeedDirection direction = PhaseDirections[pose];
             SnesTileFlipFlags flips = SpazerCompositionGeometryDefinitions.SeedFlips[direction];
             int x, y, tile;
             if (pose < 4)

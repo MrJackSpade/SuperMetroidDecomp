@@ -398,7 +398,7 @@ internal static class SamusArmCannonPlacementDefinitions
             int pointer = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
             if (pointer > position || pointer <= start) continue;
             start = pointer;
-            pose = (SamusPoseId)candidate;
+            pose = SamusPoseNumbering.FromNumber(candidate);
         }
         if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out byte selector)) return false;
         int relative = position - start - ((selector & 128) != 0 ? 4 : 2);

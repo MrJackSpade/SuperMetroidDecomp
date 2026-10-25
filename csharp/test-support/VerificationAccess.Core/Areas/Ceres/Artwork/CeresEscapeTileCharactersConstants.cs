@@ -10,7 +10,7 @@ internal static class CeresEscapeTileCharactersConstants
     {
         for (int page = 0; page < CeresEscapeTileArtworkDefinitions.All.Length; page++)
         {
-            int offset = sourceAddress - CeresEscapeTileArtworkDefinitions.All[page].SourceAddress;
+            int offset = sourceAddress - CeresEscapeNativeSources.PageSource(page);
             if (offset >= 0 && byteCount > 0 && offset <= CeresEscapeTileArtworkDefinitions.All[page].ByteCount - byteCount)
                 return new CeresEscapeTileCharacters(page, offset, byteCount);
         }

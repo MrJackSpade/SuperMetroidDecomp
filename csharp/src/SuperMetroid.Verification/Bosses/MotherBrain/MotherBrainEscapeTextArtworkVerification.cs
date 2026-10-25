@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -26,7 +27,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
-            EscapeTextArtworkDefinitions.SourceAddress,
+            EscapeSourceDefinitions.TextCharacters,
             EscapeTextArtworkDefinitions.ByteCount);
         AssertTrue(artwork.Characters.Span.SequenceEqual(native),
             "installed Mother Brain escape-text PNG preserves native characters");
@@ -44,8 +45,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         }
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
         {
-            int sourceOffset = checked((int)EscapeTextArtworkDefinitions.PageSource(page) -
-                EscapeTextArtworkDefinitions.SourceAddress);
+            int sourceOffset = EscapeTextArtworkDefinitions.PageOffset(page);
             int destinationOffset =
                 EscapeNativePageWords.Of(EscapeTextArtworkDefinitions.PageFirstCharacter(page)) * 2;
             int byteCount = EscapeTextArtworkDefinitions.PageByteCount(page);

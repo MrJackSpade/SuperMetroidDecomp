@@ -18,4 +18,12 @@ internal static class EscapeSourceDefinitions
     internal const ushort FirstTimerDigitSpritemap = 0x9fe8;
     /// <summary>Bytes in one digit's two-object spritemap record.</summary>
     internal const int TimerDigitSpritemapStride = 12;
+    /// <summary>$B7:DA00: the escape warning text's characters, which the Ceres and Zebes warnings both copy.</summary>
+    internal static readonly SnesAddress TextCharacters = new(0xb7, 0xda00);
+    /// <summary>$B0:BA00: the Ceres escape doors' characters.</summary>
+    internal static readonly SnesAddress CeresEscapeDoorCharacters = new(0xb0, 0xba00);
+    /// <summary>$B0:C000: the escape timer's characters, its two pages one after the other.</summary>
+    internal static readonly SnesAddress TimerCharacters = new(0xb0, 0xc000);
+    /// <summary>Where each Ceres escape character page starts, in <c>CeresEscapeTileArtworkDefinitions.All</c> order.</summary>
+    internal static readonly SnesAddress[] CeresEscapePages = [TextCharacters, CeresEscapeDoorCharacters];
 }

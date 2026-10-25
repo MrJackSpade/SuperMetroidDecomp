@@ -59,9 +59,9 @@ internal static class CinematicPresentationContractChecks
                     door.PlatformFrame(CeresDoorVisualDefinitions.PlatformFrameCount - 1);
                     door.PlatformFrame(CeresDoorVisualDefinitions.PlatformFrameCount);
                     timer.Draw(countdown, sprites, timerSheet);
-                    overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 18, out _);
-                    overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 0, out _);
-                    overlay.TryResolve(0, 0, out _);
+                    overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency, out _);
+                    overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.JapaneseFirst, out _);
+                    overlay.TryResolve(default, out _);
                 }
             }
             """;
@@ -87,7 +87,7 @@ internal static class CinematicPresentationContractChecks
         Require(after.Classifications.Count == 15 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
             after.Consumers.Count == 23, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlayTilemapCatalog.TryResolve") == 3,
-            "unsupported overlay source/length queries validly return false, not demand nonexistent artwork");
+            "an overlay that is not one of the five validly returns false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
             "undefined title compositions must not be accepted as loaded title compositions");
     }

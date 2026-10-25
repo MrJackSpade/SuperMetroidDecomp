@@ -36,22 +36,21 @@ public sealed class CeresEscapeTileArtwork
         this.pages = [.. pages];
     }
 
-    /// <summary>Returns a slice from the selected installed page only when the requested transfer fits wholly inside it.</summary>
-    internal bool TryResolve(int sourceAddress, int byteCount,
+    /// <summary>Returns a slice of installed page <paramref name="page"/> only when the requested range fits wholly inside it.</summary>
+    /// <param name="page">The page: 0 for the warning text, 1 for the doors (<see cref="CeresEscapeTileArtworkDefinitions.All"/>).</param>
+    /// <param name="offset">The first byte of the page requested.</param>
+    /// <param name="byteCount">The bytes requested.</param>
+    /// <param name="characters">The requested characters, or empty when the range is not inside a page.</param>
+    internal bool TryResolve(int page, int offset, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {
-        for (int index = 0; index < pages.Length; index++)
+        if ((uint)page >= (uint)pages.Length || offset < 0 || byteCount <= 0 ||
+            offset > CeresEscapeTileArtworkDefinitions.All[page].ByteCount - byteCount)
         {
-            TileSheetDefinition page =
-                CeresEscapeTileArtworkDefinitions.All[index];
-            int offset = sourceAddress - page.SourceAddress;
-            if (offset < 0 || byteCount <= 0 ||
-                offset > page.ByteCount - byteCount)
-                continue;
-            characters = pages[index].Characters.Slice(offset, byteCount);
-            return true;
+            characters = default;
+            return false;
         }
-        characters = default;
-        return false;
+        characters = pages[page].Characters.Slice(offset, byteCount);
+        return true;
     }
 }

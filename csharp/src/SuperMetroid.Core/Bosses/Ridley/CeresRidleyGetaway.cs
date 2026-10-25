@@ -357,7 +357,7 @@ internal sealed class CeresRidleyGetaway
     {
         CeresEscapeOverlayTilemapCatalog overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The Ceres escape has no installed warning tilemaps.");
-        if (!overlays.TryResolve(page.SourceAddress, page.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> data))
+        if (!overlays.TryResolve(page, out ReadOnlyMemory<byte> data))
             throw new InvalidDataException($"Installed Ceres escape has no editable {page.Name} tilemap.");
         var words = new ushort[page.WordCount];
         for (int index = 0; index < words.Length; index++)
@@ -399,7 +399,7 @@ internal sealed class CeresRidleyGetaway
             throw new InvalidDataException("Installed Ceres escape timer has no editable sprite tile artwork.");
         if (source is CeresEscapeTileCharacters characters &&
             _areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(
-                CeresEscapeTileArtworkDefinitions.All[characters.Page].SourceAddress + characters.Offset, characters.ByteCount, out _) != true)
+                characters.Page, characters.Offset, characters.ByteCount, out _) != true)
             throw new InvalidDataException($"Installed Ceres escape has no editable {characters}.");
     }
 

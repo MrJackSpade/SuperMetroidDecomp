@@ -81,11 +81,10 @@ internal static class EnemyTileArtworkPresentationContractChecks
         sheets.Clear(); palettes.Clear();
         Require(catalog.TilesOf(first.DefinitionId).Length == first.ByteCount, "copied installed sheet");
         ReadOnlyMemory<byte> bytes;
-        TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
-        Require(ceres.TryResolve(warning.SourceAddress + 1, 1, out bytes) && bytes.Length == 1,
+        Require(ceres.TryResolve(0, 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");
         CeresEscapeOverlayTilemapDefinition overlay = CeresEscapeOverlayTilemapDefinitions.Emergency;
-        Require(overlays.TryResolve(overlay.SourceAddress, overlay.WordCount * sizeof(ushort), out bytes) &&
+        Require(overlays.TryResolve(overlay, out bytes) &&
             bytes.Length == overlay.WordCount * sizeof(ushort), "exact Ceres overlay source");
         var vram = new SnesVram();
         vram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, first.ByteCount + 2).ToArray());

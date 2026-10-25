@@ -37,6 +37,16 @@ internal static class CeresSourceDefinitions
         internal const int PlatformFrameBytes = 4;
     }
 
+    /// <summary>The bank-$A6 words of the Ceres escape warning's overlay pages.</summary>
+    internal static class EscapeOverlay
+    {
+        /// <summary>$A6:C164: the English EMERGENCY title's words.</summary>
+        internal static readonly SnesAddress Emergency = new(0xa6, 0xc164);
+
+        /// <summary>$A6:C3F4: the Japanese subtitle's four row halves' words, stored one after another.</summary>
+        internal static readonly SnesAddress JapaneseRows = new(0xa6, 0xc3f4);
+    }
+
     /// <summary>
     /// The bank-$A6 floor update lists Ridley's getaway queues ($A6:ACBC selects the capsule's, $A6:AD27 the wing's):
     /// each a run of nine-byte descriptors ended by a zero byte.

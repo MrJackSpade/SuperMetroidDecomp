@@ -35,11 +35,10 @@ internal static class CeresEscapeOverlayTilemapsVerification
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
-            AssertTrue(stockOverlay.TryResolve(page.SourceAddress,
-                    page.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> data),
+            AssertTrue(stockOverlay.TryResolve(page, out ReadOnlyMemory<byte> data) && data.Length == page.WordCount * sizeof(ushort),
                 $"Ceres overlay {page.Name} resolves completely");
             for (int offset = 0; offset < data.Length; offset++)
-                AssertEqual(rom.ReadCartridgeByte(page.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(CeresEscapeNativeSources.OverlaySource(page) + offset),
                     data.Span[offset],
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
@@ -56,7 +55,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         CeresEscapeOverlayTilemapDefinition title =
             CeresEscapeOverlayTilemapDefinitions.Emergency;
         // $A6:C136 writes the title at BG1 tilemap word $50CB.
-        native = WithNativeWords(native, title.SourceAddress, title.WordCount * sizeof(ushort), 0x50cb);
+        native = WithNativeWords(native, CeresEscapeNativeSources.OverlaySource(title), title.WordCount * sizeof(ushort), 0x50cb);
         int nativeTransfers = 1;
         foreach (TileTransferDefinition transfer in
                  CeresEscapeVramTransferDefinitions.All)
@@ -95,11 +94,9 @@ internal static class CeresEscapeOverlayTilemapsVerification
             CeresEscapeOverlayTilemapCatalog.Write(document));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(stockOverlay.TryResolve(title.SourceAddress,
-                title.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> stockWords),
+        AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<byte> stockWords),
             "stock English Ceres title resolves");
-        AssertTrue((edited.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
-                title.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> editedWords),
+        AssertTrue((edited.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title, out ReadOnlyMemory<byte> editedWords),
             "edited English Ceres title resolves");
         AssertEqual((byte)(stockWords.Span[0] ^ 1), editedWords.Span[0],
             "edited Ceres title changes exactly its first tile word");
@@ -113,8 +110,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertEqual(native.Words[titleWord] ^ 1, editedOverlay.Overlay.Words[titleWord],
             "edited Ceres title changes the word shown over BG1");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
-                    title.WordCount * sizeof(ushort),
+                .Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title,
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedWords.Span),
             "Ceres title tilemap edit survives catalog reload");

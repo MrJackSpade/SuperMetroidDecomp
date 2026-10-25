@@ -193,10 +193,10 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         var ceresEscapeTileHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (TileSheetDefinition page in
-                 CeresEscapeTileArtworkDefinitions.All)
+        for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
         {
-            byte[] png = IndexedTilePageExtractor.Extract(bus, page.SourceAddress,
+            TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
+            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePages[pageIndex],
                 page.ByteCount, $"Ceres escape page {page.FileName}");
             File.WriteAllBytes(Path.Combine(directory, page.FileName), png);
             ceresEscapeTileHashes.Add(page.FileName,
@@ -262,7 +262,7 @@ public static class EnemyTileArtworkFiles
         // The following bank-$B7 pages are a different visual owner: the escape
         // typewriter characters. Keep their override separate from corpse decay.
         byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            EscapeTextArtworkDefinitions.SourceAddress,
+            EscapeSourceDefinitions.TextCharacters,
             EscapeTextArtworkDefinitions.ByteCount);
         byte[] escapeTextPixels = SnesGraphics.DecodePlanarTiles(escapeTextPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,

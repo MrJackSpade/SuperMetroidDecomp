@@ -12,7 +12,7 @@ internal sealed record CeresEscapeTileCharacters(int Page, int Offset, int ByteC
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
         (InstalledAreaObjCharacterArtwork.Of(resolver).AreaTiles.CeresEscapeTiles ?? throw new InvalidDataException(
             "Installed Ceres escape has no editable character pages."))
-        .TryResolve(CeresEscapeTileArtworkDefinitions.All[Page].SourceAddress + Offset, ByteCount, out ReadOnlyMemory<byte> characters)
+        .TryResolve(Page, Offset, ByteCount, out ReadOnlyMemory<byte> characters)
             ? characters
             : throw new InvalidDataException($"Installed Ceres escape page {Page} has no {ByteCount} bytes at {Offset}.");
 

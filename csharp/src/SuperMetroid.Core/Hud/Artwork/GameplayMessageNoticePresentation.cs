@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -41,8 +42,8 @@ public sealed class GameplayMessageNoticePresentation
     public ushort[] Build(GameplayMessageId messageId)
     {
         CompiledNotice notice = Get(messageId);
-        int width = GameplayMessageRomData.Layout.TilemapWidth;
-        var result = new ushort[(notice.RowCount + GameplayMessageRomData.Layout.BorderRows) * width];
+        int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        var result = new ushort[(notice.RowCount + GameplayMessageBoxDefinitions.Layout.BorderRows) * width];
         border.CopyTo(result, 0);
         notice.Template.CopyTo(result, width);
         border.CopyTo(result, result.Length - width);
@@ -77,13 +78,13 @@ public sealed class GameplayMessageNoticePresentation
                 $"Gameplay-message notice {messageId} has no YES selection row.")
             : notice.NoSelection ?? throw new InvalidDataException(
                 $"Gameplay-message notice {messageId} has no NO selection row.");
-        int firstCell = GameplayMessageRomData.Layout.SaveSelectionRow * GameplayMessageRomData.Layout.TilemapWidth;
-        if (tilemap.Length < firstCell + GameplayMessageRomData.Layout.SaveSelectionRowWords)
+        int firstCell = GameplayMessageBoxDefinitions.Layout.SaveSelectionRow * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        if (tilemap.Length < firstCell + GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords)
         {
             throw new InvalidDataException(
                 "Save confirmation tilemap is too short for its installed selection row.");
         }
-        source.CopyTo(tilemap.Slice(firstCell, GameplayMessageRomData.Layout.SaveSelectionRowWords));
+        source.CopyTo(tilemap.Slice(firstCell, GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords));
     }
 
     /// <summary>Requires the exact supported notice set and dimensions, nonoverlapping bounded text regions, valid glyphs, and selection rows only for save confirmations.</summary>
@@ -112,7 +113,7 @@ public sealed class GameplayMessageNoticePresentation
 
         if (document.Version != GameplayMessageNoticeDefinitions.Version ||
             document.Border is null ||
-            document.Border.Length != GameplayMessageRomData.Layout.TilemapWidth ||
+            document.Border.Length != GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
             document.Notices is null)
         {
             throw new InvalidDataException(
@@ -134,14 +135,14 @@ public sealed class GameplayMessageNoticePresentation
             GameplayMessageNotice value = document.Notices[id.ToString()]
                 ?? throw new InvalidDataException($"Gameplay-message notice {id} is null.");
             int rowCount = GameplayMessageNoticeDefinitions.ContentRows(id);
-            int expectedWords = rowCount * GameplayMessageRomData.Layout.TilemapWidth;
+            int expectedWords = rowCount * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
             bool save = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id);
             if (value.RowCount != rowCount || value.Template is null ||
                 value.Template.Length != expectedWords || value.Text is null ||
                 value.Text.Length == 0 ||
                 save != (value.YesSelection is not null && value.NoSelection is not null) ||
-                value.YesSelection is { Length: not GameplayMessageRomData.Layout.SaveSelectionRowWords } ||
-                value.NoSelection is { Length: not GameplayMessageRomData.Layout.SaveSelectionRowWords })
+                value.YesSelection is { Length: not GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords } ||
+                value.NoSelection is { Length: not GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords })
             {
                 throw new InvalidDataException(
                     $"Gameplay-message notice {id} has invalid dimensions or selection rows.");
@@ -154,7 +155,7 @@ public sealed class GameplayMessageNoticePresentation
                 if (string.IsNullOrEmpty(region.Text) || region.Width <= 0 ||
                     region.Text.Length > region.Width || (uint)region.Palette >= 8 ||
                     region.Row < 0 || region.Row >= rowCount || region.Column < 0 ||
-                    region.Column + region.Width > GameplayMessageRomData.Layout.TilemapWidth ||
+                    region.Column + region.Width > GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
                     region.Text.Any(static character =>
                         !GameplayMessageTitleDefinitions.IsSupportedGlyph(character)) ||
                     !Enum.IsDefined(region.Alignment))
@@ -162,7 +163,7 @@ public sealed class GameplayMessageNoticePresentation
                     throw new InvalidDataException(
                         $"Gameplay-message notice {id} has an invalid text region.");
                 }
-                int first = region.Row * GameplayMessageRomData.Layout.TilemapWidth +
+                int first = region.Row * GameplayMessageBoxDefinitions.Layout.TilemapWidth +
                     region.Column;
                 for (int index = first; index < first + region.Width; index++)
                 {

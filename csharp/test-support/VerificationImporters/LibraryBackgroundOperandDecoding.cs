@@ -2,7 +2,6 @@ using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -67,7 +66,7 @@ internal static class LibraryBackgroundOperandDecoding
         LibraryBackgroundSource.StagedEnemyTilemap => EnemyTilemapStaging,
         LibraryBackgroundSource.SkyPage sky => LibraryBackgroundOperands.SkyPageAddress(sky.Page),
         LibraryBackgroundSource.StatueGhostCharacters => RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters,
-        LibraryBackgroundSource.HudCharacterSet => HudTileAtlasFormat.SourceAddress,
+        LibraryBackgroundSource.HudCharacterSet => MapSourceDefinitions.Artwork.HudCharacters,
         LibraryBackgroundSource.NothingRead => throw new ArgumentOutOfRangeException(nameof(source), source, "A clear command reads nothing."),
         _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown library-background source."),
     };
@@ -92,7 +91,7 @@ internal static class LibraryBackgroundOperandDecoding
             return LibraryBackgroundSource.EnemyTilemapStaging;
         if (address == RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters)
             return LibraryBackgroundSource.TourianStatueGhostCharacters;
-        if (address == HudTileAtlasFormat.SourceAddress)
+        if (address == MapSourceDefinitions.Artwork.HudCharacters)
             return LibraryBackgroundSource.HudCharacters;
         for (int page = 0; page < RoomSkyTilemapFormat.PageCount; page++)
             if (address == LibraryBackgroundOperands.SkyPageAddress(page))

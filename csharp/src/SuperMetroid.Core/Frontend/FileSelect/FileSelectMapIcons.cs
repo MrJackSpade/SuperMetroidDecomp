@@ -40,13 +40,13 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 remainingBits >>= 1;
                 if (dead)
                 {
-                    Draw(MapSpriteId.MarkerDefeatedBoss, point, FileSelectMapRomData.StationMarkerPalette);
-                    Draw(MapSpriteId.MarkerBoss, point, FileSelectMapIconRomData.DefeatedBossPalette);
+                    Draw(MapSpriteId.MarkerDefeatedBoss, point, FileSelectMapDefinitions.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerBoss, point, FileSelectMapDefinitions.DefeatedBossPalette);
                     continue;
                 }
                 if (system.HasAreaMap(area))
                 {
-                    Draw(MapSpriteId.MarkerBoss, point, FileSelectMapRomData.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerBoss, point, FileSelectMapDefinitions.StationMarkerPalette);
                     continue;
                 }
             }
@@ -70,7 +70,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 "Map station icons require installed station layout.");
             foreach (var rule in MapStationDiscoveryRules.Get(area, kind))
                 if (system.IsMapTileExplored(area, rule.Cell))
-                    Draw(id, layout.Get(rule.Id), FileSelectMapRomData.StationMarkerPalette);
+                    Draw(id, layout.Get(rule.Id), FileSelectMapDefinitions.StationMarkerPalette);
         }
         void Draw(MapSpriteId id, Position16<MapPixels> position, ushort palette) =>
             Add(entries, id, position, scroll, palette);
@@ -83,7 +83,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
         {
             var point = (landmarks ?? throw new InvalidOperationException(
                 "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
-            Add(entries, MapSpriteId.MarkerGunship, point, scroll, FileSelectMapRomData.StationMarkerPalette);
+            Add(entries, MapSpriteId.MarkerGunship, point, scroll, FileSelectMapDefinitions.StationMarkerPalette);
         }
         drawArrows?.Invoke();
         DrawElevatorLabels(entries, scroll);

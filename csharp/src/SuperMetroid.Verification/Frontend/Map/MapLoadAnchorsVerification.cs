@@ -118,7 +118,7 @@ internal static class MapLoadAnchorsVerification
         Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(bus));
         var guard = NewForbiddenMapBus();
         int anchors = 0;
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
             for (int stationIndex = 0; stationIndex < MapSaveMarkerDefinitions.SlotsPerArea; stationIndex++)
@@ -166,7 +166,7 @@ internal static class MapLoadAnchorsVerification
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(new AudioQueues(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             var native = new FileSelectAreaMapGraphics(area, catalog.Tiles, catalog.Palettes,
                 catalog.Screens, catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.For(catalog));
@@ -175,7 +175,7 @@ internal static class MapLoadAnchorsVerification
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
             {
-                var stations = new ushort[FileSelectMapRomData.AreaCount];
+                var stations = new ushort[FileSelectMapDefinitions.AreaCount];
                 for (int index = 0; index < stations.Length; index++) stations[index] = (ushort)((mask >> index) & 1);
                 AssertTrue(native.Render(stations).SequenceEqual(compiled.Render(stations)), "compiled area order retains label layering and visibility for every area combination");
             }

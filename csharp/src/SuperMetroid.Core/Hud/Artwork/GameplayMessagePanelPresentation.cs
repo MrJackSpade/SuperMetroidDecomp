@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -48,11 +49,11 @@ public sealed class GameplayMessagePanelPresentation
 
         var result = new ushort[GameplayMessagePanelDefinitions.TilemapWords];
         border.CopyTo(result, 0);
-        panel.Template.CopyTo(result, GameplayMessageRomData.Layout.TilemapWidth);
-        border.CopyTo(result, result.Length - GameplayMessageRomData.Layout.TilemapWidth);
+        panel.Template.CopyTo(result, GameplayMessageBoxDefinitions.Layout.TilemapWidth);
+        border.CopyTo(result, result.Length - GameplayMessageBoxDefinitions.Layout.TilemapWidth);
 
         Span<ushort> titleRow = result.AsSpan(
-            GameplayMessageRomData.Layout.TilemapWidth +
+            GameplayMessageBoxDefinitions.Layout.TilemapWidth +
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
             GameplayMessagePanelDefinitions.VisibleColumns);
         titleRow.Fill(GameplayMessageTitlePresentation.CompileGlyph(' ', panel.Palette));
@@ -90,7 +91,7 @@ public sealed class GameplayMessagePanelPresentation
 
         if (document.Version != GameplayMessagePanelDefinitions.Version ||
             document.Border is null ||
-            document.Border.Length != GameplayMessageRomData.Layout.TilemapWidth ||
+            document.Border.Length != GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
             document.Panels is null)
         {
             throw new InvalidDataException(
@@ -118,7 +119,7 @@ public sealed class GameplayMessagePanelPresentation
                 (uint)value.Palette >= 8 ||
                 value.Column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
                 value.Column + value.Title.Length >
-                    GameplayMessageRomData.Layout.TilemapWidth -
+                    GameplayMessageBoxDefinitions.Layout.TilemapWidth -
                     GameplayMessagePanelDefinitions.OuterRightColumns ||
                 value.Template is null ||
                 value.Template.Length != GameplayMessagePanelDefinitions.ContentWords)
@@ -127,10 +128,10 @@ public sealed class GameplayMessagePanelPresentation
                     $"Gameplay-message panel {id} has unsupported title, palette or template dimensions.");
             }
 
-            for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
+            for (int column = 0; column < GameplayMessageBoxDefinitions.Layout.TilemapWidth; column++)
             {
                 if ((column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
-                     column >= GameplayMessageRomData.Layout.TilemapWidth -
+                     column >= GameplayMessageBoxDefinitions.Layout.TilemapWidth -
                          GameplayMessagePanelDefinitions.OuterRightColumns) &&
                     value.Template[column].Word.Raw != GameplayMessageTitleDefinitions.TransparentWord)
                 {

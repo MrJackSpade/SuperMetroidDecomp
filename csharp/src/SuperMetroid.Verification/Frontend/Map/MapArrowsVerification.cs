@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -114,14 +115,14 @@ internal static class MapArrowsVerification
         var forbidden = new HashSet<int>();
         for (int index = 0; index < MapArrowDefinitions.Count; index++)
         {
-            int record = FileSelectMapRomData.ScrollArrows + index * 10;
+            int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * 10;
             Add(record, 10);
             int animation = RomDataReader.ReadWordFixedBank(cartridge, record + 4);
-            int pointer = MapAnimationRomData.SpritePrograms + (animation - 1) * 2;
-            int bases = MapAnimationRomData.SpriteBases + (animation - 1) * 2;
+            int pointer = MapSourceDefinitions.Animation.SpritePrograms + (animation - 1) * 2;
+            int bases = MapSourceDefinitions.Animation.SpriteBases + (animation - 1) * 2;
             Add(pointer, 2); Add(bases, 2);
-            Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, bases), 2);
-            int program = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, pointer);
+            Add(MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, bases), 2);
+            int program = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, pointer);
             while (CpuBusRegionRead.Read(source, program) != byte.MaxValue) { Add(program, 3); program += 3; }
             Add(program, 1);
         }

@@ -1431,7 +1431,7 @@ internal static class LookupStream4Verification
                 int word=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceIndex*2);
                 for(int y=0;y<8;y++)for(int x=0;x<8;x++)
                 {
-                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=HudTileAtlasFormat.SourceAddress+(word&0x3ff)*16+sy*2;
+                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=MapSourceDefinitions.Artwork.HudCharacters+(word&0x3ff)*16+sy*2;
                     int ink=(rom.ReadCartridgeByte(address)>>(7-sx)&1)|(rom.ReadCartridgeByte(address+1)>>(7-sx)&1)<<1;
                     for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[((cell/width*8+y)*scale+dy)*imageWidth+(startX+cell%width*8+x)*scale+dx]=(byte)ink;
                 }
@@ -1512,7 +1512,7 @@ internal static class LookupStream4Verification
         const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
         for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
         {
-            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=HudTileAtlasFormat.SourceAddress+tile*16+y*2;
+            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=MapSourceDefinitions.Artwork.HudCharacters+tile*16+y*2;
             int ink=(rom.ReadCartridgeByte(address)>>(7-x)&1)|(rom.ReadCartridgeByte(address+1)>>(7-x)&1)<<1;
             for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
         }
@@ -1987,7 +1987,7 @@ internal static class LookupStream4Verification
             int winner = 0;
             while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
-            AssertEqual(expected, GameplayMessageRomData.Buttons.ResolveGlyphWord((SnesButton)bits), "Native BIT order and all button glyph attributes");
+            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyphWord((SnesButton)bits), "Native BIT order and all button glyph attributes");
             AssertEqual(expected, resolve((SnesButton)bits), "Actual message button resolver retains first-match precedence");
         }
         Action<GameplayMessageBoxState, GameplayMessageId, SnesButton> patch = (state, message, raw) => state.PatchConfiguredButton(message, raw);
@@ -1996,17 +1996,17 @@ internal static class LookupStream4Verification
             var id = (GameplayMessageId)raw;
             if (raw is < 1 or > 27)
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
+                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
                 continue;
             }
             if (!Enum.IsDefined(id))
             {
                 // The table's last entry is a native dummy no message selects; it is rejected as an undefined message.
-                AssertThrows<InvalidOperationException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "The dummy table entry is no message");
+                AssertThrows<InvalidOperationException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "The dummy table entry is no message");
                 continue;
             }
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
-            AssertEqual(expected, GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Native message button placement case");
+            AssertEqual(expected, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Native message button placement case");
             var state = new GameplayMessageBoxState();
             var cells = Enumerable.Range(0, 192).Select(index => (ushort)(0x4000 + index)).ToArray();
             state.TilemapWords = cells;

@@ -50,7 +50,7 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
                     MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, 0);
-                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)1, objects, default, 0);
+                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)0, objects, default, 0);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);

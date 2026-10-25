@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Frontend.FileSelect;
 
 namespace SuperMetroid.Core.Frontend.Map;
 
@@ -22,10 +21,10 @@ internal static class MapScrollControls
     /// <summary>The eight-pixel map scroll applied by one accepted <c>$82:925D</c> pulse in <paramref name="direction"/>.</summary>
     public static Offset16<MapPixels> StepOffset(MapScrollDirection direction) => direction switch
     {
-        MapScrollDirection.Left => new(-FileSelectMapRomData.ScrollStepPixels, 0),
-        MapScrollDirection.Right => new(FileSelectMapRomData.ScrollStepPixels, 0),
-        MapScrollDirection.Up => new(0, -FileSelectMapRomData.ScrollStepPixels),
-        MapScrollDirection.Down => new(0, FileSelectMapRomData.ScrollStepPixels),
+        MapScrollDirection.Left => new(-MapScrollDefinitions.StepPixels, 0),
+        MapScrollDirection.Right => new(MapScrollDefinitions.StepPixels, 0),
+        MapScrollDirection.Up => new(0, -MapScrollDefinitions.StepPixels),
+        MapScrollDirection.Down => new(0, MapScrollDefinitions.StepPixels),
         MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
     };

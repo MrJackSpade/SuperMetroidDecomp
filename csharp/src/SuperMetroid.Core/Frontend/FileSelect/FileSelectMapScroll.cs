@@ -104,11 +104,11 @@ public sealed class FileSelectMapScroll
         if (Direction == MapScrollDirection.None) return false;
         // Both halves of the MapScrolling speed data contain the same eight-tick pulse:
         // move eight pixels on tick four, then finish and queue sound on tick eight.
-        if (++tick == FileSelectMapRomData.ScrollPulseTick)
+        if (++tick == MapScrollDefinitions.PulseTick)
         {
             Scroll += MapScrollControls.StepOffset(Direction);
         }
-        if (tick != FileSelectMapRomData.ScrollStepTicks) return false;
+        if (tick != MapScrollDefinitions.StepTicks) return false;
         tick = 0;
         Direction = MapScrollDirection.None;
         return true;

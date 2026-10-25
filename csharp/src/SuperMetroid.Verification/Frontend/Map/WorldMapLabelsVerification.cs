@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -21,14 +22,14 @@ internal static class WorldMapLabelsVerification
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
         var guard = NewWorldLabelReadGuard(bus);
-        ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapRomData.AreaCount).ToArray();
+        ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
         var native = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
         var installed = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
         native.BindLabels(original.Labels);
         installed.BindLabels(original.Labels);
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             native.SelectArea(area); installed.SelectArea(area);
             AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
@@ -81,9 +82,9 @@ internal static class WorldMapLabelsVerification
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= FileSelectMapRomData.LabelPositions && address < FileSelectMapRomData.LabelPositions + FileSelectMapRomData.AreaCount * 4) ||
-                (address >= FileSelectMapRomData.WindowVelocities && address < FileSelectMapRomData.WindowVelocities + FileSelectMapRomData.AreaCount * FileSelectMapRomData.VelocityRecordBytes) ||
-                (address >= FileSelectMapRomData.WindowTimers && address < FileSelectMapRomData.WindowTimers + FileSelectMapRomData.AreaCount * 2),
+                (address >= MapSourceDefinitions.FileSelectMap.LabelPositions && address < MapSourceDefinitions.FileSelectMap.LabelPositions + FileSelectMapDefinitions.AreaCount * 4) ||
+                (address >= FileSelectMapNativeSources.WindowVelocities && address < FileSelectMapNativeSources.WindowVelocities + FileSelectMapDefinitions.AreaCount * FileSelectMapNativeSources.VelocityRecordBytes) ||
+                (address >= FileSelectMapNativeSources.WindowTimers && address < FileSelectMapNativeSources.WindowTimers + FileSelectMapDefinitions.AreaCount * 2),
             _ => "Installed world labels/windows read cartridge coordinate or motion tables.");
         return guard;
     }

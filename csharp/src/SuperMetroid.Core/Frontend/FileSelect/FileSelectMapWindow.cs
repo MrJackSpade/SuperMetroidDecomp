@@ -25,7 +25,7 @@ public sealed class FileSelectMapWindow
     internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion,
         SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
     {
-        if ((uint)area >= FileSelectMapRomData.AreaCount)
+        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         var installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
@@ -65,8 +65,8 @@ public sealed class FileSelectMapWindow
     {
         var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;
-        window.timer = WrappingCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapRomData.ReturnWindowTimerReduction)));
-        int inset = FileSelectMapRomData.ReturnWindowInset;
+        window.timer = WrappingCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapDefinitions.ReturnWindowTimerReduction)));
+        int inset = FileSelectMapDefinitions.ReturnWindowInset;
         window.edges[0] = window.edges[2] = SnesSixteenSixteen.FromWhole((uint)inset);
         window.edges[1] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Width - inset));
         window.edges[3] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Height - inset));

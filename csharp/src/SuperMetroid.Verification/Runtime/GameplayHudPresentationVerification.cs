@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
@@ -29,17 +30,17 @@ internal static class GameplayHudPresentationVerification
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
         ushort[] stockTopRow = presentation.TopRow();
         for (int column = 0; column < GameplayHudDefinitions.TopRowCellCount; column++)
-            AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, GameplayHudDefinitions.TopRowAddress + column * 2)
-                    | GameplayHudPresentationAssetsRomByte(bus, GameplayHudDefinitions.TopRowAddress + column * 2 + 1) << 8),
+            AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2)
+                    | GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2 + 1) << 8),
                 stockTopRow[column], $"stock immutable HUD row word {column}");
         var guard = new MutableCartridgeReadGuard(bus);
         guard.Forbid(address =>
-                InHudRange(address, GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowCellCount * 2) ||
-                InHudRange(address, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount * 2) ||
-                InHudRange(address, GameplayHudDefinitions.IconTableAddress, 44) ||
-                InHudRange(address, GameplayHudDefinitions.HealthDigitsAddress, 20) ||
-                InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
-                InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
+                InHudRange(address, HudSourceDefinitions.TopRow, GameplayHudDefinitions.TopRowCellCount * 2) ||
+                InHudRange(address, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount * 2) ||
+                InHudRange(address, HudSourceDefinitions.Icons, 44) ||
+                InHudRange(address, HudSourceDefinitions.HealthDigits, 20) ||
+                InHudRange(address, HudSourceDefinitions.AmmoDigits, 20) ||
+                InHudRange(address, HudSourceDefinitions.AutoReserve, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
         var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         topRowRuntime.Artwork.MapPresentation = original;
@@ -89,8 +90,8 @@ internal static class GameplayHudPresentationVerification
         var installedSystem = new Bank80SystemState();
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
-        native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
-        installed.UpdateMinimap(installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        installed.UpdateMinimap(installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
@@ -137,7 +138,7 @@ internal static class GameplayHudPresentationVerification
         rebind.Initialize(snapshot);
         var rebindSystem = new Bank80SystemState();
         rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
-        rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
+        rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
         ushort[] logicalMap = Enumerable.Range(0, 15)
             .Select(i => rebind.Tiles[(i / 5) * 32 + 26 + i % 5]).ToArray();
         rebind.BindPresentation(edited.GameplayHud, samus);

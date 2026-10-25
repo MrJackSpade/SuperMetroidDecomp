@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Map.Artwork;
-
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Defines the map sprite document, atlas geometry, and native transfer sizes.</summary>
+/// <summary>Defines the map sprite document and atlas geometry.</summary>
 public static class MapSpriteFormat
 {
     /// <summary>Supported map sprite schema revision.</summary>
@@ -21,8 +19,6 @@ public static class MapSpriteFormat
     public const int Height = TileRows * 8;
     /// <summary>Largest supported number of ordered OBJ parts in one composition.</summary>
     public const int MaximumParts = 128;
-    /// <summary>$B6:C000 shared menu object characters, transferred to the active menu's OBJ base.</summary>
-    public const int SourceAddress = MapTileAtlasRomData.MenuObjectCharacterData;
     /// <summary>Compiled byte count of the 128-by-128-pixel 4-bpp atlas.</summary>
     public const int ByteCount = Width * Height / 2;
 }

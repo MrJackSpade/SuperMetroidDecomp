@@ -10,10 +10,10 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -26,19 +26,19 @@ internal static class MapStaticPalettesVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
+        AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapStaticPalettesRomData.PausePalette);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Artwork.PauseColors);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
         var nativeWorld = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
         var world = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
             AssertTrue(new CgramPalettes(nativeWorld.screen.Palette).ImageEquals(new CgramPalettes(world.screen.Palette)), "named world-selection palette matches native copy programs");
@@ -56,7 +56,7 @@ internal static class MapStaticPalettesVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "static palette edit changes content identity");
         world.BindFixtureArtwork(edited);
-        AssertEqual(FileSelectMapRomData.AreaCount - 1, world.SelectedArea, "palette bind preserves selected world area");
+        AssertEqual(FileSelectMapDefinitions.AreaCount - 1, world.SelectedArea, "palette bind preserves selected world area");
         AssertTrue(!nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "world palette edit changes rendered pixels");
 
         var system = new Bank80SystemState();

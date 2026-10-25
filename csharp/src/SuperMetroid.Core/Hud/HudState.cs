@@ -42,7 +42,7 @@ public sealed class HudState
         for (int x = 0; x < 5; x++)
         {
             var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
-            Tiles[presentation?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)] = (ushort)MapTileWords.HudBlank;
+            Tiles[presentation?.MinimapCellIndex(cell) ?? StockMinimapCellIndex(cell)] = (ushort)MapTileWords.HudBlank;
         }
     }
 
@@ -92,7 +92,7 @@ public sealed class HudState
         for (int x = 0; x < 5; x++)
         {
             var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
-            minimap[y * 5 + x] = Tiles[previous?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)];
+            minimap[y * 5 + x] = Tiles[previous?.MinimapCellIndex(cell) ?? StockMinimapCellIndex(cell)];
         }
 
         value.ApplyTemplate(Tiles);
@@ -254,7 +254,7 @@ public sealed class HudState
             for (int outputX = 0; outputX < 5; outputX++)
             {
                 var output = new Position16<TilemapCells>((ushort)outputX, (ushort)outputY);
-                int destination = presentation?.MinimapCellIndex(output) ?? NativeMinimapCellIndex(output);
+                int destination = presentation?.MinimapCellIndex(output) ?? StockMinimapCellIndex(output);
                 int mapX = (centerX + outputX - 2) & 63;
                 if ((uint)mapY >= 32)
                 {
@@ -293,10 +293,10 @@ public sealed class HudState
         // Every eight NMI frames the native code ORs palette bits $1C00 into the center
         // tile. The other half-cycle leaves its explored palette intact, producing the
         // familiar blinking Samus location without a separate sprite.
-        if ((frame.NmiFrameCounter & 8) == 0)
+        if ((frame.FrameCounter & 8) == 0)
         {
             var centerCell = new Position16<TilemapCells>(2, 1);
-            int center = presentation?.MinimapCellIndex(centerCell) ?? NativeMinimapCellIndex(centerCell);
+            int center = presentation?.MinimapCellIndex(centerCell) ?? StockMinimapCellIndex(centerCell);
             Tiles[center] = (ushort)new MapTileWord(Tiles[center]).WithLocationBlink();
         }
     }
@@ -370,8 +370,8 @@ public sealed class HudState
         presentation.ToggleItemHighlight(Tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 
-    /// <summary>Maps a cell in the five-by-three minimap to the native HUD tile buffer.</summary>
-    private static int NativeMinimapCellIndex(Position16<TilemapCells> output) =>
+    /// <summary>Maps a cell in the five-by-three minimap to its stock place in the HUD tile buffer.</summary>
+    private static int StockMinimapCellIndex(Position16<TilemapCells> output) =>
         26 + output.Y * WidthInTiles + output.X;
 
 }

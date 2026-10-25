@@ -76,7 +76,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <exception cref="ArgumentOutOfRangeException">The area is outside the supported Zebes identities.</exception>
     public void SelectArea(int selectedArea)
     {
-        if ((uint)selectedArea >= FileSelectMapRomData.AreaCount)
+        if ((uint)selectedArea >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(selectedArea));
         var area = (AreaId)selectedArea;
         LoadInstalledPalette(area);
@@ -147,17 +147,17 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
     private void PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {
-        if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
+        if (usedStationMasks.Length < FileSelectMapDefinitions.AreaCount)
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         ScreenSprites entries = screen.Objects;
         entries.BeginFrame();
         if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
         Draw(MapSpriteId.WorldTitle, new(128, 16), 0);
-        for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
+        for (int displayArea = 0; displayArea < FileSelectMapDefinitions.AreaCount; displayArea++)
         {
             ushort area = (ushort)FileSelectMapAreaOrder.Get(displayArea);
-            if (area >= FileSelectMapRomData.AreaCount)
+            if (area >= FileSelectMapDefinitions.AreaCount)
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
             if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area]))
                 DrawArea(area);

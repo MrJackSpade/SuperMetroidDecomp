@@ -23,13 +23,13 @@ public sealed class FileSelectMapEntry
     public bool IsComplete => Phase == FileSelectMapEntryPhase.Complete;
 
     /// <summary>Gets the inclusive left edge of the expanding reveal window in pixels.</summary>
-    public int Left => FileSelectMapRomData.EntryWindowLeft - revealSteps * FileSelectMapRomData.EntryWindowSpeed;
+    public int Left => FileSelectMapDefinitions.EntryWindowLeft - revealSteps * FileSelectMapDefinitions.EntryWindowSpeed;
 
     /// <summary>Gets the inclusive right edge of the expanding reveal window in pixels.</summary>
-    public int Right => FileSelectMapRomData.EntryWindowRight + revealSteps * FileSelectMapRomData.EntryWindowSpeed;
+    public int Right => FileSelectMapDefinitions.EntryWindowRight + revealSteps * FileSelectMapDefinitions.EntryWindowSpeed;
 
     /// <summary>Gets the upper edge of the expanding reveal window in pixels.</summary>
-    public int Top => FileSelectMapRomData.EntryWindowTop - revealSteps * FileSelectMapRomData.EntryWindowSpeed;
+    public int Top => FileSelectMapDefinitions.EntryWindowTop - revealSteps * FileSelectMapDefinitions.EntryWindowSpeed;
 
     /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
     public int Bottom => FrontendFrame.Height - Top;
@@ -42,7 +42,7 @@ public sealed class FileSelectMapEntry
         Palette.Load(mapPalettes.FileSelect);
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
         palette = new GradualPaletteTransition(
-            new ColourImage(Palette.All), FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
+            new ColourImage(Palette.All), FileSelectMapDefinitions.EntryPaletteDenominator, new GradualColorChangeCounter());
         EntryTarget(mapPalettes.FileSelect).CopyTo(palette.Target.Of(Palette.All));
         // The gradual first-two-palettes routine starts at transition number one,
         // unlike the global door/death fade. Consume only the shared helper's no-op.
@@ -94,7 +94,7 @@ public sealed class FileSelectMapEntry
             case FileSelectMapEntryPhase.Revealing:
                 // Native returns before updating edges on the signed-underflow call,
                 // disables the mask, and displays the whole area scene on that frame.
-                if (Top - FileSelectMapRomData.EntryWindowSpeed < 0)
+                if (Top - FileSelectMapDefinitions.EntryWindowSpeed < 0)
                     Phase = FileSelectMapEntryPhase.Complete;
                 else revealSteps++;
                 break;

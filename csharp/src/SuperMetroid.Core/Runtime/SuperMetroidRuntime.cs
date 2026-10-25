@@ -876,7 +876,7 @@ internal sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, NmiFrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
         }
     }
 
@@ -1099,7 +1099,7 @@ internal sealed class SuperMetroidRuntime
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
         // The joypad registers are the routine's only input: the NMI reads no controller.
         MessageBox.Step(controller1Input);
-        if (MessageBox.LastFrameAudio.RunsHdmaObjects)
+        if (MessageBox.LastFrameAudio.AdvancesPerLineEffects)
         {
             // The message box's restoring frames ($88:84B9 in Restore_PPU) run the per-line effects too.
             if (Room.Camera is not null)

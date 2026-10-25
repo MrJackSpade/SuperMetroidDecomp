@@ -19,6 +19,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
@@ -41,12 +42,12 @@ internal static class FileSelectRoomMapVerification
         Suite(nameof(VerifyFileSelectMapAnimations), () => VerifyFileSelectMapAnimations());
         Suite(nameof(VerifyMapCancelPresentation), () => VerifyMapCancelPresentation());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
+        for (int areaIndex = 0; areaIndex < FileSelectMapDefinitions.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
         {
             AreaId area = (AreaId)areaIndex;
             var system = new Bank80SystemState();
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
+            ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
             // Deliberately cross both native pages and explore cells outside the map
             // station's mask: explored cells win, even for secret rooms.
@@ -75,13 +76,13 @@ internal static class FileSelectRoomMapVerification
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.AreaLabelPointerTable + areaIndex * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + areaIndex * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800
-                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrame + word * 2)
+                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrame + word * 2)
                     : word < 960
-                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + (word - 799) * 2)
+                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrameFooter + (word - 799) * 2)
                         : (ushort)0x2801;
                 if (word is >= 170 and < 182)
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
@@ -255,7 +256,7 @@ internal static class FileSelectRoomMapVerification
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
                 Palette = null, FlipX = false, FlipY = false }];
@@ -441,7 +442,7 @@ internal static class FileSelectRoomMapVerification
     private static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
+        ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -498,7 +499,7 @@ internal static class FileSelectRoomMapVerification
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
                 TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
                 FlipX = false, FlipY = false }];
@@ -512,7 +513,7 @@ internal static class FileSelectRoomMapVerification
         for (int tick = 0; tick < durations[phase]; tick++)
         {
             marker.Step();
-            AssertEqual(expectedFrames[phase], (int)marker.SpritemapId, "station marker exact animation cadence");
+            AssertEqual(expectedFrames[phase], MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId), "station marker exact animation cadence");
             bool backing = phase is < 3 or >= 7;
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = ScreenSpritesFixtures.Blank();

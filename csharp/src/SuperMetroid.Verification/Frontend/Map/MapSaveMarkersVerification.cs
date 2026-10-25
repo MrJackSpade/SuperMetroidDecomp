@@ -30,14 +30,14 @@ internal static class MapSaveMarkersVerification
     internal static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
         var expectedIds = new List<string>();
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)FrontendSourceDefinitions.SavePointMapPointers + area * 2);
             int nativeMask = 0;
             var expectedIndices = new List<int>();
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (pointer + index * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4));
                 AssertTrue(x != ushort.MaxValue, "all sixteen native save/elevator slots precede the terminator");
                 bool usable = x != ushort.MaxValue - 1;
                 AssertEqual(usable, MapSaveMarkerDefinitions.IsUsable((AreaId)area, index),
@@ -94,7 +94,7 @@ internal static class MapSaveMarkersVerification
         var guard = NewSaveMarkerGuard(bus);
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
         int valid = 0;
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
         {
             var typedArea = (AreaId)area;
@@ -192,13 +192,13 @@ internal static class MapSaveMarkersVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
         var blocked = new HashSet<int>();
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             int entry = (int)FrontendSourceDefinitions.SavePointMapPointers + area * 2;
             int list = RomDataReader.ReadWordFixedBank(cartridge, entry);
             blocked.Add(entry); blocked.Add(entry + 1);
             for (int offset = 0; offset < MapSaveMarkerDefinitions.SlotsPerArea * 4; offset++)
-                blocked.Add(FileSelectMapRomData.MenuObjectBank | (list + offset));
+                blocked.Add(MapSourceDefinitions.Menu.ObjectBank | (list + offset));
         }
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(blocked.Contains, _ => "Installed selected-save marker read cartridge coordinate table.");

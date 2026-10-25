@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Hud.Artwork;
 
-/// <summary>Stable resource names, extraction sources and native gameplay-HUD layout identities.</summary>
+/// <summary>Stable resource names and gameplay-HUD layout identities.</summary>
 public static class GameplayHudDefinitions
 {
     /// <summary>Revision 2 of the editable HUD schema, including the separately supplied static top row and named dynamic visual owners.</summary>
@@ -15,26 +15,8 @@ public static class GameplayHudDefinitions
     public const int CellCount = Width * Height;
     /// <summary>The mutable HUD tilemap's size in cells.</summary>
     public static Extent16<TilemapCells> Size => new(Width, Height);
-    /// <summary>The static top row's cartridge words at $80:988B, which extraction reads.</summary>
-    public const int TopRowAddress = 0x80988b;
-
-    /// <summary>Thirty-two tile cells in the static minimap-border row at $80:988B..98CA.</summary>
+    /// <summary>Thirty-two tile cells in the static minimap-border row.</summary>
     public const int TopRowCellCount = Width;
-
-    /// <summary>The three mutable HUD rows copied from <c>$80:98CB</c>.</summary>
-    public const int TemplateAddress = 0x8098cb;
-
-    /// <summary>Missile, Super Missile, Power Bomb, Grapple and X-Ray icon cells at <c>$80:99A3</c>.</summary>
-    public const int IconTableAddress = 0x8099a3;
-
-    /// <summary>The ten health-counter character words at <c>$80:9DBF</c>.</summary>
-    public const int HealthDigitsAddress = 0x809dbf;
-
-    /// <summary>The ten ammunition-counter character words at <c>$80:9DD3</c>.</summary>
-    public const int AmmoDigitsAddress = 0x809dd3;
-
-    /// <summary>The six filled and six empty AUTO indicator words at <c>$80:998B</c>.</summary>
-    public const int AutoReserveTableAddress = 0x80998b;
 
     /// <summary>The canonical blank HUD word used by native icon guards and MANUAL clearing.</summary>
     public const ushort BlankWord = 0x2c0f;

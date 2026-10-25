@@ -12,10 +12,10 @@ public static class FileSelectMapWindowCompositor
         if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
             throw new ArgumentException("File-select entry windows require two complete scenes and a complete output.");
         roomFrame.CopyTo(pixels);
-        for (int y = FileSelectMapRomData.EntryWindowTop; y < FrontendFrame.Height - FileSelectMapRomData.EntryWindowTop; y++)
+        for (int y = FileSelectMapDefinitions.EntryWindowTop; y < FrontendFrame.Height - FileSelectMapDefinitions.EntryWindowTop; y++)
         {
-            int offset = y * FrontendFrame.Width + FileSelectMapRomData.EntryWindowLeft;
-            area.Slice(offset, FileSelectMapRomData.EntryWindowRight - FileSelectMapRomData.EntryWindowLeft + 1)
+            int offset = y * FrontendFrame.Width + FileSelectMapDefinitions.EntryWindowLeft;
+            area.Slice(offset, FileSelectMapDefinitions.EntryWindowRight - FileSelectMapDefinitions.EntryWindowLeft + 1)
                 .CopyTo(pixels.AsSpan(offset));
         }
         return pixels;

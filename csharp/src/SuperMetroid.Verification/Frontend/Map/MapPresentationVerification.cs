@@ -146,13 +146,13 @@ internal static class MapPresentationVerification
             var hud = new HudState();
             hud.BindPresentation(hudArt);
             hud.Initialize(HudSnapshot.CeresDebug);
-            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
+            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
             AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
             AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
-            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
+            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
             AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
         }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
@@ -1447,7 +1447,7 @@ internal static class MapPresentationVerification
 
     /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
-        AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules,
+        AreaMapPresentationCatalog edited, ImportedAreaMap[] rules,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
@@ -1527,29 +1527,29 @@ internal static class MapPresentationVerification
 
     /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
+    internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, ImportedAreaMap[] maps)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + CgramPalettes.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.EntryPalette + CgramPalettes.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
+                (address >= MapSourceDefinitions.Artwork.PauseColors && address < MapSourceDefinitions.Artwork.PauseColors + CgramPalettes.ByteCount) ||
+                (address >= MapSourceDefinitions.Menu.Colors && address < MapSourceDefinitions.Menu.Colors + CgramPalettes.ByteCount) ||
+                (address >= MapSourceDefinitions.FileSelectMap.PaletteColors && address < MapStaticPalettesNativeSources.WorldPaletteDataEnd),
             address => $"Live presentation read static map palette ROM at {address:X6}.");
         guard.Forbid(address =>
-                (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTiming &&
-                    address <= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTimingStride) ||
-                (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors &&
-                    address < SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
+                (address >= MapSourceDefinitions.Animation.PaletteTiming &&
+                    address <= MapSourceDefinitions.Animation.PaletteTiming + MapAnimationNativeSources.PaletteFrameCount * MapSourceDefinitions.Animation.PaletteTimingStride) ||
+                (address >= MapSourceDefinitions.Animation.PaletteColors &&
+                    address < MapSourceDefinitions.Animation.PaletteColors + MapAnimationNativeSources.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
             address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
-        guard.Forbid(address => address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.ByteCount),
+        guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.HudCharacters and < (MapSourceDefinitions.Artwork.HudCharacters + HudTileAtlasFormat.ByteCount),
             address => $"Live presentation read HUD atlas ROM at {address:X6}.");
-        guard.Forbid(address => address is >= MapTileAtlasFormat.SourceAddress and < (MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount),
+        guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.MapCharacters and < (MapSourceDefinitions.Artwork.MapCharacters + MapTileAtlasFormat.ByteCount),
             address => $"Live presentation read map atlas ROM at {address:X6}.");
         guard.Forbid(address =>
-                (address >= AreaMapRomData.TilemapPointerTable && address < AreaMapRomData.TilemapPointerTable + AreaIds.RetailCount * 3) ||
-                (address >= AreaMapRomData.StationRevealMaskPointerTable && address < AreaMapRomData.StationRevealMaskPointerTable + AreaIds.RetailCount * 2) ||
-                maps.Any(map => (address >= map.TilemapAddress && address < map.TilemapAddress + AreaMapRomData.TilemapByteCount) ||
-                    (address >= map.StationRevealMaskAddress && address < map.StationRevealMaskAddress + AreaMapRomData.StationRevealMaskByteCount)),
+                (address >= MapSourceDefinitions.AreaMaps.TilemapPointers && address < MapSourceDefinitions.AreaMaps.TilemapPointers + AreaIds.RetailCount * 3) ||
+                (address >= MapSourceDefinitions.AreaMaps.StationRevealMaskPointers && address < MapSourceDefinitions.AreaMaps.StationRevealMaskPointers + AreaIds.RetailCount * 2) ||
+                maps.Any(map => (address >= map.TilemapSource && address < map.TilemapSource + MapSourceDefinitions.AreaMaps.TilemapBytes) ||
+                    (address >= map.StationRevealMaskSource && address < map.StationRevealMaskSource + MapSourceDefinitions.AreaMaps.StationRevealMaskBytes)),
             address => $"Live presentation read map ROM at {address:X6}.");
         return guard;
     }

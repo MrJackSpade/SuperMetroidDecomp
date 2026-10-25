@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hud;
 
 
 namespace SuperMetroid.Core.Hud.Artwork;
@@ -56,13 +57,13 @@ public static class GameplayMessageNoticeDefinitions
     {
         int rows = ContentRows(messageId);
         Ensure.NotNull(template);
-        if (template.Count != rows * GameplayMessageRomData.Layout.TilemapWidth)
+        if (template.Count != rows * GameplayMessageBoxDefinitions.Layout.TilemapWidth)
             throw new InvalidDataException("Notice region derivation requires its complete native tilemap rows.");
         return Enumerate();
 
         IEnumerable<GameplayMessageTextRegionDefinition> Enumerate()
         {
-            int width = GameplayMessageRomData.Layout.TilemapWidth;
+            int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
             for (int row = 0; row < rows; row++)
             {
                 int column = 0;

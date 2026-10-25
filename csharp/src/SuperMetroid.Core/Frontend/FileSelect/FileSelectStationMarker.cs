@@ -27,7 +27,7 @@ public sealed class FileSelectStationMarker
     internal void BindPosition(AreaId area, int stationIndex, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayout? layout)
     {
         int areaIndex = AreaIds.ToIndex(area);
-        if ((uint)areaIndex >= FileSelectMapRomData.AreaCount)
+        if ((uint)areaIndex >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         if ((uint)stationIndex >= MapSaveMarkerDefinitions.SlotsPerArea)
             throw new ArgumentOutOfRangeException(nameof(stationIndex));
@@ -71,7 +71,7 @@ public sealed class FileSelectStationMarker
         void Add(MapSpriteId id)
         {
             MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Save marker requires the installed map sprite sheet."),
-                id, entries, origin.ToOam(), FileSelectMapRomData.StationMarkerPalette);
+                id, entries, origin.ToOam(), FileSelectMapDefinitions.StationMarkerPalette);
         }
     }
 }

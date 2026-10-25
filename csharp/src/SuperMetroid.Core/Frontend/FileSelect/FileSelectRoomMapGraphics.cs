@@ -45,7 +45,7 @@ public sealed class FileSelectRoomMapGraphics
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         icons.BindSprites(mapSheet);
         int index = AreaIds.ToIndex(area);
-        if (index >= FileSelectMapRomData.AreaCount)
+        if (index >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, sprites, installed);
@@ -117,13 +117,13 @@ public sealed class FileSelectRoomMapGraphics
         ScreenLayerPictures tiles = screen.RoomMapTiles;
         ScreenTileMap frame = ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), tiles);
         if (content == RoomMapContent.FrameOnly)
-            layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), null));
+            layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), null));
         else
         {
             ScreenTileMap map = ScreenTileMap.Of(screen.Tilemaps.AreaMap, new Extent16<TilemapCells>(64, 32), tiles);
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), priority));
+                layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), priority));
                 layers.Add(new TileRenderLayer(map, scroll.AsBgPlaneScroll(), priority));
             }
         }

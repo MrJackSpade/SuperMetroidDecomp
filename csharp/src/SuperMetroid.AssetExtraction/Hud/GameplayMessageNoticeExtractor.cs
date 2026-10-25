@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
@@ -24,8 +24,8 @@ public static class GameplayMessageNoticeExtractor
         var notices = new Dictionary<string, GameplayMessageNotice>(StringComparer.Ordinal);
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
-            int definition = GameplayMessageRomData.Assets.DefinitionTable +
-                ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
+            int definition = HudSourceDefinitions.Messages.DefinitionTable +
+                ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
             ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
@@ -33,16 +33,16 @@ public static class GameplayMessageNoticeExtractor
             GameplayMessageRoutine expectedSetup = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
                 ? GameplayMessageRoutine.SetupLarge
                 : GameplayMessageRoutine.SetupSmall;
-            if (ClosedNativeWords.Decode<GameplayMessageRoutine>(setup, "message setup routine") != expectedSetup ||
-                ClosedNativeWords.Decode<GameplayMessageRoutine>(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap)
+            if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != expectedSetup ||
+                GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap)
             {
                 throw new InvalidDataException(
                     $"Gameplay message {id} is not the expected completion/save notice.");
             }
 
             var template = new GameplayMessageTitleCell[
-                rowCount * GameplayMessageRomData.Layout.TilemapWidth];
-            int content = GameplayMessageRomData.Assets.BankBase | pointer;
+                rowCount * GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+            int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
                 template[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
 
@@ -51,7 +51,7 @@ public static class GameplayMessageNoticeExtractor
                 GameplayMessageNoticeDefinitions.StockTextRegions(id, template))
             {
                 GameplayMessageTitleCell[] cells = template.AsSpan(
-                    region.Row * GameplayMessageRomData.Layout.TilemapWidth + region.Column,
+                    region.Row * GameplayMessageBoxDefinitions.Layout.TilemapWidth + region.Column,
                     region.Width).ToArray();
                 int palette = (cells.First(cell =>
                     GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw) != ' ').Word.Raw >> 10) & 7;
@@ -79,8 +79,8 @@ public static class GameplayMessageNoticeExtractor
             GameplayMessageTitleCell[]? no = null;
             if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
             {
-                yes = ReadSelection(bus, GameplayMessageRomData.Layout.SaveSelectionYesSourceWord);
-                no = ReadSelection(bus, GameplayMessageRomData.Layout.SaveSelectionNoSourceWord);
+                yes = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionYesSourceWord);
+                no = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionNoSourceWord);
             }
             notices.Add(id.ToString(), new()
             {
@@ -92,9 +92,9 @@ public static class GameplayMessageNoticeExtractor
             });
         }
 
-        var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
+        var border = new GameplayMessageTitleCell[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
+            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessageNoticePresentation.Write(output, new()
@@ -113,10 +113,10 @@ public static class GameplayMessageNoticeExtractor
         int sourceWord)
     {
         var result = new GameplayMessageTitleCell[
-            GameplayMessageRomData.Layout.SaveSelectionRowWords];
+            GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords];
         for (int word = 0; word < result.Length; word++)
         {
-            result[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SaveSelectionTilemap +
+            result[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SaveSelectionTilemap +
                 (sourceWord + word) * sizeof(ushort))) };
         }
         return result;

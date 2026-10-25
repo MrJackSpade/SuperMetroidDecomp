@@ -30,6 +30,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -74,7 +75,7 @@ public static class MapPresentationExtractor
             file.Write(revealBytes);
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
         byte[] tilePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> atlasSize);
         using var atlas = new MemoryStream();
         // Palette indexes are tile content; runtime CGRAM supplies the selected map
@@ -85,7 +86,7 @@ public static class MapPresentationExtractor
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> pauseSize);
         using var pauseAtlas = new MemoryStream();
         IndexedPng.Write(pauseAtlas, pauseSize, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
@@ -94,7 +95,7 @@ public static class MapPresentationExtractor
             file.Write(pauseBytes);
         hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount),
             2, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> hudSize);
         using var hudAtlas = new MemoryStream();
         IndexedPng.Write(hudAtlas, hudSize, hudPixels, SnesGraphics.DiagnosticPalette(4));
@@ -111,9 +112,9 @@ public static class MapPresentationExtractor
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
         var labelPoints = new Dictionary<string, Position16<OamPixels>>();
-        for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapDefinitions.AreaCount; area++)
         {
-            int address = SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.LabelPositions + area * 4;
+            int address = MapSourceDefinitions.FileSelectMap.LabelPositions + area * 4;
             labelPoints.Add(((AreaId)area).ToString(), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }

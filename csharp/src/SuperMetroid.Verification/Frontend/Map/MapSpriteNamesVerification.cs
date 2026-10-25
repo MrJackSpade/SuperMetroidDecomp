@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 
@@ -43,13 +44,14 @@ internal static class MapSpriteNamesVerification
         // Independent original table from9b54e512, retained only for verification.
         var original = MapSpriteRoleOracle();
         AssertEqual(original.Length, MapSpriteDefinitions.Count, "map sprite complete role count");
-        AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames.Select(frame => new MapSpriteRoleOracleResult((ushort)frame.Id, frame.Name))), "original map sprite document order");
+        AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames.Select(frame => new MapSpriteRoleOracleResult(MapSpriteOrdinals.Spritemaps.Word(frame.Id), frame.Name))), "original map sprite document order");
         foreach (var entry in original)
-            AssertEqual(entry.Name, MapSpriteDefinitions.Name((MapSpriteId)entry.NativeId), "original native identity name");
+            AssertEqual(entry.Name, MapSpriteDefinitions.Name(MapSpriteOrdinals.Spritemaps.Decode(entry.NativeId, "map spritemap ordinal")), "original native identity name");
         var supported = original.Select(entry => entry.NativeId).ToHashSet();
         for (int id = 0; id <= ushort.MaxValue; id++)
-            AssertEqual(supported.Contains((ushort)id), Enum.IsDefined((MapSpriteId)id), "complete map sprite membership domain");
-        foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
+            AssertEqual(supported.Contains((ushort)id), MapSpriteOrdinals.Spritemaps.TryDecode((ushort)id, out _), "complete map sprite ordinal domain: the import's table holds the native ordinals; the identities' values are arbitrary");
+        AssertEqual(MapSpriteDefinitions.Count, Enum.GetValues<MapSpriteId>().Length, "one map sprite identity per role");
+        foreach (ushort invalid in new ushort[] { 0, MapSpriteDefinitions.Count + 1, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteDefinitions.Name((MapSpriteId)invalid), "unsupported map sprite name");
     }
 

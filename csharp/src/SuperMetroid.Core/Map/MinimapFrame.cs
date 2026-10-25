@@ -17,8 +17,8 @@ public sealed record MinimapFrame
     /// <summary>Samus.</summary>
     public required Position16<RoomPixels> Samus { get; init; }
 
-    /// <summary>Nmi frame counter.</summary>
-    public required int NmiFrameCounter { get; init; }
+    /// <summary>The game's frame counter, whose eight-frame phase blinks the minimap's position marker.</summary>
+    public required int FrameCounter { get; init; }
 
     /// <summary>Map reveal mode.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;

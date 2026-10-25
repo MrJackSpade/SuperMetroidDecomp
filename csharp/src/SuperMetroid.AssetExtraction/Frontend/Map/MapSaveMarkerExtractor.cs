@@ -22,13 +22,13 @@ public static class MapSaveMarkerExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var points = new Dictionary<string, Position16<MapPixels>>();
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FrontendSourceDefinitions.SavePointMapPointers.AddWithinBank(area * 2));
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
-                int address = FileSelectMapRomData.MenuObjectBank | (pointer + index * 4);
+                int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4);
                 ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 bool usable = MapSaveMarkerDefinitions.IsUsable(typedArea, index);
                 if (usable)

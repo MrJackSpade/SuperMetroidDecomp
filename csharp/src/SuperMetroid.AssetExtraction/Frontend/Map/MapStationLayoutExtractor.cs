@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -26,9 +26,9 @@ public static class MapStationLayoutExtractor
         {
             int table = kind switch
             {
-                MapStationKind.Missile => FileSelectMapIconRomData.MissileLists,
-                MapStationKind.Energy => FileSelectMapIconRomData.EnergyLists,
-                MapStationKind.Map => FileSelectMapIconRomData.MapStationLists,
+                MapStationKind.Missile => MapSourceDefinitions.Landmarks.MissileLists,
+                MapStationKind.Energy => MapSourceDefinitions.Landmarks.EnergyLists,
+                MapStationKind.Map => MapSourceDefinitions.Landmarks.MapStationLists,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind))
             };
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
@@ -37,7 +37,7 @@ public static class MapStationLayoutExtractor
             if (pointer != 0)
                 for (; count <= rules.Length; count++)
                 {
-                    int address = FileSelectMapRomData.MenuObjectBank | (pointer + count * 4);
+                    int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + count * 4);
                     ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                     if ((short)x < 0) break;
                     if (count == rules.Length) throw new InvalidDataException($"Unexpected {area}/{kind} station record.");

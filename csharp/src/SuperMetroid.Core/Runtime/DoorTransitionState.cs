@@ -251,7 +251,7 @@ internal sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.HandleAnimatedTiles:
-                // LoadCartridgeRoom already initialized the destination animtile owner.
+                // LoadRoom already initialized the destination animtile owner.
                 // Native gives it one explicit call before polling the global music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);

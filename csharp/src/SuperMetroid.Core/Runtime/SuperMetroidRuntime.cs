@@ -424,7 +424,7 @@ internal sealed class SuperMetroidRuntime
         FrameBoundary.BeginAcceptedFrame(controllerInput);
         Sprites.BeginFrame();
         Sprites.FinalizeFrame();
-        RoomLoader.PublishDoorScrollingIrqNmiRequest();
+        RoomLoader.ClearCounter8DuringDoorScroll();
     }
 
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>

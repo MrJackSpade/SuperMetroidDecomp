@@ -70,7 +70,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             // room, where his tilemap covers them, would not (#1392).
             if (self.Hud.IsInitialized)
                 self.HudSetup.ShowHudCharacters();
-            InitialViewportResult viewport = self.RoomLoader.LoadCartridgeRoom(
+            InitialViewportResult viewport = self.RoomLoader.LoadRoom(
                 door,
                 room,
                 camera,
@@ -94,7 +94,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
             SelectedRoom room = self.RoomLoader.LoadSelectedRoom(door.DestinationRoom);
-            return self.RoomLoader.LoadCartridgeRoom(
+            return self.RoomLoader.LoadRoom(
                 door,
                 room,
                 camera,

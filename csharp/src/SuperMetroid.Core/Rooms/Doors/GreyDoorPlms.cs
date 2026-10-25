@@ -12,7 +12,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
+        table.Add(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
     }
 
     /// <summary>The room's system and event state.</summary>

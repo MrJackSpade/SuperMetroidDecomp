@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -16,15 +18,15 @@ internal static class MaridiaElevatubePlmDefinitions
     /// <summary>The draw that places the elevatube's solid block.</summary>
     internal static PlmFrameDraw<Draw> BlockDraw { get; } = PlmDraw.Of(Draw.Block);
 
-    /// <summary>84:9369: solid block 180, shared with Kraid's physical draw. Block 180 is the one named visual scalar.</summary>
-    internal const ushort PhysicalWord = 0x8180;
+    /// <summary>The elevatube's level entry: a solid block showing visual block $180, the block Kraid's physical draw also shows.</summary>
+    internal static RoomLevelWord PhysicalWord { get; } = RoomLevelWord.Create(0x180, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock);
 
     /// <summary>Temporary artwork description for export; gameplay draws the single physical word directly.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BlockDrawList =>
         new(BlockDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { PhysicalWord }, new(0, 0)),
+                new(1, new ushort[] { PhysicalWord.Raw }, new(0, 0)),
             });
 
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>

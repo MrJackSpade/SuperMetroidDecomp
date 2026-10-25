@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Native continuation operands for the Chozo Speed Booster pickup.</summary>
+/// <summary>The continuation of the Chozo Speed Booster pickup.</summary>
 internal static class SpeedBoosterPickupDefinitions
 {
     /// <summary>
-    /// $84:E63B, Instruction_PLM_FXYVelocity_FFE0: signed 8.8 upward liquid velocity
-    /// written after the Chozo Speed Booster acquisition message returns.
+    /// The lava's upward speed once the Speed Booster acquisition message returns: an eighth of a pixel per update
+    /// (32/256 of a pixel, upward).
     /// </summary>
-    internal const ushort LavaRiseVelocity = 0xffe0;
+    internal static SnesSignedEightEight LavaRiseVelocity { get; } = SnesSignedEightEight.FromSignedRaw(-32);
 }

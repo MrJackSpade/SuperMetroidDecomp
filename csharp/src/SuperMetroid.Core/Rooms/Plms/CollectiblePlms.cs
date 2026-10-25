@@ -14,7 +14,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.Collectible, (slot, context) =>
+        table.Add(PlmFamily.Collectible, (slot, context) =>
             TryStepCollectible(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
@@ -86,8 +86,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             return;
         IRoomFxMotion fx = _roomFx
             ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
-        fx.ApplyCartridgeMotionWrites(
-            packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity);
+        fx.SetLiquidMotion(
+            packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue);
         _pendingSpeedBoosterPickupContinuation = false;
     }
 

@@ -13,7 +13,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);
+        table.Add(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);
     }
 
     /// <summary>The enemy effects room objects trigger.</summary>

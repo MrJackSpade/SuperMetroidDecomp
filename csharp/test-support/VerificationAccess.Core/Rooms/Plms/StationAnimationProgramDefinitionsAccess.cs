@@ -17,8 +17,8 @@ internal static class StationAnimationProgramDefinitionsAccess
             for (int index = 0; index < StationAnimationProgramDefinitions.FrameCount(list); index++)
             {
                 StationAnimationProgramDefinitions.Frame frame = StationAnimationProgramDefinitions.Resolve(list, index);
-                yield return new NativeWord(checked((ushort)((ushort)list + 4 * index)), frame.Duration);
-                yield return new NativeWord(checked((ushort)((ushort)list + 4 * index + 2)), PlmDrawAddressCodec.Of(frame.Draw));
+                yield return new NativeWord(checked((ushort)(StationNativeWords.AnimationLists.Word(list) + 4 * index)), frame.Duration);
+                yield return new NativeWord(checked((ushort)(StationNativeWords.AnimationLists.Word(list) + 4 * index + 2)), PlmDrawAddressCodec.Of(frame.Draw));
             }
         }
     }

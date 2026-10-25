@@ -431,7 +431,7 @@ public sealed class RoomLayer3FxState
     /// <c>$89:AB82</c>. The translated bank-$88 liquid handler consumes those shared words
     /// on its next ordinary effect pass, just as the cartridge does.
     /// </summary>
-    internal void ApplyCartridgeMotionWrites(
+    internal void SetLiquidMotion(
         ushort? baseYPosition = null,
         ushort? targetYPosition = null,
         ushort? packedYVelocity = null,
@@ -483,7 +483,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     /// <summary>
     /// Clears the water-physics-disabled bit as <c>Instruction_PLM_EnableWaterPhysics</c> does; see
-    /// <see cref="ApplyCartridgeMotionWrites"/> for why the room-FX owner holds the word.
+    /// <see cref="SetLiquidMotion"/> for why the room-FX owner holds the word.
     /// </summary>
     internal void EnableWaterPhysics() =>
         LiquidOptions &= ~RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave;

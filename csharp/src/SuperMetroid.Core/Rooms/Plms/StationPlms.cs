@@ -12,7 +12,7 @@ internal sealed class StationPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.Station, (slot, context) =>
+        table.Add(PlmFamily.Station, (slot, context) =>
             TryStepStation(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
@@ -36,10 +36,6 @@ internal sealed class StationPlms : IPlmFamilySource
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>Native instruction-list offset for a station's ordinary animation.</summary>
-    private const int StationNormalAnimationOffset = 4;
-    /// <summary>Native instruction-list offset for the map station's acquired animation.</summary>
-    private const int MapStationAcquiredAnimationOffset = 20;
     /// <summary>Frames spent extending or retracting the station access arm.</summary>
     private const ushort StationAccessMovementFrames = 6;
     /// <summary>Native hold before a fully extended arm publishes station activation.</summary>
@@ -526,13 +522,11 @@ internal sealed class StationPlms : IPlmFamilySource
             original,
             RoomCollisionType.SpecialBlock,
             new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
-        StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
-            RoomPlmHeaderDefinitions.Get(slot.Header).InitialInstruction, "save-station animation list");
         slot.Family = new StationPlmState(
             StationKind.Save,
             area,
-            saveList,
-            completedAnimationList: saveList,
+            StationAnimationList.SaveIdle,
+            completedAnimationList: StationAnimationList.SaveIdle,
             animationFrameCount: 1);
     }
 
@@ -552,15 +546,9 @@ internal sealed class StationPlms : IPlmFamilySource
         WriteAccessBlock(level, slot.BlockIndex + layout.RightOffset, layout.RightBehavior);
         WriteAccessBlock(level, slot.BlockIndex + layout.LeftOffset, layout.LeftBehavior);
 
-        StationAnimationList normalAnimationList = ClosedNativeWords.Decode<StationAnimationList>(
-            unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.Header).InitialInstruction + StationNormalAnimationOffset)),
-            "station animation list");
-        StationAnimationList completedAnimationList = layout.HasAcquiredAnimation
-            ? ClosedNativeWords.Decode<StationAnimationList>(
-                unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.Header).InitialInstruction + MapStationAcquiredAnimationOffset)),
-                "map-station acquired animation list")
-            : normalAnimationList;
-        StationAnimationList initialAnimationList = layout.HasAcquiredAnimation && system.HasAreaMap(area)
+        StationAnimationList normalAnimationList = layout.Animation;
+        StationAnimationList completedAnimationList = layout.AcquiredAnimation ?? normalAnimationList;
+        StationAnimationList initialAnimationList = layout.AcquiredAnimation is not null && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
         slot.Family = new StationPlmState(

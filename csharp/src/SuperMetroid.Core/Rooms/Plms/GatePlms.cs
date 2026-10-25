@@ -11,7 +11,7 @@ internal sealed class GatePlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
+        table.Add(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
     }
 
     /// <summary>Samus as the room reads and changes her.</summary>

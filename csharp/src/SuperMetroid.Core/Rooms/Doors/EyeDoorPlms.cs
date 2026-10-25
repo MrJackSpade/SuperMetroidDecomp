@@ -12,7 +12,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.EyeDoor, static (_, _) => PlmStepOutcome.Shared);
+        table.Add(PlmFamily.EyeDoor, static (_, _) => PlmStepOutcome.Shared);
     }
 
     /// <summary>The room's system and event state.</summary>

@@ -10,7 +10,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.Scroll, static (slot, context) =>
+        table.Add(PlmFamily.Scroll, static (slot, context) =>
             TryStepScrollPlm(context.Level, context.Frame.Scrolls, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 

@@ -16,11 +16,11 @@ internal static class ZoaAnimations
     {
         [P.FacingLeftShooting] =
         [
-            Cue(new(K.SetSpeedIndex4)),
+            Cue(new(K.SetSpeedStage1)),
             Show(0, 64),
-            Cue(new(K.SetSpeedIndex8)),
+            Cue(new(K.SetSpeedStage2)),
             Show(1, 8),
-            Cue(new(K.SetSpeedIndex12)),
+            Cue(new(K.SetSpeedStage3)),
             Show(2, 48),
             GoTo(P.FacingLeftShooting),
         ],
@@ -33,11 +33,11 @@ internal static class ZoaAnimations
         ],
         [P.FacingRightShooting] =
         [
-            Cue(new(K.SetSpeedIndex4)),
+            Cue(new(K.SetSpeedStage1)),
             Show(6, 64),
-            Cue(new(K.SetSpeedIndex8)),
+            Cue(new(K.SetSpeedStage2)),
             Show(7, 8),
-            Cue(new(K.SetSpeedIndex12)),
+            Cue(new(K.SetSpeedStage3)),
             Show(8, 48),
             GoTo(P.FacingRightShooting),
         ],

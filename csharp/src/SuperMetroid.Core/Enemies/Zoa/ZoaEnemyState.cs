@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// The state of a Zoa, with its one parallel $7E:7800 speed-table word. The values the cartridge keeps in the enemy's
+/// The state of a Zoa, with its launch speed stage. The values the cartridge keeps in the enemy's
 /// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). “Shooting” is the ROM's
 /// name for the creature launching itself horizontally; it does not create a separate enemy projectile.
 /// </summary>
@@ -29,8 +29,8 @@ public sealed class ZoaEnemyState
     /// </summary>
     public ZoaEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Byte offset zero, four, eight, or twelve into the five-row X-speed table, set by the shooting animation's cues.</summary>
-    public int XSpeedTableIndex { get; internal set; }
+    /// <summary>The launch's speed stage, zero (at rest) through three, advanced by the shooting animation's cues (<see cref="ZoaSpeedDefinitions.StageSpeedEighths"/>).</summary>
+    public int ShotSpeedStage { get; internal set; }
 
     /// <summary>Where Zoa's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ZoaProgram> Program { get; set; }

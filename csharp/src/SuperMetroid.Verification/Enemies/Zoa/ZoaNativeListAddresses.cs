@@ -25,8 +25,8 @@ internal static class ZoaNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, ZoaNativeListAddressesInstruction> Instructions = new()
     {
-        [0xb429] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedIndex4, ""),
-        [0xb434] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedIndex8, ""),
-        [0xb43f] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedIndex12, ""),
+        [0xb429] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedStage1, ""),
+        [0xb434] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedStage2, ""),
+        [0xb43f] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedStage3, ""),
     };
 }

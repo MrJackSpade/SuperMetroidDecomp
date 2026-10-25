@@ -14,9 +14,9 @@ internal readonly record struct BotwoonSegmentProgram(BotwoonSegmentProgramKind 
     /// 62 into <c>BotwoonsBodyTail_InstListPointers</c> ($86:E9F1). Word index bit 4 selects the tail,
     /// bit 3 the hidden half of a region, and bits 0-2 the facing octant.
     /// </summary>
-    internal static BotwoonSegmentProgram FromSelector(ushort byteOffset)
+    internal static BotwoonSegmentProgram FromSelector(int byteOffset)
     {
-        if ((byteOffset & 1) != 0 || byteOffset >= 64)
+        if ((byteOffset & 1) != 0 || byteOffset is < 0 or >= 64)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(byteOffset), byteOffset, "Botwoon segment selector must be even and zero through 62.");

@@ -3429,7 +3429,7 @@ internal static class LookupStream4Verification
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
             enemies.Presentation.BindColours(cgram.Gameplay);
-            Action<ushort> apply = zoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(zoom);
+            Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
             for (int row = 0; row < 9; row++)
             {
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));

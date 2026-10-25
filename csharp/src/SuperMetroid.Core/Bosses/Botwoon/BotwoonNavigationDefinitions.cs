@@ -115,7 +115,7 @@ internal static class BotwoonNavigationDefinitions
                 $"Botwoon movement sample {sampleIndex} is outside the authored sample corpus.");
         }
 
-        byte packed = BotwoonMovementSampleData.At(sampleIndex);
+        int packed = BotwoonMovementSampleData.At(sampleIndex);
         return new Offset16<RoomPixels>(
             DecodeMovementComponent(packed >> 4),
             DecodeMovementComponent(packed & 0x0f));

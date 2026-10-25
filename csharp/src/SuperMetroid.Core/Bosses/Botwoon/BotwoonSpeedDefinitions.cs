@@ -21,7 +21,7 @@ public static class BotwoonSpeedDefinitions
     {
         if (phase is < 0 or > 2)
             throw new InvalidDataException($"Botwoon health phase {phase} is outside the three native speed records.");
-        ushort speed = (ushort)(phase + 2);
-        return new(speed, (ushort)(48 / speed), speed);
+        int speed = phase + 2;
+        return new(speed, 48 / speed, speed);
     }
 }

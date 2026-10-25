@@ -111,7 +111,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // searches native slots $22 down to $00, so retaining both orderings is essential:
         // death delay is based on projectile slot while body spacing is based on argument.
         for (int argument = 24; argument >= 0; argument -= 2)
-            SpawnBotwoonBodySegment(head, state, unchecked((ushort)argument));
+            SpawnBotwoonBodySegment(head, state, argument);
 
         state.Function = BotwoonEnemyFunction.InitialDelay;
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
@@ -220,9 +220,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.PathComplete = false;
-        ushort choice = 0;
+        int choice = 0;
         if (!state.InsideHole && !state.InitialAction && state.HealthPhase == 0)
-            choice = unchecked((ushort)(_room.Random.Generate() & BotwoonNavigationDefinitions.ActionChoiceMask));
+            choice = _room.Random.Generate() & BotwoonNavigationDefinitions.ActionChoiceMask;
         state.InitialAction = false;
 
         if (choice is 0 or 2 or 4)
@@ -279,10 +279,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
 
-        ushort nextInside = state.PendingDeath
-            ? (ushort)0
-            : unchecked((ushort)(_room.Random.Generate() & 1));
-        state.InsideHole = nextInside != 0;
+        state.InsideHole = !state.PendingDeath && (_room.Random.Generate() & 1) != 0;
         state.PreviousInsideHole = state.InsideHole;
         if (!state.InsideHole)
         {
@@ -472,25 +469,24 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int segmentIndex = argument >> 1;
             RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
-            ushort extraAngle = state.SegmentInsideHole[segmentIndex] ? (ushort)256 : (ushort)0;
-            short dx;
-            short dy;
+            int extraAngle = state.SegmentInsideHole[segmentIndex] ? 256 : 0;
+            Offset16<RoomPixels> toLeader;
             if (argument == 24)
             {
-                dx = unchecked((short)(head.Position.X.Whole - segment.Position.X.Whole));
-                dy = unchecked((short)(head.Position.Y.Whole - segment.Position.Y.Whole));
+                toLeader = head.Position.Whole - segment.Position.Whole;
             }
             else
             {
                 RoomEnemyProjectileSlot previous = state.Segment(segmentIndex + 1);
-                dx = unchecked((short)(previous.Position.X.Whole - segment.Position.X.Whole));
-                dy = unchecked((short)(previous.Position.Y.Whole - segment.Position.Y.Whole));
+                toLeader = previous.Position.Whole - segment.Position.Whole;
                 if (argument == 0)
-                    extraAngle = unchecked((ushort)(extraAngle + 512));
+                    extraAngle += 512;
             }
 
-            ushort angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateBearing(new(dx, dy)).RawValue));
-            segment.DirectionParameter = unchecked((ushort)(2 * (angle >> 5)));
+            // The bearing word plus at most 768 keeps the selector's sixteen-bit wrap; the
+            // selector itself is at most 4094.
+            int angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateBearing(toLeader).RawValue));
+            segment.DirectionParameter = 2 * (angle >> 5);
         }
     }
 
@@ -563,9 +559,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         Offset16<RoomPixels> moved = head.Position.Whole - state.HeadHistory[3];
-        short dx = moved.X;
-        short dy = moved.Y;
-        if (dx != 0 || dy != 0)
+        if (moved.X != 0 || moved.Y != 0)
         {
             BotwoonHeadProgram program;
             if (state.InsideHole)
@@ -580,7 +574,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 head.Layer = 2;
                 // `$B3:9E10` (AND #$FBFF) restores collision once the head is outside.
                 head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateBearing(new(dx, dy)));
+                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateBearing(moved));
             }
             InstallBotwoonHeadProgram(head, state, program);
         }
@@ -684,12 +678,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int count,
         int startOffset)
     {
-        ushort speed = BotwoonSpeedDefinitions.ForHealthPhase(state.HealthPhase).SpitSpeed;
-        byte angle = state.SpitAngle.AddTableUnits(startOffset).TableIndex;
+        int speed = BotwoonSpeedDefinitions.ForHealthPhase(state.HealthPhase).SpitSpeed;
+        SnesByteAngle angle = state.SpitAngle.AddTableUnits(startOffset).ToByteAngle();
         for (int projectile = 0; projectile < count; projectile++)
         {
-            SpawnBotwoonSpit(head, new SnesByteAngle(angle), speed);
-            angle = unchecked((byte)(angle + 16));
+            SpawnBotwoonSpit(head, angle, speed);
+            angle = angle.AddTableUnits(16);
         }
     }
 
@@ -843,9 +837,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesByteAngle angle,
         int magnitude)
     {
-        ushort wholeMagnitude = checked((ushort)magnitude);
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, wholeMagnitude);
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, wholeMagnitude);
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)magnitude));
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)magnitude));
         int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
         head.Position = head.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
@@ -932,7 +925,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnBotwoonBodySegment(
         RoomEnemySlot head,
         BotwoonEnemyState state,
-        ushort spawnArgument)
+        int spawnArgument)
     {
         RoomEnemyProjectileSlot? segment = _projectiles.AllocateEnemyProjectile();
         if (segment is null)
@@ -950,7 +943,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
         // $10; argument zero is the tail cap and begins at $30.
-        ushort orientation = spawnArgument != 0 ? (ushort)16 : (ushort)48;
+        int orientation = spawnArgument != 0 ? 16 : 48;
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(orientation)));
         segment.DirectionParameter = orientation;
 
@@ -1020,7 +1013,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
-        if (animation.Install(BotwoonSegmentProgram.FromSelector(checked((ushort)segment.DirectionParameter))))
+        if (animation.Install(BotwoonSegmentProgram.FromSelector(segment.DirectionParameter)))
             segment.InstructionTimer = WrappingCountdown.Start(1);
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
@@ -1074,7 +1067,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>EprojInit_BotwoonsSpit</c> at <c>$86:EBC6</c>.</summary>
-    internal void SpawnBotwoonSpit(RoomEnemySlot head, SnesByteAngle angle, ushort speed)
+    /// <param name="head">Botwoon's head.</param>
+    /// <param name="angle">The spit's direction.</param>
+    /// <param name="speed">The spit speed, 0 through 65535.</param>
+    internal void SpawnBotwoonSpit(RoomEnemySlot head, SnesByteAngle angle, int speed)
     {
         RoomEnemyProjectileSlot? spit = _projectiles.AllocateEnemyProjectile();
         if (spit is null)
@@ -1091,8 +1087,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // ConvertAngleToXy stores unsigned quarter-circle magnitudes; E73E applies signs
         // from the retained angle every frame. Keep both halves so shallow trajectories do
         // not lose their subpixel motion.
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, speed);
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, speed);
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)speed));
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)speed));
         spit.Velocity = spit.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
         spit.Variable0 = unchecked((ushort)xMagnitude);
         spit.Velocity = spit.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));

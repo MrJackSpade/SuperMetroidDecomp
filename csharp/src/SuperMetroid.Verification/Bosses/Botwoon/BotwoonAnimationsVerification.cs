@@ -183,7 +183,7 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = (bodyHead, bodyState, bodyArgument) => enemies.BotwoonBehavior.SpawnBotwoonBodySegment(bodyHead, bodyState, bodyArgument);
         Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();

@@ -43,7 +43,7 @@ internal static class PlmPreInstructionNativeRoutines
         {
             [PlmPreInstructions.Inert] = PlmPreInstructionDefinitions.SpawnDefault,
             [TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus] = OldTourianEscapeShaftWallPlmDefinitionsConstants.WaitForSamusPreInstruction,
-            [DraygonCannonPreInstructions.MissileHit] = DraygonCannonRomDataConstants.MissileHitPreInstruction,
+            [DraygonCannonPreInstructions.MissileHit] = DraygonNativeWords.MissileHitPreInstruction,
             [MotherBrainGlassPreInstructions.Hit] = MotherBrainGlassPlmProgramDefinitionsConstants.HitPreInstruction,
             [BombTorizoHandPreInstructions.WakeIfSamusHasBombs] = BombTorizoHandPlmProgramDefinitionsConstants.WakeIfSamusHasBombsPreInstruction,
             [ChozoStatuePreInstructions.WaitForLowerNorfairHand] = ChozoStatuePlmNativeRoutines.WaitForLowerNorfairHand,

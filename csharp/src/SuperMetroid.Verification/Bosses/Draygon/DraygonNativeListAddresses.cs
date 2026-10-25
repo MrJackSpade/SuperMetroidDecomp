@@ -105,8 +105,8 @@ internal static class DraygonNativeListAddresses
     {
         0x94dd => new DraygonCue.StartPartPrograms(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
         0x9895 or 0x9c8a => DraygonCue.BeginHudDraw.Instance,
-        0xc47b => new DraygonCue.SetEyeFunction(ClosedNativeWords.Decode<DraygonEyeFunction>(operands[0], "Draygon eye function")),
-        0x9736 => new DraygonCue.SetOwnEyeFunction(ClosedNativeWords.Decode<DraygonEyeFunction>(operands[0], "Draygon eye function")),
+        0xc47b => new DraygonCue.SetEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
+        0x9736 => new DraygonCue.SetOwnEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
         0x9e0a => new DraygonCue.DisplaceBodyGraphics(new(unchecked((short)operands[0]), unchecked((short)operands[1]))),
         0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[0])),
         0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, operands[0])),

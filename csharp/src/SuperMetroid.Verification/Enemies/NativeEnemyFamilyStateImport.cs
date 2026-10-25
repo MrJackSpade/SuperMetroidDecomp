@@ -142,7 +142,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
         {
-            draygonEyeRecord.Function = words.A == 0 ? null : (DraygonEyeFunction)words.A;
+            draygonEyeRecord.Function = words.A == 0 ? null : DraygonNativeWords.EyeFunctions.Decode(words.A, "recorded DraygonEyeFunction");
             draygonEyeRecord.LookAngle = words.F;
         }
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)

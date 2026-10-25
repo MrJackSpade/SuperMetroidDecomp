@@ -43,7 +43,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorEscapeSurfacePaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Draygon/Artwork/DraygonMaterialPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Draygon/Artwork/DraygonHealthPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonColorRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonColorDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonColorCatalog", "phantoon-v1-complete-color-targets",
             ["ResolveHealth", "ResolveFadeOut", "ResolvePowerOn"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PhantoonColorCatalog.cs"),

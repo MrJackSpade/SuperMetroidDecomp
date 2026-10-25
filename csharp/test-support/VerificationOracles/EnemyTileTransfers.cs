@@ -18,7 +18,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas? timer = null)
     : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork,
-        IInstalledBossSpriteCharacterArtwork, IInstalledAreaObjCharacterArtwork
+        IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => installed.Enemies;

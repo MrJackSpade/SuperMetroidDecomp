@@ -135,19 +135,26 @@ public sealed class CeresElevatorShaftRoomMainState
         // zero, restarting the forward sweep without ever exposing the bare reversing flag.
         if (unchecked((short)rotationIndex) < 0)
         {
-            scratch.Var1 = rotationIndex == (CeresShaftRotationPhaseFlags.Reversing | 1)
+            scratch.Var1 = rotationIndex == ReversingPhase(1)
                 ? (ushort)0
                 : unchecked((ushort)(rotationIndex - 1));
         }
         else
         {
             scratch.Var1 = rotationIndex == 67
-                ? (ushort)(CeresShaftRotationPhaseFlags.Reversing | 68)
+                ? ReversingPhase(68)
                 : unchecked((ushort)(rotationIndex + 1));
         }
 
         return new(Transform, MatrixChanged: true, DepartureRequestedThisFrame);
     }
+
+    /// <summary>
+    /// The phase of reversing step <paramref name="step"/>: the step with the phase word's sign set, which marks the
+    /// backward sweep (the sign test above reads it back). The low bits count down from 68 to 1, so the phase never holds
+    /// the bare sign.
+    /// </summary>
+    private static ushort ReversingPhase(int step) => unchecked((ushort)(step | short.MinValue));
 
     /// <summary>
     /// Applies $89:ACD0's asymmetric elevator bounds: X in (112,144], Y in [75,128),

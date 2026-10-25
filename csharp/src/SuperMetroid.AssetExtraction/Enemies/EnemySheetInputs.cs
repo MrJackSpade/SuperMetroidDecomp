@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkCatalog Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePaletteCatalog Palettes, EscapeTimerTileAtlas EscapeTimer)
-    : IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaObjCharacterArtwork
+    : IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static EnemySheetInputs Load(string content)
@@ -57,7 +57,7 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => Bosses;
 
     /// <inheritdoc/>
-    AreaArtworkCatalog IInstalledAreaObjCharacterArtwork.AreaTiles => Areas;
+    AreaArtworkCatalog IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>

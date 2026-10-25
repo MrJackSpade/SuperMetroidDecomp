@@ -70,7 +70,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
                 Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
                 PaletteBits = new SnesObjAttributeWord(0x0a04).PaletteBits, BaseTileIndex = 0x04, ClipVerticalWrap = false,
             });
-            actual.AddEnemySpritemap(projectileArtwork.GetProgramFrame(frame.OperandAddress).Span, new Position16<OamPixels>(x, y),
+            actual.AddEnemySpritemap(projectileArtwork.GetProgramFrame(frame.Frame).Span, new Position16<OamPixels>(x, y),
                 new SnesObjAttributeWord(0x0a04).PaletteBits, 0x04);
             Equal(expected, actual, $"room projectile {frame.Name} at {x},{y}");
 

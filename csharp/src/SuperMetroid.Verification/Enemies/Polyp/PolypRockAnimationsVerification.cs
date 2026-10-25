@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Polyp.PolypRockNativeListAddresses;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Polyp;
 internal static class PolypRockAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, PolypRockAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, PolypRockAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(PolypRockFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyPolypRockAnimations(SuperMetroidAddressSpace rom)
@@ -20,7 +21,7 @@ internal static class PolypRockAnimationsVerification
         for (int pose = 0; pose < PolypRockFrameToolingDefinitions.PoseCount; pose++)
         {
             PolypRockFrame frame = new(pose);
-            ushort key = EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[frame]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(PolypRockFrameDefinitions.ShownProjectileFrames[frame]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), PolypRockFrameToolingDefinitions.Spritemap(frame),
                 $"Polyp lava rock pose {pose} spritemap");
             AssertTrue(PolypRockFrameToolingDefinitions.TryFrame(key, out PolypRockFrame found) && found == frame, $"Polyp lava rock pose {pose} is found by its key");

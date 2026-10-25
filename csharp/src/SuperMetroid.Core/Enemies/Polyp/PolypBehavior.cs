@@ -125,7 +125,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
     internal static void RegisterPolypProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             // Polyp rock: quadratic rise/fall and viewport cull.
             RunPolypRockPreInstruction(context.Projectile, context.Camera);

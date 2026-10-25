@@ -27,7 +27,7 @@ internal sealed class EnemyProjectileHandlerTable
     }
 
     /// <summary>Registers <paramref name="handler"/> for every listed pre-instruction.</summary>
-    internal void RegisterPreInstruction(EnemyProjectilePreInstructionHandler handler, params EnemyProjectilePreInstruction[] ids)
+    internal void AddPreInstruction(EnemyProjectilePreInstructionHandler handler, params EnemyProjectilePreInstruction[] ids)
     {
         Ensure.NotNull(handler);
         foreach (EnemyProjectilePreInstruction id in ids)
@@ -44,7 +44,7 @@ internal sealed class EnemyProjectileHandlerTable
     private readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> _touchAnimations = [];
 
     /// <summary>Registers the typed animation a projectile of <paramref name="kind"/> starts when it touches Samus.</summary>
-    internal void RegisterTouchAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
+    internal void AddTouchAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
     {
         if (!_touchAnimations.TryAdd(kind, Ensure.NotNull(animation)))
             throw new InvalidOperationException($"Enemy projectile {kind} has two touch animations.");
@@ -55,7 +55,7 @@ internal sealed class EnemyProjectileHandlerTable
         _touchAnimations.TryGetValue(kind, out animation);
 
     /// <summary>Registers the typed animation a shot projectile of <paramref name="kind"/> starts.</summary>
-    internal void RegisterShotAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
+    internal void AddShotAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
     {
         if (!_shotAnimations.TryAdd(kind, Ensure.NotNull(animation)))
             throw new InvalidOperationException($"Enemy projectile {kind} has two shot animations.");
@@ -69,14 +69,14 @@ internal sealed class EnemyProjectileHandlerTable
     private readonly Dictionary<Type, Delegate> _cues = [];
 
     /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/>.</summary>
-    internal void RegisterCue<TCue>(EnemyProjectileCueHandler<TCue> handler)
+    internal void AddCue<TCue>(EnemyProjectileCueHandler<TCue> handler)
     {
         if (!_cues.TryAdd(typeof(TCue), Ensure.NotNull(handler)))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name} is registered twice.");
     }
 
     /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/> and may redirect its program.</summary>
-    internal void RegisterBranchingCue<TProgram, TCue>(EnemyProjectileBranchingCueHandler<TProgram, TCue> handler)
+    internal void AddBranchingCue<TProgram, TCue>(EnemyProjectileBranchingCueHandler<TProgram, TCue> handler)
         where TProgram : struct
     {
         if (!_cues.TryAdd(typeof(TCue), Ensure.NotNull(handler)))

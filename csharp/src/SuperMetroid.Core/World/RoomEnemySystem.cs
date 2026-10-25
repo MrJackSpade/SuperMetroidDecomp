@@ -1278,7 +1278,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// Registers species projectile handlers before generic and cross-species handlers,
     /// preserving the keyed pre-instruction and ordered instruction-interceptor dispatch.
     /// </summary>
-    void IEnemyProjectileHandlerSource.RegisterEnemyProjectileHandlers(EnemyProjectileHandlerTable table)
+    void IEnemyProjectileHandlerSource.AddEnemyProjectileHandlers(EnemyProjectileHandlerTable table)
     {
         // Species register first; generic and cross-species registrations follow.
         AlcoonBehavior.RegisterAlcoonProjectiles(table);
@@ -1286,7 +1286,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BotwoonBehavior.RegisterBotwoonProjectiles(table);
         CacatacBehavior.RegisterCacatacProjectiles(table);
         CrocomireBehavior.Combat.RegisterCrocomireProjectiles(table);
-        DownwardGateBehavior.RegisterDownwardGateProjectiles(table);
+        DownwardGateBehavior.AddDownwardGateProjectiles(table);
         DragonBehavior.RegisterDragonProjectiles(table);
         DraygonBehavior.Goop.RegisterDraygonProjectiles(table);
         EyeDoorBehavior.RegisterEyeDoorProjectiles(table);
@@ -1319,13 +1319,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
         RidleyProjectiles.RegisterFireballPreInstructions(table);
 
-        EnemyProjectileEngine.RegisterMetalSkreeParticlePreInstruction(table);
+        EnemyProjectileEngine.AddMetalSkreeParticlePreInstruction(table);
 
         KraidProjectiles.RegisterKraidRockSpitPreInstruction(table);
 
-        Projectiles.RegisterCeresFallingTilePreInstruction(table);
+        Projectiles.AddCeresFallingTilePreInstruction(table);
 
-        EnemyProjectileEngine.RegisterGunshipDustCues(table);
+        EnemyProjectileEngine.AddGunshipDustCues(table);
 
 
         OldTourianEscapeShaftWallBehavior.RegisterWallExplosionCues(table);

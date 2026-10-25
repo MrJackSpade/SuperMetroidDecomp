@@ -155,7 +155,7 @@ internal static class EnemyVisualTypedProgramAudit
         }
         foreach (BotwoonProjectileFrame frame in BotwoonVisualDefinitions.ProjectileFrames)
         {
-            ProjectileDefinitionAudit.RequireFrame(EnemyProjectileFrames.ProgramFrameKey(BotwoonVisualDefinitions.ShownProjectileFrames[frame]),
+            ProjectileDefinitionAudit.RequireFrame(EnemyProjectileProgramFrameSources.Operand(BotwoonVisualDefinitions.ShownProjectileFrames[frame]),
                 nameof(BotwoonVisualDefinitions), botwoonSource, exports, report);
         }
         rows.Add(new(botwoonHeadFrames.Length + BotwoonVisualDefinitions.ProjectileFrames.Count));

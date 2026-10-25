@@ -874,12 +874,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers body-segment and spit pre-instruction handlers.</summary>
     internal void RegisterBotwoonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
-            RunBotwoonBodyPreInstruction(context.Projectile, context.NmiFrameCounter8);
+            RunBotwoonBodyPreInstruction(context.Projectile, context.FrameCounter8);
         }, EnemyProjectilePreInstruction.BotwoonsBody);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunBotwoonSpitPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.BotwoonsSpit);

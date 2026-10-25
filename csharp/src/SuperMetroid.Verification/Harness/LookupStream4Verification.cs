@@ -2407,7 +2407,7 @@ internal static class LookupStream4Verification
             0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
             0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
         ];
-        AssertTrue(operands.SequenceEqual(RidleyFireballVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[frame])))),
+        AssertTrue(operands.SequenceEqual(RidleyFireballVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[frame])))),
             "Ridley fireball frames keep the native operand order");
     }
 

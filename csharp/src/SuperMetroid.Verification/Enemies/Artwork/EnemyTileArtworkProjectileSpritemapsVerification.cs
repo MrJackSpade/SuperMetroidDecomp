@@ -143,7 +143,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
-        ushort ceresOperand = EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[RidleyFireballVisualDefinitions.ProjectileFrames[0]]);
+        ushort ceresOperand = EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[RidleyFireballVisualDefinitions.ProjectileFrames[0]]);
         OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
@@ -156,7 +156,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
              index < AlcoonFireballFrameDefinitions.PoseCount;
              index++)
         {
-            ushort operand = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]);
+            ushort operand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]);
             OamBuffer nativeAlcoon = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
@@ -244,10 +244,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             new TorizoFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup,
                 EnemyDeathProjectileFrameDefinitions.PoseCount - EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index)])),
             new TorizoFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
                 EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(index)])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in genericDeathFamilies)
@@ -267,37 +267,37 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             new TorizoFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
                 CeresFallingDebrisVisualDefinitions.Frames.Count,
-                index => EnemyProjectileFrames.ProgramFrameKey(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
+                index => EnemyProjectileProgramFrameSources.Operand(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
             new TorizoFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
                 SaveStationElectricityFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
                 GunshipDustVisualDefinitions.Frames.Count,
-                index => EnemyProjectileFrames.ProgramFrameKey(GunshipDustVisualDefinitions.ShownProjectileFrames[GunshipDustVisualDefinitions.Frames[index]])),
+                index => EnemyProjectileProgramFrameSources.Operand(GunshipDustVisualDefinitions.ShownProjectileFrames[GunshipDustVisualDefinitions.Frames[index]])),
             new TorizoFamily("falling spark", RoomEnemyProjectileKind.FallingSpark,
                 FallingSparkFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(FallingSparkFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(FallingSparkFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
                 MagdolliteLavaFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
                 ChozoTourianDustFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
                 EyeDoorSweatFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
                 FuneNamiheFireballFrameToolingDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
                 DragonFireballFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(DragonFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(DragonFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
             new TorizoFamily("Powamp spike", RoomEnemyProjectileKind.PowampSpike,
                 PowampSpikeFrameDefinitions.PoseCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(PowampSpikeFrameDefinitions.ShownProjectileFrames[new(index)])),
+                index => EnemyProjectileProgramFrameSources.Operand(PowampSpikeFrameDefinitions.ShownProjectileFrames[new(index)])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in environmentAndAttackFamilies)
@@ -320,16 +320,16 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 TorizoFrameKey(TorizoProjectileFamily.StatueFragment)),
             new TorizoFamily("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
                 MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainGlassVisualDefinitions.ShownProjectileFrames[MotherBrainGlassVisualDefinitions.ProjectileFrames[index]])),
+                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainGlassVisualDefinitions.ShownProjectileFrames[MotherBrainGlassVisualDefinitions.ProjectileFrames[index]])),
             new TorizoFamily("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
                 MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames[MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]])),
+                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames[MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]])),
             new TorizoFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount,
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress),
             new TorizoFamily("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
                 MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
-                index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainTurretVisualDefinitions.ShownProjectileFrames[MotherBrainTurretVisualDefinitions.ProjectileFrames[index]])),
+                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainTurretVisualDefinitions.ShownProjectileFrames[MotherBrainTurretVisualDefinitions.ProjectileFrames[index]])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
@@ -392,7 +392,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .Single(frame => frame.OperandAddress == ceresOperand).Name;
         SpriteVisualPart[] ceres = document.ProgramFrames[ceresFrameName];
         ceres[0] = ceres[0] with { OffsetX = ceres[0].OffsetX + 1 };
-        ushort alcoonOperand = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(0)]);
+        ushort alcoonOperand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(0)]);
         string alcoonFrameName = EnemyProjectilePresentationFrameSets.All
             .Single(frame => frame.OperandAddress == alcoonOperand).Name;
         SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
@@ -685,7 +685,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-three overrides inherit newly extracted Ceres Ridley frames");
         var alcoonOperands = Enumerable.Range(0,
                 AlcoonFireballFrameDefinitions.PoseCount)
-            .Select(index => EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]))
+            .Select(index => EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]))
             .ToHashSet();
         var versionFourFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizo
             
@@ -1039,7 +1039,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = SpawnedGraphicsIndex;
             // As the typed runner does when it shows the program frame the key installs.
-            slot.Frame = EnemyProjectileSlotFrameAccess.ProgramFrameAt(presentationKey);
+            slot.Frame = EnemyProjectileProgramFrameSources.Frame(presentationKey);
             // It draws from the sheets a set spawning it composes from this artwork.
             SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame."));
             var oam = new OamBuffer();
@@ -1076,8 +1076,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ushort low = unchecked((ushort)address);
                 return (SnesAddressMath.BankBase(address)) == 0x8d0000 ||
                     (SnesAddressMath.BankBase(address)) == 0x860000 &&
-                    (EnemyProjectilePresentationFrameSetsTooling.Contains(low) ||
-                     EnemyProjectilePresentationFrameSetsTooling.Contains(
+                    (EnemyProjectileProgramFrameSources.Contains(low) ||
+                     EnemyProjectileProgramFrameSources.Contains(
                          unchecked((ushort)(low - 1))) ||
                      low is (ushort)SkreeMetareeParticleOperand.Skree or
                         (ushort)SkreeMetareeParticleOperand.Metaree ||
@@ -1091,5 +1091,5 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
     /// <summary>The installed artwork key of each frame of Torizo projectile family <paramref name="family"/>, by index.</summary>
     private static Func<int, ushort> TorizoFrameKey(TorizoProjectileFamily family) =>
-        index => EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[TorizoProjectileVisualDefinitions.Frames(family)[index]]);
+        index => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[TorizoProjectileVisualDefinitions.Frames(family)[index]]);
 }

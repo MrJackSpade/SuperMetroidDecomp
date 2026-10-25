@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +28,7 @@ internal static class MotherBrainTopTubeAnimationsVerification
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainTopTubeAnimations.Programs,
-        frame => EnemyProjectileFrames.ProgramFrameKey(MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame]), Rules);
+        frame => EnemyProjectileProgramFrameSources.Operand(MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame]), Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyMotherBrainTopTubeAnimations(SuperMetroidAddressSpace rom)

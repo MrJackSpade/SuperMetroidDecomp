@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -39,7 +40,7 @@ internal static class PolypRockBehaviorVerification
         rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
-        AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]), out ushort selected),
+        AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]), out ushort selected),
             "the rock's frame has a selector");
         AssertEqual(PolypRockFrameToolingDefinitions.Spritemap(new(0)), selected, "the rock's selector is its native spritemap");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the rock's native list bytes");

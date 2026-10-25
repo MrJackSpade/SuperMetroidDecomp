@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectNativeListAddresses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -12,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainEffectAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainEffectAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(MotherBrainEffectFrameDefinitions.ShownProjectileFrames[frame])), MotherBrainEffectCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainEffectAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(MotherBrainEffectFrameDefinitions.ShownProjectileFrames[frame])), MotherBrainEffectCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyMotherBrainEffectAnimations(SuperMetroidAddressSpace rom)

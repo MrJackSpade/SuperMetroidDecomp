@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballNativeListAddresses;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 internal static class DragonFireballAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DragonFireballAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(DragonFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DragonFireballAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(DragonFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyDragonFireballAnimations(SuperMetroidAddressSpace rom)

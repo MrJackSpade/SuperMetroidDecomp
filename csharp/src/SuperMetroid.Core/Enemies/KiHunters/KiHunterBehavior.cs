@@ -855,17 +855,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects acid spit startup and gravity movement to bank-$86 pre-instructions.</summary>
     internal static void RegisterKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunKiHunterAcidMovement(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KiHunterAcid_Moving);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
         }, EnemyProjectilePreInstruction.KiHunterAcid_Left);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
         }, EnemyProjectilePreInstruction.KiHunterAcid_Right);

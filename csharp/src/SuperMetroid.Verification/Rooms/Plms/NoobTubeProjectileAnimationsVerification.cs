@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubeProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
@@ -12,7 +13,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 internal static class NoobTubeProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, NoobTubeProjectileAnimations.Programs, frame => EnemyProjectileFrames.ProgramFrameKey(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(frame.Pose)]), NoobTubeProjectileCueRules.Rules, reflectedPresentationKey: frame => frame.ReflectedPose is int pose ? EnemyProjectileFrames.ProgramFrameKey(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(pose)]) : null);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, NoobTubeProjectileAnimations.Programs, frame => EnemyProjectileProgramFrameSources.Operand(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(frame.Pose)]), NoobTubeProjectileCueRules.Rules, reflectedPresentationKey: frame => frame.ReflectedPose is int pose ? EnemyProjectileProgramFrameSources.Operand(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(pose)]) : null);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyNoobTubeProjectileAnimations(SuperMetroidAddressSpace rom)

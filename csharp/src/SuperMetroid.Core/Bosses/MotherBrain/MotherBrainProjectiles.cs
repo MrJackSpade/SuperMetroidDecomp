@@ -77,9 +77,9 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Registers the encounter-owned bombs, glass, beams, rings, turrets, tubes, and effects.</summary>
     internal void RegisterMotherBrainProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
-        table.RegisterCue<MotherBrainTurretCue>((context, cue) =>
+        table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
+        table.AddShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
+        table.AddCue<MotherBrainTurretCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
@@ -97,7 +97,7 @@ internal sealed class MotherBrainProjectiles
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
             }
         });
-        table.RegisterCue<MotherBrainGlassCue>((context, cue) =>
+        table.AddCue<MotherBrainGlassCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
@@ -109,37 +109,37 @@ internal sealed class MotherBrainProjectiles
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassCue)} {cue}.");
             }
         });
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainTurretPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.MotherBrainsTurrets);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainTurretBulletPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.MotherBrainsTurretBullets);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainGlassShardPreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainGlassShattering_Shard);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainTopTubePreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainsTubeFalling);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainAttachedDroolPreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainsDrool);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainFallingDroolPreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainsDrool_Falling);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainOnionRingPreInstruction(
                 context.Projectile,
@@ -147,42 +147,42 @@ internal sealed class MotherBrainProjectiles
                 context.Camera.X);
         }, EnemyProjectilePreInstruction.MotherBrainsOnionRings);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainBombPreInstruction(context.Projectile, context.SamusBombs);
         }, EnemyProjectilePreInstruction.MotherBrainsBomb);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainRainbowChargingPreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainRainbowBeam_Charging);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainRainbowExplosionPreInstruction(context.Projectile, context.Samus);
         }, EnemyProjectilePreInstruction.MotherBrainsRainbowBeamExplosion);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainDeathExplosion(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathExplosionPreInstruction);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMotherBrainDoorFragment(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             PinMotherBrainEscapeSubtitle(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction);
 
-        table.RegisterCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
+        table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.
-        table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
+        table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
             () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRingHit));
 
-        table.RegisterCue<MotherBrainHandBeamCue>((context, cue) =>
+        table.AddCue<MotherBrainHandBeamCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

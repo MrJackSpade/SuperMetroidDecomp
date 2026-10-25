@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -98,7 +99,7 @@ internal static class TorizoProjectileAnimationsVerification
                 .OfType<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.ShowStep>()
                 .Select(step => step.Frame).ToHashSet();
             AssertTrue(shown.SetEquals(installed), $"the {family} programs show exactly the installed frames");
-            ushort[] keys = [.. installed.Select((frame => EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame])))];
+            ushort[] keys = [.. installed.Select((frame => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame])))];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");
             frames += installed.Count;
         }
@@ -151,7 +152,7 @@ internal static class TorizoProjectileAnimationsVerification
             {
                 var show = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.ShowStep>(Next("frame"), $"{at}: frame");
                 AssertEqual(word, show.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: installed frame");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: installed frame");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
@@ -228,10 +229,12 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual(first, EnemyProjectilePreInstructionAccess.Word(setPreInstruction.PreInstruction), $"{at}: movement routine");
                 return 2;
             case TorizoProjectileCue.SetProperties setProperties:
-                AssertEqual(first, (ushort)setProperties.Properties, $"{at}: property bits set");
+                // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores.
+                AssertEqual(first, EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties), $"{at}: property bits set");
                 return 2;
             case TorizoProjectileCue.ClearProperties clearProperties:
-                AssertEqual(first, unchecked((ushort)~(ushort)clearProperties.Properties), $"{at}: property bits kept");
+                // The cue's behaviours, encoded by the import's property-word bits, are the bits the cartridge's AND mask clears.
+                AssertEqual(first, unchecked((ushort)~EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties)), $"{at}: property bits kept");
                 return 2;
             case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
                 AssertEqual(first, ProjectileEntry(goToIfEyeBeamExplosionsDisabled.Target), $"{at}: branch target");

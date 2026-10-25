@@ -41,7 +41,7 @@ internal sealed class EnemyProjectileEngine
     {
         var table = new EnemyProjectileHandlerTable();
         // Native RTS pre-instructions and inert phases do nothing.
-        table.RegisterPreInstruction(static _ => { },
+        table.AddPreInstruction(static _ => { },
             EnemyProjectilePreInstruction.None,
             EnemyProjectilePreInstruction.RTS_868170,
             EnemyProjectilePreInstruction.RTS_86A327,
@@ -64,9 +64,9 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectilePreInstruction.RTS_86E6D1,
             EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction);
-        table.RegisterCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, cue));
+        table.AddCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, cue));
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
-            source.RegisterEnemyProjectileHandlers(table);
+            source.AddEnemyProjectileHandlers(table);
         return table;
     }
 
@@ -249,7 +249,7 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> camera,
         int? frameCounterByte,
         SamusBombProjectileSystem? samusBombs,
-        int? nmiFrameCounter)
+        int? frameCounter)
     {
         Ensure.NotNull(level);
 
@@ -269,7 +269,7 @@ internal sealed class EnemyProjectileEngine
         int projectileFrame = frameCounterByte ?? AdvanceStandaloneFrameCounter8();
         CurrentFrame8 = projectileFrame;
         // Standalone audits seed both counters from the same projectile clock.
-        CurrentFrame16 = nmiFrameCounter ?? projectileFrame;
+        CurrentFrame16 = frameCounter ?? projectileFrame;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
              projectileIndex--)
@@ -858,8 +858,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Deletes a gunship dust cloud when its program ends.</summary>
-    internal static void RegisterGunshipDustCues(EnemyProjectileHandlerTable table) =>
-        table.RegisterCue<GunshipDustCue>((context, cue) =>
+    internal static void AddGunshipDustCues(EnemyProjectileHandlerTable table) =>
+        table.AddCue<GunshipDustCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
@@ -1013,9 +1013,9 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
-    internal static void RegisterMetalSkreeParticlePreInstruction(EnemyProjectileHandlerTable table)
+    internal static void AddMetalSkreeParticlePreInstruction(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
             context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 80))));
@@ -1028,9 +1028,9 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Registers tile gravity and impact dust/sound when Ceres debris strikes room terrain.</summary>
-    internal void RegisterCeresFallingTilePreInstruction(EnemyProjectileHandlerTable table)
+    internal void AddCeresFallingTilePreInstruction(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))

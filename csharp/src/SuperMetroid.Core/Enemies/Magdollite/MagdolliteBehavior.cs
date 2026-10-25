@@ -687,13 +687,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects thrown-lava movement, its typed programs' cues and its shot program to the projectile engine.</summary>
     internal void RegisterMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunMagdolliteLavaPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.MagdolliteLava);
 
-        table.RegisterCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
+        table.AddCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
+        table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
     }
 
     /// <summary>Carries out one cue of the thrown lava's programs.</summary>

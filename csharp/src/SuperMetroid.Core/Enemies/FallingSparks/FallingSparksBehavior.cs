@@ -148,9 +148,9 @@ internal sealed class FallingSparksBehavior
     /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>
     internal void RegisterFallingSparksProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
-            RunFallingSparkPreInstruction(context.Projectile, context.Level, context.NmiFrameCounter8);
+            RunFallingSparkPreInstruction(context.Projectile, context.Level, context.FrameCounter8);
         }, EnemyProjectilePreInstruction.FallingSpark);
     }
 }

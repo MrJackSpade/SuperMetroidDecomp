@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Programs;
@@ -65,6 +66,6 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
 
     /// <summary>Locates a laser or claw projectile drawing operand: the installed artwork key of its pose.</summary>
     public static ushort PresentationWordAddress(int index) => (uint)index < (uint)PresentationWordCount
-        ? EnemyProjectileFrames.ProgramFrameKey(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[new(index)])
+        ? EnemyProjectileProgramFrameSources.Operand(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[new(index)])
         : throw new ArgumentOutOfRangeException(nameof(index));
 }

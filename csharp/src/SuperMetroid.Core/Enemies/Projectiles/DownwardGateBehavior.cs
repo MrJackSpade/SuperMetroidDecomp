@@ -78,7 +78,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
-        ushort nativeBlockIndex = checked((ushort)(
+        ushort associatedBlock = checked((ushort)(
             plmBlockIndex * DownwardGateEnemyProjectileRomData.NativeBytesPerRoomBlock));
         RoomEnemyProjectileSlot? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
@@ -87,7 +87,7 @@ internal sealed class DownwardGateBehavior
             if (candidate.IsActive &&
                 candidate.Kind is (RoomEnemyProjectileKind.DownwardGateMoving or
                     RoomEnemyProjectileKind.DownwardGateClosed) &&
-                candidate.Variable0 == nativeBlockIndex)
+                candidate.Variable0 == associatedBlock)
             {
                 projectile = candidate;
                 break;
@@ -153,10 +153,10 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>Connects the bank-$86 moving-gate pre-instruction to the projectile handler table.</summary>
-    internal static void RegisterDownwardGateProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));
-        table.RegisterPreInstruction(context =>
+        table.AddCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));
+        table.AddPreInstruction(context =>
         {
             RunDownwardGateProjectileMovement(context.Projectile);
         }, EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction);

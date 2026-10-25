@@ -620,7 +620,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>
     internal void RegisterPickupPreInstruction(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             // Lifetime, grapple endpoint, then Samus body.
             RunEnemyPickupPreInstruction(context.Projectile, context.Samus);
@@ -632,7 +632,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table) =>
-        table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
+        table.AddBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
 
     /// <summary>
     /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or

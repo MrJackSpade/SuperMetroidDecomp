@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
@@ -12,7 +13,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class EyeDoorSweatAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorSweatAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorSweatAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyEyeDoorSweatAnimations(SuperMetroidAddressSpace rom)

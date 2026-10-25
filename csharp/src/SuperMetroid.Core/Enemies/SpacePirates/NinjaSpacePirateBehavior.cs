@@ -659,7 +659,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
     internal static void RegisterNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunNinjaPirateClawPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.PirateClaw_Left, EnemyProjectilePreInstruction.PirateClaw_Right);

@@ -51,7 +51,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
 
     /// <summary>Registers the handler that carries out the wall explosion program's commands.</summary>
     internal void RegisterWallExplosionCues(EnemyProjectileHandlerTable table) =>
-        table.RegisterCue<OldTourianWallExplosionCue>((context, cue) => ApplyWallExplosionCue(context.Projectile, cue));
+        table.AddCue<OldTourianWallExplosionCue>((context, cue) => ApplyWallExplosionCue(context.Projectile, cue));
 
     /// <summary>Carries out one command of the wall explosion's program.</summary>
     private void ApplyWallExplosionCue(RoomEnemyProjectileSlot projectile, OldTourianWallExplosionCue cue)

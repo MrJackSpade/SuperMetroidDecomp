@@ -69,22 +69,22 @@ internal sealed class CrocomireCombat
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
     internal void RegisterCrocomireProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             StartCrocomireProjectileFlight(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.CrocomiresProjectile_Setup);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunCrocomireProjectileFlight(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.CrocomiresProjectile_Fired);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunCrocomireSpikeWallPiece(context.Projectile);
         }, EnemyProjectilePreInstruction.CrocomireSpikeWallPieces);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunCrocomireBridgeFragment(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.CrocomireBridgeCrumbling);
@@ -539,9 +539,9 @@ internal sealed class CrocomireCombat
     /// </summary>
     internal void RegisterCrocomireDropProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
+        table.AddShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
-        table.RegisterCue<CrocomireProjectileCue>((context, cue) =>
+        table.AddCue<CrocomireProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

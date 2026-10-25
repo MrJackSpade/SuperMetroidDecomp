@@ -341,23 +341,23 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds spore movement, emitter timing, impact properties, and drop opcodes.</summary>
     internal void RegisterSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunSporeSpawnSporePreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.Spores);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunSporeSpawnSpawnerPreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.SporeSpawner);
 
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
+        table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SporeShot));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpawner,
+        table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpawner,
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnStalk,
+        table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnStalk,
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
-        table.RegisterCue<SporeSpawnProjectileCue>((context, cue) =>
+        table.AddCue<SporeSpawnProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

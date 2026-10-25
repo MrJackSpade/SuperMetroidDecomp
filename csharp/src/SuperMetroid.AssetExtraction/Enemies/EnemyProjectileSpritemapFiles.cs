@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 [CpuBusBoundary("codec: ROM bank-$86 projectile instruction operands and bank-$8D spritemaps → enemy projectile spritemaps")]
 public static class EnemyProjectileSpritemapFiles
 {
-    /// <summary>Imports named enemy-projectile OAM compositions, including frames selected by native instruction operands.</summary>
+    /// <summary>Imports named enemy-projectile OAM compositions, including program frames read through the bank-$86 operands they are stored at.</summary>
     /// <param name="bus">Non-null cartridge address space supplying bank $8D spritemaps and their bank $86 instruction operands.</param>
     /// <returns>New UTF-8 JSON bytes containing base and program-use frames with signed pixel offsets, tile references, sizes, palettes, priorities, and flips.</returns>
     /// <remarks>Only visual compositions are exported; projectile instruction flow and frame timing remain compiled.</remarks>
@@ -26,10 +26,11 @@ public static class EnemyProjectileSpritemapFiles
             frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank,
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
         var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EnemyProjectilePresentationFrameDefinition frame in
-                 EnemyProjectilePresentationFrameSets.All)
+        // The installed file lists program frames in the order their operands are stored in bank $86.
+        foreach ((EnemyProjectilePresentationFrameDefinition frame, ushort operand) in EnemyProjectilePresentationFrameSets.All.ToArray()
+                     .Select(definition => (definition, EnemyProjectileProgramFrameSources.Operand(definition.Frame))).OrderBy(pair => pair.Item2))
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, frame.OperandAddress));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument

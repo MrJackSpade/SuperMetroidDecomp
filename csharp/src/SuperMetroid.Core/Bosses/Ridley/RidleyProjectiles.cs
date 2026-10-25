@@ -193,7 +193,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Registers collision and motion callbacks for fireballs and both perpendicular afterburn paths.</summary>
     internal void RegisterFireballPreInstructions(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             bool horizontalCollision = EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Horizontal);
             bool verticalCollision = !horizontalCollision &&
@@ -215,7 +215,7 @@ internal sealed class RidleyProjectiles
             }
         }, EnemyProjectilePreInstruction.RidleyFireball);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
             // helper. Only the perpendicular vertical move may end this afterburn.
@@ -224,7 +224,7 @@ internal sealed class RidleyProjectiles
                 BeginAfterburnFinalAnimation(context.Projectile);
         }, EnemyProjectilePreInstruction.HorizontalAfterburn);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             // $86:9522 is the transposed path: unrestricted vertical travel followed
             // by a horizontal room-collision test.
@@ -237,7 +237,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Carries out the cues of the fireball and afterburn programs: motion, the afterburn spawns and deletion.</summary>
     internal void RegisterFireballCues(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<RidleyFireballCue>((context, cue) =>
+        table.AddCue<RidleyFireballCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

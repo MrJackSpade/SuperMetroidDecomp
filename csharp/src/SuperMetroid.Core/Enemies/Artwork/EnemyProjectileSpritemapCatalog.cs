@@ -10,28 +10,28 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed class EnemyProjectileSpritemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v2", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v3", content =>
         {
             foreach ((EnemyProjectileFrameId frame, SpritemapPart[] parts) in frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
                 content.AppendName("frame", frame.ToString());
                 content.AppendEnemyParts(parts);
             }
-            foreach ((ushort operand, SpritemapPart[] parts) in programFrames.OrderBy(pair => pair.Key))
+            foreach ((EnemyProjectileFrameId frame, SpritemapPart[] parts) in programFrames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
-                content.Append("program-operand", operand);
+                content.AppendName("program-frame", frame.ToString());
                 content.AppendEnemyParts(parts);
             }
         });
 
     /// <summary>Installed ordered OAM parts of each composition frame.</summary>
     private readonly Dictionary<EnemyProjectileFrameId, SpritemapPart[]> frames;
-    /// <summary>Installed timed-frame OAM parts keyed by bank-$86 visual operand address.</summary>
-    private readonly Dictionary<ushort, SpritemapPart[]> programFrames;
+    /// <summary>Installed ordered OAM parts of each timed program frame.</summary>
+    private readonly Dictionary<EnemyProjectileFrameId, SpritemapPart[]> programFrames;
 
     /// <summary>Retains independently validated compositions and timed-program visual bindings.</summary>
     private EnemyProjectileSpritemapCatalog(Dictionary<EnemyProjectileFrameId, SpritemapPart[]> frames,
-        Dictionary<ushort, SpritemapPart[]> programFrames)
+        Dictionary<EnemyProjectileFrameId, SpritemapPart[]> programFrames)
     {
         this.frames = frames;
         this.programFrames = programFrames;
@@ -46,17 +46,17 @@ public sealed class EnemyProjectileSpritemapCatalog
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no composition {frame}.");
 
-    /// <summary>Draws a timed program frame without reading its bank-$86/$8D visual operands.</summary>
-    public ReadOnlyMemory<SpritemapPart> GetProgramFrame(ushort operandAddress) =>
-        programFrames.TryGetValue(operandAddress, out SpritemapPart[]? parts)
+    /// <summary>Gets the ordered OAM parts of installed timed program frame <paramref name="frame"/>; an uninstalled frame is rejected.</summary>
+    public ReadOnlyMemory<SpritemapPart> GetProgramFrame(EnemyProjectileFrameId frame) =>
+        programFrames.TryGetValue(frame, out SpritemapPart[]? parts)
             ? parts
             : throw new InvalidDataException(
-                $"Installed enemy projectile has no frame for $86:{operandAddress:X4}.");
+                $"Installed enemy projectile has no program frame {frame}.");
 
     /// <summary>Loads named projectile compositions and timed-program visual frames, validating version-specific names/counts and OAM bounds without importing timing, motion, collision, or callbacks.</summary>
     /// <param name="json">Caller-owned <c>enemy-projectile-compositions.json</c> stream, read from its current position and left open; unknown and duplicate properties are rejected.</param>
     /// <param name="stock">Current verified installation used to retain later-added frames when loading an older override; without this fallback only the current schema is accepted.</param>
-    /// <returns>Compiled packed spritemap parts, preserving supplied part order and merging legacy edits by native pointer or visual-operand identity.</returns>
+    /// <returns>Compiled packed spritemap parts, preserving supplied part order and merging legacy edits by frame identity.</returns>
     public static EnemyProjectileSpritemapCatalog Load(Stream json,
         EnemyProjectileSpritemapCatalog? stock = null)
     {
@@ -81,8 +81,8 @@ public sealed class EnemyProjectileSpritemapCatalog
             ? new Dictionary<EnemyProjectileFrameId, SpritemapPart[]>(stock.frames)
             : new Dictionary<EnemyProjectileFrameId, SpritemapPart[]>();
         var compiledPrograms = stock is not null && legacyOverride
-            ? new Dictionary<ushort, SpritemapPart[]>(stock.programFrames)
-            : new Dictionary<ushort, SpritemapPart[]>();
+            ? new Dictionary<EnemyProjectileFrameId, SpritemapPart[]>(stock.programFrames)
+            : new Dictionary<EnemyProjectileFrameId, SpritemapPart[]>();
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames.Take(expectedFrames))
         {
             if (!document.Frames.TryGetValue(name, out SpriteVisualPart[]? visual) ||
@@ -99,7 +99,7 @@ public sealed class EnemyProjectileSpritemapCatalog
                     [.. EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames],
                 EnemyProjectileSpritemapVersion.PreAlcoon =>
                     EnemyProjectilePresentationFrameSets.PreGoldenTorizo
-                        .WhereToArray(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
+                        .WhereToArray(frame => !IsAlcoonFireballFrame(frame.Frame))
                         ,
                 EnemyProjectileSpritemapVersion.PreGoldenTorizo =>
                     EnemyProjectilePresentationFrameSets.PreGoldenTorizo.ToArray(),
@@ -135,17 +135,15 @@ public sealed class EnemyProjectileSpritemapCatalog
                         out SpriteVisualPart[]? visual) || visual is null)
                     throw new InvalidDataException(
                         $"Version-{document.Version} enemy-projectile frame {frame.Name} is missing.");
-                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
+                compiledPrograms[frame.Frame] = CompileParts(frame.Name, visual);
             }
         }
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
     }
 
-    /// <summary>Identifies Alcoon fireball presentation operands omitted by the pre-Alcoon legacy schema.</summary>
-    private static bool IsAlcoonFireballOperand(ushort operandAddress)
-    {
-        return AlcoonFireballFrameDefinitions.TryFrame(operandAddress, out _);
-    }
+    /// <summary>Identifies the Alcoon fireball frames the pre-Alcoon legacy schema omitted.</summary>
+    private static bool IsAlcoonFireballFrame(EnemyProjectileFrameId frame) =>
+        AlcoonFireballFrameDefinitions.ShownProjectileFrames.Values.Contains(frame);
 
     /// <summary>Validates ordered editable sprite parts against OBJ bounds and packs X, Y, tile, palette, priority and flip words.</summary>
     private static SpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)

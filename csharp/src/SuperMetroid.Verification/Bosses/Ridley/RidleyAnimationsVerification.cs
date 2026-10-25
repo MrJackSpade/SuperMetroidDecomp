@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyNativeListAddresses;
@@ -179,7 +180,7 @@ internal static class RidleyAnimationsVerification
             {
                 var show = AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.ShowStep>(step, $"{at}: frame");
                 AssertEqual(word, show.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: presentation key");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

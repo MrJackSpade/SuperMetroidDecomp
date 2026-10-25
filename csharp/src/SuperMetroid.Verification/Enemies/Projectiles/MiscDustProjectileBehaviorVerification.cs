@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Verification.Harness;
@@ -107,7 +108,7 @@ internal static class MiscDustProjectileBehaviorVerification
         if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer.IsZero || projectile.PresentationOperandAddress == 0)
             return;
         ushort operand = projectile.PresentationOperandAddress;
-        AssertTrue(EnemyProjectilePresentationFrameSetsTooling.Contains(operand), "the shown frame is an installed-art identity");
+        AssertTrue(EnemyProjectileProgramFrameSources.Contains(operand), "the shown frame is an installed-art identity");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
             "the shown frame leaves spritemap resolution to installed content");
         AssertEqual(ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(operand - 2))), projectile.InstructionTimer.RawValue,

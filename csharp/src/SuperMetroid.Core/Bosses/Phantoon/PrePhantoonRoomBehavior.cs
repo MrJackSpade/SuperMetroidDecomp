@@ -51,12 +51,12 @@ internal sealed class PrePhantoonRoomBehavior
     /// <summary>Registers the projectile pre-instruction that pins the runtime BG2 Y offset to zero.</summary>
     internal void RegisterPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
             scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
         }, EnemyProjectilePreInstruction.PrePhantoonRoom);
-        table.RegisterCue<PrePhantoonRoomCue>((context, cue) =>
+        table.AddCue<PrePhantoonRoomCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

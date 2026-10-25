@@ -71,51 +71,51 @@ internal sealed class PhantoonCombat
     /// <summary>Registers Phantoon flame initializers, pre-instructions, and instructions.</summary>
     internal void RegisterPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonStartingFlameWaiting(context.Projectile);
         }, EnemyProjectilePreInstruction.PhantoonStartingFlames);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonStartingFlameOrbit(context.Projectile);
         }, EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonCasualFlameFalling(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonCasualFlameImpactPause(context.Projectile, _projectiles.CurrentFrame16);
         }, EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonCasualFlameBouncing(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonEnragedFlame(context.Projectile);
         }, EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonRainFlame(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPhantoonSpiralFlame(context.Projectile);
         }, EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral);
 
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.PhantoonDestroyableFlame,
+        table.AddShotAnimation(RoomEnemyProjectileKind.PhantoonDestroyableFlame,
             () => new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableShot));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.PhantoonStartingFlame,
+        table.AddShotAnimation(RoomEnemyProjectileKind.PhantoonStartingFlame,
             () => new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
-        table.RegisterCue<PhantoonFlameCue>((context, cue) =>
+        table.AddCue<PhantoonFlameCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

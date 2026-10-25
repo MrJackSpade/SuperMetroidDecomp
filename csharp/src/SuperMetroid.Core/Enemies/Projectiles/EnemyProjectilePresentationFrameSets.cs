@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The installed program frames each artwork schema generation holds, sorted by bank-$86 operand: the first
-/// program-frame schema's frames and every generation's additions through that generation.
+/// The installed program frames each artwork schema generation holds: the first program-frame schema's frames and every
+/// generation's additions through that generation, in publishing order.
 /// </summary>
 internal static class EnemyProjectilePresentationFrameSets
 {
@@ -36,10 +36,10 @@ internal static class EnemyProjectilePresentationFrameSets
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreWorkRobotFrames = Through(7);
     /// <summary>Schema set before the Polyp Rock projectile frame was added.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PrePolypRockFrames = Through(8);
-    /// <summary>Current sorted program-frame set used by production catalog lookup.</summary>
-    internal static readonly EnemyProjectilePresentationFrameDefinition[] Frames = Through(9);
+    /// <summary>Current program-frame set the installed artwork loader and its import read.</summary>
+    private static readonly EnemyProjectilePresentationFrameDefinition[] Frames = Through(9);
 
-    /// <summary>Current projectile program frames sorted by bank-$86 operand.</summary>
+    /// <summary>Current projectile program frames.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
     /// <summary>Schema set before the Polyp Rock projectile frame was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PrePolypRock => PrePolypRockFrames;
@@ -58,8 +58,7 @@ internal static class EnemyProjectilePresentationFrameSets
     /// <summary>Schema set before Work Robot laser art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreWorkRobot => PreWorkRobotFrames;
 
-    /// <summary>The first program-frame schema's frames and the first <paramref name="generations"/> generations' additions, by operand.</summary>
+    /// <summary>The first program-frame schema's frames and the first <paramref name="generations"/> generations' additions.</summary>
     private static EnemyProjectilePresentationFrameDefinition[] Through(int generations) =>
-        [.. EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Concat(Additions.Take(generations).SelectMany(added => added))
-            .OrderBy(frame => frame.OperandAddress)];
+        [.. EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Concat(Additions.Take(generations).SelectMany(added => added))];
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteLavaNativeListAddresses;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 internal static class MagdolliteLavaAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MagdolliteLavaAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[frame])), MagdolliteLavaCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MagdolliteLavaAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[frame])), MagdolliteLavaCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyMagdolliteLavaAnimations(SuperMetroidAddressSpace rom)

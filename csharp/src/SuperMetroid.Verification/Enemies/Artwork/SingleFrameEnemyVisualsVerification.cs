@@ -86,11 +86,11 @@ internal static class SingleFrameEnemyVisualsVerification
         byte[] projectileLegacyBytes = JsonSerializer.SerializeToUtf8Bytes(projectileLegacy, options);
         var projectileMerged = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes), projectileStock);
         AssertEqual(-12, projectileMerged.GetProgramFrame(
-            EnemyProjectilePresentationFrameSets.PrePolypRock[0].OperandAddress).Span[0].X.SignedOffset,
+            EnemyProjectilePresentationFrameSets.PrePolypRock[0].Frame).Span[0].X.SignedOffset,
             "schema-12 projectile edit survives new stock");
         AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes)),
             "old projectile stock requests reimport");
-        var rockParts = projectileMerged.GetProgramFrame(EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]));
+        var rockParts = projectileMerged.GetProgramFrame(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]);
         var rockActual = new OamBuffer();
         rockActual.AddEnemySpritemap(rockParts.Span, new Position16<OamPixels>(128, 112), 0x0c00, 0x20);
         ushort rockPointer = PolypRockFrameToolingDefinitions.Spritemap(new(0));

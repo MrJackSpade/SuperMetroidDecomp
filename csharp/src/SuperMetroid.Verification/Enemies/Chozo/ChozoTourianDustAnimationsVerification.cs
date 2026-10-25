@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoTourianDustNativeListAddresses;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class ChozoTourianDustAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyChozoTourianDustAnimations(SuperMetroidAddressSpace rom)

@@ -515,12 +515,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects radial spikes to their bank-$86 movement pre-instruction.</summary>
     internal static void RegisterPowampProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPowampSpikePreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.PowampSpike);
         // A shot spike runs the same private delete program its definition names as its shot list.
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeProgram.Delete));
+        table.AddShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
 
     /// <summary>Advances Powamp's typed animation.</summary>

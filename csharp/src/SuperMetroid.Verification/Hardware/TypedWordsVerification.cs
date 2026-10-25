@@ -568,13 +568,13 @@ internal static void VerifyTypedNativeWords()
     ];
     for (byte rawArea = 0; rawArea < retailAreas.Length; rawArea++)
     {
-        AssertEqual(retailAreas[rawArea], AreaIds.FromCartridge(rawArea, "typed-area test"),
+        AssertEqual(retailAreas[rawArea], AreaIds.FromIndex(rawArea, "typed-area test"),
             $"retail area byte {rawArea} validates");
         AssertEqual(rawArea, AreaIds.ToIndex(retailAreas[rawArea]),
             $"retail area {retailAreas[rawArea]} indexes cartridge tables");
     }
     AssertThrows<InvalidDataException>(
-        () => AreaIds.FromCartridge(AreaIds.RetailCount, "typed-area test"),
+        () => AreaIds.FromIndex(AreaIds.RetailCount, "typed-area test"),
         "non-retail cartridge area rejected");
     AssertThrows<ArgumentOutOfRangeException>(
         () => AreaIds.ToIndex((AreaId)AreaIds.RetailCount),

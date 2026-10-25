@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Progression;
 
-/// <summary>Checked conversions at raw cartridge and array-index boundaries.</summary>
+/// <summary>Checked conversions between areas and their zero-based indices in room and save data.</summary>
 public static class AreaIds
 {
     /// <summary>The number of area indices accepted by retail room and save data.</summary>
     public const int RetailCount = 7;
 
-    /// <summary>Validates and names one area byte read from cartridge data.</summary>
-    public static AreaId FromCartridge(byte value, string source)
+    /// <summary>Validates and names one area index read from room or save data.</summary>
+    public static AreaId FromIndex(byte value, string source)
     {
         if (value >= RetailCount)
         {

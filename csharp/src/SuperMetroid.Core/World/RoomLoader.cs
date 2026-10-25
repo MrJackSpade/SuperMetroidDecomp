@@ -199,7 +199,7 @@ internal sealed class RoomLoader
                 $"{slot.Area}:{slot.SaveStation}.");
         }
 
-        AreaId requestedArea = AreaIds.FromCartridge(
+        AreaId requestedArea = AreaIds.FromIndex(
             unchecked((byte)slot.Area),
             $"Save slot {slot.Slot}");
         byte stationIndex = unchecked((byte)slot.SaveStation);

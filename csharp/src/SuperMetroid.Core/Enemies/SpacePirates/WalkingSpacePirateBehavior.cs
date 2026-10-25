@@ -632,15 +632,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             c.Enemy.InvincibilityTimer = WrappingCountdown.Start(10);
             // A shot aimed straight left or right reflects up and away; every other aim, including the unnamed aim
             // indexes past the ten directions, reflects down.
-            int aim = c.Projectile.Direction & SamusProjectileDirectionMasks.Direction;
-            SamusProjectileDirection reflected = aim < SamusProjectileDirectionCodec.Count
-                ? SamusProjectileDirectionCodec.FromAimIndex(aim) switch
-                {
-                    SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
-                    SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,
-                    _ => SamusProjectileDirection.DownFacingLeft,
-                }
-                : SamusProjectileDirection.DownFacingLeft;
+            SamusProjectileDirection reflected = SamusProjectileDirectionCodec.TryFromAimIndex(
+                c.Projectile.Direction & SamusProjectileDirectionMasks.Direction) switch
+            {
+                SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
+                SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,
+                _ => SamusProjectileDirection.DownFacingLeft,
+            };
             c.Projectile.Direction = reflected.ToAimIndex();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
                 c.Projectile.SlotIndex);

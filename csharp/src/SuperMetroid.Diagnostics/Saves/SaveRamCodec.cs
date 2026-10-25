@@ -383,7 +383,7 @@ public static class SaveRamCodec
     /// The words are taken unchecked so <see cref="ControllerBindings.RequireRetailPermutation"/> reports a corrupt
     /// permutation verbatim.
     /// </summary>
-    [ControllerWordBoundary("SRAM stores each binding as its controller word")]
+    [ButtonWordEncoding("SRAM stores each binding as its controller word")]
     private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(
         Shoot: (ControllerButton)ReadWord(payload, SaveRamLayout.ShootButtonOffset),
         Jump: (ControllerButton)ReadWord(payload, SaveRamLayout.JumpButtonOffset),
@@ -394,7 +394,7 @@ public static class SaveRamCodec
         AimDown: (ControllerButton)ReadWord(payload, SaveRamLayout.AimDownButtonOffset));
 
     /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
-    [ControllerWordBoundary("SRAM stores the button configuration as controller words")]
+    [ButtonWordEncoding("SRAM stores the button configuration as controller words")]
     private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
     [
         (ushort)ControllerButton.Up,

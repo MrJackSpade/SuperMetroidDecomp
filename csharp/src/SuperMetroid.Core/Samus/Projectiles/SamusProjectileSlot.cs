@@ -24,7 +24,7 @@ public sealed class SamusProjectileSlot
     }
 
     /// <summary>Projectile family/beam flags from WRAM <c>$0C18</c>.</summary>
-    [NativeWord("WRAM $0C18 projectile type word; PackedType decodes its family and beam fields, and zero marks an empty slot")]
+    [PackedFields("WRAM $0C18 projectile type word; PackedType decodes its family and beam fields, and zero marks an empty slot")]
     public int Type { get; internal set; }
 
     /// <summary>
@@ -63,7 +63,7 @@ public sealed class SamusProjectileSlot
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public WrappingCountdown TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
-    [NativeWord("projectile variable word whose meaning each projectile family decodes")]
+    [PackedFields("projectile variable word whose meaning each projectile family decodes")]
     public int Variable
     {
         get;

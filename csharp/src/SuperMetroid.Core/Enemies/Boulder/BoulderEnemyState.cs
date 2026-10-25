@@ -47,7 +47,7 @@ public sealed class BoulderEnemyState
     /// Parameter one's high byte (0 through 255): zero rolls right, any other value rolls left, and two also breaks the
     /// boulder on its first impact.
     /// </summary>
-    [NativeWord("population parameter high byte: zero rolls right, any other value rolls left, and two also breaks on first impact")]
+    [PackedFields("population parameter high byte: zero rolls right, any other value rolls left, and two also breaks on first impact")]
     public int DirectionSelector
     {
         get;

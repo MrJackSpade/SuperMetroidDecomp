@@ -69,7 +69,7 @@ public sealed class BotwoonEnemyState
     /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
     public int PathSampleIndex { get; internal set; }
     /// <summary>Signed descriptor direction: negative walks the samples backward and negates accumulated displacements; nonnegative walks forward.</summary>
-    [NativeWord("signed path descriptor word; only its sign is read, choosing backward or forward sample order")]
+    [PackedFields("signed path descriptor word; only its sign is read, choosing backward or forward sample order")]
     public int PathDirection { get; internal set; }
     /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;

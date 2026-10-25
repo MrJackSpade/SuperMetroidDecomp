@@ -99,7 +99,7 @@ public sealed class YappingMawEnemyState
     public Offset16<RoomPixels> HeldSamusOffset { get; internal set; }
 
     /// <summary>Direction 0-7 selecting one of eight facing lists (native byte offset twice this).</summary>
-    [NativeWord("aim sector 0-7 indexing the eight native facing lists; the held placement applies only to the two horizontal sectors")]
+    [PackedFields("aim sector 0-7 indexing the eight native facing lists; the held placement applies only to the two horizontal sectors")]
     public int DirectionIndex { get; internal set; }
 
     /// <summary>

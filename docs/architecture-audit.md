@@ -225,7 +225,7 @@ converted once at the import or snapshot codec. Samus's acceleration mode, the p
 Yes/No prompts, the file-select rows, Ridley's grab, shutter trigger modes, Yard's airborne facing, door-cap
 orientations and the enemy-projectile collision option were converted that way. A genuine count, index, coordinate or
 size says so at its declaration with `[IntegerQuantity(reason)]`; a packed native word whose bit fields a typed view
-decodes, and whose zero test asks whether it holds anything, says so with `[NativeWord(reason)]`.
+decodes, and whose zero test asks whether it holds anything, says so with `[PackedFields(reason)]`.
 
 ## Choices are named, not flagged
 

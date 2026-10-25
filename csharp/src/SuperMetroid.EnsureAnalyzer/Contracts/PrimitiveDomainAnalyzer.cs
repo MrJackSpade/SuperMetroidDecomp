@@ -93,7 +93,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     public const string ControllerWordConversionId = "SME6284";
 
     /// <summary>Marks the serialization and external-word declarations that may convert controller buttons.</summary>
-    public const string ControllerWordBoundaryAttributeName = "ControllerWordBoundaryAttribute";
+    public const string ControllerWordBoundaryAttributeName = "ButtonWordEncodingAttribute";
 
     /// <summary>The Core type that carries controller state; its raw words exist only where they are stored or read.</summary>
     private const string ControllerButtonsType = "SuperMetroid.Core.Input.ControllerButton";
@@ -102,12 +102,12 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor ControllerWordConversionRule = new(
         ControllerWordConversionId,
         "Controller buttons converted outside a boundary",
-        "'{0}' converts controller buttons {1} a raw word outside a [ControllerWordBoundary]; keep ControllerButton and convert only where words are stored or read",
+        "'{0}' converts controller buttons {1} a raw word outside a [ButtonWordEncoding]; keep ControllerButton and convert only where words are stored or read",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "Controller state flows through Core as ControllerButton; only the declarations that store or read controller words " +
-            "(journals, SRAM, enemy variables, codecs) convert it, and each says why with [ControllerWordBoundary].");
+            "(journals, SRAM, enemy variables, codecs) convert it, and each says why with [ButtonWordEncoding].");
 
     /// <summary>Reports a mask- or shift-extracted local compared with several nonzero values.</summary>
     private static readonly DiagnosticDescriptor MaskedComparisonRule = new(
@@ -214,7 +214,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Flags an explicit ControllerButton/integer conversion outside a [ControllerWordBoundary] declaration in the assembly that
+    /// Flags an explicit ControllerButton/integer conversion outside a [ButtonWordEncoding] declaration in the assembly that
     /// declares ControllerButton (Core); hosts, tools and tests reference it and convert at their own boundaries.
     /// </summary>
     private static void AnalyzeControllerWordConversion(OperationAnalysisContext context)
@@ -236,7 +236,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         type is INamedTypeSymbol named && named.ToDisplayString() == ControllerButtonsType &&
         SymbolEqualityComparer.Default.Equals(named.ContainingAssembly, analyzed);
 
-    /// <summary>Whether a declaration, its property or a containing type carries [ControllerWordBoundary].</summary>
+    /// <summary>Whether a declaration, its property or a containing type carries [ButtonWordEncoding].</summary>
     private static bool InControllerWordBoundary(ISymbol? symbol)
     {
         for (ISymbol? current = symbol; current is not null and not INamespaceSymbol; current = current.ContainingSymbol)

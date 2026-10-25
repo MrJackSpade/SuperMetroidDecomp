@@ -198,7 +198,7 @@ public sealed class PhantoonPartState
     /// The eye's wavy-distortion mode, which the wave owner reads every pass: zero ends the channel and lets the body
     /// synchronize BG2 scrolling; bit zero of a nonzero mode selects the long cycle.
     /// </summary>
-    [NativeWord("eye parameter word: zero ends the wave channel and bit zero of a nonzero word selects the long cycle")]
+    [PackedFields("eye parameter word: zero ends the wave channel and bit zero of a nonzero word selects the long cycle")]
     public int WaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
 
     /// <summary>The tentacles' record of the wave mode last requested for the intro or the death fade; nothing reads it back.</summary>

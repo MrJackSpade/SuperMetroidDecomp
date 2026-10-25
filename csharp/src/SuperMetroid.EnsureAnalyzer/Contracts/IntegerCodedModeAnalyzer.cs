@@ -14,7 +14,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// such member of the assembly compared for equality to two or more different literals is reported once at its
 /// declaration, whatever its name. A member that is a genuine count or quantity says so with
 /// <c>[IntegerQuantity(reason)]</c> at its declaration, and a packed native word whose bit fields a typed view decodes
-/// says so with <c>[NativeWord(reason)]</c>.
+/// says so with <c>[PackedFields(reason)]</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
@@ -29,7 +29,7 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
     public const string IntegerQuantityAttributeName = "IntegerQuantityAttribute";
 
     /// <summary>The attribute that marks an integer member as a packed native word whose fields a typed view decodes.</summary>
-    public const string NativeWordAttributeName = "NativeWordAttribute";
+    public const string NativeWordAttributeName = "PackedFieldsAttribute";
 
     /// <summary>The assembly whose members are checked.</summary>
     public const string CheckedAssembly = "SuperMetroid.Core";

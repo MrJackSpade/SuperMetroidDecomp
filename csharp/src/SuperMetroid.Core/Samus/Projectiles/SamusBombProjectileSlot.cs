@@ -21,7 +21,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Raw native <c>SamusProjectile_BombDirections</c> word at <c>$0C0E + 2*Index</c>; any <c>$F0</c> kill-request bit clears the slot before its pre-instruction, and the <c>$10</c> collision marker also excludes Samus overlap.</summary>
     public int Direction { get; internal set; }
     /// <summary>Packed native projectile family/type word at <c>$0C22 + 2*Index</c>, preserving bomb, Power Bomb, spread, and status bits; use <see cref="PackedType"/> for semantic decoding.</summary>
-    [NativeWord("WRAM $0C22 projectile type word; PackedType decodes its bomb and status fields, and zero marks an empty slot")]
+    [PackedFields("WRAM $0C22 projectile type word; PackedType decodes its bomb and status fields, and zero marks an empty slot")]
     public int Type { get; internal set; }
     /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
     public SamusProjectileTypeWord PackedType => new(checked((ushort)Type));

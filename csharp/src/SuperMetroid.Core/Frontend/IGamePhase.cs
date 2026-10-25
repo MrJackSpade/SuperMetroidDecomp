@@ -10,8 +10,8 @@ internal interface IGamePhase
     /// <summary>The state this phase dispatches.</summary>
     SuperMetroidGameState State { get; }
 
-    /// <summary>The main loop's RNG call before this state's dispatch.</summary>
-    MainLoopRandomCall RandomCall { get; }
+    /// <summary>The random generator's step before this state's dispatch.</summary>
+    DispatchRandomStep RandomStep { get; }
 
     /// <summary>The prologue and epilogue audio facts for this state.</summary>
     GamePhaseAudio Audio { get; }

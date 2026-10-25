@@ -563,8 +563,8 @@ internal static class AnalyzerTests
         // A switch mapping an index to data is a lookup.
         Expect("class Frame { int Pose; int Map() => Pose switch { 0 => 10, 1 => 20, _ => 30 }; }");
         Expect(attribute + " class Pause { [IntegerQuantity(\"counts screens scrolled\")] int ScreenMode; bool Map() => ScreenMode == 0; }");
-        Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class NativeWordAttribute(string reason) : System.Attribute { } " +
-            "class Slot { [NativeWord(\"packed projectile type word\")] int Type; bool Empty() => Type == 0; bool Bomb() => Type == 0x500; }");
+        Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class PackedFieldsAttribute(string reason) : System.Attribute { } " +
+            "class Slot { [PackedFields(\"packed projectile type word\")] int Type; bool Empty() => Type == 0; bool Bomb() => Type == 0x500; }");
         // Other assemblies are not checked.
         VerifySnippet("class Pause { int ScreenMode; bool Map() => ScreenMode == 0; }", null, null, analyzer, assemblyName: "Other");
     }
@@ -804,7 +804,7 @@ internal static class AnalyzerTests
 
         // SME6284: the assembly declaring ControllerButton (Core) converts it to or from raw words only inside a declared boundary.
         const string buttons = "namespace SuperMetroid.Core.Input { [System.Flags] public enum ControllerButton : ushort { None = 0, A = 0x0080 } " +
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class ControllerWordBoundaryAttribute(string reason) : System.Attribute " +
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class ButtonWordEncodingAttribute(string reason) : System.Attribute " +
             "{ public string Reason { get; } = reason; } } ";
         void ExpectCore(string source, string? id = null, string? message = null) =>
             Expect(buttons + source, id, message);
@@ -812,8 +812,8 @@ internal static class AnalyzerTests
             PrimitiveDomainAnalyzer.ControllerWordConversionId, "converts controller buttons to a raw word");
         ExpectCore("class C { SuperMetroid.Core.Input.ControllerButton M(ushort w) => (SuperMetroid.Core.Input.ControllerButton)w; }",
             PrimitiveDomainAnalyzer.ControllerWordConversionId, "converts controller buttons from a raw word");
-        ExpectCore("class C { [SuperMetroid.Core.Input.ControllerWordBoundary(\"codec\")] ushort M(SuperMetroid.Core.Input.ControllerButton b) => (ushort)b; }");
-        ExpectCore("[SuperMetroid.Core.Input.ControllerWordBoundary(\"codec\")] class C { ushort M(SuperMetroid.Core.Input.ControllerButton b) => (ushort)b; }");
+        ExpectCore("class C { [SuperMetroid.Core.Input.ButtonWordEncoding(\"codec\")] ushort M(SuperMetroid.Core.Input.ControllerButton b) => (ushort)b; }");
+        ExpectCore("[SuperMetroid.Core.Input.ButtonWordEncoding(\"codec\")] class C { ushort M(SuperMetroid.Core.Input.ControllerButton b) => (ushort)b; }");
         ExpectCore("class C { SuperMetroid.Core.Input.ControllerButton M() => 0; }");
         // Hosts, tools and tests use Core's ControllerButton from metadata and convert at their own boundaries.
         Expect("class C { ushort M(SuperMetroid.Core.Input.ControllerButton b) => (ushort)b; }");

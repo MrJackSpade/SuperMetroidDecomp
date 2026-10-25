@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using SuperMetroid.Core.Assets;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
@@ -16,7 +17,7 @@ internal static class ScreenTileMapConstants
     {
         Ensure.LengthEqual(image, SnesPpuLayout.VramByteCount);
         var geometry = new BgTilemapGeometry(size);
-        var cells = ImmutableArray.CreateBuilder<ScreenTileCell>(size.X * size.Y);
+        var cells = ImmutableArray.CreateBuilder<BackgroundTile>(size.X * size.Y);
         for (int y = 0; y < size.Y; y++)
         {
             for (int x = 0; x < size.X; x++)
@@ -24,7 +25,7 @@ internal static class ScreenTileMapConstants
                 int offset = SnesVramAddressingConstants.ByteOffsetOfWord(geometry.EntryWordAddress(VramWordRange.Require(tilemapWord),
                     new Position16<TilemapCells>((ushort)x, (ushort)y)));
                 var word = new SnesBgTilemapWord(SnesLittleEndian.Word(image[offset], image[offset + 1]));
-                cells.Add(new ScreenTileCell(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority));
+                cells.Add(new BackgroundTile(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority));
             }
         }
         return new ScreenTileMap(tiles, size, cells.MoveToImmutable());

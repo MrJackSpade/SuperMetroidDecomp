@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -14,7 +15,7 @@ public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
     /// <summary>Holds a map's cells.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The map has no cells along an axis.</exception>
     /// <exception cref="ArgumentException">The cells do not fill the map.</exception>
-    public ScreenTileMap(ScreenLayerPictures tiles, Extent16<TilemapCells> size, ImmutableArray<ScreenTileCell> cells)
+    public ScreenTileMap(ScreenLayerPictures tiles, Extent16<TilemapCells> size, ImmutableArray<BackgroundTile> cells)
     {
         Tiles = Ensure.NotNull(tiles);
         Ensure.BetweenInclusive(1, ushort.MaxValue, size.X);
@@ -31,7 +32,7 @@ public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
     public Extent16<TilemapCells> Size { get; }
 
     /// <summary>The cells, row by row from the top-left corner.</summary>
-    public ImmutableArray<ScreenTileCell> Cells { get; }
+    public ImmutableArray<BackgroundTile> Cells { get; }
 
     /// <summary>
     /// Reads a <paramref name="size"/> map of cells from a screen's own tilemap <paramref name="tilemap"/>, each showing one
@@ -45,14 +46,14 @@ public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
         if (size.X % ScreenCells != 0 || size.Y % ScreenCells != 0)
             throw new ArgumentException($"A {size.X}x{size.Y} map is not whole {ScreenCells}-cell screens.", nameof(size));
         int screensAcross = size.X / ScreenCells;
-        var cells = ImmutableArray.CreateBuilder<ScreenTileCell>(size.X * size.Y);
+        var cells = ImmutableArray.CreateBuilder<BackgroundTile>(size.X * size.Y);
         for (int y = 0; y < size.Y; y++)
         {
             for (int x = 0; x < size.X; x++)
             {
                 int screen = y / ScreenCells * screensAcross + x / ScreenCells;
                 var word = new SnesBgTilemapWord(tilemap[screen * ScreenCells * ScreenCells + y % ScreenCells * ScreenCells + x % ScreenCells]);
-                cells.Add(new ScreenTileCell(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority));
+                cells.Add(new BackgroundTile(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority));
             }
         }
         return new ScreenTileMap(tiles, size, cells.MoveToImmutable());

@@ -14,9 +14,8 @@ internal static class SamusSpecialSequenceDefinitionsVerification
     /// </summary>
     internal static void VerifySamusSpecialSequenceDefinitions()
     {
-        var initialDeathFrames =
-            SamusDeathSequenceDefinitions.InitialFramesByMovementType;
-        AssertEqual(28, initialDeathFrames.Length,
+        AssertTrue(Enum.GetValues<SuperMetroid.Core.Samus.Movement.SamusMovementType>()
+                .All(movement => SamusDeathSequenceDefinitions.InitialFrame(movement) is 0 or 1 or 5),
             "death initial-frame table covers every retail movement type");
 
         AssertEqual(

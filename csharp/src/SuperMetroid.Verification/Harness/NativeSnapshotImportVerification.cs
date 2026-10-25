@@ -225,7 +225,7 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
         {
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, SnesLittleEndian.HighByte(packed), (byte)packed,
+            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (SamusAtmosphericEffectType)SnesLittleEndian.HighByte(packed), (byte)packed,
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }

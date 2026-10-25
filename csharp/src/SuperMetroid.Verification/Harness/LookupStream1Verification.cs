@@ -400,16 +400,16 @@ internal static class LookupStream1Verification
         {
             int pointer = 0x900000 | Word(0x908b93 + type * 2);
             byte count = (byte)Word(0x908bef + type * 2);
-            AssertEqual(count, SamusAtmosphericAnimationDefinitions.FrameCount(type), "Named atmospheric frame domain matches native source");
+            AssertEqual(count, SamusAtmosphericAnimationDefinitions.FrameCount((SamusAtmosphericEffectType)type), "Named atmospheric frame domain matches native source");
             for (byte frame = 0; frame < count; frame++)
-                AssertEqual(Word(pointer + frame * 2), SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame), "Calculated atmospheric cadence preserves every native duration");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(type, count), "Atmospheric first out-of-range frame still rejects");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(type, byte.MaxValue), "Atmospheric byte-max frame still rejects");
+                AssertEqual(Word(pointer + frame * 2), SamusAtmosphericAnimationDefinitions.FrameTimer((SamusAtmosphericEffectType)type, frame), "Calculated atmospheric cadence preserves every native duration");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer((SamusAtmosphericEffectType)type, count), "Atmospheric first out-of-range frame still rejects");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer((SamusAtmosphericEffectType)type, byte.MaxValue), "Atmospheric byte-max frame still rejects");
         }
         foreach (byte invalid in new byte[] { 0, 8, byte.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameCount(invalid), "Inactive/out-of-domain atmospheric type rejects");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(invalid, 0), "Invalid atmospheric type fails before frame selection");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameCount((SamusAtmosphericEffectType)invalid), "Inactive/out-of-domain atmospheric type rejects");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer((SamusAtmosphericEffectType)invalid, 0), "Invalid atmospheric type fails before frame selection");
         }
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence());
     }
@@ -1934,10 +1934,10 @@ internal static class LookupStream1Verification
     private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1DeathDefinitionsRomByte(rom, address), LookupStream1DeathDefinitionsRomByte(rom, address + 1));
-        var initialFrames = SamusDeathSequenceDefinitions.InitialFramesByMovementType;
-        AssertEqual(28, initialFrames.Length, "death retail movement domain");
-        for (int movement = 0; movement < initialFrames.Length; movement++)
-            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + movement), initialFrames[movement], "native movement death phase");
+        SamusMovementType[] movements = Enum.GetValues<SamusMovementType>();
+        AssertEqual(28, movements.Length, "death retail movement domain");
+        foreach (SamusMovementType movement in movements)
+            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + (byte)movement), SamusDeathSequenceDefinitions.InitialFrame(movement), "native movement death phase");
         // The cartridge uploads the explosion as five pages; the atlas keeps them in that upload order.
         for (int page = 0; page < SamusDeathTileAtlasFormat.SegmentCount; page++)
         {
@@ -1947,14 +1947,8 @@ internal static class LookupStream1Verification
             AssertEqual(0x6000 + explosionPage * SamusDeathTileAtlasFormat.PageByteCount / 2, (int)Word(0x9bb7c9 + page * 2),
                 "native death page destination is the atlas page's explosion page");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusDeathTileAtlasFormat.ExplosionPageOfAtlasPage(invalid), "death page exact domain");
-        int frameIndex = 0;
-        foreach (byte frame in initialFrames)
-            AssertEqual(initialFrames[frameIndex++], frame, "death frame enumeration preserves ordering");
-        AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
     }
 
     /// <summary>Reads native Samus death-sequence selection data.</summary>

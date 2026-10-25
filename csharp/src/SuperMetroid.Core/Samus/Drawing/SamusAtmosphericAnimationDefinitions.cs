@@ -17,7 +17,7 @@ internal static class SamusAtmosphericAnimationDefinitions
     private static readonly ushort[] RetainedDivingSplashTimers = [2, 2, 3, 3, 3, 5, 5, 6, 7];
 
     /// <summary>$90:8BEF..8BFE supplies each effect's native frame domain.</summary>
-    internal static byte FrameCount(byte type) => (SamusAtmosphericEffectType)type switch
+    internal static byte FrameCount(SamusAtmosphericEffectType type) => type switch
     {
         SamusAtmosphericEffectType.DivingSplash => checked((byte)RetainedDivingSplashTimers.Length),
         SamusAtmosphericEffectType.Bubbles => 8,
@@ -28,12 +28,12 @@ internal static class SamusAtmosphericAnimationDefinitions
     };
 
     /// <summary>Uniform splash/lava/bubble cadence and linearly increasing dust holds, with independent diving-splash input.</summary>
-    internal static ushort FrameTimer(byte type, int frame)
+    internal static ushort FrameTimer(SamusAtmosphericEffectType type, int frame)
     {
         byte count = FrameCount(type);
         if (frame < 0 || frame >= count)
             throw new InvalidDataException($"Atmospheric type {type} frame {frame} is outside {count} authored frames.");
-        return (SamusAtmosphericEffectType)type switch
+        return type switch
         {
             SamusAtmosphericEffectType.FootstepSplash or SamusAtmosphericEffectType.AlternateFootstepSplash => FootstepFrameTicks,
             SamusAtmosphericEffectType.DivingSplash => RetainedDivingSplashTimers[frame],
@@ -42,7 +42,7 @@ internal static class SamusAtmosphericAnimationDefinitions
             SamusAtmosphericEffectType.Dust or SamusAtmosphericEffectType.AlternateDust =>
                 (ushort)(DustInitialFrameTicks + DustFrameTickIncrement * frame),
             SamusAtmosphericEffectType.Inactive or _ =>
-                throw new InvalidOperationException($"Undefined atmospheric type {(SamusAtmosphericEffectType)type}."),
+                throw new InvalidOperationException($"Undefined atmospheric type {type}."),
         };
     }
 }

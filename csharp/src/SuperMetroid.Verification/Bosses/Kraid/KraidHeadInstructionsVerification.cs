@@ -90,7 +90,8 @@ internal static class KraidHeadInstructionsVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
-        var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
+        var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
+            enemies.KraidBehavior.RunKraidCombatFunction(combatBody, combatState, cameraX));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

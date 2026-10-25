@@ -708,16 +708,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        Position16<ScreenPixels> center = new(
-            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
-            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
-        stationExplosion.Spawn(center);
+        stationExplosion.Spawn(new(
+            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
+            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))));
         audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
             maximumQueued: SoundQueueLimit.Max15);
         var cinematicExplosion = new IntroDiscoverySprite(
-            center,
+            new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
+                unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))),
             CeresDestructionSceneDefinitions.Sprites.ExplosionPalette.Raw,
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallPreInstruction(

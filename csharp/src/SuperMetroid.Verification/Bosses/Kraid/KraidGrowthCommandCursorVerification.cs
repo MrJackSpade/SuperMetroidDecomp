@@ -34,7 +34,7 @@ internal static class KraidGrowthCommandCursorVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.KraidBehavior.Access.Kraid = state;
         Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
-        Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.Limbs.RunKraidFootMain;
+        Action<RoomEnemySlot, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, cameraY);
         var body = enemies.SlotTable.Slots[0];
         var foot = enemies.SlotTable.Slots[5];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);

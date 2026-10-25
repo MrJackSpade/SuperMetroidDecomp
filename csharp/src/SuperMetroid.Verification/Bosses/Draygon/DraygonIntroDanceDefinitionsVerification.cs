@@ -104,7 +104,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        Action<DraygonEnemyState, SamusState?, byte> run = enemies.DraygonBehavior.Intro.RunDraygonIntroDance;
+        Action<DraygonEnemyState, SamusState?, byte> run = (danceState, danceSamus, frameCounterLow) =>
+            enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] expectedX = new ushort[4];
@@ -183,7 +184,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // duration. Exercise the production dispatcher so this cannot regress into an
         // arbitrary bank-$A5 read hidden behind a catalog-only unit test.
         var malformedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<DraygonEnemyState, SamusState?, byte> malformedRun = malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance;
+        Action<DraygonEnemyState, SamusState?, byte> malformedRun = (danceState, danceSamus, frameCounterLow) =>
+            malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
             // Slot 31 subtracts $0200, selecting invalid offset one immediately.

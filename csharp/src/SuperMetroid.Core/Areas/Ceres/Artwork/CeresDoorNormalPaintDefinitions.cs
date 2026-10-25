@@ -20,7 +20,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
     /// <summary>Independent copied target paint for door slots nine through fourteen.</summary>
     internal CeresDoorWarmTargetPaintDefinitions WarmTargets { get; }
     /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
-    internal readonly Dictionary<int, int> paint = [];
+    internal readonly Dictionary<(int Slot, ColorChannel Channel), int> paint = [];
     /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
     internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
@@ -32,7 +32,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
         for (int slot = 1; slot <= colors.Length; slot++)
             foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())
                 if (StoresPaint(slot, channel))
-                    paint.Add(slot * 3 + (int)channel, colors[slot - 1][channel]);
+                    paint.Add((slot, channel), colors[slot - 1][channel]);
         for (int slot = 1; slot <= colors.Length; slot++)
             if (Calculate(slot) != colors[slot - 1]) edits.Add(new ColourCell(0, slot), colors[slot - 1]);
     }
@@ -47,7 +47,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
     };
 
     /// <summary>Reads a stored material-paint channel for one door palette slot.</summary>
-    private int Seed(int slot, ColorChannel channel) => paint[slot * 3 + (int)channel];
+    private int Seed(int slot, ColorChannel channel) => paint[(slot, channel)];
 
     /// <summary>Resolves a supplied edit or calculates the requested one-based door paint slot.</summary>
     internal Bgr555 ColorAt(int index)

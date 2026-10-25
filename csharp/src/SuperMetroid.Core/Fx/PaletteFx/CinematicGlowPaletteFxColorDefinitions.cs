@@ -30,13 +30,13 @@ public static class CinematicGlowPaletteFxColorDefinitions
         public int Count => 2;
         /// <summary>Selects the three-color, six-frame light pulse or one-color, five-frame gunship glow.</summary>
         public CinematicGlowPaletteFxColorDefinition this[int index] =>
-            (CinematicGlowPaletteFxProgramOwner)index switch
+            index switch
             {
-                CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights => new(
+                0 => new(
                     CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
                     PaletteFxObject.OldMotherBrainFightBackgroundLights, PaletteFxProgram.OldMotherBrainFightBGLights1, MotherBrainColorByte,
                     colorsPerFrame: 3, frameDuration: 6),
-                CinematicGlowPaletteFxProgramOwner.GunshipGlow => new(
+                1 => new(
                     CinematicGlowPaletteFxProgramOwner.GunshipGlow,
                     PaletteFxObject.GunshipGlow, PaletteFxProgram.GunshipGlow1, GunshipColorByte,
                     colorsPerFrame: 1, frameDuration: 5),

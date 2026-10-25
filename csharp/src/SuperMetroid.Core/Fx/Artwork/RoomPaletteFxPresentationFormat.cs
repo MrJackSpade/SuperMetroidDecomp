@@ -6,5 +6,7 @@ public static class RoomPaletteFxPresentationFormat
     /// <summary>The presentation filename resolved for the room and cinematic palette-FX color catalog.</summary>
     public const string FileName = "room-palette-effects.json";
     /// <summary>Version eighteen, requiring all room/cinematic color families including the three Samus-in-heat suit palettes.</summary>
-    public const int Version = (int)RoomPaletteFxPresentationRevision.Current;
+    public const int Version = 18;
+    /// <summary>Version seventeen, whose Samus-in-heat rows are inherited from current stock.</summary>
+    internal const int PreviousVersion = 17;
 }

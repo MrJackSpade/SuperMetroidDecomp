@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Frozen;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Fx.Artwork;
@@ -130,9 +131,9 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     {
         // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
         if (ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) && frame == 15 &&
-            Enum.IsDefined((EndingGunshipPaletteInk)color))
+            InkAtColor.TryGetValue(color, out EndingGunshipPaletteInk paintedInk))
         {
-            Bgr555 calculated = (EndingGunshipPaletteInk)color switch
+            Bgr555 calculated = paintedInk switch
             {
                 EndingGunshipPaletteInk.Highlight => Gold(highlight, highlight.Red(0), 1),
                 EndingGunshipPaletteInk.DeepShadow => Gold(deepShadow, deepShadow.Red(0), 3),
@@ -157,7 +158,29 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     }
 
     /// <summary>The final-frame color of one selected gunship ink.</summary>
-    private static PaletteFxColorKey Key(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, (int)ink);
+    private static PaletteFxColorKey Key(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, ColorOf[ink]);
+
+    /// <summary>The final-frame palette color each ink paints.</summary>
+    private static readonly FrozenDictionary<EndingGunshipPaletteInk, int> ColorOf = new Dictionary<EndingGunshipPaletteInk, int>
+    {
+        [EndingGunshipPaletteInk.Highlight] = 1,
+        [EndingGunshipPaletteInk.DeepShadow] = 3,
+        [EndingGunshipPaletteInk.BlackDetail] = 4,
+        [EndingGunshipPaletteInk.HullLight] = 5,
+        [EndingGunshipPaletteInk.HullShadeLight] = 6,
+        [EndingGunshipPaletteInk.HullShadeMiddle] = 7,
+        [EndingGunshipPaletteInk.HullShadeDark] = 8,
+        [EndingGunshipPaletteInk.CockpitLight] = 9,
+        [EndingGunshipPaletteInk.CockpitMiddle] = 10,
+        [EndingGunshipPaletteInk.CockpitDark] = 11,
+        [EndingGunshipPaletteInk.UndersideLight] = 12,
+        [EndingGunshipPaletteInk.UndersideMiddle] = 13,
+        [EndingGunshipPaletteInk.UndersideDark] = 14,
+    }.ToFrozenDictionary();
+
+    /// <summary>The ink painted at each final-frame palette color that holds one.</summary>
+    private static readonly FrozenDictionary<int, EndingGunshipPaletteInk> InkAtColor =
+        ColorOf.ToFrozenDictionary(pair => pair.Value, pair => pair.Key);
     /// <summary>Requires a stored fade color or reconstructed final-frame ink.</summary>
     public Bgr555 this[PaletteFxColorKey key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     /// <summary>Includes ordinary stored colors and thirteen reconstructed painted inks.</summary>

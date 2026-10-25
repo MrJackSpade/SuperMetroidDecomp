@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Spatial;
 [SnesEncodingOwner]
 public readonly record struct SnesFixedPosition([property: IntegerQuantity("whole-pixel coordinate")] ushort Whole, ushort Fraction)
 {
+    /// <summary>The position with a whole word and a fraction word that must each be 0 through 65535.</summary>
+    public static SnesFixedPosition Of(int whole, int fraction) => new(checked((ushort)whole), checked((ushort)fraction));
+
     /// <summary>The whole-pixel word of a native 16.16 value: its upper sixteen bits, whatever its sign.</summary>
     public static ushort WholeOf(int rawValue) => unchecked((ushort)(rawValue >> 16));
 
@@ -16,11 +19,11 @@ public readonly record struct SnesFixedPosition([property: IntegerQuantity("whol
     /// <summary>The native 32-bit position: the whole word high and the fraction word low.</summary>
     public uint RawValue => ((uint)Whole << 16) | Fraction;
 
-    /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
-    public SnesFixedPosition WithWhole(ushort whole) => this with { Whole = whole };
+    /// <summary>Replaces only the whole word, 0 through 65535, as cartridge routines that store one half do.</summary>
+    public SnesFixedPosition WithWhole(int whole) => this with { Whole = checked((ushort)whole) };
 
-    /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
-    public SnesFixedPosition WithFraction(ushort fraction) => this with { Fraction = fraction };
+    /// <summary>Replaces only the fractional word, 0 through 65535, as cartridge routines that store one half do.</summary>
+    public SnesFixedPosition WithFraction(int fraction) => this with { Fraction = checked((ushort)fraction) };
 
     /// <summary>
     /// Adds a signed 8.8 velocity the way the cartridge's split-byte movers do: with 8-bit A, the velocity's fraction

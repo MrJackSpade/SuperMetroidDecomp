@@ -26,10 +26,10 @@ public static class EnemyTrigonometryTables
     /// <summary>$86:C26C/$C27A, CalculateSine/Cosine: multiply unsigned speed by
     /// the $A0:B443 signed sample, keep product bits 8..23, then restore the sign.
     /// Callers add a quarter-turn themselves when selecting cosine.</summary>
-    public static ushort MultiplySignedSine(ushort speed, SnesByteAngle angle)
+    public static ushort MultiplySignedSine(int speed, SnesByteAngle angle)
     {
-        short sample = SignedSine(angle);
-        int magnitude = SnesEightEight.WholeOf(speed * Math.Abs((int)sample));
+        int sample = SignedSine(angle);
+        int magnitude = SnesEightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, speed) * Math.Abs(sample));
         return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
     }
 

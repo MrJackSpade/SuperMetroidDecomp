@@ -13,15 +13,16 @@ public readonly record struct RoomStateSelectionContext(
     /// <summary>Tests one native event bit, treating indices beyond the supplied event memory as clear.</summary>
     /// <param name="eventIndex">Zero-based bit index into the event byte sequence.</param>
     /// <returns>True when the corresponding supplied bit is set; false when clear or absent.</returns>
-    public bool IsEventSet(byte eventIndex)
+    public bool IsEventSet(int eventIndex)
     {
+        Ensure.AtLeastZero(eventIndex);
         ReadOnlySpan<byte> events = Events.Span;
         int byteIndex = eventIndex >> 3;
         return byteIndex < events.Length && (events[byteIndex] & (1 << (eventIndex & 7))) != 0;
     }
 
     /// <summary>Tests whether the named persistent event <paramref name="eventNumber"/> is set.</summary>
-    public bool IsEventSet(EventNumber eventNumber) => IsEventSet(checked((byte)eventNumber.ToEventBit()));
+    public bool IsEventSet(EventNumber eventNumber) => IsEventSet(eventNumber.ToEventBit());
 
     /// <summary>Tests whether the selected area's boss-state word contains any bit from a validated known mask.</summary>
     /// <param name="mask">A mask composed only of established <see cref="BossBits"/> values; zero is allowed.</param>

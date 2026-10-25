@@ -34,14 +34,14 @@ internal sealed class RoomPlmLinkedRestoreDefinition
     /// <summary>The parent block's collision type.</summary>
     private readonly RoomCollisionType _parentCollision;
 
-    /// <summary>The visual block every restored cell shows.</summary>
-    private readonly ushort _visualBlock;
+    /// <summary>The visual block every restored cell shows, as a level word holding only its visual bits.</summary>
+    private readonly RoomLevelWord _visualBlock;
 
     /// <summary>The restoration draw of each shape.</summary>
     private readonly IReadOnlyDictionary<PlmRestoreShape, PlmDraw> _draws;
 
     /// <summary>Defines a family by its parent collision type, visual tile and the restoration draw of each shape.</summary>
-    private RoomPlmLinkedRestoreDefinition(RoomCollisionType parentCollision, ushort visualBlock, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
+    private RoomPlmLinkedRestoreDefinition(RoomCollisionType parentCollision, RoomLevelWord visualBlock, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
     {
         _parentCollision = parentCollision;
         _visualBlock = visualBlock;
@@ -76,7 +76,7 @@ internal sealed class RoomPlmLinkedRestoreDefinition
             // the top-left cell carries the parent's collision type.
             RoomCollisionType collision = row == 0 && column == 0 ? Family._parentCollision
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return RoomLevelWord.Create(0, LevelBlockFlipFlags.None, collision).WithVisualWord(Family._visualBlock).Raw;
+            return RoomLevelWord.Create(0, LevelBlockFlipFlags.None, collision).WithVisualWord(Family._visualBlock.Raw).Raw;
         }
     }
 

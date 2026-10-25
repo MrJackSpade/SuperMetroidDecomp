@@ -116,10 +116,9 @@ internal sealed class DoorPlms : IPlmFamilySource
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
         // collision, and selects BTS $44 so subsequent projectiles find this resident PLM.
-        ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetPlmForegroundEntry(
             blockIndex,
-            new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
+            level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
         level.SetPlmBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
@@ -289,8 +288,8 @@ internal sealed class DoorPlms : IPlmFamilySource
         // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
         // animated draw occurs on this actor's next handler pass and owns the VRAM
         // update, while collision observes the type-$8 origin immediately.
-        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
-        level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.SolidBlock).Raw);
+        level.SetForegroundEntry(blockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
         return true;
     }
 }

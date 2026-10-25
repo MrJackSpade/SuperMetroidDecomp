@@ -257,11 +257,11 @@ internal sealed class BeamFiring
         // muzzle check's -1 speed ($90:BDA7) can carry back into the same whole pixel.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
-        byte direction = samus.PoseTransitionShotDirection != 0
+        int direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
             : SamusPoseMetadata.ReadShotDirection(samus);
 
-        if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
+        if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
         {
             _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
@@ -292,7 +292,7 @@ internal sealed class BeamFiring
         // $90:B8ED checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
         // conditions uses the longer held-fire delay.
-        byte cooldown = charged
+        int cooldown = charged
             ? SamusProjectileCooldownDefinitions.ReadByte(
                 SamusFiringTableDefinitions.UnchargedCooldowns +
                 SamusFiringTableDefinitions.ChargedRowOffset + beamType.TableIndex)
@@ -354,8 +354,8 @@ internal sealed class BeamFiring
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
+        int direction = SamusPoseMetadata.ReadShotDirection(samus);
+        if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
         {
             _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
@@ -442,8 +442,8 @@ internal sealed class BeamFiring
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
+        int direction = SamusPoseMetadata.ReadShotDirection(samus);
+        if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
             return new BeamShot(null, null);
         slot.Direction = direction;
 
@@ -498,7 +498,7 @@ internal sealed class BeamFiring
         SamusState samus,
         SamusProjectileSlot slot)
     {
-        byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
+        int poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
@@ -517,7 +517,7 @@ internal sealed class BeamFiring
         int direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
-        short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+        int speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
             (diagonal
                 ? SamusFiringTableDefinitions.DiagonalSpeeds
                 : SamusFiringTableDefinitions.HorizontalVerticalSpeeds) + rowOffset));
@@ -529,7 +529,7 @@ internal sealed class BeamFiring
     internal static void InitializeDirectionalVelocity(
         ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot,
-        short baseSpeed)
+        int baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.Velocity = inheritance.ReadVelocity(slot.PackedDirection.Raw, baseSpeed);

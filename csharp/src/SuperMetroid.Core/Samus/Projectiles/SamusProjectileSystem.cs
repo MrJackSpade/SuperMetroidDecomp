@@ -206,7 +206,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
-        ushort timerBefore = Charge.ChargedShotGlowTimer.RawValue;
+        int timerBefore = Charge.ChargedShotGlowTimer.RawValue;
         if (timerBefore == 0)
         {
             // `$91:D748-$D793` admits the continuously cycling charge palette only while
@@ -220,7 +220,7 @@ public sealed class SamusProjectileSystem
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
-                ushort suitOffset = ProjectileAnimation.GetSuitPaletteOffset(samus.EquippedItems);
+                int suitOffset = ProjectileAnimation.GetSuitPaletteOffset(samus.EquippedItems);
 
                 // The installed path compiles the two list levels for bounded native offsets.
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
@@ -293,7 +293,7 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        ushort tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer.RawValue & 30));
+        int tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer.RawValue & 30));
         if (tableOffset == 0)
         {
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the

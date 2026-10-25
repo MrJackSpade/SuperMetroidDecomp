@@ -89,10 +89,10 @@ internal static class RunningCadenceVerification
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter((ushort)raw);
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
-            ushort frame = 7;
+            int frame = 7;
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
-                dash ? ControllerButton.B : 0, (ushort)raw, ref frame, out ushort timer,
+                dash ? ControllerButton.B : 0, (ushort)raw, ref frame, out int timer,
                 () => { calls++; return SoundQueueAdmission.Admitted(5); });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
             AssertEqual(next, speed.SpeedBoostCounter.RawValue, "Native counter decrement, stage bit and reset-word OR");
@@ -113,9 +113,9 @@ internal static class RunningCadenceVerification
             bus.MutableDelay = (byte)accumulator;
             residue.Write(stageFiveOffset, bus.MutableDelay);
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
-            ushort frame = 9;
+            int frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, ControllerButton.B,
-                (ushort)accumulator, ref frame, out ushort timer, () => SoundQueueAdmission.Admitted(stage));
+                (ushort)accumulator, ref frame, out int timer, () => SoundQueueAdmission.Admitted(stage));
             AssertEqual(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2)), speed.SpeedBoostCounter.RawValue, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
                 ? bus.MutableDelay
@@ -126,7 +126,7 @@ internal static class RunningCadenceVerification
 
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
-        ushort invalidFrame = 9;
+        int invalidFrame = 9;
         AssertThrows<InvalidDataException>(
             () => speed.TryAdvanceSpeedBoosterAnimationStage(
                 residue,

@@ -263,11 +263,10 @@ public sealed class AudioQueues
         // The ring never fills here: a full ring holds fifteen unread requests, and every threshold is at most fifteen,
         // so the occupancy test above has already rejected the request. The cartridge's full-ring branch, which keeps
         // the higher-priority of two requests in the last free position, is unreachable.
-        byte write = SoundWritePositions[queue];
-        byte next = unchecked((byte)(
-            (write + 1) & AudioQueueDefinitions.SoundIndexMask));
+        int write = SoundWritePositions[queue];
+        int next = (write + 1) & AudioQueueDefinitions.SoundIndexMask;
         SoundQueues[queue, write] = soundEffect;
-        SoundWritePositions[queue] = next;
+        SoundWritePositions[queue] = (byte)next;
         SoundQueues[queue, next] = null;
         return SoundQueueAdmission.Admitted(occupancy);
     }
@@ -376,7 +375,7 @@ public sealed class AudioQueues
         {
             // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
             _soundHandlerDowntime = Ensure.AtLeastZero(_soundHandlerDowntime - 1);
-            for (byte queue = 0;
+            for (int queue = 0;
                 queue < AudioQueueDefinitions.SoundLibraryCount;
                 queue++)
             {
@@ -448,7 +447,7 @@ public sealed class AudioQueues
         if (SoundReadPositions[queue] == SoundWritePositions[queue])
             return;
 
-        byte read = SoundReadPositions[queue];
+        int read = SoundReadPositions[queue];
         SoundEffectId? sound = SoundQueues[queue, read];
         requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), sound));
         _currentSounds[queue] = sound;

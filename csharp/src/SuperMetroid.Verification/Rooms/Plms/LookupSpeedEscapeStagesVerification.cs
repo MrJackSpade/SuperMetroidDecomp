@@ -42,7 +42,7 @@ internal static class LookupSpeedEscapeStagesVerification
             else
             {
                 SpeedBoosterEscapeStageDefinition stage = (SpeedBoosterEscapeStageDefinitions.Resolve(offset) ?? throw new InvalidOperationException("Verification requires SpeedBoosterEscapeStageDefinitions.Resolve(offset)."));
-                ushort actual = field switch
+                int actual = field switch
                 {
                     0 => stage.TargetSamusX,
                     1 => stage.MaximumFxY,

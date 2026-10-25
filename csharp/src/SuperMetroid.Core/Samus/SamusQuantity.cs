@@ -15,8 +15,8 @@ public static class SamusQuantity
     /// <summary>The largest count: the word $7FFF under the cartridge's signed comparisons.</summary>
     public const int MaximumValue = short.MaxValue;
 
-    /// <summary>A stored word as a count, reading it as the signed value the cartridge compares.</summary>
-    public static int Decode(ushort word) => unchecked((short)word);
+    /// <summary>A stored word, 0 through 65535, as a count, reading it as the signed value the cartridge compares.</summary>
+    public static int Decode(int word) => unchecked((short)Ensure.BetweenInclusive(0, ushort.MaxValue, word));
 
     /// <summary>A count as its stored word.</summary>
     public static ushort Encode(int value) => value is >= MinimumValue and <= MaximumValue

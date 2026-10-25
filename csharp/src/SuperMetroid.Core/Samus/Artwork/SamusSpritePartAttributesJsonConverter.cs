@@ -13,9 +13,9 @@ internal sealed class SamusSpritePartAttributesJsonConverter : JsonConverter<Sne
     [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesObjAttributeWord Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt16(out ushort attributes))
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int attributes) || attributes is < 0 or > ushort.MaxValue)
             throw new JsonException("A Samus sprite part's attributes must be a number from 0 through 65535.");
-        return new SnesObjAttributeWord(attributes);
+        return new SnesObjAttributeWord((ushort)attributes);
     }
 
     /// <summary>Writes the complete attribute word as the document's numeric value.</summary>

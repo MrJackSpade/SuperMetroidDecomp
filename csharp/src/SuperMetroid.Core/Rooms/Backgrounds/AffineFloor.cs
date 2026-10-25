@@ -35,7 +35,7 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     {
         Ensure.LengthEqual(map, CellCount);
         var cells = ImmutableArray.CreateBuilder<AffineFloorCell>(CellCount);
-        foreach (byte tile in map)
+        foreach (int tile in map)
             cells.Add(new AffineFloorCell(tile));
         return new AffineFloor(cells.MoveToImmutable(), tiles);
     }

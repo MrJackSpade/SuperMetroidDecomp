@@ -38,7 +38,7 @@ public readonly record struct HorizontalCameraContext(
         bool KnockedBack,
         SamusMovementType MovementType,
         SamusAccelerationMode XAccelerationMode,
-        byte PoseXDirection,
+        int PoseXDirection,
         CameraDistanceMode CameraDistanceIndex)
         : this(
             KnockedBack,

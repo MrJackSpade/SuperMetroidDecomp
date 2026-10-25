@@ -155,7 +155,7 @@ internal static class SamusAerialPoseTransitions
         // These are literal copies of `$91:F9D6` and `$91:F9E0`. Directions four and five
         // are not typos: compact down-aim sources reuse `$91/$92` or `$95/$96` according to
         // facing. Retaining all ten entries is essential for a debugger to preserve aim.
-        byte shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
+        int shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         SamusPoseId selectedTurnPose = jumping
             ? shotDirection switch
             {
@@ -977,7 +977,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        ushort oldRadius = samus.Kinematics.Radius.Y;
+        int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y != oldRadius)

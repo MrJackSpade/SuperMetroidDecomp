@@ -71,11 +71,11 @@ internal static class RainbowBeamWindowBuilder
             {
                 left = Math.Clamp(left + leftStep, 0, ushort.MaxValue);
                 rightEdge = Math.Clamp(rightEdge + rightStep, 0, ushort.MaxValue);
-                ushort word = (ushort)(SnesEightEight.WholeOf(left) | (rightEdge & RightScreenEdge));
+                int word = SnesEightEight.WholeOf(left) | (rightEdge & RightScreenEdge);
                 // Down-left uses zero as its off-screen sentinel; the other routines
                 // test FFFF. Keep that asymmetry instead of normalizing the native edges.
                 bool empty = down && leftNegative && rightNegative ? word == 0 : word == ushort.MaxValue;
-                data[index] = empty ? MissedLineWord : word;
+                data[index] = empty ? MissedLineWord : checked((ushort)word);
             }
         }
 

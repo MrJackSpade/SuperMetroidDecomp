@@ -1002,7 +1002,7 @@ internal sealed class SuperMetroidRuntime
     /// Invokes the pause-menu held-input filter with the controller sample latched by the
     /// most recent accepted NMI. The retail caller passes reset value three.
     /// </summary>
-    public void UpdatePauseHeldInput(ushort timerReset = 3)
+    public void UpdatePauseHeldInput(int timerReset = 3)
     {
         System.UpdateHeldInput(timerReset, PhysicalController1.Current, PhysicalController1.NewlyPressed);
     }

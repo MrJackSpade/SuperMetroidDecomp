@@ -53,10 +53,10 @@ internal static class RoomPlmCollectibleDrawDefinitions
     }
 
     /// <summary>Physical runtime projection without constructing exported artwork names.</summary>
-    internal static bool TryGetWord(PlmDraw request, out int word)
+    internal static bool TryGetWord(PlmDraw request, out RoomLevelWord word)
     {
         bool found = TryLocate(request, out Draw draw);
-        word = found ? Word(draw) : (ushort)0;
+        word = found ? new RoomLevelWord(Word(draw)) : default;
         return found;
     }
 

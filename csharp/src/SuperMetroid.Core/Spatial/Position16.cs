@@ -15,11 +15,14 @@ public readonly record struct Position16<TSpace>([property: IntegerQuantity("hor
     /// <summary>The origin.</summary>
     public static Position16<TSpace> Zero => default;
 
-    /// <summary>Replaces the X axis.</summary>
-    public Position16<TSpace> WithX(ushort x) => this with { X = x };
+    /// <summary>The position at two coordinates that must already be sixteen-bit words, 0 through 65535.</summary>
+    public static Position16<TSpace> Of(int x, int y) => new(checked((ushort)x), checked((ushort)y));
 
-    /// <summary>Replaces the Y axis.</summary>
-    public Position16<TSpace> WithY(ushort y) => this with { Y = y };
+    /// <summary>Replaces the X axis with a coordinate that must already be a sixteen-bit word.</summary>
+    public Position16<TSpace> WithX(int x) => this with { X = checked((ushort)x) };
+
+    /// <summary>Replaces the Y axis with a coordinate that must already be a sixteen-bit word.</summary>
+    public Position16<TSpace> WithY(int y) => this with { Y = checked((ushort)y) };
 
     /// <summary>Translates by a signed offset, wrapping each axis at sixteen bits.</summary>
     public static Position16<TSpace> operator +(Position16<TSpace> position, Offset16<TSpace> offset) =>

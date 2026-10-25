@@ -68,8 +68,8 @@ internal sealed class ProjectileAnimation
         int? horizontalMargin,
         ProjectileDrawArtwork artwork)
     {
-        short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
-        ushort screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
+        int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
+        int screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
         {
@@ -78,7 +78,7 @@ internal sealed class ProjectileAnimation
 
         SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
             slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")));
-        sprites.Add(new ImageSpriteDraw(source, image, new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY),
+        sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY),
             SpriteMirror.None));
     }
 
@@ -92,8 +92,8 @@ internal sealed class ProjectileAnimation
         if (timer.IsNonNegative)
             return;
 
-        ushort frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
-        byte delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame, Overreads?.AnimationWindows);
+        int frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
+        int delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame, Overreads?.AnimationWindows);
         if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
             switch (command)
@@ -103,7 +103,7 @@ internal sealed class ProjectileAnimation
                     delay = ChargeFlareAnimationDefinitions.ReadDelay(component, 0, Overreads?.AnimationWindows);
                     break;
                 case ChargeFlareDelayCommand.Rewind:
-                    byte rewind = ChargeFlareAnimationDefinitions.ReadDelay(component, frame + 1, Overreads?.AnimationWindows);
+                    int rewind = ChargeFlareAnimationDefinitions.ReadDelay(component, frame + 1, Overreads?.AnimationWindows);
                     frame = unchecked((ushort)(frame - rewind));
                     delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame, Overreads?.AnimationWindows);
                     break;
@@ -119,7 +119,7 @@ internal sealed class ProjectileAnimation
     /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
     internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
     {
-        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
+        int direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (direction >= 16)
             return;
 
@@ -132,8 +132,8 @@ internal sealed class ProjectileAnimation
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
             .Resolve(pose.Running, pose.Direction & 0x0f); // magic-number-audit: allow(PoseOrMovement) - low nibble of the native shot-direction byte
-        short xOffset = visualOffset.X;
-        short yOffset = visualOffset.Y;
+        int xOffset = visualOffset.X;
+        int yOffset = visualOffset.Y;
 
         // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the
         // body renderer. Only Samus's center is transformed; the pose-selected muzzle
@@ -143,8 +143,8 @@ internal sealed class ProjectileAnimation
         Position16<RoomPixels> renderPoint = mode7Transform is { } transform
             ? transform.Transform(samusPosition)
             : samusPosition;
-        ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
-        ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y));
+        int screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
+        int screenY = unchecked((ushort)(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y));
 
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an
@@ -152,11 +152,11 @@ internal sealed class ProjectileAnimation
         if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
-        ushort indexOffset = unchecked((ushort)(pose.FacingLeft
+        int indexOffset = unchecked((ushort)(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
             : component switch { 0 => 0, 1 => 30, _ => 36 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
-        ushort tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge.FlareFrame(component)))));
+        int tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge.FlareFrame(component)))));
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no
@@ -166,7 +166,7 @@ internal sealed class ProjectileAnimation
         SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetDefinitions.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), image,
-            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
+            Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
 
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>

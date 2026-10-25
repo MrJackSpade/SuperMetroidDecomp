@@ -117,9 +117,9 @@ public sealed class SamusArmCannonState
             return new SamusArmCannonDrawResult();
 
         int descriptor = PoseDescriptor(SamusPoseNumbering.Number(samus.Pose));
-        byte firstSelector = ReadDrawingByte(descriptor);
+        int firstSelector = ReadDrawingByte(descriptor);
         bool frameDependentSelector = unchecked((sbyte)firstSelector) < 0;
-        byte selector = frameDependentSelector && samus.AnimationFrame != 0
+        int selector = frameDependentSelector && samus.AnimationFrame != 0
             ? unchecked((byte)(ReadDrawingByte(descriptor + 2) & sbyte.MaxValue))
             : unchecked((byte)(firstSelector & sbyte.MaxValue));
         if (selector >= SamusDrawingDefinitions.ArmCannon.DirectionCount)
@@ -127,12 +127,12 @@ public sealed class SamusArmCannonState
 
         int offsetsBase = descriptor + (frameDependentSelector ? 4 : 2);
         int offsetsAt = offsetsBase + samus.AnimationFrame * 2;
-        sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt));
-        sbyte yOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt + 1));
-        sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int xOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt));
+        int yOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt + 1));
+        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
-        short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
-        short screenY = unchecked((short)(
+        int screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
+        int screenY = unchecked((short)(
             samus.Position.Y.Whole + yOffset - graphicsYOffset - layer1.Y));
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         if (spriteWritten)
@@ -156,7 +156,7 @@ public sealed class SamusArmCannonState
         if (ToggleFlag < 2)
             return false;
 
-        byte desiredOpenFlag = SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem);
+        int desiredOpenFlag = SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem);
         if (OpenFlag == desiredOpenFlag)
             return false;
 
@@ -184,7 +184,7 @@ public sealed class SamusArmCannonState
     {
         if (OpenFlag != 0)
         {
-            ushort incremented = unchecked((ushort)(Frame + 1));
+            int incremented = unchecked((ushort)(Frame + 1));
             if (unchecked((short)(incremented - 3)) < 0)
             {
                 Frame = incremented;
@@ -195,7 +195,7 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            ushort decremented = unchecked((ushort)(Frame - 1));
+            int decremented = unchecked((ushort)(Frame - 1));
             if (decremented != 0 && unchecked((short)decremented) >= 0)
             {
                 Frame = decremented;

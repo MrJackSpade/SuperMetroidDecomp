@@ -11,7 +11,7 @@ internal static class SamusBodyTransferDefinitions
 
     /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
     internal static bool TryFirstSize(SamusBodyArtworkCatalog body, SamusBodyTileSlot slot,
-        int payloadBytes, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)
+        int payloadBytes, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames, out int firstSize)
     {
         bool upper = slot.Upper;
         int set = slot.Set, position = slot.Position;
@@ -41,7 +41,7 @@ internal static class SamusBodyTransferDefinitions
                 }
             }
         }
-        firstSize = (ushort)Math.Min(firstTiles * TileBytes, payloadBytes);
+        firstSize = Math.Min(firstTiles * TileBytes, payloadBytes);
         return firstSize != 0;
     }
 
@@ -52,7 +52,7 @@ internal static class SamusBodyTransferDefinitions
     /// Only this decomposition is retained; row magnitudes derive from hardware
     /// block geometry and the independently required pixel payload length.
     /// </summary>
-    internal static bool TrySelectedPacking(bool upper, int set, int position, int payloadBytes, out ushort firstSize)
+    internal static bool TrySelectedPacking(bool upper, int set, int position, int payloadBytes, out int firstSize)
     {
         int largeBlocks = new SamusBodyTileSlot(upper, set, position) switch
         {
@@ -63,7 +63,7 @@ internal static class SamusBodyTransferDefinitions
         if (largeBlocks != 0)
         {
             int first = payloadBytes - largeBlocks * LargeObjTilesAcross * TileBytes;
-            firstSize = (ushort)Math.Max(0, first);
+            firstSize = Math.Max(0, first);
             return first > 0;
         }
         bool balanced = new SamusBodyTileSlot(upper, set, position) switch
@@ -75,7 +75,7 @@ internal static class SamusBodyTransferDefinitions
                 (false, 6, 10 or 11 or 12) or (false, 8, 2) => true,
             _ => false,
         };
-        firstSize = balanced ? (ushort)(((payloadBytes / TileBytes + 1) / 2) * TileBytes) : (ushort)0;
+        firstSize = balanced ? ((payloadBytes / TileBytes + 1) / 2) * TileBytes : 0;
         return balanced;
     }
 }

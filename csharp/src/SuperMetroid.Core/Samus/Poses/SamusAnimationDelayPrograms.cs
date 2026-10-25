@@ -202,11 +202,11 @@ internal static class SamusAnimationDelayPrograms
         return [.. laidOut];
     }
 
-    /// <summary>Expands a uniform authored pose-delay run without changing its byte cadence.</summary>
-    private static byte[] Repeat(byte delay, int count)
+    /// <summary>Expands a uniform authored pose-delay run, each delay 0 through 255, without changing its byte cadence.</summary>
+    private static byte[] Repeat(int delay, int count)
     {
         byte[] run = new byte[count];
-        Array.Fill(run, delay);
+        Array.Fill(run, checked((byte)delay));
         return run;
     }
 

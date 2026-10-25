@@ -45,16 +45,16 @@ public sealed class ProjectileInheritanceRecords
     internal void ClearMovement() => Array.Clear(Bytes, FirstRecordOffset, ByteCount - FirstRecordOffset);
 
     /// <summary>Combines a shot's base speed with the direction-specific overlapping words using native signed arithmetic.</summary>
-    internal EightEightVector<RoomPixels> ReadVelocity(ushort directionWord, short baseSpeed)
+    internal EightEightVector<RoomPixels> ReadVelocity(int directionWord, int baseSpeed)
     {
-        var word = new SamusProjectileDirectionWord(directionWord);
+        var word = new SamusProjectileDirectionWord(checked((ushort)directionWord));
         if (word.DirectionIndex > 9)
             throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
         SamusProjectileDirection direction = word.Direction
             ?? throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
-        ushort upward = LaunchVelocityWord(SamusCollisionDirection.Up);
+        int upward = LaunchVelocityWord(SamusCollisionDirection.Up);
         int upContribution = (SnesLittleEndian.HighByteInPlace(upward)) == 0 ? 0 : (upward >> 2) | 3 << 14; // An arithmetic shift by two fills both top bits.
-        short x = unchecked((short)(direction switch
+        int x = unchecked((short)(direction switch
         {
             SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>
                 baseSpeed + LaunchVelocityWord(SamusCollisionDirection.Right),
@@ -64,7 +64,7 @@ public sealed class ProjectileInheritanceRecords
                 SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => 0,
             _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
         }));
-        short y = unchecked((short)(direction switch
+        int y = unchecked((short)(direction switch
         {
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
                 SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft => -baseSpeed + upContribution,
@@ -84,7 +84,7 @@ public sealed class ProjectileInheritanceRecords
     private ushort ReadWord(int offset) => SnesLittleEndian.Word(Bytes[offset], Bytes[offset + 1]);
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="offset"/>.</summary>
-    private void WriteWord(int offset, ushort value)
+    private void WriteWord(int offset, int value)
     {
         Bytes[offset] = SnesLittleEndian.LowByte(value);
         Bytes[offset + 1] = SnesLittleEndian.HighByte(value);

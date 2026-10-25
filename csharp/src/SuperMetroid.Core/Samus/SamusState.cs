@@ -575,7 +575,7 @@ public sealed class SamusState
         ISamusRoomPlms? plms,
         out int centerAdjustment)
     {
-        ushort targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
+        int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
         if (targetRadius <= Kinematics.Radius.Y)
         {
             centerAdjustment = 0;
@@ -688,7 +688,7 @@ level,
         LargerPoseCollisionOutcome BothSides() => Kinematics.Radius.Y < 8
             ? LargerPoseCollisionOutcome.RetainSource : LargerPoseCollisionOutcome.CrouchFallback;
 
-        SolidEnemyCollisionResult ProbeEnemy(SamusCollisionDirection direction, int distance, ushort radius)
+        SolidEnemyCollisionResult ProbeEnemy(SamusCollisionDirection direction, int distance, int radius)
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.Radius = probe.Radius.WithY(radius);
@@ -724,13 +724,13 @@ level,
         SamusPoseId targetPose,
         ISamusRoomPlms? plms)
     {
-        short wholePixels = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
+        int wholePixels = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
         if ((Math.Abs(wholePixels) & ~7) != 0)
         {
             // `$94:96C0` computes `(signedWhole & $FFF0) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
-            short intermediateWhole = unchecked((short)((wholePixels & ~15) | 8));
+            int intermediateWhole = unchecked((short)((wholePixels & ~15) | 8));
             BlockMoveResult intermediate = Probe(SnesSixteenSixteen.FromWhole(intermediateWhole));
             if (intermediate.Collided)
                 return intermediate;
@@ -763,7 +763,7 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// </summary>
     internal void ApplyPoseChangeCollisionCrouchFallback(SamusPoseId sourcePose)
     {
-        ushort oldRadius = Kinematics.Radius.Y;
+        int oldRadius = Kinematics.Radius.Y;
         SamusPoseId fallbackPose = SamusPoseMetadata.IsFacing(this, SamusFacingDirection.Left)
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
@@ -771,7 +771,7 @@ level, probe, this, amount, scanLeftToRight, plms);
             return;
 
         Pose = fallbackPose;
-        ushort fallbackRadius = SamusPoseMetadata.ReadPoseYRadius(fallbackPose);
+        int fallbackRadius = SamusPoseMetadata.ReadPoseYRadius(fallbackPose);
         // The collision fallback reads the prospective radius for center correction,
         // but leaves the live radius untouched until the next ordinary alpha phase.
         if (oldRadius < fallbackRadius)
@@ -807,18 +807,18 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// before MainScrollingRoutine, such as the landed gunship placing Samus at $A2:A925.
     /// Only the whole word changes; the previous X fraction ($0B12) is untouched.
     /// </summary>
-    internal void WritePreviousXPosition(ushort xPosition) =>
+    internal void WritePreviousXPosition(int xPosition) =>
         _previousXPositionWrite = xPosition;
 
     /// <summary>
     /// Records a write to bits of SamusPreviousXSubPosition ($0B12): a byte store sets mask
     /// $FF00, a word store $FFFF. Later writes this frame replace the bits they cover.
     /// </summary>
-    internal void WritePreviousXSubposition(ushort mask, ushort value) =>
+    internal void WritePreviousXSubposition(int mask, int value) =>
         _previousFractionWrites = _previousFractionWrites with { X = _previousFractionWrites.X.Write(mask, value) };
 
     /// <summary>Records a write to bits of SamusPreviousYSubPosition ($0B16), as for X.</summary>
-    internal void WritePreviousYSubposition(ushort mask, ushort value) =>
+    internal void WritePreviousYSubposition(int mask, int value) =>
         _previousFractionWrites = _previousFractionWrites with { Y = _previousFractionWrites.Y.Write(mask, value) };
 
     /// <summary>
@@ -826,7 +826,7 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// preserve the feet and shift the previous whole-Y checkpoint by the same delta.
     /// Neither fractional word changes.
     /// </summary>
-    internal void AlignBottomAfterPoseChange(ushort previousRadius, ushort targetRadius)
+    internal void AlignBottomAfterPoseChange(int previousRadius, int targetRadius)
     {
         int delta = previousRadius - targetRadius;
         Position += new Offset16<RoomPixels>(0, unchecked((short)delta));
@@ -839,7 +839,7 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// fraction is deliberately not changed: native writes only $0B14, not $0B16.
     /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
     /// </summary>
-    internal void WritePreviousYPosition(ushort correctedY)
+    internal void WritePreviousYPosition(int correctedY)
     {
         _poseCollisionPreviousYPosition = correctedY;
         _poseAlignmentPreviousYDelta = 0;
@@ -858,18 +858,18 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
-        ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
+        int correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
-        ushort xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
-        ushort xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
-        ushort ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
+        int xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
+        int xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
+        int ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
         _previousFractionWrites = default;
         return new FixedPosition<RoomPixels>(
-            new SnesFixedPosition(xPosition, xSubposition),
-            new SnesFixedPosition(correctedY, ySubposition));
+            SnesFixedPosition.Of(xPosition, xSubposition),
+            SnesFixedPosition.Of(correctedY, ySubposition));
     }
 
     /// <summary>
@@ -880,11 +880,11 @@ level, probe, this, amount, scanLeftToRight, plms);
     private readonly record struct MaskedWordWrite(int Mask, int Value)
     {
         /// <summary>Records a byte ($FF00) or word ($FFFF) store; later stores replace the bits they cover.</summary>
-        public MaskedWordWrite Write(ushort mask, ushort value) =>
+        public MaskedWordWrite Write(int mask, int value) =>
             new(Mask | mask, (Value & ~mask) | (value & mask));
 
         /// <summary>Applies only the bits written this frame to an earlier fraction word.</summary>
-        public ushort ApplyTo(ushort word) => (ushort)((word & ~Mask) | Value);
+        public ushort ApplyTo(int word) => (ushort)((word & ~Mask) | Value);
     }
 
     /// <summary>The pending masked writes to both previous-fraction words as one value.</summary>

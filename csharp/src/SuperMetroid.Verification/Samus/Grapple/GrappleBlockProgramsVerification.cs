@@ -81,7 +81,7 @@ internal static class GrappleBlockProgramsVerification
             }
             AssertEqual((ushort)pointer,NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)),"Grapple draw identity");
             AssertEqual(ReadRomWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,"Grapple native single-block geometry");
-            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),draw.LevelWord,"Grapple native collision and tile word");
+            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),draw.LevelWord.Raw,"Grapple native collision and tile word");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
             AssertEqual(draw,exported.Single(entry => NativePlmDraws.AddressOf(PlmDraw.Of(entry.Frame)) == pointer),"Grapple exported draw matches calculation");
@@ -203,7 +203,7 @@ internal static class GrappleBlockProgramsVerification
         RoomPlmVisualWordEntry[] entries =
             RoomPlmGrappleBlockDrawDefinitions.All.Select(draw =>
                 new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(draw.Frame),
-                    new RoomLevelWord(draw.LevelWord).VisualWord)).ToArray();
+                    draw.LevelWord.VisualWord)).ToArray();
         int first = Array.FindIndex(entries, entry =>
             entry.Id == "intact");
         entries[first] = entries[first] with { VisualWord = 0x00b8 };

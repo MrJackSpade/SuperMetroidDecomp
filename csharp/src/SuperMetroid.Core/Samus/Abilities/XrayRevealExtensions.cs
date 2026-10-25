@@ -10,7 +10,7 @@ public static class XrayRevealExtensions
     /// Returns the replacement metatile, or null to retain copied BG1 art. Unlike collision,
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
-    public static ushort? Resolve(RoomLevelData level, int blockIndex,
+    public static int? Resolve(RoomLevelData level, int blockIndex,
         XrayRevealVisualCatalog? visuals = null)
     {
         Ensure.NotNull(level);
@@ -18,8 +18,8 @@ public static class XrayRevealExtensions
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));
         if (block.Bts.Value == 0) return null;
-        ushort x = (ushort)(blockIndex % level.Size.X);
-        ushort y = (ushort)(blockIndex / level.Size.X);
+        int x = blockIndex % level.Size.X;
+        int y = blockIndex / level.Size.X;
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
         // Both entry points sign-extend the initial BTS. Later reads are asymmetric:
         // only the horizontal-extension branch repeats that sign extension.
@@ -27,9 +27,9 @@ public static class XrayRevealExtensions
         var visited = new HashSet<XrayRevealVisit>();
         while (true)
         {
-            if (!visited.Add(new(new Position16<RoomBlocks>(x, y), vertical, step)))
+            if (!visited.Add(new(Position16<RoomBlocks>.Of(x, y), vertical, step)))
                 throw new InvalidDataException($"Cyclic X-ray extension chain from block {blockIndex}.");
-            ushort coordinate = unchecked((ushort)((vertical ? y : x) + step));
+            int coordinate = unchecked((ushort)((vertical ? y : x) + step));
             if (unchecked((short)coordinate) < 0) return XrayRevealDefinitions.BlankMetatile;
             if (vertical) y = coordinate; else x = coordinate;
             // GetBlockTypeAndBTS uses the hardware's byte-wide Y multiplication;

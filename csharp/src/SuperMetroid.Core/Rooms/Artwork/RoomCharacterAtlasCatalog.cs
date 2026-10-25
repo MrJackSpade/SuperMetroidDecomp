@@ -16,7 +16,7 @@ public sealed class RoomCharacterAtlasCatalog
     {
         Cre = Ensure.NotNull(cre);
         Ensure.NotNull(sheets);
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet required = RoomTilesetDefinitions.Get(graphicsSet).Characters;
             if (!sheets.TryGetValue(required, out RoomCharacterAtlas? value) || value is null)

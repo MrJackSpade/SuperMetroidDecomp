@@ -196,9 +196,9 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 level, backgrounds, kind, suppliedGraphic)
             : -1;
 
-        ushort setupWord = original.PackedWord.WithCollisionType(
-            presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air).Raw;
-        level.SetForegroundEntry(slot.BlockIndex, setupWord);
+        RoomLevelWord setupWord = original.PackedWord.WithCollisionType(
+            presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
+        level.SetForegroundEntry(slot.BlockIndex, setupWord.Raw);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.CollectibleTrigger);
         slot.RestoreLevelWord = setupWord;
 

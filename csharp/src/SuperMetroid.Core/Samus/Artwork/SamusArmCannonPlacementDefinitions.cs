@@ -30,7 +30,7 @@ internal static class SamusArmCannonPlacementDefinitions
 
     /// <summary>Finds a pose's extreme body-sprite tip and applies its authored cannon join for a drawing-coordinate byte.</summary>
     /// <remarks>Returns false for unowned coordinates or missing editable body artwork, leaving the installed value intact.</remarks>
-    internal static bool TryCoordinate(SamusBodyArtworkCatalog body, int position, out byte value)
+    internal static bool TryCoordinate(SamusBodyArtworkCatalog body, int position, out int value)
     {
         value = 0;
         if (!TryOwner(position, out SamusPoseId pose, out int phase, out bool yComponent)) return false;
@@ -400,7 +400,7 @@ internal static class SamusArmCannonPlacementDefinitions
             start = pointer;
             pose = SamusPoseNumbering.FromNumber(candidate);
         }
-        if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out byte selector)) return false;
+        if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out int selector)) return false;
         int relative = position - start - ((selector & 128) != 0 ? 4 : 2);
         if (relative < 0) return false;
         phase = relative / 2;

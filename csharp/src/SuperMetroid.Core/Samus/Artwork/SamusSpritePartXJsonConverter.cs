@@ -13,9 +13,9 @@ internal sealed class SamusSpritePartXJsonConverter : JsonConverter<SnesSpritema
     [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesSpritemapXWord Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt16(out ushort x))
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int x) || x is < 0 or > ushort.MaxValue)
             throw new JsonException("A Samus sprite part's X word must be a number from 0 through 65535.");
-        return new SnesSpritemapXWord(x);
+        return new SnesSpritemapXWord((ushort)x);
     }
 
     /// <summary>Writes the complete X word as the document's numeric value.</summary>

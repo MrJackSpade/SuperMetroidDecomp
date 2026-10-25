@@ -200,7 +200,7 @@ public sealed class SamusSuitPickupState
     /// </summary>
     private void PublishSharedScratch(SamusState samus)
     {
-        ushort stageNumber = SharedScratchStageNumber(Stage);
+        int stageNumber = SharedScratchStageNumber(Stage);
         samus.Shinespark.ApplySuitPickupScratch(stageNumber, SharedScratchLightBeamWord());
         // Suit setup and each HDMA phase write the same word Flash later reads as
         // its ammo-decrement counter. Suspending Flash's movement does not give it
@@ -257,10 +257,10 @@ public sealed class SamusSuitPickupState
     /// <summary>Moves the beam's left and right endpoints apart uniformly before curved widening begins.</summary>
     private void StepUniformWidening()
     {
-        byte amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
         // Window columns are eight bits wide: both edges wrap within the screen row.
-        byte left = unchecked((byte)(checked((byte)_lightBeamLeft.X) - amount));
-        byte right = unchecked((byte)(checked((byte)_lightBeamRight.X) + amount));
+        int left = unchecked((byte)(checked((byte)_lightBeamLeft.X) - amount));
+        int right = unchecked((byte)(checked((byte)_lightBeamRight.X) + amount));
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
@@ -277,10 +277,10 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        byte amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
-        byte oldLeft = checked((byte)_lightBeamLeft.X);
-        byte left = unchecked((byte)(oldLeft - amount));
-        byte right = checked((byte)_lightBeamRight.X);
+        int amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int oldLeft = checked((byte)_lightBeamLeft.X);
+        int left = unchecked((byte)(oldLeft - amount));
+        int right = checked((byte)_lightBeamRight.X);
         // The native BEQ shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
         if (left == 0 || unchecked((sbyte)(oldLeft - amount)) < 0)
@@ -299,7 +299,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
-        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
+        if (new SuitPickupBeamEdges((byte)left, (byte)right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
@@ -341,7 +341,7 @@ public sealed class SamusSuitPickupState
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
-        ushort decelerated = unchecked((ushort)(
+        int decelerated = unchecked((ushort)(
             LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration));
         LightBeamWideningVelocity = WideningVelocity(decelerated);
         if (unchecked((short)(decelerated - SuitPickupBeamDefinitions.MinimumShrinkingSpeed)) < 0)
@@ -357,8 +357,8 @@ public sealed class SamusSuitPickupState
     private void StepLightBeamDissipates()
     {
         // Window columns are eight bits wide: the starting left column 255 wraps to 7 on the first call.
-        byte left = unchecked((byte)(checked((byte)_lightBeamLeft.X) + 8));
-        byte right = unchecked((byte)(checked((byte)_lightBeamRight.X) - 8));
+        int left = unchecked((byte)(checked((byte)_lightBeamLeft.X) + 8));
+        int right = unchecked((byte)(checked((byte)_lightBeamRight.X) - 8));
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
@@ -389,11 +389,11 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>The screen position of window column <paramref name="column"/>; only X is meaningful.</summary>
-    private static Position16<ScreenPixels> ScreenColumn(byte column) => new(column, 0);
+    private static Position16<ScreenPixels> ScreenColumn(int column) => Position16<ScreenPixels>.Of(column, 0);
 
     /// <summary>A horizontal unsigned 8.8 speed from its raw word; the vertical axis is unused.</summary>
-    private static EightEightVector<ScreenPixels> WideningVelocity(ushort speed) =>
-        new(new SnesSignedEightEight(speed), new SnesSignedEightEight(0));
+    private static EightEightVector<ScreenPixels> WideningVelocity(int speed) =>
+        new(new SnesSignedEightEight(checked((ushort)speed)), new SnesSignedEightEight(0));
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

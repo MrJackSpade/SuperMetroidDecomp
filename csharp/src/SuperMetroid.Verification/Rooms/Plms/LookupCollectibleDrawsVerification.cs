@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -30,7 +31,7 @@ internal static class LookupCollectibleDrawsVerification
             {
                 bool owned = expected.Any(entry => entry.Pointer == raw);
                 AssertEqual(owned, RoomPlmCollectibleDrawDefinitionsTooling.TryGet(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out var value), "Collectible complete pointer domain");
-                AssertEqual(owned, RoomPlmCollectibleDrawDefinitions.TryGetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out int word), "Collectible runtime word domain");
+                AssertEqual(owned, RoomPlmCollectibleDrawDefinitions.TryGetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out RoomLevelWord word), "Collectible runtime word domain");
                 if (!owned)
                 {
                     AssertEqual(default(RoomPlmCollectibleDrawFrame), value, "Collectible rejected output");
@@ -54,8 +55,8 @@ internal static class LookupCollectibleDrawsVerification
                 else
                 {
                     int mask = field == 1 ? 0xf000 : 0xfff;
-                    AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(entry.Pointer), out int runtimeWord), "Collectible runtime word ownership");
-                    AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask, runtimeWord & mask, "Collectible original runtime field");
+                    AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(entry.Pointer), out RoomLevelWord runtimeWord), "Collectible runtime word ownership");
+                    AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask, runtimeWord.Raw & mask, "Collectible original runtime field");
                     AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask,
                         value.LevelWord.Raw & mask, "Collectible original physical field");
                 }

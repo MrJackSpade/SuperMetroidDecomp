@@ -390,7 +390,7 @@ public sealed class SamusXrayState
     /// Executes <c>SamusMovementHandler_Xray</c> at `$90:E94F`: turning is an RTS, while
     /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
     /// </summary>
-    public ushort? StepMovement(SamusState samus)
+    public int? StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -399,15 +399,15 @@ public sealed class SamusXrayState
             return null;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        ushort frame = facingLeft
-            ? Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? (ushort)4 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? (ushort)3 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? (ushort)2 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? (ushort)1 : (ushort)0
-            : Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? (ushort)0 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? (ushort)1 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? (ushort)2 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? (ushort)3 : (ushort)4;
+        int frame = facingLeft
+            ? Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? 4 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? 3 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? 2 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? 1 : 0
+            : Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? 0 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? 1 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? 2 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? 3 : 4;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame, timer: 15);
         return frame;
     }
@@ -652,7 +652,7 @@ public sealed class SamusXrayState
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         bool crouching = movementType == SamusMovementType.Crouching;
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        ushort oldRadius = samus.Kinematics.Radius.Y;
+        int oldRadius = samus.Kinematics.Radius.Y;
         SamusPoseId targetPose = crouching
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
             : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;

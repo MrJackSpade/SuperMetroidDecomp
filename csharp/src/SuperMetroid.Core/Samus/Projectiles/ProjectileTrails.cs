@@ -44,7 +44,7 @@ internal sealed class ProjectileTrails
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
-        ushort animationFrame = GetTrailAnimationFrame(projectile, Overreads);
+        int animationFrame = GetTrailAnimationFrame(projectile, Overreads);
         ProjectileTrailFamilyGroup group = (projectile.Type & 1 << 5) != 0
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
             : projectile.PackedType.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
@@ -93,7 +93,7 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with 16-bit position wrap.</summary>
-    private static ushort AddOffset(ushort origin, short offset) => unchecked((ushort)(origin + offset - 4));
+    private static ushort AddOffset(int origin, int offset) => unchecked((ushort)(origin + offset - 4));
 
     /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
     internal static void AdvanceTrailSide(
@@ -172,8 +172,8 @@ internal sealed class ProjectileTrails
         // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
-        ushort screenX = unchecked((ushort)(side.DisplayedPosition.X - layer1.X));
-        ushort screenY = unchecked((ushort)(side.DisplayedPosition.Y - layer1.Y));
+        int screenX = unchecked((ushort)(side.DisplayedPosition.X - layer1.X));
+        int screenY = unchecked((ushort)(side.DisplayedPosition.Y - layer1.Y));
         if ((SnesLittleEndian.HighByteInPlace(screenX)) != 0 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
@@ -181,6 +181,6 @@ internal sealed class ProjectileTrails
         SpriteSheetFrame image = objects.Sheet.Frame(side.ShownPose is { } pose
             ? ProjectileSheetDefinitions.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
-            image, new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
+            image, Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
 }

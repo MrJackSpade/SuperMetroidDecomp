@@ -94,7 +94,7 @@ public static class XrayRevealTilemap
                 unchecked((ushort)(scroll.Y + (((y & 31) * SnesPpuLayout.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
             return bg1.TryTileAt(cell, out SnesBgTilemapWord tile) ? tile.Raw : (ushort)0;
         }
-        void CopyMetatile(int destination, ushort metatile)
+        void CopyMetatile(int destination, int metatile)
         {
             ReadOnlySpan<byte> definitions = level.BlockDefinitions.Span;
             int offset = metatile * 8;
@@ -104,11 +104,11 @@ public static class XrayRevealTilemap
             Write(destination + 32, Word(offset + 4)); Write(destination + 33, Word(offset + 6));
             ushort Word(int position) => SnesLittleEndian.Word(level.BlockDefinitions.Span[position], level.BlockDefinitions.Span[position + 1]);
         }
-        void Write(int index, ushort value)
+        void Write(int index, int value)
         {
             // Bottom-edge multi-block commands can write into subsequent native scratch
             // RAM. Only these two transferred screens belong to this display projection.
-            if (index < result.Length) result[index] = value;
+            if (index < result.Length) result[index] = checked((ushort)value);
         }
     }
 

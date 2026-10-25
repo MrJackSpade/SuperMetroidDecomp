@@ -75,5 +75,5 @@ public interface IRoomSamus
     void FaceForward();
 
     /// <summary>Takes periodic damage, as a chewing plant or a heated room deals it, through the 16.16 periodic-damage path.</summary>
-    void TakePeriodicDamage(ushort subDamage, ushort wholeDamage);
+    void TakePeriodicDamage(int subDamage, int wholeDamage);
 }

@@ -466,8 +466,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
     public ushort ExplosionPaletteIndex(int frame)
     {
-        ushort expected = DefaultExplosionPaletteIndex(frame);
-        return explosionPaletteIndices.TryGetValue(frame, out ushort value) ? value : expected;
+        int expected = DefaultExplosionPaletteIndex(frame);
+        return checked((ushort)(explosionPaletteIndices.ContainsKey(frame) ? explosionPaletteIndices[frame] : expected));
     }
 
     /// <summary>Maps frame zero to base row zero and later frames past the flash-only row.</summary>

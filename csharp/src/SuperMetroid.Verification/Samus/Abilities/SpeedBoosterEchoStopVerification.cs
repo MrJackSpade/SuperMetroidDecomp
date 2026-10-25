@@ -31,7 +31,7 @@ internal static class SpeedBoosterEchoStopVerification
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
-        ushort animation = 0;
+        int animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, SoundQueueLimit.Max6));
         var words = new ushort[256];
@@ -97,7 +97,7 @@ internal static class SpeedBoosterEchoStopVerification
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
-        ushort animation = 0;
+        int animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             0, ref animation, out _);
         AssertTrue(speed.ConsumeEchoSoundRequest(), "deferred producer publishes its start request");

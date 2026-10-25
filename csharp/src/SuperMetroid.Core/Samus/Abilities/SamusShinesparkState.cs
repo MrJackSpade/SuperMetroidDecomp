@@ -75,7 +75,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     /// <param name="substate">The suit pickup's stage number, which becomes the acceleration's whole word.</param>
     /// <param name="lightBeamPosition">The suit pickup's light-beam word, which becomes the acceleration's fraction.</param>
-    internal void ApplySuitPickupScratch(ushort substate, ushort lightBeamPosition) =>
+    internal void ApplySuitPickupScratch(int substate, int lightBeamPosition) =>
         VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)substate), lightBeamPosition);
 
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
@@ -764,8 +764,8 @@ false);
             return true;
         }
 
-        ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
-        ushort phaseOffset = checked((ushort)PaletteFrameOffset);
+        int suitOffset = equippedItems.GetSuitPaletteTableOffset();
+        int phaseOffset = checked((ushort)PaletteFrameOffset);
         bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
             ? SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalette(
                 suitOffset, phaseOffset, out SamusFullBodyCyclePalette palette)
@@ -799,7 +799,7 @@ false);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
-        CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
+        CrashAngularDelta = facingLeft ? 4 : -4;
         FirstReleasedCrashEchoSlot.DisableDrawing();
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
@@ -816,9 +816,10 @@ false);
 
     /// <summary>
     /// WRAM $0AB4: crash angular delta aliases departing slot-three echo X. Preserve the
-    /// complete signed word so any still-owned echo write affects the native consumer.
+    /// complete signed word so any still-owned echo write affects the native consumer: the delta reads the echo's X
+    /// word as signed, -32768 through 32767, and a write stores it back as that word.
     /// </summary>
-    private short CrashAngularDelta
+    private int CrashAngularDelta
     {
         get => unchecked((short)FirstReleasedCrashEchoSlot.Position.X);
         set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithX(unchecked((ushort)value));
@@ -871,7 +872,7 @@ false);
 
         // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
         // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
-        byte orbitRadius = checked((byte)CrashRadius);
+        int orbitRadius = checked((byte)CrashRadius);
         Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
         Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
@@ -889,14 +890,14 @@ false);
     /// </summary>
     private ushort CrashEchoIndexWord()
     {
-        byte stageNumber = CrashOrbitStage switch
+        int stageNumber = CrashOrbitStage switch
         {
             ShinesparkCrashOrbitStage.Expanding => 0,
             ShinesparkCrashOrbitStage.Orbiting => 1,
             ShinesparkCrashOrbitStage.Contracting => 2,
             _ => throw new InvalidOperationException($"Shinespark crash orbit stage {CrashOrbitStage} is undefined."),
         };
-        return SnesLittleEndian.Word(checked((byte)CrashRadius), stageNumber);
+        return SnesLittleEndian.Word(checked((byte)CrashRadius), (byte)stageNumber);
     }
 
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
@@ -958,7 +959,7 @@ false,             CrashSequenceFinished: true);
         SamusPoseId standingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
-        ushort previousRadius = samus.Kinematics.Radius.Y;
+        int previousRadius = samus.Kinematics.Radius.Y;
         samus.Pose = standingPose;
         // The native transitional-pose handler restores normal movement and
         // aligns the standing body's bottom with the old crash body. Alpha alone
@@ -1010,7 +1011,7 @@ false,             CrashSequenceFinished: true);
         // Native performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way, but retaining the branch order makes a
         // debugger trace line up with `$90:D4F2-$D51E` instruction for instruction.
-        short screenX = unchecked((short)(slot.Position.X - layer1.X));
+        int screenX = unchecked((short)(slot.Position.X - layer1.X));
         if (screenX is < 0 or >= 256)
         {
             slot.Clear();
@@ -1018,7 +1019,7 @@ false,             CrashSequenceFinished: true);
         }
 
         slot.Position = slot.Position.WithY(point.Y);
-        short screenY = unchecked((short)(slot.Position.Y - layer1.Y));
+        int screenY = unchecked((short)(slot.Position.Y - layer1.Y));
         if (screenY is < 0 or >= 256)
         {
             slot.Clear();
@@ -1030,10 +1031,10 @@ false,             CrashSequenceFinished: true);
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
     internal static Offset16<RoomPixels> ProjectileSinLookup(
         SnesAngle angle,
-        byte radius)
+        int radius)
     {
-        ushort x = LookupSignedComponent(angle, radius);
-        ushort y = LookupSignedComponent(
+        int x = LookupSignedComponent(angle, radius);
+        int y = LookupSignedComponent(
             angle.AddRaw(-SnesAngle.QuarterTurn.RawValue),
             radius);
         return new(unchecked((short)x), unchecked((short)y));
@@ -1042,7 +1043,7 @@ false,             CrashSequenceFinished: true);
     /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table routine.</summary>
     private static ushort LookupSignedComponent(
         SnesAngle angle,
-        byte radius)
+        int radius)
     {
         // Native multiplies the positive half-wave, discards the fraction, then
         // restores sign. Shifting a negative product would round differently.
@@ -1055,7 +1056,7 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousX(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        short delta = unchecked((short)(samus.Position.X.Whole - samus.PeekPreviousPositionWords(checkpoint).X));
+        int delta = unchecked((short)(samus.Position.X.Whole - samus.PeekPreviousPositionWords(checkpoint).X));
         if (delta >= 0)
         {
             if (delta >= 16)
@@ -1073,7 +1074,7 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        ushort delta = unchecked((ushort)(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y));
+        int delta = unchecked((ushort)(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y));
         // CMP #$FFF2 / BPL: the sign of delta - $FFF2, which is delta + 14 in sixteen bits.
         if (unchecked((short)(delta + 14)) < 0)
             samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 14)));
@@ -1136,7 +1137,7 @@ false,             CrashSequenceFinished: true);
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
         int collisionMagnitude = unchecked(-upwardDisplacement);
-        short collisionMagnitudeWhole = unchecked((short)SnesSixteenSixteen.WholeOf(collisionMagnitude));
+        int collisionMagnitudeWhole = unchecked((short)SnesSixteenSixteen.WholeOf(collisionMagnitude));
         if (unchecked((short)(collisionMagnitudeWhole - 15)) >= 0)
         {
             collisionMagnitude = unchecked((int)(

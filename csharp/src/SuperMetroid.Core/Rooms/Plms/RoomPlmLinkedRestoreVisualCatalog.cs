@@ -48,28 +48,28 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!Describe(draw, out int runs, out ushort stockWord))
+        if (!Describe(draw, out int runs, out RoomLevelWord stock))
             throw new InvalidDataException($"Linked restoration visuals lack frame {draw}.");
         if ((uint)runIndex >= runs || (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         return customWords.TryGet(draw, out var words)
-            ? words[runIndex * 2 + blockIndex] : stockWord;
+            ? words[runIndex * 2 + blockIndex] : stock.VisualWord;
     }
 
     /// <summary>
     /// Resolves a bomb or contact-crumble draw's geometry and shared visual tile.
     /// Every cell uses that tile while collision links remain owned by the draw definitions.
     /// </summary>
-    private static bool Describe(PlmDraw draw, out int runs, out ushort stockWord)
+    private static bool Describe(PlmDraw draw, out int runs, out RoomLevelWord stock)
     {
         if (RoomPlmLinkedRestoreDefinition.TryDescribeAny(draw, out var shape))
         {
             runs = shape.RunCount;
-            stockWord = new RoomLevelWord(shape.WordAt(0, 0)).VisualWord;
+            stock = new RoomLevelWord(shape.WordAt(0, 0));
             return true;
         }
         runs = 0;
-        stockWord = 0;
+        stock = default;
         return false;
     }
 }

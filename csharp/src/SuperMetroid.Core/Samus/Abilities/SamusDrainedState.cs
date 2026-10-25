@@ -250,7 +250,7 @@ public sealed class SamusDrainedState
         // Native computes 21-oldRadius and subtracts it from center Y before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius of 21 pixels.
-        ushort sourceRadius = samus.Kinematics.Radius.Y;
+        int sourceRadius = samus.Kinematics.Radius.Y;
         samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
             samus.Position.Y.Whole - unchecked((ushort)(21 - sourceRadius)))));
 

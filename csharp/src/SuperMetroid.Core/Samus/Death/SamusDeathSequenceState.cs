@@ -83,7 +83,7 @@ public sealed class SamusDeathSequenceState
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
-        ushort initialFrame = SamusDeathSequenceDefinitions.InitialFrame(sourceMovementType);
+        int initialFrame = SamusDeathSequenceDefinitions.InitialFrame(sourceMovementType);
 
         // Native initializes pose `$D7/$D8` normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
@@ -291,8 +291,8 @@ public sealed class SamusDeathSequenceState
     {
         // SuitPaletteIndex is 0/2/4. Multiplying it by ten skips each twenty-byte pointer
         // family (ten little-endian pointers) and exactly reproduces `$9B:B5D1-$B5E6`.
-        ushort suitIndex = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? (ushort)4 :
-            samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? (ushort)2 : (ushort)0;
+        int suitIndex = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? 4 :
+            samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 0;
         if (artwork is not null)
         {
             for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)

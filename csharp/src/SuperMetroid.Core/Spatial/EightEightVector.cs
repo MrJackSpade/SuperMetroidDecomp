@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct EightEightVector<TSpace>(SnesSignedEightEight X, SnesSignedEightEight Y)
     where TSpace : ISpatialSpace
 {
-    /// <summary>Creates a vector from the signed raw 8.8 words of both axes.</summary>
-    public EightEightVector(short x, short y)
+    /// <summary>Creates a vector from the signed raw 8.8 words of both axes, each -32768 through 32767.</summary>
+    public EightEightVector(int x, int y)
         : this(SnesSignedEightEight.FromSignedRaw(x), SnesSignedEightEight.FromSignedRaw(y))
     {
     }

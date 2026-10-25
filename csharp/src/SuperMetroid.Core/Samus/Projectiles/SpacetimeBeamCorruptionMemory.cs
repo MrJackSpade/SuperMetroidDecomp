@@ -16,7 +16,7 @@ internal readonly struct SpacetimeBeamCorruptionMemory(SharedGameState progressi
     /// their owners. Sixteen-bit indices never reach the 24-bit wrap. Those bytes are reached only with a large
     /// inherited Y, so their sources are bank-$00 cartridge bytes, which the installed overread catalog holds.
     /// </summary>
-    internal void CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
+    internal void CopyPaletteWord(int destinationIndex, int sourceIndex)
     {
         int source = SpacetimeBeamCopyDefinitions.SourceIndexBase + sourceIndex;
         for (int offset = 0; offset < sizeof(ushort); offset++)

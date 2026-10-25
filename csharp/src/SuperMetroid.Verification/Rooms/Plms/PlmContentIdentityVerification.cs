@@ -107,7 +107,7 @@ internal static class PlmContentIdentityVerification
 
         return RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = new RoomPlmShotBlockVisualCatalog(Runs(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName, RoomPlmShotBlockDrawDefinitions.All)
                 .Select(draw => new RoomPlmVisualRunEntry(RoomPlmShotBlockDrawDefinitions.VisualId(draw.Draw), draw.Runs))), GrappleBlock = new RoomPlmGrappleBlockVisualCatalog(Words(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,
-                RoomPlmGrappleBlockDrawDefinitions.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Frame), draw.LevelWord)))
+                RoomPlmGrappleBlockDrawDefinitions.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Frame), draw.LevelWord.Raw)))
                 .Select(draw => new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(draw.Draw, "Grapple-block")), draw.Word))), Station = new RoomPlmStationVisualCatalog(Runs(GameInstallationLayout.RoomPlmStationVisualDirectoryName, RoomPlmStationDrawDefinitions.All)
                 .Select(draw => new RoomPlmVisualRunEntry(RoomPlmStationDrawDefinitions.VisualId(draw.Draw), draw.Runs))), BlueDoor = new RoomPlmBlueDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName, BlueDoorPlmDrawDefinitions.Editable)
                 .Select(draw => new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), ColoredDoor = new RoomPlmColoredDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName, ColoredDoorPlmDrawDefinitions.All)

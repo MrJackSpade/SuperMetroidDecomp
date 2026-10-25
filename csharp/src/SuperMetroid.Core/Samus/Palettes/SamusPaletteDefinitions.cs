@@ -44,7 +44,7 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>$91:D998: the cycle palette the special Super-palette flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>
         /// <param name="suitByteOffset">Even byte offset 0 (Power), 2 (Varia) or 4 (Gravity) into the native suit table.</param>
-        internal static SamusFullBodyCyclePalette SpeedBoostPalette(ushort suitByteOffset) =>
+        internal static SamusFullBodyCyclePalette SpeedBoostPalette(int suitByteOffset) =>
             new(SamusFullBodyCycleFamily.SpeedBooster, Suit(suitByteOffset), 3);
 
         /// <summary>
@@ -52,7 +52,7 @@ public static class SamusPaletteDefinitions
         /// that runs on into the next suit's list.
         /// </summary>
         internal static SamusFullBodyCyclePalette ReadScrewAttackPalette(
-            ushort suitByteOffset, ushort phaseByteOffset) =>
+            int suitByteOffset, int phaseByteOffset) =>
             ReadCompiledList(suitByteOffset, phaseByteOffset, phaseCount: 6,
                 SamusFullBodyCycleFamily.ScrewAttack, PaletteCycleShape.PingPong);
 
@@ -62,7 +62,7 @@ public static class SamusPaletteDefinitions
         /// the lists.
         /// </summary>
         internal static SpeedBoosterPaletteSource ReadActiveSpeedBoosterPalette(
-            ushort suitByteOffset, ushort phaseByteOffset) =>
+            int suitByteOffset, int phaseByteOffset) =>
             new SpeedBoosterPaletteOffsets(suitByteOffset, phaseByteOffset) switch
             {
                 (4, 8) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.Expansion),
@@ -75,7 +75,7 @@ public static class SamusPaletteDefinitions
         /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and phase lists to a cycle palette.
         /// </summary>
         public static bool TryStoredShinePalette(
-            ushort suitByteOffset, ushort phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
+            int suitByteOffset, int phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
             TryPalette(suitByteOffset, phaseByteOffset, 10, SamusFullBodyCycleFamily.StoredShine,
                 PaletteCycleShape.PingPong, out palette);
 
@@ -83,7 +83,7 @@ public static class SamusPaletteDefinitions
         /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit and phase lists to a cycle palette.
         /// </summary>
         public static bool TryActiveShinesparkPalette(
-            ushort suitByteOffset, ushort phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
+            int suitByteOffset, int phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
             TryPalette(suitByteOffset, phaseByteOffset, 6, SamusFullBodyCycleFamily.ActiveShinespark,
                 PaletteCycleShape.Linear, out palette);
 
@@ -92,9 +92,9 @@ public static class SamusPaletteDefinitions
         /// for ping-pong cycles.
         /// </summary>
         private static bool TryPalette(
-            ushort suitByteOffset,
-            ushort phaseByteOffset,
-            ushort lastPhaseByteOffset,
+            int suitByteOffset,
+            int phaseByteOffset,
+            int lastPhaseByteOffset,
             SamusFullBodyCycleFamily family,
             PaletteCycleShape shape,
             out SamusFullBodyCyclePalette palette)
@@ -116,8 +116,8 @@ public static class SamusPaletteDefinitions
         /// list; a read that leaves the allocation, or straddles two entries, selects no cycle palette.
         /// </summary>
         private static SamusFullBodyCyclePalette ReadCompiledList(
-            ushort suitByteOffset,
-            ushort phaseByteOffset,
+            int suitByteOffset,
+            int phaseByteOffset,
             int phaseCount,
             SamusFullBodyCycleFamily family,
             PaletteCycleShape shape)
@@ -142,7 +142,7 @@ public static class SamusPaletteDefinitions
             shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
 
         /// <summary>The suit an even native suit-table byte offset selects.</summary>
-        private static int Suit(ushort suitByteOffset) => suitByteOffset is 0 or 2 or 4
+        private static int Suit(int suitByteOffset) => suitByteOffset is 0 or 2 or 4
             ? suitByteOffset / 2
             : throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
 

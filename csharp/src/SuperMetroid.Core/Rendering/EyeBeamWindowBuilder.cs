@@ -129,10 +129,10 @@ internal static class EyeBeamWindowBuilder
             (finalLeft & EyeWindowRenderDefinitions.FullRightEdge));
     }
 
-    /// <summary>Writes one encoded scanline window if its row falls inside the HDMA table.</summary>
-    private static void Set(ushort[] rows, int y, ushort window)
+    /// <summary>Writes one encoded scanline window, a sixteen-bit table word, if its row falls inside the HDMA table.</summary>
+    private static void Set(ushort[] rows, int y, int window)
     {
-        if ((uint)y < rows.Length) rows[y] = window;
+        if ((uint)y < rows.Length) rows[y] = checked((ushort)window);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ internal static class EyeBeamWindowBuilder
             right += rightStep;
             bool leftOutside = left is < 0 or > ushort.MaxValue;
             bool rightOutside = right is < 0 or > ushort.MaxValue;
-            ushort window = (right < 0 && rightStep >= 0) || (left > ushort.MaxValue && leftStep <= 0) ? EyeWindowRenderDefinitions.EmptyWindow :
+            int window = (right < 0 && rightStep >= 0) || (left > ushort.MaxValue && leftStep <= 0) ? EyeWindowRenderDefinitions.EmptyWindow :
                 (ushort)(SnesEightEight.WholeOf(Math.Clamp(left, 0, ushort.MaxValue)) |
                          (Math.Clamp(right, 0, ushort.MaxValue) & EyeWindowRenderDefinitions.FullRightEdge));
             Set(rows, y, window);

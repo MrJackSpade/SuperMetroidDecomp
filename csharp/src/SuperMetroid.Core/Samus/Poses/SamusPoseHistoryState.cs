@@ -47,7 +47,7 @@ public sealed class SamusPoseHistoryState
     /// transition, including one that selects the previous pose again; do not call
     /// merely because a frame elapsed or an intermediate pose assignment occurred.
     /// </summary>
-    public void CommitTransition(SamusPoseId pose, ushort directionAndMovement)
+    public void CommitTransition(SamusPoseId pose, int directionAndMovement)
     {
         LastDifferentPose = PreviousPose;
         LastDifferentDirectionAndMovement = PreviousDirectionAndMovement;

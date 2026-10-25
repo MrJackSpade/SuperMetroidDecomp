@@ -19,14 +19,14 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <param name="MatrixC">The rotation's step through room Y per room X: a signed 8.8 fixed-point coefficient.</param>
 /// <param name="Center">The room point the shaft's turning floor rotates about.</param>
 /// <remarks>
-/// The coefficients are signed sixteen-bit 8.8 values: every product below treats them as signed and truncates
-/// to sixteen bits, so their width is part of the transform, and they are stored signed exactly as they are
-/// consumed.
+/// The coefficients are signed 8.8 values, -32768 through 32767, that the shaft's producers take from signed words and
+/// nothing wraps afterwards, so they are stored as integers. The wraps the transform reproduces are its own: each
+/// distance and each product is truncated to sixteen bits where the cartridge truncates it.
 /// </remarks>
 public readonly record struct SamusMode7Transform(
-    short MatrixA,
-    short MatrixB,
-    short MatrixC,
+    int MatrixA,
+    int MatrixB,
+    int MatrixC,
     Position16<RoomPixels> Center)
 {
     /// <summary>
@@ -37,17 +37,17 @@ public readonly record struct SamusMode7Transform(
     {
         // `$8B:8A52` forms both distances with 16-bit subtraction before treating the
         // products as signed. In particular, vertical distance points upward: centre Y - Y.
-        ushort horizontalDistance = unchecked((ushort)(world.X - Center.X));
-        ushort verticalDistance = unchecked((ushort)(Center.Y - world.Y));
+        int horizontalDistance = unchecked((ushort)(world.X - Center.X));
+        int verticalDistance = unchecked((ushort)(Center.Y - world.Y));
 
         // The original helper multiplies two signed 16-bit values into a 32-bit result.
         // Each product is shifted independently, truncated to a word, and only then added
         // to the other term. Do not combine these into a wider host expression: overflow
         // between the two `$26` additions is authentic 65816 behavior.
-        ushort transformedHorizontalDistance = unchecked((ushort)(
+        int transformedHorizontalDistance = unchecked((ushort)(
             MultiplySigned8Point8(horizontalDistance, MatrixA) +
             MultiplySigned8Point8(verticalDistance, MatrixB)));
-        ushort transformedVerticalDistance = unchecked((ushort)(
+        int transformedVerticalDistance = unchecked((ushort)(
             MultiplySigned8Point8(horizontalDistance, MatrixC) +
             MultiplySigned8Point8(verticalDistance, MatrixA)));
 
@@ -57,7 +57,7 @@ public readonly record struct SamusMode7Transform(
     }
 
     /// <summary>Multiplies a distance word, read as signed, by a signed coefficient and truncates the shifted result to the cartridge's 16-bit intermediate.</summary>
-    private static ushort MultiplySigned8Point8(ushort distance, short coefficient)
+    private static ushort MultiplySigned8Point8(int distance, int coefficient)
     {
         int product = unchecked((short)distance) * coefficient;
         return unchecked((ushort)SnesEightEight.WholeOf(product));

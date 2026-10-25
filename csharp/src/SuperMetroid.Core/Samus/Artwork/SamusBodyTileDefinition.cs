@@ -12,12 +12,12 @@ public sealed class SamusBodyTileDefinition
     /// <summary>Combined byte count of both native VRAM transfers in this definition.</summary>
     internal int PayloadLength { get; }
     /// <summary>Explicit first-transfer size when the selected frames do not derive it.</summary>
-    internal readonly ushort? firstSizeOverride;
+    internal readonly int? firstSizeOverride;
     /// <summary>
     /// First-transfer size calculated once from fixed body pointers and frames at binding,
     /// avoiding a scan of every pose for each later read.
     /// </summary>
-    private readonly ushort? calculatedFirstSize;
+    private readonly int? calculatedFirstSize;
     /// <summary>Owning catalog used to reconstruct shared or diagnostic pixel bytes.</summary>
     private readonly SamusBodyArtworkCatalog? body;
     /// <summary>Whether this definition belongs to the upper-body pointer table.</summary>
@@ -44,7 +44,7 @@ public sealed class SamusBodyTileDefinition
     /// <param name="firstSize">Byte count of the first VRAM transfer.</param>
     /// <param name="secondSize">Byte count of the optional second VRAM transfer.</param>
     /// <param name="planar">Combined SNES planar character bytes.</param>
-    public SamusBodyTileDefinition(int sourceAddress, ushort firstSize, ushort secondSize,
+    public SamusBodyTileDefinition(int sourceAddress, int firstSize, int secondSize,
         byte[] planar)
     {
         Ensure.NotNull(planar);
@@ -76,19 +76,19 @@ public sealed class SamusBodyTileDefinition
             int pixelCount = 0, contourCount = 0;
             for (int index = 0; index < PayloadLength; index++)
             {
-                byte value = supplied.ReadPlanarByte(index);
-                byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
-                byte outside = (byte)(value & ~mask);
+                int value = supplied.ReadPlanarByte(index);
+                int mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
+                int outside = (byte)(value & ~mask);
                 if (outside != 0)
                 {
                     scratchIndexes[PayloadLength + contourCount] = index;
-                    scratchValues[PayloadLength + contourCount++] = outside;
+                    scratchValues[PayloadLength + contourCount++] = (byte)outside;
                 }
                 value &= mask;
-                if (!TryPixelDefault(index, out byte pixel) || value != pixel)
+                if (!TryPixelDefault(index, out int pixel) || value != pixel)
                 {
                     scratchIndexes[pixelCount] = index;
-                    scratchValues[pixelCount++] = value;
+                    scratchValues[pixelCount++] = (byte)value;
                 }
             }
             pixelInputs = new Dictionary<int, byte>(pixelCount);
@@ -103,9 +103,9 @@ public sealed class SamusBodyTileDefinition
             System.Buffers.ArrayPool<int>.Shared.Return(scratchIndexes);
             System.Buffers.ArrayPool<byte>.Shared.Return(scratchValues);
         }
-        ushort first = supplied.FirstSize;
+        int first = supplied.FirstSize;
         SourceAddress = supplied.SourceAddress;
-        if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out ushort calculated))
+        if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out int calculated))
             calculatedFirstSize = calculated;
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
@@ -117,11 +117,11 @@ public sealed class SamusBodyTileDefinition
 
     /// <summary>Gets the SNES source address of the definition's first payload.</summary>
     public int SourceAddress { get; }
-    /// <summary>Gets the byte count of the first VRAM transfer.</summary>
-    public ushort FirstSize => firstSizeOverride ?? calculatedFirstSize ??
+    /// <summary>Gets the byte count of the first VRAM transfer, at most one definition's payload.</summary>
+    public int FirstSize => firstSizeOverride ?? calculatedFirstSize ??
         throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");
-    /// <summary>Gets the byte count of the optional second VRAM transfer.</summary>
-    public ushort SecondSize => body is null ? field : (ushort)(PayloadLength - FirstSize);
+    /// <summary>Gets the byte count of the optional second VRAM transfer: the payload left after the first.</summary>
+    public int SecondSize => body is null ? field : PayloadLength - FirstSize;
     /// <summary>Canonical planar snapshot; native padding and shared angle patches calculate.</summary>
     public ReadOnlyMemory<byte> Planar
     {
@@ -139,14 +139,14 @@ public sealed class SamusBodyTileDefinition
     {
         if ((uint)index >= PayloadLength) throw new ArgumentOutOfRangeException(nameof(index));
         if (standalonePlanar is not null) return standalonePlanar[index];
-        if (BoundPixelInputs.TryGetValue(index, out byte value))
-            return (byte)((value & SamusBodyPixelDefinitions.ContourMask(upper, set, position, index)) | BoundContourEdits.GetValueOrDefault(index));
-        return TryPixelDefault(index, out byte calculated) ? calculated
+        if (BoundPixelInputs.ContainsKey(index))
+            return (byte)((BoundPixelInputs[index] & SamusBodyPixelDefinitions.ContourMask(upper, set, position, index)) | BoundContourEdits.GetValueOrDefault(index));
+        return TryPixelDefault(index, out int calculated) ? (byte)calculated
             : throw new InvalidDataException("Installed body artwork lost an independent pixel input.");
     }
 
     /// <summary>Resolves a diagnostic, blank, or shared-source byte before considering edits.</summary>
-    private bool TryPixelDefault(int index, out byte value)
+    private bool TryPixelDefault(int index, out int value)
     {
         if (SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out value)) return true;
         int tile = index / SamusBodyPixelDefinitions.TileBytes;

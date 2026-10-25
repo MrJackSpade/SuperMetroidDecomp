@@ -94,9 +94,9 @@ internal sealed class NoobTubePlms
     internal void SpawnShardsAndBubbles(PlmSlot slot)
     {
         for (int shard = 0; shard < NoobTubePlmDefinitions.ShardCount; shard++)
-            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, (ushort)(shard * 2));
+            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, shard * 2);
         for (int bubble = 0; bubble < NoobTubePlmDefinitions.BubbleCount; bubble++)
-            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, (ushort)(bubble * 2));
+            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, bubble * 2);
     }
 
     /// <summary>Starts the break earthquake.</summary>
@@ -127,7 +127,7 @@ internal sealed class NoobTubePlms
             "N00b tube has no active Samus actor.");
 
     /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
-    private void SpawnNoobTubeProjectile(PlmSlot slot, NoobTubeProjectileDefinition definition, ushort parameter) =>
+    private void SpawnNoobTubeProjectile(PlmSlot slot, NoobTubeProjectileDefinition definition, int parameter) =>
         (_enemies ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
             new NoobTubeProjectileRequest(definition, parameter, slot.BlockIndex));

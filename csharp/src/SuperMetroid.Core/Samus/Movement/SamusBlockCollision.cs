@@ -124,9 +124,9 @@ public static class SamusBlockCollision
             // The target center and leading boundary are calculated once, before a slope
             // handler is allowed to scale ci_r18_r20. This slightly surprising ordering is
             // exactly how $94:9543 initializes its collision-info scratch words.
-            ushort targetCenter = unchecked((ushort)(
+            int targetCenter = unchecked((ushort)(
                 SnesSixteenSixteen.WholeOf(state.Position.X.RawValue + (uint)acceptedDisplacement)));
-            ushort leadingBoundary = acceptedDisplacement >= 0
+            int leadingBoundary = acceptedDisplacement >= 0
                 ? unchecked((ushort)(state.Radius.X + targetCenter - 1))
                 : unchecked((ushort)(targetCenter - state.Radius.X));
 
@@ -477,9 +477,9 @@ public static class SamusBlockCollision
         int acceptedDisplacement = move.Displacement;
         bool collided = false;
         bool sandContact = false;
-        ushort targetCenter = unchecked((ushort)(
+        int targetCenter = unchecked((ushort)(
             SnesSixteenSixteen.WholeOf(state.Position.Y.RawValue + (uint)acceptedDisplacement)));
-        ushort leadingBoundary = acceptedDisplacement >= 0
+        int leadingBoundary = acceptedDisplacement >= 0
             ? unchecked((ushort)(state.Radius.Y + targetCenter - 1))
             : unchecked((ushort)(targetCenter - state.Radius.Y));
         int blockY = leadingBoundary >> 4;
@@ -813,7 +813,7 @@ public static class SamusBlockCollision
         RoomCollisionBlock block,
         int blockX,
         int displacement,
-        ushort targetCenter,
+        int targetCenter,
         bool reactsDownward)
     {
         bool movingDown = reactsDownward;
@@ -830,7 +830,7 @@ public static class SamusBlockCollision
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole);
             int bottomNibble = unchecked((ushort)(state.Radius.Y + targetCenter - 1)) & 15;
-            short correction = unchecked((short)(height - bottomNibble - 1));
+            int correction = unchecked((short)(height - bottomNibble - 1));
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
@@ -846,7 +846,7 @@ public static class SamusBlockCollision
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole);
             int invertedTopNibble = ((targetCenter - state.Radius.Y) & 15) ^ 15;
-            short correction = unchecked((short)(height - invertedTopNibble - 1));
+            int correction = unchecked((short)(height - invertedTopNibble - 1));
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
@@ -864,7 +864,7 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         RoomCollisionBlock block,
         int displacement,
-        ushort leadingBoundary,
+        int leadingBoundary,
         int remainingRows,
         int totalRows,
         out int clippedDisplacement)
@@ -929,7 +929,7 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         RoomCollisionBlock block,
         int displacement,
-        ushort leadingBoundary,
+        int leadingBoundary,
         int blocksLeftToCheck,
         int totalColumns,
         out int clippedDisplacement)
@@ -993,11 +993,11 @@ public static class SamusBlockCollision
     private static int ClipHorizontalToSolid(
         SamusKinematicsState state,
         int displacement,
-        ushort leadingBoundary)
+        int leadingBoundary)
     {
         if (displacement < 0)
         {
-            short whole = unchecked((short)(state.Radius.X + (leadingBoundary | 15) + 1 - state.Position.X.Whole));
+            int whole = unchecked((short)(state.Radius.X + (leadingBoundary | 15) + 1 - state.Position.X.Whole));
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
@@ -1005,7 +1005,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            short whole = unchecked((short)((leadingBoundary & ~15) - state.Radius.X - state.Position.X.Whole));
+            int whole = unchecked((short)((leadingBoundary & ~15) - state.Radius.X - state.Position.X.Whole));
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(ushort.MaxValue);
@@ -1017,11 +1017,11 @@ public static class SamusBlockCollision
     private static int ClipHorizontalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
-        ushort leadingBoundary)
+        int leadingBoundary)
     {
         if (displacement < 0)
         {
-            short whole = unchecked((short)(
+            int whole = unchecked((short)(
                 state.Radius.X + (leadingBoundary | 7) + 1 - state.Position.X.Whole));
             if (whole >= 0)
                 whole = 0;
@@ -1029,7 +1029,7 @@ public static class SamusBlockCollision
             return SnesSixteenSixteen.FromWhole(whole);
         }
 
-        short rightWhole = unchecked((short)(
+        int rightWhole = unchecked((short)(
             (leadingBoundary & ~7) - state.Radius.X - state.Position.X.Whole));
         if (rightWhole < 0)
             rightWhole = 0;
@@ -1041,11 +1041,11 @@ public static class SamusBlockCollision
     private static int ClipVerticalToSolid(
         SamusKinematicsState state,
         int displacement,
-        ushort leadingBoundary)
+        int leadingBoundary)
     {
         if (displacement < 0)
         {
-            short whole = unchecked((short)(state.Radius.Y + (leadingBoundary | 15) + 1 - state.Position.Y.Whole));
+            int whole = unchecked((short)(state.Radius.Y + (leadingBoundary | 15) + 1 - state.Position.Y.Whole));
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
@@ -1053,7 +1053,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            short whole = unchecked((short)((leadingBoundary & ~15) - state.Radius.Y - state.Position.Y.Whole));
+            int whole = unchecked((short)((leadingBoundary & ~15) - state.Radius.Y - state.Position.Y.Whole));
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(ushort.MaxValue);
@@ -1065,11 +1065,11 @@ public static class SamusBlockCollision
     private static int ClipVerticalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
-        ushort leadingBoundary)
+        int leadingBoundary)
     {
         if (displacement < 0)
         {
-            short whole = unchecked((short)(
+            int whole = unchecked((short)(
                 state.Radius.Y + (leadingBoundary | 7) + 1 - state.Position.Y.Whole));
             if (whole >= 0)
                 whole = 0;
@@ -1077,7 +1077,7 @@ public static class SamusBlockCollision
             return SnesSixteenSixteen.FromWhole(whole);
         }
 
-        short downWhole = unchecked((short)(
+        int downWhole = unchecked((short)(
             (leadingBoundary & ~7) - state.Radius.Y - state.Position.Y.Whole));
         if (downWhole < 0)
             downWhole = 0;
@@ -1092,7 +1092,7 @@ public static class SamusBlockCollision
     /// <summary>Counts tile rows touched by Samus's current vertical collision extent.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
-        ushort alignedTop = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y));
+        int alignedTop = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y));
         alignedTop &= ushort.MaxValue & ~15;
         return unchecked((ushort)(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop)) >> 4;
     }
@@ -1100,7 +1100,7 @@ public static class SamusBlockCollision
     /// <summary>Counts tile columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
-        ushort alignedLeft = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
+        int alignedLeft = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
         alignedLeft &= ushort.MaxValue & ~15;
         return unchecked((ushort)(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft)) >> 4;
     }

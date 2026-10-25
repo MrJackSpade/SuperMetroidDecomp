@@ -147,14 +147,14 @@ public sealed class ScrollBoundaryCamera
     /// entry placement, the cartridge does not clear subposition or replace either ideal
     /// camera coordinate at this point in the gameplay frame.
     /// </summary>
-    public void SetLayerOneXFromEnemyAi(ushort xPosition) => SetWholeX(xPosition);
+    public void SetLayerOneXFromEnemyAi(int xPosition) => SetWholeX(xPosition);
 
     /// <summary>
     /// Applies a direct layer-one Y write made by a room-installed scrolling-finished
     /// hook. The cartridge changes only <c>Layer1YPosition</c> at this point: fractional
     /// and ideal-camera words retain the values produced by ordinary scrolling.
     /// </summary>
-    public void SetLayerOneYFromScrollingFinishedHook(ushort yPosition) =>
+    public void SetLayerOneYFromScrollingFinishedHook(int yPosition) =>
         SetWholeY(yPosition);
 
     /// <summary>
@@ -190,7 +190,7 @@ public sealed class ScrollBoundaryCamera
             || context.MovementType == SamusMovementType.Moonwalking
             || context.TurningAgainstMomentum;
         bool useFacingRightTarget = backwards ^ !context.FacesLeft;
-        ushort targetOffset = HorizontalCameraTargetDefinitions.Offset(context.CameraDistanceIndex, useFacingRightTarget);
+        int targetOffset = HorizontalCameraTargetDefinitions.Offset(context.CameraDistanceIndex, useFacingRightTarget);
         IdealPosition = IdealPosition.WithX(unchecked((ushort)(current.X.Whole - targetOffset)));
 
         if (IdealPosition.X == Position.X.Whole)
@@ -232,11 +232,11 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Moves the camera toward Samus until she lies within the grapple dead zone.</summary>
     /// <remarks>The subtraction is unsigned: Samus left of or above the camera borrows and scrolls back, as do screen
     /// offsets below the near edge; offsets at the far edge advance.</remarks>
-    private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
+    private static int StepTowardDeadZone(int camera, int samus, int nearEdge, int farEdge)
     {
         if (samus < camera)
             return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
-        ushort onScreen = unchecked((ushort)(samus - camera));
+        int onScreen = unchecked((ushort)(samus - camera));
         if (onScreen >= farEdge)
             return unchecked((ushort)(camera + GrappleSlowScrollDefinitions.Step));
         if (onScreen < nearEdge)
@@ -301,12 +301,12 @@ public sealed class ScrollBoundaryCamera
 
         // $0939 captures the pre-clamp position. Every proposed movement below starts from
         // this original word, even if the live position is first clamped to a room edge.
-        ushort proposed = Position.X.Whole;
+        int proposed = Position.X.Whole;
 
         if ((short)Position.X.Whole < 0)
             SetWholeX(0);
 
-        ushort roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
+        int roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
@@ -318,8 +318,8 @@ public sealed class ScrollBoundaryCamera
             // In a red current cell, drift right by camera speed + 2 toward its right edge.
             // If the next cell is also red, discard the fractional screen position and stay
             // on this cell's left edge instead of allowing the viewport to enter it.
-            ushort rightBoundary = NextScreenStart(Position.X.Whole);
-            ushort candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
+            int rightBoundary = NextScreenStart(Position.X.Whole);
+            int candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
             if (candidate >= rightBoundary)
             {
                 SetWholeX(rightBoundary);
@@ -340,8 +340,8 @@ public sealed class ScrollBoundaryCamera
         // A legal current cell with a red cell to its right is the mirror case: drift left
         // toward the current cell's left edge. If the candidate itself lands in red, round
         // up to the next screen boundary. Signed comparison reproduces BMI at $80:A5F9.
-        ushort leftBoundary = ScreenStart(Position.X.Whole);
-        ushort leftCandidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
+        int leftBoundary = ScreenStart(Position.X.Whole);
+        int leftCandidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
         if (SignedDifference(leftCandidate, leftBoundary) < 0)
         {
             SetWholeX(leftBoundary);
@@ -369,15 +369,15 @@ public sealed class ScrollBoundaryCamera
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
         // red and green cells permit the ROM's $1F-pixel lower alignment. Crucially, the
         // alignment is selected before Y is clamped and remains fixed for this invocation.
-        ushort verticalAlignment = Scrolls.ReadCameraState(preClampCell) == RoomScrollState.Blue
-            ? (ushort)0
-            : (ushort)31;
-        ushort proposed = Position.Y.Whole;
+        int verticalAlignment = Scrolls.ReadCameraState(preClampCell) == RoomScrollState.Blue
+            ? 0
+            : 31;
+        int proposed = Position.Y.Whole;
 
         if ((short)Position.Y.Whole < 0)
             SetWholeY(0);
 
-        ushort roomMaximum = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
+        int roomMaximum = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
@@ -386,8 +386,8 @@ public sealed class ScrollBoundaryCamera
         {
             // A red current cell pushes downward toward its bottom boundary. As in the X
             // routine, a second red cell beyond the candidate causes screen-edge rounding.
-            ushort bottomBoundary = NextScreenStart(Position.Y.Whole);
-            ushort candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
+            int bottomBoundary = NextScreenStart(Position.Y.Whole);
+            int candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
             if (candidate >= bottomBoundary)
             {
                 SetWholeY(bottomBoundary);
@@ -406,14 +406,14 @@ public sealed class ScrollBoundaryCamera
             RoomScrollState.RedBoundary)
             return;
 
-        ushort topBoundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
+        int topBoundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
 
         // CMP/BCC at $80:A82D only pulls the camera upward when it is strictly below the
         // aligned boundary. Equality intentionally does nothing.
         if (topBoundary >= Position.Y.Whole)
             return;
 
-        ushort upwardCandidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
+        int upwardCandidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
         if (SignedDifference(upwardCandidate, topBoundary) < 0)
         {
             SetWholeY(topBoundary);
@@ -430,7 +430,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Stops rightward travel at the ideal point, room edge, or red cell to the right.</summary>
     internal void HandleScrollingRight()
     {
-        ushort proposed = Position.X.Whole;
+        int proposed = Position.X.Whole;
 
         // CMP ideal,current / BPL in $80:A651: if movement overshot the ideal in signed
         // 16-bit space, snap to it and discard the fractional camera position.
@@ -440,7 +440,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
         }
 
-        ushort roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
+        int roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
         if (Position.X.Whole > roomMaximum)
         {
             SetWholeX(roomMaximum);
@@ -454,8 +454,8 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = ScreenStart(Position.X.Whole);
-        ushort candidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
+        int boundary = ScreenStart(Position.X.Whole);
+        int candidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
         if (SignedDifference(candidate, boundary) < 0)
             candidate = boundary;
         SetWholeX(candidate);
@@ -464,7 +464,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Stops leftward travel at the ideal point, room edge, or current red cell.</summary>
     internal void HandleScrollingLeft()
     {
-        ushort proposed = Position.X.Whole;
+        int proposed = Position.X.Whole;
         if (SignedDifference(Position.X.Whole, IdealPosition.X) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
@@ -482,8 +482,8 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = NextScreenStart(Position.X.Whole);
-        ushort candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
+        int boundary = NextScreenStart(Position.X.Whole);
+        int candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeX(candidate);
@@ -492,14 +492,14 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Applies blue versus red/green vertical alignment and blocks downward travel at room or scroll limits.</summary>
     internal void HandleScrollingDown()
     {
-        ushort proposed = Position.Y.Whole;
+        int proposed = Position.Y.Whole;
         int currentCell = VerticalCellIndex();
 
         // Blue scrolls align the 224-line playfield at +0; red/green scrolls use +$1F.
         // This is the LDY #0 / CMP #1 / LDY #$1F sequence at $80:A8A8-$80:A8C8.
-        ushort verticalAlignment = Scrolls.ReadCameraState(currentCell) == RoomScrollState.Blue
-            ? (ushort)0
-            : (ushort)31;
+        int verticalAlignment = Scrolls.ReadCameraState(currentCell) == RoomScrollState.Blue
+            ? 0
+            : 31;
 
         if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
@@ -507,7 +507,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
         }
 
-        ushort boundary = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
+        int boundary = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
         bool beyondRoomBottom = boundary < Position.Y.Whole;
         bool blockedBelow = false;
         if (!beyondRoomBottom)
@@ -526,7 +526,7 @@ public sealed class ScrollBoundaryCamera
 
         if (beyondRoomBottom || blockedBelow)
         {
-            ushort candidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
+            int candidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
             if (SignedDifference(candidate, boundary) < 0)
                 candidate = boundary;
             SetWholeY(candidate);
@@ -536,7 +536,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Stops upward travel at the ideal point, room top, or current red cell.</summary>
     internal void HandleScrollingUp()
     {
-        ushort proposed = Position.Y.Whole;
+        int proposed = Position.Y.Whole;
         if (SignedDifference(Position.Y.Whole, IdealPosition.Y) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
@@ -553,8 +553,8 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = NextScreenStart(Position.Y.Whole);
-        ushort candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
+        int boundary = NextScreenStart(Position.Y.Whole);
+        int candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeY(candidate);
@@ -569,13 +569,13 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Interprets modular coordinate subtraction with the cartridge's signed 16-bit comparison.</summary>
-    private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
+    private static int SignedDifference(int left, int right) => unchecked((short)(left - right));
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
-    private static ushort ScreenStart(ushort pixel) => (ushort)(SnesLittleEndian.HighByteInPlace(pixel));
+    private static ushort ScreenStart(int pixel) => (ushort)(SnesLittleEndian.HighByteInPlace(pixel));
 
     /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
-    private static ushort NextScreenStart(ushort pixel) => unchecked((ushort)(ScreenStart(pixel) + 2 * HalfScreen));
+    private static ushort NextScreenStart(int pixel) => unchecked((ushort)(ScreenStart(pixel) + 2 * HalfScreen));
 
     /// <summary>
     /// $90:96C3/$90:9702: compares only the integer words as signed 16-bit values, then
@@ -594,8 +594,8 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Writes only the horizontal integer camera word, preserving its fraction and vertical axis.</summary>
-    private void SetWholeX(ushort x) => Position = Position.WithX(Position.X.WithWhole(x));
+    private void SetWholeX(int x) => Position = Position.WithX(Position.X.WithWhole(x));
 
     /// <summary>Writes only the vertical integer camera word, preserving its fraction and horizontal axis.</summary>
-    private void SetWholeY(ushort y) => Position = Position.WithY(Position.Y.WithWhole(y));
+    private void SetWholeY(int y) => Position = Position.WithY(Position.Y.WithWhole(y));
 }

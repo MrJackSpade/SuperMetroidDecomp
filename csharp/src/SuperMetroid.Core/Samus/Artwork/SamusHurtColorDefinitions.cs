@@ -53,7 +53,7 @@ internal static class SamusHurtColorDefinitions
     internal static readonly Bgr555 IntroTransparentWord = new(0, 0, 14);
 
     /// <summary>Equal red/green channels and the bounded blue tint; gray levels calculate from the reviewed selected shade composition.</summary>
-    internal static Bgr555 IntroFromLevel(byte red)
+    internal static Bgr555 IntroFromLevel(int red)
     {
         int blue = Math.Max(OutlineLevel, red - BlueTintDrop);
         return new Bgr555(red, red, blue);

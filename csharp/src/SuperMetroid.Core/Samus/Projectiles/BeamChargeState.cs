@@ -54,7 +54,7 @@ internal sealed class BeamChargeState
     internal ushort FlareFrame(int component) => FlareFrames[component];
 
     /// <summary>Sets flare <paramref name="component"/>'s animation frame.</summary>
-    internal void SetFlareFrame(int component, ushort frame) => FlareFrames[component] = frame;
+    internal void SetFlareFrame(int component, int frame) => FlareFrames[component] = checked((ushort)frame);
 
     /// <summary>Restarts flare <paramref name="component"/>'s countdown to its next frame.</summary>
     internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = WrappingCountdown.Start(frames);

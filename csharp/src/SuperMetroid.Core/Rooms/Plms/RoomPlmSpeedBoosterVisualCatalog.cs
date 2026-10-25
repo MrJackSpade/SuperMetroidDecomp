@@ -11,13 +11,13 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSpeedBoosterVisualCatalog),
-        content => content.Append("visual word", visualWord));
+        content => content.Append("visual word", visualWord.Raw));
 
     /// <summary>
     /// Captured bomb-reveal metatile and flip bits; collision type and PLM timing
     /// continue to come from the compiled Speed Booster definition.
     /// </summary>
-    private readonly ushort visualWord;
+    private readonly RoomLevelWord visualWord;
 
     /// <summary>Validates and captures the single bomb-reveal appearance while preserving compiled Speed Booster collision and timing.</summary>
     /// <param name="entries">Exactly one <c>bomb-reveal</c> entry containing one valid visual word; its value is captured, so later input-array edits do not affect the catalog.</param>
@@ -35,7 +35,7 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
             !RoomLevelWord.IsValidVisualWord(blocks[0]))
             throw new InvalidDataException(
                 "Speed Booster visuals require exactly one bomb-reveal visual block.");
-        visualWord = blocks[0];
+        visualWord = new RoomLevelWord(blocks[0]);
     }
 
     /// <summary>Resolves the installed visual-only word for the sole Speed Booster bomb-reveal cell.</summary>
@@ -50,6 +50,6 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
             runIndex != 0 || blockIndex != 0)
             throw new InvalidDataException(
                 $"Speed Booster visuals lack draw {draw} run {runIndex} block {blockIndex}.");
-        return visualWord;
+        return visualWord.VisualWord;
     }
 }

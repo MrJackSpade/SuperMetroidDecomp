@@ -83,7 +83,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             if (offset >= program.Length)
                 throw new InvalidDataException(
                     $"Scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
-            byte scrollIndex = program.Span[offset];
+            int scrollIndex = program.Span[offset];
             if (unchecked((sbyte)scrollIndex) < 0)
             {
                 FinishScrollMutation(level, slot);
@@ -93,11 +93,10 @@ internal sealed class ScrollPlms : IPlmFamilySource
             if (offset + 1 >= program.Length)
                 throw new InvalidDataException(
                     $"Scroll PLM program $8F:{slot.RoomArgument:X4} lacks a state byte.");
-            byte value = program.Span[offset + 1];
             scrolls.SetStorage(
                 scrollIndex,
                 RoomScrollStates.FromAuthoredByte(
-                    value,
+                    program.Span[offset + 1],
                     $"scroll PLM program $8F:{slot.RoomArgument:X4} pair {pairIndex}"));
         }
 
@@ -112,10 +111,9 @@ internal sealed class ScrollPlms : IPlmFamilySource
         // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
         ((slot.Family as ScrollPlmState) ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
         slot.RestoreLevelWord = 0;
-        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         level.SetForegroundEntry(
             slot.BlockIndex,
-            new RoomLevelWord(triggerWord).WithCollisionType(RoomCollisionType.SpecialAir).Raw);
+            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithCollisionType(RoomCollisionType.SpecialAir).Raw);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
@@ -125,7 +123,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
     {
         if (header != PlmHeaderId.ScrollTrigger)
         {
-            (RoomCollisionType collisionType, sbyte offset) = header switch
+            (RoomCollisionType collisionType, int offset) = header switch
             {
                 PlmHeaderId.RightwardsScrollExtension => new ScrollExtension(RoomCollisionType.HorizontalExtension, -1),
                 PlmHeaderId.LeftwardsScrollExtension => new ScrollExtension(RoomCollisionType.HorizontalExtension, 1),
@@ -411,10 +409,9 @@ internal sealed class ScrollPlms : IPlmFamilySource
                 _ => throw new InvalidOperationException(
                     "Validated scroll extension escaped its setup table."),
             };
-            ushort originalWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
             level.SetForegroundEntry(
                 slot.BlockIndex,
-                new RoomLevelWord(originalWord).WithCollisionType(collisionType).Raw);
+                level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithCollisionType(collisionType).Raw);
             level.SetBehavior(slot.BlockIndex, unchecked((byte)offset));
 
             // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
@@ -428,10 +425,9 @@ internal sealed class ScrollPlms : IPlmFamilySource
             Program = compiledProgram.HasValue ? null : program.ToArray(),
             CompiledProgram = compiledProgram,
         };
-        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         level.SetForegroundEntry(
             slot.BlockIndex,
-            new RoomLevelWord(triggerWord).WithCollisionType(RoomCollisionType.SpecialAir).Raw);
+            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithCollisionType(RoomCollisionType.SpecialAir).Raw);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 

@@ -45,20 +45,20 @@ public static class SamusSlopePhysics
         if (bts.SlopeFlipsVertically || verticalSpeed != 0)
             return displacement;
 
-        ushort multiplier = SlopeSpeedDefinitions.HorizontalMultiplier(bts.SlopeShape);
+        int multiplier = SlopeSpeedDefinitions.HorizontalMultiplier(bts.SlopeShape);
 
         // The 65816 discards the displacement's lowest eight fractional bits before the
         // unsigned 16×16 multiply. For negative values it negates that truncated 16-bit
         // magnitude, multiplies, and negates the 32-bit result afterward.
         if (displacement >= 0)
         {
-            ushort truncated = unchecked((ushort)(SnesEightEight.WholeOf(displacement)));
+            int truncated = unchecked((ushort)(SnesEightEight.WholeOf(displacement)));
             return unchecked((int)((uint)truncated * multiplier));
         }
         else
         {
-            ushort truncated = unchecked((ushort)(SnesEightEight.WholeOf(displacement)));
-            ushort magnitude = unchecked((ushort)-truncated);
+            int truncated = unchecked((ushort)(SnesEightEight.WholeOf(displacement)));
+            int magnitude = unchecked((ushort)-truncated);
             return unchecked(-(int)((uint)magnitude * multiplier));
         }
     }
@@ -66,12 +66,12 @@ public static class SamusSlopePhysics
     /// <summary>Typed BTS overload used by live room collision.</summary>
     public static byte ReadAlignmentHeight(
         RoomBlockBehavior bts,
-        ushort xPosition)
+        int xPosition)
     {
 
         // BTS bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
-        ushort sampledX = bts.SlopeFlipsHorizontally
+        int sampledX = bts.SlopeFlipsHorizontally
             ? unchecked((ushort)(xPosition ^ 15))
             : xPosition;
         return SlopeHeightDefinitions.Read(bts.SlopeShape, sampledX & 15);
@@ -89,12 +89,12 @@ public static class SamusSlopePhysics
     public static SlopeAlignmentResult AlignYPosition(
         RoomLevelData level,
         Position16<RoomPixels> position,
-        ushort yRadius,
+        int yRadius,
         bool horizontalSlopeCollisionEnabled = true)
     {
         Ensure.NotNull(level);
-        ushort xPosition = position.X;
-        ushort yPosition = position.Y;
+        int xPosition = position.X;
+        int yPosition = position.Y;
 
         if (!horizontalSlopeCollisionEnabled)
             return new SlopeAlignmentResult(position, Adjusted: false);
@@ -103,8 +103,8 @@ public static class SamusSlopePhysics
 
         // $94:87F4 first probes the center-X block containing Samus's bottom pixel. Only
         // type 1, shapes >=5, and BTS bit $80 clear participate as floor slopes.
-        ushort bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
-        if (TryGetBlockAtPixel(level, new(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
+        int bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
+        if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
             bottom.Bts.IsNonSquareSlope)
         {
@@ -112,7 +112,7 @@ public static class SamusSlopePhysics
             {
                 int height = ReadAlignmentHeight(bottom.Bts, xPosition);
                 int bottomNibble = bottomPosition & 15;
-                short correction = unchecked((short)(height - bottomNibble - 1));
+                int correction = unchecked((short)(height - bottomNibble - 1));
                 if (correction < 0)
                 {
                     yPosition = unchecked((ushort)(yPosition + correction));
@@ -123,8 +123,8 @@ public static class SamusSlopePhysics
 
         // Recompute the top probe after any floor correction. Ceiling slopes use BTS bit
         // $80 set and reverse the same signed correction, matching $94:887A-$94:88F3.
-        ushort topPosition = unchecked((ushort)(yPosition - yRadius));
-        if (TryGetBlockAtPixel(level, new(xPosition, topPosition), out RoomCollisionBlock top) &&
+        int topPosition = unchecked((ushort)(yPosition - yRadius));
+        if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
             top.Bts.IsNonSquareSlope)
         {
@@ -132,7 +132,7 @@ public static class SamusSlopePhysics
             {
                 int height = ReadAlignmentHeight(top.Bts, xPosition);
                 int invertedTopNibble = (topPosition & 15) ^ 15;
-                short correction = unchecked((short)(height - invertedTopNibble - 1));
+                int correction = unchecked((short)(height - invertedTopNibble - 1));
                 if (correction <= 0)
                 {
                     yPosition = unchecked((ushort)(yPosition - correction));

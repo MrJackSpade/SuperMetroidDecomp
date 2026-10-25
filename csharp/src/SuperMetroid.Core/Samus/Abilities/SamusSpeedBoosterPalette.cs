@@ -20,16 +20,15 @@ internal static class SamusSpeedBoosterPalette
             {
                 // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
                 // bus returns the operand's high byte for every word.
-                ushort word = overrun switch
+                // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
+                colours.Suit.Write(index, Bgr555.FromCgramPortWord(overrun switch
                 {
                     SpeedBoosterPaletteOverrun.Expansion => SpeedBoosterPaletteOverrunDefinitions.ExpansionOpenBusWord,
                     SpeedBoosterPaletteOverrun.GrappleCode => (overreads ?? throw new InvalidOperationException(
                             "The Speed Booster grapple-code overrun needs the installed Samus overread catalog."))
                         .SpeedBoosterGrappleCodeWord(index),
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {overrun}."),
-                };
-                // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
-                colours.Suit.Write(index, Bgr555.FromCgramPortWord(word));
+                }));
             }
             return;
         }

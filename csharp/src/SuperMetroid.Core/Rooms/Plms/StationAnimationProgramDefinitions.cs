@@ -6,7 +6,7 @@ internal static class StationAnimationProgramDefinitions
     /// <summary>Pairs a station frame's native hold duration with the draw shown while it is held.</summary>
     /// <param name="Duration">Number of station animation ticks before advancing to the next frame.</param>
     /// <param name="Draw">The blocks displayed for this frame.</param>
-    internal readonly record struct Frame(ushort Duration, PlmDraw Draw);
+    internal readonly record struct Frame(int Duration, PlmDraw Draw);
 
     /// <summary>Timed frames in each list: three for map/resource cycles, one for each save entry.</summary>
     internal static int FrameCount(StationAnimationList list) => list switch
@@ -41,7 +41,7 @@ internal static class StationAnimationProgramDefinitions
         if ((uint)frameIndex >= (uint)FrameCount(list))
             throw new InvalidDataException(
                 $"Station animation {list} frame {frameIndex} is not compiled.");
-        ushort duration = list switch
+        int duration = list switch
         {
             StationAnimationList.MapAcquired => 2,
             StationAnimationList.SaveIdle => 1,

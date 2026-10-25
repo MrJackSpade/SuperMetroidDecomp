@@ -31,12 +31,12 @@ public sealed class SamusAtmosphericEffectSlot
 
     /// <summary>Packs a graphics type and its animation frame into the slot word.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The type is not one the word can hold.</exception>
-    internal void SetFrameAndType(SamusAtmosphericEffectType type, byte animationFrame)
+    internal void SetFrameAndType(SamusAtmosphericEffectType type, int animationFrame)
     {
         int position = Array.IndexOf(TypeOrder, type);
         if (position < 0)
             throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must be one of the eight native types.");
-        FrameAndType = SnesLittleEndian.Word(animationFrame, checked((byte)position));
+        FrameAndType = SnesLittleEndian.Word(checked((byte)animationFrame), checked((byte)position));
     }
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>

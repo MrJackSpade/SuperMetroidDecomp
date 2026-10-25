@@ -385,12 +385,12 @@ public static class SamusArmCannonArtworkFormat
     }
 
     /// <summary>Calculates named descriptor controls and adjacent cost aliases; coordinate geometry is resolved separately from body artwork.</summary>
-    internal static bool TryStockDrawingByte(int position, out byte value)
+    internal static bool TryStockDrawingByte(int position, out int value)
     {
         if (position is >= AdjacentCostStart and < DrawingDataByteCount)
         {
             int costOffset = position - AdjacentCostStart;
-            ushort cost = SamusComboMechanicsDefinitions.GetPowerBombCost(
+            int cost = SamusComboMechanicsDefinitions.GetPowerBombCost(
                 SamusBeamCombinations.FromTableIndex(costOffset / sizeof(ushort)));
             value = (byte)(cost >> ((costOffset & 1) * 8));
             return true;
@@ -401,7 +401,7 @@ public static class SamusArmCannonArtworkFormat
             return false;
         }
         // Control bytes by descriptor and byte position; coordinate bytes are resolved separately.
-        byte? control = new ArmCannonControlByte(drawing, byteOffset) switch
+        int? control = new ArmCannonControlByte(drawing, byteOffset) switch
         {
             (ArmCannonDescriptorDefinitions.FacingForward, 0) or
             (ArmCannonDescriptorDefinitions.Default, 0) => 0,
@@ -672,7 +672,7 @@ public static class SamusArmCannonArtworkFormat
     private const int CoverWidthPixels = 8;
 
     /// <summary>Mirrors a signed cover X offset around Samus while accounting for its eight-pixel width.</summary>
-    internal static byte ReflectCoverX(byte coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
+    internal static byte ReflectCoverX(int coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
 
     /// <summary>Opposite-facing cover origins reflect the eight-pixel footprint around Samus's origin.</summary>
     /// <remarks>Only exact named facing pairs are included. Other coordinates resolve through

@@ -67,7 +67,7 @@ internal static class SamusBodyPlacementDefinitions
     private const int RollingSupportFrames = 8;
     /// <summary>$90:8D80..8D97: align each selected transition's opaque support to its destination pose.</summary>
     /// <remarks>Unavailable or independently edited non-body geometry remains supplied content rather than narrowing the editable schema.</remarks>
-    internal static bool TryDefaultPostureByte(SamusBodyArtworkCatalog art, int index, out sbyte value)
+    internal static bool TryDefaultPostureByte(SamusBodyArtworkCatalog art, int index, out int value)
     {
         int source = PostureSourceIndex(index);
         SuperMetroid.Core.Samus.Poses.SamusPoseId pose = PostureBlockPoses[source / PosturePoseBytes];
@@ -353,14 +353,14 @@ internal static class SamusBodyPlacementDefinitions
         try
         {
             bool targetBottom = target != SuperMetroid.Core.Samus.Poses.SamusPoseId.MorphBallGroundRightPose;
-            if (!TryOpaqueBottom(art, pose, (ushort)frame, sourceBottom, out int sourceY) ||
+            if (!TryOpaqueBottom(art, pose, frame, sourceBottom, out int sourceY) ||
                 !TryOpaqueBottom(art, target, 0, targetBottom, out int targetY)) return false;
             if (!targetBottom)
             {
                 // Rolling frames bob by one pixel in either direction. Align the
                 // incoming morph to the support envelope, independent of facing's
                 // initial rolling phase, rather than selecting a sampled target Y.
-                for (ushort phase = 1; phase < RollingSupportFrames; phase++)
+                for (int phase = 1; phase < RollingSupportFrames; phase++)
                 {
                     if (!TryOpaqueBottom(art, target, phase, false, out int phaseBottom)) return false;
                     targetY = Math.Max(targetY, phaseBottom);
@@ -368,7 +368,7 @@ internal static class SamusBodyPlacementDefinitions
             }
             int offset = targetY - art.GraphicsYOffset(target) - sourceY + join;
             if (offset is < sbyte.MinValue or > sbyte.MaxValue) return false;
-            value = (sbyte)offset;
+            value = offset;
             return true;
         }
         catch (InvalidDataException)
@@ -385,13 +385,13 @@ internal static class SamusBodyPlacementDefinitions
     private const int DrainedImpactSupport = 18;
 
     /// <summary>$90:8DEF..8E0E: shared drained placement, indexed by byte position in the complete $91:B268 left-facing program.</summary>
-    internal static bool TryDefaultDrainedByte(SamusBodyArtworkCatalog art, int index, out sbyte value)
+    internal static bool TryDefaultDrainedByte(SamusBodyArtworkCatalog art, int index, out int value)
     {
         if ((uint)index >= SuperMetroid.Core.Samus.Drawing.SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         value = 0;
         const SamusPoseId pose = SuperMetroid.Core.Samus.Poses.SamusPoseId.DrainedCrouchingLeftPose;
-        ushort frame;
+        int frame;
         switch (index)
         {
             // Repeated kneeling, tucked recovery, hit and Hyper Beam poses use
@@ -400,8 +400,8 @@ internal static class SamusBodyPlacementDefinitions
             case 8 or 9 or 10 or 11 or 14 or 19 or 23 or 26 or 29:
                 int usual = -art.GraphicsYOffset(pose);
                 if (usual > sbyte.MaxValue) return false;
-                value = (sbyte)usual; return true;
-            case 0 or 1: frame = (ushort)index; break;
+                value = usual; return true;
+            case 0 or 1: frame = index; break;
             case >= 2 and <= 6: frame = 2; break;
             case 7: frame = 7; break;
             case 15 or 20 or 22: frame = 15; break;
@@ -426,14 +426,14 @@ internal static class SamusBodyPlacementDefinitions
             }
             int offset = targetY - sourceY;
             if (offset is < sbyte.MinValue or > sbyte.MaxValue) return false;
-            value = (sbyte)offset;
+            value = offset;
             return true;
         }
         catch (InvalidDataException) { return false; }
     }
 
     /// <summary>Lays out the frame's selected top and bottom definitions as body characters and finds the lowest opaque sprite pixel; declines incomplete or unsupported artwork.</summary>
-    private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, SamusPoseId pose, ushort frame,
+    private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, SamusPoseId pose, int frame,
         bool drawBottom, out int bottom)
     {
         // The window reaches one whole definition past the start of the last half row a definition's part fills.

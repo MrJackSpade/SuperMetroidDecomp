@@ -63,7 +63,7 @@ internal static class SamusRunningCadenceDefinitions
     /// native sound-queue clobber: bytes three/three at the first cadence frames become
     /// a stream starting in the Mode 7 transfer queue residue.
     /// </summary>
-    internal static SamusRunningCadence SpeedBoostCadence(byte selection) => selection switch
+    internal static SamusRunningCadence SpeedBoostCadence(int selection) => selection switch
     {
         <= 4 => SamusRunningCadence.BoostStage0 + selection,
         MaximumSoundQueueSelection => SamusRunningCadence.SoundQueueClobber,
@@ -84,7 +84,7 @@ internal static class SamusRunningCadenceDefinitions
     };
 
     /// <summary>Resolves the native low-byte reset word selected after a stage advance.</summary>
-    internal static ushort ReadResetWord(byte selection) => selection switch
+    internal static ushort ReadResetWord(int selection) => selection switch
     {
         <= 3 => 1,
         4 => 2,
@@ -124,7 +124,7 @@ internal static class SamusRunningCadenceDefinitions
     /// <param name="windows">Where the region sits in its bank, which a byte of a word naming a stream needs.</param>
     /// <param name="value">The byte.</param>
     /// <returns>Whether the offset lies in the region.</returns>
-    internal static bool TryReadCompiledByte(int offset, SamusAnimationWindows? windows, out byte value)
+    internal static bool TryReadCompiledByte(int offset, SamusAnimationWindows? windows, out int value)
     {
         if ((uint)offset >= RegionByteCount)
         {
@@ -171,7 +171,7 @@ internal static class SamusRunningCadenceDefinitions
     }
 
     /// <summary>Reads window position <paramref name="position"/>: the floor update residue in the low half, else the region.</summary>
-    private static byte ReadWindow(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, SamusAnimationWindows? windows, ushort position)
+    private static byte ReadWindow(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, SamusAnimationWindows? windows, int position)
     {
         if (position < SuperMetroid.Core.Compatibility.FloorUpdateResidue.ResidueWindowEnd)
             return (floorUpdateResidue ?? throw new InvalidOperationException(

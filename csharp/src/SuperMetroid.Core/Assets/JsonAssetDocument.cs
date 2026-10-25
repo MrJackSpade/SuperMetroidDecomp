@@ -225,11 +225,11 @@ internal static class JsonAssetDocument
         {
             hash = 14695981039346656037;
             if (name.Decoded is not null) return false;
-            foreach (byte value in json.Slice(name.Start, name.Length))
+            foreach (int value in json.Slice(name.Start, name.Length))
             {
                 if (value >= 0x80) return false; // cartridge-encoding: allow(Text) - first non-ASCII byte
-                byte folded = ignoreCase && value is >= (byte)'A' and <= (byte)'Z' ? (byte)(value | 0x20) : value; // cartridge-encoding: allow(Text) - ASCII lower-case bit
-                hash = (hash ^ folded) * 1099511628211;
+                int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value; // cartridge-encoding: allow(Text) - ASCII lower-case bit
+                hash = (hash ^ (uint)folded) * 1099511628211;
             }
             return true;
         }

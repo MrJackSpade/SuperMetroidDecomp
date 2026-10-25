@@ -27,10 +27,10 @@ public static class LevelBlockTilemapExpander
                 $"Block index ${blockIndex:X3} exceeds the {blockDefinitions.Length / 8} loaded definitions.");
         }
 
-        ushort topLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[definitionOffset..]);
-        ushort topRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 2)..]);
-        ushort bottomLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 4)..]);
-        ushort bottomRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 6)..]);
+        SnesBgTilemapWord topLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[definitionOffset..]);
+        SnesBgTilemapWord topRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 2)..]);
+        SnesBgTilemapWord bottomLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 4)..]);
+        SnesBgTilemapWord bottomRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 6)..]);
 
         // The XORs do two jobs at once: the four children move to their mirrored quadrants,
         // and each 8x8 child's own PPU flip flag toggles so pixels mirror inside that child.
@@ -40,23 +40,23 @@ public static class LevelBlockTilemapExpander
             LevelBlockFlipFlags.None =>
                 new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
             LevelBlockFlipFlags.Horizontal => new ExpandedBlockTiles(
-                new SnesBgTilemapWord(topRight).ToggleFlips(SnesTileFlipFlags.Horizontal),
-                new SnesBgTilemapWord(topLeft).ToggleFlips(SnesTileFlipFlags.Horizontal),
-                new SnesBgTilemapWord(bottomRight).ToggleFlips(SnesTileFlipFlags.Horizontal),
-                new SnesBgTilemapWord(bottomLeft).ToggleFlips(SnesTileFlipFlags.Horizontal)),
+                topRight.ToggleFlips(SnesTileFlipFlags.Horizontal),
+                topLeft.ToggleFlips(SnesTileFlipFlags.Horizontal),
+                bottomRight.ToggleFlips(SnesTileFlipFlags.Horizontal),
+                bottomLeft.ToggleFlips(SnesTileFlipFlags.Horizontal)),
             LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
-                new SnesBgTilemapWord(bottomLeft).ToggleFlips(SnesTileFlipFlags.Vertical),
-                new SnesBgTilemapWord(bottomRight).ToggleFlips(SnesTileFlipFlags.Vertical),
-                new SnesBgTilemapWord(topLeft).ToggleFlips(SnesTileFlipFlags.Vertical),
-                new SnesBgTilemapWord(topRight).ToggleFlips(SnesTileFlipFlags.Vertical)),
+                bottomLeft.ToggleFlips(SnesTileFlipFlags.Vertical),
+                bottomRight.ToggleFlips(SnesTileFlipFlags.Vertical),
+                topLeft.ToggleFlips(SnesTileFlipFlags.Vertical),
+                topRight.ToggleFlips(SnesTileFlipFlags.Vertical)),
             LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
-                new SnesBgTilemapWord(bottomRight).ToggleFlips(
+                bottomRight.ToggleFlips(
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
-                new SnesBgTilemapWord(bottomLeft).ToggleFlips(
+                bottomLeft.ToggleFlips(
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
-                new SnesBgTilemapWord(topRight).ToggleFlips(
+                topRight.ToggleFlips(
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
-                new SnesBgTilemapWord(topLeft).ToggleFlips(
+                topLeft.ToggleFlips(
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)),
             _ => throw new InvalidDataException(
                 $"Level word ${levelEntry.Raw:X4} contains unsupported visual flip flags."),

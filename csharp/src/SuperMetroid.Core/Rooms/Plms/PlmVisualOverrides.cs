@@ -66,9 +66,9 @@ internal sealed class PlmVisualOverrides
         int index = 0;
         foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
         {
-            foreach (ushort word in run.LevelWords.Span)
+            foreach (RoomLevelWord word in run.LevelWords.Span)
             {
-                if (blocks[index++] != new RoomLevelWord(word).VisualWord)
+                if (blocks[index++] != word.VisualWord)
                     return true;
             }
         }

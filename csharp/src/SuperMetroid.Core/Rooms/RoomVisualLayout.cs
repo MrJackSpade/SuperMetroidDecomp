@@ -57,7 +57,7 @@ public sealed class RoomVisualLayout
     /// <summary>Rejects artwork words carrying any high-nibble physical block type bits.</summary>
     private static bool HasCollisionBits(ReadOnlySpan<ushort> words)
     {
-        foreach (ushort word in words)
+        foreach (int word in words)
             if ((word & 0xf000) != 0) return true;
         return false;
     }

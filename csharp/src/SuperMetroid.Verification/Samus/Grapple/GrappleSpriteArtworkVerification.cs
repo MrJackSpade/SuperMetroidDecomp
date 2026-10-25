@@ -36,7 +36,7 @@ internal static class GrappleSpriteArtworkVerification
         Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++, cases++)
-            AssertEqual(ObjPartFrames.SmallObject(new SnesObjAttributeWord(catalog.Endpoint), 0).Parts.Single(),
+            AssertEqual(ObjPartFrames.SmallObject(new SnesObjAttributeWord(checked((ushort)catalog.Endpoint)), 0).Parts.Single(),
                 frames[GrappleSheetDefinitions.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)

@@ -12,7 +12,7 @@ internal static class SamusHudInput
             return true;
         if (pose >= SamusHudDefinitions.NonFiringTransitionStart)
             return false;
-        byte flag = SamusHudDefinitions.PostureObservation(pose, overreads);
+        int flag = SamusHudDefinitions.PostureObservation(pose, overreads);
         return flag == 0 || grappleActive;
     }
 }

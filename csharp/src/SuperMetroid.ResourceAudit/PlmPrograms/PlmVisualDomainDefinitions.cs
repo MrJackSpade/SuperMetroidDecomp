@@ -46,7 +46,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleVisualCatalog" => RoomPlmCollectibleDrawDefinitions.All
             .Select(frame => SingleWord(PlmDraw.Of(frame.Draw), frame.LevelWord.Raw)).ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmGrappleBlockVisualCatalog" => RoomPlmGrappleBlockDrawDefinitions.All
-            .Select(frame => SingleWord(PlmDraw.Of(frame.Frame), frame.LevelWord)).ToArray(),
+            .Select(frame => SingleWord(PlmDraw.Of(frame.Frame), frame.LevelWord.Raw)).ToArray(),
         _ => null,
     };
 

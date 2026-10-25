@@ -17,10 +17,10 @@ public sealed class ChargeFlareSpriteCatalog
         => new(ProjectileSpriteCatalog.LoadFrames(json, ChargeFlareSpriteDefinitions.All));
 
     /// <summary>True when <paramref name="selector"/> indexes the native $93:A1A1 flare table.</summary>
-    public static bool Contains(ushort selector) => selector < ChargeFlareSpriteDefinitions.Selectors.Count;
+    public static bool Contains(int selector) => selector < ChargeFlareSpriteDefinitions.Selectors.Count;
 
     /// <summary>The flare composition a valid native selector names, as a whole frame over the standard OBJ page.</summary>
-    public SpriteFrame Frame(ushort selector)
+    public SpriteFrame Frame(int selector)
     {
         if (selector >= ChargeFlareSpriteDefinitions.Selectors.Count)
             throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");

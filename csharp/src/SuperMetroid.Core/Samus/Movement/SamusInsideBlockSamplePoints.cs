@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusInsideBlockSamplePoints
 {
     /// <summary>Invokes <paramref name="visit"/> for each sampled point in native order.</summary>
-    public static void Visit(ushort yPosition, ushort yRadius, Action<ushort, SamusInsideBlockPoint> visit)
+    public static void Visit(int yPosition, int yRadius, Action<int, SamusInsideBlockPoint> visit)
     {
         Ensure.NotNull(visit);
-        ushort bottom = unchecked((ushort)(yPosition + yRadius - 1));
-        ushort top = unchecked((ushort)(yPosition - yRadius));
+        int bottom = unchecked((ushort)(yPosition + yRadius - 1));
+        int top = unchecked((ushort)(yPosition - yRadius));
         visit(bottom, SamusInsideBlockPoint.Bottom);
         if (((yPosition ^ bottom) & ~15) != 0)
             visit(yPosition, SamusInsideBlockPoint.Center);

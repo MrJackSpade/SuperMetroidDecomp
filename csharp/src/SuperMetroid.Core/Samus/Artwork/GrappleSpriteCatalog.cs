@@ -10,9 +10,9 @@ public sealed class GrappleSpriteCatalog
     /// <summary>Independent rope-style words, absent when all four frames match calculated stock.</summary>
     internal readonly ushort[]? segments;
     /// <summary>Selected small-OBJ endpoint attribute word used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies tile $20, palette 5 and priority 3.</summary>
-    public ushort Endpoint { get; }
+    public int Endpoint { get; }
     /// <summary>Retains the selected endpoint and only the rope frame styles that depart from stock.</summary>
-    private GrappleSpriteCatalog(ushort endpoint, ushort[] segments)
+    private GrappleSpriteCatalog(int endpoint, ushort[] segments)
     {
         Endpoint = endpoint;
         for (int frame = 0; frame < segments.Length; frame++)

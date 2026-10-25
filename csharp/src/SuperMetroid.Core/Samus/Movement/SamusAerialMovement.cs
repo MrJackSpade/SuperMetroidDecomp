@@ -750,9 +750,9 @@ public static class SamusAerialMovement
         // The accepted whole travel is a signed word, so its magnitude is at most 32768 and the
         // distance holds the exact value the native unsigned word would.
         int distance = Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement));
-        ushort firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
-            ? (ushort)27
-            : (ushort)11;
+        int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
+            ? 27
+            : 11;
         if (samus.AnimationFrame < firstEligibleFrame)
         {
             SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(samus);
@@ -798,15 +798,15 @@ public static class SamusAerialMovement
         // The 65816 reads a deliberately unaligned word beginning at `$0B2D`: the high
         // byte of Y subspeed followed by the low byte of whole Y speed. In host terms that
         // is the magnitude converted from 16.16 to 8.8 without rounding.
-        ushort fallingVelocity8_8 = unchecked((ushort)SnesEightEight.FromSixteenSixteen(
+        int fallingVelocity8_8 = unchecked((ushort)SnesEightEight.FromSixteenSixteen(
             samus.Kinematics.YSpeed.Whole, samus.Kinematics.YSpeed.Fraction));
         // `$0AD2` is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
-        ushort minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
+        int minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
             SamusLiquidMedium.Air
-                ? (ushort)128
-                : (ushort)640;
+                ? 128
+                : 640;
         bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - minimumVelocity)) >= 0;
         bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 1280)) < 0;
         if (!atOrAboveMinimum || !belowMaximum ||

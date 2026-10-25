@@ -34,22 +34,22 @@ internal sealed class SamusScrollCap
         if (_samusPreviousPositionCheckpoint is not { } checkpoint)
             return;
 
-        (ushort previousX, ushort previousY) = samus.PeekPreviousPositionWords(checkpoint);
-        if (CappedPreviousPosition(samus.Position.Y.Whole, previousY) is { } cappedY)
+        Position16<RoomPixels> previous = samus.PeekPreviousPositionWords(checkpoint);
+        if (CappedPreviousPosition(samus.Position.Y.Whole, previous.Y) is { } cappedY)
             samus.WritePreviousYPosition(cappedY);
-        if (CappedPreviousPosition(samus.Position.X.Whole, previousX) is { } cappedX)
+        if (CappedPreviousPosition(samus.Position.X.Whole, previous.X) is { } cappedX)
             samus.WritePreviousXPosition(cappedX);
     }
 
     /// <summary>Returns a previous-position word twelve pixels from Samus when native signed-distance comparison reaches the camera cap.</summary>
-    private static ushort? CappedPreviousPosition(ushort position, ushort previous)
+    private static int? CappedPreviousPosition(int position, int previous)
     {
-        ushort delta = unchecked((ushort)(position - previous));
-        ushort magnitude = unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
+        int delta = unchecked((ushort)(position - previous));
+        int magnitude = unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
         // CMP #$000C / BMI: the sign of magnitude - 12.
         if (unchecked((short)(magnitude - 12)) < 0)
             return null;
-        short offset = unchecked((short)delta) < 0 ? (short)-12 : (short)12;
+        int offset = unchecked((short)delta) < 0 ? -12 : 12;
         return unchecked((ushort)(position + offset));
     }
 }

@@ -61,11 +61,11 @@ public sealed class RoomMetatileAtlas
             SnesTileFlipFlags flips =
                 (cell.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                 (cell.FlipY ? SnesTileFlipFlags.Vertical : 0);
-            ushort word = SnesBgTilemapWord.Create(
-                cell.TileRow * RoomMetatileFormat.TileColumns + cell.TileColumn,
-                cell.Palette, cell.Priority, flips).Raw;
             BinaryPrimitives.WriteUInt16LittleEndian(
-                bytes.AsSpan(block * RoomMetatileFormat.BytesPerBlock + index * sizeof(ushort)), word);
+                bytes.AsSpan(block * RoomMetatileFormat.BytesPerBlock + index * sizeof(ushort)),
+                SnesBgTilemapWord.Create(
+                    cell.TileRow * RoomMetatileFormat.TileColumns + cell.TileColumn,
+                    cell.Palette, cell.Priority, flips).Raw);
         }
     }
 

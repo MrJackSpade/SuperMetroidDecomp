@@ -34,8 +34,8 @@ public static class SamusSolidEnemyCollision
         SamusKinematicsState state,
         IReadOnlyList<SolidEnemyCollisionBody> interactiveEnemies,
         SamusCollisionDirection direction,
-        ushort distance,
-        ushort distanceSubposition)
+        int distance,
+        int distanceSubposition)
     {
         Ensure.NotNull(state);
         Ensure.NotNull(interactiveEnemies);
@@ -50,8 +50,8 @@ public static class SamusSolidEnemyCollision
         // borrows. Although this can look like an off-by-one in C#, it is the exact SEC/SBC
         // or CLC/ADC plus DEC/INC sequence in the ROM, whose BEQ reads the flags of the last
         // instruction that ran.
-        (ushort targetX, ushort targetY) = BuildRoundedTarget(
-            state, direction, distance, distanceSubposition);
+        Position16<RoomPixels> target = BuildRoundedTarget(
+            state, direction, SnesFixedPosition.Of(distance, distanceSubposition));
 
         foreach (SolidEnemyCollisionBody enemy in interactiveEnemies)
         {
@@ -61,8 +61,8 @@ public static class SamusSolidEnemyCollision
             // `$A0:A9EB-$A0:AA30`: the rounded future center must overlap on both axes.
             // Tangency is not overlap here; the native CMP/BCC sequence requires the
             // center distance to be strictly less than the sum of both radii.
-            if (!StrictlyOverlaps(targetX, state.Radius.X, enemy.Position.X, enemy.Radius.X) ||
-                !StrictlyOverlaps(targetY, state.Radius.Y, enemy.Position.Y, enemy.Radius.Y))
+            if (!StrictlyOverlaps(target.X, state.Radius.X, enemy.Position.X, enemy.Radius.X) ||
+                !StrictlyOverlaps(target.Y, state.Radius.Y, enemy.Position.Y, enemy.Radius.Y))
             {
                 continue;
             }
@@ -70,7 +70,7 @@ public static class SamusSolidEnemyCollision
             // The broad test says the future boxes overlap. The directional test now uses
             // the *current* leading edges to distinguish an approaching gap from an enemy
             // Samus is already embedded in. A negative native/BPL result skips that enemy.
-            ushort gap = direction switch
+            int gap = direction switch
             {
                 SamusCollisionDirection.Left => unchecked((ushort)(
                     state.Position.X.Whole - state.Radius.X - enemy.Position.X - enemy.Radius.X)),
@@ -123,88 +123,74 @@ public static class SamusSolidEnemyCollision
     private static Position16<RoomPixels> BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
-        ushort distance,
-        ushort distanceSubposition)
+        SnesFixedPosition reach)
     {
-        ushort targetX = state.Position.X.Whole;
-        ushort targetY = state.Position.Y.Whole;
-
-        switch (direction)
+        Position16<RoomPixels> target = state.Position.Whole;
+        return direction switch
         {
-            case SamusCollisionDirection.Left:
-                targetX = RoundNegative(state.Position.X, new SnesFixedPosition(distance, distanceSubposition));
-                break;
-
-            case SamusCollisionDirection.Right:
-                targetX = RoundPositive(state.Position.X, new SnesFixedPosition(distance, distanceSubposition));
-                break;
-
-            case SamusCollisionDirection.Up:
-                targetY = RoundNegative(state.Position.Y, new SnesFixedPosition(distance, distanceSubposition));
-                break;
-
-            case SamusCollisionDirection.Down:
-                targetY = RoundPositive(state.Position.Y, new SnesFixedPosition(distance, distanceSubposition));
-                break;
+            SamusCollisionDirection.Left => target.WithX(RoundNegative(state.Position.X, reach)),
+            SamusCollisionDirection.Right => target.WithX(RoundPositive(state.Position.X, reach)),
+            SamusCollisionDirection.Up => target.WithY(RoundNegative(state.Position.Y, reach)),
+            SamusCollisionDirection.Down => target.WithY(RoundPositive(state.Position.Y, reach)),
             // The pose-observation probe targets Samus's current position.
-            case SamusCollisionDirection.NonDirectionalProbe:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined SamusCollisionDirection {direction}.");
-        }
-
-        return new Position16<RoomPixels>(targetX, targetY);
+            SamusCollisionDirection.NonDirectionalProbe => target,
+            _ => throw new InvalidOperationException($"Undefined SamusCollisionDirection {direction}."),
+        };
     }
 
-    /// <summary>Models native subtraction, including fractional borrow and the extra outward decrement selected by the assembly's zero flag.</summary>
-    private static ushort RoundNegative(SnesFixedPosition target, SnesFixedPosition reach)
+    /// <summary>
+    /// Models native subtraction, including fractional borrow and the extra outward decrement selected by the assembly's
+    /// zero flag. The whole target is a room coordinate word: each decrement wraps at sixteen bits through the
+    /// compatibility counter, so a target at zero continues from $FFFF exactly as the cartridge's DEC does.
+    /// </summary>
+    private static int RoundNegative(SnesFixedPosition target, SnesFixedPosition reach)
     {
-        ushort position = target.Whole, subposition = target.Fraction;
-        ushort distance = reach.Whole, distanceSubposition = reach.Fraction;
-        ushort whole = unchecked((ushort)(position - distance));
+        int whole = unchecked((ushort)(target.Whole - reach.Whole));
 
         // SEC/SBC sets carry when no unsigned borrow occurred. Model that borrow explicitly,
-        // because C# discards it when a result is narrowed back to ushort.
-        bool borrowed = subposition < distanceSubposition;
-        ushort fraction = unchecked((ushort)(subposition - distanceSubposition));
+        // because the subtraction below keeps only the fraction word.
+        bool borrowed = target.Fraction < reach.Fraction;
+        int fraction = unchecked((ushort)(target.Fraction - reach.Fraction));
         // `$A0:A931/$A980`: after a borrow the DEC sets Z from the whole target, so the BEQ
         // tests that word rather than the fraction and a second DEC follows unless it is 0.
         if (borrowed)
         {
-            whole--;
+            whole = WrappingCounter.Decrement(whole).Value;
             if (whole != 0)
-                whole--;
+                whole = WrappingCounter.Decrement(whole).Value;
         }
         else if (fraction != 0)
         {
-            whole--;
+            whole = WrappingCounter.Decrement(whole).Value;
         }
 
         return whole;
     }
 
-    /// <summary>Models native addition, including fractional carry and the extra outward increment selected by the assembly's zero flag.</summary>
-    private static ushort RoundPositive(SnesFixedPosition target, SnesFixedPosition reach)
+    /// <summary>
+    /// Models native addition, including fractional carry and the extra outward increment selected by the assembly's
+    /// zero flag. Each increment wraps the whole coordinate word at sixteen bits through the compatibility counter, so
+    /// $FFFF continues at zero exactly as the cartridge's INC does.
+    /// </summary>
+    private static int RoundPositive(SnesFixedPosition target, SnesFixedPosition reach)
     {
-        ushort position = target.Whole, subposition = target.Fraction;
-        ushort distance = reach.Whole, distanceSubposition = reach.Fraction;
-        ushort whole = unchecked((ushort)(position + distance));
+        int whole = unchecked((ushort)(target.Whole + reach.Whole));
 
         // CLC/ADC carries the fractional overflow into the whole word before the native
         // nonzero-fraction INC performs its outward pixel rounding.
-        uint fractionSum = (uint)subposition + distanceSubposition;
-        ushort fraction = unchecked((ushort)fractionSum);
+        int fractionSum = target.Fraction + reach.Fraction;
+        int fraction = unchecked((ushort)fractionSum);
         // `$A0:A959/$A9A7`: after a carry the INC sets Z from the whole target, so the BEQ
         // tests that word rather than the fraction and a second INC follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
         {
-            whole++;
+            whole = WrappingCounter.IncrementWord(whole);
             if (whole != 0)
-                whole++;
+                whole = WrappingCounter.IncrementWord(whole);
         }
         else if (fraction != 0)
         {
-            whole++;
+            whole = WrappingCounter.IncrementWord(whole);
         }
 
         return whole;
@@ -212,15 +198,15 @@ public static class SamusSolidEnemyCollision
 
     /// <summary>Compares wrapped 16-bit center distance against both radii using the native unsigned borrow and strict comparison rules.</summary>
     private static bool StrictlyOverlaps(
-        ushort firstPosition,
-        ushort firstRadius,
-        ushort secondPosition,
-        ushort secondRadius)
+        int firstPosition,
+        int firstRadius,
+        int secondPosition,
+        int secondRadius)
     {
         // `$A0:A9F1` obtains a 16-bit absolute center delta with EOR #$FFFF / INC. This
         // intentionally leaves $8000 unchanged, matching the native two's-complement edge.
-        ushort signedDelta = unchecked((ushort)(secondPosition - firstPosition));
-        ushort absoluteDelta = unchecked((short)signedDelta) >= 0
+        int signedDelta = unchecked((ushort)(secondPosition - firstPosition));
+        int absoluteDelta = unchecked((short)signedDelta) >= 0
             ? signedDelta
             : unchecked((ushort)(~signedDelta + 1));
 
@@ -229,7 +215,7 @@ public static class SamusSolidEnemyCollision
         if (absoluteDelta < secondRadius)
             return true;
 
-        ushort remainder = unchecked((ushort)(absoluteDelta - secondRadius));
+        int remainder = unchecked((ushort)(absoluteDelta - secondRadius));
         return remainder < firstRadius;
     }
 }

@@ -13,9 +13,12 @@ public readonly record struct SnesSignedSixteenSixteen
     /// <summary>Preserves an existing signed 32-bit native fixed-point value.</summary>
     public static SnesSignedSixteenSixteen FromRaw(int rawValue) => new(rawValue);
 
-    /// <summary>Combines the native signed whole word and the unsigned fractional word, 0 through 65535.</summary>
-    public static SnesSignedSixteenSixteen FromParts(short wholePixels, int fraction) =>
-        new(unchecked((wholePixels << 16) | Ensure.BetweenInclusive(0, ushort.MaxValue, fraction)));
+    /// <summary>
+    /// Combines the signed whole pixels, -32768 through 32767, and the unsigned fractional word, 0 through 65535.
+    /// </summary>
+    public static SnesSignedSixteenSixteen FromParts(int wholePixels, int fraction) =>
+        new(unchecked((Ensure.BetweenInclusive(short.MinValue, short.MaxValue, wholePixels) << 16) |
+            Ensure.BetweenInclusive(0, ushort.MaxValue, fraction)));
 
     /// <summary>A displacement of <paramref name="sixteenths"/> sixteenths of a pixel.</summary>
     public static SnesSignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => new(checked(sixteenths * 4096));
@@ -34,10 +37,10 @@ public readonly record struct SnesSignedSixteenSixteen
     public ushort Fraction => unchecked((ushort)RawValue);
 
     /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
-    public SnesSignedSixteenSixteen WithWholePixels(short wholePixels) => FromParts(wholePixels, Fraction);
+    public SnesSignedSixteenSixteen WithWholePixels(int wholePixels) => FromParts(wholePixels, Fraction);
 
     /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
-    public SnesSignedSixteenSixteen WithFraction(ushort fraction) => FromParts(WholePixels, fraction);
+    public SnesSignedSixteenSixteen WithFraction(int fraction) => FromParts(WholePixels, fraction);
 
     /// <summary>Adds two displacements, carrying the fraction and wrapping at 32 bits.</summary>
     public static SnesSignedSixteenSixteen operator +(SnesSignedSixteenSixteen left, SnesSignedSixteenSixteen right) =>
@@ -47,10 +50,10 @@ public readonly record struct SnesSignedSixteenSixteen
     public static SnesSignedSixteenSixteen operator -(SnesSignedSixteenSixteen left, SnesSignedSixteenSixteen right) =>
         new(unchecked(left.RawValue - right.RawValue));
 
-    /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair.</summary>
-    public SnesFixedPosition AddTo(ushort wholePosition, ushort subposition)
+    /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair, each word 0 through 65535.</summary>
+    public SnesFixedPosition AddTo(int wholePosition, int subposition)
     {
-        uint position = ((uint)wholePosition << 16) | subposition;
+        uint position = ((uint)checked((ushort)wholePosition) << 16) | checked((ushort)subposition);
         position = unchecked(position + (uint)RawValue);
         return new SnesFixedPosition(
             unchecked((ushort)(position >> 16)),

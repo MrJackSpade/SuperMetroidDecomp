@@ -18,7 +18,10 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="RoomLayer3Fx">Room-FX BG3 state.</param>
 /// <param name="MorphBallEyeBeam">Morph Ball eye beam geometry and color.</param>
 /// <param name="Phantoon">Phantoon's wave, blend, and mosaic latches, when Phantoon exists.</param>
-/// <param name="TourianStatueVerticalOffset">Tourian statue BG2 vertical offset.</param>
+/// <param name="TourianStatueVerticalOffset">
+/// Tourian statue BG2 vertical offset in pixels: the statue state's signed offset, which the capture adds to the
+/// layer-one position with the scroll's own wrap.
+/// </param>
 /// <param name="Scene">The room's layer-3 characters, blending, sky and X-ray context.</param>
 /// <param name="Bosses">The bodies bosses draw as layer 2.</param>
 /// <param name="FixedColors">The fixed colours the frame's blends use.</param>
@@ -34,7 +37,7 @@ public sealed record GameplayDisplayLatch(
     RoomLayer3FxRenderSnapshot? RoomLayer3Fx,
     MorphBallEyeBeamRenderSnapshot? MorphBallEyeBeam,
     PhantoonDisplaySnapshot? Phantoon,
-    short TourianStatueVerticalOffset,
+    int TourianStatueVerticalOffset,
     GameplayLatchedScene Scene,
     GameplayLatchedBossBackgrounds Bosses,
     GameplayLatchedFixedColors FixedColors,

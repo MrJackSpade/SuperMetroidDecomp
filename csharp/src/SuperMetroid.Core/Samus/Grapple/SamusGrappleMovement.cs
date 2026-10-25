@@ -42,7 +42,7 @@ public static class SamusGrappleMovement
 
         bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
             SamusPoseId.DraygonGrabbedMovingRightPose;
-        byte direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadShotDirection(samus);
+        int direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadShotDirection(samus);
         if (direction >= 16)
         {
             // $9B:C53F-C547 treats ROM sentinel directions as ordinary cancellation,
@@ -70,7 +70,7 @@ public static class SamusGrappleMovement
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
-        sbyte graphicsYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int graphicsYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
@@ -117,13 +117,13 @@ public static class SamusGrappleMovement
     /// top. A negative velocity then sets the top ten bits.
     /// </summary>
     private static SnesSignedSixteenSixteen QuarterExtensionVelocity(
-        short velocity, SnesSignedSixteenSixteen previous)
+        int velocity, SnesSignedSixteenSixteen previous)
     {
         uint pair = ((uint)((ushort)previous.WholePixels & 0xff00) << 16) | // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
             ((uint)(ushort)velocity << 8) | // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
             (uint)(previous.Fraction & 0x00ff); // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
         uint rotated = (pair >> 2) | ((pair & 1) << 31);
-        ushort whole = SnesFixedPosition.WholeOf(unchecked((int)rotated));
+        int whole = SnesFixedPosition.WholeOf(unchecked((int)rotated));
         if (velocity < 0)
             whole |= ushort.MaxValue & ~63; // The rotate's sign fills the top ten bits.
         return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));
@@ -620,7 +620,7 @@ public static class SamusGrappleMovement
         if (samus.Pose == SamusPoseId.GrappleSwingLeftPose)
             return SamusPoseId.FacingLeftNormalPose;
 
-        byte shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
+        int shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         bool ordinaryDirection = shotDirection < 10;
         if (!ordinaryDirection)
         {
@@ -685,14 +685,14 @@ public static class SamusGrappleMovement
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
     /// <summary>Limits one axis of the previous position to twelve pixels using wrapped 16-bit displacement.</summary>
-    private static ushort ClampPreviousAxis(ushort current, ushort previous)
+    private static ushort ClampPreviousAxis(int current, int previous)
     {
-        short displacement = unchecked((short)(current - previous));
+        int displacement = unchecked((short)(current - previous));
         if (displacement >= 13)
             return unchecked((ushort)(current - 12));
         if (displacement < -12)
             return unchecked((ushort)(current + 12));
-        return previous;
+        return checked((ushort)previous);
     }
 
     /// <summary>Queues firing cleanup while leaving ordinary Samus movement in control of this update.</summary>
@@ -1126,7 +1126,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
-    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, byte direction, bool running)
+    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, int direction, bool running)
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
             "Grapple flare requires installed placement definitions."))
@@ -1209,7 +1209,7 @@ public static class SamusGrappleMovement
     {
         var grapple = samus.Grapple;
         grapple.PoseChangeAutoFireTimer = grapple.PoseChangeAutoFireTimer.DecrementToZero();
-        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
+        int direction = SamusPoseMetadata.ReadShotDirection(samus);
         bool banned = GrappleConnectionDefinitions.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
         if (!banned && direction < 16)
         {

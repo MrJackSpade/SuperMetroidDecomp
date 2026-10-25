@@ -127,7 +127,7 @@ public sealed class SamusBodyArtworkCatalog
         this.frames = Enumerable.Range(0, components.Length)
             .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) != index
                 ? components[index] != components[SamusBodyFrameDefinitions.SourceComponent(index)]
-                : !SamusBodyFrameDefinitions.TryComponent(index, out byte calculated) || components[index] != calculated)
+                : !SamusBodyFrameDefinitions.TryComponent(index, out int calculated) || components[index] != calculated)
             .ToDictionary(index => index, index => components[index]);
         Spritemaps = parts.Spritemaps;
         Atmosphere = parts.Atmosphere;
@@ -141,11 +141,11 @@ public sealed class SamusBodyArtworkCatalog
         IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
         this.postureYOffsets = Enumerable.Range(0, parts.PostureYOffsets.Length)
             .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index
-                ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated) || parts.PostureYOffsets[index] != calculated
+                ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out int calculated) || parts.PostureYOffsets[index] != calculated
                 : parts.PostureYOffsets[index] != parts.PostureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
             .ToDictionary(index => index, index => parts.PostureYOffsets[index]);
         this.drainedYOffsets = Enumerable.Range(0, parts.DrainedYOffsets.Length)
-            .Where(index => !SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated) || parts.DrainedYOffsets[index] != calculated)
+            .Where(index => !SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out int calculated) || parts.DrainedYOffsets[index] != calculated)
             .ToDictionary(index => index, index => parts.DrainedYOffsets[index]);
         foreach (int firstFrame in parts.PoseFirstFrames)
             if ((uint)firstFrame >= FrameCount)
@@ -189,25 +189,25 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Gets the resolved drained-state vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
     /// <summary>Resolves an edited landing byte or its native shared-source alias.</summary>
-    private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
-        ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
+    private ushort LandingByte(int index) => landingYOffsets.ContainsKey(index)
+        ? landingYOffsets[index] : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
             ? SamusBodyPlacementDefinitions.DefaultLandingByte(index) : LandingByte(SamusBodyPlacementDefinitions.LandingSourceIndex(index));
     /// <summary>Resolves an edited posture offset, following native aliases when needed.</summary>
-    private sbyte PostureByte(int index) => postureYOffsets.TryGetValue(index, out sbyte value)
-        ? value : SamusBodyPlacementDefinitions.PostureSourceIndex(index) != index
+    private sbyte PostureByte(int index) => postureYOffsets.ContainsKey(index)
+        ? postureYOffsets[index] : SamusBodyPlacementDefinitions.PostureSourceIndex(index) != index
             ? PostureByte(SamusBodyPlacementDefinitions.PostureSourceIndex(index))
-            : SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated)
-                ? calculated : throw new InvalidDataException("Selected posture geometry no longer supplies its installed offset.");
+            : SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out int calculated)
+                ? (sbyte)calculated : throw new InvalidDataException("Selected posture geometry no longer supplies its installed offset.");
 
     /// <summary>Resolves a drained-state offset from edits or the selected art geometry.</summary>
-    private sbyte DrainedByte(int index) => drainedYOffsets.TryGetValue(index, out sbyte value)
-        ? value : SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated)
-            ? calculated : throw new InvalidDataException("Selected drained geometry no longer supplies its installed offset.");
+    private sbyte DrainedByte(int index) => drainedYOffsets.ContainsKey(index)
+        ? drainedYOffsets[index] : SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out int calculated)
+            ? (sbyte)calculated : throw new InvalidDataException("Selected drained geometry no longer supplies its installed offset.");
     /// <summary>Attempts to read the native unaligned landing-offset word at a byte index.</summary>
     /// <param name="index">The starting byte index.</param>
     /// <param name="value">Receives the little-endian landing-offset word.</param>
     /// <returns><see langword="true"/> when two bytes are available.</returns>
-    public bool TryLandingYOffset(int index, out ushort value)
+    public bool TryLandingYOffset(int index, out int value)
     {
         if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount - 1)
         {
@@ -221,7 +221,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <param name="index">The table byte index.</param>
     /// <param name="value">Receives the signed vertical offset.</param>
     /// <returns><see langword="true"/> when the index is in range.</returns>
-    public bool TryPostureYOffset(int index, out sbyte value)
+    public bool TryPostureYOffset(int index, out int value)
     {
         if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
         value = PostureByte(index);
@@ -231,7 +231,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <param name="index">The table byte index.</param>
     /// <param name="value">Receives the signed vertical offset.</param>
     /// <returns><see langword="true"/> when the index is in range.</returns>
-    public bool TryDrainedYOffset(int index, out sbyte value)
+    public bool TryDrainedYOffset(int index, out int value)
     {
         if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount) { value = 0; return false; }
         value = DrainedByte(index);
@@ -239,15 +239,15 @@ public sealed class SamusBodyArtworkCatalog
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     public sbyte GraphicsYOffset(SamusPoseId pose) =>
-        SamusPoseNumbering.HasRecord(pose) ? graphicsYOffsets.TryGetValue(SamusPoseNumbering.Number(pose), out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
+        SamusPoseNumbering.HasRecord(pose) ? graphicsYOffsets.ContainsKey(SamusPoseNumbering.Number(pose)) ? graphicsYOffsets[SamusPoseNumbering.Number(pose)] : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
             throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
     /// <summary>Resolves a frame-selector byte through edited values, aliases, or compiled defaults.</summary>
-    private byte FrameComponent(int index) => frames.TryGetValue(index, out byte value)
-        ? value : SamusBodyFrameDefinitions.SourceComponent(index) != index
+    private byte FrameComponent(int index) => frames.ContainsKey(index)
+        ? frames[index] : SamusBodyFrameDefinitions.SourceComponent(index) != index
             ? FrameComponent(SamusBodyFrameDefinitions.SourceComponent(index))
-            : SamusBodyFrameDefinitions.TryComponent(index, out byte calculated) ? calculated
+            : SamusBodyFrameDefinitions.TryComponent(index, out int calculated) ? (byte)calculated
                 : throw new InvalidDataException("Installed body frame has no selected component.");
     /// <summary>Assembles one native four-byte upper/lower body selector.</summary>
     private SamusBodyFrameSelection FrameAt(int index) => new(FrameComponent(index * 4), FrameComponent(index * 4 + 1),

@@ -65,12 +65,12 @@ internal static class SamusComboMechanicsDefinitions
     /// with byte wrap. Amplitude uses its low byte as the hardware multiplier does.
     /// This is a consumer view of the reviewed signed sine mapping, with no stored
     /// lookup of its own; preserve this existing algorithm.</remarks>
-    internal static Offset16<RoomPixels> GetSineOffset(SnesByteAngle angle, ushort amplitude)
+    internal static Offset16<RoomPixels> GetSineOffset(SnesByteAngle angle, int amplitude)
     {
-        short Component(byte phase)
+        short Component(int phase)
         {
-            short sample = EnemyTrigonometryTables.SignedSine(new SnesByteAngle(phase));
-            int magnitude = SnesEightEight.Multiply(Math.Abs((int)sample), (byte)amplitude);
+            int sample = EnemyTrigonometryTables.SignedSine(new SnesByteAngle(checked((byte)phase)));
+            int magnitude = SnesEightEight.Multiply(Math.Abs(sample), (byte)amplitude);
             return unchecked((short)(sample < 0 ? -magnitude : magnitude));
         }
 

@@ -30,9 +30,9 @@ public readonly record struct BombSpreadHorizontalVelocity
     /// Decodes a launch definition's packed horizontal word: its high byte holds the direction bit and the whole
     /// speed, its low byte the fraction.
     /// </summary>
-    public static BombSpreadHorizontalVelocity FromLaunchWord(ushort launchWord)
+    public static BombSpreadHorizontalVelocity FromLaunchWord(int launchWord)
     {
-        byte high = SnesLittleEndian.HighByte(launchWord);
+        int high = SnesLittleEndian.HighByte(launchWord);
         bool movingLeft = high >= LeftwardBit;
         return new(movingLeft, movingLeft ? high - LeftwardBit : high, SnesLittleEndian.LowByte(launchWord));
     }

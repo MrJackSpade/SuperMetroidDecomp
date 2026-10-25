@@ -40,7 +40,7 @@ internal static class MiscDustProjectileDefinitions
     };
 
     /// <summary>$86:E47E: point, centered 8/16-pixel squares, then centered 16x32/32x64 smoke boxes.</summary>
-    internal static MiscDustPlacementDefinition SmokePlacement(ushort placementIndex)
+    internal static MiscDustPlacementDefinition SmokePlacement(int placementIndex)
     {
         if (placementIndex >= 5)
             throw new InvalidDataException($"Bank-$86 misc-dust placement index {placementIndex} exceeds five native records.");

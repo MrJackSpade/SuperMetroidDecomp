@@ -186,9 +186,8 @@ internal sealed class StationPlms : IPlmFamilySource
                     // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
                     // bit 15 and the visual payload; the platform then runs its idle loop.
                     slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ElevatorPlatform));
-                    ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
-                    ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
-                    level.SetForegroundEntry(slot.BlockIndex, deactivated);
+                    level.SetForegroundEntry(slot.BlockIndex,
+                        level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithPlmDeactivation().Raw);
                     return true;
                 }
 
@@ -492,7 +491,7 @@ internal sealed class StationPlms : IPlmFamilySource
         PlmSlot slot,
         StationKind kind)
     {
-        ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
+        RoomLevelWord original = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord;
         switch (kind)
         {
             case StationKind.Save:
@@ -513,7 +512,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>A save station: its trigger floor and its one save animation.</summary>
-    private static void SetupSaveStation(RoomLevelData level, AreaId area, PlmSlot slot, ushort original)
+    private static void SetupSaveStation(RoomLevelData level, AreaId area, PlmSlot slot, RoomLevelWord original)
     {
         WriteStationBlock(
             level,
@@ -538,7 +537,7 @@ internal sealed class StationPlms : IPlmFamilySource
         SharedGameState system,
         AreaId area,
         PlmSlot slot,
-        ushort original,
+        RoomLevelWord original,
         StationAccessLayout layout)
     {
         WriteStationBlock(level, slot.BlockIndex, original, RoomCollisionType.SolidBlock, behavior: null);
@@ -569,11 +568,10 @@ internal sealed class StationPlms : IPlmFamilySource
             throw new InvalidDataException(
                 $"Station access setup targets out-of-room block index {blockIndex}.");
         }
-        ushort original = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         WriteStationBlock(
             level,
             blockIndex,
-            original,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehaviorCodec.StationAccess(behavior));
     }
@@ -582,12 +580,11 @@ internal sealed class StationPlms : IPlmFamilySource
     private static void WriteStationBlock(
         RoomLevelData level,
         int blockIndex,
-        ushort original,
+        RoomLevelWord original,
         RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        ushort word = new RoomLevelWord(original).WithCollisionType(collisionType).Raw;
-        level.SetForegroundEntry(blockIndex, word);
+        level.SetForegroundEntry(blockIndex, original.WithCollisionType(collisionType).Raw);
         if (behavior is { } bts)
             level.SetBehavior(blockIndex, bts);
     }
@@ -708,7 +705,7 @@ internal sealed class StationPlms : IPlmFamilySource
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
-        ushort probeX = unchecked((ushort)(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset));
+        int probeX = unchecked((ushort)(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset));
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 

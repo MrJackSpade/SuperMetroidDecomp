@@ -356,15 +356,14 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
 
         if (component == EyeDoorComponent.Eye)
         {
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.EyeCollisionWord);
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(
-                level,
-                checked(slot.BlockIndex + level.Size.X),
-                EyeDoorPlmRomData.EyeExtensionWord);
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorDefinitions.EyeCollision,
+                EyeDoorDefinitions.EyeBehavior.Value);
+            WriteExtensionRows(level, slot.BlockIndex, EyeDoorDefinitions.EyeExtensionRows);
             return;
         }
 
-        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
+        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorDefinitions.ClosedComponentCollision,
+            EyeDoorDefinitions.ClosedComponentBehavior.Value);
     }
 
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
@@ -400,7 +399,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 else if (family != SamusProjectileFamily.Missile)
                 {
                     _sounds.Queue(
-                        EyeDoorPlmRomData.RejectedShotSound,
+                        EyeDoorDefinitions.RejectedShotSound,
                         MaximumQueued: SoundQueueLimit.Max6);
                     return;
                 }
@@ -425,29 +424,29 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
-    /// <summary><c>$84:D77A</c>: fires an eye-door projectile and queues its sound.</summary>
-    internal void Shoot(PlmSlot slot, ushort parameter)
+    /// <summary><c>$84:D77A</c>: the eye facing <paramref name="facing"/> fires its projectile and queues its sound.</summary>
+    internal void Shoot(PlmSlot slot, EyeDoorOrientation facing)
     {
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, parameter);
+        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, facing);
         _sounds.Queue(
-            EyeDoorPlmRomData.ProjectileSound,
+            EyeDoorDefinitions.ProjectileSound,
             MaximumQueued: SoundQueueLimit.Max6);
     }
 
-    /// <summary><c>$84:D790</c>: the eye sweats.</summary>
-    internal void SpawnSweat(PlmSlot slot, ushort parameter) =>
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Sweat, parameter);
+    /// <summary><c>$84:D790</c>: the eye facing <paramref name="facing"/> sweats.</summary>
+    internal void SpawnSweat(PlmSlot slot, EyeDoorOrientation facing) =>
+        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Sweat, facing);
 
     /// <summary><c>$84:D79F</c>: two randomly placed smoke puffs.</summary>
-    internal void SpawnTwoSmoke(PlmSlot slot)
+    internal void SpawnTwoSmoke(PlmSlot slot, EyeDoorOrientation facing)
     {
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Smoke, EyeDoorPlmRomData.RandomizedSmokeParameter);
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Smoke, EyeDoorPlmRomData.RandomizedSmokeParameter);
+        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
+        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
     }
 
     /// <summary><c>$84:D7B6</c>: one centred smoke puff.</summary>
-    internal void SpawnSmoke(PlmSlot slot) =>
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Smoke, EyeDoorPlmRomData.CenteredSmokeParameter);
+    internal void SpawnSmoke(PlmSlot slot, EyeDoorOrientation facing) =>
+        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.CenteredSmoke, facing);
 
     /// <summary><c>$84:8A91</c>: counts a hit on the eye; true when it opens the door.</summary>
     internal static bool CountEyeHit(PlmSlot slot, DoorPlms doors)
@@ -479,27 +478,36 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
             slot.BlockIndex,
             RoomCollisionType.ShootableBlock,
             facing.Value);
-        for (int row = 1; row <= EyeDoorPlmRomData.BlueDoorExtensionCount; row++)
+        WriteExtensionRows(level, slot.BlockIndex, EyeDoorDefinitions.BlueDoorExtensionCount);
+    }
+
+    /// <summary>
+    /// Writes <paramref name="rows"/> vertical extension blocks below <paramref name="originIndex"/>, each pointing back
+    /// up to the origin block.
+    /// </summary>
+    private static void WriteExtensionRows(RoomLevelData level, int originIndex, int rows)
+    {
+        for (int row = 1; row <= rows; row++)
         {
             PlmLevelWrites.WritePlmCollisionTypeAndBts(
                 level,
-                checked(slot.BlockIndex + row * level.Size.X),
+                checked(originIndex + row * level.Size.X),
                 RoomCollisionType.VerticalExtension,
                 unchecked((byte)-row));
         }
     }
 
-    /// <summary>Sends an eye-door projectile request with the source block and room argument to enemy services.</summary>
+    /// <summary>Sends an eye-door projectile request with the eye's facing, source block and room argument to enemy services.</summary>
     private void SpawnEyeDoorProjectile(
         PlmSlot slot,
         EyeDoorProjectileDefinition definition,
-        ushort parameter)
+        EyeDoorOrientation facing)
     {
         IEyeDoorProjectileSpawner enemies = _enemies ??
             throw new InvalidOperationException("Eye-door bytecode has no bank-$86 spawn owner.");
         enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definition,
-            parameter,
+            facing,
             slot.BlockIndex,
             slot.RoomArgument));
     }

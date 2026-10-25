@@ -23,10 +23,6 @@ internal static class EyeDoorPlmProgramDefinitions
     private const int LeftPulseDuration = 8;
     /// <summary>How long a right-facing component shows each pulse pose.</summary>
     private const int RightPulseDuration = 6;
-    /// <summary>The projectile operand a right-facing eye's shots and sweat add.</summary>
-    private const ushort RightShotParameter = 20;
-    /// <summary>The sweat operand of a right-facing eye.</summary>
-    private const ushort RightSweatParameter = 4;
     /// <summary>The blocks across that wake the eye or keep it watching.</summary>
     private const byte EyeWakeColumns = 6;
     /// <summary>The blocks up or down that wake the eye, keep it watching, or close it.</summary>
@@ -46,22 +42,6 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>The programs of the door facing <paramref name="orientation"/>.</summary>
     internal static AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue> ProgramsFor(EyeDoorOrientation orientation) =>
         Sets[orientation];
-
-    /// <summary>The projectile operand the eye's shots carry.</summary>
-    internal static ushort ShotParameterOf(EyeDoorOrientation orientation) => orientation switch
-    {
-        EyeDoorOrientation.Left => 0,
-        EyeDoorOrientation.Right => RightShotParameter,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-    };
-
-    /// <summary>The projectile operand the eye's sweat carries.</summary>
-    internal static ushort SweatParameterOf(EyeDoorOrientation orientation) => orientation switch
-    {
-        EyeDoorOrientation.Left => 0,
-        EyeDoorOrientation.Right => RightSweatParameter,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-    };
 
     /// <summary>The operands of a proximity cue.</summary>
     internal static EyeDoorProximity ProximityOf(EyeDoorPlmCue cue) => cue switch

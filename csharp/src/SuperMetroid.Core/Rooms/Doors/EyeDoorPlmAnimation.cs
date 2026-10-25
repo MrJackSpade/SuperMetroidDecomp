@@ -52,25 +52,25 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
                 slot.PreInstruction = EyeDoorPreInstructions.WakeWhenDoorBitSet;
                 return null;
             case EyeDoorPlmCue.Shoot:
-                eyes.Shoot(slot, EyeDoorPlmProgramDefinitions.ShotParameterOf(Orientation));
+                eyes.Shoot(slot, Orientation);
                 return null;
             case EyeDoorPlmCue.QueueHitSound:
                 context.QueueSound(EyeDoorPlmProgramDefinitions.HitSound,
                     EyeDoorPlmProgramDefinitions.HitSoundMaximumQueued);
                 return null;
             case EyeDoorPlmCue.SpawnTwoSmoke:
-                eyes.SpawnTwoSmoke(slot);
+                eyes.SpawnTwoSmoke(slot, Orientation);
                 return null;
             case EyeDoorPlmCue.CountHit:
                 return EyeDoorPlms.CountEyeHit(slot, doors) ? EyeDoorPlmProgram.EyeDestroyed : null;
             case EyeDoorPlmCue.SpawnSweat:
-                eyes.SpawnSweat(slot, EyeDoorPlmProgramDefinitions.SweatParameterOf(Orientation));
+                eyes.SpawnSweat(slot, Orientation);
                 return null;
             case EyeDoorPlmCue.ClearPreInstruction:
                 slot.PreInstruction = PlmPreInstructions.Inert;
                 return null;
             case EyeDoorPlmCue.SpawnSmoke:
-                eyes.SpawnSmoke(slot);
+                eyes.SpawnSmoke(slot, Orientation);
                 return null;
             case EyeDoorPlmCue.MakeBlue:
                 EyeDoorPlms.ConvertEyeToBlueDoor(context.Level, slot, Orientation);

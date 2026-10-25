@@ -829,6 +829,11 @@ internal static class RoomPlmProgramsVerification
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         EyeDoorPlmProgram ProgramAt(ushort entry) => entries.Single(e => e.Entry == entry).Program;
         string at = $"{orientation} eye door at $84:{cursor:X4}";
+        // Since #1414 the shot and sweat carry the eye's facing; the cartridge's operands are the byte offsets of the
+        // facing's origin pair ($86:B65B) and launch pair ($86:B6B1), which LookupStream4 ties to the typed values.
+        const ushort LeftOperand = 0;
+        const ushort RightShotOperand = 20;
+        const ushort RightSweatOperand = 4;
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.GotoIfDoorBitSet:
@@ -890,12 +895,12 @@ internal static class RoomPlmProgramsVerification
                 length = 4;
                 return true;
             case RoomPlmInstruction.ShootEyeDoorProjectile:
-                AssertEqual(EyeDoorPlmProgramDefinitions.ShotParameterOf(orientation), Word(2), $"{at}: shot operand");
+                AssertEqual(orientation == EyeDoorOrientation.Right ? RightShotOperand : LeftOperand, Word(2), $"{at}: shot operand selects the facing's origin");
                 cue = EyeDoorPlmCue.Shoot;
                 length = 4;
                 return true;
             case RoomPlmInstruction.SpawnEyeDoorSweat:
-                AssertEqual(EyeDoorPlmProgramDefinitions.SweatParameterOf(orientation), Word(2), $"{at}: sweat operand");
+                AssertEqual(orientation == EyeDoorOrientation.Right ? RightSweatOperand : LeftOperand, Word(2), $"{at}: sweat operand selects the facing's launch");
                 cue = EyeDoorPlmCue.SpawnSweat;
                 length = 4;
                 return true;

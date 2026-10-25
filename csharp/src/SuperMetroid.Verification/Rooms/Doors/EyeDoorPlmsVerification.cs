@@ -55,7 +55,7 @@ internal static class EyeDoorPlmsVerification
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Projectile,
-                Parameter: 0,
+                Facing: EyeDoorOrientation.Left,
                 PlmBlockIndex: plmBlock,
                 DoorBit: 5),
             roomWidthInBlocks: 16,
@@ -83,7 +83,7 @@ internal static class EyeDoorPlmsVerification
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Sweat,
-                Parameter: 4,
+                Facing: EyeDoorOrientation.Right,
                 PlmBlockIndex: plmBlock,
                 DoorBit: 5),
             roomWidthInBlocks: 16,
@@ -91,14 +91,14 @@ internal static class EyeDoorPlmsVerification
         RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
         AssertEqual((ushort)64, sweat.Velocity.X.RawValue,
-            "mirrored sweat parameter selects positive cartridge X velocity");
+            "a right-facing eye launches its sweat with positive cartridge X velocity");
         AssertEqual((ushort)512, sweat.Velocity.Y.RawValue,
-            "sweat parameter retains cartridge falling velocity");
+            "the sweat keeps the cartridge falling velocity");
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
-                EyeDoorProjectileDefinition.Smoke,
-                Parameter: 0x030a,
+                EyeDoorProjectileDefinition.ScatteredSmoke,
+                Facing: EyeDoorOrientation.Left,
                 PlmBlockIndex: plmBlock,
                 DoorBit: 5),
             roomWidthInBlocks: 16,
@@ -106,8 +106,8 @@ internal static class EyeDoorPlmsVerification
         RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         AssertTrue(smoke.Animation is MiscDustProjectileAnimation { Cursor.Program: var smokeProgram } &&
-                smokeProgram == MiscDustProjectileDefinitions.Program((MiscDustAnimation)0x0a),
-            "smoke low parameter byte selects the misc-dust program");
+                smokeProgram == MiscDustProjectileDefinitions.Program(MiscDustAnimation.CorpseDustCloud),
+            "scattered smoke shows the corpse dust cloud, the cartridge's misc-dust selector ten");
         AssertEqual((ushort)114, smoke.Position.X.Whole,
             "smoke X uses low random byte and selected mask/base tuple");
         AssertEqual((ushort)76, smoke.Position.Y.Whole,
@@ -166,7 +166,7 @@ internal static class EyeDoorPlmsVerification
         for (int frame = 0; frame < 256 && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile); frame++)
             StepEyeDoorPlms(plms, level);
         EyeDoorProjectileRequest shot = effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile);
-        AssertEqual(EyeDoorPlmProgramDefinitions.ShotParameterOf(orientation), shot.Parameter, $"{orientation} attack operand");
+        AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
         AssertEqual(eyeBlock, shot.PlmBlockIndex, $"{orientation} attack leaves the eye's block");
         AssertEqual(doorBit, shot.DoorBit, $"{orientation} attack carries the door bit");
         AssertEqual((ushort)EyeDoorPreInstruction.MissileHit,
@@ -179,7 +179,7 @@ internal static class EyeDoorPlmsVerification
             $"{orientation} beam collision reaches resident eye");
         StepEyeDoorPlms(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Any(request =>
-                request.SoundEffect == EyeDoorPlmRomData.RejectedShotSound),
+                request.SoundEffect == EyeDoorDefinitions.RejectedShotSound),
             $"{orientation} rejected beam queues cartridge dud sound");
         AssertTrue(!system.HasOpenedDoorBit(doorBit),
             $"{orientation} beam cannot open eye door");
@@ -198,9 +198,9 @@ internal static class EyeDoorPlmsVerification
                 // A hit that leaves the door shut ends its flinch with the eye's sweat.
                 for (int frame = 0; frame < 128 && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat); frame++)
                     StepEyeDoorPlms(plms, level);
-                AssertEqual(EyeDoorPlmProgramDefinitions.SweatParameterOf(orientation),
-                    effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat).Parameter,
-                    $"{orientation} sweat operand");
+                AssertEqual(orientation,
+                    effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat).Facing,
+                    $"{orientation} sweat carries the eye's facing");
             }
         }
 
@@ -210,8 +210,7 @@ internal static class EyeDoorPlmsVerification
             StepEyeDoorPlms(plms, level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             $"{orientation} eye and both passive components complete together");
-        AssertEqual(2, effects.Count(effect => effect.Definition == EyeDoorProjectileDefinition.Smoke &&
-                effect.Parameter == EyeDoorPlmRomData.CenteredSmokeParameter),
+        AssertEqual(2, effects.Count(effect => effect.Definition == EyeDoorProjectileDefinition.CenteredSmoke),
             $"{orientation} the destroyed eye puffs two centred smoke clouds");
 
         int capBlock = eyeBlock - roomWidth;
@@ -224,7 +223,7 @@ internal static class EyeDoorPlmsVerification
                 : RoomBlockBehaviorValues.BlueDoorFacingLeft.Value,
             cap.Bts.Value,
             $"{orientation} opening produces correct blue-door BTS");
-        for (int row = 1; row <= EyeDoorPlmRomData.BlueDoorExtensionCount; row++)
+        for (int row = 1; row <= EyeDoorDefinitions.BlueDoorExtensionCount; row++)
         {
             RoomCollisionBlock extension = level.GetCollisionBlockByIndex(
                 capBlock + row * roomWidth);

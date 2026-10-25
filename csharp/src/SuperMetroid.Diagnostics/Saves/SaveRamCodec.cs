@@ -26,7 +26,7 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// including the legacy JSON upgrade, goes through it.
 /// </para>
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("legacy 8-KiB save RAM image")]
 public static class SaveRamCodec
 {
     /// <summary>Decodes every slot, the selected slot, completion and the boot carry from a whole SRAM image.</summary>

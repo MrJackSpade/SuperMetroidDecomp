@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the pre-decrement value, matching the processor's DEC/BEQ/BMI/BPL branch sequence.
 /// </summary>
 [CompatibilityService("the outcome of one countdown step, tested the way each timer's expiry was originally tested (reached zero, went negative, or either)")]
-[SnesEncodingOwner]
+[EncodingOwner("wrapping countdown decrement result")]
 public readonly record struct CountdownStep(ushort Value)
 {
     /// <summary>

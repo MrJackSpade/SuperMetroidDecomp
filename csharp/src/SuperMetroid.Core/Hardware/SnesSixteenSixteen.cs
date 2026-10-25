@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// the lower sixteen, for routines that combine or split velocities, speeds and positions in registers. The
 /// <c>int</c> overloads keep two's-complement sign (arithmetic shifts); the <c>uint</c> overloads are unsigned.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("16.16 fixed-point number")]
 public static class SnesSixteenSixteen
 {
     /// <summary>Sixteen low bits represent one pixel's fractional portion in a native 16.16 word.</summary>

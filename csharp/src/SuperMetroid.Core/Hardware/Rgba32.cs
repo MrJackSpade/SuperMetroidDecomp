@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Hardware;
 /// The single owner of the host RGBA8888 pixel encoding: pixel buffers are reinterpreted as, and read back from, GPU
 /// textures in this four-byte layout, so each channel is stored at one byte.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("RGBA8888 texture pixel")]
 public readonly record struct Rgba32(byte R, byte G, byte B, byte A = 255); // cartridge-encoding: allow(HostPixelFormat) - host RGBA8888 pixel: four one-byte channels whose 4-byte layout pixel buffers are reinterpreted as and read back from GPU textures

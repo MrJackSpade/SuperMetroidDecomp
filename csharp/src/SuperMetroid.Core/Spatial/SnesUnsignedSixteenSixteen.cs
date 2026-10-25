@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 /// An unsigned native 16.16 speed kept as the cartridge's two words: a whole word and a fraction word, each 0 through
 /// 65535. Samus's speeds are magnitudes in this form; their direction is held separately.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("unsigned 16.16 fixed-point number")]
 public readonly record struct SnesUnsignedSixteenSixteen
 {
     /// <summary>Holds the two words, each checked to lie within a native word.</summary>

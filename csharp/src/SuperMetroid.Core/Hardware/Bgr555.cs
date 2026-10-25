@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Hardware;
 /// This type is the single owner of the BGR555 colour encoding: channel packing, the bit-15
 /// rule and the CGRAM data port's masking all live here, so its stored word is that encoding.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("RGB5 colour word of the installed palette documents")]
 public readonly record struct Bgr555
 {
     /// <summary>Bytes in one encoded color word, as stored in ROM, WRAM and CGRAM.</summary>

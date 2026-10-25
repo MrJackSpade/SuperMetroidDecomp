@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// one place either flag set becomes or leaves a word; the destination is population and slot state holding the typed
 /// values directly, which leaves this conversion in the import pipeline only.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("enemy property and extra-property words")]
 internal static class EnemyPropertyWordCodec
 {
     /// <summary>The property flags as the word bits the cartridge stores them in.</summary>

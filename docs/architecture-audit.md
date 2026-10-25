@@ -353,7 +353,7 @@ commands species only through `RoomEnemySystem`'s capability interfaces (`Elevat
 `*Behavior` or `*Encounter` property.
 
 **SME6351**, **SME6352** and **SME6353** keep Core's numeric vocabulary in its named types (#1326). Outside
-`Hardware/` and `[SnesEncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
+`Hardware/` and `[EncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
 or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SnesSignedSixteenSixteen`,
 `SnesUnsignedSixteenSixteen` or `SnesFixedPosition` (SME6351). An angle, heading or bearing is never a raw byte or
 word: it is a `SnesAngle` (8.8 turn), `SnesByteAngle` (trigonometry-table index) or `SnesBearing` (the

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// Converts between a save's loading-game-state word (<c>SRAMMirror_LoadingGameState</c>, $7E:D914) and the startup route
 /// $82:EEB4 selects from it after file selection.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("save slot loading-state word")]
 public static class SaveLoadingGameStateCodec
 {
     /// <summary>The saved dispatcher word that selects <paramref name="route"/>.</summary>

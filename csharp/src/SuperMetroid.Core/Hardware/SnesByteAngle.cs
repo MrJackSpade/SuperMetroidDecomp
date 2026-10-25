@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// (negative Y). This is the angle the cartridge's eight-bit trigonometry routines read; <see cref="SnesAngle"/> is the
 /// 8.8 form whose high byte is this value.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("sine-table byte angle")]
 public readonly record struct SnesByteAngle(byte RawValue)
 {
     /// <summary>One quarter turn: up.</summary>

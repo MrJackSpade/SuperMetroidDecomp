@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 /// encoding, and callers use <see cref="FromDecimal"/>, <see cref="Value"/> and <see cref="Subtract"/>.
 /// </remarks>
 /// <param name="Raw">The packed byte.</param>
-[SnesEncodingOwner]
+[EncodingOwner("packed decimal timer digits")]
 public readonly record struct PackedBcd(byte Raw)
 {
     /// <summary>The number of values one nibble holds: a digit's place value in the packed byte.</summary>

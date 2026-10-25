@@ -36,7 +36,7 @@ internal static class FixedPointVocabularyAnalyzerTests
         Expect("class C { void M(bool carry) { } }");
 
         // Codec boundaries and Hardware are exempt; other assemblies are not Core.
-        Expect("[SnesEncodingOwner] class C { void M(ushort angle) { } }");
+        Expect("[EncodingOwner(\"fixture format\")] class C { void M(ushort angle) { } }");
         Expect("class C { void M(ushort angle) { } }", path: "Hardware/C.cs");
         Expect("class C { void M(ushort angle) { } }", assembly: "SuperMetroid.Verification");
     }
@@ -45,7 +45,7 @@ internal static class FixedPointVocabularyAnalyzerTests
     private static void Expect(string source, string? id = null, string? message = null, string path = "Enemies/C.cs",
         string assembly = CoreLayerAnalyzer.CoreAssembly)
     {
-        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } ";
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } ";
         SyntaxTree[] trees =
         [
             CSharpSyntaxTree.ParseText(attribute + "namespace System.Runtime.CompilerServices { static class IsExternalInit { } }", path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Hardware/Attribute.cs"),

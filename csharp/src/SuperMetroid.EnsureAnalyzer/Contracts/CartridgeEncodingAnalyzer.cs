@@ -9,7 +9,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// Reports cartridge encoding in repository code (#641, #223, #1323, #1324) at every site: raw hexadecimal literals,
 /// address-valued pointer dispatch, opaque word arrays, raw storage-width operations, hand-written countdowns,
 /// [Flags] primitive casts and narrow storage members. There is no baseline; an intrinsic encoded value carries a
-/// same-line '// cartridge-encoding: allow(Class) - reason' review and an encoding owner carries [SnesEncodingOwner].
+/// same-line '// cartridge-encoding: allow(Class) - reason' review and an encoding owner carries [EncodingOwner].
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
@@ -86,7 +86,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "A shift by 8, 16 or 24 or a byte/word/bank mask does not say why the width exists. Call a named " +
-            "operation on the type that owns the encoding ([SnesEncodingOwner]) instead; an intrinsic exception carries a " +
+            "operation on the type that owns the encoding ([EncodingOwner]) instead; an intrinsic exception carries a " +
             "same-line '// cartridge-encoding: allow(Class) - reason' review.");
 
     private static readonly DiagnosticDescriptor CountdownSignTestRule = new(
@@ -119,7 +119,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "Gameplay state holds [Flags] enums as their type. Casting one to ushort or byte moves the bits back " +
-            "into an untyped word; only codecs and [SnesEncodingOwner] types convert to the native word.");
+            "into an untyped word; only codecs and [EncodingOwner] types convert to the native word.");
 
     private static readonly DiagnosticDescriptor NarrowStorageMemberRule = new(
         NarrowStorageMemberId,
@@ -131,7 +131,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "A byte, sbyte, short or ushort field, property, parameter or local holds gameplay state at a cartridge " +
             "register width. Widen quantities whose wrap does not matter; a wrap the game observes lives in a named " +
-            "wrapping stub of the Compatibility module, and a width an encoding needs in its [SnesEncodingOwner] codec " +
+            "wrapping stub of the Compatibility module, and a width an encoding needs in its [EncodingOwner] codec " +
             "(#1323, #1419, docs/cartridge-encoding.md).");
 
     /// <inheritdoc />

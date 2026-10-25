@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="Red">The red 8.8 component.</param>
 /// <param name="Green">The green 8.8 component.</param>
 /// <param name="Blue">The blue 8.8 component.</param>
-[SnesEncodingOwner]
+[EncodingOwner("cinematic cross-fade 8.8 colour components")]
 internal readonly record struct CinematicFadeColor(ushort Red, ushort Green, ushort Blue)
 {
     /// <summary>The live 8.8 value of a target colour: each five-bit component as the whole part.</summary>

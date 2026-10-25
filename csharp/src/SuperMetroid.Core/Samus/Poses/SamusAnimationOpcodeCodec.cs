@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// reads them by offset, including the over-reads past a pose's own program; this is the one place a command becomes
 /// its opcode.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("Samus animation delay stream opcodes")]
 internal static class SamusAnimationOpcodeCodec
 {
     /// <summary>The opcode byte that encodes a control command.</summary>

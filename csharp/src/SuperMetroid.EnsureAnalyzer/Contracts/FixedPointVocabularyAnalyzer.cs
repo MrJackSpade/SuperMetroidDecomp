@@ -7,7 +7,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// Keeps fixed-point values, angles and carry flags in their named types (#1326). Outside <c>Hardware/</c> and
-/// <c>[SnesEncodingOwner]</c> codec types, Core carries no whole/fraction pair as primitives (SME6351), no angle as a raw
+/// <c>[EncodingOwner]</c> codec types, Core carries no whole/fraction pair as primitives (SME6351), no angle as a raw
 /// byte or word (SME6352), and no processor-carry protocol (SME6353).
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -23,7 +23,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     public const string CarryProtocolId = "SME6353";
 
     /// <summary>The attribute that marks a type as a codec boundary allowed to hold raw forms.</summary>
-    private const string EncodingOwnerAttribute = "SnesEncodingOwnerAttribute";
+    private const string EncodingOwnerAttribute = "EncodingOwnerAttribute";
 
     /// <summary>Name endings that mark a difference or bit pattern of angles rather than an angle.</summary>
     private static readonly string[] NonAngleSuffixes = ["Step", "Delta", "Mask", "Offset"];

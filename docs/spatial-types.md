@@ -17,7 +17,7 @@ wrapping coordinate family and its fixed-point axes:
 - `SnesFixedPosition`, `SnesSignedSixteenSixteen`, `SnesSignedEightEight`: the per-axis fixed-point words, whose
   carries and 32-bit wraps the movement routines reproduce.
 
-These types are each the single owner of their representation (`[SnesEncodingOwner]`), and SME6347 allows a narrow
+These types are each the single owner of their representation (`[EncodingOwner]`), and SME6347 allows a narrow
 width nowhere else in gameplay (`docs/cartridge-encoding.md`). A value that only passes through a coordinate (a
 local holding one axis, a parameter carrying a whole word, a Mode 7 matrix coefficient) is an `int`: the owner's
 operations take `int` and check that the value is already a word (`Position16.WithX`, `SnesFixedPosition.WithWhole`,

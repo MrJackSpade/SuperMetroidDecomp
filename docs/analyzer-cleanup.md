@@ -27,7 +27,7 @@ ticket that is driving them down, not here.
 
 - Fix the code to the destination shape (`manifesto.md`, section 7: "Fix versus satisfy").
 - Otherwise justify that one site: a same-line `// cartridge-encoding: allow(Class) - reason`, the rule's boundary
-  attribute with its reason (`[ControllerWordBoundary("...")]`, `[CpuBusBoundary("...")]`), `[SnesEncodingOwner]`
+  attribute with its reason (`[ControllerWordBoundary("...")]`, `[CpuBusBoundary("...")]`), `[EncodingOwner("format")]`
   on a type that is by construction the single owner of an encoding, or `[ArchitectureReview(finding, reason)]` on
   a type the architecture audit flags. The reason names the thing, not the rule, and would not be equally true of a
   thousand other sites.

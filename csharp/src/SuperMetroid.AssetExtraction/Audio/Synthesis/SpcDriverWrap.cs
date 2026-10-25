@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// in an 8-bit byte or a 16-bit word, and their arithmetic relies on those values wrapping; the managed player and DSP
 /// store them as ints and pass each arithmetic result through these operations, so the wrap is explicit at each write.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("sound driver byte and word widths")]
 internal static class SpcDriverWrap
 {
     /// <summary>Values one driver byte holds.</summary>

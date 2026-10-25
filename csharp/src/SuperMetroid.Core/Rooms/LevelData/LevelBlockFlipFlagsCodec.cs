@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// is the one place the flags become those bits; the flags' values are the bits themselves, so the conversion is
 /// lossless.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("level data block flip bits")]
 internal static class LevelBlockFlipFlagsCodec
 {
     /// <summary>The level-word bits that store <paramref name="flags"/>.</summary>

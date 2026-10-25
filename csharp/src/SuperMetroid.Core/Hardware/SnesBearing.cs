@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// zero points up and the bearing advances clockwise, so <c>$40</c> is right and <c>$80</c> down. The trigonometry routines
 /// read the other convention, <see cref="SnesByteAngle"/>; <see cref="ToTableAngle"/> converts between them.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("clockwise byte bearing")]
 public readonly record struct SnesBearing(byte RawValue)
 {
     /// <summary>The same direction in the sine-table convention: a quarter turn minus the bearing.</summary>

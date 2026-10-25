@@ -52,7 +52,7 @@ internal static class CartridgeEncodingScanner
     /// The attribute (#223) marking a type that owns and documents an encoding: its literals and width
     /// operations are definitions, not functional code.
     /// </summary>
-    internal const string EncodingOwnerAttribute = "SnesEncodingOwnerAttribute";
+    internal const string EncodingOwnerAttribute = "EncodingOwnerAttribute";
 
     /// <summary>Shift counts that move a value by a byte, a word or a bank.</summary>
     private static readonly long[] StorageWidthShifts = [8, 16, 24];
@@ -275,7 +275,7 @@ internal static class CartridgeEncodingScanner
 
     /// <summary>
     /// The occurrence for one narrow declaration (#1419). Only the wrapping stubs of the Compatibility module and a type
-    /// that owns an encoding (<c>[SnesEncodingOwner]</c>) may hold gameplay state at a narrow width; a catalog file or a
+    /// that owns an encoding (<c>[EncodingOwner]</c>) may hold gameplay state at a narrow width; a catalog file or a
     /// same-line comment does not excuse it.
     /// </summary>
     private static CartridgeEncodingOccurrence NarrowMember(SyntaxToken identifier, string type, string role, SyntaxNode declaration,

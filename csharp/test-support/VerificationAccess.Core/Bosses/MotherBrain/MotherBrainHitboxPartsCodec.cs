@@ -6,7 +6,7 @@
 /// <see cref="FromNativeWord"/>, rejecting a word with any other bit set, and word-level checks encode through
 /// <see cref="ToNativeWord"/>; nothing else turns the parts into a word.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("snapshot hitbox-enable word")]
 public static class MotherBrainHitboxPartsCodec
 {
     /// <summary>Every part the word can enable.</summary>

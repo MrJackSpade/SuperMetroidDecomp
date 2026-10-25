@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// first, as audio RAM holds them. Loop detection compares these snapshots, so a value outside its driver width is a
 /// defect in the managed player and fails here rather than producing a different snapshot.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("sound driver state snapshot bytes")]
 internal static class SpcDriverSnapshot
 {
     /// <summary>Appends each driver byte in <paramref name="values"/>, in order.</summary>

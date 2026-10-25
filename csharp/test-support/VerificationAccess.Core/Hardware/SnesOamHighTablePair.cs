@@ -4,7 +4,7 @@
 /// The two-bit high-OAM pair belonging to one sprite: X coordinate bit eight followed by
 /// the size-select bit. Four independently encoded pairs share each physical table byte.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("sprite high-table pair")]
 public readonly record struct SnesOamHighTablePair
 {
     /// <summary>Each sprite occupies two bits of a shared high-OAM byte.</summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Input;
 /// The codec between <see cref="ControllerButton"/> and the sixteen-bit joypad word that recordings and replays supply:
 /// the one place in Core an inbound controller word becomes a set of buttons.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("recorded controller word")]
 public static class ControllerWordCodec
 {
     /// <summary>

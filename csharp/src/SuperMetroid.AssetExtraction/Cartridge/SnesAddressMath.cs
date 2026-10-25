@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// host integer arithmetic. Callers choose this helper only for native 16-bit pointer walks;
 /// ordinary linear bus transfers must continue to cross banks normally.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("cartridge bank-relative pointer arithmetic")]
 public static class SnesAddressMath
 {
 

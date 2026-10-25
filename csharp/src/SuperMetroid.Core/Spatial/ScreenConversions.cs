@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Conversions from room pixels to the viewport the camera selects, and from the viewport to OAM.</summary>
-[SnesEncodingOwner]
+[EncodingOwner("screen and sprite coordinates")]
 public static class ScreenConversions
 {
     /// <summary>

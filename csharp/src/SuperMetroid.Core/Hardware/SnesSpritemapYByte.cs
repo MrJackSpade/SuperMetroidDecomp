@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// packer adds to the origin's low byte, testing the unsigned carry to hide pieces that wrap across the screen edge.
 /// </summary>
 /// <param name="Raw">The encoded Y byte, the displacement modulo 256.</param>
-[SnesEncodingOwner]
+[EncodingOwner("spritemap part Y byte")]
 public readonly record struct SnesSpritemapYByte(byte Raw)
 {
     /// <summary>The smallest displacement the byte encodes.</summary>

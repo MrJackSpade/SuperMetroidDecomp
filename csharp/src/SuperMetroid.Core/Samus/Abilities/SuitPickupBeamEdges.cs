@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <param name="Left">The inclusive left column, 0 through 255.</param>
 /// <param name="Right">The inclusive right column, 0 through 255.</param>
-[SnesEncodingOwner]
+[EncodingOwner("suit pickup beam scanline edges")]
 public readonly record struct SuitPickupBeamEdges(byte Left, byte Right)
 {
     /// <summary>The HDMA table word for these edges: the left column in the low byte, the right column in the high byte.</summary>

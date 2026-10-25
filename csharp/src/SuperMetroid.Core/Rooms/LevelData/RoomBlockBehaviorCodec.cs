@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// place a typed behavior becomes that byte, and the one place a BTS byte becomes a blue-door orientation, a station
 /// access or a downward-gate trigger; the behavior holds 0 through 255, so the conversion is lossless.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("room block behaviour byte")]
 internal static class RoomBlockBehaviorCodec
 {
     /// <summary>The four blue-door cap behaviors in BTS order, starting at the left-facing cap.</summary>

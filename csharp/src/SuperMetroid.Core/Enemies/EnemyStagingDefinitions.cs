@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// heap Mother Brain's rot table and Dead Torizo's sand strips sit. Where the cartridge keeps the surfaces in work memory
 /// is the import's knowledge (#1412).
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("enemy staging surface and corpse heap sizes")]
 internal static class EnemyStagingDefinitions
 {
     /// <summary>The bytes of the BG2 staging image.</summary>

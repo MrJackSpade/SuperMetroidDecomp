@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// lossless in both directions: bits whose meaning is not yet proven travel through untouched, so a save written by the
 /// cartridge round-trips exactly. Nothing else turns boss state into a byte.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("save slot boss byte")]
 public static class BossBitsCodec
 {
     /// <summary>The saved boss byte holding exactly <paramref name="bits"/>.</summary>

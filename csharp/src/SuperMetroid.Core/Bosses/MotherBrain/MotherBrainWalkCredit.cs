@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// non-negative as a signed word, otherwise the credit is emptied. Every operation on the credit lives here, so the
 /// word's width and both readings are stated once.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("Mother Brain walk credit word")]
 public readonly record struct MotherBrainWalkCredit
 {
     /// <summary>Credit for one walking step: earning reaches it to step forward, and an ordinary hit costs it.</summary>

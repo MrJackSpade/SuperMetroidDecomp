@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// place the flags become that word; the destination is owned state that no longer reads the flags as a word, which
 /// removes this codec.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("enemy AI-state word")]
 public static class EnemyAiStatesWord
 {
     /// <summary>The native AI-handler word for a set of states.</summary>

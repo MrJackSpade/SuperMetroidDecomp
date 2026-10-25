@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <summary>The two WRAM words produced after applying a fixed-point displacement.</summary>
 /// <param name="Whole">The unsigned whole-position word, wrapping at the native sixteen-bit boundary.</param>
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
-[SnesEncodingOwner]
+[EncodingOwner("16.16 fixed-point coordinate")]
 public readonly record struct SnesFixedPosition([property: IntegerQuantity("whole-pixel coordinate")] ushort Whole, ushort Fraction)
 {
     /// <summary>The position with a whole word and a fraction word that must each be 0 through 65535.</summary>

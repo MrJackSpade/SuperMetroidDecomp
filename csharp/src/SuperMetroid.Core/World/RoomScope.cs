@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.World;
 internal sealed record RoomScope
 {
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
-    public required CartridgeDoorHeader Door { get; init; }
+    public required DoorDefinition Door { get; init; }
 
     /// <summary>The selected room and state header.</summary>
     public required CartridgeRoomHeader Room { get; init; }

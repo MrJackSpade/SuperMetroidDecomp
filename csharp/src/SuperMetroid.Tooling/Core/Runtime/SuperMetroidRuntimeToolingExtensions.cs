@@ -57,13 +57,13 @@ internal static class SuperMetroidRuntimeToolingExtensions
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
-            var door = new CartridgeDoorHeader(
+            var door = new DoorDefinition(
                 Name: "debug room entry",
                 DestinationRoom: definition,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
-                SamusDistance: 0,
+                SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
 
             // A door arrives with the HUD's characters at their ordinary base, which a direct load from mid-fight in Kraid's
@@ -86,7 +86,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// verification. Production reaches the same private loader through door collision.
         /// </summary>
         internal InitialViewportResult LoadCartridgeRoomThroughDoorForVerification(
-            CartridgeDoorHeader door,
+            DoorDefinition door,
             Position16<RoomPixels> camera = default)
         {
             Ensure.NotNull(door);

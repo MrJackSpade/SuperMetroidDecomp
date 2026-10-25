@@ -57,17 +57,31 @@ internal static class MiscDustProjectileBehaviorVerification
             AssertTrue(!dust.IsActive, $"room-system finite misc-dust animation {animation} reaches delete");
         }
 
-        RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
-        smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
-            new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Smoke, Parameter: 3, PlmBlockIndex: 4 * 16 + 7, DoorBit: 0),
-            roomWidthInBlocks: 16,
-            new Bank80SystemState());
-        RoomEnemyProjectileSlot smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
-            projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
-        AssertTrue(smoke.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.SmallExplosion },
-            "Eye Door smoke parameter three selects the shared small explosion");
-        RunForcedTicks(rom, smokeEnemies, smoke, samus, 7);
-        AssertTrue(!smoke.IsActive, "Eye Door smoke reaches delete through the shared small explosion");
+        // Since #1414 the eye door's two smoke puffs are typed definitions rather than packed operands: each starts its
+        // misc-dust program and plays to deletion with native frame durations.
+        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.ScatteredSmoke, MiscDustAnimation.CorpseDustCloud);
+        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, MiscDustAnimation.EyeDoorSweatDrop);
+
+        void VerifyEyeDoorSmoke(EyeDoorProjectileDefinition puff, MiscDustAnimation animation)
+        {
+            RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
+            smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
+                new EyeDoorProjectileRequest(puff, Facing: EyeDoorOrientation.Left, PlmBlockIndex: 4 * 16 + 7, DoorBit: 0),
+                roomWidthInBlocks: 16,
+                new Bank80SystemState());
+            RoomEnemyProjectileSlot smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
+            MiscDustProjectileProgram expected = MiscDustProjectileDefinitions.Program(animation);
+            AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == expected,
+                $"Eye Door {puff} starts {expected}");
+            int smokeCalls = 0;
+            while (smoke.IsActive && smokeCalls < 40)
+            {
+                RunForcedTicks(rom, smokeEnemies, smoke, samus, 1);
+                smokeCalls++;
+            }
+            AssertTrue(!smoke.IsActive, $"Eye Door {puff} reaches delete through {expected}");
+        }
 
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the shared misc-dust or Mother Brain list bytes");
         Console.WriteLine("  Misc-dust behavior: all thirty selectors and the eye door's smoke run their typed programs to their native ends.");

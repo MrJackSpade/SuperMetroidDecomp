@@ -68,7 +68,7 @@ internal sealed class DoorTransitionRunner
     /// address receives the same writes. Unknown nonzero pointers throw so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
-    internal void RunDoorSetupCode(CartridgeDoorHeader door, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
+    internal void RunDoorSetupCode(DoorDefinition door, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -88,7 +88,7 @@ internal sealed class DoorTransitionRunner
                 // values must exist before room graphics/actors initialize, so the shared
                 // loader installs them at construction time and this native-order dispatch
                 // point merely verifies that the recognized routine was not discarded.
-                if (!door.UsesCeresElevatorMode7 || _display.ActiveSamusMode7Transform is null)
+                if (!door.EntersCeresElevatorShaft || _display.ActiveSamusMode7Transform is null)
                 {
                     throw new InvalidDataException(
                         "Ceres elevator door setup reached dispatch without its Mode-7 transform.");
@@ -208,7 +208,7 @@ internal sealed class DoorTransitionRunner
                 if (DoorScrollPrograms.Contains(door.SetupCode))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCode:X4} in door {door.Name}.");
+                    $"Undefined {nameof(DoorSetupCode)} {door.SetupCode} in door {door.Name}.");
         }
     }
 

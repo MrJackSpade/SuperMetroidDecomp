@@ -128,7 +128,7 @@ internal static class RoomDefinitionIntegrationVerification
             // The pseudo-door's remaining bytes overlap $88FE; it has no setup code of its own.
             if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                 continue;
-            CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
+            DoorDefinition door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCode != DoorSetupCode.None)
             {
                 forbidden.Add(RoomHeaderRomDataConstants.BankAddress |

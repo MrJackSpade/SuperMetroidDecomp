@@ -79,7 +79,7 @@ internal static class RoomBlockUploads
                 }
                 if (state.Background is { } program)
                 {
-                    foreach (CartridgeDoorHeader? door in DoorVariants(program))
+                    foreach (DoorDefinition? door in DoorVariants(program))
                         uploads.AddBackground(Replay(inputs, room, tileset, program, door));
                 }
                 // BG3 shows the HUD over what the room's load and its library background bind, from the copy of the HUD's
@@ -213,7 +213,7 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>The doors <paramref name="program"/> transfers for, each a variant of its background, and no door.</summary>
-    private static IEnumerable<CartridgeDoorHeader?> DoorVariants(LibraryBackgroundProgram program) =>
+    private static IEnumerable<DoorDefinition?> DoorVariants(LibraryBackgroundProgram program) =>
         [null, .. program.Instructions.Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
             .Select(instruction => instruction.Door).Distinct()];
 
@@ -223,13 +223,13 @@ internal static class RoomBlockUploads
     /// </summary>
     [PpuLayoutBoundary("codec: the BG2 tilemap pages a library background loads")]
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
-        LibraryBackgroundProgram program, CartridgeDoorHeader? door)
+        LibraryBackgroundProgram program, DoorDefinition? door)
     {
         BgArtworkBindings content = Loaded(inputs, tileset);
         var vram = new SnesVram();
         // A door no transfer names stands for every door the program does not tell apart.
-        CartridgeDoorHeader entry = door ?? new CartridgeDoorHeader("no library background door", room,
-            new CartridgeDoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, 0, DoorSetupCode.None);
+        DoorDefinition entry = door ?? new DoorDefinition("no library background door", room,
+            new DoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, DoorSamusSpeed.None, DoorSetupCode.None);
         LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program,
             entry, new LibraryBackgroundArtwork
             {

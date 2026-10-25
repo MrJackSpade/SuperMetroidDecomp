@@ -46,6 +46,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
@@ -2360,16 +2361,23 @@ internal static class LookupStream4Verification
         }
     }
 
-    /// <summary>Checks eye-door projectile geometry layout against native dimensions and offsets.</summary>
+    /// <summary>
+    /// Checks eye-door projectile geometry against the cartridge. Since #1414 the eye door's shot origins and sweat
+    /// launches are typed per facing: this asserts that the origin and velocity pairs the retail eye-door operands
+    /// select ($86:B65B shot origins at operands 0 and 20, $86:B6B1 sweat velocities at operands 0 and 4) equal them,
+    /// rather than comparing every word of the tables, whose other entries no retail eye door selects.
+    /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 eye-door projectile geometry layout")]
     private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
     {
-
-        for (int index = 0; index < 20; index++)
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86b65b + index * 2))), EyeDoorEnemyProjectileRomData.ProjectileOriginWord(index), "eye-door native origin words including overlapping-pair selectors");
+        short NativeWord(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+        // The attack initializer adds eight pixels to the table's X before placing the shot.
+        AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b))), NativeWord(0x86b65d)), EyeDoorEffectDefinitions.LeftShotOrigin, "left eye-door shot origin");
+        AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b + 20))), NativeWord(0x86b65b + 22)), EyeDoorEffectDefinitions.RightShotOrigin, "right eye-door shot origin");
+        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
+        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
         for (int index = 0; index < 4; index++)
         {
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86b6b1 + index * 2))), EyeDoorEnemyProjectileRomData.SweatVelocityWord(index), "eye-door native sweat velocity words");
             var target = DraygonCannonData.FiringTarget(
                 ClosedNativeWords.Decode<DraygonFiringCannon>((byte)index, "Draygon firing cannon"));
             AssertEqual(DraygonCannonControlWordAddresses.Decode((ushort)(0x8804 + 2 * index)), target.DisabledWord, "Draygon original control-word selection");
@@ -2380,12 +2388,6 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailInstructionDefinitions.Program(index)), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
-        foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.ProjectileOriginWord(invalid), "eye-door origin word domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.SweatVelocityWord(invalid), "eye-door sweat word domain");
-        }
         foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
             AssertThrows<InvalidOperationException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })

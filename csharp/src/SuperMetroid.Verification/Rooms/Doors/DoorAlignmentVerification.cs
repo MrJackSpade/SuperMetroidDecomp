@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 using System.Globalization;
 using SuperMetroid.Core.Input;
@@ -39,7 +40,7 @@ internal static class DoorAlignmentVerification
             ushort nextFunction = ParseHex(fields[8]);
 
             DoorCameraAlignmentState actual = DoorCameraAlignmentState.Step(
-                (DoorDirection)direction,
+                DoorRecordCodec.DecodeOrientation(checked((byte)direction)).Direction,
                 new Position16<RoomPixels>(beforeX, beforeY));
             string context =
                 $"door alignment direction {direction}, start ${startX:X4}/${startY:X4}, call {call}";
@@ -60,13 +61,13 @@ internal static class DoorAlignmentVerification
         var final = FixedPosition<RoomPixels>.FromWords(0x0318, 0xabcd, 0x0218, 0x2468);
         for (int direction = 0; direction < 4; direction++)
         {
-            var door = new CartridgeDoorHeader(
+            var door = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
-                Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
+                Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
                 PlmBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
-                SamusDistance: 0x0100,
+                SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
                 SetupCode: DoorSetupCode.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
                 door,
@@ -114,7 +115,7 @@ internal static class DoorAlignmentVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
+            DoorDefinition? candidate = level.ResolveDoorCollision(
                 block.Bts.Value,
                 SamusPoseId.MovingRightNormalPose.ForRoomCollision(),
                 publishDoorSideEffects: false).Door;
@@ -155,7 +156,7 @@ internal static class DoorAlignmentVerification
             if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
                 alignmentCalls++;
             transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-            if (phaseBeforeStep == DoorTransitionPhase.BuildDestinationOam &&
+            if (phaseBeforeStep == DoorTransitionPhase.DrawFirstDestinationFrame &&
                 transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
             {
                 observedDestinationBuild = true;

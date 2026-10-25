@@ -13,13 +13,9 @@ internal static class PlmLevelWrites
     }
 
     /// <summary>
-    /// Shared Write_Level_Data_Block_Type_and_BTS operation: preserve visual index/flips,
-    /// replace the collision nibble, and publish the independent low-byte behavior.
+    /// Shared Write_Level_Data_Block_Type_and_BTS operation: replaces a block's collision type and BTS, keeping its
+    /// visual index and flips.
     /// </summary>
-    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts) =>
-        WritePlmCollisionTypeAndBts(level, blockIndex, new RoomLevelWord(typeAndBts).CollisionType, unchecked((byte)typeAndBts));
-
-    /// <summary>Replaces a block's collision type and BTS, keeping its visual payload.</summary>
     internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, RoomCollisionType collisionType, int bts)
     {
         var original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;

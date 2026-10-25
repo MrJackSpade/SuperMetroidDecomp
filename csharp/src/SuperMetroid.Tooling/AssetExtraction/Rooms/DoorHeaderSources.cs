@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class DoorHeaderSources
 {
     /// <summary>The compiled door whose record is at <paramref name="pointer"/>.</summary>
-    public static CartridgeDoorHeader Door(ushort pointer) => DoorHeaderSourceDefinitions.ByPointer.TryGetValue(pointer, out CartridgeDoorHeader? found)
+    public static DoorDefinition Door(ushort pointer) => DoorHeaderSourceDefinitions.ByPointer.TryGetValue(pointer, out DoorDefinition? found)
         ? found
         : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 597 physical retail door records.");
 }

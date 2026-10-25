@@ -78,7 +78,7 @@ internal static class RoomSkyTilemapsVerification
         {
             LibraryBackgroundSource native = landingSources[index];
             LibraryBackgroundInstruction compiled = landingProgram.Instructions[index];
-            CartridgeDoorHeader compiledDoor = compiled.Door ?? throw new InvalidOperationException("Verification requires compiled.Door.");
+            DoorDefinition compiledDoor = compiled.Door ?? throw new InvalidOperationException("Verification requires compiled.Door.");
             AssertEqual(LibraryBackgroundCommand.TransferForDoor, native.Command,
                 $"Landing Site command {index} is door-selected");
             AssertEqual(DoorDefinitions.PointerOf(compiledDoor), (native.DoorPointer ?? throw new InvalidOperationException("Verification requires native.DoorPointer.")),

@@ -34,7 +34,7 @@ internal static class DoorWaitsForMessageBoxVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Player.IntroducedSamus.Control.Unlock();
-        CartridgeDoorHeader door = RetailDoorHeaderCatalog.EnumeratePointers()
+        DoorDefinition door = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);

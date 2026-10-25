@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class DoorHeaderSourceDefinitions
 {
     /// <summary>Each compiled door, by its bank-$83 record pointer.</summary>
-    internal static IReadOnlyDictionary<ushort, CartridgeDoorHeader> ByPointer { get; } = new Dictionary<ushort, CartridgeDoorHeader>
+    internal static IReadOnlyDictionary<ushort, DoorDefinition> ByPointer { get; } = new Dictionary<ushort, DoorDefinition>
     {
         [0x88fe] = CrateriaDoorDefinitions.LandingSiteLandingCutscene,
         [0x890a] = DoorDefinitions.DemoSet3024,

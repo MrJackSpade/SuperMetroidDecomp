@@ -981,7 +981,8 @@ internal static class LookupStream3Verification
         foreach (DoorSetupCode pointer in Enum.GetValues<DoorSetupCode>())
             AssertEqual(expectedCallbacks.Contains(pointer),
                 SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains(pointer), "stream 3 exact callback ownership");
-        foreach (ushort undefined in new ushort[] { 0x0001, 0xb972, 0xffff })
+        // DoorSetupCode's values are arbitrary (#1414): zero and values far past the last member name no routine.
+        foreach (ushort undefined in new ushort[] { 0x0000, 0xb972, 0xffff })
             AssertThrows<InvalidOperationException>(
                 () => SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains((DoorSetupCode)undefined),
                 "stream 3 undefined door setup code");
@@ -989,7 +990,7 @@ internal static class LookupStream3Verification
         {
             byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
             var actual = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), expected, new Extent16<RoomScreens>(10, 5));
-            ExecuteStream3DoorScroll(rom, (ushort)pointer, expected);
+            ExecuteStream3DoorScroll(rom, DoorIdentityWords.SetupRoutines.Word(pointer), expected);
             AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.StorageBytes.ToArray().SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
         }

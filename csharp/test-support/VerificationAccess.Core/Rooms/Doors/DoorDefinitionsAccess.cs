@@ -285,10 +285,10 @@ internal static class DoorDefinitionsAccess
     extension(DoorDefinitions)
     {
         /// <inheritdoc cref="DoorHeaderSources.Door"/>
-        internal static CartridgeDoorHeader Get(ushort pointer) => DoorHeaderSources.Door(pointer);
+        internal static DoorDefinition Get(ushort pointer) => DoorHeaderSources.Door(pointer);
 
         /// <inheritdoc cref="DoorHeaderSourcesConstants.PointerOf"/>
-        internal static ushort PointerOf(CartridgeDoorHeader door) => DoorHeaderSourcesConstants.PointerOf(door);
+        internal static ushort PointerOf(DoorDefinition door) => DoorHeaderSourcesConstants.PointerOf(door);
 
         /// <summary>Resolves a type-$9 BTS byte through the door list at <paramref name="listPointer"/>, as bank $94 does.</summary>
         internal static DoorListEntry Resolve(ushort listPointer, int behavior)
@@ -316,7 +316,7 @@ internal static class DoorDefinitionsAccess
     }
 
     /// <summary>The record pointer of a compiled door.</summary>
-    extension(CartridgeDoorHeader self)
+    extension(DoorDefinition self)
     {
         /// <summary>The bank-$83 record pointer of this door.</summary>
         internal ushort Pointer => DoorHeaderSourcesConstants.PointerOf(self);

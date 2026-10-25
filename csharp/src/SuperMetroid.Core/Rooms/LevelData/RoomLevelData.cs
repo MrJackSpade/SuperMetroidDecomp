@@ -174,7 +174,7 @@ public sealed class RoomLevelData
     /// Door definition selected by the most recent native type-$9 collision, mirroring
     /// the side effect on WRAM <c>door_def_ptr</c> made by <c>$94:938B/$93CE</c>.
     /// </summary>
-    public CartridgeDoorHeader? PendingDoorTransition { get; internal set; }
+    public DoorDefinition? PendingDoorTransition { get; internal set; }
 
     /// <summary>
     /// Bank-$94 sets WRAM <c>elevator_flags</c> when a type-$9 block resolves to the special
@@ -433,9 +433,9 @@ public sealed class RoomLevelData
     }
 
     /// <summary>Consumes the native-equivalent <c>door_def_ptr</c> publication once.</summary>
-    public CartridgeDoorHeader? ConsumePendingDoorTransition()
+    public DoorDefinition? ConsumePendingDoorTransition()
     {
-        CartridgeDoorHeader? pending = PendingDoorTransition;
+        DoorDefinition? pending = PendingDoorTransition;
         PendingDoorTransition = null;
         return pending;
     }

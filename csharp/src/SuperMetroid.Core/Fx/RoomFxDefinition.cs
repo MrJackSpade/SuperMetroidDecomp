@@ -25,7 +25,7 @@ public sealed class RoomFxDefinition
     /// <summary>Selects the first default or matching-door record, or none at the terminator.</summary>
     /// <remarks>Native $89:AB99..ABB7 treats the terminator record as unconditional, before comparing the
     /// requested door. A record without a door is the default.</remarks>
-    public RoomFxRecordDefinition? Select(CartridgeDoorHeader? door)
+    public RoomFxRecordDefinition? Select(DoorDefinition? door)
     {
         foreach (RoomFxRecordDefinition record in Records)
         {

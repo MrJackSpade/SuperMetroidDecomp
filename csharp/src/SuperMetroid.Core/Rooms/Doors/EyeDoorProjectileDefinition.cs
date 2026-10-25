@@ -1,12 +1,17 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The three bank-$86 enemy-projectile definitions spawned by eye-door PLMs.</summary>
+/// <summary>
+/// What an eye door spawns from the shared enemy-projectile pool. The values are arbitrary (#1414); the enemy side
+/// owns each effect's placement, launch and animation.
+/// </summary>
 public enum EyeDoorProjectileDefinition : ushort
 {
-    /// <summary><c>$86:B743</c>, native <c>EnemyProjectile_EyeDoorProjectile</c>: the eye-door attack actor, whose initial animation later installs aimed movement and whose shot/impact lists terminate it.</summary>
-    Projectile = 0xb743,
-    /// <summary><c>$86:B751</c>, native <c>EnemyProjectile_EyeDoorSweat</c>: the falling sweat actor spawned by the door PLM with side-selected launch velocity and a floor-impact animation.</summary>
-    Sweat = 0xb751,
-    /// <summary><c>$86:E517</c>, native <c>EnemyProjectile_MiscDustPLM</c>: the shared PLM dust/explosion definition used for eye-door smoke, with parameter-selected artwork and RNG-offset placement around the spawning block.</summary>
-    Smoke = 0xe517,
+    /// <summary>The eye-door attack actor, whose initial animation later installs aimed movement and whose shot/impact lists terminate it.</summary>
+    Projectile = 1,
+    /// <summary>The falling sweat actor, launched toward the side the eye faces, with a floor-impact animation.</summary>
+    Sweat = 2,
+    /// <summary>One of the randomly placed smoke puffs of the shared PLM dust actor, scattered in a box around the eye.</summary>
+    ScatteredSmoke = 3,
+    /// <summary>The smoke puff of the shared PLM dust actor centred on the eye.</summary>
+    CenteredSmoke = 4,
 }

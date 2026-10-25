@@ -12,12 +12,12 @@ internal static class FixtureRoomHeaders
         new("unloaded fixture door destination", 0, AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, 0);
 
     /// <summary>A synthetic door that no library-background transfer or room-FX record names.</summary>
-    public static CartridgeDoorHeader UnmatchedDoor { get; } = new(
+    public static DoorDefinition UnmatchedDoor { get; } = new(
         Name: "fixture door matching no transfer",
         DestinationRoom: UnloadedDestination,
         Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
         PlmBlock: default,
         DestinationScreen: default,
-        SamusDistance: 0,
+        SamusSpeed: DoorSamusSpeed.None,
         SetupCode: DoorSetupCode.None);
 }

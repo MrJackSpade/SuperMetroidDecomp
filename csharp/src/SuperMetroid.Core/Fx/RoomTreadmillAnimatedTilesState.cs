@@ -19,7 +19,7 @@ public sealed class RoomTreadmillAnimatedTilesState
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="area">The room's area, which selects each bit's object.</param>
-    public RoomTreadmillAnimatedTilesState(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
+    public RoomTreadmillAnimatedTilesState(RoomFxDefinition? fx, DoorDefinition? door, AreaId area)
     {
         if (fx?.Select(door) is not { } record) return;
         byte bits = record.AnimatedTileBitset;

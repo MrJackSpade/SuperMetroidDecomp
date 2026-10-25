@@ -13,5 +13,5 @@ internal static class DoorDefinitionsConstants
         internal static int HeaderCount => DoorDefinitionsConstants.HeaderCount;
     }
     /// <summary>Every retail door, in the cartridge's record order.</summary>
-    public static IReadOnlyList<CartridgeDoorHeader> All => DoorDefinitions.Definitions;
+    public static IReadOnlyList<DoorDefinition> All => DoorDefinitions.Definitions;
 }

@@ -10,7 +10,7 @@ internal sealed record RoomFxLoadSource
     public required RoomFxDefinition? Fx { get; init; }
 
     /// <summary>The door the room is entered through, or null for a load that matches only default records.</summary>
-    public required CartridgeDoorHeader? Door { get; init; }
+    public required DoorDefinition? Door { get; init; }
 
     /// <summary>
     /// The shared random number when the room's FX loads; rain reads two of its bits to choose its drift. A copy of

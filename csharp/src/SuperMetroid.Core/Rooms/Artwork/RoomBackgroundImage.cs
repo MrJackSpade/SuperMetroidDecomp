@@ -77,11 +77,11 @@ public sealed class RoomBackgroundImage
     /// The installed name of the background <paramref name="program"/> loads in a room of <paramref name="tileset"/>,
     /// entered through <paramref name="door"/> when the program transfers for that door, otherwise through no such door.
     /// </summary>
-    public static string NameOf(LibraryBackgroundProgram program, CartridgeDoorHeader? door, TilesetDefinition tileset) =>
+    public static string NameOf(LibraryBackgroundProgram program, DoorDefinition? door, TilesetDefinition tileset) =>
         $"{Ensure.NotNull(program).Name}{(door is null ? "" : "." + door.Name)}.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>The door <paramref name="program"/>'s transfers depend on when entered through <paramref name="door"/>, or null.</summary>
-    public static CartridgeDoorHeader? DoorVariant(LibraryBackgroundProgram program, CartridgeDoorHeader door) =>
+    public static DoorDefinition? DoorVariant(LibraryBackgroundProgram program, DoorDefinition door) =>
         Ensure.NotNull(program).Instructions.Any(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor
             && instruction.Door == door) ? door : null;
 

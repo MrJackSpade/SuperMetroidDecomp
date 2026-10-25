@@ -46,10 +46,10 @@ internal sealed class EyeDoorBehavior
                 RoomEnemyProjectileKind.EyeDoorProjectile,
             EyeDoorProjectileDefinition.Sweat =>
                 RoomEnemyProjectileKind.EyeDoorSweat,
-            EyeDoorProjectileDefinition.Smoke =>
+            EyeDoorProjectileDefinition.ScatteredSmoke or EyeDoorProjectileDefinition.CenteredSmoke =>
                 RoomEnemyProjectileKind.EyeDoorSmoke,
             _ => throw new InvalidOperationException(
-                $"Undefined {nameof(EyeDoorProjectileDefinition)} {(int)request.Definition:X4}."),
+                $"Undefined {nameof(EyeDoorProjectileDefinition)} {request.Definition}."),
         };
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -69,11 +69,16 @@ internal sealed class EyeDoorBehavior
                 return;
 
             case RoomEnemyProjectileKind.EyeDoorSweat:
-                InitializeEyeDoorSweat(projectile, request.Parameter, block);
+                InitializeEyeDoorSweat(projectile, request.Facing, block);
                 return;
 
             case RoomEnemyProjectileKind.EyeDoorSmoke:
-                InitializeEyeDoorSmoke(projectile, request.Parameter, block);
+                if (request.Definition == EyeDoorProjectileDefinition.ScatteredSmoke)
+                    InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
+                        EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
+                else
+                    InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
+                        EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
                 return;
 
             case RoomEnemyProjectileKind.None:
@@ -203,58 +208,49 @@ internal sealed class EyeDoorBehavior
         }
     }
 
-    /// <summary>Positions the eye shot from its native block-relative origin pair and retains its door bit.</summary>
+    /// <summary>Places the eye's shot on the side the eye faces and retains its door bit.</summary>
     private static void InitializeEyeDoorProjectile(
         RoomEnemyProjectileSlot projectile,
         EyeDoorProjectileRequest request,
         Position16<RoomBlocks> block)
     {
-        int offsetWord = request.Parameter >> 1;
-        if ((request.Parameter & 1) != 0 || offsetWord + 1 >= EyeDoorEnemyProjectileRomData.ProjectileOriginWordCount)
+        Offset16<RoomPixels> origin = request.Facing switch
         {
-            throw new InvalidDataException(
-                $"Eye-door projectile parameter ${request.Parameter:X4} is outside " +
-                "the cartridge origin-pair table.");
-        }
-
+            EyeDoorOrientation.Left => EyeDoorEffectDefinitions.LeftShotOrigin,
+            EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightShotOrigin,
+            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
+        };
         projectile.Variable1 = request.DoorBit;
-        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
-            unchecked((short)(8 + EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord))),
-            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
+        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 
-    /// <summary>Places sweat below the eye block and loads its native initial velocity pair.</summary>
+    /// <summary>Places sweat below the eye block and launches it toward the side the eye faces.</summary>
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
-        int parameter,
+        EyeDoorOrientation facing,
         Position16<RoomBlocks> block)
     {
-        int velocityWord = parameter >> 1;
-        if ((parameter & 1) != 0 || velocityWord + 1 >= EyeDoorEnemyProjectileRomData.SweatVelocityWordCount)
+        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + EyeDoorEffectDefinitions.SweatOrigin);
+        projectile.Velocity = facing switch
         {
-            throw new InvalidDataException(
-                $"Eye-door sweat parameter ${parameter:X4} is outside " +
-                "the cartridge velocity-pair table.");
-        }
-
-        // The sweat starts eight pixels left of the eye block, at the top of the block below it.
-        projectile.Position = projectile.Position.WithWhole(
-            block.ToRoomPixels() + new Offset16<RoomPixels>(-8, EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock));
-        projectile.Velocity = new EightEightVector<RoomPixels>(
-            EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord),
-            EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
+            EyeDoorOrientation.Left => EyeDoorEffectDefinitions.LeftSweatLaunch,
+            EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightSweatLaunch,
+            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {facing}."),
+        };
     }
 
-    /// <summary>Uses one shared random sample for both smoke offsets, then advances the seed.</summary>
+    /// <summary>
+    /// Starts smoke showing <paramref name="animation"/> scattered by misc-dust placement <paramref name="placementIndex"/>:
+    /// uses one shared random sample for both smoke offsets, then advances the seed.
+    /// </summary>
     internal void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
-        int parameter,
+        MiscDustAnimation animation,
+        ushort placementIndex,
         Position16<RoomBlocks> block)
     {
-        byte listOffset = unchecked((byte)parameter);
-        MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)listOffset);
-        MiscDustPlacementDefinition placement =
-            MiscDustProjectileDefinitions.SmokePlacement(SnesLittleEndian.HighByte(checked((ushort)parameter)));
+        MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(animation);
+        MiscDustPlacementDefinition placement = MiscDustProjectileDefinitions.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.

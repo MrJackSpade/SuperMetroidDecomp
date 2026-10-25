@@ -112,13 +112,13 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             }
             else
             {
-                var enteringDoor = new CartridgeDoorHeader(
+                var enteringDoor = new DoorDefinition(
                     Name: "fixture door",
                     DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                     PlmBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
-                    SamusDistance: 0,
+                    SamusSpeed: DoorSamusSpeed.None,
                     SetupCode: DoorSetupCode.None);
                 AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor,
                         system),
@@ -193,13 +193,13 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     /// <summary>Advances the Bomb-gated door through collection, defeat, hit, opening and persisted blue-cap reload.</summary>
     private static void VerifyBombTorizoGreyDoorLifecycle(CartridgeReadGuard guarded, TorizoGreyDoorRoom room, ushort population, int origin, byte[] blockDefinitions)
     {
-        var enteringDoor = new CartridgeDoorHeader(
+        var enteringDoor = new DoorDefinition(
             Name: "fixture door",
             DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(4, 4),
             DestinationScreen: new(0, 0),
-            SamusDistance: 0,
+            SamusSpeed: DoorSamusSpeed.None,
             SetupCode: DoorSetupCode.None);
         AssertTrue(room.Plms.DoorPlms.TrySpawnDoorClosingPlm(room.Level, enteringDoor, room.System),
             "Bomb Torizo door selects its Bomb-gated closing list");

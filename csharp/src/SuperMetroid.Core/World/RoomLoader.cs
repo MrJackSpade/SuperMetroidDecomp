@@ -155,7 +155,7 @@ internal sealed class RoomLoader
         LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Ceres,
             stationIndex: 0);
-        CartridgeDoorHeader door = station.Door ?? throw new InvalidDataException("The load station has no door.");
+        DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
@@ -207,7 +207,7 @@ internal sealed class RoomLoader
         LoadStationEntry station = LoadStationDefinitions.Get(
             requestedArea,
             stationIndex);
-        CartridgeDoorHeader door = station.Door ?? throw new InvalidDataException("The load station has no door.");
+        DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
@@ -321,7 +321,7 @@ internal sealed class RoomLoader
         LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
-        CartridgeDoorHeader door = station.Door ?? throw new InvalidDataException("The load station has no door.");
+        DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
@@ -371,7 +371,7 @@ internal sealed class RoomLoader
     public bool HasPendingDoorTransition => _room.LevelData?.PendingDoorTransition is not null;
 
     /// <summary>The unconsumed bank-$83 door selected by the type-$9 collision handler.</summary>
-    public CartridgeDoorHeader? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
+    public DoorDefinition? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
 
     /// <summary>
     /// Runs one <c>$82:E310</c> source-room alignment call. Horizontal doors converge the
@@ -381,7 +381,7 @@ internal sealed class RoomLoader
     /// <returns>True only when the relevant low byte was already zero on entry.</returns>
     public bool AlignPendingDoorCameraOnePixel()
     {
-        CartridgeDoorHeader door = PendingDoorTransition
+        DoorDefinition door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door exists to align.");
         if (_room.Camera is null)
             throw new InvalidOperationException("Door alignment requires an active camera.");
@@ -457,7 +457,7 @@ internal sealed class RoomLoader
     /// </summary>
     internal void ApplyDoorScrollingSetupMovement()
     {
-        CartridgeDoorHeader door = PendingDoorTransition
+        DoorDefinition door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
         if (_player.Samus is null)
             throw new InvalidOperationException("Door scrolling requires Samus.");
@@ -475,7 +475,7 @@ internal sealed class RoomLoader
     /// <summary>Rebases Samus and publishes the first moving IRQ during tile loading.</summary>
     internal void PlaceSamusForDoorTileLoading()
     {
-        CartridgeDoorHeader door = PendingDoorTransition
+        DoorDefinition door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
         if (_player.Samus is null || _room.Camera is null)
             throw new InvalidOperationException("Door tile loading requires Samus and camera.");
@@ -504,7 +504,7 @@ internal sealed class RoomLoader
     /// trajectory without pretending the loader itself is incremental.
     /// </remarks>
     internal void BeginDoorOpeningScroll(
-        CartridgeDoorHeader door,
+        DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
         IRoomLoadProgress loaderProgress,
         int completedLoadingIrqSteps = 0)
@@ -700,7 +700,7 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("A live room and Samus are required for a door transition.");
 
         RoomLevelData sourceLevel = _room.LevelData;
-        CartridgeDoorHeader door = sourceLevel.PendingDoorTransition
+        DoorDefinition door = sourceLevel.PendingDoorTransition
             ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? _player.Samus.Position);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
@@ -716,7 +716,7 @@ internal sealed class RoomLoader
         // source room's pending door so such a failure remains retryable instead of leaving
         // state $0B with no destination on the following frame.
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
-        CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
+        DoorDefinition consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
         if (consumedDoor != door)
@@ -774,7 +774,7 @@ internal sealed class RoomLoader
 
     /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
     internal InitialViewportResult LoadCartridgeRoom(
-        CartridgeDoorHeader door,
+        DoorDefinition door,
         CartridgeRoomHeader room,
         Position16<RoomPixels> camera,
         RoomViewportLoadMode viewportLoadMode,
@@ -812,14 +812,14 @@ internal sealed class RoomLoader
         scope.MaridiaElevatube = maridiaElevatube;
         var ceresElevatorShaft = new CeresElevatorShaftRoomMainState(
             active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
-                door.UsesCeresElevatorMode7,
+                door.EntersCeresElevatorShaft,
             _room.RoomMainScratch);
         scope.CeresElevatorShaft = ceresElevatorShaft;
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
         // producer. Ordinary doors clear it so stale Mode-7 math cannot leak across rooms.
-        SamusMode7Transform? initialMode7Transform = door.UsesCeresElevatorMode7
+        SamusMode7Transform? initialMode7Transform = door.EntersCeresElevatorShaft
             ? new SamusMode7Transform(
                 MatrixA: 256, // 1.0 in Mode 7's 8.8 fixed point.
                 MatrixB: 0,
@@ -1129,7 +1129,7 @@ internal sealed class RoomLoader
     /// to obtain the final camera/Samus coordinates after the native scrolling phase.
     /// </summary>
     private static DoorTransitionPlacement CalculateDoorTransitionPlacement(
-        CartridgeDoorHeader door,
+        DoorDefinition door,
         FixedPosition<RoomPixels> source)
     {
         DoorDirection direction = door.Orientation.Direction;

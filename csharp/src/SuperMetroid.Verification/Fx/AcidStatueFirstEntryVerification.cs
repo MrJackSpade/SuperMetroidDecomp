@@ -46,7 +46,7 @@ internal static class AcidStatueFirstEntryVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            CartridgeDoorHeader? candidate = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false).Door;
+            DoorDefinition? candidate = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false).Door;
             if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;

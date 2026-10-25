@@ -52,9 +52,9 @@ internal static class MiscDustProjectileDefinitionsVerification
             var enemies = CreateMiscDustEnemySystem();
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
-            Action<RoomEnemyProjectileSlot, int, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
+            Action<RoomEnemyProjectileSlot, MiscDustAnimation, ushort, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
             RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles[0];
-            initialize(smoke, (index << 8) | 10, new(7, 9));
+            initialize(smoke, MiscDustAnimation.CorpseDustCloud, index, new(7, 9));
             AssertTrue(smoke.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +

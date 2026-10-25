@@ -26,7 +26,7 @@ internal static class LibraryBackgroundReplay
     /// installed artwork owns.
     /// </exception>
     internal static LibraryBackgroundExecutionResult Execute(SnesVram vram, LibraryBackgroundProgram program,
-        CartridgeDoorHeader activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
+        DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(program);

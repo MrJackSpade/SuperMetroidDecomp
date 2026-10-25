@@ -21,7 +21,7 @@ internal static class LandingSiteEntryStateAccess
         internal static LandingSiteEntryState Load(ISnesAddressSpace bus, ushort doorPointer)
         {
             Ensure.NotNull(bus);
-            CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
+            DoorDefinition door = DoorDefinitions.Get(doorPointer);
 
             // The destination is a bank-$8F room pointer. Rejecting any other room
             // is important: the library-background list below is specific to Landing Site and

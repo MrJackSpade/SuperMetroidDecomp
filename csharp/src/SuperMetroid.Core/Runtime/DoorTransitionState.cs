@@ -28,7 +28,7 @@ internal sealed class DoorTransitionState
     /// <summary>The faded source colours, restored after atomic destination room construction.</summary>
     private ColourImage? fadedSource;
     /// <summary>Door header captured before the destination room replaces the source.</summary>
-    private CartridgeDoorHeader? door;
+    private DoorDefinition? door;
     /// <summary>Samus's source-room position used to compute the final door-scroll placement.</summary>
     private FixedPosition<RoomPixels> sourceSamus;
     /// <summary>Whether the source room selects the isolated door transition, for the transition IRQ setup.</summary>
@@ -103,7 +103,7 @@ internal sealed class DoorTransitionState
             DoorTransitionPhase.WaitForMusicQueue => CeresHazeRoomFade.None,
             DoorTransitionPhase.HandleTransition => CeresHazeRoomFade.None,
             DoorTransitionPhase.Complete => CeresHazeRoomFade.None,
-            DoorTransitionPhase.BuildDestinationOam => CeresHazeRoomFade.None,
+            DoorTransitionPhase.DrawFirstDestinationFrame => CeresHazeRoomFade.None,
             DoorTransitionPhase.FinishDoorLoading => CeresHazeRoomFade.None,
             _ => throw new InvalidOperationException($"Unknown door transition phase {Phase}."),
         });
@@ -287,10 +287,10 @@ internal sealed class DoorTransitionState
                 runtime.RoomLoader.EndDoorTransitionIrqDisplay();
                 // E6A2 returns before the next E737 actor/fade dispatch. Falling
                 // through ran Samus movement and accepted three NMIs in one update.
-                Phase = DoorTransitionPhase.BuildDestinationOam;
+                Phase = DoorTransitionPhase.DrawFirstDestinationFrame;
                 break;
 
-            case DoorTransitionPhase.BuildDestinationOam:
+            case DoorTransitionPhase.DrawFirstDestinationFrame:
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);

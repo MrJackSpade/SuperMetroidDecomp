@@ -11,7 +11,7 @@ namespace SuperMetroid.IntegrationVerification.Gameplay;
 internal static class MaridiaPipeIncomingDoorSeed
 {
     /// <summary>Places Samus above the authored Plasma Spark door block and lets gravity drive the source-room approach before the frontend owns the transition.</summary>
-    public static void Apply(SuperMetroidRuntime runtime, CartridgeDoorHeader door)
+    public static void Apply(SuperMetroidRuntime runtime, DoorDefinition door)
     {
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PlasmaSpark);
         var level = runtime.Room.LoadedLevelData;

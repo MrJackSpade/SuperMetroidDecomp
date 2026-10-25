@@ -36,13 +36,13 @@ internal static class DoorAnimatedTilesVerification
 
         // Select the source room's door into the statue room.
         var level = runtime.Room.LoadedLevelData;
-        CartridgeDoorHeader? entry = null;
+        DoorDefinition? entry = null;
         for (int y = 0; y < level.Size.Y && entry is null; y++)
         for (int x = 0; x < level.Size.X && entry is null; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            CartridgeDoorHeader? door = level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), false).Door;
+            DoorDefinition? door = level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), false).Door;
             if (door?.DestinationRoom == RoomHeaderDefinitions.Statues)
                 entry = level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), true).Door;
         }
@@ -56,7 +56,7 @@ internal static class DoorAnimatedTilesVerification
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
         {
             if (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.HandleAnimatedTiles or
-                DoorTransitionPhase.BuildDestinationOam or DoorTransitionPhase.FadeInDestinationPalette)
+                DoorTransitionPhase.DrawFirstDestinationFrame or DoorTransitionPhase.FadeInDestinationPalette)
                 handlerFrames++;
             game.Step(0);
         }

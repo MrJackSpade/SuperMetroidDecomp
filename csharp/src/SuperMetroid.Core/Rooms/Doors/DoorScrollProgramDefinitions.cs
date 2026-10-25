@@ -98,6 +98,6 @@ internal static class DoorScrollProgramDefinitions
         DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit or
         DoorSetupCode.DoorASM_ToCeresElevatorShaft or
         DoorSetupCode.DoorASM_FromCeresElevatorShaft => null,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorSetupCode)} {(int)code:X4}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DoorSetupCode)} {code}."),
     };
 }

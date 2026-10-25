@@ -50,11 +50,11 @@ internal static class PlmPreInstructionNativeRoutines
             [ShaktoolRoomPreInstructions.Controller] = ShaktoolRoomPlmNativeProgram.PreInstruction,
             [WreckedShipAtticPreInstructions.NoOpCallback] = WreckedShipAtticPlmRomData.NoOpCallback,
             [SamusEaterPreInstructions.Hold] = SamusEaterPlmRomDataConstants.HoldPreInstruction,
-            [ColoredDoorPreInstructions.WakeOnPowerBomb] = (ushort)ColoredDoorPreInstruction.WakeOnPowerBomb,
-            [ColoredDoorPreInstructions.WakeOnMissile] = (ushort)ColoredDoorPreInstruction.WakeOnMissile,
-            [ColoredDoorPreInstructions.WakeOnSuperMissile] = (ushort)ColoredDoorPreInstruction.WakeOnSuperMissile,
-            [EyeDoorPreInstructions.WakeWhenDoorBitSet] = (ushort)EyeDoorPreInstruction.WakeWhenDoorBitSet,
-            [EyeDoorPreInstructions.MissileHit] = (ushort)EyeDoorPreInstruction.MissileHit,
+            [ColoredDoorPreInstructions.WakeOnPowerBomb] = DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPreInstruction.WakeOnPowerBomb),
+            [ColoredDoorPreInstructions.WakeOnMissile] = DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPreInstruction.WakeOnMissile),
+            [ColoredDoorPreInstructions.WakeOnSuperMissile] = DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPreInstruction.WakeOnSuperMissile),
+            [EyeDoorPreInstructions.WakeWhenDoorBitSet] = DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.WakeWhenDoorBitSet),
+            [EyeDoorPreInstructions.MissileHit] = DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.MissileHit),
             [DownwardGatePreInstructions.WakeIfTriggered] = (ushort)DownwardGatePreInstruction.WakeIfTriggered,
             [DownwardGatePreInstructions.WakeIfTriggeredOrSamusBelow] = (ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
             [DownwardGatePreInstructions.Inert] = (ushort)DownwardGatePreInstruction.Inert,
@@ -63,7 +63,7 @@ internal static class PlmPreInstructionNativeRoutines
             [NoobTubePreInstructions.Inactive] = (ushort)NoobTubePlmPreInstruction.Inactive,
         };
         foreach (GreyDoorPreInstruction routine in Enum.GetValues<GreyDoorPreInstruction>().Where(routine => routine != GreyDoorPreInstruction.None))
-            routines.Add(GreyDoorPreInstructions.Of(routine), (ushort)routine);
+            routines.Add(GreyDoorPreInstructions.Of(routine), DoorsNativeWords.GreyDoorPreInstructions.Word(routine));
         foreach (SpeedBoosterEscapePreInstruction routine in Enum.GetValues<SpeedBoosterEscapePreInstruction>()
                      .Where(routine => routine != SpeedBoosterEscapePreInstruction.None))
             routines.Add(SpeedBoosterEscapePreInstructions.Of(routine), (ushort)routine);

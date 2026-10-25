@@ -35,7 +35,7 @@ public static class NorfairRidleyColorExtractor
         return NorfairRidleyColorFile.Write(new NorfairRidleyColorDocument
         {
             Version = NorfairRidleyColorFormat.Version,
-            Initial = ReadColors(bus, NorfairRidleyPaletteRomData.InitialColors,
+            Initial = ReadColors(bus, EnemySourceDefinitions.NorfairRidleyInitialColors,
                 NorfairRidleyPaletteRomData.InitialColorCount),
             Reveal = reveal,
         });

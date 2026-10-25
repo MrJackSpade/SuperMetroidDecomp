@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Native bank-$A7 Kraid palette addresses and exact source lengths.</summary>
@@ -14,22 +12,6 @@ public static class KraidPaletteRomData
     /// <summary>Colors in one native Kraid palette band.</summary>
     public const int BandColors = 16;
 
-    /// <summary>
-    /// Selects the native palette operand for a named source. Independently checked
-    /// against A7:A981, AA97, B3BB, B3C2 and C37B; invalid source values are rejected.
-    /// </summary>
-    /// <param name="source">The named palette operand whose original cartridge identity is required.</param>
-    /// <returns>The 24-bit SNES bus address of its first little-endian RGB5 color word; no cartridge read is performed.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The source is not one of the five supported palette identities.</exception>
-    public static int SourceAddress(KraidPaletteSource source) => source switch
-    {
-        KraidPaletteSource.RoomBackdrop => EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords,
-        KraidPaletteSource.InitialTarget => InitialTargetPaletteWords,
-        KraidPaletteSource.Health => EnemyRomTablePointers.Kraid.HealthPaletteWords,
-        KraidPaletteSource.Secondary => EnemyRomTablePointers.Kraid.SecondaryPaletteWords,
-        KraidPaletteSource.DeathArm => EnemyRomTablePointers.Kraid.DeathArmPaletteWords,
-        _ => throw new ArgumentOutOfRangeException(nameof(source)),
-    };
 
     /// <summary>
     /// Three individual sixteen-color bands and two nine-band health sequences.

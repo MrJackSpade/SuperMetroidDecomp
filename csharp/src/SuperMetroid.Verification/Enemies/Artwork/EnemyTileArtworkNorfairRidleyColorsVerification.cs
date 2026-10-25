@@ -29,7 +29,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             throw new InvalidDataException("Installed enemy artwork lacks Norfair Ridley colors.");
         var forbidden = new HashSet<int>();
         for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
-            CheckSource(NorfairRidleyPaletteRomData.InitialColors + color * sizeof(ushort),
+            CheckSource(EnemySourceDefinitions.NorfairRidleyInitialColors + color * sizeof(ushort),
                 stock.Bosses.NorfairRidleyColors.ResolveInitial(color).ToWord());
         for (int row = 0; row < NorfairRidleyPaletteRomData.RevealRowCount; row++)
         {

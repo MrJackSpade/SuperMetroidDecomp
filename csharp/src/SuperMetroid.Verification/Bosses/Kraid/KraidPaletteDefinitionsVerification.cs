@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -23,10 +24,10 @@ internal static class KraidPaletteDefinitionsVerification
             byte opcode = KraidPaletteSourceAddressesRomByte(rom, instruction);
             AssertTrue(opcode is 0xb9 or 0xbd, "Native palette source is indexed absolute LDA");
             int expected = 0xa70000 | KraidPaletteSourceAddressesRomByte(rom, instruction + 1) | KraidPaletteSourceAddressesRomByte(rom, instruction + 2) << 8;
-            AssertEqual(expected, KraidPaletteRomData.SourceAddress(source), "Native palette source operand");
+            AssertEqual(expected, KraidPaletteSources.SourceAddress(source), "Native palette source operand");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidPaletteRomData.SourceAddress((KraidPaletteSource)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidPaletteSources.SourceAddress((KraidPaletteSource)invalid),
                 "Unknown palette address source rejected");
     }
 

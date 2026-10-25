@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
@@ -30,9 +31,9 @@ public static class TourianStatueColorExtractor
         return TourianStatueColorFile.Write(new TourianStatueColorDocument
         {
             Version = TourianStatueColorFormat.Version,
-            Base = Read(bus, TourianStatuePaletteRomData.BaseColors,
+            Base = Read(bus, EnemySourceDefinitions.TourianStatueBaseColors,
                 TourianStatuePaletteRomData.BaseColorCount),
-            Statue = Read(bus, TourianStatuePaletteRomData.StatueColors,
+            Statue = Read(bus, EnemySourceDefinitions.TourianStatueColors,
                 TourianStatuePaletteRomData.StatueColorCount),
             Eye = eye,
             Grey = Read(bus, TourianStatuePaletteRomData.GreyColors,

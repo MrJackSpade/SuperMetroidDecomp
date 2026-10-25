@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Authored bank-$A6 Ceres Ridley palette sources and native CGRAM destinations.</summary>
@@ -20,8 +18,6 @@ public static class CeresRidleyPaletteRomData
     /// <summary>Fifteen RGB555 words per Baby shade, excluding the palette's transparent color zero.</summary>
     public const int BabyColorCount = 15;
 
-    /// <summary>Sixteen three-color eye-fade rows beginning at $A6:E2AA.</summary>
-    public const int EyeFadeColors = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows;
     /// <summary>Sixteen eye shades, traversed from row 15 to row 0 and then held at row 0 by the native per-AI-update fade-index program.</summary>
     public const int EyeFadeRowCount = 16;
     /// <summary>Three RGB555 eye-color words per row, occupying palette colors $C..$E.</summary>

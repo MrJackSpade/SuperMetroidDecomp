@@ -1978,7 +1978,7 @@ internal static class LookupStream2Verification
         PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
             .Select(index =>
             {
-                ushort word = ReadVerificationWord(rom, KraidPaletteRomData.SourceAddress(source) + 2 * index);
+                ushort word = ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index);
                 return new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
             }).ToArray();
         var document = new KraidColorDocument
@@ -2007,7 +2007,7 @@ internal static class LookupStream2Verification
         }
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
-            AssertEqual(ReadVerificationWord(rom, KraidPaletteRomData.SourceAddress(source) + 2 * index),
+            AssertEqual(ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index),
                 KraidPaintDefinitions.Color(source, index), $"Kraid {source} stock paint {index}");
         Check(stock, document);
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>

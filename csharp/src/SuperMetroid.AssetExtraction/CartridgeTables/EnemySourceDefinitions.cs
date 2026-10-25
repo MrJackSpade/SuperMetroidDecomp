@@ -34,6 +34,33 @@ internal static class EnemySourceDefinitions
     internal static int GunshipLiftoffPageSource(int index) =>
         GunshipLiftoffFirstPage.Value + index * GunshipLiftoffTransferDefinitions.ByteCount;
 
+    /// <summary>$A6:E2AA: Ceres Ridley's sixteen three-colour eye-fade rows (#1412).</summary>
+    internal const int CeresRidleyEyeFadeRows = 0xa6e2aa;
+
+    /// <summary>$A6:E1CF: Norfair Ridley's thirty-two initial body and tail colours (#1412).</summary>
+    internal const int NorfairRidleyInitialColors = 0xa6e1cf;
+
+    /// <summary>$A7:86C7: Kraid's sixteen room-background target colours (#1412).</summary>
+    internal const int KraidRoomBackgroundColors = 0xa786c7;
+
+    /// <summary>$A7:B3D3: Kraid's flash and eight health bands (#1412).</summary>
+    internal const int KraidHealthColors = 0xa7b3d3;
+
+    /// <summary>$A7:B513: Kraid's secondary flash and eight health bands (#1412).</summary>
+    internal const int KraidSecondaryColors = 0xa7b513;
+
+    /// <summary>$A7:B4F3: Kraid's sixteen death-arm colours (#1412).</summary>
+    internal const int KraidDeathArmColors = 0xa7b4f3;
+
+    /// <summary>$AA:D765: the Tourian entrance statue's sixteen colours (#1412).</summary>
+    internal const int TourianStatueColors = 0xaad765;
+
+    /// <summary>$AA:D785: the Tourian entrance statue base decoration's sixteen colours (#1412).</summary>
+    internal const int TourianStatueBaseColors = 0xaad785;
+
+    /// <summary>$A8:CCC1: the Work Robot's six four-colour, timed palette-cycle records (#1412).</summary>
+    internal const int WorkRobotPaletteCycleRecords = 0xa8ccc1;
+
     /// <summary>$FFFE: the word an extended spritemap component starts with when it is a BG2 command stream (#1412).</summary>
     internal const ushort Bg2StreamMarker = 0xfffe;
 

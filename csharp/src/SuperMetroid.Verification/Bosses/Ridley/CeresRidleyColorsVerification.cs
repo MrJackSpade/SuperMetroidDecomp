@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
@@ -36,7 +37,7 @@ internal static class CeresRidleyColorsVerification
         Check(CeresRidleyPaletteRomData.StartColors,
             CeresRidleyPaletteRomData.StartColorCount, native.ResolveStart);
         for (int row = 0; row < CeresRidleyPaletteRomData.EyeFadeRowCount; row++)
-            Check(CeresRidleyPaletteRomData.EyeFadeColors + row *
+            Check(EnemySourceDefinitions.CeresRidleyEyeFadeRows + row *
                 CeresRidleyPaletteRomData.EyeFadeColorCount * sizeof(ushort),
                 CeresRidleyPaletteRomData.EyeFadeColorCount,
                 color => native.ResolveEyeFade(row, color));

@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>Mutually exclusive station marker families in the normal file-select map.</summary>
 public enum MapStationKind
 {
-    /// <summary>Missile-refill markers selected through the area-pointer table at $82:C7DB.</summary>
+    /// <summary>Missile-refill markers.</summary>
     Missile,
-    /// <summary>Energy-refill markers selected through the area-pointer table at $82:C7EB.</summary>
+    /// <summary>Energy-refill markers.</summary>
     Energy,
-    /// <summary>Map-download station markers selected through the area-pointer table at $82:C7FB.</summary>
+    /// <summary>Map-download station markers.</summary>
     Map
 }

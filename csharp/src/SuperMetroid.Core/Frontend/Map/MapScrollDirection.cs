@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map;
 
-/// <summary>$82:925D's mutually exclusive map-scrolling dispatcher indices.</summary>
+/// <summary>The direction a map scroll step moves the viewport, or none.</summary>
 public enum MapScrollDirection
 {
     /// <summary>No eight-tick scroll step is active.</summary>

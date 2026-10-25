@@ -121,6 +121,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
             _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;
             _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
             _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
+            _bossArtwork.CeresRidleyFloorUpdates = value?.CeresRidleyFloorUpdates;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
             // An initialized HUD shows the new characters again at the next accepted NMI.
             pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;

@@ -895,6 +895,8 @@ internal static void VerifyCeresRidleyRoomEntry()
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
             CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
+            CeresRidleyFloorUpdates = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles.Read(new MemoryStream(
+                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles.Extract(bus))),
         },
     };
     using (var escapeText = new MemoryStream(

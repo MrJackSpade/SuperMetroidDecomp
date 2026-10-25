@@ -9,6 +9,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -158,16 +159,16 @@ internal sealed class CeresRidleyGetaway
         if ((frameCounter & 3) == 0)
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
-            ApplyFloorTransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.GetawayBabyFrame), updates);
+            ApplyFloorAnimationFrame(CeresFloorAnimationDefinitions.BabyFrameForPhase(state.GetawayBabyFrame), updates);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
         if ((frameCounter & 7) == 0)
         {
             state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
-            ApplyFloorTransferList(state.GetawayWingFrame == 0
-                ? CeresMode7TransferList.WingFrame0
-                : CeresMode7TransferList.WingFrame1, updates);
+            ApplyFloorAnimationFrame(state.GetawayWingFrame == 0
+                ? CeresFloorAnimationFrame.WingFrame0
+                : CeresFloorAnimationFrame.WingFrame1, updates);
         }
         residue.Record(updates);
     }
@@ -220,16 +221,19 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Writes one compiled $80:8B4F Mode-7 transfer list into the room's Mode 7 map (#1349) and adds its floor updates to
-    /// <paramref name="updates"/>, whose descriptors outlive the update. Its tile numbers are immutable definitions, so
-    /// gameplay needs no bank-$A6 read.
+    /// Draws one floor animation frame onto the room's floor (#1349) and adds its floor updates to
+    /// <paramref name="updates"/>, whose descriptors outlive the update. Its tile numbers are immutable definitions; the
+    /// source each update records is installed (#1415), so gameplay needs no cartridge read.
     /// </summary>
-    private void ApplyFloorTransferList(CeresMode7TransferList transferList, List<FloorUpdate> updates)
+    private void ApplyFloorAnimationFrame(CeresFloorAnimationFrame frame, List<FloorUpdate> updates)
     {
-        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
-            _room.Services.DrawFloorMap(transfer.MapCell, [.. transfer.TileNumbers]);
-        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
-            updates.Add(new FloorUpdate(transfer.SourceOffset, transfer.TileNumbers.Count, transfer.MapCell));
+        CeresRidleyFloorUpdateSources sources = _bossArtwork.CeresRidleyFloorUpdates ?? throw new InvalidOperationException(
+            "The Ceres Ridley getaway requires the installed floor update sources.");
+        CeresFloorAnimationDefinitions.FrameRuns runs = CeresFloorAnimationDefinitions.Get(frame);
+        foreach (CeresFloorTileRun run in runs)
+            _room.Services.DrawFloorMap(run.FloorCell, [.. run.TileNumbers]);
+        for (int index = 0; index < runs.Count; index++)
+            updates.Add(new FloorUpdate(sources.TileSource(frame, index), runs[index].TileNumbers.Count, runs[index].FloorCell));
     }
 
     /// <summary>

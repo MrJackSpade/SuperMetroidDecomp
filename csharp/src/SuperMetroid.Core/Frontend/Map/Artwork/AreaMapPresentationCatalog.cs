@@ -82,6 +82,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         SamusChargeColors = parts.SamusChargeColors;
         CeresRidleyColors = parts.CeresRidleyColors;
         CeresRidleyFloorColors = parts.CeresRidleyFloorColors;
+        CeresRidleyFloorUpdates = parts.CeresRidleyFloorUpdates;
         SamusHyperBeamColors = parts.SamusHyperBeamColors;
     }
 
@@ -195,6 +196,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
     public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
+    /// <summary>Where the getaway's floor runs take their tile numbers from, which the floor updates it queues record.</summary>
+    public CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
     /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>

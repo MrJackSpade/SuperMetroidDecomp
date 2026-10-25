@@ -25,4 +25,16 @@ internal static class CeresNativeWords
         [CeresSteamFunction.None] = 0xeff4,
         [CeresSteamFunction.ApplyRotatingElevatorOffset] = 0xf019,
     });
+
+    /// <summary>The bank-$A6 floor update list naming each <see cref="CeresFloorAnimationFrame"/>.</summary>
+    internal static readonly NativeWordIdentities<CeresFloorAnimationFrame> FloorAnimationFrames = new(new Dictionary<CeresFloorAnimationFrame, ushort>
+    {
+        [CeresFloorAnimationFrame.ElevatorLight] = 0xf904,
+        [CeresFloorAnimationFrame.ElevatorDark] = 0xf90e,
+        [CeresFloorAnimationFrame.BabyFrame0] = 0xace2,
+        [CeresFloorAnimationFrame.BabyFrame1] = 0xacf5,
+        [CeresFloorAnimationFrame.BabyFrame2] = 0xad08,
+        [CeresFloorAnimationFrame.WingFrame0] = 0xad49,
+        [CeresFloorAnimationFrame.WingFrame1] = 0xad80,
+    });
 }

@@ -36,4 +36,23 @@ internal static class CeresSourceDefinitions
         /// <summary>The bytes between the light and dark platform strips: one byte per floor cell.</summary>
         internal const int PlatformFrameBytes = 4;
     }
+
+    /// <summary>
+    /// The bank-$A6 floor update lists Ridley's getaway queues ($A6:ACBC selects the capsule's, $A6:AD27 the wing's):
+    /// each a run of nine-byte descriptors ended by a zero byte.
+    /// </summary>
+    internal static class FloorAnimation
+    {
+        /// <summary>$A6:ACE2, $A6:ACF5 and $A6:AD08: the Baby capsule's three frames, two descriptors each.</summary>
+        internal static readonly SnesAddress[] CapsuleFrames = [new(0xa6, 0xace2), new(0xa6, 0xacf5), new(0xa6, 0xad08)];
+
+        /// <summary>$A6:AD49 and $A6:AD80: Ridley's wings' two frames, six descriptors each.</summary>
+        internal static readonly SnesAddress[] WingFrames = [new(0xa6, 0xad49), new(0xa6, 0xad80)];
+
+        /// <summary>The bytes of one descriptor: control, three-byte source, two-byte count, two-byte floor cell, increment mode.</summary>
+        internal const int DescriptorBytes = 9;
+
+        /// <summary>Where a descriptor's three-byte tile source starts within it.</summary>
+        internal const int DescriptorSource = 1;
+    }
 }

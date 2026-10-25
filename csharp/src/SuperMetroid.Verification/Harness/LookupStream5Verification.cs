@@ -357,8 +357,8 @@ internal static class LookupStream5Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.PlatformFrame(-1), "Platform lower frame domain");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.PlatformFrame(2), "Platform upper frame domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimationDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimationDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
         Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {
@@ -386,7 +386,7 @@ internal static class LookupStream5Verification
                 for (int cell = 0; cell < 4; cell++)
                 {
                     AssertEqual((ushort)(0xa700 | expected.Mode7DoorFrames[frame][cell]), vram.ReadWord(destination + cell), "Actual platform phase and character-byte preservation");
-                    AssertEqual(rom.ReadCartridgeByte(0xa6f918 + frame * 4 + cell), CeresMode7TransferDefinitions.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
+                    AssertEqual(rom.ReadCartridgeByte(0xa6f918 + frame * 4 + cell), CeresFloorAnimationDefinitions.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
                 }
                 AssertEqual((ushort)0xa75d, vram.ReadWord(destination - 1), "Platform preceding map/character unchanged");
                 AssertEqual((ushort)0xa75d, vram.ReadWord(destination + 4), "Platform following map/character unchanged");

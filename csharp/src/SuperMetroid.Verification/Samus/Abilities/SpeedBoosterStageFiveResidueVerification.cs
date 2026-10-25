@@ -47,7 +47,11 @@ internal static class SpeedBoosterStageFiveResidueVerification
                 FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()),
             })
         {
-            BossArtworkBinding = { CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
+            BossArtworkBinding =
+            {
+                CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))),
+                CeresRidleyFloorUpdates = CeresRidleyFloorUpdateFiles.Read(new MemoryStream(CeresRidleyFloorUpdateFiles.Extract(bus))),
+            },
         };
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
@@ -56,7 +60,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 0);
-        byte[] expected = NativeQueueImage(bus, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.WingFrame1);
+        byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.WingFrame1);
         AssertTrue(SamusAnimationDelayDefinitions.IsCommand(expected[stageFiveQueueOffset]),
             "the wing's fourth descriptor leaves a command byte, not a delay, at $0303");
         AssertStageFive(residue, stageFive, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
@@ -68,7 +72,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
         enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 8);
         AssertStageFive(residue, stageFive, stageFiveQueueOffset,
-            NativeQueueImage(bus, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.WingFrame0),
+            NativeQueueImage(bus, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.WingFrame0),
             "after the getaway queues wing frame zero");
         Console.WriteLine("  Speed Booster stage five: reads the Ceres getaway's Mode 7 queue residue at $0303 and keeps it across capsule-only frames.");
     }
@@ -78,16 +82,16 @@ internal static class SpeedBoosterStageFiveResidueVerification
     /// copied at the running offset, a zero after the last, and the NMI handler's clear of the first word.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres Mode 7 descriptor lists")]
-    private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresMode7TransferList capsule, CeresMode7TransferList wing)
+    private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresFloorAnimationFrame capsule, CeresFloorAnimationFrame wing)
     {
         IImportCartridgeSource rom = CartridgeImportSource.Require(bus);
         const int descriptorBytes = 9;
         var image = new byte[SuperMetroid.Core.Compatibility.FloorUpdateResidue.ByteCount];
         int offset = 0;
-        foreach (CeresMode7TransferList list in new[] { capsule, wing })
+        foreach (CeresFloorAnimationFrame list in new[] { capsule, wing })
         {
-            var source = new SnesAddress(0xa6, (ushort)list);
-            for (int descriptor = 0; descriptor < CeresMode7TransferDefinitions.Get(list).Count; descriptor++, offset += descriptorBytes)
+            var source = new SnesAddress(0xa6, CeresNativeWords.FloorAnimationFrames.Word(list));
+            for (int descriptor = 0; descriptor < CeresFloorAnimationDefinitions.Get(list).Count; descriptor++, offset += descriptorBytes)
             {
                 for (int index = 0; index < descriptorBytes; index++)
                     image[offset + index] = rom.ReadCartridgeByte((int)source.AddWithinBank(descriptor * descriptorBytes + index));

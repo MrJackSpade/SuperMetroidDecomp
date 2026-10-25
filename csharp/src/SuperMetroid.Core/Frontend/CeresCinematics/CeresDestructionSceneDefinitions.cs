@@ -69,6 +69,8 @@ internal static class CeresDestructionSceneDefinitions
         internal const ushort ZebesHoldFrames = 64;
         /// <summary>The planet reveal's starting mosaic size; each fade step lowers it by one until it clears at zero.</summary>
         internal const int InitialMosaicSize = 8;
+        /// <summary>The mosaic sizes the screen's mosaic setting holds; lowering the smallest wraps to the largest.</summary>
+        internal const int MosaicSizeCount = 16;
     }
 
     /// <summary>The floor's zoom thresholds and the scenes' fixed-point velocities.</summary>

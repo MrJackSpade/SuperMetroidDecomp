@@ -149,9 +149,6 @@ internal static class MapSourceDefinitions
         /// <summary>$82:C1E4, pointers to the sprite animations' base spritemap variants.</summary>
         internal const int SpriteBases = 0x82c1e4;
 
-        /// <summary>The bytes of one sprite-animation record: duration, frame and spritemap.</summary>
-        internal const int SpriteRecordBytes = 3;
-
         /// <summary>$82:C10C, the highlight's three-byte timing records, terminated by $FF.</summary>
         internal const int PaletteTiming = 0x82c10c;
 

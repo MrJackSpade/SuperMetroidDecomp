@@ -15,11 +15,11 @@ internal static class CeresPlacementSelectorsVerification
         // not ROM strings. Native initializer operands independently confirm their source views.
         CinematicPlacementSourceDefinition[] original =
         [
-            new("large-asteroid", 0xbf23, 0xbf29),
-            new("station-under-attack", 0xbf4d, 0xbf53),
-            new("small-asteroid", 0xbf77, 0xbf7d),
-            new("vortex", 0xbfb4, 0xbfba),
-            new("rear-stars", 0xbea3, 0xbea9),
+            new("large-asteroid", 0xbf23),
+            new("station-under-attack", 0xbf4d),
+            new("small-asteroid", 0xbf77),
+            new("vortex", 0xbfb4),
+            new("rear-stars", 0xbea3),
         ];
         AssertEqual(original.Length, CeresFlightActorDefinitions.RearViewActorCount, "rear placement count");
         for (int i = 0; i < original.Length; i++)
@@ -27,8 +27,8 @@ internal static class CeresPlacementSelectorsVerification
             var actual = CeresCinematicSourceDefinitions.RearViewPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original rear placement operands under the Core actor id");
             var actor = CeresFlightActorDefinitions.RearViewActor(i);
-            VerifyPlacementOperand(rom, actual.XAddress, actor.Position.X);
-            VerifyPlacementOperand(rom, actual.YAddress, actor.Position.Y);
+            VerifyPlacementOperand(rom, actual.FirstOperand, actor.Position.X);
+            VerifyPlacementOperand(rom, actual.SecondOperand, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementId(i), "rear selector bounds");
@@ -39,12 +39,12 @@ internal static class CeresPlacementSelectorsVerification
     {
         CinematicPlacementSourceDefinition[] original =
         [
-            new("planet", 0xc83c, 0xc842),
-            new("stars-upper-left", 0xc944, 0xc94a),
-            new("stars-upper-right", 0xc958, 0xc95e),
-            new("stars-lower-left", 0xc96c, 0xc972),
-            new("stars-lower-right", 0xc980, 0xc986),
-            new("planet-zebes-title", 0xc993, 0xc999),
+            new("planet", 0xc83c),
+            new("stars-upper-left", 0xc944),
+            new("stars-upper-right", 0xc958),
+            new("stars-lower-left", 0xc96c),
+            new("stars-lower-right", 0xc980),
+            new("planet-zebes-title", 0xc993),
         ];
         AssertEqual(original.Length, CeresDestructionActorDefinitions.ZebesActorCount, "reveal placement count");
         for (int i = 0; i < original.Length; i++)
@@ -52,8 +52,8 @@ internal static class CeresPlacementSelectorsVerification
             var actual = CeresCinematicSourceDefinitions.ZebesPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original reveal placement operands under the Core actor id");
             var actor = CeresDestructionActorDefinitions.ZebesActor(i);
-            VerifyPlacementOperand(rom, actual.XAddress, actor.Position.X);
-            VerifyPlacementOperand(rom, actual.YAddress, actor.Position.Y);
+            VerifyPlacementOperand(rom, actual.FirstOperand, actor.Position.X);
+            VerifyPlacementOperand(rom, actual.SecondOperand, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementId(i), "reveal selector bounds");

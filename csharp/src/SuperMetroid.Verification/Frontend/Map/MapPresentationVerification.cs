@@ -1531,15 +1531,15 @@ internal static class MapPresentationVerification
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= MapSourceDefinitions.Artwork.PauseColors && address < MapSourceDefinitions.Artwork.PauseColors + CgramPalettes.ByteCount) ||
-                (address >= MapSourceDefinitions.Menu.Colors && address < MapSourceDefinitions.Menu.Colors + CgramPalettes.ByteCount) ||
-                (address >= MapSourceDefinitions.FileSelectMap.PaletteColors && address < MapStaticPalettesNativeSources.WorldPaletteDataEnd),
+                address is (>= MapSourceDefinitions.Artwork.PauseColors and < MapSourceDefinitions.Artwork.PauseColors + CgramPalettes.ByteCount)
+                    or (>= MapSourceDefinitions.Menu.Colors and < MapSourceDefinitions.Menu.Colors + CgramPalettes.ByteCount)
+                    or (>= MapSourceDefinitions.FileSelectMap.PaletteColors and < MapStaticPalettesNativeSources.WorldPaletteDataEnd),
             address => $"Live presentation read static map palette ROM at {address:X6}.");
         guard.Forbid(address =>
-                (address >= MapSourceDefinitions.Animation.PaletteTiming &&
-                    address <= MapSourceDefinitions.Animation.PaletteTiming + MapAnimationNativeSources.PaletteFrameCount * MapSourceDefinitions.Animation.PaletteTimingStride) ||
-                (address >= MapSourceDefinitions.Animation.PaletteColors &&
-                    address < MapSourceDefinitions.Animation.PaletteColors + MapAnimationNativeSources.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
+                address is (>= MapSourceDefinitions.Animation.PaletteTiming
+                        and <= MapSourceDefinitions.Animation.PaletteTiming + MapAnimationNativeSources.PaletteFrameCount * MapSourceDefinitions.Animation.PaletteTimingStride)
+                    or (>= MapSourceDefinitions.Animation.PaletteColors
+                        and < MapSourceDefinitions.Animation.PaletteColors + MapAnimationNativeSources.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
             address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
         guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.HudCharacters and < (MapSourceDefinitions.Artwork.HudCharacters + HudTileAtlasFormat.ByteCount),
             address => $"Live presentation read HUD atlas ROM at {address:X6}.");

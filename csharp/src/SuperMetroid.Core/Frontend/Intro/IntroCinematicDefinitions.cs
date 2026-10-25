@@ -6,8 +6,12 @@ public static class IntroCinematicDefinitions
     /// <summary>The extents, in bytes, of the installed opening artwork the cinematic requires.</summary>
     public static class Artwork
     {
+        /// <summary>The bytes of one four-bit character.</summary>
+        private const int FourBitCharacterBytes = 32;
+        /// <summary>The scenes' four-bit background characters.</summary>
+        private const int BackgroundCharacterCount = 1024;
         /// <summary>The scenes' 1024 four-bit background characters.</summary>
-        public const int BackgroundCharacterBytes = 1024 * 32;
+        public const int BackgroundCharacterBytes = BackgroundCharacterCount * FourBitCharacterBytes;
         /// <summary>The narration font's 144 two-bit characters.</summary>
         public const int FontOneBytes = 144 * 16;
         /// <summary>The Samus portrait's 32-by-32 tilemap.</summary>
@@ -15,7 +19,7 @@ public static class IntroCinematicDefinitions
         /// <summary>The scenes' four 32-by-32 background tilemap pages.</summary>
         public const int BackgroundPageTilemapBytes = 4 * 32 * 32 * sizeof(ushort);
         /// <summary>The cinematic sprites' 288 four-bit characters.</summary>
-        public const int ObjectCharacterBytes = 288 * 32;
+        public const int ObjectCharacterBytes = 288 * FourBitCharacterBytes;
         /// <summary>One 32-by-32 narration tilemap.</summary>
         public const int NarrationTilemapBytes = 32 * 32 * sizeof(ushort);
         /// <summary>The 96 two-bit characters the Japanese narration blanks with its blank glyph.</summary>

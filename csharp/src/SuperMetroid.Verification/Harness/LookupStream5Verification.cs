@@ -1694,8 +1694,8 @@ internal static class LookupStream5Verification
         {
             var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             return new CeresFlightActorPlacement { Id = source.Id,
-                X = ReadVerificationWord(rom, 0x8b0000 | source.XAddress),
-                Y = ReadVerificationWord(rom, 0x8b0000 | source.YAddress) };
+                X = ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand),
+                Y = ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand) };
         }).ToArray();
         Check(flight, values =>
         {
@@ -1710,8 +1710,8 @@ internal static class LookupStream5Verification
         {
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             return new CeresRevealActorPlacement { Id = source.Id,
-                X = ReadVerificationWord(rom, 0x8b0000 | source.XAddress),
-                Y = ReadVerificationWord(rom, 0x8b0000 | source.YAddress) };
+                X = ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand),
+                Y = ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand) };
         }).ToArray();
         Check(reveal, values =>
         {

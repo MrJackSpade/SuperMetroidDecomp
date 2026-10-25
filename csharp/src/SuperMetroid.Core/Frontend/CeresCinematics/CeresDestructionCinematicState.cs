@@ -567,12 +567,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return brightness == 0;
     }
 
-    /// <summary>Reduces the planet reveal's mosaic size every fourth cinematic frame until clear.</summary>
+    /// <summary>
+    /// Reduces the planet reveal's mosaic size every fourth cinematic frame until clear. The fade-in already steps it,
+    /// so it passes zero before the removal phase tests it and wraps from the smallest size to the largest.
+    /// </summary>
     private bool StepZebesMosaic()
     {
         if ((cinematicFrameCounter & 3) != 0)
             return false;
-        phaseTimer--;
+        phaseTimer = (phaseTimer + CeresDestructionSceneDefinitions.Timing.MosaicSizeCount - 1) %
+            CeresDestructionSceneDefinitions.Timing.MosaicSizeCount;
         return phaseTimer == 0;
     }
 

@@ -99,9 +99,9 @@ internal static class CeresFlightArtworkExtractor
         {
             var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresCinematicSourceDefinitions.PlacementBank | source.XAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand);
             ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresCinematicSourceDefinitions.PlacementBank | source.YAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             CeresFlightActorDefinition translated =
                 CeresFlightActorDefinitions.RearViewActor(index);
             if (x != translated.Position.X || y != translated.Position.Y)

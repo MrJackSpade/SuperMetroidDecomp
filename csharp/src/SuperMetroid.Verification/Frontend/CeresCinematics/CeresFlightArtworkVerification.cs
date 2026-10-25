@@ -217,11 +217,11 @@ internal static class CeresFlightArtworkVerification
             AssertEqual(source.Id, document.Actors[index].Id,
                 $"Ceres flight actor {index} retains its native role");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.XAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 document.Actors[index].X,
                 $"Ceres flight actor {index} X matches the cartridge operand");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.YAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
                 document.Actors[index].Y,
                 $"Ceres flight actor {index} Y matches the cartridge operand");
         }

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend;
-using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Core.Frontend.GameOver;
 

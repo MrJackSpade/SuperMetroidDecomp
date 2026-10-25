@@ -31,7 +31,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

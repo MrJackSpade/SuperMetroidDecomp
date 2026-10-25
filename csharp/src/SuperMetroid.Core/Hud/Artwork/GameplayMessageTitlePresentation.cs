@@ -3,7 +3,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 

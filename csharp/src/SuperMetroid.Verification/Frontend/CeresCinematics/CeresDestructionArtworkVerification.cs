@@ -122,11 +122,11 @@ internal static class CeresDestructionArtworkVerification
             AssertEqual(source.Id, actorsDocument.Actors[index].Id,
                 $"Zebes reveal actor {index} retains its native identity");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.XAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 actorsDocument.Actors[index].X,
                 $"Zebes reveal actor {index} X matches the cartridge operand");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.YAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");
         }

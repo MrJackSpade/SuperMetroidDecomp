@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;

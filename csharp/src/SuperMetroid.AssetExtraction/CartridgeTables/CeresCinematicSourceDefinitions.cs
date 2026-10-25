@@ -40,21 +40,21 @@ internal static class CeresCinematicSourceDefinitions
     /// </summary>
     internal static IReadOnlyList<CinematicPlacementSourceDefinition> RearViewPlacements { get; } =
     [
-        new(CeresFlightActorDefinitions.RearViewPlacementId(0), 0xbf23, 0xbf29),
-        new(CeresFlightActorDefinitions.RearViewPlacementId(1), 0xbf4d, 0xbf53),
-        new(CeresFlightActorDefinitions.RearViewPlacementId(2), 0xbf77, 0xbf7d),
-        new(CeresFlightActorDefinitions.RearViewPlacementId(3), 0xbfb4, 0xbfba),
-        new(CeresFlightActorDefinitions.RearViewPlacementId(4), 0xbea3, 0xbea9),
+        new(CeresFlightActorDefinitions.RearViewPlacementId(0), 0xbf23),
+        new(CeresFlightActorDefinitions.RearViewPlacementId(1), 0xbf4d),
+        new(CeresFlightActorDefinitions.RearViewPlacementId(2), 0xbf77),
+        new(CeresFlightActorDefinitions.RearViewPlacementId(3), 0xbfb4),
+        new(CeresFlightActorDefinitions.RearViewPlacementId(4), 0xbea3),
     ];
 
     /// <summary>The X/Y immediates of the Zebes reveal's six actors' initializers ($8B:C810..C831), in spawn order.</summary>
     internal static IReadOnlyList<CinematicPlacementSourceDefinition> ZebesPlacements { get; } =
     [
-        new(CeresDestructionActorDefinitions.ZebesPlacementId(0), 0xc83c, 0xc842),
-        new(CeresDestructionActorDefinitions.ZebesPlacementId(1), 0xc944, 0xc94a),
-        new(CeresDestructionActorDefinitions.ZebesPlacementId(2), 0xc958, 0xc95e),
-        new(CeresDestructionActorDefinitions.ZebesPlacementId(3), 0xc96c, 0xc972),
-        new(CeresDestructionActorDefinitions.ZebesPlacementId(4), 0xc980, 0xc986),
-        new(CeresDestructionActorDefinitions.ZebesPlacementId(5), 0xc993, 0xc999),
+        new(CeresDestructionActorDefinitions.ZebesPlacementId(0), 0xc83c),
+        new(CeresDestructionActorDefinitions.ZebesPlacementId(1), 0xc944),
+        new(CeresDestructionActorDefinitions.ZebesPlacementId(2), 0xc958),
+        new(CeresDestructionActorDefinitions.ZebesPlacementId(3), 0xc96c),
+        new(CeresDestructionActorDefinitions.ZebesPlacementId(4), 0xc980),
+        new(CeresDestructionActorDefinitions.ZebesPlacementId(5), 0xc993),
     ];
 }

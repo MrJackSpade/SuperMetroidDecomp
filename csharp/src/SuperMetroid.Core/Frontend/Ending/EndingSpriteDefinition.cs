@@ -10,7 +10,7 @@ internal readonly record struct EndingSpriteDefinition(
     SnesObjAttributeWord Attributes,
     CinematicSpriteProgram Program)
 {
-    /// <summary>An actor at signed origin (<paramref name="x"/>, <paramref name="y"/>), stored as the wrapped words the actor carries.</summary>
-    public static EndingSpriteDefinition At(short x, short y, SnesObjAttributeWord attributes, CinematicSpriteProgram program) =>
-        new(new(unchecked((ushort)x), unchecked((ushort)y)), attributes, program);
+    /// <summary>An actor at signed <paramref name="origin"/>, stored as the wrapped words the actor carries.</summary>
+    public static EndingSpriteDefinition At(Offset16<ScreenPixels> origin, SnesObjAttributeWord attributes, CinematicSpriteProgram program) =>
+        new(new(unchecked((ushort)origin.X), unchecked((ushort)origin.Y)), attributes, program);
 }

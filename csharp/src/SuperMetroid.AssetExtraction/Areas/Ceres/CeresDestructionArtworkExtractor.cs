@@ -87,9 +87,9 @@ internal static class CeresDestructionArtworkExtractor
         {
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresCinematicSourceDefinitions.PlacementBank | source.XAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand);
             ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresCinematicSourceDefinitions.PlacementBank | source.YAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             CeresDestructionActorDefinition translatedActor =
                 CeresDestructionActorDefinitions.ZebesActor(index);
             if (x != translatedActor.Position.X || y != translatedActor.Position.Y)

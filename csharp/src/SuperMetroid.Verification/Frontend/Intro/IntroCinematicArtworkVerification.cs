@@ -37,7 +37,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
@@ -1037,9 +1036,8 @@ internal static class IntroCinematicArtworkVerification
         {
             return $"Cinematic reread opening divider ${address:X6}.";
         }
-        if (address >= IntroCinematicCheckSources.MotherBrainLevelData &&
-            address < IntroCinematicCheckSources.MotherBrainLevelData +
-                IntroMotherBrainFlashbackConstants.MotherBrainLevelByteCount)
+        if (address is >= IntroCinematicCheckSources.MotherBrainLevelData
+            and < IntroCinematicCheckSources.MotherBrainLevelData + IntroMotherBrainFlashbackConstants.MotherBrainLevelByteCount)
         {
             return $"Cinematic reread Mother Brain collision source ${address:X6}.";
         }

@@ -69,7 +69,6 @@ internal static class PauseMenuSourceDefinitions
     /// <summary>$B6:E800, the equipment page's 32-by-32 template tilemap.</summary>
     internal const int EquipmentPage = 0xb6e800;
 
-
     /// <summary>
     /// The equipment-page label tables of each inventory category, named by the category pointer tables at $82:C02C
     /// (label places) and $82:C044 (label tilemaps).

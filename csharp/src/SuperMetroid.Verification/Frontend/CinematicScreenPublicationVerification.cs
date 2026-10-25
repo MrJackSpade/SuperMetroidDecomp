@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;

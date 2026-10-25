@@ -92,11 +92,12 @@ internal static class ScreenTilePicturesVerification
             audio.AdvanceFrame(default);
         }
         CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
-        while (!destruction.Finished)
+        for (int frame = 0; frame < 5000 && !destruction.Finished; frame++)
         {
             Check(destruction.CaptureRenderSnapshot(), destruction.ShownVram(), $"Ceres destruction {destruction.Phase}");
             destruction.Step();
         }
+        AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
         AssertTrue(sampled.Contains($"Ceres flight {IntroCeresFlightPhase.SpaceColonyTitle}"), "the Ceres flight's caption is checked");
         AssertTrue(sampled.Any(name => name.StartsWith("Ceres destruction", StringComparison.Ordinal)), "the Zebes reveal is checked");
         Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their background layers from their tiles, as their characters do.");

@@ -82,9 +82,12 @@ internal static class WorldMapLabelsVerification
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= MapSourceDefinitions.FileSelectMap.LabelPositions && address < MapSourceDefinitions.FileSelectMap.LabelPositions + FileSelectMapDefinitions.AreaCount * 4) ||
-                (address >= FileSelectMapNativeSources.WindowVelocities && address < FileSelectMapNativeSources.WindowVelocities + FileSelectMapDefinitions.AreaCount * FileSelectMapNativeSources.VelocityRecordBytes) ||
-                (address >= FileSelectMapNativeSources.WindowTimers && address < FileSelectMapNativeSources.WindowTimers + FileSelectMapDefinitions.AreaCount * 2),
+                address is (>= MapSourceDefinitions.FileSelectMap.LabelPositions
+                        and < MapSourceDefinitions.FileSelectMap.LabelPositions + FileSelectMapDefinitions.AreaCount * 4)
+                    or (>= FileSelectMapNativeSources.WindowVelocities
+                        and < FileSelectMapNativeSources.WindowVelocities + FileSelectMapDefinitions.AreaCount * FileSelectMapNativeSources.VelocityRecordBytes)
+                    or (>= FileSelectMapNativeSources.WindowTimers
+                        and < FileSelectMapNativeSources.WindowTimers + FileSelectMapDefinitions.AreaCount * 2),
             _ => "Installed world labels/windows read cartridge coordinate or motion tables.");
         return guard;
     }

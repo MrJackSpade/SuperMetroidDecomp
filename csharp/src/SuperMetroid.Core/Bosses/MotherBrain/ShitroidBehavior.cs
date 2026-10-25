@@ -70,7 +70,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public DelayedMusicRequest? LastShitroidMusicRequest { get; private set; }
 
     /// <summary>Ports <c>Shitroid_Init</c> at <c>$A9:EF37</c>.</summary>
-    internal void InitializeShitroid(RoomEnemySlot slot, ushort cameraX)
+    internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
     {
         if (slot.SlotIndex != 0)
         {
@@ -433,9 +433,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
         slot.Position = slot.Position.WithWhole(
             victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
-        ushort oldTimer = state.StateTimer.RawValue;
-        state.StateTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer == 1)
+        CountdownStep timer = state.StateTimer.Decrement();
+        state.StateTimer = timer.Remaining;
+        if (timer.IsZero)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
             SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
@@ -457,26 +457,25 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort targetY = SelectShitroidHoverY(state, samus.Position.Y.Whole);
         GraduallyAccelerateShitroid(
             slot,
             state,
             10,
-            new(samus.Position.X.Whole, targetY),
+            SelectShitroidHoverTarget(state, samus.Position.Whole),
             1024);
     }
 
-    /// <summary>Alternates between a timed followed Y and authored height 80 using the room RNG.</summary>
-    private ushort SelectShitroidHoverY(ShitroidEnemyState state, ushort followedY)
+    /// <summary>Alternates between a timed followed point and the followed X at authored height 80, using the room RNG.</summary>
+    private Position16<RoomPixels> SelectShitroidHoverTarget(ShitroidEnemyState state, Position16<RoomPixels> followed)
     {
         if (!state.HoverTimer.IsZero)
         {
             state.HoverTimer = state.HoverTimer.Decrement().Remaining;
-            return followedY;
+            return followed;
         }
         if ((_room.Random.Read() & 4095) >= 4064)
             state.HoverTimer = WrappingCountdown.Start(32);
-        return 80;
+        return followed.WithY(80);
     }
 
     /// <summary>Locks bombs and movement, shakes over Samus, and drains energy until the scripted release at one health.</summary>
@@ -535,14 +534,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         UpdateShitroidHorizontalLock(state, slot.Position.X.Whole, samus.Position.X.Whole, threshold: 2);
-        ushort targetY = SelectShitroidHoverY(
-            state,
-            unchecked((ushort)(samus.Position.Y.Whole - 18)));
         GraduallyAccelerateShitroid(
             slot,
             state,
             8,
-            new(samus.Position.X.Whole, targetY),
+            SelectShitroidHoverTarget(state, samus.Position.Whole - new Offset16<RoomPixels>(0, 18)),
             1024);
         return state.HorizontalLockAccumulator >= 1024 ||
             unchecked((short)(samus.Position.X.Whole - 128)) < 0;
@@ -551,9 +547,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accumulates two lock ticks within a narrow X threshold and decays by one when separated.</summary>
     private static void UpdateShitroidHorizontalLock(
         ShitroidEnemyState state,
-        ushort currentX,
-        ushort targetX,
-        ushort threshold)
+        int currentX,
+        int targetX,
+        int threshold)
     {
         int distance = Math.Abs(unchecked((short)(currentX - targetX)));
         if (distance < threshold)
@@ -572,17 +568,17 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShitroidEnemyState state,
         int divisorTableIndex,
         Position16<RoomPixels> target,
-        ushort offscreenReversalKick)
+        int offscreenReversalKick)
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
         // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
-        byte divisor = (byte)(16 - divisorTableIndex);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            slot.Position.X.Whole, target.X, state.Velocity.X.RawValue, divisor, offscreenReversalKick,
-            () => ShitroidIsOffScreen(slot))));
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateVertically(
-            slot.Position.Y.Whole, target.Y, state.Velocity.Y.RawValue, divisor)));
+        int divisor = 16 - divisorTableIndex;
+        state.Velocity = state.Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
+            slot.Position.X.Whole, target.X, state.Velocity.X, divisor, offscreenReversalKick,
+            () => ShitroidIsOffScreen(slot)));
+        state.Velocity = state.Velocity.WithY(BabyMetroidGradualAcceleration.AccelerateVertically(
+            slot.Position.Y.Whole, target.Y, state.Velocity.Y, divisor));
     }
 
     /// <summary>Tests the Baby Metroid's asymmetric flight window against the current layer-one camera.</summary>
@@ -602,7 +598,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates both axes toward a latch target and reports arrival only when both cross it.</summary>
     private static bool AccelerateShitroidExactly(
         ShitroidEnemyState state,
-        ushort acceleration,
+        int acceleration,
         Position16<RoomPixels> target)
     {
         (bool xArrived, int xVelocity) = AccelerateShitroidAxis(
@@ -622,10 +618,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Clamps signed 8.8 speed to 1280 and zeroes it on predicted target crossing.</summary>
     private static ShitroidAxisStep AccelerateShitroidAxis(
-        ushort current,
-        ushort target,
-        ushort velocityWord,
-        ushort acceleration)
+        int current,
+        int target,
+        int velocityWord,
+        int acceleration)
     {
         int delta = unchecked((short)(current - target));
         if (delta == 0)
@@ -708,7 +704,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the recoil-only shot callback at <c>$A9:F842</c>.</summary>
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
-        ushort collisionDamage,
+        int collisionDamage,
         SamusProjectileSlot slotZeroProjectile)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
@@ -720,13 +716,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.Position.X.Whole)),
             unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.Position.Y.Whole))));
         SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
-        ushort magnitude = unchecked((ushort)(8 * collisionDamage));
-        if (magnitude >= 240)
-            magnitude = 240;
+        // The recoil strength is eight times the damage, kept to sixteen bits as the damage word's
+        // multiple is, and capped at 240.
+        int magnitude = Math.Min(unchecked((ushort)(8 * collisionDamage)), 240);
         state.Velocity += new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(magnitude, angle.ToByteAngle())),
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle())),
             new SnesSignedEightEight(EnemyMath.MultiplySineSample(
-                magnitude,
+                (ushort)magnitude,
                 angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
     }
 
@@ -828,7 +824,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // whatever stale/live shot occupies slot zero controls direction. It never enters vulnerability damage.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                   c.SelectedShotAi == EnemyInteractionCallback.ShitroidShot,
-            c => ResolveShitroidShot(c.Enemy, checked((ushort)c.Bomb.Damage), c.OrdinaryProjectiles.Slots[0]));
+            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.Slots[0]));
     }
 
     /// <summary>Ports Shitroid's initialization AI.</summary>
@@ -850,9 +846,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
+        slot.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -909,7 +905,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveShitroidShot(c.Enemy, checked((ushort)c.Projectile.Damage), c.Projectiles.Slots[0]);
+                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, c.Projectiles.Slots[0]);
                 return true;
             },
         });

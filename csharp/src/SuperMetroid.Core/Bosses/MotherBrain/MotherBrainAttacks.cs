@@ -73,8 +73,8 @@ internal sealed class MotherBrainAttacks
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)
     {
-        ushort targetMinusBody = unchecked((ushort)(40 - state.Body.Position.X.Whole));
-        if (unchecked((short)targetMinusBody) >= 0)
+        int targetMinusBody = unchecked((short)(40 - state.Body.Position.X.Whole));
+        if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
@@ -176,7 +176,7 @@ internal sealed class MotherBrainAttacks
         state.AttackCooldown = WrappingCountdown.Start(64);
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
-        byte randomLow = unchecked((byte)_room.Random.Read());
+        int randomLow = unchecked((byte)_room.Random.Read());
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if (!Enum.IsDefined(movementType))
         {
@@ -211,7 +211,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        ushort verticalDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
+        int verticalDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.Head.Position.Y.Whole + 4 - samus.Position.Y.Whole)));
         ReadOnlySpan<byte> thresholds = verticalDistance < 32
             ? [16, 32, 208]
@@ -268,9 +268,9 @@ internal sealed class MotherBrainAttacks
         int random = _room.Random.Read();
         if (random < 65408)
         {
-            ushort targetX = random >= 24576 ? (ushort)64 : (ushort)96;
-            ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.Position.X.Whole));
-            if (unchecked((short)targetMinusBody) < 0)
+            int targetX = random >= 24576 ? 64 : 96;
+            int targetMinusBody = unchecked((short)(targetX - state.Body.Position.X.Whole));
+            if (targetMinusBody < 0)
             {
                 state.BodyTargetXPosition = targetX;
                 if (!TryWalkMotherBrainBackwards(state, targetX))
@@ -360,8 +360,8 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         int targetX)
     {
-        ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.Position.X.Whole));
-        if (unchecked((short)targetMinusBody) >= 0)
+        int targetMinusBody = unchecked((short)(targetX - state.Body.Position.X.Whole));
+        if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
@@ -425,8 +425,8 @@ internal sealed class MotherBrainAttacks
         // CMP/BPL tests the sign bit of the wrapped 16-bit subtraction. Normal arena
         // coordinates cannot overflow signed range, but expressing the native flag test
         // explicitly keeps debugger-edited/wrapped coordinates cartridge-faithful too.
-        ushort headMinusSamus = unchecked((ushort)(head.Position.Y.Whole - samus.Position.Y.Whole));
-        MotherBrainNeckMovement targetIndex = unchecked((short)headMinusSamus) >= 0
+        int headMinusSamus = unchecked((short)(head.Position.Y.Whole - samus.Position.Y.Whole));
+        MotherBrainNeckMovement targetIndex = headMinusSamus >= 0
             ? MotherBrainNeckMovement.Raise
             : MotherBrainNeckMovement.Lower;
         state.LowerNeckMovementIndex = targetIndex;
@@ -528,7 +528,7 @@ internal sealed class MotherBrainAttacks
         // Word $0FF2 keeps the fake-death ascent dust's last value; the death explosions
         // start from it. Word $0FF0 then holds a bank-$A9 sub-function pointer, always
         // negative, so its first DEC takes the same immediate branch as the sequence's zero.
-        sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubFunctionTimer.RawValue);
+        sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubFunctionTimer);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
         state.RainbowPaletteCursor = 0;

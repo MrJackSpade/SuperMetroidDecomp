@@ -326,11 +326,11 @@ internal sealed class KraidCombat
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
                 callback = probe.SelectShotCallback
                     ? KraidHitboxCallbackCodec.ToCallback(hitbox.Shot)
@@ -356,15 +356,13 @@ internal sealed class KraidCombat
         foreach (KraidCollisionComponent component in kraidComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            ushort componentX = componentOrigin.X;
-            ushort componentY = componentOrigin.Y;
             foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
 
                 callback = probe.SelectShotCallback

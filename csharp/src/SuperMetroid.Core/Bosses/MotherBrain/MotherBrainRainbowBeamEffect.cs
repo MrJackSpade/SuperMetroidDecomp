@@ -65,8 +65,8 @@ public sealed class MotherBrainRainbowBeamEffect
         SnesAngle angle, int angularWidth)
     {
         int halfWidth = SnesEightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
-        byte a = unchecked((byte)(angle.TableIndex - halfWidth));
-        byte b = unchecked((byte)(angle.TableIndex + halfWidth));
+        int a = angle.ToByteAngle().AddTableUnits(-halfWidth).RawValue;
+        int b = angle.ToByteAngle().AddTableUnits(halfWidth).RawValue;
         int quadrant = (a / SnesAngle.QuarterTurn.TableIndex) * 4 + b / SnesAngle.QuarterTurn.TableIndex;
         var direction = MotherBrainBeamQuadrants.DirectionForPair(quadrant);
         // Native DE5E is an RTS: retain the previous geometry for a beam straddling left.

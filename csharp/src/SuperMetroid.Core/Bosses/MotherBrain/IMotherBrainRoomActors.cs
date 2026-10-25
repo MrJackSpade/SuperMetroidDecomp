@@ -15,5 +15,5 @@ internal interface IMotherBrainRoomActors
     RoomEnemyProjectileSlot? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, HorizontalDirection direction);
 
     /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>
-    void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, ushort remaining);
+    void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, int remaining);
 }

@@ -272,7 +272,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-384), targetAngle: SnesAngle.FromRaw(45056), targetSpeed: 2560);
+                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: SnesAngle.FromRaw(45056), targetSpeed: 2560);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
@@ -282,7 +282,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-1536), targetAngle: SnesAngle.FromRaw(33280), targetSpeed: 3584);
+                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: SnesAngle.FromRaw(33280), targetSpeed: 3584);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);
@@ -433,8 +433,8 @@ public sealed class BabyMetroidCutsceneState
                     throw new InvalidDataException(
                         $"Baby route leg {RouteLeg} has invalid divisor index {divisorIndex}.");
                 }
-                ushort accelerationDivisor = (ushort)(16 - divisorIndex);
-                ushort wrongWayExtra = BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(
+                int accelerationDivisor = 16 - divisorIndex;
+                int wrongWayExtra = BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(
                     record.MovementFunction);
 
                 GraduallyAccelerateTowardsPoint(
@@ -766,16 +766,14 @@ public sealed class BabyMetroidCutsceneState
     /// <param name="damage">Unsigned health units to subtract, defaulting to the native $0050 (80); even zero damage refreshes the flash timer when health is nonzero.</param>
     /// <returns>An empty compatibility result; the effects are written directly to <see cref="Health"/> and <see cref="OnionRingHitFlashTimer"/>.</returns>
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, physical enemy-slot synchronization, and ring explosion/deletion.</remarks>
-    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(ushort damage = 80)
+    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(int damage = 80)
     {
         int healthBefore = Health;
         if (healthBefore == 0)
             return new BabyMetroidOnionRingHitResult();
 
         OnionRingHitFlashTimer = WrappingCountdown.Start(16);
-        Health = healthBefore < damage
-            ? (ushort)0
-            : unchecked((ushort)(healthBefore - damage));
+        Health = Math.Max(0, healthBefore - damage);
         return new BabyMetroidOnionRingHitResult();
     }
 
@@ -817,12 +815,11 @@ public sealed class BabyMetroidCutsceneState
     {
         // `$CE40` subtracts `$20` from the magnitude, clamps at zero, reapplies the old
         // sign, and independently adds two to vertical 8.8 velocity with 16-bit wrap.
-        ushort xVelocity = Velocity.X.RawValue;
-        bool negative = unchecked((short)xVelocity) < 0;
-        ushort magnitude = negative ? unchecked((ushort)-xVelocity) : xVelocity;
-        magnitude = magnitude >= 32 ? unchecked((ushort)(magnitude - 32)) : (ushort)0;
+        // The slowed magnitude is at most 32736, so it always fits a signed 8.8 velocity.
+        int xVelocity = Velocity.X.SignedRawValue;
+        int magnitude = Math.Max(0, Math.Abs(xVelocity) - 32);
         Velocity = new(
-            new SnesSignedEightEight(negative ? unchecked((ushort)-magnitude) : magnitude),
+            SnesSignedEightEight.FromSignedRaw((short)(xVelocity < 0 ? -magnitude : magnitude)),
             new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
     }
 
@@ -875,9 +872,9 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from native sine values.</summary>
     private void UpdateSpeedAndAngle(
-        ushort angleDelta,
+        int angleDelta,
         SnesAngle targetAngle,
-        ushort targetSpeed)
+        int targetSpeed)
     {
         // `$CF31` changes speed by exactly `$20` and clamps rather than crossing the target.
         if (Speed != targetSpeed)
@@ -891,7 +888,7 @@ public sealed class BabyMetroidCutsceneState
         // The turn stops at the target angle: the signed difference from the target says
         // whether this step would carry the heading past it.
         SnesAngle candidateAngle = Angle.AddRaw(angleDelta);
-        if (unchecked((short)angleDelta) < 0)
+        if (angleDelta < 0)
         {
             Angle = unchecked((short)(candidateAngle.RawValue - targetAngle.RawValue)) >= 0
                 ? candidateAngle
@@ -904,21 +901,22 @@ public sealed class BabyMetroidCutsceneState
                 : targetAngle;
         }
 
-        byte angleByte = Angle.TableIndex;
-        ushort speed = checked((ushort)Speed);
+        SnesByteAngle angle = new(Angle.TableIndex);
         Velocity = new(
-            new SnesSignedEightEight(CalculateVelocityComponent(speed, angleByte)),
-            new SnesSignedEightEight(CalculateVelocityComponent(speed, unchecked((byte)(angleByte + 64)))));
+            new SnesSignedEightEight(CalculateVelocityComponent(Speed, angle)),
+            new SnesSignedEightEight(CalculateVelocityComponent(Speed, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the cartridge's bit-8-to-23 result.</summary>
+    /// <param name="speed">The unsigned 8.8 speed, 0 through 65535.</param>
+    /// <param name="angle">The sine-table angle.</param>
     internal static ushort CalculateVelocityComponent(
-        ushort speed,
-        byte sineIndex)
+        int speed,
+        SnesByteAngle angle)
     {
         // Bank `$86:C27A` multiplies unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.
-        return EnemyTrigonometryTables.MultiplySignedSine(speed, new SnesByteAngle(sineIndex));
+        return EnemyTrigonometryTables.MultiplySignedSine(checked((ushort)speed), angle);
     }
 
     /// <summary>Advances native 16.16 position from 8.8 velocity while leaving the low subposition byte untouched.</summary>
@@ -947,7 +945,7 @@ public sealed class BabyMetroidCutsceneState
         return AxisTouches(samus.Position.X.Whole, Position.X.Whole, samus.Kinematics.Radius.X, XHitboxRadius) &&
             AxisTouches(samus.Position.Y.Whole, Position.Y.Whole, samus.Kinematics.Radius.Y, YHitboxRadius);
 
-        static bool AxisTouches(ushort samusPosition, ushort enemyPosition, ushort samusRadius, ushort enemyRadius)
+        static bool AxisTouches(int samusPosition, int enemyPosition, int samusRadius, int enemyRadius)
         {
             int distance = Math.Abs(unchecked((short)(samusPosition - enemyPosition)));
             return distance < samusRadius || distance - samusRadius < enemyRadius;
@@ -971,16 +969,15 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Accelerates toward a target using native axis helpers and the offscreen wrong-way X correction.</summary>
     private void GraduallyAccelerateTowardsPoint(
         Position16<RoomPixels> target,
-        ushort accelerationDivisor,
-        ushort wrongWayOffScreenXSpeed,
+        int accelerationDivisor,
+        int wrongWayOffScreenXSpeed,
         Position16<RoomPixels> layer1)
     {
-        byte divisor = checked((byte)accelerationDivisor);
-        Velocity = Velocity.WithX(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            Position.X.Whole, target.X, Velocity.X.RawValue, divisor, wrongWayOffScreenXSpeed,
-            () => IsVaguelyOffScreen(layer1))));
-        Velocity = Velocity.WithY(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateVertically(
-            Position.Y.Whole, target.Y, Velocity.Y.RawValue, divisor)));
+        Velocity = Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
+            Position.X.Whole, target.X, Velocity.X, accelerationDivisor, wrongWayOffScreenXSpeed,
+            () => IsVaguelyOffScreen(layer1)));
+        Velocity = Velocity.WithY(BabyMetroidGradualAcceleration.AccelerateVertically(
+            Position.Y.Whole, target.Y, Velocity.Y, accelerationDivisor));
     }
 
     /// <summary>Checks the generous signed camera rectangle used by the Baby's wrong-way movement recovery.</summary>
@@ -990,17 +987,17 @@ public sealed class BabyMetroidCutsceneState
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (unchecked((short)Position.Y.Whole) < 0)
             return true;
-        short relativeY = unchecked((short)(Position.Y.Whole + 96 - layer1.Y));
+        int relativeY = unchecked((short)(Position.Y.Whole + 96 - layer1.Y));
         if (relativeY is < 0 or >= 416)
             return true;
         if (unchecked((short)Position.X.Whole) < 0)
             return true;
-        short relativeX = unchecked((short)(Position.X.Whole + 16 - layer1.X));
+        int relativeX = unchecked((short)(Position.X.Whole + 16 - layer1.X));
         return relativeX is < 0 or >= 288;
     }
 
     /// <summary>Predicts both axis crossings and reports arrival only when X and Y reach their targets together.</summary>
-    private bool AccelerateTowardsPoint(Position16<RoomPixels> target, ushort acceleration)
+    private bool AccelerateTowardsPoint(Position16<RoomPixels> target, int acceleration)
     {
         // `$F5A6` counts axes whose next whole-pixel prediction reaches/crosses target,
         // then shifts the count twice. Carry is set only for count two.
@@ -1010,9 +1007,9 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Accelerates Y toward its target at at most five pixels per frame and zeroes velocity on crossing.</summary>
-    private bool AccelerateTowardsYPosition(ushort targetY, ushort acceleration)
+    private bool AccelerateTowardsYPosition(int targetY, int acceleration)
     {
-        short difference = unchecked((short)(Position.Y.Whole - targetY));
+        int difference = unchecked((short)(Position.Y.Whole - targetY));
         if (difference == 0)
             return true;
 
@@ -1020,7 +1017,7 @@ public sealed class BabyMetroidCutsceneState
         {
             int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
             Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
+            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
             if (unchecked((short)(prediction - targetY)) < 0)
                 return false;
         }
@@ -1028,8 +1025,8 @@ public sealed class BabyMetroidCutsceneState
         {
             int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
-            short predictedDifference = unchecked((short)(prediction - targetY));
+            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
+            int predictedDifference = unchecked((short)(prediction - targetY));
             if (predictedDifference > 0)
                 return false;
         }
@@ -1039,14 +1036,14 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Accelerates X toward its target with native equality choosing the left branch and zeroes velocity on crossing.</summary>
-    private bool AccelerateTowardsXPosition(ushort targetX, ushort acceleration)
+    private bool AccelerateTowardsXPosition(int targetX, int acceleration)
     {
-        short difference = unchecked((short)(Position.X.Whole - targetX));
+        int difference = unchecked((short)(Position.X.Whole - targetX));
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
             Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
+            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
             if (unchecked((short)(prediction - targetX)) < 0)
                 return false;
         }
@@ -1056,8 +1053,8 @@ public sealed class BabyMetroidCutsceneState
             // there is no BEQ before BPL at `$A9:F619-$F61B`.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
-            short predictedDifference = unchecked((short)(prediction - targetX));
+            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
+            int predictedDifference = unchecked((short)(prediction - targetX));
             if (predictedDifference > 0)
                 return false;
         }

@@ -39,15 +39,13 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 4096);
-        ushort yVelocity;
+        bool reachedWall = MoveHorizontallyTowardWall(samus, SnesSignedEightEight.FromSignedRaw(4096));
 
         if (!reachedWall)
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            yVelocity = CalculateYVelocity(speed: 4096, RainbowBeamAngle);
-            MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
+            MoveVerticallyTowardCeilingOrFloor(samus, new SnesSignedEightEight(CalculateYVelocity(speed: 4096, RainbowBeamAngle)));
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
             // can therefore observe only the wall result; keep the clamp witness separately
@@ -72,9 +70,9 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
         // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
         // semantics instead of introducing a host integer comparison with different wraps.
-        ushort difference = unchecked((ushort)(124 - samus.Position.Y.Whole));
-        ushort yVelocity = unchecked((short)difference >= 0 ? (ushort)64 : (ushort)-64);
-        bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
+        int difference = unchecked((short)(124 - samus.Position.Y.Whole));
+        bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
+            samus, SnesSignedEightEight.FromSignedRaw((short)(difference >= 0 ? 64 : -64)));
 
         return CreateResult(
             before,
@@ -102,13 +100,13 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // Native ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
-        short acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
-        CustomVelocity = CustomVelocity.WithX(SnesSignedEightEight.FromSignedRaw(acceleratedX < 0 ? acceleratedX : (short)0));
-        MoveHorizontallyTowardWall(samus, unchecked((ushort)CustomVelocity.X.SignedRawValue));
+        int acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
+        CustomVelocity = CustomVelocity.WithX(SnesSignedEightEight.FromSignedRaw((short)Math.Min(acceleratedX, 0)));
+        MoveHorizontallyTowardWall(samus, CustomVelocity.X);
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
         bool reachedVerticalBoundary =
-            MoveVerticallyTowardCeilingOrFloor(samus, unchecked((ushort)CustomVelocity.Y.SignedRawValue));
+            MoveVerticallyTowardCeilingOrFloor(samus, CustomVelocity.Y);
 
         // `$A9:BAD1` branches on the carry returned by the vertical helper. Horizontal wall
         // carry is intentionally discarded by the following LDA/ADC sequence.
@@ -118,63 +116,59 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Projects an 8.8 beam speed onto the vertical axis using the native quarter-turn sine lookup.</summary>
+    /// <param name="speed">The unsigned 8.8 beam speed, 0 through 65535.</param>
+    /// <param name="angle">The live beam angle.</param>
     internal static ushort CalculateYVelocity(
-        ushort speed,
+        int speed,
         SnesAngle angle)
     {
         // `$86:C27A` multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
         return EnemyTrigonometryTables.MultiplySignedSine(
-            speed, angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle());
+            checked((ushort)speed), angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle());
     }
 
     /// <summary>Applies native 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=$30..$C0.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
-        ushort velocity)
+        SnesSignedEightEight velocity)
     {
-        ushort candidate = AddVelocityToHighSubpixel(
-            samus.Position.Y.Whole,
-            samus.Kinematics.Position.Y.Fraction,
-            velocity,
-            out ushort newSubposition);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(newSubposition);
+        SnesFixedPosition moved = AddVelocityToHighSubpixel(
+            new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
+            velocity);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
         // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
         // exit stores the new Y into SamusPreviousYPosition: the camera sees no movement.
-        samus.WritePreviousYSubposition(SnesLittleEndian.Word(0, byte.MaxValue), newSubposition);
+        samus.WritePreviousYSubposition(SnesLittleEndian.Word(0, byte.MaxValue), moved.Fraction);
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
-        ushort? boundary = unchecked((short)(candidate - 48)) < 0 ? 48
-            : unchecked((short)(candidate - 192)) >= 0 ? 192
-            : null;
-        if (boundary is ushort clamped)
+        bool aboveCeiling = unchecked((short)(moved.Whole - 48)) < 0;
+        if (aboveCeiling || unchecked((short)(moved.Whole - 192)) >= 0)
         {
-            samus.Position = samus.Position.WithWholeY(clamped);
+            samus.Position = samus.Position.WithWholeY(aboveCeiling ? Ceiling : Floor);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-            samus.WritePreviousYPosition(clamped);
+            samus.WritePreviousYPosition(aboveCeiling ? Ceiling : Floor);
             samus.WritePreviousYSubposition(ushort.MaxValue, 0);
             return true;
         }
 
-        samus.Position = samus.Position.WithWholeY(candidate);
-        samus.WritePreviousYPosition(candidate);
+        samus.Position = samus.Position.WithWholeY(moved.Whole);
+        samus.WritePreviousYPosition(moved.Whole);
         return false;
     }
 
     /// <summary>Applies native 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=$EB.</summary>
-    private static bool MoveHorizontallyTowardWall(SamusState samus, ushort velocity)
+    private static bool MoveHorizontallyTowardWall(SamusState samus, SnesSignedEightEight velocity)
     {
-        ushort candidate = AddVelocityToHighSubpixel(
-            samus.Position.X.Whole,
-            samus.Kinematics.Position.X.Fraction,
-            velocity,
-            out ushort newSubposition);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(newSubposition);
+        SnesFixedPosition moved = AddVelocityToHighSubpixel(
+            new SnesFixedPosition(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction),
+            velocity);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.Fraction);
         // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
-        samus.WritePreviousXSubposition(SnesLittleEndian.Word(0, byte.MaxValue), newSubposition);
+        samus.WritePreviousXSubposition(SnesLittleEndian.Word(0, byte.MaxValue), moved.Fraction);
 
-        if (unchecked((short)(candidate - 235)) >= 0)
+        if (unchecked((short)(moved.Whole - 235)) >= 0)
         {
             samus.Position = samus.Position.WithWholeX(235);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
@@ -183,23 +177,21 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             return true;
         }
 
-        samus.Position = samus.Position.WithWholeX(candidate);
-        samus.WritePreviousXPosition(candidate);
+        samus.Position = samus.Position.WithWholeX(moved.Whole);
+        samus.WritePreviousXPosition(moved.Whole);
         return false;
     }
 
     /// <summary>Adds velocity to only the high subposition byte and carries into the whole pixel word, retaining the low byte.</summary>
-    private static ushort AddVelocityToHighSubpixel(
-        ushort wholePosition,
-        ushort subposition,
-        ushort velocity,
-        out ushort newSubposition)
-    {
+    private static SnesFixedPosition AddVelocityToHighSubpixel(SnesFixedPosition position, SnesSignedEightEight velocity) =>
         // `$A9:BBFD/BC3F` add only to WRAM subposition byte +1; byte +0 is never read or written.
-        SnesFixedPosition moved = new SnesFixedPosition(wholePosition, subposition).AddEightEightToHighFraction(velocity);
-        newSubposition = moved.Fraction;
-        return moved.Whole;
-    }
+        position.AddEightEightToHighFraction(velocity.RawValue);
+
+    /// <summary>The arena's ceiling: the least whole Y the forced movement leaves Samus at.</summary>
+    private const ushort Ceiling = 48;
+
+    /// <summary>The arena's floor: the greatest whole Y the forced movement leaves Samus at.</summary>
+    private const ushort Floor = 192;
 
     /// <summary>Records Samus's position before a forced movement helper mutates it.</summary>
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;

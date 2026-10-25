@@ -575,11 +575,11 @@ internal sealed class CrocomireCombat
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
                 callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallback(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;

@@ -636,9 +636,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void AdvanceBotwoonHeadAnimation(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        ushort oldTimer = head.InstructionTimer.RawValue;
-        head.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = head.InstructionTimer.Decrement();
+        head.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             head.ExtraProperties = head.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;

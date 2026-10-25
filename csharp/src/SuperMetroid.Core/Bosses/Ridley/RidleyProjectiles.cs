@@ -40,22 +40,22 @@ internal sealed class RidleyProjectiles
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(ridley);
         int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.Position.Y.Whole - 43;
-        byte angle = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
+        SnesByteAngle angle = EnemyMath.CalculateBearing(
+            new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
-            if (angle is < 64 or >= 235)
-                angle = 235;
-            else if (angle < 176)
-                angle = 176;
+            if (angle.RawValue is < 64 or >= 235)
+                angle = new(235);
+            else if (angle.RawValue < 176)
+                angle = new(176);
         }
         else
         {
-            if (angle is < 21 or >= 192)
-                angle = 21;
-            else if (angle >= 80)
-                angle = 80;
+            if (angle.RawValue is < 21 or >= 192)
+                angle = new(21);
+            else if (angle.RawValue >= 80)
+                angle = new(80);
         }
 
         // Math_MultBySin/Cos at $86:C26C reads signed words from the shared table at
@@ -67,12 +67,12 @@ internal sealed class RidleyProjectiles
         // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds $0500.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, new SnesByteAngle(angle))),
-            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle)),
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
-    internal void SpawnRidleyFireball(RoomEnemySlot ridley, ushort afterburns)
+    internal void SpawnRidleyFireball(RoomEnemySlot ridley, int afterburns)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -119,7 +119,7 @@ internal sealed class RidleyProjectiles
     internal void SpawnAfterburnCenter(
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position,
-        ushort remaining)
+        int remaining)
     {
         RoomEnemyProjectileSlot? center = _projectiles.AllocateEnemyProjectile();
         if (center is null)
@@ -200,7 +200,7 @@ internal sealed class RidleyProjectiles
             if (horizontalCollision || verticalCollision)
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
-                ushort count = checked((ushort)context.Projectile.RemainingAfterburns);
+                int count = context.Projectile.RemainingAfterburns;
                 context.Projectile.Clear();
                 if (count != 0)
                 {

@@ -28,6 +28,6 @@ internal sealed class MotherBrainRoomActors(
         pirates.SpawnPirateMotherBrainLaser(source, muzzle, direction == HorizontalDirection.Right);
 
     /// <inheritdoc/>
-    public void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, ushort remaining) =>
+    public void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, int remaining) =>
         ridleyProjectiles.SpawnAfterburnCenter(kind, position, remaining);
 }

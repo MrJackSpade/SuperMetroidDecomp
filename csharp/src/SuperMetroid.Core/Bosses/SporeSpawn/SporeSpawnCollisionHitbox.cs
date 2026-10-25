@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="Touch">How the rectangle reacts to Samus's touch.</param>
 /// <param name="Shot">How the rectangle reacts to a Samus projectile.</param>
 internal readonly record struct SporeSpawnCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, SporeSpawnHitboxTouch Touch, SporeSpawnHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, SporeSpawnHitboxTouch Touch, SporeSpawnHitboxShot Shot);

@@ -170,9 +170,9 @@ internal sealed class DraygonParts
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
-        ushort oldTimer = part.InstructionTimer.RawValue;
-        part.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = part.InstructionTimer.Decrement();
+        part.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;

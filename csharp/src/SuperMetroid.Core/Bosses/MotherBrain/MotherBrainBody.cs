@@ -65,9 +65,9 @@ internal sealed class MotherBrainBody
     /// </summary>
     internal void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
-        ushort oldTimer = tube.InstructionTimer.RawValue;
-        tube.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = tube.InstructionTimer.Decrement();
+        tube.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             tube.ExtraProperties = tube.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -132,7 +132,6 @@ internal sealed class MotherBrainBody
             BackgroundTilemapPrepared = true,
             EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTilemapByteCount,
         };
-        _motherBrainEncounter.MotherBrain.RecordInitialTurretRequests();
         // The first LoadFxEntry, which the room loader applies after enemy initialization.
         _frameResults.MotherBrainFxEntry = 1;
         SpawnMotherBrainInitialTurrets();
@@ -195,9 +194,9 @@ internal sealed class MotherBrainBody
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
-        ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
+        slot.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -341,15 +340,15 @@ internal sealed class MotherBrainBody
         {
             bool belowOrigin = fromOrigin.Y >= 0;
             int yDistance = Math.Abs(fromOrigin.Y);
-            short yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
-            int yOverlap = samus.Kinematics.Radius.Y + Math.Abs((int)yExtent) - yDistance;
+            int yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
+            int yOverlap = samus.Kinematics.Radius.Y + Math.Abs(yExtent) - yDistance;
             if (yOverlap < 0)
                 continue;
 
             bool rightOfOrigin = fromOrigin.X >= 0;
             int xDistance = Math.Abs(fromOrigin.X);
-            short xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
-            int xOverlap = samus.Kinematics.Radius.X + Math.Abs((int)xExtent) - xDistance;
+            int xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
+            int xOverlap = samus.Kinematics.Radius.X + Math.Abs(xExtent) - xDistance;
             if (xOverlap < 0)
                 continue;
 
@@ -374,10 +373,10 @@ internal sealed class MotherBrainBody
     /// <summary>Applies body contact damage while preserving Samus's invulnerability timing.</summary>
     private static void DamageSamusFromMotherBrainBody(RoomEnemySlot body, SamusState samus)
     {
-        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? unchecked((ushort)(body.Definition.Damage >> 2))
+        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? body.Definition.Damage >> 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? unchecked((ushort)(body.Definition.Damage >> 1))
+                ? body.Definition.Damage >> 1
                 : body.Definition.Damage;
         samus.Health = samus.Health <= damage
             ? 0
@@ -443,8 +442,8 @@ internal sealed class MotherBrainBody
     /// actor displacement; only Y changes the physical body coordinate.
     /// </summary>
     private void MoveMotherBrainBodyWithScrollBias(
-        short yDisplacement,
-        short horizontalScrollBias)
+        int yDisplacement,
+        int horizontalScrollBias)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
@@ -482,14 +481,14 @@ internal sealed class MotherBrainBody
     /// </summary>
     private void SpawnMotherBrainInitialTurrets()
     {
-        for (ushort parameter = 0; parameter < 12; parameter++)
+        for (int parameter = 0; parameter < 12; parameter++)
             SpawnMotherBrainTurret(parameter);
     }
 
     /// <summary>Ports <c>InitAI_EnemyProjectile_MotherBrainsTurrets</c> at $86:BE4F.</summary>
-    internal void SpawnMotherBrainTurret(ushort parameter)
+    internal void SpawnMotherBrainTurret(int parameter)
     {
-        if (parameter >= 12)
+        if (parameter is < 0 or >= 12)
             throw new ArgumentOutOfRangeException(nameof(parameter));
 
         RoomEnemyProjectileSlot? turret = _projectiles.AllocateEnemyProjectile();

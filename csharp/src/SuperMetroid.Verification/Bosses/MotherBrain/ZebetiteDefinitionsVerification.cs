@@ -32,11 +32,11 @@ internal static class ZebetiteDefinitionsVerification
             ushort[] actual =
             [
                 MotherBrainNativeWords.GenerationFlagsWord(definition.GenerationFlags),
-                definition.YRadius,
+                checked((ushort)definition.YRadius),
                 ZebetiteEntry(definition.Program),
-                definition.XPosition,
-                definition.PrimaryYPosition,
-                definition.LinkedYPosition,
+                checked((ushort)definition.XPosition),
+                checked((ushort)definition.PrimaryYPosition),
+                checked((ushort)definition.LinkedYPosition),
             ];
             for (int field = 0; field < actual.Length; field++)
             {

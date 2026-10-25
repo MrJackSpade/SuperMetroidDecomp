@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Touch">How the rectangle reacts to Samus contact.</param>
 /// <param name="Shot">How the rectangle reacts to a projectile.</param>
 internal readonly record struct GoldenTorizoCollisionHitbox(
-    short Left, short Top, short Right, short Bottom,
+    int Left, int Top, int Right, int Bottom,
     TorizoHitboxTouch Touch, TorizoHitboxShot Shot);

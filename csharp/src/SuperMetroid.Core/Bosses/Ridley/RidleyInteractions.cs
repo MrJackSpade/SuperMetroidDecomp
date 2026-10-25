@@ -124,15 +124,13 @@ internal sealed class RidleyInteractions
                  RidleyCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            ushort componentX = componentOrigin.X;
-            ushort componentY = componentOrigin.Y;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
                 callback = RidleyHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
                 return true;

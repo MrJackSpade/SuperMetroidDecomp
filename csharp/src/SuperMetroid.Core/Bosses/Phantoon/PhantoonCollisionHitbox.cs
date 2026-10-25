@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="Touch">How the rectangle reacts to Samus's touch.</param>
 /// <param name="Shot">How the rectangle reacts to a Samus projectile.</param>
 internal readonly record struct PhantoonCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, PhantoonHitboxTouch Touch, PhantoonHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, PhantoonHitboxTouch Touch, PhantoonHitboxShot Shot);

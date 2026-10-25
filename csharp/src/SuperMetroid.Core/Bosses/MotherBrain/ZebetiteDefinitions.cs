@@ -38,11 +38,11 @@ internal static class ZebetiteDefinitions
         int separation = linkedPair ? 40 : 0;
         return new(
             linkedPair ? ZebetiteGenerationFlags.LinkedPair : ZebetiteGenerationFlags.None,
-            linkedPair ? (ushort)8 : (ushort)24,
+            linkedPair ? 8 : 24,
             ZebetiteAnimations.HealthProgram(linkedPair, 1000),
-            (ushort)(824 - generation * 192),
-            (ushort)(111 - separation),
-            (ushort)(111 + separation));
+            824 - generation * 192,
+            111 - separation,
+            111 + separation);
     }
 
     /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>

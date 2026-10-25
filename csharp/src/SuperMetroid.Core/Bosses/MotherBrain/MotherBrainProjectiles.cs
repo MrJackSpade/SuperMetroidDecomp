@@ -188,7 +188,7 @@ internal sealed class MotherBrainProjectiles
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(checked((ushort)projectile.Variable0));
+                    SpawnMotherBrainHandBeamFired(projectile.Variable0);
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     projectile.Clear();
@@ -209,19 +209,15 @@ internal sealed class MotherBrainProjectiles
         if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs))
             return;
 
-        ushort acceleration;
+        int acceleration;
         if (bomb.Variable1 == 0)
         {
-            // Only the initial fall applies two units of horizontal drag. Native takes the
-            // absolute value, subtracts, clamps by the wrapped sign flag, then restores sign.
-            bool movingLeft = unchecked((short)bomb.Velocity.X.RawValue) < 0;
-            ushort magnitude = movingLeft
-                ? unchecked((ushort)-bomb.Velocity.X.RawValue)
-                : bomb.Velocity.X.RawValue;
-            ushort slowed = unchecked((ushort)(magnitude - 2));
-            if (unchecked((short)slowed) < 0)
-                slowed = 0;
-            bomb.Velocity = bomb.Velocity.WithX(new SnesSignedEightEight(movingLeft ? unchecked((ushort)-slowed) : slowed));
+            // Only the initial fall applies two units of horizontal drag: the speed loses two
+            // units, stopping at zero, and keeps its direction. The speed is at most 32768
+            // units, so the reduced speed always fits a signed 8.8 velocity.
+            int velocity = bomb.Velocity.X.SignedRawValue;
+            int slowed = Math.Max(0, Math.Abs(velocity) - 2);
+            bomb.Velocity = bomb.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((short)(velocity < 0 ? -slowed : slowed)));
             acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
@@ -268,12 +264,11 @@ internal sealed class MotherBrainProjectiles
                 continue;
             }
 
-            ushort x = bomb.Position.X.Whole;
-            ushort y = bomb.Position.Y.Whole;
+            Position16<RoomPixels> position = bomb.Position.Whole;
             DeleteMotherBrainBomb(bomb, state);
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallDustCloud);
+            _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallDustCloud);
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
-                new(x, y),
+                position,
                 state.Head.DefinitionId);
             return true;
         }
@@ -284,7 +279,7 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Advances a bomb through its native trajectory and reports arena-boundary expiry.</summary>
     private static bool MoveMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
-        ushort acceleration)
+        int acceleration)
     {
         bomb.Velocity = bomb.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(bomb.Velocity.Y.RawValue + acceleration))));
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
@@ -309,7 +304,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state)
     {
         Position16<RoomPixels> impact = bomb.Position.Whole;
-        byte afterburnCount = unchecked((byte)bomb.Position.X.Fraction);
+        int afterburnCount = unchecked((byte)bomb.Position.X.Fraction);
         DeleteMotherBrainBomb(bomb, state);
 
         // `$C50B-$C54B` clears the source slot before both allocations. They therefore use
@@ -354,20 +349,20 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Updates a door fragment's fall and expiration after the room collapse.</summary>
     internal void RunMotherBrainDoorFragment(RoomEnemyProjectileSlot fragment)
     {
-        bool negative = unchecked((short)fragment.Velocity.X.RawValue) < 0;
-        ushort magnitude = negative ? unchecked((ushort)-fragment.Velocity.X.RawValue) : fragment.Velocity.X.RawValue;
-        short slowed = unchecked((short)(magnitude - MotherBrainDeathDefinitions.DoorFragmentDrag));
-        int speed = Math.Max(0, (int)slowed);
-        fragment.Velocity = fragment.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(negative ? -speed : speed))));
+        // The speed loses the drag, stopping at zero, and keeps its direction; a speed of at most
+        // 32768 units less the drag always fits a signed 8.8 velocity.
+        int velocity = fragment.Velocity.X.SignedRawValue;
+        int speed = Math.Max(0, Math.Abs(velocity) - MotherBrainDeathDefinitions.DoorFragmentDrag);
+        fragment.Velocity = fragment.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((short)(velocity < 0 ? -speed : speed)));
         fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime counts down in variable zero and expires when it passes zero.
         CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
         fragment.Variable0 = lifetime.Remaining.RawValue;
         if (lifetime.IsNonNegative) return;
-        ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathDefinitions.DoorDustYOffset));
+        Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
         fragment.Clear();
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MotherBrainDeathDefinitions.DoorDustParameter);
+        _projectiles.SpawnRoomGraphicsDustExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
     }
 
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
@@ -404,10 +399,9 @@ internal sealed class MotherBrainProjectiles
         if (projectile.Position.Y.Whole < 208)
             return;
 
-        ushort x = projectile.Position.X.Whole;
-        ushort y = projectile.Position.Y.Whole;
+        Position16<RoomPixels> position = projectile.Position.Whole;
         projectile.Clear();
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.Smoke);
+        _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
     }
 
     /// <summary>
@@ -442,8 +436,7 @@ internal sealed class MotherBrainProjectiles
         // `$86:CDC5` doubles the complete RNG word and masks it to an even nine-bit angle.
         // The low eight-bit angle selects signed sine/cosine velocities; bits 5..8 choose
         // one of sixteen ROM-authored shard animation lists.
-        ushort doubledRandom = unchecked((ushort)(_room.Random.Generate() * 2));
-        ushort angleOffset = unchecked((ushort)(doubledRandom & 510));
+        int angleOffset = (_room.Random.Generate() * 2) & 510;
         int angle = angleOffset >> 1;
         shard.Variable0 = angleOffset;
         shard.Velocity = shard.Velocity.WithX(new SnesSignedEightEight(ReadSignedSineSample(angle + 64)));
@@ -515,7 +508,7 @@ internal sealed class MotherBrainProjectiles
     /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
     /// children turn into the cartridge's large impact dust and earthquake.
     /// </summary>
-    internal void SpawnMotherBrainHandBeamFired(ushort parentParameter)
+    internal void SpawnMotherBrainHandBeamFired(int parentParameter)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain hand-beam bytecode ran without its encounter state.");
@@ -534,24 +527,22 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        byte scatterAngle = unchecked((byte)(
-            state.HandBeamNextAngle + unchecked((byte)angleRandom)));
+        SnesByteAngle scatterAngle = new SnesByteAngle(unchecked((byte)state.HandBeamNextAngle)).AddTableUnits(unchecked((byte)angleRandom));
         int speedRandom = _room.Random.Generate();
         // Bits 8 to 10 of the random word: a whole speed of zero to seven.
-        ushort scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
-        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplySineSample(scatterSpeed, new SnesByteAngle(scatterAngle))));
+        int scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
+        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplySineSample((ushort)scatterSpeed, scatterAngle)));
         beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplySineSample(
-            scatterSpeed,
-            new SnesByteAngle(scatterAngle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            (ushort)scatterSpeed,
+            scatterAngle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))
         {
-            ushort impactX = beam.Position.X.Whole;
-            ushort impactY = beam.Position.Y.Whole;
+            Position16<RoomPixels> impact = beam.Position.Whole;
             beam.Clear();
             _projectiles.SpawnRoomGraphicsDustExplosion(
-                new(impactX, impactY),
+                impact,
                 MiscDustAnimation.BigExplosion);
             state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
@@ -559,7 +550,7 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        beam.Variable0 = unchecked((ushort)((parentParameter + 1) & 3));
+        beam.Variable0 = (parentParameter + 1) & 3;
         beam.Variable1 = 0;
         beam.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
@@ -614,7 +605,7 @@ internal sealed class MotherBrainProjectiles
     internal void RunMotherBrainOnionRingPreInstruction(
         RoomEnemyProjectileSlot ring,
         SamusState? samus,
-        ushort cameraX)
+        int cameraX)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain onion ring ran without its multipart encounter state.");
@@ -660,11 +651,11 @@ internal sealed class MotherBrainProjectiles
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
             Position16<RoomPixels> ringPosition = ring.Position.Whole;
-            ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? (ushort)(80 >> 2)
+            int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+                ? 80 >> 2
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? (ushort)(80 >> 1)
-                    : (ushort)80;
+                    ? 80 >> 1
+                    : 80;
             samus.Health = samus.Health <= damage
                 ? 0
                 : samus.Health - damage;
@@ -677,9 +668,9 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        short signedY = unchecked((short)ring.Position.Y.Whole);
-        short signedX = unchecked((short)ring.Position.X.Whole);
-        short screenX = unchecked((short)(ring.Position.X.Whole - cameraX));
+        int signedY = unchecked((short)ring.Position.Y.Whole);
+        int signedX = unchecked((short)ring.Position.X.Whole);
+        int screenX = unchecked((short)(ring.Position.X.Whole - cameraX));
         if (signedY < 32 || ring.Position.Y.Whole >= 216 || signedX < 0 ||
             screenX < 0 || screenX >= 248)
         {
@@ -750,10 +741,9 @@ internal sealed class MotherBrainProjectiles
         }
         if (state.DeleteTurretsAndRinkas)
         {
-            ushort x = turret.Position.X.Whole;
-            ushort y = turret.Position.Y.Whole;
+            Position16<RoomPixels> position = turret.Position.Whole;
             turret.Clear();
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.Smoke);
+            _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
             return;
         }
 
@@ -778,39 +768,40 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
     internal static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
-        byte currentDirection = unchecked((byte)turret.Position.Y.Fraction);
-        sbyte rotationDelta = unchecked((sbyte)SnesLittleEndian.HighByte(turret.Position.Y.Fraction));
-        byte candidate = unchecked((byte)((currentDirection + rotationDelta) & 7));
+        int currentDirection = unchecked((byte)turret.Position.Y.Fraction);
+        int rotationDelta = unchecked((sbyte)SnesLittleEndian.HighByte(turret.Position.Y.Fraction));
+        int candidate = (currentDirection + rotationDelta) & 7;
         bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
-            checked((ushort)turret.DirectionParameter),
+            turret.DirectionParameter,
             MotherBrainTurretDefinitions.Ring.At(candidate));
 
         if (allowed)
         {
-            turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word(candidate, SnesLittleEndian.HighByte(turret.Position.Y.Fraction)));
+            turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word((byte)candidate, SnesLittleEndian.HighByte(turret.Position.Y.Fraction)));
             return;
         }
 
         // A disallowed next step reverses the signed high-byte delta and immediately takes
         // one step in the new direction. The cartridge does not perform a second mask test.
-        rotationDelta = unchecked((sbyte)-rotationDelta);
-        byte reversedDirection = unchecked((byte)(currentDirection + rotationDelta));
-        turret.Position = turret.Position.WithFractionY(unchecked(
-            SnesLittleEndian.Word(reversedDirection, unchecked((byte)rotationDelta))));
+        // The direction and the delta each keep eight bits, so the reversed step wraps the
+        // way the stored bytes do.
+        rotationDelta = -rotationDelta;
+        turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word(
+            unchecked((byte)(currentDirection + rotationDelta)), unchecked((byte)rotationDelta)));
     }
 
     /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>
     internal void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
-        ushort sample = unchecked((byte)_room.Random.Generate());
-        turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
+        int sample = unchecked((byte)_room.Random.Generate());
+        turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
     }
 
     /// <summary>Restarts the turret's pause between fired bullets.</summary>
     internal void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
-        ushort sample = unchecked((byte)_room.Random.Generate());
-        turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown)));
+        int sample = unchecked((byte)_room.Random.Generate());
+        turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown)));
     }
 
     /// <summary>Ports the asymmetric viewport bounds at $86:C0B4.</summary>

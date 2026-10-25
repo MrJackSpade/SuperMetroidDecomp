@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Touch">The reaction when Samus touches the rectangle.</param>
 /// <param name="Shot">The reaction when a Samus projectile hits the rectangle.</param>
 internal readonly record struct MotherBrainCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, MotherBrainHitboxTouch Touch, MotherBrainHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, MotherBrainHitboxTouch Touch, MotherBrainHitboxShot Shot);

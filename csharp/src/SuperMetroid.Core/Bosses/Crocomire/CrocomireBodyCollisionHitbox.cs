@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="Touch">How the rectangle reacts to Samus's touch.</param>
 /// <param name="Shot">How the rectangle reacts to a Samus projectile.</param>
 internal readonly record struct CrocomireBodyCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, CrocomireHitboxTouch Touch, CrocomireHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, CrocomireHitboxTouch Touch, CrocomireHitboxShot Shot);

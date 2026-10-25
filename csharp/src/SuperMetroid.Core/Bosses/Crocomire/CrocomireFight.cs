@@ -168,9 +168,9 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state = _access.Crocomire is { } owner && ReferenceEquals(owner.Tongue, tongue)
             ? owner
             : throw new InvalidOperationException("Crocomire's tongue has no body owner.");
-        ushort oldTimer = tongue.InstructionTimer.RawValue;
-        tongue.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = tongue.InstructionTimer.Decrement();
+        tongue.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             tongue.ExtraProperties = tongue.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -198,9 +198,9 @@ internal sealed class CrocomireFight
     internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, ushort cameraX)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
-        ushort oldTimer = body.InstructionTimer.RawValue;
-        body.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = body.InstructionTimer.Decrement();
+        body.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             body.ExtraProperties = body.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;

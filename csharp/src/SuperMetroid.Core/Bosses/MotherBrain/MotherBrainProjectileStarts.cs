@@ -32,9 +32,9 @@ internal static class MotherBrainProjectileStarts
         InitialPrograms.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
 
     /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the typed program its kind names.</summary>
-    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, ushort graphicsIndex)
+    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, int graphicsIndex)
     {
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, checked((ushort)graphicsIndex));
         if (ForKind(kind) is { } animation)
             projectile.StartAnimation(animation);
     }

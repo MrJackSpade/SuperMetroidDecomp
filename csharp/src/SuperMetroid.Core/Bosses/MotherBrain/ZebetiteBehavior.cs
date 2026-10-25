@@ -134,10 +134,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ZebetiteGenerationDefinition definition = ZebetiteDefinitions.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
-        slot.Radius = slot.Radius.WithY(definition.YRadius);
+        slot.Radius = slot.Radius.WithY(checked((ushort)definition.YRadius));
         state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(definition.Program);
-        slot.Position = slot.Position.WithWholeX(definition.XPosition);
-        slot.Position = slot.Position.WithWholeY(definition.YPosition(state.IsSecondaryHalf));
+        slot.Position = slot.Position.WithWholeX(checked((ushort)definition.XPosition));
+        slot.Position = slot.Position.WithWholeY(checked((ushort)definition.YPosition(state.IsSecondaryHalf)));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
@@ -271,8 +271,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex);
-        if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride ||
+        int linkedIndex = struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex;
+        if (linkedIndex < 0 || linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride ||
             linkedIndex % EnemySlotTable.EnemyIndexStride != 0)
         {
             throw new InvalidDataException(
@@ -336,9 +336,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
-        ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
+        slot.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;

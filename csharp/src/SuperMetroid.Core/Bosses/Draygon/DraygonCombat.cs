@@ -247,11 +247,11 @@ internal sealed class DraygonCombat
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (DraygonCollisionHitbox hitbox in component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
                 callback = probe.SelectShotCallback
                     ? DraygonHitboxCallbackCodec.ToCallback(hitbox.Shot)

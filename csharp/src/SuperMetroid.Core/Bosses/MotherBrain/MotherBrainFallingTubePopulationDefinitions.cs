@@ -44,12 +44,12 @@ internal static class MotherBrainFallingTubePopulationDefinitions
         bool main = piece == MotherBrainTubePiece.Main;
         bool outer = piece is MotherBrainTubePiece.BottomLeft or MotherBrainTubePiece.BottomRight;
         int horizontalOffset = outer ? OuterOffset : InnerOffset;
-        ushort x = main ? CenterX : (ushort)(CenterX + ((index & 1) == 0 ? -horizontalOffset : horizontalOffset));
+        int x = main ? CenterX : CenterX + ((index & 1) == 0 ? -horizontalOffset : horizontalOffset);
         int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
-        ushort y = (ushort)(BottomBaseline - compositionBottom);
+        Position16<RoomPixels> position = new(checked((ushort)x), checked((ushort)(BottomBaseline - compositionBottom)));
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
-        return new(EnemyDefinitionId.MotherBrainTubes, new(x, y), 0, new EnemyPropertyWord(properties), new EnemyExtraPropertyWord(EnemyExtraProperties.None),
+        return new(EnemyDefinitionId.MotherBrainTubes, position, 0, new EnemyPropertyWord(properties), new EnemyExtraPropertyWord(EnemyExtraProperties.None),
             (ushort)(index * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
     }
 }

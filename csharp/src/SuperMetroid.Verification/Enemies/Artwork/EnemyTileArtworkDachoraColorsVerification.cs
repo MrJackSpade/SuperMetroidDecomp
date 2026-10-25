@@ -75,15 +75,13 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             "Dachora color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= EnemySpeciesSourceDefinitions.Dachora.DefaultColors and
-                    < (EnemySpeciesSourceDefinitions.Dachora.ShineColors +
-                        DachoraColorDefinitions.AnimatedFrameCount * EnemySpeciesSourceDefinitions.Dachora.ImageBytes) ||
-                address >= DachoraColorSources.SpeedPointerTable &&
-                address < DachoraColorSources.SpeedPointerTable +
-                    DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort) ||
-                address >= DachoraColorSources.ShinePointerTable &&
-                address < DachoraColorSources.ShinePointerTable +
-                    DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort),
+            address => address is (>= EnemySpeciesSourceDefinitions.Dachora.DefaultColors and
+                    < EnemySpeciesSourceDefinitions.Dachora.ShineColors +
+                        (DachoraColorDefinitions.AnimatedFrameCount * EnemySpeciesSourceDefinitions.Dachora.ImageBytes))
+                or (>= DachoraColorSources.SpeedPointerTable and
+                    < DachoraColorSources.SpeedPointerTable + (DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort)))
+                or (>= DachoraColorSources.ShinePointerTable and
+                    < DachoraColorSources.ShinePointerTable + (DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort))),
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };

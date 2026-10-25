@@ -153,7 +153,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             nativeCeres.ImageEquals(installedCeres),
             "Ceres Ridley fireball uses installed OAM without visual ROM reads");
         for (int index = 0;
-             index < AlcoonFireballFrameDefinitions.PoseCount;
+             index < AlcoonFireballFrameToolingDefinitions.PoseCount;
              index++)
         {
             ushort operand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]);
@@ -684,7 +684,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .SequenceEqual(installedCeres.LowTable),
             "version-three overrides inherit newly extracted Ceres Ridley frames");
         var alcoonOperands = Enumerable.Range(0,
-                AlcoonFireballFrameDefinitions.PoseCount)
+                AlcoonFireballFrameToolingDefinitions.PoseCount)
             .Select(index => EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]))
             .ToHashSet();
         var versionFourFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizo
@@ -1039,7 +1039,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = SpawnedGraphicsIndex;
             // As the typed runner does when it shows the program frame the key installs.
-            slot.Frame = EnemyProjectileProgramFrameSources.Frame(presentationKey);
+            slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
             // It draws from the sheets a set spawning it composes from this artwork.
             SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame."));
             var oam = new OamBuffer();
@@ -1076,8 +1076,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ushort low = unchecked((ushort)address);
                 return (SnesAddressMath.BankBase(address)) == 0x8d0000 ||
                     (SnesAddressMath.BankBase(address)) == 0x860000 &&
-                    (EnemyProjectileProgramFrameSources.Contains(low) ||
-                     EnemyProjectileProgramFrameSources.Contains(
+                    (EnemyProjectileProgramFrameOperands.Contains(low) ||
+                     EnemyProjectileProgramFrameOperands.Contains(
                          unchecked((ushort)(low - 1))) ||
                      low is (ushort)SkreeMetareeParticleOperand.Skree or
                         (ushort)SkreeMetareeParticleOperand.Metaree ||

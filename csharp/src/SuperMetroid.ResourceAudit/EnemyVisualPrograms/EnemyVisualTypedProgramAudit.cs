@@ -122,7 +122,6 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 

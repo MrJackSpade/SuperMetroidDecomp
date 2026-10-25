@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Verification.Samus.Projectiles;
 using System.Text.RegularExpressions;

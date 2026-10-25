@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Input;

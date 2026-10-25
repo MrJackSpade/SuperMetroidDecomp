@@ -2739,6 +2739,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.KraidPaletteSources",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/KraidPaletteSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorDocument",
       "kind": "record",
       "scope": "product",
@@ -3532,6 +3545,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyAuxiliaryPaletteSource",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemyAuxiliaryPaletteSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemyHeaderWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -3540,6 +3579,58 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySpeciesSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySpeciesSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySpeciesSourceDefinitions.ChozoAndTube",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySpeciesSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySpeciesSourceDefinitions.Dachora",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySpeciesSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySpeciesSourceDefinitions.Magdollite",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySpeciesSourceDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -4600,6 +4691,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyDefinitionSlotWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameFiles",
       "kind": "static class",
       "scope": "product",
@@ -4729,6 +4836,80 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileCompositionSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileProgramFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyProjectileProgramFrameOperands.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameSources",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileProgramFrameSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectilePropertyBitDefinitions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyProjectilePropertyBitDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectilePropertyWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyProjectilePropertyWords.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -11269,12 +11450,15 @@
     {
       "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitionsTooling",
       "kind": "static class",
-      "scope": "tool",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitionsTooling.cs"
+        "csharp/test-support/VerificationAccess.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -11321,12 +11505,15 @@
     {
       "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitionsTooling",
       "kind": "static class",
-      "scope": "tool",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitionsTooling.cs"
+        "csharp/test-support/VerificationAccess.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -34897,6 +35084,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Alcoon/AlcoonNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonProgram",
       "kind": "enum",
       "scope": "product",
@@ -34920,7 +35123,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Alcoon.Artwork.AlcoonFireballFrameToolingDefinitions",
@@ -34960,6 +35163,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.AnimalsNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Animals/AnimalsNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.DachoraFrameDefinitions",
@@ -35134,20 +35353,20 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorRomData",
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorRomData.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorRomDataAccess",
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorSources",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -35157,58 +35376,10 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorRomDataAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorSources.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorRomDataAccess.extension(SuperMetroid.Core.Enemies.Animals.DachoraColorRomData)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorRomDataAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorRomDataConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorRomDataConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Animals.DachoraColorRomDataConstants.extension(SuperMetroid.Core.Enemies.Animals.DachoraColorRomData)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorRomDataConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.DachoraEnemyState",
@@ -36680,19 +36851,6 @@
       "justified": true
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyDmaSourceKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyDmaSourceKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedDrawComponent",
       "kind": "record struct",
       "scope": "product",
@@ -36717,6 +36875,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCompositions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCompositions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameDocument",
@@ -36821,6 +36992,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameSheetKeys",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameSheetKeys.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameTable\u003CTFrame\u003E",
@@ -36949,6 +37133,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyProjectileSpritemapNative.extension(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectilePresentationFrameDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/EnemyProjectileSpritemapNative.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyProjectileSpritemapVersion",
       "kind": "enum",
       "scope": "product",
@@ -37044,6 +37244,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCompositions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCompositions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition",
@@ -37438,19 +37651,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GunshipLiftoffTransferDefinitionsTooling",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/GunshipLiftoffTransferDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.GunshipVisualDefinitions",
       "kind": "static class",
       "scope": "test",
@@ -37522,14 +37722,14 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.IInstalledObjCharacterArtwork",
+      "type": "SuperMetroid.Core.Enemies.Artwork.IInstalledSpriteCharacterArtwork",
       "kind": "interface",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/IInstalledObjCharacterArtwork.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/IInstalledSpriteCharacterArtwork.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -37574,14 +37774,14 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.InstalledObjCharacterArtwork",
+      "type": "SuperMetroid.Core.Enemies.Artwork.InstalledSpriteCharacterArtwork",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/InstalledObjCharacterArtwork.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/InstalledSpriteCharacterArtwork.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -38468,6 +38668,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Atomic.AtomicNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Atomic/AtomicNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Atomic.AtomicProgram",
       "kind": "enum",
       "scope": "product",
@@ -38692,6 +38908,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Beetom/BeetomNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Beetom.BeetomProgram",
       "kind": "enum",
       "scope": "product",
@@ -38836,6 +39068,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Boulder.BoulderNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Boulder/BoulderNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Boulder.BoulderProgram",
@@ -39195,6 +39443,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Bull.BullNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Bull/BullNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Bull.BullProgram",
       "kind": "enum",
       "scope": "product",
@@ -39404,6 +39668,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Cacatac/CacatacNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacProgram",
@@ -39763,6 +40043,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Choot.ChootNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Choot/ChootNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Choot.ChootPatternDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -39886,20 +40182,20 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoAndTubeColorRomData",
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoAndTubeColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoAndTubeColorRomData.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoAndTubeColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoAndTubeColorRomDataConstants",
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoAndTubeColorTransfer",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -39909,7 +40205,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoAndTubeColorRomDataConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoAndTubeColorTransfer.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -39939,6 +40235,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueAnimations",
@@ -40210,6 +40522,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatuePlmNativeRoutines",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoStatuePlmNativeRoutines.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatuePlmProgramDefinitions",
       "kind": "static class",
       "scope": "test",
@@ -40253,35 +40581,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatuePlmRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePlmRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatuePlmRomDataConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoStatuePlmRomDataConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatuePlms",
@@ -40334,6 +40633,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueRoomDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueRoomDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueState",
@@ -40722,6 +41034,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.CorpsesNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/CorpsesNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadMonsterFrame",
@@ -41578,6 +41906,22 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.CrawlersNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/CrawlersNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Crawlers.CrawlersPart",
       "kind": "enum",
       "scope": "product",
@@ -42088,6 +42432,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Dragon.DragonNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Dragon/DragonNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Dragon.DragonProgram",
@@ -43054,17 +43414,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyDrawMasks",
+      "type": "SuperMetroid.Core.Enemies.EnemyDrawRange",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawMasks.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawRange.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyDropChanceDefinitions",
@@ -43224,6 +43584,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemyFireballLaunchDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyFollowers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyFollowers.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -43571,12 +43944,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyParameterMasks",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyParameterMasks.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyParameterMasks.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43824,12 +44200,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointers",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43837,12 +44216,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointers.Ceres",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43850,12 +44232,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointers.Kraid",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43863,12 +44248,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointers.Ridley",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43876,12 +44264,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointers.TourianStatue",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43889,47 +44280,18 @@
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointers.WorkRobot",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersCeresConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersCeresConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersCeresConstants.extension(SuperMetroid.Core.Enemies.EnemyRomTablePointers.Ceres)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersCeresConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersChozoStatue",
@@ -44028,38 +44390,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersKraidConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersKraidConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersKraidConstants.extension(SuperMetroid.Core.Enemies.EnemyRomTablePointers.Kraid)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersKraidConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersPhantoon",
       "kind": "static class",
       "scope": "test",
@@ -44074,38 +44404,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersRidleyConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersRidleyConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersRidleyConstants.extension(SuperMetroid.Core.Enemies.EnemyRomTablePointers.Ridley)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersRidleyConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersRipper",
@@ -44138,70 +44436,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersTourianStatueConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersTourianStatueConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersTourianStatueConstants.extension(SuperMetroid.Core.Enemies.EnemyRomTablePointers.TourianStatue)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersTourianStatueConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersWorkRobotConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersWorkRobotConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyRomTablePointersWorkRobotConstants.extension(SuperMetroid.Core.Enemies.EnemyRomTablePointers.WorkRobot)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersWorkRobotConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRoomBinding",
@@ -44551,6 +44785,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyTilePlacement",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyTilePlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyTouchContext",
       "kind": "record struct",
       "scope": "product",
@@ -44659,19 +44906,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyWordMasks",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyWordMasks.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Evir.Artwork.EvirFrameDefinitions",
@@ -45533,6 +45767,22 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Flies.FliesNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Flies/FliesNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Flies.FlyAnimations",
       "kind": "static class",
       "scope": "product",
@@ -45878,6 +46128,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/FuneNamihe/FuneNamiheNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheParameterMasks",
@@ -46275,6 +46541,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Gunship/GunshipNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Gunship.GunshipPart",
       "kind": "enum",
       "scope": "product",
@@ -46507,6 +46789,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Hibashi/HibashiNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiProgram",
@@ -46796,6 +47094,22 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HoppersNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Hoppers/HoppersNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.ICeresEncounter",
@@ -47555,6 +47869,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Kago.KagoNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Kago/KagoNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Kago.KagoProgram",
       "kind": "enum",
       "scope": "product",
@@ -47876,17 +48206,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.KilledEnemyIndexMasks",
+      "type": "SuperMetroid.Core.Enemies.KiHunters.KiHuntersNativeWords",
       "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/KiHunters/KiHuntersNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.KilledEnemy",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/KilledEnemyIndexMasks.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/KilledEnemy.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Kzan.Artwork.KzanFrameDefinitions",
@@ -48022,6 +48368,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Kzan.KzanNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Kzan/KzanNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Kzan.KzanPart",
       "kind": "enum",
       "scope": "product",
@@ -48085,6 +48447,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.LavaJumpersNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/LavaJumpers/LavaJumpersNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumpDefinitions",
@@ -48515,14 +48893,30 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePaletteRomData",
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Magdollite/MagdolliteNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePaletteDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePaletteRomData.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePaletteDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -48942,6 +49336,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtlesNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/MamaTurtles/MamaTurtlesNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MaridiaRoomEnemyGraphicsSetDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -49269,6 +49679,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaSnailsNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaSnailsNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Metaree.MetareeBehavior",
       "kind": "class",
       "scope": "product",
@@ -49332,6 +49758,22 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metaree.MetareeNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Metaree/MetareeNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Metroids.Artwork.MetroidFrameDefinitions",
@@ -49876,6 +50318,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/MorphBallEye/MorphBallEyeNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeProgram",
       "kind": "enum",
       "scope": "product",
@@ -50101,6 +50559,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Nuclear/Artwork/NuclearWaffleProjectileFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Nuclear/NuclearNativeWords.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -50800,6 +51274,22 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugsNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/PipeBugs/PipeBugsNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugsPart",
       "kind": "enum",
       "scope": "product",
@@ -51170,6 +51660,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Polyp.PolypNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Polyp/PolypNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Polyp.PolypProgram",
       "kind": "enum",
       "scope": "product",
@@ -51447,6 +51953,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Powamp.PowampNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Powamp/PowampNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Powamp.PowampProgram",
@@ -52149,32 +52671,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectilePresentationFrameSetsTooling",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectilePresentationFrameSetsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectilePresentationFrameSetsTooling.AddressComparer",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectilePresentationFrameSetsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileProgramAnimation\u003CTProgram, TFrame, TCue\u003E",
       "kind": "class",
       "scope": "product",
@@ -52604,6 +53100,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Puyo/PuyoNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Puyo.PuyoProgram",
@@ -53120,6 +53632,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Rios.RiosNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Rios/RiosNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Ripper.Artwork.RipperFrameDefinitions",
@@ -53728,47 +54256,18 @@
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyRomLayout",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyRomLayout.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyRomLayout.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyRomLayoutConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyRomLayoutConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyRomLayoutConstants.extension(SuperMetroid.Core.Enemies.RoomEnemyRomLayout)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyRomLayoutConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemySlot",
@@ -54210,6 +54709,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Sbug.SbugNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Sbug/SbugNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Sbug.SbugProgram",
       "kind": "enum",
       "scope": "product",
@@ -54382,6 +54897,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolOrbitDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -54499,20 +55030,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPlmRomData",
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomPlmRomData.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPlmRomDataConstants",
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPlmNativeProgram",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54522,7 +55053,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolRoomPlmRomDataConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolRoomPlmNativeProgram.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -54834,6 +55365,22 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Shutters.ShuttersNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Shutters/ShuttersNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shutters.ShuttersPart",
@@ -55151,6 +55698,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Skree.SkreeNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Skultera.Artwork.SkulteraFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -55295,6 +55858,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Skultera.SkulteraNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Skultera/SkulteraNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Skultera.SkulteraProgram",
@@ -55925,6 +56504,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePirateParameters",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/SpacePirateParameters.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileAnimation",
       "kind": "class",
       "scope": "product",
@@ -56056,6 +56648,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePiratesNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpacePirates/SpacePiratesNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateAnimations",
@@ -56633,6 +57241,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Sparks.SparksNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Sparks/SparksNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectPool",
       "kind": "class",
       "scope": "product",
@@ -56845,6 +57469,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Stoke/StokeNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Stoke.StokeProgram",
@@ -57386,6 +58026,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotLasers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotLasers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotMoveStep",
       "kind": "record",
       "scope": "product",
@@ -57399,14 +58052,14 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteRomData",
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotPaletteRomData.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotPaletteDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -57494,6 +58147,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotsNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/WorkRobots/WorkRobotsNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.Artwork.WreckedShipGhostFrameDefinitions",
@@ -57720,6 +58389,35 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/WreckedShip/WreckedShipNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipTreadmillBlockDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillMechanicsDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -57782,19 +58480,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillPlmRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipTreadmillPlmRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillPlmState",
@@ -57962,6 +58647,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawAttackGeometry",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAttackGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawBehavior",
       "kind": "class",
       "scope": "product",
@@ -58105,19 +58803,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawTarget",
       "kind": "record struct",
       "scope": "product",
@@ -58129,6 +58814,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawsNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/YappingMaws/YappingMawsNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Yard.Artwork.YardFrameDefinitions",
@@ -58433,6 +59134,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Yard.YardNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Yard/YardNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Yard.YardProgram",
       "kind": "enum",
       "scope": "product",
@@ -58702,6 +59419,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Zoa.ZoaProgram",
       "kind": "enum",
       "scope": "product",
@@ -58725,10 +59458,10 @@
         "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaSpeedDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaSpeedDefinitionsConstants",
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaSpeedSources",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -58738,26 +59471,10 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaSpeedDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaSpeedSources.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaSpeedDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Zoa.ZoaSpeedDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaSpeedDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Ensure",
@@ -91182,14 +91899,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.EscapeAnimalPlmRomData",
+      "type": "SuperMetroid.Core.Rooms.Plms.EscapeAnimalWallDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/EscapeAnimalPlmRomData.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/EscapeAnimalWallDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -110138,19 +110855,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.World.Artwork.EnemyExtendedFrameCompositions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameCompositions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.World.Artwork.EnemyExtendedFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -110188,19 +110892,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.World.Artwork.EnemySpritemapCompositions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/Artwork/EnemySpritemapCompositions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.World.Artwork.EnemySpritemapDefinitions",
@@ -118664,19 +119355,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Enemies.EnemyArtworkDomainAudit",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Enemies/EnemyArtworkDomainAudit.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.ResourceAudit.ClosedContracts.Enemies.EnemyArtworkStaticContractChecks",

@@ -49,7 +49,7 @@ internal static class AlcoonFireballBehaviorVerification
         fireballs[0].StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(fireballs[0], null, Position16<RoomPixels>.Zero);
         AssertTrue(!fireballs[0].IsActive, "the shared shot list still deletes a fireball");
-        for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);
             ushort key = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);

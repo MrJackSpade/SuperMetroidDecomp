@@ -27,7 +27,8 @@ internal static class SparkMovementDefinitionsVerification
         for (ushort selector = 0; selector < 4; selector++)
         {
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.InstructionListTable + selector * 2);
-            var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2);
+            var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
+                $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SparkMovementDefinitions.InitialState(selector);
             ushort list = definition.Program is { } program
                 ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)

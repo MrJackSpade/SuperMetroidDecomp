@@ -58,7 +58,7 @@ internal static class GrowingShutterDefinitionsVerification
         {
             int address = 0xa2ea4e + 2 * index;
             ushort native = SnesLittleEndian.Word(GrowingShutterInitialSelectionRomByte(rom, address), GrowingShutterInitialSelectionRomByte(rom, address + 1));
-            AssertEqual(native, (ushort)GrowingShutterDefinitions.InitialFunction(index),
+            AssertEqual(native, ShuttersNativeWords.GrowingShutterFunctions.Word(GrowingShutterDefinitions.InitialFunction(index)),
                 "growing shutter named initial case matches original pointer");
         }
         foreach (int index in new[] { int.MinValue, -1, 4, 5, 65536, int.MaxValue })

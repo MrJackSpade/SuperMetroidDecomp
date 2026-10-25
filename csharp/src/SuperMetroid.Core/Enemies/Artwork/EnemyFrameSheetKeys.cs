@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 

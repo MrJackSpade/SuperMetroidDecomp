@@ -20,11 +20,6 @@ internal static class EnemyDefinitionIds
     internal static bool TryFromHeaderPointer(ushort pointer, out EnemyDefinitionId id) =>
         EnemyHeaderWords.Headers.TryDecode(pointer, out id) && id != EnemyDefinitionId.None;
 
-    /// <summary>The species an enemy slot's identity word names; zero is the cleared slot.</summary>
-    /// <exception cref="InvalidDataException">The word is neither zero nor a labelled enemy header.</exception>
-    internal static EnemyDefinitionId FromSlotWord(ushort word) =>
-        word == 0 ? EnemyDefinitionId.None : FromHeaderPointer(word);
-
     /// <summary>The bank-$A0 header pointer of <paramref name="id"/>; zero for the cleared slot.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a member.</exception>
     internal static ushort HeaderPointer(EnemyDefinitionId id) => EnemyHeaderWords.Headers.Word(id);

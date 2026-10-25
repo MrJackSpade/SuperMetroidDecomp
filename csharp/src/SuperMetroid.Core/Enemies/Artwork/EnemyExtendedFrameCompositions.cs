@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
-using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The installed extended enemy compositions (#1402). Each older schema revision is a prefix of this order, so the
@@ -459,23 +458,23 @@ internal static class EnemyExtendedFrameCompositions
         new(EnemyFrameId.TorizoCombat24, "torizo_combat_AFC4"),
         new(EnemyFrameId.TorizoCombat25, "torizo_combat_AFD6"),
         new(EnemyFrameId.TorizoCombat26, "torizo_combat_AFE8"),
-        new(EnemyFrameId.MotherBrainBodyOamStanding, "mother_brain_body_oam_standing"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking0, "mother_brain_body_oam_walking_0"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking1, "mother_brain_body_oam_walking_1"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking2, "mother_brain_body_oam_walking_2"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking3, "mother_brain_body_oam_walking_3"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking4, "mother_brain_body_oam_walking_4"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking5, "mother_brain_body_oam_walking_5"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking6, "mother_brain_body_oam_walking_6"),
-        new(EnemyFrameId.MotherBrainBodyOamWalking7, "mother_brain_body_oam_walking_7"),
-        new(EnemyFrameId.MotherBrainBodyOamCrouched, "mother_brain_body_oam_crouched"),
-        new(EnemyFrameId.MotherBrainBodyOamUncrouching, "mother_brain_body_oam_uncrouching"),
-        new(EnemyFrameId.MotherBrainBodyOamLeaningDown, "mother_brain_body_oam_leaning_down"),
-        new(EnemyFrameId.MotherBrainBodyOamInitialDummy, "mother_brain_body_oam_initial_dummy"),
-        new(EnemyFrameId.MotherBrainBodyOamDeathBeam0, "mother_brain_body_oam_death_beam_0"),
-        new(EnemyFrameId.MotherBrainBodyOamDeathBeam1, "mother_brain_body_oam_death_beam_1"),
-        new(EnemyFrameId.MotherBrainBodyOamDeathBeam2, "mother_brain_body_oam_death_beam_2"),
-        new(EnemyFrameId.MotherBrainBodyOamDeathBeam3, "mother_brain_body_oam_death_beam_3"),
+        new(EnemyFrameId.MotherBrainBodyStanding, "mother_brain_body_oam_standing"),
+        new(EnemyFrameId.MotherBrainBodyWalking0, "mother_brain_body_oam_walking_0"),
+        new(EnemyFrameId.MotherBrainBodyWalking1, "mother_brain_body_oam_walking_1"),
+        new(EnemyFrameId.MotherBrainBodyWalking2, "mother_brain_body_oam_walking_2"),
+        new(EnemyFrameId.MotherBrainBodyWalking3, "mother_brain_body_oam_walking_3"),
+        new(EnemyFrameId.MotherBrainBodyWalking4, "mother_brain_body_oam_walking_4"),
+        new(EnemyFrameId.MotherBrainBodyWalking5, "mother_brain_body_oam_walking_5"),
+        new(EnemyFrameId.MotherBrainBodyWalking6, "mother_brain_body_oam_walking_6"),
+        new(EnemyFrameId.MotherBrainBodyWalking7, "mother_brain_body_oam_walking_7"),
+        new(EnemyFrameId.MotherBrainBodyCrouched, "mother_brain_body_oam_crouched"),
+        new(EnemyFrameId.MotherBrainBodyUncrouching, "mother_brain_body_oam_uncrouching"),
+        new(EnemyFrameId.MotherBrainBodyLeaningDown, "mother_brain_body_oam_leaning_down"),
+        new(EnemyFrameId.MotherBrainBodyInitialDummy, "mother_brain_body_oam_initial_dummy"),
+        new(EnemyFrameId.MotherBrainBodyDeathBeam0, "mother_brain_body_oam_death_beam_0"),
+        new(EnemyFrameId.MotherBrainBodyDeathBeam1, "mother_brain_body_oam_death_beam_1"),
+        new(EnemyFrameId.MotherBrainBodyDeathBeam2, "mother_brain_body_oam_death_beam_2"),
+        new(EnemyFrameId.MotherBrainBodyDeathBeam3, "mother_brain_body_oam_death_beam_3"),
         new(EnemyFrameId.PhantoonInvulnerableBody0, "phantoon_bg2_DEDD"),
         new(EnemyFrameId.PhantoonFullHitboxBody0, "phantoon_bg2_DEE7"),
         new(EnemyFrameId.PhantoonEyeHitboxBody0, "phantoon_bg2_DEF1"),

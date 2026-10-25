@@ -1,19 +1,17 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Enemies;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.World.Artwork;
 
 /// <summary>
 /// Checks #1343's enemy-format draws as #1392 draws them: an ordinary enemy and each visible component of an extended

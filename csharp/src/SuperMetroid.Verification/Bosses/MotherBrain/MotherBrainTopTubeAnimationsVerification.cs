@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

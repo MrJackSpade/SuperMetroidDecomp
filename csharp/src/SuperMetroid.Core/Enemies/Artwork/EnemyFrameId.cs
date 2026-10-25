@@ -521,9 +521,9 @@ public enum EnemyFrameId
     /// <summary><c>ceres_door_initial</c>, an installed spritemap.</summary>
     CeresDoorInitial,
     /// <summary><c>ceres_door_mode7_left_wall</c>, an installed spritemap.</summary>
-    CeresDoorMode7LeftWall,
+    CeresDoorTurningFloorLeftWall,
     /// <summary><c>ceres_door_mode7_right_wall</c>, an installed spritemap.</summary>
-    CeresDoorMode7RightWall,
+    CeresDoorTurningFloorRightWall,
     /// <summary><c>ceres_door_ridley_private_overlay</c>, an installed spritemap.</summary>
     CeresDoorRidleyPrivateOverlay,
     /// <summary><c>ceres_baby_horizontal</c>, an installed spritemap.</summary>
@@ -3727,39 +3727,39 @@ public enum EnemyFrameId
     /// <summary><c>torizo_combat_AFE8</c>, an installed extended frame.</summary>
     TorizoCombat26,
     /// <summary><c>mother_brain_body_oam_standing</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamStanding,
+    MotherBrainBodyStanding,
     /// <summary><c>mother_brain_body_oam_walking_0</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking0,
+    MotherBrainBodyWalking0,
     /// <summary><c>mother_brain_body_oam_walking_1</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking1,
+    MotherBrainBodyWalking1,
     /// <summary><c>mother_brain_body_oam_walking_2</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking2,
+    MotherBrainBodyWalking2,
     /// <summary><c>mother_brain_body_oam_walking_3</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking3,
+    MotherBrainBodyWalking3,
     /// <summary><c>mother_brain_body_oam_walking_4</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking4,
+    MotherBrainBodyWalking4,
     /// <summary><c>mother_brain_body_oam_walking_5</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking5,
+    MotherBrainBodyWalking5,
     /// <summary><c>mother_brain_body_oam_walking_6</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking6,
+    MotherBrainBodyWalking6,
     /// <summary><c>mother_brain_body_oam_walking_7</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamWalking7,
+    MotherBrainBodyWalking7,
     /// <summary><c>mother_brain_body_oam_crouched</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamCrouched,
+    MotherBrainBodyCrouched,
     /// <summary><c>mother_brain_body_oam_uncrouching</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamUncrouching,
+    MotherBrainBodyUncrouching,
     /// <summary><c>mother_brain_body_oam_leaning_down</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamLeaningDown,
+    MotherBrainBodyLeaningDown,
     /// <summary><c>mother_brain_body_oam_initial_dummy</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamInitialDummy,
+    MotherBrainBodyInitialDummy,
     /// <summary><c>mother_brain_body_oam_death_beam_0</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamDeathBeam0,
+    MotherBrainBodyDeathBeam0,
     /// <summary><c>mother_brain_body_oam_death_beam_1</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamDeathBeam1,
+    MotherBrainBodyDeathBeam1,
     /// <summary><c>mother_brain_body_oam_death_beam_2</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamDeathBeam2,
+    MotherBrainBodyDeathBeam2,
     /// <summary><c>mother_brain_body_oam_death_beam_3</c>, an installed extended frame.</summary>
-    MotherBrainBodyOamDeathBeam3,
+    MotherBrainBodyDeathBeam3,
     /// <summary><c>phantoon_bg2_DEDD</c>, an installed extended frame.</summary>
     PhantoonInvulnerableBody0,
     /// <summary><c>phantoon_bg2_DEE7</c>, an installed extended frame.</summary>

@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
 /// </summary>
 internal static class AlcoonFireballFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 4;
-
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<AlcoonFireballFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<AlcoonFireballFrame, EnemyProjectileFrameId>

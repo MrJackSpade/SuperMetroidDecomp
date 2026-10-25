@@ -33,7 +33,7 @@ internal static class NinjaSpacePirateAnimationsVerification
                     },
                     'S' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset),
                     'Y' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").OffsetY),
-                    'E' => (ushort)AssertIs<NinjaSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function,
+                    'E' => SpacePiratesNativeWords.NinjaSpacePirateFunctions.Word(AssertIs<NinjaSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

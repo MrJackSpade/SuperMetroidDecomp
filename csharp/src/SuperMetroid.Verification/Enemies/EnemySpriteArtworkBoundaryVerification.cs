@@ -20,11 +20,9 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.Artwork;
-using SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>Checks that enemy OAM and projectile sprite owners use installed artwork after cartridge readers are removed.</summary>
 internal static class EnemySpriteArtworkBoundaryVerification

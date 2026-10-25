@@ -51,7 +51,7 @@ internal static class MotherBrainLaterContactVerification
         // Shot blocking is native behavior and must remain a dud, not body damage.
         body.Position = body.Position.WithWhole(new(128, 128));
         body.Radius = new(16, 16);
-        body.Frame = EnemyFrameId.MotherBrainBodyOamStanding;
+        body.Frame = EnemyFrameId.MotherBrainBodyStanding;
         body.Health = 1000;
         var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
         interactive.Add(body.EnemyIndex);

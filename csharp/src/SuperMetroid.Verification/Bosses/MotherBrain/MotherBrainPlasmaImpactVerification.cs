@@ -24,7 +24,7 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Properties = head.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
-        head.Frame = EnemyFrameId.MotherBrainBodyOamInitialDummy;
+        head.Frame = EnemyFrameId.MotherBrainBodyInitialDummy;
         head.Health = 18000;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;

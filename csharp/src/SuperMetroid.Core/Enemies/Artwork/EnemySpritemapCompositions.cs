@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
-using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The installed ordinary enemy compositions (#1402). Each older schema revision is a prefix of this order, so the
@@ -268,8 +267,8 @@ internal static class EnemySpritemapCompositions
         new(EnemyFrameId.CeresDoorRightTransition2, "ceres_door_right_transition_2"),
         new(EnemyFrameId.CeresDoorRightTransition3, "ceres_door_right_transition_3"),
         new(EnemyFrameId.CeresDoorInitial, "ceres_door_initial"),
-        new(EnemyFrameId.CeresDoorMode7LeftWall, "ceres_door_mode7_left_wall"),
-        new(EnemyFrameId.CeresDoorMode7RightWall, "ceres_door_mode7_right_wall"),
+        new(EnemyFrameId.CeresDoorTurningFloorLeftWall, "ceres_door_mode7_left_wall"),
+        new(EnemyFrameId.CeresDoorTurningFloorRightWall, "ceres_door_mode7_right_wall"),
         new(EnemyFrameId.CeresDoorRidleyPrivateOverlay, "ceres_door_ridley_private_overlay"),
         new(EnemyFrameId.CeresBabyHorizontal, "ceres_baby_horizontal"),
         new(EnemyFrameId.CeresBabyRound, "ceres_baby_round"),

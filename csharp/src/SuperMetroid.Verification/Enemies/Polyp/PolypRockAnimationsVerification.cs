@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Polyp;
 

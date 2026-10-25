@@ -57,7 +57,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, EnemyFrameId.MotherBrainBodyOamCrouched);
+        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapWordCount).ToArray();
         foreach (var write in writes.Span)
         {

@@ -207,7 +207,7 @@ internal static void VerifyRoomEnemyLoading()
     // The tile word decodes to the tile set's size and placement; where the tiles sit is the import's to read.
     AssertEqual(0x0040, definition.TileByteCount, "definition tile set size, the tile word's low fifteen bits");
     AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");
-    AssertEqual(EnemyTilePlacement.AtFixedBlock, enemies.GraphicsSet.Entries[1].Definition.TilePlacement,
+    AssertEqual(EnemyTilePlacement.AtFixedBlock, RoomEnemyDefinitionCatalog.Get(enemies.GraphicsSet.Entries[1].DefinitionId).TilePlacement,
         "special definition tile word's bit 15 places its tiles at the record's fixed block");
     AssertEqual((EnemyDropTable?)new EnemyDropTable(3), definition.DropChances,
         "definition item-drop table offset $3A");

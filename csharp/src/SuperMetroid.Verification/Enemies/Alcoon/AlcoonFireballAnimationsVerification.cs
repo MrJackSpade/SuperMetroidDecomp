@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 
@@ -18,7 +17,7 @@ internal static class AlcoonFireballAnimationsVerification
     internal static void VerifyAlcoonFireballAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
-        for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);
             ushort key = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);

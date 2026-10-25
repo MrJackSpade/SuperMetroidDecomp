@@ -119,16 +119,16 @@ internal static class LookupStream2Verification
             string expected = SelectedPresentationHash.Create("enemy-oam-v2", content =>
             {
                 var ordered = definitions
-                    .OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal)
+                    .OrderBy(frame => EnemyFrameSheetKeys.Of(frame.Frame), StringComparer.Ordinal)
                     .ToArray();
                 foreach (var frame in ordered)
                 {
-                    content.AppendName("frame", frame.Frame.ToString());
+                    content.AppendName("frame", EnemyFrameSheetKeys.Of(frame.Frame));
                     content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
                 foreach (var frame in ordered)
                 {
-                    string identity = frame.Frame.ToString();
+                    string identity = EnemyFrameSheetKeys.Of(frame.Frame);
                     content.AppendName("native-binding", identity);
                     content.AppendName("selected-binding", identity);
                 }
@@ -2229,7 +2229,7 @@ internal static class LookupStream2Verification
                     "Golden Torizo calculated stock/supplied parts produce exact packed OAM");
             }
             var identities = definitions.ToDictionary(frame => frame.Name,
-                frame => (RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer) ?? throw new InvalidOperationException($"{frame.Name} shows no frame.")).ToString(), StringComparer.Ordinal);
+                frame => EnemyFrameSheetKeys.Of(RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer) ?? throw new InvalidOperationException($"{frame.Name} shows no frame.")), StringComparer.Ordinal);
             var orderedFrames = definitions.OrderBy(frame => identities[frame.Name], StringComparer.Ordinal).ToArray();
             string expectedHash = SelectedPresentationHash.Create("enemy-extended-oam-v2", content =>
             {

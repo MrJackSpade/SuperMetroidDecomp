@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
 /// <summary>Development-tool members of <see cref="AlcoonFireballFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class AlcoonFireballFrameToolingDefinitions
 {
+    /// <summary>The poses, in installed artwork order.</summary>
+    internal const int PoseCount = 4;
+
     /// <summary>
     /// The bank-$8D spritemap the native operand of <paramref name="frame"/> selects, for artwork catalogs that resolve
     /// the frame through its spritemap rather than an installed composition.
@@ -21,7 +24,7 @@ internal static class AlcoonFireballFrameToolingDefinitions
     /// <summary>The pose whose program frame is stored at bank-$86 operand <paramref name="key"/>, if one is.</summary>
     internal static bool TryFrame(ushort key, out AlcoonFireballFrame frame)
     {
-        for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             frame = new(pose);
             if (EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]) == key)

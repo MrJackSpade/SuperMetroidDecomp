@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
-using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

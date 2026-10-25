@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Deaths;
 

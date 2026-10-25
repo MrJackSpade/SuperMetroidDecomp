@@ -23,7 +23,7 @@ internal static class WallSpacePirateAnimationsVerification
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
                     'V' => unchecked((ushort)(cue switch { WallSpacePirateCue.ClimbLeftWall climbLeftWall => climbLeftWall.ClimbPixels, WallSpacePirateCue.ClimbRightWall climbRightWall => climbRightWall.ClimbPixels, _ => throw new InvalidOperationException($"{at}: {cue} carries no ClimbPixels.") })),
-                    'E' => (ushort)AssertIs<WallSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function,
+                    'E' => SpacePiratesNativeWords.WallSpacePirateFunctions.Word(AssertIs<WallSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },

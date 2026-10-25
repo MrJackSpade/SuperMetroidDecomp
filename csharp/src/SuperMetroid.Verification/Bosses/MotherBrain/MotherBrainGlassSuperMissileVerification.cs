@@ -31,7 +31,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.Bind(head.DefinitionId, RoomEnemyDefinitionCatalog.Get(head.DefinitionId));
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
-        head.Frame = EnemyFrameId.MotherBrainBodyOamInitialDummy;
+        head.Frame = EnemyFrameId.MotherBrainBodyInitialDummy;
         head.Health = 3000;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.Glass };
         enemies.MotherBrainEncounter.MotherBrain = state;

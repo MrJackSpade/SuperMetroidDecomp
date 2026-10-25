@@ -140,7 +140,6 @@ internal sealed class EnemyGraphicsSet
                 enemy,
                 source.PaletteRow,
                 nextEnemyTileIndex,
-                definition,
                 stagingOffset,
                 byteCount));
 

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Polyp.Artwork;
 

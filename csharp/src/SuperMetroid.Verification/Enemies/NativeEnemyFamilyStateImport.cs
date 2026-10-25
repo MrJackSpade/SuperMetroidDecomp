@@ -61,7 +61,6 @@ using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies;
 

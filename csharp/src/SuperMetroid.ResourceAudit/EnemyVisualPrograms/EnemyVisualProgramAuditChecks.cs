@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 

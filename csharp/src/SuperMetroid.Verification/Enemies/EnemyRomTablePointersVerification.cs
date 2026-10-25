@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Bosses.Torizo;

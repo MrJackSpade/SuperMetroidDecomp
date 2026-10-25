@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => AlcoonFireballFrameDefinitions.PoseCount + FuneNamiheFireballFrameToolingDefinitions.PoseCount;
+    internal static int CalculatedCount => AlcoonFireballFrameToolingDefinitions.PoseCount + FuneNamiheFireballFrameToolingDefinitions.PoseCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
@@ -42,12 +41,12 @@ internal static class CompiledEnemyVisualSelectorsTooling
     /// <summary>Calculates an indexed presentation operand and its installed visual frame across native banks.</summary>
     internal static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
-        if (index < AlcoonFireballFrameDefinitions.PoseCount)
+        if (index < AlcoonFireballFrameToolingDefinitions.PoseCount)
         {
             AlcoonFireballFrame fireball = new(index);
             return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameToolingDefinitions.Spritemap(fireball));
         }
-        index -= AlcoonFireballFrameDefinitions.PoseCount;
+        index -= AlcoonFireballFrameToolingDefinitions.PoseCount;
         if (index < FuneNamiheFireballFrameToolingDefinitions.PoseCount)
         {
             FuneNamiheFireballFrame fune = new(index);

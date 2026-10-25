@@ -447,7 +447,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // also supplies the native $8000 pre-draw map sentinel and all three property bits.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
-            (RoomEnemyProjectileKind)definition,
+            definition.ProjectileKind(),
             unchecked((ushort)(robot.TileIndexBase | robot.PaletteIndex)));
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch

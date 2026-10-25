@@ -3,12 +3,10 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

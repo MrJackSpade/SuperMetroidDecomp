@@ -36,7 +36,7 @@ internal static class EnemyProjectileSpritemapNative
 
         /// <summary>The parts of the program frame stored at bank-$86 operand <paramref name="operand"/>.</summary>
         internal ReadOnlyMemory<SpritemapPart> GetProgramFrame(ushort operand) =>
-            catalog.GetProgramFrame(EnemyProjectileProgramFrameSources.Frame(operand));
+            catalog.GetProgramFrame(EnemyProjectileProgramFrameOperands.Frame(operand));
     }
 
     /// <summary>Native locations of an installed program frame.</summary>

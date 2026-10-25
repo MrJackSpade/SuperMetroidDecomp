@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityNativeLi
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 

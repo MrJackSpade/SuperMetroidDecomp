@@ -39,7 +39,7 @@ internal static class BackgroundTransferPresentationContractChecks
                     phantoon.TryGet(0, out _);
                     draygon.TryGet(0, out _);
                     crocomire.TryGet(0, out _);
-                    motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyOamInitialDummy, out _);
+                    motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyInitialDummy, out _);
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
                     blends.Apply(backgrounds, 0);
@@ -70,7 +70,7 @@ internal static class BackgroundTransferPresentationContractChecks
                         phantoon.TryGet(0, out _);
                         draygon.TryGet(0, out _);
                         crocomire.TryGet(0, out _);
-                        motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyOamInitialDummy, out _);
+                        motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyInitialDummy, out _);
                     }
                 }
                 """, path: "fixture-bg-transfer-consumer.cs");

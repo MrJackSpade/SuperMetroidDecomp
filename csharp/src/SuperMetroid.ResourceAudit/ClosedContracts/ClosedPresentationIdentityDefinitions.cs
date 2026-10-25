@@ -6,8 +6,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 

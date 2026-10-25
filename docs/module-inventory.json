@@ -25,7 +25,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 622,
+      "files": 628,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -140,7 +140,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 1307,
+      "files": 1309,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -410,7 +410,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/World",
       "role": "production",
-      "files": 91,
+      "files": 89,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -688,7 +688,7 @@
     {
       "module": "csharp/src/SuperMetroid.ResourceAudit",
       "role": "tooling",
-      "files": 121,
+      "files": 120,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -715,11 +715,10 @@
     {
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
-      "files": 239,
+      "files": 235,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Bosses",
@@ -958,7 +957,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 969,
+      "files": 1010,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1016,10 +1015,12 @@
     {
       "module": "csharp/test-support/VerificationAccess.Tooling",
       "role": "verification-support",
-      "files": 32,
+      "files": 38,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
@@ -3000,6 +3001,18 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/KraidPaletteSources.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Bosses",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Bosses"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/BabyMetroidCutsceneColorDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -3679,7 +3692,45 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemyAuxiliaryPaletteSource.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.CartridgeTables",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemyHeaderWords.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.CartridgeTables",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySourceDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.CartridgeTables",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemySpeciesSourceDefinitions.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.CartridgeTables",
@@ -4094,6 +4145,9 @@
       "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -4482,6 +4536,30 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileCompositionSources.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileProgramFrameDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileProgramFrameSources.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Enemies",
@@ -9909,9 +9987,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -10631,9 +10706,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -15811,9 +15883,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -21473,9 +21542,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -24290,7 +24356,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Animals",
@@ -25022,16 +25088,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyDmaSourceKey.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedDrawComponent.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -25057,6 +25113,16 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCompositions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -25105,6 +25171,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameId.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameSheetKeys.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Artwork",
@@ -25227,6 +25303,16 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCompositions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -25439,7 +25525,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/IInstalledObjCharacterArtwork.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/IInstalledSpriteCharacterArtwork.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Artwork",
@@ -25466,7 +25552,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/InstalledObjCharacterArtwork.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/InstalledSpriteCharacterArtwork.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Artwork",
@@ -26823,7 +26909,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoAndTubeColorRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoAndTubeColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Chozo",
@@ -27019,20 +27105,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePlmRomData.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Chozo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePlms.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -27080,6 +27152,20 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueRoomDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Chozo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -28848,13 +28934,16 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawMasks.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawRange.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -28952,6 +29041,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyFireballLaunchDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyFollowers.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies",
@@ -29198,16 +29297,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyParameterMasks.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyPickupAnimationDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -29395,16 +29484,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Hardware"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyRomTablePointers.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -29690,6 +29769,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyTilePlacement.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyTouchContext.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -29749,16 +29838,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyVulnerabilityTable.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyWordMasks.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies",
@@ -32089,7 +32168,8 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware"
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -32133,13 +32213,16 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/KilledEnemyIndexMasks.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/KilledEnemy.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -32597,7 +32680,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePaletteRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePaletteDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Magdollite",
@@ -36061,16 +36144,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyRomLayout.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/RoomEnemySlot.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -36492,7 +36565,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomPlmRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Shaktool",
@@ -37366,6 +37439,16 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/SpacePirateParameters.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.SpacePirates",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -38370,6 +38453,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotLasers.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotMoveStep.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -38383,7 +38476,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotPaletteRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotPaletteDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
@@ -38608,7 +38701,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipTreadmillPlmRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipTreadmillBlockDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.WreckedShip",
@@ -38702,6 +38795,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAttackGeometry.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.YappingMaws",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -38835,19 +38941,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawRomData.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.YappingMaws",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -39236,9 +39329,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
     {
@@ -56643,7 +56733,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/EscapeAnimalPlmRomData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/EscapeAnimalWallDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -67086,19 +67176,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameCompositions.cs",
-      "module": "csharp/src/SuperMetroid.Core/World",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.World.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/World",
       "role": "production",
@@ -67131,19 +67208,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameSequence.cs",
-      "module": "csharp/src/SuperMetroid.Core/World",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.World.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/World/Artwork/EnemySpritemapCompositions.cs",
       "module": "csharp/src/SuperMetroid.Core/World",
       "role": "production",
       "namespace": "SuperMetroid.Core.World.Artwork",
@@ -74439,6 +74503,7 @@
         "SuperMetroid.ResourceAudit"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Tooling"
       ]
@@ -74646,6 +74711,7 @@
         "SuperMetroid.ResourceAudit"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Rooms"
       ]
@@ -74687,22 +74753,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Enemies/EnemyArtworkDomainAudit.cs",
-      "module": "csharp/src/SuperMetroid.ResourceAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ResourceAudit.ClosedContracts.Enemies",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Tooling"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Enemies/EnemyArtworkStaticContractChecks.cs",
       "module": "csharp/src/SuperMetroid.ResourceAudit",
       "role": "tooling",
@@ -74711,8 +74761,6 @@
         "SuperMetroid.ResourceAudit"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas",
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Tooling"
       ]
@@ -75514,6 +75562,7 @@
         "SuperMetroid.ResourceAudit"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Tooling"
       ]
@@ -76161,33 +76210,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Areas.Ceres.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Areas.Ceres.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas",
-        "csharp/src/SuperMetroid.Core/Assets"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/Artwork/TourianEntranceStatueFrameToolingDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
@@ -76585,6 +76607,7 @@
         "SuperMetroid.Tooling"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -76863,6 +76886,7 @@
         "SuperMetroid.Tooling"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -76940,19 +76964,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Tooling"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/GunshipLiftoffTransferDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Enemies.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -77342,6 +77353,7 @@
         "SuperMetroid.Tooling"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -77656,6 +77668,7 @@
         "SuperMetroid.Tooling"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -77694,19 +77707,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectilePreInstructionWords.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectilePresentationFrameSetsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",
@@ -77934,6 +77934,7 @@
         "SuperMetroid.Tooling"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -78776,9 +78777,9 @@
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling",
         "csharp/test-support/VerificationImporters",
         "csharp/test-support/VerificationOracles"
       ]
@@ -79940,7 +79941,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/VerificationAccess.Core",
@@ -84172,7 +84172,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
@@ -84927,7 +84926,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
@@ -88299,7 +88297,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial",
@@ -88641,7 +88638,8 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/RepositoryInstallation.Verification",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -88790,7 +88788,8 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Hardware"
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -90452,7 +90451,8 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Tooling"
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -90703,6 +90703,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Samus",
@@ -94299,13 +94300,13 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Input",
-        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/test-support/VerificationAccess.Core"
@@ -95370,7 +95371,8 @@
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -95472,7 +95474,8 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Hardware"
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -96804,7 +96807,8 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Tooling"
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -97050,7 +97054,8 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Tooling"
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -97127,7 +97132,8 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Tooling"
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -105806,6 +105812,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling",
         "csharp/test-support/VerificationOracles"
       ]
     },
@@ -105977,6 +105984,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling",
         "csharp/test-support/VerificationImporters"
       ]
     },
@@ -110175,7 +110183,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Hud",
@@ -119341,8 +119348,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies"
+        "csharp/src/SuperMetroid.Core/Bosses"
       ]
     },
     {
@@ -120451,6 +120457,40 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Alcoon/AlcoonNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Alcoon",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/AnimalsNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Animals",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/Artwork/EscapeEtecoonFrameDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -120464,7 +120504,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorRomDataAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorSources.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Animals",
@@ -120476,22 +120516,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraColorRomDataConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies.Animals",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -120666,6 +120691,9 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -120683,7 +120711,8 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Hardware"
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -121172,6 +121201,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Atomic/AtomicNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Atomic",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Beetom/BeetomAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -121190,6 +121236,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Beetom/BeetomNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Beetom",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Boulder/BoulderAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -121205,6 +121268,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Boulder/BoulderNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Boulder",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121244,6 +121324,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Bull/BullNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Bull",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Cacatac/CacatacAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -121259,6 +121356,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Cacatac/CacatacNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Cacatac",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121292,8 +121406,25 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Programs"
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Choot/ChootNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Choot",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121313,7 +121444,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoAndTubeColorRomDataConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoAndTubeColorTransfer.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Chozo",
@@ -121323,6 +121454,23 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Chozo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121360,6 +121508,19 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoStatuePlmNativeRoutines.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Chozo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoStatuePlmProgramDefinitions.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -121376,19 +121537,6 @@
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoStatuePlmRomDataConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies.Chozo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
       ]
     },
     {
@@ -121433,6 +121581,23 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/CorpsesNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Corpses",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -121488,6 +121653,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/CrawlersNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Crawlers",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121556,6 +121738,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Dragon/DragonNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Dragon",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121792,6 +121991,19 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyParameterMasks.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyProjectileCollisionOptionCodec.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -121824,7 +122036,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersCeresConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointers.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies",
@@ -121834,9 +122046,6 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121918,22 +122127,6 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersKraidConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersPhantoon.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -121944,22 +122137,6 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersRidleyConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -121986,38 +122163,6 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersTourianStatueConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersWorkRobotConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122184,6 +122329,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Flies/FliesNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Flies",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Flies/FlyAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122230,6 +122392,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/FuneNamihe/FuneNamiheNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.FuneNamihe",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122298,6 +122477,40 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Gunship/GunshipNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Gunship",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Hibashi/HibashiNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Hibashi",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Hoppers/HopperAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122316,6 +122529,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Hoppers/HoppersNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Hoppers",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Kago/KagoAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122331,6 +122561,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Kago/KagoNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Kago",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122368,6 +122615,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/KiHunters/KiHuntersNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.KiHunters",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Kzan/KzanAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122383,6 +122647,40 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Kzan/KzanNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Kzan",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/LavaJumpers/LavaJumpersNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.LavaJumpers",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122435,6 +122733,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Magdollite/MagdolliteNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Magdollite",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122516,6 +122831,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/MamaTurtles/MamaTurtlesNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.MamaTurtles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaLargeSnailAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122560,6 +122892,40 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaSnailsNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.MaridiaSnails",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Metaree/MetareeNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Metaree",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122617,6 +122983,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/MorphBallEye/MorphBallEyeNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.MorphBallEye",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/NativeEnemyStaging.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122645,6 +123028,23 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Nuclear/NuclearNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Nuclear",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -122717,6 +123117,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/PipeBugs/PipeBugsNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.PipeBugs",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Platforms/PlatformAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122753,6 +123170,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Polyp/PolypNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Polyp",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Powamp/Artwork/PowampSpikeFrameDefinitionsFramesAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -122765,6 +123199,23 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Powamp/PowampNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Powamp",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -122799,7 +123250,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Tooling"
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -122849,7 +123301,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -122887,6 +123339,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Puyo/PuyoNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Puyo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -122941,6 +123410,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Rios/RiosNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Rios",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123071,7 +123557,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyRomLayoutConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyRomLayout.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies",
@@ -123081,9 +123567,6 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123212,6 +123695,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Sbug/SbugNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Sbug",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -123230,7 +123730,24 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolRoomPlmRomDataConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Shaktool",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Shaktool/ShaktoolRoomPlmNativeProgram.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Shaktool",
@@ -123277,6 +123794,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Shutters/ShuttersNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Shutters",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeMetareeAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -123295,6 +123829,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Skree",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Skultera/SkulteraAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -123310,6 +123861,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Skultera/SkulteraNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Skultera",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123422,6 +123990,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/SpacePirates/SpacePiratesNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.SpacePirates",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/SpacePirates/WallSpacePirateAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -123437,6 +124022,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Sparks/SparksNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Sparks",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123471,6 +124073,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Stoke/StokeNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Stoke",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123526,6 +124145,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/WorkRobots/WorkRobotsNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/WreckedShip/WreckedShipAtticPlmRomData.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -123536,6 +124172,23 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/WreckedShip/WreckedShipNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.WreckedShip",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123606,6 +124259,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/YappingMaws/YappingMawsNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.YappingMaws",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Yard/YardAnimationsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -123621,6 +124291,23 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Yard/YardNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Yard",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -123658,7 +124345,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaSpeedDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaNativeWords.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Zoa",
@@ -123670,7 +124357,21 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Zoa/ZoaSpeedSources.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Zoa",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ]
     },
     {
@@ -132598,6 +133299,68 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyDefinitionSlotWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Tooling",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyProjectileProgramFrameOperands.cs",
+      "module": "csharp/test-support/VerificationAccess.Tooling",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyProjectilePropertyBitDefinitions.cs",
+      "module": "csharp/test-support/VerificationAccess.Tooling",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Enemies/EnemyProjectilePropertyWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Tooling",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Fx/RoomFxSourcesConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Tooling",
       "role": "verification-support",
@@ -132701,6 +133464,39 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitionsTooling.cs",
+      "module": "csharp/test-support/VerificationAccess.Tooling",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Areas.Ceres.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Areas"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Tooling/Core/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitionsTooling.cs",
+      "module": "csharp/test-support/VerificationAccess.Tooling",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Areas.Ceres.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {

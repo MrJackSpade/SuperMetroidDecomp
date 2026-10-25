@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Rooms.Doors.EyeDoorProjectileNativeListAd
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
 using SuperMetroid.Core.Enemies.EyeDoor;
 

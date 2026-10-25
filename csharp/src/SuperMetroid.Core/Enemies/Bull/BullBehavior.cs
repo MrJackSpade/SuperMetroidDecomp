@@ -185,7 +185,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // unsigned 8.8 speed, and keeps the 24-bit result as a 16.16 displacement. Negative
         // components use $A8:DAF6, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
-        int magnitude = unchecked((ushort)Math.Abs((int)sine));
+        int magnitude = unchecked((ushort)Math.Abs(sine));
         int sineHighByte = SnesLittleEndian.HighByte(magnitude);
         uint product = (uint)sineHighByte * (uint)speed;
         int fraction = unchecked((ushort)product);
@@ -199,7 +199,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             whole = unchecked((ushort)~whole);
         }
 
-        uint fractionalSum = (uint)position.Fraction + (uint)fraction;
+        // Both fractions are words, so their sum fits an int and its carry is the bit above the word.
+        int fractionalSum = position.Fraction + fraction;
         return new(
             unchecked((ushort)(position.Whole + whole + (SnesCarry.OutOfWord(fractionalSum)))),
             unchecked((ushort)fractionalSum));

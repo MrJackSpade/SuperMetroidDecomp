@@ -14,7 +14,7 @@ internal sealed class IntroEggSlimeDrop
     /// <summary>Starts one of four drops at the confused Baby's position, using its index as trajectory selector.</summary>
     public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, int index)
     {
-        if (index < 0 || index >= IntroEggEffectDefinitions.SlimeDropCount)
+        if (index is < 0 or >= IntroEggEffectDefinitions.SlimeDropCount)
             throw new ArgumentOutOfRangeException(nameof(index));
 
         CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;

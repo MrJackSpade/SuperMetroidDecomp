@@ -27,7 +27,7 @@ internal static class MamaTurtleShellContourDefinitions
     /// </summary>
     internal static short GetOffset(int parentMinusActorX)
     {
-        int distance = Math.Abs((int)parentMinusActorX);
+        int distance = Math.Abs(parentMinusActorX);
         if (distance >= HalfWidth)
             throw new ArgumentOutOfRangeException(nameof(parentMinusActorX));
         int index = parentMinusActorX < 0 ? distance + HalfWidth : distance;

@@ -482,7 +482,7 @@ internal static class SamusGroundedPoseTransitions
         // still available after ApplySimpleGroundedPoseChange replaces `Pose` below.
         int moonwalkSourceShotDirection = wasMoonwalking
             ? SamusPoseMetadata.ReadShotDirection(samus)
-            : (byte)0;
+            : 0;
 
         bool rightSource = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||
             SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) ||

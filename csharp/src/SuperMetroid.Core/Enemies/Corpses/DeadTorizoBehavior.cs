@@ -167,12 +167,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (unchecked((short)(kinematics.Position.Y.Whole - slot.Position.Y.Whole)) >= 0)
             {
                 verticalDistance = unchecked((ushort)(kinematics.Position.Y.Whole - slot.Position.Y.Whole));
-                verticalReach = Math.Abs((int)hitbox.Bottom);
+                verticalReach = Math.Abs(hitbox.Bottom);
             }
             else
             {
                 verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - kinematics.Position.Y.Whole));
-                verticalReach = Math.Abs((int)hitbox.Top);
+                verticalReach = Math.Abs(hitbox.Top);
             }
 
             int verticalOverlap = unchecked((ushort)(
@@ -185,12 +185,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (unchecked((short)(kinematics.Position.X.Whole - slot.Position.X.Whole)) >= 0)
             {
                 horizontalDistance = unchecked((ushort)(kinematics.Position.X.Whole - slot.Position.X.Whole));
-                horizontalReach = Math.Abs((int)hitbox.Right);
+                horizontalReach = Math.Abs(hitbox.Right);
             }
             else
             {
                 horizontalDistance = unchecked((ushort)(slot.Position.X.Whole - kinematics.Position.X.Whole));
-                horizontalReach = Math.Abs((int)hitbox.Left);
+                horizontalReach = Math.Abs(hitbox.Left);
             }
 
             int overlap = unchecked((short)(

@@ -391,7 +391,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
         int tableIndex = (angle.RawValue + phase) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
-        uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * (uint)speed;
+        uint product = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * (uint)speed;
         return SnesUnsignedSixteenSixteen.FromRaw(product);
     }
 

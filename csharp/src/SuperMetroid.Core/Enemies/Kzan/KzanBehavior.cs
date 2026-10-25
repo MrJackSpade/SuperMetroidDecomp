@@ -219,7 +219,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (shiftedYDelta >= 0)
             return false;
 
-        int yDistance = Math.Abs((int)shiftedYDelta);
+        int yDistance = Math.Abs(shiftedYDelta);
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
 

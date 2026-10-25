@@ -347,7 +347,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
         int sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
-        if (Math.Abs((int)sourceDelta) >= KagoBugSourceHomingDistance)
+        if (Math.Abs(sourceDelta) >= KagoBugSourceHomingDistance)
         {
             // Outside the 48-pixel band the bug always jumps back toward its parent shell.
             jumpLeft = sourceDelta < 0;

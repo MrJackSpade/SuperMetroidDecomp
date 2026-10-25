@@ -370,7 +370,7 @@ internal sealed class ProjectileMotion
         link.InstructionTimer = WrappingCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
-        owner.Variable = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(owner.Variable)) + link.NativeByteIndex));
+        owner.Variable = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(owner.Variable)) + link.SlotTableOffset));
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
     }
 

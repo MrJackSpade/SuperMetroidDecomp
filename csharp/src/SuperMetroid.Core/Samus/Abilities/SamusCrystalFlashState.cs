@@ -88,7 +88,7 @@ public sealed class SamusCrystalFlashState
     public int BodyPaletteRecordOffset { get; private set; }
 
     /// <summary>Set when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
-    public bool BubbleHdmaRequested { get; private set; }
+    public bool BubbleEffectRequested { get; private set; }
 
     /// <summary>Set when `$90:D6AA` queues sound-library-three effect one.</summary>
     public bool ActivationSoundRequested { get; private set; }
@@ -189,7 +189,7 @@ public sealed class SamusCrystalFlashState
         // than silently inventing the usual zero initialization.
         samus.HorizontalSpeed.SpecialPaletteFrame = 0;
         BodyPaletteRecordOffset = samus.HorizontalSpeed.SpecialPaletteTimer.RawValue;
-        BubbleHdmaRequested = false;
+        BubbleEffectRequested = false;
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -202,13 +202,13 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Executes one active handler call in the native beta-movement position.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
-    /// <param name="nmiFrameCounter">Native accepted-NMI counter; ammunition drains only when its low three bits are zero.</param>
+    /// <param name="frameCounter">Native accepted-NMI counter; ammunition drains only when its low three bits are zero.</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-HDMA request, even when this call changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         SamusState samus,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         Ensure.NotNull(samus);
         if (Phase == CrystalFlashPhase.Inactive)
@@ -223,7 +223,7 @@ public sealed class SamusCrystalFlashState
                 break;
 
             case CrystalFlashPhase.DrainingAmmo:
-                StepAmmoDrain(samus, nmiFrameCounter);
+                StepAmmoDrain(samus, frameCounter);
                 // The native wrapper clears both words after calling the ammo handler,
                 // including its seven no-drain frames and the final phase-changing call.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -241,7 +241,7 @@ public sealed class SamusCrystalFlashState
 
         return new CrystalFlashMovementResult(
             phaseAtStart,
-            BubbleHdmaRequested);
+            BubbleEffectRequested);
     }
 
     /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests bubble HDMA.</summary>
@@ -262,7 +262,7 @@ public sealed class SamusCrystalFlashState
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 6, timer: 3);
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
         Phase = CrystalFlashPhase.DrainingAmmo;
-        BubbleHdmaRequested = true;
+        BubbleEffectRequested = true;
         ActivationSoundRequested = true;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = WrappingCountdown.Start(0);
@@ -273,11 +273,11 @@ public sealed class SamusCrystalFlashState
     /// Consumes missiles, supers, then power bombs on each eighth NMI and restores 50 energy per decrement. Each
     /// decrement is unchecked, so a kind the activation check let through with fewer than ten drains below zero.
     /// </summary>
-    private void StepAmmoDrain(SamusState samus, int nmiFrameCounter)
+    private void StepAmmoDrain(SamusState samus, int frameCounter)
     {
         // All three pointed routines return immediately on seven of every eight accepted
         // NMI frames. Main-loop frames do not own an independent Crystal Flash cadence.
-        if ((nmiFrameCounter & 7) != 0)
+        if ((frameCounter & 7) != 0)
             return;
 
         switch (DrainingAmmo)

@@ -27,7 +27,7 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>Nmi.</summary>
+    /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>Sprite frame receiving actor OAM sprites and whole-frame draws.</summary>

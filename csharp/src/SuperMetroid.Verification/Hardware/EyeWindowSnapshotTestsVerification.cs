@@ -1,7 +1,7 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>Checks morph-ball eye windows: the intersection arithmetic, the captured windows and the cartridge endpoints.</summary>

@@ -25,7 +25,7 @@ internal sealed record AttractDemoDriverDependencies
     /// <summary>Hud setup.</summary>
     public required GameplayHudSetup HudSetup { get; init; }
 
-    /// <summary>Nmi handler.</summary>
+    /// <summary>The accepted frame boundary.</summary>
     public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Player.</summary>

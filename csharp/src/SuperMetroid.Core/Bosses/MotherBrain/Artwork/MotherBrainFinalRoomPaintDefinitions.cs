@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed paints and shade policies for Mother Brain's final room at $A9:D082.

@@ -17,7 +17,7 @@ internal sealed record DeathSequenceRunnerDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Nmi handler.</summary>
+    /// <summary>The accepted frame boundary.</summary>
     public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>

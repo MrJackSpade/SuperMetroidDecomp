@@ -19,7 +19,7 @@ public static class HudItems
     };
 
     /// <summary>The stored word of a HUD item: its position in the selection ring.</summary>
-    public static ushort ToNativeWord(this HudItem item) => item switch
+    public static ushort ToWord(this HudItem item) => item switch
     {
         HudItem.Beam => 0,
         HudItem.Missile => 1,

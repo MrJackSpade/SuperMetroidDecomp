@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.RenderVerification.Device;
 

@@ -571,7 +571,7 @@ public sealed class SamusState
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms,
         out int centerAdjustment)
     {
@@ -611,13 +611,13 @@ public sealed class SamusState
 
             level,
             displacement: unchecked(SixteenSixteen.FromWhole(-radiusDifference)),
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            scanLeftToRight: (frameCounter & 1) == 0,
             targetPose, plms);
         BlockMoveResult downward = ProbeChangedPoseVertical(
 
             level,
             displacement: SixteenSixteen.FromWhole(radiusDifference),
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            scanLeftToRight: (frameCounter & 1) == 0,
             targetPose, plms);
 
         if (upward.Collided && downward.Collided)
@@ -645,7 +645,7 @@ public sealed class SamusState
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
                 displacement: SixteenSixteen.FromWhole(centerAdjustment),
-                scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                scanLeftToRight: (frameCounter & 1) == 0,
                 targetPose, plms: plms);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
@@ -664,7 +664,7 @@ level,
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
                 displacement: SixteenSixteen.FromWhole(centerAdjustment),
-                scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                scanLeftToRight: (frameCounter & 1) == 0,
                 targetPose, plms: plms);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;

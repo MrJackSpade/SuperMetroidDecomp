@@ -1104,7 +1104,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = FrameCounterWord(elapsedUpdates), Random = Random });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = FrameCounterWord(elapsedUpdates), Random = Random });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode

@@ -65,7 +65,7 @@ internal static class CrampedAerialLandingVerification
             level,
             wasSpinning: true,
             controllerInput: (ControllerButton.Right | ControllerButton.A),
-            nmiFrameCounter: 39440);
+            frameCounter: 39440);
 
         AssertTrue(!installedLanding,
             "cramped spin landing rejects the 42-pixel landing body");

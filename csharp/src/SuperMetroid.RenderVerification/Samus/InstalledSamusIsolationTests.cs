@@ -380,7 +380,7 @@ internal sealed class InstalledSamusIsolationTests
                 Animate(actor, frame);
                 if (movement.Landed) Require(SamusPoseTransitions.TryApplyAerialLanding(actor.Samus, 
                     actor.Level, wasSpinning: false, controllerInput: ControllerButton.A,
-                    nmiFrameCounter: frame), label + ": landing rejected");
+                    frameCounter: frame), label + ": landing rejected");
                 return movement;
             });
             minimumY = Math.Min(minimumY, pair.Stock.Samus.Position.Y.Whole);
@@ -427,7 +427,7 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Runs production Samus animation and commits any verified pose transition.</summary>
     private static void Animate(Actor actor, ushort frame)
     {
-        SamusPresentation.AnimateNoFx(actor.Samus, new SamusAnimationStep { Random = new SharedRandom(), NmiFrameCounter = frame });
+        SamusPresentation.AnimateNoFx(actor.Samus, new SamusAnimationStep { Random = new SharedRandom(), FrameCounter = frame });
         if (SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Samus)) actor.Samus.CommitPoseHistory();
     }
 
@@ -546,7 +546,7 @@ internal sealed class InstalledSamusIsolationTests
         for (ushort frame = 0; frame < 29; frame++)
             pair.Apply(context + $" windup {frame}", actor =>
             {
-                var result = actor.Samus.Shinespark.Step(new SamusTerrain { Level = actor.Level }, actor.Samus, new ShinesparkFrame { NmiFrameCounter = frame });
+                var result = actor.Samus.Shinespark.Step(new SamusTerrain { Level = actor.Level }, actor.Samus, new ShinesparkFrame { FrameCounter = frame });
                 Animate(actor, frame);
                 return result;
             });
@@ -559,7 +559,7 @@ internal sealed class InstalledSamusIsolationTests
             ushort frame = (ushort)frames++;
             pair.Apply(context + $" motion/crash {frame}", actor =>
             {
-                var result = actor.Samus.Shinespark.Step(new SamusTerrain { Level = actor.Level }, actor.Samus, new ShinesparkFrame { NmiFrameCounter = frame, GameTimeFrames = frame });
+                var result = actor.Samus.Shinespark.Step(new SamusTerrain { Level = actor.Level }, actor.Samus, new ShinesparkFrame { FrameCounter = frame, GameTimeFrames = frame });
                 Animate(actor, frame);
                 actor.Samus.Shinespark.UpdatePalette(actor.Colors.Samus, actor.Samus.EquippedItems, actor.Suits, actor.Cycles);
                 return result;
@@ -641,7 +641,7 @@ internal sealed class InstalledSamusIsolationTests
         int initialFrame = pair.Stock.Samus.AnimationFrame;
         for (ushort frame = 0; frame < 42; frame++)
         {
-            Require(stock.StepAfterNmi(pair.Stock.Samus, frame) == edited.StepAfterNmi(pair.Edited.Samus, frame),
+            Require(stock.StepAfterFrame(pair.Stock.Samus, frame) == edited.StepAfterFrame(pair.Edited.Samus, frame),
                 "Reserve refill or sound cadence changed");
             new SamusMechanicsSnapshot(stock).RequireSame(new(edited), "reserve owner");
             pair.Check($"reserve frame {frame}"); pair.Draw($"reserve frame {frame}");

@@ -182,7 +182,7 @@ internal sealed class SamusPresentation
         samus.LiquidPhysics.PrepareAnimationFrame(
             samus,
             step.Random,
-            checked((ushort)step.NmiFrameCounter),
+            checked((ushort)step.FrameCounter),
             step.BeginLiquidSoundRequestFrame,
             step.BossPresent);
 
@@ -483,7 +483,7 @@ internal sealed class SamusPresentation
     public bool Draw(SamusState samus, 
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        int nmiFrameCounter = 0,
+        int frameCounter = 0,
         SamusMode7Transform? mode7Transform = null)
     {
         Ensure.NotNull(sprites);
@@ -498,7 +498,7 @@ internal sealed class SamusPresentation
         bool bodyVisible = !samus.KnockbackTimer.IsZero ||
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.SharedShineTimer(samus) != 0 ||
-            (nmiFrameCounter & 1) == 0;
+            (frameCounter & 1) == 0;
         if (!bodyVisible)
         {
             // Native branches around every position/index/OAM write, then still falls
@@ -524,7 +524,7 @@ internal sealed class SamusPresentation
         int spritemapX = unchecked((ushort)(renderX - layer1.X));
         int spritemapY;
         // The part of the stored spritemap Y that OAM never shows: a landing frame's leaked neighbouring byte.
-        int hiddenOamYHighByte = 0;
+        int landingOffsetHighPart = 0;
         if (movementType == SamusMovementType.Standing &&
             samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             samus.AnimationFrame >= 2)
@@ -549,7 +549,7 @@ internal sealed class SamusPresentation
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             spritemapY = unchecked((ushort)(
                 renderY - landingOffset - layer1.Y));
-            hiddenOamYHighByte = (ushort)(landingOffset - (byte)landingOffset);
+            landingOffsetHighPart = (ushort)(landingOffset - (byte)landingOffset);
         }
         else if (movementType == SamusMovementType.PostureTransition &&
             samus.Pose >= SamusPoseId.CrouchingTransitionRightPose &&
@@ -589,7 +589,7 @@ internal sealed class SamusPresentation
             spritemapY = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
         }
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
-        Position16<ScreenPixels> drawOrigin = Position16<ScreenPixels>.Of(spritemapX, unchecked((ushort)(spritemapY + hiddenOamYHighByte)));
+        Position16<ScreenPixels> drawOrigin = Position16<ScreenPixels>.Of(spritemapX, unchecked((ushort)(spritemapY + landingOffsetHighPart)));
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
@@ -753,10 +753,10 @@ internal sealed class SamusPresentation
     public void DrawShinesparkCrashEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if ((nmiFrameCounter & 1) == 0 ||
+        if ((frameCounter & 1) == 0 ||
             samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle))
         {
             return;
@@ -780,10 +780,10 @@ internal sealed class SamusPresentation
     public void DrawReleasedShinesparkCrashEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if ((nmiFrameCounter & 1) == 0)
+        if ((frameCounter & 1) == 0)
             return;
 
         // `$90:8953` tests/draws fixed slot four (speed echo index three) before fixed

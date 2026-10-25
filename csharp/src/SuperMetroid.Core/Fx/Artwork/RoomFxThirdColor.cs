@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>

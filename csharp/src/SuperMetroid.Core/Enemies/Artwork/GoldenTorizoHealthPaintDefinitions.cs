@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Exact $84:8032-8231 Golden Torizo health paint composition. Reviewed categorical endpoint

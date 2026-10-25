@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -12,7 +13,6 @@ using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RenderFixtures;

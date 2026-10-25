@@ -29,7 +29,7 @@ public static class CartridgeRoomHeaderImporter
         {
             ushort word = Word(cursor);
             cursor = unchecked((ushort)(cursor + 2));
-            RoomStateSelectorCode code = ClosedNativeWordDecoding.Decode<RoomStateSelectorCode>(word, "native room selector");
+            RoomStateSelectorCode code = ClosedEnumWordDecoding.Decode<RoomStateSelectorCode>(word, "native room selector");
             bool match;
             switch (code)
             {

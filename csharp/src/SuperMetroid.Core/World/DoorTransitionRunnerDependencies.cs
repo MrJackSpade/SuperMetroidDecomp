@@ -28,10 +28,10 @@ internal sealed record DoorTransitionRunnerDependencies
     public required PerLineEffectPhase PerLineEffects { get; init; }
 
 
-    /// <summary>Nmi.</summary>
+    /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
-    /// <summary>Nmi handler.</summary>
+    /// <summary>The accepted frame boundary.</summary>
     public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>

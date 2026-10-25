@@ -500,7 +500,7 @@ internal static class GModeGateGlitchVerification
         var recovery = new SamusReserveAutoRecoveryState();
         recovery.Begin(samus);
         for (ushort frame = 0; recovery.IsActive; frame++)
-            recovery.StepAfterNmi(samus, frame);
+            recovery.StepAfterFrame(samus, frame);
 
         AssertTrue(samus.Xray.IsReserveMode && samus.Xray.IsGMode,
             "Reserve completion clears only shared freeze and retains all subsystem disables");

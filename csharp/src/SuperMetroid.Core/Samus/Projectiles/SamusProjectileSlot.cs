@@ -14,7 +14,7 @@ public sealed class SamusProjectileSlot
     public int SlotIndex { get; }
 
     /// <summary>Native byte index used by the parallel WRAM arrays.</summary>
-    public int NativeByteIndex => SlotIndex * 2;
+    public int SlotTableOffset => SlotIndex * 2;
 
     /// <summary>Damage doubles as the producer's free-slot sentinel.</summary>
     public int Damage

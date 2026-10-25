@@ -49,7 +49,7 @@ internal static class ReserveModeVerification
         AssertTrue(!reserve.Xray.OwnsSamusControl && reserve.Xray.TimeIsFrozen,
             "command $1B replaces X-Ray Samus handlers but retains shared freeze");
         for (ushort frame = 0; recovery.IsActive; frame++)
-            recovery.StepAfterNmi(reserve, frame);
+            recovery.StepAfterFrame(reserve, frame);
         AssertTrue(reserve.Xray.IsReserveMode && reserve.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
             "reserve exhaustion restores normal control under the live X-Ray object");
 
@@ -86,7 +86,7 @@ internal static class ReserveModeVerification
         var secondRecovery = new SamusReserveAutoRecoveryState();
         secondRecovery.Begin(knockbackVariant);
         while (secondRecovery.IsActive)
-            secondRecovery.StepAfterNmi(knockbackVariant, 0);
+            secondRecovery.StepAfterFrame(knockbackVariant, 0);
         knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(knockbackVariant);
         SamusPresentation.InitializeAnimation(knockbackVariant);
@@ -97,7 +97,7 @@ internal static class ReserveModeVerification
 
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,
-                nmiFrameCounter: 0),
+                frameCounter: 0),
             "Reserve Mode non-CF route admits cartridge crouch storage");
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
             "Reserve Mode crouch installs stored-shine owner");

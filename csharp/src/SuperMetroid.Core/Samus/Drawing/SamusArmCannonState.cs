@@ -106,14 +106,14 @@ public sealed class SamusArmCannonState
         SpriteFrameBuffer sprites,
         SamusState samus,
         Position16<RoomPixels> layer1,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither OAM nor DMA work. Native returns before even consulting pose data.
-        if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (nmiFrameCounter & 1) != 0))
+        if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (frameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
         int descriptor = PoseDescriptor(SamusPoseNumbering.Number(samus.Pose));

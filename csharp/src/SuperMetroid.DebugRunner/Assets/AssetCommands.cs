@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;

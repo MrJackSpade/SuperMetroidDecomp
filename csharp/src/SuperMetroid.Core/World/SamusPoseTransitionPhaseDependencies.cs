@@ -12,7 +12,7 @@ internal sealed record SamusPoseTransitionPhaseDependencies
     public required ControllerInputState Controller1 { get; init; }
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
-    /// <summary>Nmi.</summary>
+    /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }

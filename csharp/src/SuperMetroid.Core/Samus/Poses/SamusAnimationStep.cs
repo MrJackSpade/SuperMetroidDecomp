@@ -13,7 +13,7 @@ public sealed record SamusAnimationStep
     /// The frame clock's value for this step, 0 through 65535: the clock wraps at sixteen bits and its low bits
     /// pace liquid effects, so the full wrapped value is carried; other values are rejected.
     /// </summary>
-    public int NmiFrameCounter
+    public int FrameCounter
     {
         get;
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);

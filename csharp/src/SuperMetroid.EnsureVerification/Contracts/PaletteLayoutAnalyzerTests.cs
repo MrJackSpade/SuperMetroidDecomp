@@ -1,7 +1,8 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.EnsureAnalyzer.Contracts;
 using SuperMetroid.EnsureAnalyzer.Modules;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.EnsureVerification.Contracts;
 

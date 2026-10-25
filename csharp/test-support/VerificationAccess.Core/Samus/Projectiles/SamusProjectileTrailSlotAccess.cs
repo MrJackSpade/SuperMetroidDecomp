@@ -8,7 +8,7 @@ internal static class SamusProjectileTrailSlotAccess
     extension(SamusProjectileTrailSlot self)
     {
         /// <summary>Converts the trail slot index to its two-byte native slot offset.</summary>
-        internal int NativeByteIndex => self.SlotIndex * 2;
+        internal int SlotTableOffset => self.SlotIndex * 2;
 
         /// <summary>The left trail stream owns the slot while its instruction timer is active.</summary>
         internal bool IsActive => !self.Left.InstructionTimer.IsZero;

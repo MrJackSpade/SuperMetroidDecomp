@@ -94,7 +94,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
@@ -134,7 +134,7 @@ public static class SamusAerialMovement
             BlockMoveResult? vertical = null;
             if (externalY is int displacement)
             {
-                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
             }
             return new AerialMovementResult(
                 Landed: externalY >= 0 && vertical is { Collided: true },
@@ -149,7 +149,7 @@ public static class SamusAerialMovement
             controllerInput,
             movementType: SamusMovementType.NormalJumping,
             plms);
-        return FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(level, samus, frameCounter, plms: plms);
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ControllerButton controllerNewInput = ControllerButton.None,
         ISamusRoomPlms? plms = null)
     {
@@ -264,7 +264,7 @@ public static class SamusAerialMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms: plms);
         return verticalResult with
         {
@@ -282,7 +282,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
@@ -312,7 +312,7 @@ public static class SamusAerialMovement
             controllerInput,
             movementType: SamusMovementType.WallJumping,
             plms);
-        return FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(level, samus, frameCounter, plms: plms);
     }
 
     /// <summary>
@@ -325,7 +325,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
@@ -350,7 +350,7 @@ public static class SamusAerialMovement
             controllerInput,
             movementType: SamusMovementType.DamageBoost,
             plms);
-        return FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(level, samus, frameCounter, plms: plms);
     }
 
     /// <summary>
@@ -362,7 +362,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
@@ -407,11 +407,11 @@ public static class SamusAerialMovement
         AerialMovementResult result;
         if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
         {
-            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(level, samus, nmiFrameCounter, plms);
+            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(level, samus, frameCounter, plms);
             result = new AerialMovementResult(false, false);
         }
         else
-            result = FinishVerticalMovement(level, samus, nmiFrameCounter,
+            result = FinishVerticalMovement(level, samus, frameCounter,
                 plms: plms, ceilingResponse: SamusCeilingResponse.Deferred);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
@@ -432,7 +432,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
@@ -464,7 +464,7 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
-        AerialMovementResult result = FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
+        AerialMovementResult result = FinishVerticalMovement(level, samus, frameCounter, plms: plms);
         // The movement wrapper selects fast-fall art after physics, before AnimateSamus.
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
@@ -493,7 +493,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
@@ -550,7 +550,7 @@ public static class SamusAerialMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms: plms);
         // `$90:94BF` reads the whole word: any downward pass, or a ceiling hit, ends the
         // special handler. Only a free upward pass keeps it for another frame.
@@ -604,11 +604,11 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null,
         SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
-        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, ceilingResponse);
+        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, frameCounter, out bool hitCeiling, out bool downwardDisplacement, ceilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
         return new AerialMovementResult(landed, hitCeiling);
@@ -624,7 +624,7 @@ public static class SamusAerialMovement
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable native behavior, not general-purpose host physics.
     /// </remarks>
-    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
+    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int frameCounter, out bool hitCeiling, out bool downwardDisplacement, SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
         ValidateCommon(terrain.Level, samus);
         SamusKinematicsState state = samus.Kinematics;
@@ -658,7 +658,7 @@ public static class SamusAerialMovement
             state,
             displacement);
         downwardDisplacement = displacement >= 0;
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
 
         // `$90:E61B` (down) and `$90:E606` (up) publish this word after every move. A
         // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.

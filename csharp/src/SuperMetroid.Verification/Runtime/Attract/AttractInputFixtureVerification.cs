@@ -36,7 +36,7 @@ internal static class AttractInputFixtureVerification
     private static void RunPreInstruction(NativeDemoInputReference state, ushort pointer, SuperMetroidGameState gameState,
         SamusMovementType movementType)
     {
-        switch (ClosedNativeWordDecoding.Decode<NativeDemoPreInstruction>(pointer, "reference demo pre-instruction"))
+        switch (ClosedEnumWordDecoding.Decode<NativeDemoPreInstruction>(pointer, "reference demo pre-instruction"))
         {
             case NativeDemoPreInstruction.ReturnOnly:
             case NativeDemoPreInstruction.Cleared:

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>$A9:9534-954F exploded-door opaque inks1..14, copied by B275-B27E.

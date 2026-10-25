@@ -1,10 +1,10 @@
+using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 

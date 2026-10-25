@@ -54,7 +54,7 @@ internal static class PhantoonTimersVerification
         {
             state.Parts[body.SlotIndex].FunctionTimer = 1;
             int priorCalls = calls;
-            enemies.FrameContext.SeedNmiFrameCounter((ushort)nmi);
+            enemies.FrameContext.SeedFrameCounter((ushort)nmi);
             first(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + ((nmi >> 1) & 3) * 2)), state.Parts[eye.SlotIndex].ClosedTimer, "Real first-round NMI selector uses four entries");
             AssertEqual(priorCalls + 1, calls, "First-round direction preserves RNG consumption");

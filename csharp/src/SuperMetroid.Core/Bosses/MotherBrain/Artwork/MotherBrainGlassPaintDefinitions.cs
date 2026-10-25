@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>The independently chosen cyan glass-face paint; shade interpolation and shared room/recovery dependencies remain separate.</summary>

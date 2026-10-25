@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -5,7 +6,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
 
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>

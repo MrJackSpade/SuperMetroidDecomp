@@ -66,7 +66,7 @@ internal sealed record RoomLoaderDependencies
     public required GameplayHudSetup HudSetup { get; init; }
 
 
-    /// <summary>Nmi.</summary>
+    /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>Options.</summary>

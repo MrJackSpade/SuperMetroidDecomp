@@ -32,7 +32,7 @@ internal static class PhantoonFlameSpawnsVerification
                 enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(flameBody, flameType, flameIndex);
             var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
-            PhantoonFlameSpawnType type = ClosedNativeWords.Decode<PhantoonFlameSpawnType>(
+            PhantoonFlameSpawnType type = ClosedEnumWords.Decode<PhantoonFlameSpawnType>(
                 SnesLittleEndian.HighByte(parameter), "Phantoon flame spawn type");
             int index = SnesLittleEndian.LowByte(parameter);
             AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");

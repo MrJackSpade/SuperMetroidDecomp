@@ -832,7 +832,7 @@ internal sealed class RoomLoader
         _display.ActiveSamusMode7Transform = initialFloorTransform;
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
-        // reach it only through RunNmi, matching the normal shadow-register path.
+        // reach it only when the frame's display is published, like every other floor change.
         _display.PublishDoorElevatorFloor(initialFloorTransform);
         scope.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;

@@ -56,8 +56,8 @@ public sealed class XrayRevealVisualCatalog
         Overlays = overlays;
         foreach ((RoomCollisionType type, int bts, XrayRevealVisualWords visual) in entries)
         {
-            XrayRevealDefinition? native = XrayRevealTable.Find(type, bts);
-            if (native is not { } definition || !IsDrawable(definition.Command))
+            XrayRevealDefinition? retail = XrayRevealTable.Find(type, bts);
+            if (retail is not { } definition || !IsDrawable(definition.Command))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/BTS ${bts:X2} has no drawable cartridge rule.");
             int index = Index(type, bts);
@@ -104,11 +104,11 @@ public sealed class XrayRevealVisualCatalog
     /// </summary>
     public XrayRevealDefinition? Apply(RoomCollisionType type, int bts)
     {
-        if (XrayRevealTable.Find(type, bts) is not { } native) return null;
-        if (!IsDrawable(native.Command)) return native;
+        if (XrayRevealTable.Find(type, bts) is not { } retail) return null;
+        if (!IsDrawable(retail.Command)) return retail;
         XrayRevealVisualWords visual = words[Index(type, bts)] ??
             throw new InvalidDataException($"Missing X-ray visual {type}/BTS ${bts:X2}.");
-        return native with
+        return retail with
         {
             TopLeft = visual.TopLeft,
             TopRight = visual.TopRight,

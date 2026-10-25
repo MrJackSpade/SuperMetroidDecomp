@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,6 @@ using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Exact seven15-color shifted drain images at $A9:EBCC-EC8C.

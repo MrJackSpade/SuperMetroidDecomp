@@ -651,7 +651,7 @@ internal static class SamusPoseMetadata
 
         RoomLevelData level,
         bool timeIsFrozen,
-        int nmiFrameCounter,
+        int frameCounter,
         ControllerButton controllerNewInput,
         ISamusRoomPlms? plms = null)
     {
@@ -699,7 +699,7 @@ internal static class SamusPoseMetadata
 
                     level,
                     targetPose,
-                    nmiFrameCounter,
+                    frameCounter,
                     plms,
                     out int centerAdjustment);
                 if (collision != LargerPoseCollisionOutcome.Allowed)

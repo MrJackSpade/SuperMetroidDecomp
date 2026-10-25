@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>An unquantized eight-bit-per-channel tissue endpoint; interpolation occurs before conversion to RGB5.</summary>

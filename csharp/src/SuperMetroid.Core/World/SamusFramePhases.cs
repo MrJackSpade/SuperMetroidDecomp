@@ -639,7 +639,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 samus,
                 _clock.Counter);
             if (_player.LastCrystalFlashMovement.Value.PhaseAtStart == CrystalFlashPhase.Raising &&
-                _player.LastCrystalFlashMovement.Value.BubbleHdmaRequested)
+                _player.LastCrystalFlashMovement.Value.BubbleEffectRequested)
             {
                 // `$90:D6AE` clears `$0CEA`, copies Samus's raised center into the
                 // shared explosion words, then spawns `$88:A2BD/$A32A`. This beta
@@ -694,7 +694,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // Determine_Samus_YAcceleration supplies the environment-selected pair
             // used as spark acceleration. Projectile_Func7 does not replace it.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, new ShinesparkFrame { NmiFrameCounter = _clock.Counter, ProjectileCounter = room.Projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
+            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, ProjectileCounter = room.Projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
             if (_player.LastShinesparkMovement.Value.WindupTimedOut)
             {
                 // The movement handler publishes an interrupted vertical pose. That
@@ -1349,7 +1349,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.BossId != 0, ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.BossId != 0, ControllerInput = _controller1.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
             StepSamusLoadAppearance(room);
         }
 

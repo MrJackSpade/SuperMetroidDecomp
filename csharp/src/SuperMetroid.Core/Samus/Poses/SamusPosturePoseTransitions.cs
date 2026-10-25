@@ -13,7 +13,7 @@ internal static class SamusPosturePoseTransitions
     /// <param name="samus">The Samus this reads.</param>
     /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
     /// <param name="targetPose">Final standing-right $01 or standing-left $02 pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
-    /// <param name="nmiFrameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
+    /// <param name="frameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
     /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
     /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
     /// <remarks>These six-byte input records bypass animated $F7–$FC stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching $91:FDAE's previous-pose radius publication.</remarks>
@@ -23,7 +23,7 @@ internal static class SamusPosturePoseTransitions
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -46,7 +46,7 @@ internal static class SamusPosturePoseTransitions
 
                 level,
                 targetPose,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
@@ -86,7 +86,7 @@ internal static class SamusPosturePoseTransitions
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -109,7 +109,7 @@ internal static class SamusPosturePoseTransitions
 
                 level,
                 targetPose,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
@@ -150,7 +150,7 @@ internal static class SamusPosturePoseTransitions
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -218,7 +218,7 @@ internal static class SamusPosturePoseTransitions
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
-                (nmiFrameCounter & 1) == 0, targetPose, plms);
+                (frameCounter & 1) == 0, targetPose, plms);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
                 samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven publishes the aligned whole Y before scrolling; the
@@ -236,7 +236,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
 
                 level,
                 targetPose,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
@@ -274,7 +274,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -330,7 +330,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
             }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
-                (nmiFrameCounter & 1) == 0, targetPose, plms);
+                (frameCounter & 1) == 0, targetPose, plms);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
                 samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
@@ -359,7 +359,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
             level,
             targetPose,
-            nmiFrameCounter,
+            frameCounter,
             plms,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
@@ -412,7 +412,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -436,7 +436,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
             level,
             targetPose,
-            nmiFrameCounter,
+            frameCounter,
             plms,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)

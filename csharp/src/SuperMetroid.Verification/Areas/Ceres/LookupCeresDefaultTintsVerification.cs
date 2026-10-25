@@ -1,9 +1,10 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

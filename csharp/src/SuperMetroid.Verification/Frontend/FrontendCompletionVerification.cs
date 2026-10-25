@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
@@ -15,7 +16,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Harness;
@@ -164,13 +164,13 @@ internal static void VerifyReserveAutoRecovery()
     reserve.Begin(samus);
     AssertTrue(samus.Control.AlphaLocked, "reserve command $1B locks Samus");
 
-    SamusReserveAutoRecoveryStep first = reserve.StepAfterNmi(samus, 8);
+    SamusReserveAutoRecoveryStep first = reserve.StepAfterFrame(samus, 8);
     AssertEqual(1, samus.Health, "first reserve frame restores one energy");
     AssertEqual(1, samus.ReserveEnergy, "first reserve frame consumes one reserve");
     AssertTrue(first.RefillSoundRequested, "eighth NMI requests reserve refill sound");
     AssertTrue(!first.Completed, "nonempty reserve remains in state $1B");
 
-    SamusReserveAutoRecoveryStep second = reserve.StepAfterNmi(samus, 9);
+    SamusReserveAutoRecoveryStep second = reserve.StepAfterFrame(samus, 9);
     AssertEqual(2, samus.Health, "second reserve frame restores one energy");
     AssertEqual(0, samus.ReserveEnergy, "second reserve frame exhausts reserve");
     AssertTrue(second.Completed && !samus.Control.AlphaLocked,
@@ -181,7 +181,7 @@ internal static void VerifyReserveAutoRecovery()
     samus.ReserveEnergy = 5;
     samus.Control.Unlock();
     reserve.Begin(samus);
-    SamusReserveAutoRecoveryStep clamped = reserve.StepAfterNmi(samus, 16);
+    SamusReserveAutoRecoveryStep clamped = reserve.StepAfterFrame(samus, 16);
     AssertEqual(1, samus.Health, "reserve recovery clamps at maximum energy");
     AssertEqual(0, samus.ReserveEnergy, "maximum-energy branch clears remaining reserve");
     AssertTrue(clamped.Completed, "maximum-energy branch completes state $1B");

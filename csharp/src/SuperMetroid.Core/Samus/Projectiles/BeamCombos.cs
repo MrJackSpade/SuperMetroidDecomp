@@ -233,7 +233,7 @@ internal sealed class BeamCombos
             : unchecked((ushort)((overreads ?? throw new InvalidOperationException(
                 "The SpaceTime palette copy needs the installed Samus overread catalog.")).ProjectileLists.Position(slot.Cursor) -
                 SamusProjectileListLayout.TimedRecordByteCount));
-        int x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
+        int x = unchecked((ushort)(slot.SlotTableOffset + sizeof(ushort)));
         int y = unchecked((ushort)(inheritedY + sizeof(ushort)));
         while (unchecked((short)(y - SpacetimeBeamCopyDefinitions.PaletteByteCount)) < 0)
         {

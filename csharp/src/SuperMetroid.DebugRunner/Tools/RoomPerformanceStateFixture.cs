@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using SuperMetroid.Core.Assets;
+using System.Diagnostics;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;

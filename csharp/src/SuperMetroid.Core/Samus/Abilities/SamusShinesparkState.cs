@@ -702,7 +702,7 @@ false);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
-            vertical = MoveY(terrain.Level, samus, frame.NmiFrameCounter, terrain.Plms);
+            vertical = MoveY(terrain.Level, samus, frame.FrameCounter, terrain.Plms);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousY(samus, checkpoint);
         }
@@ -714,8 +714,8 @@ false);
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The host cheat bypasses only the energy exit. Terrain/enemy collision still
         // terminates all three launch directions through the ordinary crash handler.
-        bool hasNativeEnergy = samus.Health >= ShinesparkDefinitions.MinimumSustainingEnergy;
-        bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasNativeEnergy;
+        bool hasSustainingEnergy = samus.Health >= ShinesparkDefinitions.MinimumSustainingEnergy;
+        bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasSustainingEnergy;
         if (collided || lowEnergy)
             BeginCrash(samus);
 
@@ -725,7 +725,7 @@ false);
         // the native cutoff, continue draining to one, never decrementing zero or one.
         bool drained = frame.PlayerInvincibilityEnabled
             ? samus.Health > 1
-            : hasNativeEnergy;
+            : hasSustainingEnergy;
         if (drained)
             samus.Health = SamusQuantity.DecrementPositive(samus.Health);
 
@@ -1108,7 +1108,7 @@ false,             CrashSequenceFinished: true);
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms)
     {
         ShineTimer = WrappingCountdown.Start(15);
@@ -1154,7 +1154,7 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (frameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     /// <summary>

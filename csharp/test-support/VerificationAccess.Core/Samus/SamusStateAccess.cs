@@ -25,7 +25,7 @@ internal static class SamusStateAccess
         internal bool TryApplySpinToNormalJumpFireTransition(
             RoomLevelData level,
             SamusPoseId targetPose,
-            int nmiFrameCounter,
+            int frameCounter,
             ControllerButton controllerNewInput,
             RoomPlmSystem? plms = null)
         {
@@ -38,7 +38,7 @@ internal static class SamusStateAccess
 
                 level,
                 targetPose,
-                nmiFrameCounter,
+                frameCounter,
                 controllerNewInput,
                 plms);
         }

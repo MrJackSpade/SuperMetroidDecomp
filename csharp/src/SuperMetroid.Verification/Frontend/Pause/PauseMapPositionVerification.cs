@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.Pause.PauseHudLocationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 
 /// <summary>Checks the pause map's animated current-position marker against retail OAM and palette.</summary>
 internal static class PauseMapPositionVerification

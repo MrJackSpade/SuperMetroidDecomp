@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 

@@ -29,7 +29,7 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Game time.</summary>
     public required GameTimeState GameTime { get; init; }
 
-    /// <summary>Nmi.</summary>
+    /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>Options.</summary>

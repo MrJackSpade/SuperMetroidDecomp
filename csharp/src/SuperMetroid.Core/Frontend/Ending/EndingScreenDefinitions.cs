@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's text page geometry, blank glyph, white and sprite-sheet selections (#1416).</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Rendering;
@@ -14,7 +15,6 @@ using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;

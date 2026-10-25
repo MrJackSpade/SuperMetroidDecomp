@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;

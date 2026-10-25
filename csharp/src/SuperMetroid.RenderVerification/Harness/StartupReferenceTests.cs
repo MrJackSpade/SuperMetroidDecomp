@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
@@ -5,7 +7,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -25,7 +26,7 @@ internal static class StartupReferenceTests
     private static void Verify(D3D11RenderDevice device, D3D11FrameRenderer renderer, string referenceDigest, string scene, bool yearOnly)
     {
         var title = RenderRetailFixture.CreateTitle();
-        SuperMetroid.Core.Assets.RgbaPixel[]? nativePixels = null;
+        SuperMetroid.Core.Hardware.RgbaPixel[]? nativePixels = null;
         DisplayPacket? closestPacket = null;
         int closestDifference = int.MaxValue;
         if (!yearOnly)
@@ -33,9 +34,9 @@ internal static class StartupReferenceTests
             byte[] nativeBytes = File.ReadAllBytes("csharp/test-fixtures/issue-321-snes9x-title-pan/title-pan.rgba");
             if (Convert.ToHexString(SHA256.HashData(nativeBytes)) != referenceDigest)
                 throw new InvalidDataException("Decoded native fixture does not match the recorded RGBA hash.");
-            nativePixels = MemoryMarshal.Cast<byte, SuperMetroid.Core.Assets.RgbaPixel>(nativeBytes).ToArray();
+            nativePixels = MemoryMarshal.Cast<byte, SuperMetroid.Core.Hardware.RgbaPixel>(nativeBytes).ToArray();
         }
-        SuperMetroid.Core.Assets.RgbaPixel[]? lastPixels = null;
+        SuperMetroid.Core.Hardware.RgbaPixel[]? lastPixels = null;
         int maximumGlyphRed = 0;
         byte[] channelBytes = new byte[FrontendFrame.Width * FrontendFrame.Height * 4];
         // Match within the named hold phase, not an assumed wall-clock startup tick.

@@ -43,7 +43,7 @@ public static class SamusBombJumpMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms plms)
     {
 
@@ -111,7 +111,7 @@ public static class SamusBombJumpMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
         // The native handler tests samus_collision_flag after moving Y. That move
         // replaces the horizontal result, so a shaft wall alone must not cancel the
@@ -129,7 +129,7 @@ public static class SamusBombJumpMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms plms)
     {
         SamusKinematicsState state = samus.Kinematics;
@@ -140,7 +140,7 @@ public static class SamusBombJumpMovement
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         if (result.Collided)
         {
             state.YSpeed = default;

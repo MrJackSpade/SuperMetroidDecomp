@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>Directional mounting and yellow beam intensity for the Morph Ball surveillance eye.</summary>

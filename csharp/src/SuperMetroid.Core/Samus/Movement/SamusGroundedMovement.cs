@@ -37,7 +37,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         bool elevatorIsMoving = false,
         ISamusRoomPlms? plms = null,
         bool publishDoorSideEffects = true)
@@ -58,7 +58,7 @@ public static class SamusGroundedMovement
             // downward mover with `$12.$14 = 0001.0000`. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block/BTS scanning and the
             // alternating left/right order selected from accepted-NMI parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
         // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
@@ -76,7 +76,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ControllerButton controllerInput,
         ISamusRoomPlms? plms = null)
     {
@@ -108,7 +108,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
 
         // $90:A3A7-$90:A3D7 cancels speed boost and clears extra speed, base speed, and
@@ -135,7 +135,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ControllerButton controllerInput = ControllerButton.None,
         ISamusRoomPlms? plms = null)
     {
@@ -187,7 +187,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
         return new GroundedMovementResult(horizontal, vertical);
     }
@@ -202,7 +202,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -262,7 +262,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
 
         // `$90:A685` calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
@@ -282,7 +282,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -324,7 +324,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
         return new GroundedMovementResult(horizontal, vertical);
     }
@@ -337,7 +337,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -368,7 +368,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
 
         // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
@@ -389,7 +389,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -417,7 +417,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         // Landing art still uses native standing movement: it does not reset Y words.
@@ -437,7 +437,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -453,7 +453,7 @@ public static class SamusGroundedMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
     }
 
@@ -465,7 +465,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
@@ -475,7 +475,7 @@ public static class SamusGroundedMovement
         // $94:9763 alternates its left-to-right and right-to-left horizontal scan order on
         // the low bit of the accepted-NMI word. That parity can affect which simultaneous
         // collision side effect wins, so it remains an explicit input even in this slice.
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
     }
 
 }

@@ -7,5 +7,5 @@ internal static class SkreeMetareeParticleVisualDefinitionsAccess
 {
     /// <summary>Decodes a raw bank-$86 operand, rejecting addresses outside the two particle programs.</summary>
     internal static ushort Resolve(ushort operandAddress) =>
-        SkreeMetareeParticleVisualDefinitionsTooling.Resolve(ClosedNativeWordDecoding.Decode<SkreeMetareeParticleOperand>(operandAddress, "Skree/Metaree visual operand"));
+        SkreeMetareeParticleVisualDefinitionsTooling.Resolve(ClosedEnumWordDecoding.Decode<SkreeMetareeParticleOperand>(operandAddress, "Skree/Metaree visual operand"));
 }

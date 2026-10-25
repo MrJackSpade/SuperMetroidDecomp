@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Android.Input;
 using System.Diagnostics;
 using SuperMetroid.Core.Audio;
@@ -6,7 +8,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Android.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Android;
 
@@ -108,7 +109,7 @@ internal sealed class AndroidGameSession
         try
         {
             using var data = new AndroidSessionData(root);
-            var rasterBuffer = new SuperMetroid.Core.Assets.RgbaPixel[FrontendFrame.Width * FrontendFrame.Height];
+            var rasterBuffer = new SuperMetroid.Core.Hardware.RgbaPixel[FrontendFrame.Width * FrontendFrame.Height];
             // Host-owned PCM storage; the session copies each update's samples into it.
             var samples = new short[AudioSession.PcmSamplesPerFrame];
             RefreshEffectiveOptions(data);

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 

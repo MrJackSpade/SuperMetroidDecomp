@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>The logo's background endpoint at $8C:F1E9 has eight evenly spaced grey

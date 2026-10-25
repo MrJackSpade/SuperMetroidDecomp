@@ -194,31 +194,31 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
         samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
-        samus.Kinematics.YDirection = ClosedNativeWordDecoding.Decode<SamusVerticalDirection>(
+        samus.Kinematics.YDirection = ClosedEnumWordDecoding.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
         samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
-        samus.HorizontalSpeed.ContactDamageIndex = ClosedNativeWordDecoding.Decode<SamusContactDamageIndex>(
+        samus.HorizontalSpeed.ContactDamageIndex = ClosedEnumWordDecoding.Decode<SamusContactDamageIndex>(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
-        samus.MorphBallBounceState = ClosedNativeWordDecoding.Decode<SamusBallBounceState>(
+        samus.MorphBallBounceState = ClosedEnumWordDecoding.Decode<SamusBallBounceState>(
             W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
         samus.BombJumpDirection = W(NativeSnapshotMemory.BombJumpDirection);
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
-            trail.Left.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.NativeByteIndex));
-            trail.Right.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex));
-            trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
-            trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
-            trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex));
-            trail.Right.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex));
+            trail.Left.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.SlotTableOffset));
+            trail.Right.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.SlotTableOffset));
+            trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
+            trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
+            trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset));
+            trail.Right.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset));
             trail.Left.Position = new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex));
+                W(NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset), W(NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset));
             trail.Right.Position = new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex));
+                W(NativeSnapshotMemory.TrailRightXPosition + trail.SlotTableOffset), W(NativeSnapshotMemory.TrailRightYPosition + trail.SlotTableOffset));
         }
 
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
@@ -229,7 +229,7 @@ internal static class NativeSnapshotImportVerification
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }
         samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
-        samus.LiquidPhysics.LiquidPhysicsType = ClosedNativeWordDecoding.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");
+        samus.LiquidPhysics.LiquidPhysicsType = ClosedEnumWordDecoding.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");
         samus.LiquidPhysics.PeriodicSubDamage = W(NativeSnapshotMemory.PeriodicSubDamage);
         samus.LiquidPhysics.PeriodicDamage = W(NativeSnapshotMemory.PeriodicDamage);
 

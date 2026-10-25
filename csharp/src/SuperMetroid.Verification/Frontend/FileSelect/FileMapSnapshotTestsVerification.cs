@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 /// <summary>Checks file-select map render packets against the legacy raster path.</summary>

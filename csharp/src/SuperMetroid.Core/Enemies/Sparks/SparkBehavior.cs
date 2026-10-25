@@ -119,6 +119,8 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetSparkFunctionTimer(state, additionalTime: 0);
                 return;
 
+            case SparkEnemyFunction.AdjacentCode:
+            case null:
             default:
                 throw new InvalidDataException(
                     $"Spark function {state.Function?.ToString() ?? "none"} is not translated.");

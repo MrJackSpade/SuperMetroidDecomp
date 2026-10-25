@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -5,7 +6,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Areas;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -25,7 +25,7 @@ internal static class NorfairGlowCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Cathedral, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.Control.LockHandlers();
         LayeredScene? original = null;
-        SuperMetroid.Core.Assets.RgbaPixel[]? initialPixels = null;
+        SuperMetroid.Core.Hardware.RgbaPixel[]? initialPixels = null;
         int maximumChanged = 0;
         for (int tick = 0; tick < 232; tick++)
         {

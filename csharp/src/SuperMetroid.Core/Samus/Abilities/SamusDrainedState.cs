@@ -308,7 +308,7 @@ public sealed class SamusDrainedState
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter)
+        int frameCounter)
     {
 
         Ensure.NotNull(level);
@@ -316,7 +316,7 @@ public sealed class SamusDrainedState
         if (Phase != DrainedSamusPhase.Falling)
             throw new InvalidOperationException("The drained falling movement handler is not installed.");
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, nmiFrameCounter, out _, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before `$90:94E5-$94E8` erases it for on-floor art.

@@ -73,7 +73,7 @@ internal static class SpikeShinesparkSuitVerification
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
-            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Clock.Counter) });
+            shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter) });
         AssertEqual(new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenX, frozenY),
             new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
@@ -140,7 +140,7 @@ internal static class SpikeShinesparkSuitVerification
                 : 0;
             runtime.StepFrame(input, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             {
-                if (recovery.StepAfterNmi(samus, runtime.Clock.Counter).Completed)
+                if (recovery.StepAfterFrame(samus, runtime.Clock.Counter).Completed)
                     runtime.Freeze.GameplayTimeFrozen = false;
             } });
         }

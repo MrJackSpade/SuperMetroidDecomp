@@ -22,7 +22,7 @@ public static class SamusPostureMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
@@ -37,7 +37,7 @@ public static class SamusPostureMovement
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms);
 
         // $90:A57C-$90:A588 performs this cleanup after both collision passes. It is not
@@ -56,7 +56,7 @@ public static class SamusPostureMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
@@ -69,7 +69,7 @@ public static class SamusPostureMovement
         // All four corresponding entries in $90:A659 are RTS. Unlike movement type five,
         // the wrapper does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
-        return MoveWithZeroBaseSpeed(level, samus, nmiFrameCounter, plms);
+        return MoveWithZeroBaseSpeed(level, samus, frameCounter, plms);
     }
 
     /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
@@ -77,7 +77,7 @@ public static class SamusPostureMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -100,7 +100,7 @@ public static class SamusPostureMovement
         // this matters for a Speed-Booster slide through `$35/$36`.
         int verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         return new GroundedMovementResult(horizontal, vertical);
     }
 

@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

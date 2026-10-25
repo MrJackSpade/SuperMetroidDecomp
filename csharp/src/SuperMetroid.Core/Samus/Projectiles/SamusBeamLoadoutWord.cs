@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
 {
     /// <summary>Native defensive checks index by all twelve low equipped-beam bits.</summary>
-    private const ushort NativeConfigurationMask = (1 << 12) - 1;
+    private const ushort ConfigurationMask = (1 << 12) - 1;
 
     /// <summary>The four beam components whose combination selects a beam table row.</summary>
     private const ushort CombinationMask = 15;
@@ -28,14 +28,14 @@ public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
     /// <see cref="SamusProjectileTypeWord.BeamCombination"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.
     /// </summary>
-    public int NativeConfigurationIndex => Beams.ToEquipmentWord() & NativeConfigurationMask;
+    public int ConfigurationIndex => Beams.ToEquipmentWord() & ConfigurationMask;
 
     /// <summary>
     /// The combination $90:AC8D and $90:ACCD index their tables by, or null when unknown bits
     /// 4-11 make the twelve-bit index exceed $F.
     /// </summary>
-    public SamusBeamCombination? Combination => NativeConfigurationIndex <= CombinationMask
-        ? SamusBeamCombinations.FromTableIndex(NativeConfigurationIndex)
+    public SamusBeamCombination? Combination => ConfigurationIndex <= CombinationMask
+        ? SamusBeamCombinations.FromTableIndex(ConfigurationIndex)
         : null;
 
     /// <summary>The combination FireSBA ($90:CCC0) reads: the low nibble alone, ignoring bits 4-11.</summary>

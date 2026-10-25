@@ -11,7 +11,7 @@ public sealed record ShinesparkFrame
     /// Accepted-NMI frame count, 0 through 65535 as the frame clock wraps it; only its parity is read, selecting the
     /// vertical block-probe traversal order.
     /// </summary>
-    public required int NmiFrameCounter { get; init; }
+    public required int FrameCounter { get; init; }
 
     /// <summary>
     /// Ordinary projectile count used for crash-echo admission when no live <see cref="Projectiles"/> owner is

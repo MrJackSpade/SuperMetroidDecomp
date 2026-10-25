@@ -3428,7 +3428,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Cartridge.ClosedNativeWordDecoding",
+      "type": "SuperMetroid.AssetExtraction.Cartridge.ClosedEnumWordDecoding",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -3438,20 +3438,20 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Cartridge/ClosedNativeWordDecoding.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Cartridge/ClosedEnumWordDecoding.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Cartridge.ClosedNativeWords",
+      "type": "SuperMetroid.AssetExtraction.Cartridge.ClosedEnumWords",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/ClosedNativeWords.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/ClosedEnumWords.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -4089,6 +4089,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/GameOverSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.GameplayBasePaletteSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/GameplayBasePaletteSourceDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -15529,19 +15542,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Assets.GameplayBasePaletteRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Assets.GameplayColours",
       "kind": "class",
       "scope": "product",
@@ -15856,19 +15856,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Assets/ObjCharacterTablePageConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.ObjPartFrames",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/ObjPartFrames.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -16421,6 +16408,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.SpritePartFrames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/SpritePartFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Assets.SpriteScreenPart",
@@ -35563,6 +35563,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.UnsignedDivision",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/UnsignedDivision.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WordCarry",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WordCarry.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.WrappingCountdown",
       "kind": "record struct",
       "scope": "product",
@@ -35955,6 +35981,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.EncodingOwnerAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/EncodingOwnerAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonAnimations",
@@ -62481,6 +62520,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.DispatchRandomStep",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/DispatchRandomStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.DoorGamePhases",
       "kind": "class",
       "scope": "product",
@@ -69785,19 +69837,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.MainLoopRandomCall",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/MainLoopRandomCall.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.AnchorOverride",
       "kind": "record struct",
       "scope": "product",
@@ -74929,7 +74968,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess.extension(System.Collections.Generic.IReadOnlyDictionary\u003CSuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey, SuperMetroid.Core.Hardware.Bgr555\u003E)",
+      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess.extension(System.Collections.Generic.IReadOnlyDictionary\u003CSuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey, SuperMetroid.Core.Hardware.RgbColor\u003E)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -81390,14 +81429,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.GameplayPpuRenderSnapshot",
+      "type": "SuperMetroid.Core.Gameplay.GameplayRenderSnapshot",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/GameplayPpuRenderSnapshot.cs"
+        "csharp/src/SuperMetroid.Core/Gameplay/GameplayRenderSnapshot.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -81842,19 +81881,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Hardware/BgTilemapGeometry.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.Bgr555",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/Bgr555.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -82440,19 +82466,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.PackedBcd",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/PackedBcd.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.PaletteColorsAccess",
       "kind": "static class",
       "scope": "test",
@@ -82621,14 +82634,27 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.Rgba32",
+      "type": "SuperMetroid.Core.Hardware.RgbColor",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/Rgba32.cs"
+        "csharp/src/SuperMetroid.Core/Hardware/RgbColor.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.RgbaPixel",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hardware/RgbaPixel.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -82724,64 +82750,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesAngle",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesAngle.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesAngleAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/SnesAngleAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesAngleAccess.extension(SuperMetroid.Core.Hardware.SnesAngle)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/SnesAngleAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesBearing",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesBearing.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.SnesBgTilemapWord",
       "kind": "record struct",
       "scope": "product",
@@ -82843,32 +82811,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesByteAngle",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesByteAngle.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesCarry",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesCarry.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.SnesCgram",
       "kind": "class",
       "scope": "product",
@@ -82922,19 +82864,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Hardware/SnesCharacterGrid.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesEightEight",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesEightEight.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -83072,19 +83001,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesSixteenSixteen",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesSixteenSixteen.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.SnesSpritemapXWord",
       "kind": "record struct",
       "scope": "product",
@@ -83122,32 +83038,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesUnsignedDivision",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesUnsignedDivision.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesUnsignedEightEight",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesUnsignedEightEight.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Hardware.SnesVram",
@@ -84495,6 +84385,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Input.ButtonWordEncodingAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/ButtonWordEncodingAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Input.ControllerBindings",
       "kind": "record struct",
       "scope": "product",
@@ -84606,19 +84509,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.ControllerWordBoundaryAttribute",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/ControllerWordBoundaryAttribute.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Input.ControllerWordCodec",
@@ -85327,19 +85217,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.NativeWordAttribute",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/NativeWordAttribute.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.NumberedIdentitiesAttribute",
       "kind": "class",
       "scope": "product",
@@ -85348,6 +85225,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/NumberedIdentitiesAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.PackedFieldsAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/PackedFieldsAttribute.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -86092,6 +85982,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Progression.PackedDecimal",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/PackedDecimal.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Progression.ProgressionBit",
       "kind": "record struct",
       "scope": "product",
@@ -86711,6 +86614,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.FloorCharacterSheet",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/FloorCharacterSheet.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.FloorCharacters",
       "kind": "class",
       "scope": "product",
@@ -86722,6 +86638,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.FloorColorBlend",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/FloorColorBlend.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.FloorRenderLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/FloorRenderLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.FloorScene",
@@ -86837,6 +86779,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.GameplayFloorRenderLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/GameplayFloorRenderLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.GameplayRenderDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -86934,58 +86889,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.Mode7CharacterSheet",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/Mode7CharacterSheet.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.Mode7ColorMathOperation",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/Mode7ColorMathOperation.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.Mode7GameplayRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/Mode7GameplayRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.Mode7RenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/Mode7RenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.MotherBrainAscentDisplayDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -87013,32 +86916,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.ObjPriorityRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/ObjPriorityRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.ObjRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/ObjRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.OrdinaryGameplayRenderLayer",
@@ -87314,6 +87191,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.SpritePriorityRenderLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/SpritePriorityRenderLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.SpriteRenderLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/SpriteRenderLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.SuitPickupBeamWindowBuilder",
@@ -110096,19 +109999,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.SnesEncodingOwnerAttribute",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/SnesEncodingOwnerAttribute.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Spatial.AffineTransform",
       "kind": "record struct",
       "scope": "product",
@@ -110130,6 +110020,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Spatial/Axis.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.Bearing",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/Bearing.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -110213,6 +110116,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.ByteAngle",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/ByteAngle.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.CharacterPixels",
       "kind": "class",
       "scope": "product",
@@ -110239,6 +110155,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.EightEight",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/EightEight.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.EightEightVector\u003CTSpace\u003E",
       "kind": "record struct",
       "scope": "product",
@@ -110260,6 +110189,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Spatial/Extent16.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.FixedCoordinate",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/FixedCoordinate.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -110321,6 +110263,45 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.FloorConversions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/FloorConversions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.FloorOverflowMode",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/FloorOverflowMode.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.FloorPixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/FloorPixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.HorizontalDirection",
@@ -110396,58 +110377,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Spatial/MapTiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.Mode7Conversions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/Mode7Conversions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.Mode7OverflowMode",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/Mode7OverflowMode.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.Mode7Pixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/Mode7Pixels.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.OamPixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/OamPixels.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -110560,6 +110489,51 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.RotationAngle",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/RotationAngle.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.RotationAngleAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/RotationAngleAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.RotationAngleAccess.extension(SuperMetroid.Core.Spatial.RotationAngle)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/RotationAngleAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.RotationDirection",
       "kind": "enum",
       "scope": "product",
@@ -110612,33 +110586,20 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesFixedPosition",
+      "type": "SuperMetroid.Core.Spatial.SignedEightEight",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/SnesFixedPosition.cs"
+        "csharp/src/SuperMetroid.Core/Spatial/SignedEightEight.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesSignedEightEight",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/SnesSignedEightEight.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.SnesSignedEightEightAccess",
+      "type": "SuperMetroid.Core.Spatial.SignedEightEightAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -110648,13 +110609,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SnesSignedEightEightAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Spatial/SignedEightEightAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesSignedEightEightAccess.extension(SuperMetroid.Core.Spatial.SnesSignedEightEight)",
+      "type": "SuperMetroid.Core.Spatial.SignedEightEightAccess.extension(SuperMetroid.Core.Spatial.SignedEightEight)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -110664,26 +110625,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SnesSignedEightEightAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Spatial/SignedEightEightAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesSignedSixteenSixteen",
+      "type": "SuperMetroid.Core.Spatial.SignedSixteenSixteen",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/SnesSignedSixteenSixteen.cs"
+        "csharp/src/SuperMetroid.Core/Spatial/SignedSixteenSixteen.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesSignedSixteenSixteenAccess",
+      "type": "SuperMetroid.Core.Spatial.SignedSixteenSixteenAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -110693,13 +110654,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SnesSignedSixteenSixteenAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Spatial/SignedSixteenSixteenAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesSignedSixteenSixteenAccess.extension(SuperMetroid.Core.Spatial.SnesSignedSixteenSixteen)",
+      "type": "SuperMetroid.Core.Spatial.SignedSixteenSixteenAccess.extension(SuperMetroid.Core.Spatial.SignedSixteenSixteen)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -110709,36 +110670,20 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SnesSignedSixteenSixteenAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Spatial/SignedSixteenSixteenAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SnesUnsignedSixteenSixteen",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Spatial.SixteenSixteen",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/SnesUnsignedSixteenSixteen.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.SnesUnsignedSixteenSixteenAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SnesUnsignedSixteenSixteenAccess.cs"
+        "csharp/src/SuperMetroid.Core/Spatial/SixteenSixteen.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -110757,6 +110702,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.SpritePixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/SpritePixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.TilemapCells",
       "kind": "class",
       "scope": "product",
@@ -110768,6 +110726,48 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.UnsignedEightEight",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/UnsignedEightEight.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.UnsignedSixteenSixteen",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/UnsignedSixteenSixteen.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.UnsignedSixteenSixteenAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/UnsignedSixteenSixteenAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Spatial.VerticalDirection",
@@ -123473,6 +123473,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Assets/PaletteJsonContractsVisibleVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.RgbColorDomainVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/RgbColorDomainVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -144195,19 +144208,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Gameplay/FrameClockWrapVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Hardware.Bgr555DomainVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Hardware/Bgr555DomainVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

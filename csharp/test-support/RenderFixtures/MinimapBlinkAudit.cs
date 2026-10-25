@@ -1,7 +1,8 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.TestSupport.RenderFixtures;
 
 using SuperMetroid.TestSupport.RepositoryInstallation;

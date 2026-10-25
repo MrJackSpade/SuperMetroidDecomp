@@ -303,7 +303,7 @@ public sealed class SamusLiquidPhysicsState
     public void PrepareAnimationFrame(
         SamusState samus,
         SharedRandom random,
-        int nmiFrameCounter = 0,
+        int frameCounter = 0,
         bool beginSoundRequestFrame = true,
         bool bossPresent = false)
     {
@@ -344,7 +344,7 @@ public sealed class SamusLiquidPhysicsState
             TrySpawnAirBubbles(
                 samus,
                 top,
-                nmiFrameCounter,
+                frameCounter,
                 random);
 
             // Standing forward `$00`, backward `$9B`, and every Gravity-Suit pose clear the
@@ -382,13 +382,13 @@ public sealed class SamusLiquidPhysicsState
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(checked((ushort)damageRate.SubDamage), checked((ushort)damageRate.WholeDamage));
-            if ((nmiFrameCounter & 7) == 0 && samus.Health >= 71)
+            if ((frameCounter & 7) == 0 && samus.Health >= 71)
                 QueueSound(Library3Sound.IncrementalEnergy, maximumQueued: SoundQueueLimit.Max3);
 
             // Both lava and acid now share `$90:824C`'s delay-two submerged path.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
             samus.AnimationFrameBuffer = 2;
-            TrySpawnLavaSurfaceSpray(samus, top, nmiFrameCounter);
+            TrySpawnLavaSurfaceSpray(samus, top, frameCounter);
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
                 samus.AnimationFrameBuffer = 0;
@@ -410,7 +410,7 @@ public sealed class SamusLiquidPhysicsState
             TrySpawnAirBubbles(
                 samus,
                 top,
-                nmiFrameCounter,
+                frameCounter,
                 random);
         }
     }
@@ -691,12 +691,12 @@ public sealed class SamusLiquidPhysicsState
     private void TrySpawnAirBubbles(
         SamusState samus,
         int top,
-        int nmiFrameCounter,
+        int frameCounter,
         SharedRandom random)
     {
         int mouthY = unchecked((ushort)(top - 24));
         if (unchecked((short)(mouthY - FxYPosition)) < 0 ||
-            (nmiFrameCounter & 127) != 0 ||
+            (frameCounter & 127) != 0 ||
             AtmosphericEffects.Slots[2].FrameAndType != 0)
         {
             return;
@@ -713,7 +713,7 @@ public sealed class SamusLiquidPhysicsState
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
         int top,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         if (unchecked((short)(top - LavaAcidYPosition)) >= 0 ||
             (AtmosphericEffects.Slots[0].FrameAndType & 1 << 10) != 0)
@@ -736,7 +736,7 @@ public sealed class SamusLiquidPhysicsState
                 new(xPositions[slot], checked((ushort)LavaAcidYPosition)));
         }
 
-        if ((nmiFrameCounter & 1) == 0)
+        if ((frameCounter & 1) == 0)
             QueueSound(Library2Sound.LiquidDamage, maximumQueued: SoundQueueLimit.Max6);
     }
 

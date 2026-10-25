@@ -14,9 +14,9 @@ internal static class EnemyFrameContextAccess
                 self.AdvanceRandomEnemyCounter();
         }
 
-        /// <summary>Begins a frame with <paramref name="nmiFrameCounter"/>, keeping the freeze flag and projectiles.</summary>
-        internal void SeedNmiFrameCounter(int nmiFrameCounter) =>
-            self.BeginFrame(self.TimeIsFrozen, self.SamusProjectiles, self.SamusColours, nmiFrameCounter);
+        /// <summary>Begins a frame with <paramref name="frameCounter"/>, keeping the freeze flag and projectiles.</summary>
+        internal void SeedFrameCounter(int frameCounter) =>
+            self.BeginFrame(self.TimeIsFrozen, self.SamusProjectiles, self.SamusColours, frameCounter);
 
         /// <summary>Begins a frame with <paramref name="projectiles"/>, keeping the freeze flag and frame counter.</summary>
         internal void SeedSamusProjectiles(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem? projectiles) =>

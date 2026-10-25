@@ -35,7 +35,7 @@ public static class SamusKnockbackMovement
         ControllerButton controllerInput,
         bool timeIsFrozen,
         RoomLevelData? level = null,
-        int nmiFrameCounter = 0,
+        int frameCounter = 0,
         ISamusRoomPlms? plms = null)
     {
 
@@ -52,7 +52,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), level, nmiFrameCounter, plms);
+        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), level, frameCounter, plms);
     }
 
     /// <summary>
@@ -63,13 +63,13 @@ public static class SamusKnockbackMovement
     /// <param name="controllerInput">Held SNES button word used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
-    /// <param name="nmiFrameCounter">Native NMI counter passed to pose-expansion block reactions when room geometry is supplied.</param>
+    /// <param name="frameCounter">Native NMI counter passed to pose-expansion block reactions when room geometry is supplied.</param>
     /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
     /// <returns>
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int nmiFrameCounter = 0, ISamusRoomPlms? plms = null)
+    internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(samus);
@@ -142,7 +142,7 @@ public static class SamusKnockbackMovement
             // input poses before command one initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
             if (level is not null && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
-level, targetPose, nmiFrameCounter, plms))
+level, targetPose, frameCounter, plms))
                 return false;
             samus.Pose = targetPose;
             // The interrupted pose commits after movement. Alpha publishes its radius
@@ -219,7 +219,7 @@ level, targetPose, nmiFrameCounter, plms))
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -247,8 +247,8 @@ level, targetPose, nmiFrameCounter, plms))
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
-            ? MoveWithSharedVerticalSpeedCalculation(level, samus, nmiFrameCounter, plms)
-            : MoveDownWithoutSpeedCalculation(level, samus, nmiFrameCounter, plms);
+            ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, plms)
+            : MoveDownWithoutSpeedCalculation(level, samus, frameCounter, plms);
 
         // `$91:F010` observes these words inside downward collision, before `$90:DF6E`
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
@@ -417,7 +417,7 @@ level, targetPose, nmiFrameCounter, plms))
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms)
     {
         // `$90:DF53` calls the exact same `$90:90E2` vertical routine as ordinary aerial
@@ -426,7 +426,7 @@ level, targetPose, nmiFrameCounter, plms))
         // midair hang came from failing to dispatch ordinary falling after that expiry, not
         // from this calculation. Sharing the routine still preserves the real direction-
         // reversal behavior for any longer knockback stimulus without inventing a new path.
-        return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, nmiFrameCounter, out _, out _);
+        return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, frameCounter, out _, out _);
     }
 
     /// <summary>Applies externally supplied downward displacement through the shared vertical collision path without accelerating it.</summary>
@@ -434,7 +434,7 @@ level, targetPose, nmiFrameCounter, plms))
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms)
     {
         // `$90:923F` gives nonzero external Y priority over its normal total-X-plus-one
@@ -442,7 +442,7 @@ level, targetPose, nmiFrameCounter, plms))
         int requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (frameCounter & 1) == 0 });
     }
 
 }

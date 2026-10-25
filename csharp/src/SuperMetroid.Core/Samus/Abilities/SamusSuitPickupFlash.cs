@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Value-only render input for the suit pickup's windowed fixed-colour addition.</summary>

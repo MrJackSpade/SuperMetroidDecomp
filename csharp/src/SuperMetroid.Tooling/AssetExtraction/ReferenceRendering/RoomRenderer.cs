@@ -1,4 +1,5 @@
-﻿using SuperMetroid.AssetExtraction.Artwork;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
@@ -6,7 +7,6 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Compression;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.ReferenceRendering;
 

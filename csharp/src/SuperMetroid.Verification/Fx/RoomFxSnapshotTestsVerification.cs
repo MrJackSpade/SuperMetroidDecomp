@@ -1,10 +1,10 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Fx;
 

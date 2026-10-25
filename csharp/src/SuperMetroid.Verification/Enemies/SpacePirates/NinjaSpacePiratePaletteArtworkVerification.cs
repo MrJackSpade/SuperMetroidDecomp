@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
@@ -10,7 +11,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 

@@ -48,7 +48,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 SamusState samus = session.GameplayRuntime.Player.Samus
                     ?? throw new InvalidOperationException(
                         "Reserve recovery requires a live Samus state.");
-                reserveStep = session.reserveRecovery.StepAfterNmi(
+                reserveStep = session.reserveRecovery.StepAfterFrame(
                     samus,
                     session.GameplayRuntime.Clock.Counter);
                 if (reserveStep.RefillSoundRequested)

@@ -65,7 +65,7 @@ internal static class CeresEscapeHandoffVerification
             emptyRoom,
             samus,
             layer1X: 0,
-            nmiFrameCounter: 0);
+            frameCounter: 0);
         AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
             "first ejection gamma initializes state");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "ejection initialization shifts prior pose");
@@ -91,7 +91,7 @@ internal static class CeresEscapeHandoffVerification
             emptyRoom,
             samus,
             layer1X: 0,
-            nmiFrameCounter: 1);
+            frameCounter: 1);
         AssertEqual(CeresRidleyShoveDirection.None, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.Control.AlphaLocked, "wall contact leaves ordinary pose input available");
@@ -116,7 +116,7 @@ internal static class CeresEscapeHandoffVerification
         SamusPresentation.InitializeAnimation(airborne);
         airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
         airborne.CeresRidleyEjection.Request(airborne);
-        airborne.CeresRidleyEjection.Step(emptyRoom, airborne, layer1X: 0, nmiFrameCounter: 0);
+        airborne.CeresRidleyEjection.Step(emptyRoom, airborne, layer1X: 0, frameCounter: 0);
         AssertEqual(98, airborne.Kinematics.Position.Y.Whole, "ejection alignment uses the interrupted pose's live radius");
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Targets and mask for Torizo's native palette-transition instructions.</summary>

@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Harness;
 

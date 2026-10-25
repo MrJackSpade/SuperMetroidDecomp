@@ -27,7 +27,7 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>Nmi.</summary>
+    /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>The frame's sprite description, which Ceres Ridley's in-main Baby draw publishes into.</summary>

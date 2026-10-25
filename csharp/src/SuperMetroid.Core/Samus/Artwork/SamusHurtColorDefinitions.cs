@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Calculated native cinematic shade composition and hurt white blend, with narrowly retained paint policies.</summary>

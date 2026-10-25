@@ -62,7 +62,7 @@ public sealed class SamusCeresRidleyEjectionState
         RoomLevelData level,
         SamusState samus,
         int layer1X,
-        int nmiFrameCounter)
+        int frameCounter)
     {
 
         Ensure.NotNull(level);
@@ -143,7 +143,7 @@ public sealed class SamusCeresRidleyEjectionState
                 (samus.Kinematics.YAcceleration.RawValue));
             samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
         }
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (frameCounter & 1) == 0 });
 
         return new CeresRidleyEjectionResult();
     }

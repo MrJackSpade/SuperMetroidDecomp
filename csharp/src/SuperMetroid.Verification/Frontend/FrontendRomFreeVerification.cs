@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
@@ -32,7 +33,6 @@ namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 

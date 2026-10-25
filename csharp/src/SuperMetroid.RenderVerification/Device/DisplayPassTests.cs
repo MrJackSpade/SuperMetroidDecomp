@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
@@ -5,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

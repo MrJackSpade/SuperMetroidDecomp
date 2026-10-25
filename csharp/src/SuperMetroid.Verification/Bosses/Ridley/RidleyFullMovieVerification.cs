@@ -987,7 +987,7 @@ internal static class RidleyFullMovieVerification
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudState.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
-            Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToNativeWord(), NativeSnapshotMemory.PreviousHudSelection);
+            Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToWord(), NativeSnapshotMemory.PreviousHudSelection);
             CheckBytes("Save/elevator markers", SharedGameState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
             CheckBytes("Map-station markers", SharedGameState.MapStationByteCount,
@@ -1216,8 +1216,8 @@ internal static class RidleyFullMovieVerification
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlashCounter), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.SubunitHealth), NativeSnapshotMemory.SubunitHealth);
-            Check("Samus selected HUD weapon", samus.SelectedHudItem.ToNativeWord(), NativeSnapshotMemory.SelectedHudItem);
-            Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
+            Check("Samus selected HUD weapon", samus.SelectedHudItem.ToWord(), NativeSnapshotMemory.SelectedHudItem);
+            Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode), NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusQuantity.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
             Check("Samus equipped items", samus.EquippedItems.ToEquipmentWord(), NativeSnapshotMemory.Items);
@@ -1230,7 +1230,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus super missile capacity", SamusQuantity.Encode(samus.MaxSuperMissiles), NativeSnapshotMemory.MaxSuperMissiles);
             Check("Samus power bombs", SamusQuantity.Encode(samus.PowerBombs), NativeSnapshotMemory.PowerBombs);
             Check("Samus power bomb capacity", SamusQuantity.Encode(samus.MaxPowerBombs), NativeSnapshotMemory.MaxPowerBombs);
-            Check("Samus reserve mode", samus.ReserveTankMode.ToNativeWord(), NativeSnapshotMemory.ReserveMode);
+            Check("Samus reserve mode", samus.ReserveTankMode.ToWord(), NativeSnapshotMemory.ReserveMode);
             Check("Samus reserve capacity", SamusQuantity.Encode(samus.MaxReserveEnergy), NativeSnapshotMemory.MaxReserve);
             Check("Samus reserve energy", SamusQuantity.Encode(samus.ReserveEnergy), NativeSnapshotMemory.Reserve);
             // The native CPU can still be decompressing source-room tiles while
@@ -1417,21 +1417,21 @@ internal static class RidleyFullMovieVerification
             {
                 foreach (var trail in runtime.Projectiles.TrailSlots)
                 {
-                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.InstructionTimer.RawValue, NativeSnapshotMemory.TrailLeftInstructionTimer + trail.NativeByteIndex);
+                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.InstructionTimer.RawValue, NativeSnapshotMemory.TrailLeftInstructionTimer + trail.SlotTableOffset);
                     if (!trail.Left.InstructionTimer.IsZero)
                     {
-                        Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
+                        Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset);
+                        Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset);
+                        Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset);
                     }
-                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.InstructionTimer.RawValue, NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex);
+                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.InstructionTimer.RawValue, NativeSnapshotMemory.TrailRightInstructionTimer + trail.SlotTableOffset);
                     if (!trail.Right.InstructionTimer.IsZero)
                     {
-                        Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.Position.X, NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.Position.Y, NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
+                        Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset);
+                        Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.Position.X, NativeSnapshotMemory.TrailRightXPosition + trail.SlotTableOffset);
+                        Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.Position.Y, NativeSnapshotMemory.TrailRightYPosition + trail.SlotTableOffset);
                     }
                 }
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer.RawValue, NativeSnapshotMemory.ProjectileCooldown);
@@ -1468,7 +1468,7 @@ internal static class RidleyFullMovieVerification
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             foreach (var projectile in runtime.Projectiles.Slots.Take(5))
             {
-                int index = projectile.NativeByteIndex;
+                int index = projectile.SlotTableOffset;
                 string owner = $"Projectile {projectile.SlotIndex}";
                 Check(owner + " type", projectile.Type, NativeSnapshotMemory.ProjectileType + index);
                 if (projectile.Type == 0 || W(NativeSnapshotMemory.ProjectileType + index) == 0) continue;

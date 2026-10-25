@@ -464,7 +464,7 @@ internal sealed class BeamFiring
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
         SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
-            SamusProjectileSelectorTable.NonBeam, samus.SelectedHudItem.ToNativeWord());
+            SamusProjectileSelectorTable.NonBeam, samus.SelectedHudItem.ToWord());
         slot.Damage = SamusProjectileDamageDefinitions.Read(header);
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);

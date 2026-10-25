@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Standalone shared-corpse target paints from $A9:F8A6-F8C4.

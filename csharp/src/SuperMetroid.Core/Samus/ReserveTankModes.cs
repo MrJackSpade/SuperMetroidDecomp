@@ -15,7 +15,7 @@ public static class ReserveTankModes
     };
 
     /// <summary>The stored word of a reserve mode.</summary>
-    public static ushort ToNativeWord(this ReserveTankMode mode) => mode switch
+    public static ushort ToWord(this ReserveTankMode mode) => mode switch
     {
         ReserveTankMode.None => 0,
         ReserveTankMode.Auto => 1,

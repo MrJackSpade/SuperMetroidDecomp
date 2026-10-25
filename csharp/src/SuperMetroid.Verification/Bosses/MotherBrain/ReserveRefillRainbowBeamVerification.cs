@@ -31,7 +31,7 @@ internal static class ReserveRefillRainbowBeamVerification
         recovery.Begin(samus);
         AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "command $1B leaves the rainbow-beam pair in place");
         ushort frame = 0;
-        while (!recovery.StepAfterNmi(samus, frame++).Completed) { }
+        while (!recovery.StepAfterFrame(samus, frame++).Completed) { }
 
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam, "command $10 leaves the rainbow beam holding Samus");
         Console.WriteLine("  Reserve refill under the rainbow beam: the beam's lock survives the refill.");

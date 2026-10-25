@@ -278,7 +278,7 @@ public static class SamusGrappleMovement
     /// Executes one connected grapple-function call. X is the default shoot binding used by
     /// this runtime; left/right pump the swing, newly pressed up/down adjust rope length.
     /// </summary>
-    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton newlyPressedInput, int nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
+    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton newlyPressedInput, int frameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -304,7 +304,7 @@ public static class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallJumping)
             return CompleteGrappleWallJump(terrain.Level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(terrain.Level, samus, grapple, nmiFrameCounter, terrain.Plms, poseChange == GrapplePoseChange.Deferred);
+            return CompleteDropped(terrain.Level, samus, grapple, frameCounter, terrain.Plms, poseChange == GrapplePoseChange.Deferred);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -589,7 +589,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms,
         bool deferPoseChange)
     {
@@ -602,7 +602,7 @@ public static class SamusGrappleMovement
         samus.Kinematics.YSpeed = default;
         bool emptyBeta = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Grappling;
         if (!deferPoseChange)
-            SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, nmiFrameCounter, plms);
+            SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, plms);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,

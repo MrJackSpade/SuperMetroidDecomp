@@ -245,16 +245,16 @@ internal static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerProjectiles = CreateSyntheticProjectiles();
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), spazerFlickerBombs);
-    OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
         "even-slot Spazer draws while NMI bit one is clear");
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork(spazerFlickerSamus.EquippedBeams.ToEquipmentWord());
     SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
-        DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, spazerArtwork)),
+        DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), spazerArtwork,
         new Position16<ScreenPixels>(spazerShot.Position.X.Whole, spazerShot.Position.Y.Whole), "Spazer shot");
-    spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 2, InstalledFixtures.ProjectileArtwork()));
+    spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 2, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
         "even-slot Spazer suppresses while NMI bit one is set");
 
@@ -728,7 +728,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
     // would be suppressed on even NMI under the uncharged rule, making this a direct guard
     // against accidentally applying that branch to the charged projectile.
-    OamBuffer chargedOam = SpriteFrameBuffer.DrawnOam(frame => chargeProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer chargedOam = SpriteFrameBuffer.DrawnOam(frame => chargeProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
     AssertTrue(chargedOam.LastFinalizedSpriteCount != 0,
         "charged power beam bypasses ordinary alternating-frame flicker");
 
@@ -1045,12 +1045,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0xa25b, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
 
-    OamBuffer missileOam = SpriteFrameBuffer.DrawnOam(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer missileOam = SpriteFrameBuffer.DrawnOam(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(1, missileOam.LastFinalizedSpriteCount,
         "missile family bypasses ordinary beam alternating-frame flicker");
     ProjectileDrawArtwork missileArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, missileArtwork)),
+        DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, missileArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(missile.SpritemapPointer)), missileArtwork,
         new Position16<ScreenPixels>(missile.Position.X.Whole, missile.Position.Y.Whole), "Missile");
 
@@ -1522,11 +1522,11 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // The link instruction list is intentionally invisible; only the owner contributes an
     // OBJ after its own bank-$93 program selects `$A030`.
-    OamBuffer superOam = SpriteFrameBuffer.DrawnOam(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer superOam = SpriteFrameBuffer.DrawnOam(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(1, superOam.LastFinalizedSpriteCount, "super owner draws while link spritemap is empty");
     ProjectileDrawArtwork superArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, superArtwork)),
+        DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, superArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(super.SpritemapPointer)), superArtwork,
         new Position16<ScreenPixels>(super.Position.X.Whole, super.Position.Y.Whole), "Super missile owner");
 

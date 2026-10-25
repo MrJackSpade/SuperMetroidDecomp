@@ -26,7 +26,7 @@ public static class SamusMorphBallMovement
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
@@ -84,7 +84,7 @@ public static class SamusMorphBallMovement
 
                 level,
                 samus,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out landed,
                 out hitCeiling);
@@ -95,7 +95,7 @@ public static class SamusMorphBallMovement
 
                 level,
                 samus,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out hitCeiling);
 
@@ -114,7 +114,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
@@ -139,7 +139,7 @@ public static class SamusMorphBallMovement
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
 
-        return StepMorphedFallingOrBouncing(level, samus, controllerInput, nmiFrameCounter, plms, movementType);
+        return StepMorphedFallingOrBouncing(level, samus, controllerInput, frameCounter, plms, movementType);
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms,
         SamusMovementType movementType)
     {
@@ -193,7 +193,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics.YSpeed = default;
             int displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
             landed = displacement >= 0 && vertical.Collided;
             hitCeiling = displacement < 0 && vertical.Collided;
         }
@@ -206,7 +206,7 @@ public static class SamusMorphBallMovement
 
                 level,
                 samus,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out landed,
                 out hitCeiling);
@@ -220,7 +220,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
@@ -236,7 +236,7 @@ public static class SamusMorphBallMovement
         if (samus.MorphBallBounceState != SamusBallBounceState.None)
         {
             return StepMorphedFallingOrBouncing(
-level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBallInAir);
+level, samus, controllerInput, frameCounter, plms, SamusMovementType.SpringBallInAir);
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -287,7 +287,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
             level,
             samus,
-            nmiFrameCounter,
+            frameCounter,
             plms,
             out bool landed,
             out bool hitCeiling);
@@ -302,7 +302,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
@@ -330,7 +330,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
                 level,
                 samus,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out _);
         }
@@ -340,7 +340,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
                 level,
                 samus,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out landed,
                 out _);
@@ -365,7 +365,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms,
         out bool landed,
         out bool hitCeiling)
@@ -404,7 +404,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
 
         hitCeiling = displacement < 0 && vertical.Collided;
         landed = displacement >= 0 && vertical.Collided;
@@ -419,14 +419,14 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
         RoomLevelData level,
         SamusState samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms,
         out bool hitCeiling)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         // No-speed Y movement can still go UP when a platform carries Samus. The
         // cartridge publishes the same deferred ceiling command as a velocity-driven
         // jump. Its speed/direction writes belong to the later winning transition.

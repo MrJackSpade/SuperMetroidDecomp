@@ -41,7 +41,7 @@ internal static class SamusAerialPoseTransitions
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ControllerButton controllerNewInput,
         ISamusRoomPlms? plms = null)
     {
@@ -68,7 +68,7 @@ internal static class SamusAerialPoseTransitions
 
             level,
             targetPose,
-            nmiFrameCounter,
+            frameCounter,
             plms,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
@@ -119,7 +119,7 @@ internal static class SamusAerialPoseTransitions
     /// <param name="samus">The Samus this reads.</param>
     /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
     /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
-    /// <param name="nmiFrameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
+    /// <param name="frameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
     /// <param name="plms">Optional live PLM owner for those collision reactions.</param>
     /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
     /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until the next alpha pass.</remarks>
@@ -130,7 +130,7 @@ internal static class SamusAerialPoseTransitions
 
         RoomLevelData level,
         SamusPoseId genericTargetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -193,7 +193,7 @@ internal static class SamusAerialPoseTransitions
 
             level,
             selectedTurnPose,
-            nmiFrameCounter,
+            frameCounter,
             plms,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
@@ -267,12 +267,12 @@ internal static class SamusAerialPoseTransitions
     /// Live collision geometry supplied by gameplay. Null is reserved for isolated
     /// launch-value/particle diagnostics that explicitly model unobstructed space.
     /// </param>
-    /// <param name="nmiFrameCounter">Native NMI counter passed to the changed-pose collision resolver when live room geometry is supplied.</param>
+    /// <param name="frameCounter">Native NMI counter passed to the changed-pose collision resolver when live room geometry is supplied.</param>
     /// <param name="plms">Optional PLM owner receiving changed-pose block reactions; unused by the unobstructed diagnostic path.</param>
     public static void ApplyWallJumpTrigger(SamusState samus, 
 
         RoomLevelData? level = null,
-        int nmiFrameCounter = 0,
+        int frameCounter = 0,
         ISamusRoomPlms? plms = null)
     {
 
@@ -290,7 +290,7 @@ internal static class SamusAerialPoseTransitions
             // collision dispatcher. Expanding a compact spin body beneath a ceiling can
             // move the center away from it, reject the expansion, or select crouch.
             LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
+level, targetPose, frameCounter, plms, out int centerAdjustment);
             if (collision == LargerPoseCollisionOutcome.RetainSource)
                 return;
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -384,7 +384,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null,
         GrappleDropSpeed speed = GrappleDropSpeed.Cleared)
     {
@@ -418,7 +418,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
             level,
             targetPose,
-            nmiFrameCounter,
+            frameCounter,
             plms,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
@@ -1017,7 +1017,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms? plms = null)
     {
 
@@ -1045,7 +1045,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
                 level,
                 targetPose,
-                nmiFrameCounter,
+                frameCounter,
                 plms,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)

@@ -41,13 +41,13 @@ public sealed class SamusReserveAutoRecoveryState
     }
 
     /// <summary>Runs <c>RefillHealthFromReserveTanks</c> once after the frame's accepted NMI.</summary>
-    public SamusReserveAutoRecoveryStep StepAfterNmi(SamusState samus, int nmiFrameCounter)
+    public SamusReserveAutoRecoveryStep StepAfterFrame(SamusState samus, int frameCounter)
     {
         Ensure.NotNull(samus);
         if (!IsActive)
             throw new InvalidOperationException("Reserve recovery has not begun.");
 
-        bool refillSoundRequested = samus.ReserveEnergy != 0 && (nmiFrameCounter & 7) == 0;
+        bool refillSoundRequested = samus.ReserveEnergy != 0 && (frameCounter & 7) == 0;
 
         if (samus.ReserveEnergy != 0)
         {

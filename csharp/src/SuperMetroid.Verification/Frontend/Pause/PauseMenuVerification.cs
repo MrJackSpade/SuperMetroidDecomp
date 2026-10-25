@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Projectiles.InvalidBeamSelectionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -16,7 +17,6 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;

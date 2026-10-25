@@ -616,7 +616,7 @@ public sealed class SamusProjectileSystem
     public void DrawLiveProjectiles(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        int nmiFrameCounter,
+        int frameCounter,
         ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(sprites);
@@ -638,10 +638,10 @@ public sealed class SamusProjectileSystem
                 // (low mask `$0C`) use NMI bit one and the opposite phase from power/ice/
                 // wave, which use NMI bit zero. Keeping these branches separate is what
                 // prevents the wider beam art from disappearing on the wrong video field.
-                bool oddNativeSlot = (slotIndex & 1) != 0;
+                bool oddSlot = (slotIndex & 1) != 0;
                 bool skip = slot.PackedType.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
-                    ? oddNativeSlot != ((nmiFrameCounter & 2) != 0)
-                    : oddNativeSlot == ((nmiFrameCounter & 1) != 0);
+                    ? oddSlot != ((frameCounter & 2) != 0)
+                    : oddSlot == ((frameCounter & 1) != 0);
                 if (skip)
                     continue;
             }

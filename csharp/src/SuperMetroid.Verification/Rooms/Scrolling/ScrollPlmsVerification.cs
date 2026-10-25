@@ -129,7 +129,7 @@ internal static class ScrollPlmsVerification
 
             level,
             ball,
-            nmiFrameCounter: 0,
+            frameCounter: 0,
             plms: plms);
         AssertTrue(ball.Position.X.Whole > ballStartX,
             "Morph Ball traverses scroll extension as special air");
@@ -160,7 +160,7 @@ internal static class ScrollPlmsVerification
 
             level,
             bombJump,
-            nmiFrameCounter: 0,
+            frameCounter: 0,
             plms);
         AssertTrue(bombJump.BombJumpActive,
             "unobstructed scroll extension does not terminate bomb-jump ascent");

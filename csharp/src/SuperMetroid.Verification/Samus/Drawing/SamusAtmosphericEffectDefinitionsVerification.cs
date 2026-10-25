@@ -114,7 +114,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
             SamusPresentation.InitializeAnimation(samus, frame);
             AdvanceToFootContactTick(samus);
-            samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), nmiFrameCounter: 1);
+            samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
 
             SamusAtmosphericEffectType expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
                 ? SamusAtmosphericEffectType.FootstepSplash
@@ -146,7 +146,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             SamusPresentation.InitializeAnimation(runner, initialFrame: 2);
             AdvanceToFootContactTick(runner);
-            runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), nmiFrameCounter: 1);
+            runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
             AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production Crateria running policy ${room:X2}");

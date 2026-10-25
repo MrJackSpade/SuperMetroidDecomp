@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 

@@ -198,7 +198,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedPosition.Y,
         "raised Y capture follows tenth displacement");
     AssertEqual(6, samus.AnimationFrame, "raise transition forces animation frame six");
-    AssertTrue(samus.CrystalFlash.BubbleHdmaRequested,
+    AssertTrue(samus.CrystalFlash.BubbleEffectRequested,
         "raise transition publishes Crystal Flash HDMA spawn seam");
     AssertTrue(samus.CrystalFlash.ConsumeActivationSoundRequest(),
         "Crystal Flash activation sound is consumable exactly once");

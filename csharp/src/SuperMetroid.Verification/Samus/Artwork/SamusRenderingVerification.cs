@@ -271,7 +271,7 @@ internal static void VerifySamusRenderingSlice()
     SamusBodyRecords shownBeforeHidden = samus.Presentation.BodyFrames.Shown;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
+    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), frameCounter: 1);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0, oam.LastFinalizedSpriteCount,
         "odd invincibility frame suppresses complete Samus body");
@@ -282,7 +282,7 @@ internal static void VerifySamusRenderingSlice()
 
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 2);
+    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), frameCounter: 2);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "even invincibility frame draws complete Samus body");
@@ -292,7 +292,7 @@ internal static void VerifySamusRenderingSlice()
     samus.KnockbackTimer = WrappingCountdown.Start(1);
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
+    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), frameCounter: 1);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
@@ -302,7 +302,7 @@ internal static void VerifySamusRenderingSlice()
         "test fixture installs nonzero native shine timer");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
+    samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), frameCounter: 1);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "shine timer overrides odd-frame invincibility blink");
@@ -590,7 +590,7 @@ internal static void VerifySamusArmCannon()
     // fully-open draw still proves the same selector route and frame-indexed third tile.
     var coverFrame = new SpriteFrameBuffer();
     coverFrame.BeginFrame();
-    cannon.Draw(coverFrame, samus, layer1: new(0x0400, 0), nmiFrameCounter: 0);
+    cannon.Draw(coverFrame, samus, layer1: new(0x0400, 0), frameCounter: 0);
     OamBuffer oam = coverFrame.FinalizeAsOam();
     AssertEqual(1, coverFrame.Draws.Length, "open cover publishes one draw");
     AssertEqual(1, oam.LastFinalizedSpriteCount, "cover stands for exactly one OAM record");
@@ -615,11 +615,11 @@ internal static void VerifySamusArmCannon()
 
     // Odd invincibility frames and an off-screen coordinate both publish no cover draw.
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
-    OamBuffer flickerOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, new(0x0400, 0), nmiFrameCounter: 1));
+    OamBuffer flickerOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, new(0x0400, 0), frameCounter: 1));
     AssertEqual(0, flickerOam.LastFinalizedSpriteCount, "odd invincibility frame suppresses the cover draw");
 
     samus.InvincibilityTimer = WrappingCountdown.Start(0);
-    OamBuffer clippedOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, layer1: new(0x0500, 0), nmiFrameCounter: 0));
+    OamBuffer clippedOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, layer1: new(0x0500, 0), frameCounter: 0));
     AssertEqual(0, clippedOam.LastFinalizedSpriteCount, "off-screen cover publishes no draw");
 
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample

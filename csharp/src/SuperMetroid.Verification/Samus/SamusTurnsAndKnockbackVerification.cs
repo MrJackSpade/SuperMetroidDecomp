@@ -141,7 +141,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
         AssertTrue(
-            SamusAerialPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, nmiFrameCounter: 0),
+            SamusAerialPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, frameCounter: 0),
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
@@ -221,7 +221,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPoseMetadata.RefreshCollisionRadii(lavaEndpoint);
         SamusPresentation.InitializeAnimation(lavaEndpoint);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(lavaEndpoint, 2, 1);
-        SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), NmiFrameCounter = 1 });
+        SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), FrameCounter = 1 });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
@@ -622,7 +622,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     int impactYSpeed = downKnockback.Kinematics.YSpeed.Whole;
     int impactYSubspeed = downKnockback.Kinematics.YSpeed.Fraction;
     KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(
-floorLevel, downKnockback, nmiFrameCounter: 0);
+floorLevel, downKnockback, frameCounter: 0);
     AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
     AssertEqual(5, impactYSpeed,
         "downward knockback enters collision with whole impact speed 5");
@@ -671,7 +671,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         empty,
         samus,
         ControllerButton.A,
-        nmiFrameCounter: 1);
+        frameCounter: 1);
     AssertEqual(unchecked((int)0xfffb1c00), unchecked((int)(samus.Kinematics.Position.Y.RawValue - boostYBefore)),
         "damage boost reuses ordinary old-speed jumping movement");
     AssertEqual(4, samus.Kinematics.YSpeed.Whole, "damage boost gravity next whole speed");
@@ -811,7 +811,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
 
         empty,
         ballExpires,
-        nmiFrameCounter: 5);
+        frameCounter: 5);
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(ballExpires),
         "zero hurt timer ends morphed special handler at interruption");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, ballExpires.Pose,

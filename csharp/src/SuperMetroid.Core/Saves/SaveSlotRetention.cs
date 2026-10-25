@@ -18,12 +18,12 @@ internal static class SaveSlotRetention
     {
         Ensure.NotNull(snapshot);
         ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
-        ReserveTankMode reserveMode = ReserveTankModes.Decode(snapshot.ReserveMode.ToNativeWord());
+        ReserveTankMode reserveMode = ReserveTankModes.Decode(snapshot.ReserveMode.ToWord());
         int health = Kept(snapshot.Health), maxHealth = Kept(snapshot.MaxHealth);
         int missiles = Kept(snapshot.Missiles), maxMissiles = Kept(snapshot.MaxMissiles);
         int superMissiles = Kept(snapshot.SuperMissiles), maxSuperMissiles = Kept(snapshot.MaxSuperMissiles);
         int powerBombs = Kept(snapshot.PowerBombs), maxPowerBombs = Kept(snapshot.MaxPowerBombs);
-        HudItem hudItem = HudItems.Decode(snapshot.HudItem.ToNativeWord());
+        HudItem hudItem = HudItems.Decode(snapshot.HudItem.ToWord());
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
         int reserveMissiles = Kept(snapshot.ReserveMissiles);
         ushort loadedItemCount = SaveFieldValue.Encode(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount));

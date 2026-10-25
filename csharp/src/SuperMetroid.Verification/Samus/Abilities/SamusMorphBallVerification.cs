@@ -103,7 +103,7 @@ internal static void VerifySamusMorphBallMovement()
 
     AssertTrue(
         !SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
-floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
+floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0),
         "morph entry is rejected without item bit $0004");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "rejected morph retains crouch");
     AssertEqual(48, samus.Position.Y.Whole, "rejected morph retains center Y");
@@ -111,7 +111,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     samus.EquippedItems = SamusEquipmentFlags.MorphBall;
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
-floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
+floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0),
         "equipped Morph Ball begins entry transition");
     AssertEqual(7, samus.Kinematics.Radius.Y, "morph transition radius from ROM");
     AssertEqual(57, samus.Position.Y.Whole, "command seven moves center down nine");
@@ -132,7 +132,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);
     fallingMorph.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     AssertTrue(SamusPosturePoseTransitions.TryApplyMorphTransition(fallingMorph, 
-floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
+floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1),
         "compact falling pose begins cartridge morph transition");
     AssertEqual(49, fallingMorph.Position.Y.Whole,
         "compact falling morph uses command-seven table displacement, not radius difference");
@@ -161,7 +161,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
     };
     SamusPoseMetadata.RefreshCollisionRadii(spinMorph);
     AssertTrue(SamusPosturePoseTransitions.TryApplyMorphTransition(spinMorph, 
-floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 0),
+floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0),
         "spin pose begins cartridge morph transition");
     AssertEqual(SamusAccelerationMode.Decelerating, spinMorph.HorizontalSpeed.AccelerationMode,
         "spin-source morph forces native aerial deceleration mode two");
@@ -181,7 +181,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 0),
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallMovingRightPose);
     AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer.RawValue, "ball direction change preserves timer");
     MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(
-floor, samus, nmiFrameCounter: 0);
+floor, samus, frameCounter: 0);
     AssertTrue(rolling.Vertical.Collided, "rolling ball retains floor contact");
     AssertEqual(0xc000, samus.HorizontalSpeed.BaseSpeed.Fraction, "type-four acceleration uses native definition");
 
@@ -195,7 +195,7 @@ floor, samus, nmiFrameCounter: 0);
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
-empty, samus, nmiFrameCounter: 1);
+empty, samus, frameCounter: 1);
     AssertTrue(!unsupported.Vertical.Collided, "grounded ball detects missing floor");
     SamusPosturePoseTransitions.ApplyMorphBallWalkOff(samus);
     AssertEqual(SamusPoseId.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
@@ -217,7 +217,7 @@ empty, samus, nmiFrameCounter: 1);
     SamusPoseMetadata.RefreshCollisionRadii(boostedRoll);
     boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
     boostedRoll.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
-    SamusMorphBallMovement.StepGrounded(empty, boostedRoll, nmiFrameCounter: 0);
+    SamusMorphBallMovement.StepGrounded(empty, boostedRoll, frameCounter: 0);
     AssertEqual(34, boostedRoll.Position.X.Whole,
         "grounded moving ball adds inherited 1.8000 extra speed to native 0.C000 base");
     AssertEqual(0x4000, boostedRoll.Kinematics.Position.X.Fraction,
@@ -240,7 +240,7 @@ empty, samus, nmiFrameCounter: 1);
         empty,
         boostedFall,
         controllerInput: ControllerButton.Left,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(29, boostedFall.Position.X.Whole,
         "held-left falling ball subtracts inherited 1.8000 extra speed");
     AssertEqual(0xc000, boostedFall.Kinematics.Position.X.Fraction,
@@ -261,7 +261,7 @@ empty, samus, nmiFrameCounter: 1);
         empty,
         opposedDirectionFall,
         controllerInput: (ControllerButton.Left | ControllerButton.Right),
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(boostedFall.Kinematics.Position.X.RawValue, opposedDirectionFall.Kinematics.Position.X.RawValue,
         "Left+Right falling ball follows its pose direction instead of cancelling motion");
     AssertEqual(boostedFall.HorizontalSpeed.BaseFixed,
@@ -281,7 +281,7 @@ empty, samus, nmiFrameCounter: 1);
         empty,
         boostedSpring,
         controllerInput: ControllerButton.Right,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(34, boostedSpring.Position.X.Whole,
         "Spring-Ball air handler adds inherited extra-run speed through shared jump movement");
     AssertEqual(0x4000, boostedSpring.Kinematics.Position.X.Fraction,
@@ -298,7 +298,7 @@ empty, samus, nmiFrameCounter: 1);
 
         empty,
         boostedTransition,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(33, boostedTransition.Position.X.Whole,
         "morph transition moves by inherited extra-run speed with zero base");
     AssertEqual(0x8000, boostedTransition.Kinematics.Position.X.Fraction,
@@ -321,7 +321,7 @@ empty, samus, nmiFrameCounter: 1);
 
             floor,
             timeIsFrozen: true,
-            nmiFrameCounter: 0, controllerNewInput: 0),
+            frameCounter: 0, controllerNewInput: 0),
         "frozen standing/crouching setup rejects bomb jump");
     AssertEqual(0, frozenCrouchBombJump.BombJumpDirection,
         "frozen setup clears complete published direction word");
@@ -340,7 +340,7 @@ empty, samus, nmiFrameCounter: 1);
 
             floor,
             timeIsFrozen: false,
-            nmiFrameCounter: 1, controllerNewInput: 0),
+            frameCounter: 1, controllerNewInput: 0),
         "unfrozen crouch follows humanoid bomb-jump setup");
     AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, crouchBombJump.Pose,
         "literal left pose direction selects bomb-jump body $52");
@@ -363,7 +363,7 @@ empty, samus, nmiFrameCounter: 1);
 
             empty,
             timeIsFrozen: false,
-            nmiFrameCounter: 0, controllerNewInput: 0),
+            frameCounter: 0, controllerNewInput: 0),
         "normal-jump movement type uses native carry-clear setup entry");
     AssertEqual(0, airborneBombRejection.BombJumpDirection,
         "carry-clear bomb-jump family consumes and clears published direction");
@@ -377,7 +377,7 @@ empty, samus, nmiFrameCounter: 1);
     samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0);
     samus.Kinematics.YAcceleration = default;
     MorphBallMovementResult hardLanding = SamusMorphBallMovement.StepFalling(
-floor, samus, controllerInput: 0, nmiFrameCounter: 0);
+floor, samus, controllerInput: 0, frameCounter: 0);
     AssertTrue(hardLanding.Landed, "hard ball fall collides with floor");
     samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
@@ -412,7 +412,7 @@ floor, samus, controllerInput: 0, nmiFrameCounter: 0);
     // radius-seven `$91:FFA7` must retain the ball instead of selecting crouch.
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
-floor, SamusPoseId.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
+floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0),
         "floor-constrained unmorph succeeds");
     AssertEqual(7, samus.Kinematics.Radius.Y, "unmorph retains old live radius through beta");
     AssertEqual(48, samus.Position.Y.Whole, "unmorph expansion keeps bottom boundary");
@@ -433,7 +433,7 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
     SamusPresentation.InitializeAnimation(boxedBall);
     AssertTrue(
         !SamusPosturePoseTransitions.TryApplyMorphTransition(boxedBall, 
-tunnel, SamusPoseId.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
+tunnel, SamusPoseId.UnmorphingTransitionRightPose, frameCounter: 1),
         "boxed Morph Ball rejects unmorph");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, boxedBall.Pose, "boxed unmorph retains ball pose");
     AssertEqual(7, boxedBall.Kinematics.Radius.Y, "boxed unmorph retains ball radius");
@@ -462,7 +462,7 @@ tunnel, SamusPoseId.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
 
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(fallingUnmorph, 
-empty, targetPose, nmiFrameCounter: 3),
+empty, targetPose, frameCounter: 3),
             $"unmorph ${(int)sourcePose:X2} accepts same-facing falling input");
         AssertEqual(targetPose, fallingUnmorph.Pose,
             $"unmorph ${(int)sourcePose:X2} installs falling target");
@@ -492,7 +492,7 @@ empty, targetPose, nmiFrameCounter: 3),
     SamusPresentation.InitializeAnimation(airborneEntry);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyMorphTransition(airborneEntry, 
-floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
+floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0),
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSpeed = airborneEntry.Kinematics.YSpeed.WithFraction(1);
     for (int tick = 0; tick < 6; tick++)
@@ -512,7 +512,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     SamusPresentation.InitializeAnimation(spring);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyMorphTransition(spring, 
-floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
+floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0),
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 6; tick++)
         SamusPresentation.AnimateNoFx(spring, new SamusAnimationStep { Random = new SharedRandom() });
@@ -521,7 +521,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(spring), "Spring Ball F9 applies");
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallMovingRightPose);
     MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
-floor, spring, nmiFrameCounter: 0);
+floor, spring, frameCounter: 0);
     AssertTrue(springRoll.Vertical.Collided, "Spring Ball roll retains floor contact");
     AssertEqual(0xc000, spring.HorizontalSpeed.BaseSpeed.Fraction,
         "type-$11 acceleration uses its ROM record");
@@ -533,7 +533,7 @@ floor, spring, nmiFrameCounter: 0);
     AssertEqual(4, spring.Kinematics.YSpeed.Whole, "Spring Ball launch whole speed");
     AssertEqual(0xe000, spring.Kinematics.YSpeed.Fraction, "Spring Ball launch subspeed");
     SamusMorphBallMovement.StepSpringBallInAir(
-empty, spring, controllerInput: 0, nmiFrameCounter: 0);
+empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(SamusVerticalDirection.Down, spring.Kinematics.YDirection, "released Spring Ball jump cuts upward arc");
 
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
@@ -688,7 +688,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
 
             floor,
             timeIsFrozen: false,
-            nmiFrameCounter: 0, controllerNewInput: 0),
+            frameCounter: 0, controllerNewInput: 0),
         "following alpha consumes published morphed bomb jump");
     AssertEqual(0x0802, bombProjectileSamus.BombJumpDirection,
         "morphed setup adds command-three bit on following frame");
@@ -1552,7 +1552,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // moves right fractionally, moves upward by the pre-gravity 2.C000 magnitude, then stores
     // the reduced 2.8000 magnitude for the following frame.
     SamusBombJumpMovement.Step(
-empty, bombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
+empty, bombJump, frameCounter: 0, PlmFixtures.Unbound());
     AssertTrue(bombJump.BombJumpActive, "unobstructed diagonal bomb jump remains active");
     AssertEqual(startX, bombJump.Position.X.Whole, "right bomb jump retains whole X on first fractional step");
     AssertEqual(0x3000, bombJump.Kinematics.Position.X.Fraction, "right bomb jump uses native $90:9F25 fractional displacement");
@@ -1564,7 +1564,7 @@ empty, bombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
     // making another vertical move. The normal type-four ball handler owns the descent.
     bombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(0xffff, 0);
     SamusBombJumpMovement.Step(
-empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
+empty, bombJump, frameCounter: 1, PlmFixtures.Unbound());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
     AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
     AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
@@ -1590,7 +1590,7 @@ empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
     SamusBombJumpMovement.Start(straightBombJump);
     ushort straightXSubposition = straightBombJump.Kinematics.Position.X.Fraction;
     BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(
-ceiling, straightBombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
+ceiling, straightBombJump, frameCounter: 0, PlmFixtures.Unbound());
     AssertTrue(!straightBombJump.BombJumpActive && ceilingHit.Vertical is { Collided: true },
         "straight bomb jump terminates on ceiling");
     AssertEqual(straightXSubposition, straightBombJump.Kinematics.Position.X.Fraction,
@@ -1606,7 +1606,7 @@ ceiling, straightBombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
     straightBombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0);
     straightBombJump.Kinematics.YAcceleration = default;
     MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(
-floor, straightBombJump, nmiFrameCounter: 0);
+floor, straightBombJump, frameCounter: 0);
     AssertTrue(bombLanding.Landed, "post-bomb-jump grounded art collides with floor");
     AssertTrue(!SamusPosturePoseTransitions.ApplyMorphBallLanding(straightBombJump), "post-bomb-jump landing launches bounce");
     AssertEqual(SamusBallBounceState.FirstRebound, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");

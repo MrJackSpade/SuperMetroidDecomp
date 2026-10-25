@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -495,7 +495,7 @@ internal static void VerifySamusExtraDisplacement()
 
         level,
         standing,
-        nmiFrameCounter: 0,
+        frameCounter: 0,
         controllerInput: 0);
     AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement,
         "standing external +X bypasses zero base speed");
@@ -517,7 +517,7 @@ internal static void VerifySamusExtraDisplacement()
 
         level,
         negative,
-        nmiFrameCounter: 1,
+        frameCounter: 1,
         controllerInput: 0);
     AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement,
         "negative no-speed external Y has no downward bias");
@@ -536,7 +536,7 @@ internal static void VerifySamusExtraDisplacement()
         level,
         transition,
         ControllerButton.A,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.Position.X.RawValue - transitionXBefore)),
         "jump transition applies signed external X with zero base speed");
     AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.Position.Y.RawValue - transitionYBefore)),
@@ -557,7 +557,7 @@ internal static void VerifySamusExtraDisplacement()
         level,
         rising,
         ControllerButton.A,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.Position.Y.RawValue - risingYBefore)),
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
@@ -579,7 +579,7 @@ internal static void VerifySamusExtraDisplacement()
         level,
         bouncingBall,
         controllerInput: 0,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
     AssertEqual(0, bouncingBall.Kinematics.YSpeed.Whole,

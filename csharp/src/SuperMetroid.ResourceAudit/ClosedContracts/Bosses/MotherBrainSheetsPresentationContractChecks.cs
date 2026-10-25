@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
@@ -9,7 +10,6 @@ using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

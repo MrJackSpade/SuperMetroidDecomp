@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -6,7 +7,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
@@ -19,7 +20,6 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Assets;
 

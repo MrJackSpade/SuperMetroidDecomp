@@ -604,11 +604,11 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     internal static bool TryResolveKnockbackPoseCollision(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int nmiFrameCounter, ISamusRoomPlms? plms)
+        int frameCounter, ISamusRoomPlms? plms)
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome outcome = samus.ResolveLargerPoseCollision(
-level, targetPose, nmiFrameCounter, plms, out int adjustment);
+level, targetPose, frameCounter, plms, out int adjustment);
         if (outcome != LargerPoseCollisionOutcome.Allowed)
         {
             if (outcome == LargerPoseCollisionOutcome.CrouchFallback)

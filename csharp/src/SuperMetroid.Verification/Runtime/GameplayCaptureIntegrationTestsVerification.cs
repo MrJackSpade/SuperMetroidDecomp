@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -12,7 +13,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Core.Rooms;

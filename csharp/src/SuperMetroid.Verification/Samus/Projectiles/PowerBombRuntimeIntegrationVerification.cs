@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -10,7 +11,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.RoomStates;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 

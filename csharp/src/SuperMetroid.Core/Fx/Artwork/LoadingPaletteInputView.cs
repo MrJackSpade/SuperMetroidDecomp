@@ -1,6 +1,5 @@
 using System.Collections;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 

@@ -457,7 +457,7 @@ internal static void VerifySamusGroundedMovement()
 
         level,
         running,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
 
     AssertEqual(0x0000, running.HorizontalSpeed.BaseSpeed.Whole, "running first acceleration whole speed");
     AssertEqual(0x3000, running.HorizontalSpeed.BaseSpeed.Fraction, "running first acceleration fractional speed");
@@ -472,7 +472,7 @@ internal static void VerifySamusGroundedMovement()
 
         level,
         running,
-        nmiFrameCounter: 1);
+        frameCounter: 1);
     AssertEqual(0x6000, running.HorizontalSpeed.BaseSpeed.Fraction, "running second acceleration accumulates");
     AssertEqual(0x00004800, second.Horizontal.AcceptedDisplacement, "second running slope multiplier");
     AssertEqual(0x6c00, running.Kinematics.Position.X.Fraction, "second running displacement accumulates");
@@ -486,7 +486,7 @@ internal static void VerifySamusGroundedMovement()
 
         level,
         running,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Whole, "running deceleration underflow clears whole speed");
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Fraction, "running deceleration underflow clears fraction");
     AssertEqual(SamusAccelerationMode.Accelerating, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
@@ -502,7 +502,7 @@ internal static void VerifySamusGroundedMovement()
 
         level,
         standing,
-        nmiFrameCounter: 0,
+        frameCounter: 0,
         controllerInput: 0);
     AssertEqual(0, idle.Horizontal.AcceptedDisplacement, "standing no-base horizontal amount");
     AssertTrue(idle.Vertical.Collided, "standing one-pixel grounding probe collides");
@@ -524,7 +524,7 @@ internal static void VerifySamusGroundedMovement()
 
         level,
         forward,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
@@ -554,7 +554,7 @@ internal static void VerifySamusGroundedMovement()
 
         elevatorLevel,
         forward,
-        nmiFrameCounter: 1,
+        frameCounter: 1,
         elevatorIsMoving: true);
     AssertTrue(elevatorMove is { Collided: false }, "elevator block scan accepts clear air");
     BlockMoveResult acceptedElevatorMove = elevatorMove ?? throw new InvalidOperationException(
@@ -619,7 +619,7 @@ internal static void VerifySamusGroundedReversal()
 
         level,
         movingLeft,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(-0x00003000, leftFrame.Horizontal.AcceptedDisplacement, "running-left signed displacement");
     AssertEqual(63, movingLeft.Position.X.Whole, "running-left borrows into whole X");
     AssertEqual(0xd000, movingLeft.Kinematics.Position.X.Fraction, "running-left fractional X");
@@ -638,7 +638,7 @@ internal static void VerifySamusGroundedReversal()
 
         level,
         reversedRunningRight,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(-0x00008000, reversedRightFrame.Horizontal.AcceptedDisplacement,
         "mode-one running-right carries leftward momentum");
 
@@ -651,7 +651,7 @@ internal static void VerifySamusGroundedReversal()
 
         level,
         reversedRunningLeft,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0x00008000, reversedLeftFrame.Horizontal.AcceptedDisplacement,
         "mode-one running-left carries rightward momentum");
 
@@ -671,7 +671,7 @@ internal static void VerifySamusGroundedReversal()
 
         level,
         turnTowardLeft,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0x8000, turnTowardLeft.HorizontalSpeed.BaseSpeed.Fraction, "left-turn native deceleration amount");
     AssertEqual(0x00008000, carriedRight.Horizontal.AcceptedDisplacement, "left-turn carries rightward momentum");
 
@@ -686,7 +686,7 @@ internal static void VerifySamusGroundedReversal()
 
         level,
         turnTowardRight,
-        nmiFrameCounter: 1);
+        frameCounter: 1);
     AssertEqual(-0x00008000, carriedLeft.Horizontal.AcceptedDisplacement, "right-turn carries leftward momentum");
 
     // Underflow clears speed and mode inside $90:9A7E before direction dispatch. The last
@@ -700,7 +700,7 @@ internal static void VerifySamusGroundedReversal()
 
         level,
         exhaustedTurn,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0, exhaustedTurn.HorizontalSpeed.BaseSpeed.Fraction, "turn underflow clears speed");
     AssertEqual(SamusAccelerationMode.Accelerating, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
     AssertEqual(0, stopped.Horizontal.AcceptedDisplacement, "turn underflow does not reverse early");
@@ -861,7 +861,7 @@ internal static void VerifySamusGroundedReversal()
 
             aimedLevel,
             aimedTurn,
-            nmiFrameCounter: (ushort)caseIndex);
+            frameCounter: (ushort)caseIndex);
         bool beganFacingRight = (caseIndex & 1) == 0;
         AssertTrue(
             beganFacingRight
@@ -955,7 +955,7 @@ internal static void VerifySamusGroundedReversal()
 
             aimedLevel,
             crouchedTurn,
-            nmiFrameCounter: (ushort)caseIndex);
+            frameCounter: (ushort)caseIndex);
         bool beganFacingRight = (caseIndex & 1) == 0;
         AssertTrue(
             beganFacingRight
@@ -979,7 +979,7 @@ internal static void VerifySamusGroundedReversal()
 
                 aimedLevel,
                 airborneCrouchedTurn,
-                nmiFrameCounter: 0);
+                frameCounter: 0);
             AssertTrue(airborneCrouchedTurn.Kinematics.Position.Y.RawValue != airborneYBefore,
                 "airborne crouched type-$17 turn executes simple Y movement");
         }
@@ -1665,7 +1665,7 @@ internal static void VerifySamusMoonwalking()
         var walker = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) };
         walker.Kinematics.Radius = new(5, 5);
         GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(
-floor, walker, nmiFrameCounter: 0);
+floor, walker, frameCounter: 0);
         AssertEqual(direction * 0x8000, movement.Horizontal.AcceptedDisplacement,
             $"moonwalk ${(int)pose:X2} uses literal reversed direction");
         AssertTrue(movement.Vertical.Collided, $"moonwalk ${(int)pose:X2} probes floor");
@@ -1686,7 +1686,7 @@ floor, walker, nmiFrameCounter: 0);
 
         floor,
         momentumMoonwalk,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0x00018000, momentumMoonwalkFrame.Horizontal.AcceptedDisplacement,
         "moonwalk preserves owned extra run speed");
 
@@ -1701,7 +1701,7 @@ floor, walker, nmiFrameCounter: 0);
 
         floor,
         unownedMoonwalk,
-        nmiFrameCounter: 0);
+        frameCounter: 0);
     AssertEqual(0x00008000, unownedMoonwalkFrame.Horizontal.AcceptedDisplacement,
         "moonwalk clears unowned extra run speed");
     AssertEqual(0, unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed.Whole,
@@ -1940,7 +1940,7 @@ internal static void VerifySamusRanIntoWall()
 
             openFloor,
             stopped,
-            nmiFrameCounter: 0);
+            frameCounter: 0);
         AssertTrue(movement.Vertical.Collided, $"wall pose ${(int)pose:X2} remains grounded");
         AssertEqual(0u, stopped.HorizontalSpeed.BaseFixed,
             $"wall pose ${(int)pose:X2} clears base speed");

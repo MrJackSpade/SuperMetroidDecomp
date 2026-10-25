@@ -14,20 +14,8 @@ public sealed class CrocomireEnemyState
     /// <summary>Creates the state for Crocomire's body slot.</summary>
     internal CrocomireEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>The death-sequence phase.</summary>
-    private CrocomireDeathPhase _deathPhase;
-
     /// <summary>The saturating count of mouth hits (<see cref="HitCount"/>).</summary>
     private int _hitCount;
-
-    /// <summary>The fight function.</summary>
-    private CrocomireFightFunction _fightFunction;
-
-    /// <summary>
-    /// The fight function the unused claw attack restores. The cartridge parks it in the projectile counter's word; only
-    /// that unused attack writes or reads it, so the retail fight never observes the overlap and it is kept apart.
-    /// </summary>
-    private CrocomireFightFunction _savedFightFunction;
 
     /// <summary>The word holding the queued steps, a death-phase delay, the rumble cursor or the vertical acceleration.</summary>
     private int _stepsDelayRumbleOrAccelerationWord;
@@ -68,11 +56,7 @@ public sealed class CrocomireEnemyState
     public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>The main/death dispatcher phase; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
-    public CrocomireDeathPhase DeathSequenceIndex
-    {
-        get => _deathPhase;
-        internal set => _deathPhase = value;
-    }
+    public CrocomireDeathPhase DeathSequenceIndex { get; internal set; }
 
     /// <summary>The fight latches. The cartridge keeps them in one word with <see cref="HitCount"/> in its low four bits; nothing reads that word another way.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }
@@ -85,11 +69,7 @@ public sealed class CrocomireEnemyState
     }
 
     /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>
-    public CrocomireFightFunction FightFunction
-    {
-        get => _fightFunction;
-        internal set => _fightFunction = value;
-    }
+    public CrocomireFightFunction FightFunction { get; internal set; }
 
     /// <summary>
     /// During combat: queued backward steps (and the unused attacks' move counts). Producers store an authored count of
@@ -166,12 +146,12 @@ public sealed class CrocomireEnemyState
         internal set => _projectileSubpixelOrSkeletonWholeWord = checked((ushort)value);
     }
 
-    /// <summary>In the unused claw attack: the fight function restored when the claws stop.</summary>
-    internal CrocomireFightFunction SavedFightFunction
-    {
-        get => _savedFightFunction;
-        set => _savedFightFunction = value;
-    }
+    /// <summary>
+    /// In the unused claw attack: the fight function restored when the claws stop. The cartridge parks it in the
+    /// projectile counter's word; only that unused attack writes or reads it, so the retail fight never observes the
+    /// overlap and it is kept apart.
+    /// </summary>
+    internal CrocomireFightFunction SavedFightFunction { get; set; }
 
     /// <summary>
     /// While the body sinks or rises: the 1/256-pixel vertical position carried between frames. The cartridge keeps it
@@ -211,11 +191,11 @@ public sealed class CrocomireEnemyState
     [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
-        _deathPhase = CrocomireDeathPhase.Fighting;
+        DeathSequenceIndex = CrocomireDeathPhase.Fighting;
         FightFlags = CrocomireFightFlags.None;
         _hitCount = 0;
-        _fightFunction = CrocomireFightFunction.ResetAnimation;
-        _savedFightFunction = CrocomireFightFunction.ResetAnimation;
+        FightFunction = CrocomireFightFunction.ResetAnimation;
+        SavedFightFunction = CrocomireFightFunction.ResetAnimation;
         _stepsDelayRumbleOrAccelerationWord = 0;
         _reactionSpeedOrSkeletonFractionWord = 0;
         _projectileSubpixelOrSkeletonWholeWord = 0;

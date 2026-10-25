@@ -254,6 +254,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
+            case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid fingernail function {state.Parts[nail.SlotIndex].Function} is not translated.");
@@ -399,6 +400,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
+            case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid lint slot {lint.SlotIndex} function {state.Parts[lint.SlotIndex].Function} " +

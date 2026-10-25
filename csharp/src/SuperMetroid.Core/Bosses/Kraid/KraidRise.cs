@@ -294,6 +294,7 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
+            case KraidAiFunction.None:
             default:
                 throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a growth function.");
         }
@@ -487,6 +488,7 @@ internal sealed class KraidRise
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:
+            case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");

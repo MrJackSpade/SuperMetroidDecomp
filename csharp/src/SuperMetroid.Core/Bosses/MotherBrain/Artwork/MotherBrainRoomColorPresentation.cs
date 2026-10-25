@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -169,49 +170,55 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Uses edited paint when present and rejects colors outside the room palette.</summary>
         public Bgr555 this[int color] => (uint)color < Length
             ? supplied is null ? Calculate(color) : supplied[color] : throw new ArgumentOutOfRangeException(nameof(color));
+        /// <summary>The paint-derived room colours, one per room colour index of both slices.</summary>
+        private static readonly ImmutableArray<Bgr555> StockColors = BuildStockColors();
+
+        /// <summary>The body's white, which every room colour past the accents repeats.</summary>
+        private static Bgr555 StockWhite =>
+            MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor);
+
+        /// <summary>Selects the paint-derived room colour; colours past the two slices repeat the stock white.</summary>
+        private static Bgr555 Calculate(int color) => color < StockColors.Length ? StockColors[color] : StockWhite;
+
         /// <summary>Builds room wall and shadow ramps plus the selected panel and lens accents.</summary>
-        private static Bgr555 Calculate(int color)
+        private static ImmutableArray<Bgr555> BuildStockColors()
         {
-            if (color < MotherBrainRoomColorDefinitions.RoomShadowFirst)
-                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight, MotherBrainFinalRoomPaintDefinitions.WallDark, color - MotherBrainRoomColorDefinitions.RoomWallFirst,
-                    MotherBrainRoomColorDefinitions.RoomWallCount - 1);
+            Bgr555[] stock = new Bgr555[2 * MotherBrainRoomColorDefinitions.SliceColors];
+            Array.Fill(stock, StockWhite);
+            for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomWallCount; step++)
+                stock[MotherBrainRoomColorDefinitions.RoomWallFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight,
+                    MotherBrainFinalRoomPaintDefinitions.WallDark, step, MotherBrainRoomColorDefinitions.RoomWallCount - 1);
             // Native shadow red is5,4,3,1: ceiling interpolation. Green7,5,4,2
             // and blue8,6,4,2 use nearest interpolation. This is an exact sequence
             // relationship, not a claim about a historical palette tool.
-            if (color < MotherBrainRoomColorDefinitions.RoomShadowFirst + MotherBrainRoomColorDefinitions.RoomShadowCount)
-                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, Bgr555.Black,
-                    MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1,
-                    MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor), color - MotherBrainRoomColorDefinitions.RoomShadowFirst,
-                    MotherBrainRoomColorDefinitions.RoomShadowCount - 1, ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
-            if (color <= MotherBrainRoomColorDefinitions.RoomOutlineColor)
-                return PanelColorAt(color);
-            if (color < MotherBrainRoomColorDefinitions.RoomDarkGrayColor)
-                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorDefinitions.RoomGrayFirst,
-                    MotherBrainRoomColorDefinitions.RoomGrayCount - 1);
-            // The accent colours past the gray ramp own individual paint; the rest are stock white.
-            return color switch
-            {
-                // Metal contour shadow is half the low gray surface intensity.
-                MotherBrainRoomColorDefinitions.RoomDarkGrayColor or MotherBrainRoomColorDefinitions.RoomRepeatedDarkGrayColor =>
-                    InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, Bgr555.Black, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor),
-                MotherBrainRoomColorDefinitions.RoomRedFirst => MotherBrainFinalRoomPaintDefinitions.RedLens,
-                MotherBrainRoomColorDefinitions.RoomRedFirst + 1 => new Bgr555(Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0),
-                MotherBrainRoomColorDefinitions.RoomBlueFirst => MotherBrainFinalRoomPaintDefinitions.BlueLens,
-                MotherBrainRoomColorDefinitions.RoomBlueFirst + 1 => new Bgr555(0, 0, Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop)),
-                MotherBrainRoomColorDefinitions.RoomGlowColor => MotherBrainFinalRoomPaintDefinitions.WarmAccent,
-                _ => MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor),
-            };
-        }
-
-        /// <summary>Selects authored amber and outline panel colors; other panel indexes are black.</summary>
-        private static Bgr555 PanelColorAt(int color)
-        {
-            return color switch
-            {
-                PanelAmberColor => MotherBrainFinalRoomPaintDefinitions.Amber,
-                MotherBrainRoomColorDefinitions.RoomOutlineColor => MotherBrainFinalRoomPaintDefinitions.PanelField,
-                _ => Bgr555.Black,
-            };
+            Bgr555 recessedShadow = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, Bgr555.Black,
+                MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1, MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor);
+            for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomShadowCount; step++)
+                stock[MotherBrainRoomColorDefinitions.RoomShadowFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight,
+                    recessedShadow, step, MotherBrainRoomColorDefinitions.RoomShadowCount - 1,
+                    ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
+            // The panel colours between the shadow ramp and the outline are black except the amber light.
+            for (int color = MotherBrainRoomColorDefinitions.RoomShadowFirst + MotherBrainRoomColorDefinitions.RoomShadowCount;
+                 color < MotherBrainRoomColorDefinitions.RoomOutlineColor; color++)
+                stock[color] = Bgr555.Black;
+            stock[PanelAmberColor] = MotherBrainFinalRoomPaintDefinitions.Amber;
+            stock[MotherBrainRoomColorDefinitions.RoomOutlineColor] = MotherBrainFinalRoomPaintDefinitions.PanelField;
+            for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomGrayCount; step++)
+                stock[MotherBrainRoomColorDefinitions.RoomGrayFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight,
+                    MotherBrainFinalRoomPaintDefinitions.MetalLow, step, MotherBrainRoomColorDefinitions.RoomGrayCount - 1);
+            // Metal contour shadow is half the low gray surface intensity.
+            Bgr555 contour = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, Bgr555.Black,
+                MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor);
+            stock[MotherBrainRoomColorDefinitions.RoomDarkGrayColor] = contour;
+            stock[MotherBrainRoomColorDefinitions.RoomRepeatedDarkGrayColor] = contour;
+            stock[MotherBrainRoomColorDefinitions.RoomRedFirst] = MotherBrainFinalRoomPaintDefinitions.RedLens;
+            stock[MotherBrainRoomColorDefinitions.RoomRedFirst + 1] = new Bgr555(
+                Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0);
+            stock[MotherBrainRoomColorDefinitions.RoomBlueFirst] = MotherBrainFinalRoomPaintDefinitions.BlueLens;
+            stock[MotherBrainRoomColorDefinitions.RoomBlueFirst + 1] = new Bgr555(0, 0,
+                Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop));
+            stock[MotherBrainRoomColorDefinitions.RoomGlowColor] = MotherBrainFinalRoomPaintDefinitions.WarmAccent;
+            return [.. stock];
         }
 
         /// <summary>The amber panel light between the shadow ramp and the gray ramp; its pixel role remains unresolved.</summary>

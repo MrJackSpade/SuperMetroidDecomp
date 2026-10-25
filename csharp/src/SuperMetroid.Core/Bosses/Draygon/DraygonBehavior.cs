@@ -165,6 +165,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonAiFunction.DyingFinish:
                 Death.SinkDraygonBelowTheRoom(state, frameCounterLow);
                 break;
+            case DraygonAiFunction.None:
             default:
                 throw new InvalidDataException(
                     $"Draygon body function {state.Function} is not translated.");

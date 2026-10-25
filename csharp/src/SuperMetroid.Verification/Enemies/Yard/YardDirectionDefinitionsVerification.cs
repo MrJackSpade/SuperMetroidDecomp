@@ -39,7 +39,7 @@ internal static class YardDirectionDefinitionsVerification
                 definition.OppositeDirection,
                 $"Yard direction {direction} opposite");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((movementAddress + direction * 2)),
-                (ushort)definition.MovementFunction,
+                YardNativeWords.YardMovementFunctions.Word(definition.MovementFunction),
                 $"Yard direction {direction} movement function");
         }
 

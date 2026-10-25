@@ -658,7 +658,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
-    internal void RegisterYardShotReactions(EnemySharedReactions table)
+    internal void AddYardShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Yard &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YardShot)
@@ -680,7 +680,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Yard's touch callback, including its facing-dependent shell response.</summary>
-    internal void RegisterYardTouch(EnemySharedReactions table)
+    internal void AddYardTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Yard &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YardTouch,

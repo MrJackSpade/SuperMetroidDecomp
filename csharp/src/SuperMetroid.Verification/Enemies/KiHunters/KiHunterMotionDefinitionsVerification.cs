@@ -16,8 +16,9 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(Word(0xa8f180), KiHunterMotionDefinitions.SwoopTriggerDistance, "Native KiHunter proximity");
         ushort low = Word(0xa8f182), high = Word(0xa8f184);
         byte radius = KiHunterMotionDefinitionsRomByte(rom, 0xa8f186);
-        AssertEqual(low, KiHunterMotionDefinitions.GravityFraction, "Native KiHunter fractional acceleration");
-        AssertEqual(high, KiHunterMotionDefinitions.GravityWhole, "Native KiHunter whole acceleration");
+        // #1412: the catalog states gravity as a 16.16 quantity; the cartridge's fraction and whole words are its halves.
+        AssertEqual(low, KiHunterMotionDefinitions.Gravity.Fraction, "Native KiHunter fractional acceleration");
+        AssertEqual(high, KiHunterMotionDefinitions.Gravity.WholeWord, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<int, QuadraticSpeedHalf, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);

@@ -2,8 +2,8 @@
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>Cartridge values and helpers of <see cref="ShaktoolRoomPlmRomData"/> that only verification reads.</summary>
-internal static class ShaktoolRoomPlmRomDataConstants
+/// <summary>Verification's native view of the Shaktool room controller PLM: its bank-$84 program and pre-instruction words.</summary>
+internal static class ShaktoolRoomPlmNativeProgram
 {
     /// <summary>$84:B8D6 installs the callback, then sleeps.</summary>
     public const ushort InstructionList = 0xb8d6;

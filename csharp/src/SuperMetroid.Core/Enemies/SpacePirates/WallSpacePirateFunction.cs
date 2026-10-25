@@ -1,23 +1,26 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>Literal bank-$B2 function pointers stored in wall Pirate variable A.</summary>
+/// <summary>
+/// The routine a wall Space Pirate's main AI runs.
+/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// </summary>
 public enum WallSpacePirateFunction : ushort
 {
     /// <summary>Watch Samus while continuing the left-wall climbing animation.</summary>
-    ClimbingLeftWall = 0xf034,
+    ClimbingLeftWall = 1,
 
     /// <summary>The attack list owns presentation until it prepares a rightward jump.</summary>
-    AttackAnimationOnLeftWall = 0xf04f,
+    AttackAnimationOnLeftWall,
 
     /// <summary>Follow the cartridge's sine/cosine arc from the left wall to the right.</summary>
-    WallJumpingRight = 0xf050,
+    WallJumpingRight,
 
     /// <summary>Watch Samus while continuing the right-wall climbing animation.</summary>
-    ClimbingRightWall = 0xf0c8,
+    ClimbingRightWall,
 
     /// <summary>The attack list owns presentation until it prepares a leftward jump.</summary>
-    AttackAnimationOnRightWall = 0xf0e3,
+    AttackAnimationOnRightWall,
 
     /// <summary>Follow the cartridge's sine/cosine arc from the right wall to the left.</summary>
-    WallJumpingLeft = 0xf0e4,
+    WallJumpingLeft,
 }

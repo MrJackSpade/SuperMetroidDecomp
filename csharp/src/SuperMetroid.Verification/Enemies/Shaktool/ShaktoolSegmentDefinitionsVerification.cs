@@ -97,7 +97,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => definition.OwnerNativeOffset, "owner offset"));
+            definition => checked((ushort)(definition.OwnerSlotDistance * EnemySlotTable.NativeSlotSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
@@ -112,7 +112,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the initial per-segment pre-instruction callback selection.</summary>
     private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
-            definition => (ushort)definition.PreInstruction, "callback selection"));
+            definition => ShaktoolNativeWords.ShaktoolPreInstructions.Word(definition.PreInstruction), "callback selection"));
 
     /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool definition field")]

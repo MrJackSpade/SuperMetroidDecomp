@@ -8,16 +8,16 @@ internal static class RidleyBodyFrameDefinitions
     /// <summary>The installed frame each <see cref="RidleyCollisionDefinitions.BodyFrame"/> shows.</summary>
     internal static EnemyFrameTable<RidleyCollisionDefinitions.BodyFrame> ShownFrames { get; } = new()
     {
-        { RidleyCollisionDefinitions.BodyFrame.Forward, EnemyFrameId.RidleyBodyEAD7 },
-        { RidleyCollisionDefinitions.BodyFrame.Left, EnemyFrameId.RidleyBodyE983 },
-        { RidleyCollisionDefinitions.BodyFrame.LeftLegsExtended, EnemyFrameId.RidleyBodyEA71 },
-        { RidleyCollisionDefinitions.BodyFrame.LeftLegsHalfExtended, EnemyFrameId.RidleyBodyEA4F },
-        { RidleyCollisionDefinitions.BodyFrame.LeftMouthHalfOpen, EnemyFrameId.RidleyBodyE9C7 },
-        { RidleyCollisionDefinitions.BodyFrame.LeftMouthOpen, EnemyFrameId.RidleyBodyE9E9 },
-        { RidleyCollisionDefinitions.BodyFrame.Right, EnemyFrameId.RidleyBodyE9A5 },
-        { RidleyCollisionDefinitions.BodyFrame.RightLegsExtended, EnemyFrameId.RidleyBodyEAB5 },
-        { RidleyCollisionDefinitions.BodyFrame.RightLegsHalfExtended, EnemyFrameId.RidleyBodyEA93 },
-        { RidleyCollisionDefinitions.BodyFrame.RightMouthHalfOpen, EnemyFrameId.RidleyBodyEA0B },
-        { RidleyCollisionDefinitions.BodyFrame.RightMouthOpen, EnemyFrameId.RidleyBodyEA2D },
+        { RidleyCollisionDefinitions.BodyFrame.Forward, EnemyFrameId.RidleyBodyForward },
+        { RidleyCollisionDefinitions.BodyFrame.Left, EnemyFrameId.RidleyBodyLeft },
+        { RidleyCollisionDefinitions.BodyFrame.LeftLegsExtended, EnemyFrameId.RidleyBodyLeftLegsExtended },
+        { RidleyCollisionDefinitions.BodyFrame.LeftLegsHalfExtended, EnemyFrameId.RidleyBodyLeftLegsHalfExtended },
+        { RidleyCollisionDefinitions.BodyFrame.LeftMouthHalfOpen, EnemyFrameId.RidleyBodyLeftMouthHalfOpen },
+        { RidleyCollisionDefinitions.BodyFrame.LeftMouthOpen, EnemyFrameId.RidleyBodyLeftMouthOpen },
+        { RidleyCollisionDefinitions.BodyFrame.Right, EnemyFrameId.RidleyBodyRight },
+        { RidleyCollisionDefinitions.BodyFrame.RightLegsExtended, EnemyFrameId.RidleyBodyRightLegsExtended },
+        { RidleyCollisionDefinitions.BodyFrame.RightLegsHalfExtended, EnemyFrameId.RidleyBodyRightLegsHalfExtended },
+        { RidleyCollisionDefinitions.BodyFrame.RightMouthHalfOpen, EnemyFrameId.RidleyBodyRightMouthHalfOpen },
+        { RidleyCollisionDefinitions.BodyFrame.RightMouthOpen, EnemyFrameId.RidleyBodyRightMouthOpen },
     };
 }

@@ -28,7 +28,7 @@ public static class WorkRobotPaletteCycleFile
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
-            if (source is null || source.Length != WorkRobotPaletteRomData.ColorCount)
+            if (source is null || source.Length != WorkRobotPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Work Robot palette frame {frame} requires four RGB5 colors.");
             compiled[frame] = new Bgr555[source.Length];
             for (int color = 0; color < source.Length; color++)

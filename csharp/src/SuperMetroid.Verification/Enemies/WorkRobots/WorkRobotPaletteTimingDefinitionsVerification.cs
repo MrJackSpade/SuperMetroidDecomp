@@ -67,7 +67,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         WorkRobotPaletteCycle stock = WorkRobotPaletteCycleFile.Read(
             new MemoryStream(extracted, writable: false));
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
-        for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
         {
             int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
@@ -120,7 +120,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                         WorkRobotPaletteTimingDefinitions.RecordByteCount))),
                 enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer.RawValue,
                 $"production Work Robot palette load {nextLoad} timer");
-            for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+            for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
             {
                 AssertEqual(edited.Resolve(record, color), cgram.Colors[137 + color],
                     $"production Work Robot palette load {nextLoad} color {color}");
@@ -156,7 +156,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                     colorRelative < WorkRobotPaletteTimingDefinitions.RecordCount *
                         WorkRobotPaletteTimingDefinitions.RecordByteCount &&
                     colorRelative % WorkRobotPaletteTimingDefinitions.RecordByteCount <
-                        WorkRobotPaletteRomData.ColorCount * sizeof(ushort);
+                        WorkRobotPaletteDefinitions.ColorCount * sizeof(ushort);
                 return timerByte || terminatorByte || colorByte;
             },
             address => $"Work Robot palette handler attempted control read ${address:X6}.");

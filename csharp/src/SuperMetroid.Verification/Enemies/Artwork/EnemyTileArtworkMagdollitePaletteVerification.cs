@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -29,12 +30,12 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     {
         MagdollitePaletteCycle native = stock.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");
-        for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
-        for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
+        for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
+        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
         {
-            int address = MagdollitePaletteRomData.Source +
-                (frame * MagdollitePaletteRomData.SourceColorsPerFrame +
-                 MagdollitePaletteRomData.FirstAnimatedColor + color) * sizeof(ushort);
+            int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
+                (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
+                 MagdollitePaletteDefinitions.FirstAnimatedColor + color) * sizeof(ushort);
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
                 native.Resolve(frame, color),
                 $"Magdollite palette frame {frame} color {color} preserves native RGB5");
@@ -64,8 +65,8 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
                 .Enemies.MagdollitePaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MagdollitePaletteCycle.")).Resolve(1, 0),
             "Magdollite color override persists across catalog reload");
-        for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
-        for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
+        for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
+        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
             if (frame != 1 || color != 0)
                 AssertEqual(native.Resolve(frame, color), cycle.Resolve(frame, color),
                     $"Magdollite color edit leaves frame {frame} color {color} unchanged");
@@ -80,26 +81,26 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
         enemies.MagdolliteBehavior.MagdolliteColourSet = 0;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
-        const int destination = 0x80 + MagdollitePaletteRomData.FirstAnimatedColor;
+        const int destination = 0x80 + MagdollitePaletteDefinitions.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
         int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {
             Bgr555[] before = cgram.Colors.Slice(destination,
-                MagdollitePaletteRomData.AnimatedColorCount).ToArray();
+                MagdollitePaletteDefinitions.AnimatedColorCount).ToArray();
             step();
-            int frame = (tick + 1) / 8 & (MagdollitePaletteRomData.FrameCount - 1);
+            int frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);
             if ((tick + 1) % 8 != 0)
             {
                 AssertTrue(before.SequenceEqual(cgram.Colors.Slice(destination,
-                        MagdollitePaletteRomData.AnimatedColorCount)),
+                        MagdollitePaletteDefinitions.AnimatedColorCount)),
                     $"Magdollite colors do not change before tick {tick + 1} reaches the hook boundary");
             }
             else
             {
-                frame = (tick + 1) / 8 & (MagdollitePaletteRomData.FrameCount - 1);
-                for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
+                frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);
+                for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
                     AssertEqual(cycle.Resolve(frame, color), cgram.Colors[destination + color],
                         $"Magdollite draw-hook tick {tick + 1} color {color}");
             }

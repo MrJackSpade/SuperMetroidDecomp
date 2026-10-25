@@ -151,7 +151,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
         slot.Health = short.MaxValue;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
-        DeadTorizoBehavior.MoveBankA9EnemyWithVelocity(slot, state.Velocity);
+        DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)
             StepShitroidNormalPalette(state);
     }

@@ -12,6 +12,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -29,11 +30,11 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
     {
         ChozoAndTubeColorCatalog native = stock.ChozoAndTubeColors ??
             throw new InvalidDataException("Installed enemy art has no Chozo/tube colors.");
-        Suite(nameof(VerifyBand), () => VerifyBand(ChozoAndTubeColorRomData.TubeCracksSource,
+        Suite(nameof(VerifyBand), () => VerifyBand(EnemySpeciesSourceDefinitions.ChozoAndTube.TubeCracksColors,
             native.ResolveTubeCracks, "tube cracks"));
-        Suite(nameof(VerifyBand), () => VerifyBand(ChozoAndTubeColorRomData.WreckedShipSource,
+        Suite(nameof(VerifyBand), () => VerifyBand(EnemySpeciesSourceDefinitions.ChozoAndTube.WreckedShipColors,
             native.ResolveWreckedShip, "Wrecked Ship Chozo"));
-        Suite(nameof(VerifyBand), () => VerifyBand(ChozoAndTubeColorRomData.LowerNorfairSource,
+        Suite(nameof(VerifyBand), () => VerifyBand(EnemySpeciesSourceDefinitions.ChozoAndTube.LowerNorfairColors,
             native.ResolveLowerNorfair, "Lower Norfair Chozo"));
 
         string file = Path.Combine(stockDirectory, ChozoAndTubeColorFormat.FileName);
@@ -96,7 +97,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
         void VerifyBand(int source, Func<int, Bgr555> resolve, string name)
         {
-            for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed {name} color {color} preserves native RGB5");
@@ -111,9 +112,9 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(variant);
             initialize(enemies, statue);
-            for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
                 AssertEqual(resolve(color),
-                    cgram.Colors[ChozoAndTubeColorRomDataConstants.Destination + color],
+                    cgram.Colors[ChozoAndTubeColorTransfer.Destination + color],
                     $"live {name} CGRAM color {color}");
             if (expectedProgram is not null)
             {
@@ -136,7 +137,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         {
             AssertTrue(original(5) != changed(5),
                 $"{name} edit changes selected RGB5 word");
-            for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
                 if (color != 5)
                     AssertEqual(original(color), changed(color),
                         $"{name} edit leaves color {color} unchanged");
@@ -146,6 +147,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
     /// <summary>Rejects reads of the migrated palette region during enemy initialization.</summary>
     private static CartridgeReadGuard NewChozoAndTubePaletteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address is >= ChozoAndTubeColorRomData.TubeCracksSource and < (ChozoAndTubeColorRomData.LowerNorfairSource + ChozoAndTubeColorRomData.ColorCount * sizeof(ushort)),
+            .Forbid(address => address is >= EnemySpeciesSourceDefinitions.ChozoAndTube.TubeCracksColors and < (EnemySpeciesSourceDefinitions.ChozoAndTube.LowerNorfairColors + ChozoAndTubeColorDefinitions.ColorCount * sizeof(ushort)),
                 address => $"Chozo/tube accessed migrated palette ROM ${address:X6}.");
 }

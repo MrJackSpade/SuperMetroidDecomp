@@ -437,7 +437,7 @@ internal sealed class ProjectileTerrainCollision
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each bank-$84 setup sees the current native projectile type during Spawn_PLM.
         bool translatedBehavior = block.Bts.IsAreaReactionIndex(8) ||
-            block.Bts.Value == EscapeAnimalPlmRomData.ReactionBts ||
+            block.Bts.Value == EscapeAnimalWallDefinitions.ReactionBts ||
             block.Bts.IsNormalReactionIndex(16) ||
             block.Bts.IsShootableCollisionProbe;
         if (translatedBehavior)

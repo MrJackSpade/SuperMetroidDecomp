@@ -146,7 +146,7 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>
-    internal void RegisterFallingSparksProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddFallingSparksProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {

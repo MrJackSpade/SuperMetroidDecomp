@@ -568,7 +568,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    internal static void RegisterBeetomBombReactions(EnemySharedReactions table)
+    internal static void AddBeetomBombReactions(EnemySharedReactions table)
     {
         // Common damage can clear a lethally hit slot before this private tail runs. Bank $A8 still clears Beetom's
         // separate attached flag after returning from common shot AI, so the identity is matched before dispatch.
@@ -599,7 +599,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyBeetomCue(slot, cue));
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
-    internal static void RegisterBeetomShotReactions(EnemySharedReactions table)
+    internal static void AddBeetomShotReactions(EnemySharedReactions table)
     {
         // Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
         // vulnerability results.
@@ -611,7 +611,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact callback.</summary>
-    internal void RegisterBeetomTouch(EnemySharedReactions table)
+    internal void AddBeetomTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Beetom &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BeetomTouch,

@@ -113,7 +113,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter bit 15 selects the permanently ground-bound form used by two red
         // Ki-Hunters. Its following wing record starts deleted and the body skips every
         // later detachment side effect.
-        if ((body.Spawn.Population.Parameter1 & KiHunterMotionDefinitions.WinglessParameterBit) != 0)
+        if ((body.Spawn.Population.Parameter1 >> KiHunterMotionDefinitions.WinglessParameterBit & 1) != 0)
         {
             state.HasLostWings = true;
             state.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
@@ -133,7 +133,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = KiHunterEnemyFunction.FollowBody;
         wings.PaletteIndex = body.PaletteIndex;
         wings.VramTilesIndex = body.VramTilesIndex;
-        if ((body.Spawn.Population.Parameter1 & KiHunterMotionDefinitions.WinglessParameterBit) != 0)
+        if ((body.Spawn.Population.Parameter1 >> KiHunterMotionDefinitions.WinglessParameterBit & 1) != 0)
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
     }
 
@@ -248,9 +248,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (swoopLeft)
         {
             state.MaximumAngularVelocity = -2;
-            state.AngularAcceleration = SnesSignedSixteenSixteen.FromParts(
-                unchecked((short)KiHunterMotionDefinitions.LeftSwoopAccelerationWhole),
-                KiHunterMotionDefinitions.LeftSwoopAccelerationFraction);
+            state.AngularAcceleration = KiHunterMotionDefinitions.LeftSwoopAcceleration;
             state.SwoopAngle = 255;
             state.AnimationChangeAngle = 240;
             state.Velocity = state.Velocity.WithWholeX(-1);
@@ -258,8 +256,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             state.MaximumAngularVelocity = 2;
-            state.AngularAcceleration = SnesSignedSixteenSixteen.FromParts(
-                0, KiHunterMotionDefinitions.RightSwoopAccelerationFraction);
+            state.AngularAcceleration = KiHunterMotionDefinitions.RightSwoopAcceleration;
             state.SwoopAngle = SnesAngle.HalfTurn.TableIndex;
             state.AnimationChangeAngle = 144;
             state.Velocity = state.Velocity.WithWholeX(1);
@@ -494,7 +491,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Detached Ki-Hunter wing function $A8:{(ushort)state.WingFunction:X4} is not translated.");
+                    $"Detached Ki-Hunter wing function {state.WingFunction} is not translated.");
         }
     }
 
@@ -812,9 +809,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The <c>$0000:E000</c> 16.16 downward acceleration added to a falling or hopping body each frame.</summary>
-    internal static SnesSignedSixteenSixteen KiHunterGravity => SnesSignedSixteenSixteen.FromParts(
-        unchecked((short)KiHunterMotionDefinitions.GravityWhole),
-        KiHunterMotionDefinitions.GravityFraction);
+    internal static SnesSignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
 
     /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
     private static void RequireKiHunterWorld(
@@ -843,7 +838,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
-    internal void RegisterKiHunterBombReactions(EnemySharedReactions table)
+    internal void AddKiHunterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.DefinitionId) &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KiHunterShot)
@@ -853,7 +848,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects acid spit startup and gravity movement to bank-$86 pre-instructions.</summary>
-    internal static void RegisterKiHunterProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -884,7 +879,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyKiHunterCue(slot, cue));
 
     /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
-    internal void RegisterKiHunterPowerBombReactions(EnemySharedReactions table)
+    internal void AddKiHunterPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.KiHunterShot)
@@ -894,7 +889,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
-    internal void RegisterKiHunterShotReactions(EnemySharedReactions table)
+    internal void AddKiHunterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KiHunterShot)

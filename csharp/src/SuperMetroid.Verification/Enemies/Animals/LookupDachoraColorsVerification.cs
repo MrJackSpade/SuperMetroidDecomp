@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
 
@@ -22,9 +23,9 @@ internal static class LookupDachoraColorsVerification
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupDachoraColorsRomByte(rom, address), LookupDachoraColorsRomByte(rom, address + 1));
         ushort[] Row(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
-        ushort[] normal = Row(DachoraColorRomData.DefaultSource);
-        ushort[][] speed = Enumerable.Range(0, 4).Select(frame => Row(DachoraColorRomData.SpeedSource + frame * 32)).ToArray();
-        ushort[][] shine = Enumerable.Range(0, 4).Select(frame => Row(DachoraColorRomData.ShineSource + frame * 32)).ToArray();
+        ushort[] normal = Row(EnemySpeciesSourceDefinitions.Dachora.DefaultColors);
+        ushort[][] speed = Enumerable.Range(0, 4).Select(frame => Row(EnemySpeciesSourceDefinitions.Dachora.SpeedColors + frame * EnemySpeciesSourceDefinitions.Dachora.ImageBytes)).ToArray();
+        ushort[][] shine = Enumerable.Range(0, 4).Select(frame => Row(EnemySpeciesSourceDefinitions.Dachora.ShineColors + frame * EnemySpeciesSourceDefinitions.Dachora.ImageBytes)).ToArray();
 
         byte[] source = DachoraColorExtractor.Extract(rom);
         var stock = DachoraColorFile.Read(new MemoryStream(source));

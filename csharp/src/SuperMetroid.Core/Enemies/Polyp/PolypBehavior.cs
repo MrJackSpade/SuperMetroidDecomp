@@ -123,7 +123,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
-    internal static void RegisterPolypProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddPolypProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -190,7 +190,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Polyp rock function $86:{projectile.Variable0:X4} is not translated.");
+                    $"Polyp rock function {projectile.Variable0} is not translated.");
         }
 
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);

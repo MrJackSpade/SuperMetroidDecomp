@@ -28,11 +28,11 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Zoa's animation: each selects the horizontal shot speed.</summary>
     private static ZoaProgram? ApplyZoaCue(ZoaEnemyState state, ZoaCue cue)
     {
-        state.XSpeedTableIndex = cue.Kind switch
+        state.ShotSpeedStage = cue.Kind switch
         {
-            ZoaCueKind.SetSpeedIndex4 => 4,
-            ZoaCueKind.SetSpeedIndex8 => 8,
-            ZoaCueKind.SetSpeedIndex12 => 12,
+            ZoaCueKind.SetSpeedStage1 => 1,
+            ZoaCueKind.SetSpeedStage2 => 2,
+            ZoaCueKind.SetSpeedStage3 => 3,
             _ => throw new InvalidOperationException($"Undefined {nameof(ZoaCueKind)} {cue.Kind}."),
         };
         return null;
@@ -40,6 +40,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
     private const int ZoaActivationColumnDistance = 128;
+    /// <summary>An eighth of a pixel, in the 16.16 units a displacement is added in.</summary>
+    private const int EighthPixel = 8192;
     /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
     private const int ZoaRisingSubpixelSpeed = 32768;
 
@@ -51,7 +53,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = ZoaEnemyFunction.WaitForSamus,
             InstructionListTableIndex = ZoaAnimationSelector.None,
             PreviousInstructionListTableIndex = ZoaAnimationSelector.None,
-            XSpeedTableIndex = 0,
+            ShotSpeedStage = 0,
             SpawnPosition = slot.Position.Whole,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -138,7 +140,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         Position16<RoomPixels> camera)
     {
-        int unsignedDisplacement = ZoaSpeedDefinitions.Displacement(state.XSpeedTableIndex);
+        int unsignedDisplacement = ZoaSpeedDefinitions.StageSpeedEighths[state.ShotSpeedStage] * EighthPixel;
 
         // Shooting list zero travels left by subtraction; list two travels right by
         // addition. The instruction bytecode changes speed at 64-, 8-, and 48-frame marks.

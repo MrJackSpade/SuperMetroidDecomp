@@ -194,7 +194,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects the fireball's horizontal motion and viewport cull pre-instruction.</summary>
-    internal static void RegisterStokeProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddStokeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -249,7 +249,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,
             StokeProjectileFunction.MoveRight => projectile.Velocity.X.RawValue,
             _ => throw new InvalidDataException(
-                $"Stoke projectile movement pointer $86:{projectile.Variable0:X4} is not translated."),
+                $"Stoke projectile movement function {projectile.Variable0} is not translated."),
         };
 
         projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(horizontalVelocity).ToSixteenSixteenDelta());

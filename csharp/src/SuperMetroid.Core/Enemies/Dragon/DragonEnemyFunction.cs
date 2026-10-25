@@ -1,26 +1,26 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// Native bank-$A2 function pointer stored in Dragon variable F. Exposing the cartridge
-/// addresses keeps debugger state comparable with WRAM while giving callers readable states.
+/// The routine Dragon's main AI runs each frame.
+/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
 public enum DragonEnemyFunction : ushort
 {
     /// <summary><c>$A2:E654</c>: waits below the lava, then selects facing and begins the 48-update rise.</summary>
-    WaitToRise = 0xe654,
+    WaitToRise = 1,
 
     /// <summary><c>$A2:E6AD</c>: moves the body and cosmetic wing upward one pixel per update.</summary>
-    Rising = 0xe6ad,
+    Rising,
 
     /// <summary><c>$A2:E6F1</c>: waits for each attack animation and emits the three-fireball volley.</summary>
-    Attacking = 0xe6f1,
+    Attacking,
 
     /// <summary><c>$A2:E734</c>: holds the exposed idle pose for 96 updates before sinking.</summary>
-    WaitToSink = 0xe734,
+    WaitToSink,
 
     /// <summary><c>$A2:E749</c>: moves the body and wing downward before restoring the hidden wait.</summary>
-    Sinking = 0xe749,
+    Sinking,
 
     /// <summary><c>$A2:E781</c>: no-op function used by the cosmetic wing's separate physical enemy record.</summary>
-    WingNoOp = 0xe781,
+    WingNoOp,
 }

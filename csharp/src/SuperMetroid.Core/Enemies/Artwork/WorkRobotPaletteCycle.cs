@@ -13,7 +13,7 @@ public sealed class WorkRobotPaletteCycle
     public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
         {
             content.Append("frames", WorkRobotPaletteTimingDefinitions.RecordCount);
-            Span<Bgr555> row = stackalloc Bgr555[WorkRobotPaletteRomData.ColorCount];
+            Span<Bgr555> row = stackalloc Bgr555[WorkRobotPaletteDefinitions.ColorCount];
             for (int frame = 0; frame < WorkRobotPaletteTimingDefinitions.RecordCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++)
@@ -59,7 +59,7 @@ public sealed class WorkRobotPaletteCycle
     {
         if ((uint)frame >= WorkRobotPaletteTimingDefinitions.RecordCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= WorkRobotPaletteRomData.ColorCount)
+        if ((uint)color >= WorkRobotPaletteDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return frames is null ? StockColor(frame, color) : frames[frame][color];
     }
@@ -70,8 +70,8 @@ public sealed class WorkRobotPaletteCycle
     /// <exception cref="ArgumentException">The run is not four colours.</exception>
     public void ApplyFrame(ColourRun animated, int frame)
     {
-        Ensure.LengthEqual(animated.Colors, WorkRobotPaletteRomData.ColorCount);
-        for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+        Ensure.LengthEqual(animated.Colors, WorkRobotPaletteDefinitions.ColorCount);
+        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
             animated.Write(color, Resolve(frame, color));
     }
 }

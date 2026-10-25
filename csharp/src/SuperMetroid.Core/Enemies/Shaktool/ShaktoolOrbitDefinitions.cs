@@ -9,15 +9,15 @@ internal static class ShaktoolOrbitDefinitions
     /// <summary>Rounds a midpoint's table angle to one of eight direction buckets.</summary>
     internal const int DirectionBucketMask = 0x00e0;
 
-    /// <summary>The orientation word installed when the centre reaches its target angle.</summary>
-    internal const ushort StraighteningStart = 0x7800;
+    /// <summary>The curl progress installed when the centre reaches its target angle: 120 angle-table steps.</summary>
+    internal const ushort StraighteningStart = 120 * TableStep;
 
-    /// <summary>Once the orientation word reaches this, the chain starts straightening.</summary>
-    internal const ushort StraighteningThreshold = 0xf000;
+    /// <summary>Once the curl progress reaches 240 angle-table steps, the chain starts straightening.</summary>
+    internal const ushort StraighteningThreshold = 240 * TableStep;
 
-    /// <summary>The motion flags a second reversal keeps: it clears the reversed-once, straightening and bit-12 flags.</summary>
-    internal const ShaktoolMotionFlags SecondReversalKeptFlags = (ShaktoolMotionFlags)0x8fff;
+    /// <summary>The subpixels in one pixel.</summary>
+    private const int SubpixelsPerPixel = 65536;
 
     /// <summary>The fraction middle segments reset to on an endpoint swap: half a pixel.</summary>
-    internal const ushort SwapFraction = 0x8000;
+    internal const ushort SwapFraction = SubpixelsPerPixel / 2;
 }

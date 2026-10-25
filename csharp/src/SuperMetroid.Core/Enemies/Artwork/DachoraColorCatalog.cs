@@ -28,8 +28,8 @@ public sealed class DachoraColorCatalog
     internal DachoraColorCatalog(Bgr555[] normal, Bgr555[][] speed, Bgr555[][] shine)
     {
         this.normal = normal;
-        for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
-        for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
+        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
+        for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
         {
             var key = new ColourCell(frame, color);
             if (speed[frame][color] != SpeedColor(frame, color)) speedEdits.Add(key, speed[frame][color]);
@@ -51,7 +51,7 @@ public sealed class DachoraColorCatalog
         if (color == 0) return frame == 0 ? SpeedFlashBackdrop : basis;
         int blue = basis.Blue;
         int target = Math.Min(blue + 16, 31);
-        int steps = DachoraColorRomData.AnimatedFrameCount - 1;
+        int steps = DachoraColorDefinitions.AnimatedFrameCount - 1;
         int shifted = blue + ((target - blue) * frame + steps / 2) / steps;
         return basis.WithBlue(shifted);
     }
@@ -69,8 +69,8 @@ public sealed class DachoraColorCatalog
 
     /// <summary>Materializes four selected animated frames for stable content hashing.</summary>
     private Bgr555[][] Frames(DachoraPalettePhase phase) =>
-        Enumerable.Range(0, DachoraColorRomData.AnimatedFrameCount)
-            .Select(frame => Enumerable.Range(0, DachoraColorRomData.ColorsPerFrame)
+        Enumerable.Range(0, DachoraColorDefinitions.AnimatedFrameCount)
+            .Select(frame => Enumerable.Range(0, DachoraColorDefinitions.ColorsPerFrame)
                 .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
 
     /// <summary>Resolves one selected Dachora color, using the normal palette as a calculated animated basis while preserving every supplied speed/shine deviation.</summary>
@@ -83,9 +83,9 @@ public sealed class DachoraColorCatalog
     {
         bool animated = phase is DachoraPalettePhase.Speed or DachoraPalettePhase.Shine;
         if (!(phase == DachoraPalettePhase.Default && frame == 0) &&
-            !(animated && (uint)frame < DachoraColorRomData.AnimatedFrameCount))
+            !(animated && (uint)frame < DachoraColorDefinitions.AnimatedFrameCount))
             throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}.");
-        if ((uint)color >= DachoraColorRomData.ColorsPerFrame)
+        if ((uint)color >= DachoraColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new ColourCell(frame, color);
         return phase switch

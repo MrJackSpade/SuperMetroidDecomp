@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -23,25 +24,25 @@ public static class DachoraColorExtractor
         return DachoraColorFile.Write(new DachoraColorDocument
         {
             Version = DachoraColorFormat.Version,
-            Normal = Read(DachoraColorRomData.DefaultSource),
-            Speed = ReadFrames(DachoraColorRomData.SpeedSource),
-            Shine = ReadFrames(DachoraColorRomData.ShineSource),
+            Normal = Read(EnemySpeciesSourceDefinitions.Dachora.DefaultColors),
+            Speed = ReadFrames(EnemySpeciesSourceDefinitions.Dachora.SpeedColors),
+            Shine = ReadFrames(EnemySpeciesSourceDefinitions.Dachora.ShineColors),
         });
 
         PaletteRgb5[][] ReadFrames(int source)
         {
-            var frames = new PaletteRgb5[DachoraColorRomData.AnimatedFrameCount][];
+            var frames = new PaletteRgb5[DachoraColorDefinitions.AnimatedFrameCount][];
             for (int frame = 0; frame < frames.Length; frame++)
-                frames[frame] = Read(source + frame * DachoraColorRomData.FrameByteCount);
+                frames[frame] = Read(source + frame * EnemySpeciesSourceDefinitions.Dachora.ImageBytes);
             return frames;
         }
 
         PaletteRgb5[] Read(int source)
         {
-            var colors = new PaletteRgb5[DachoraColorRomData.ColorsPerFrame];
+            var colors = new PaletteRgb5[DachoraColorDefinitions.ColorsPerFrame];
             for (int color = 0; color < colors.Length; color++)
             {
-                int address = source + color * sizeof(ushort);
+                int address = source + color * EnemySpeciesSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(

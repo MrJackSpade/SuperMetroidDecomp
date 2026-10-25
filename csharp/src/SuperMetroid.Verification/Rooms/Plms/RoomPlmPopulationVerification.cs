@@ -1035,8 +1035,8 @@ internal static class RoomPlmPopulationVerification
             : null;
         for (int index = 0; index < 3; index++)
         {
-            ushort address = checked((ushort)(ShaktoolRoomPlmRomDataConstants.InstructionList + index * 2));
-            AssertTrue(ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(address, out ushort compiled),
+            ushort address = checked((ushort)(ShaktoolRoomPlmNativeProgram.InstructionList + index * 2));
+            AssertTrue(ShaktoolRoomPlmNativeProgram.TryReadInstructionWord(address, out ushort compiled),
                 $"Shaktool room list word ${address:X4} is compiled");
             if (rom is not null)
             {
@@ -1047,8 +1047,8 @@ internal static class RoomPlmPopulationVerification
             }
             SeedPlmProgramWords(bus, address, 0xdead);
         }
-        AssertTrue(!ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(
-                checked(ShaktoolRoomPlmRomDataConstants.InstructionList + 6), out _),
+        AssertTrue(!ShaktoolRoomPlmNativeProgram.TryReadInstructionWord(
+                checked(ShaktoolRoomPlmNativeProgram.InstructionList + 6), out _),
             "Shaktool room list owner excludes adjacent setup code");
 
         const ushort emptyPopulation = 0x9780;
@@ -1071,19 +1071,19 @@ internal static class RoomPlmPopulationVerification
 
         plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
-        AssertEqual(ShaktoolRoomPlmRomDataConstants.PreInstruction, sleeping.PreInstruction,
+        AssertEqual(ShaktoolRoomPlmNativeProgram.PreInstruction, sleeping.PreInstruction,
             "compiled list installs Shaktool room pre-instruction");
         AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.ShaktoolRoomController), sleeping),
             "the controller runs its typed program, resting on its closing sleep");
 
         plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionStatus = 1 });
-        for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
+        for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             AssertEqual(RoomScrollState.Blue, scrolls.ReadState(cell),
                 $"Shaktool power bomb opens scroll cell {cell}");
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");
 
-        samus.Position = samus.Position.WithWholeX(checked(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1));
+        samus.Position = samus.Position.WithWholeX(checked(ShaktoolRoomDefinitions.ClearedPathXBoundary + 1));
         plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         AssertTrue(system.HasEvent(EventNumber.ShaktoolClearedPath),
             "Shaktool path event follows the native X threshold");

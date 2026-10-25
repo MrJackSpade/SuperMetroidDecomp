@@ -11,9 +11,6 @@ internal static class SparkMovementDefinitions
     /// </summary>
     internal const ushort StackPagePropertyOverlay = 0x0000;
 
-    /// <summary>$A8:E68E, the first two bytes of MainAI_Spark's LDX $0E54, observed past the three function entries.</summary>
-    private const SparkEnemyFunction AdjacentFunctionWord = (SparkEnemyFunction)0x54ae;
-
     /// <summary>
     /// $A8:E682/$A8:E688: the three authored list/function pairs plus selector
     /// three's native adjacent-word observations. Its instruction-list lookup
@@ -26,6 +23,6 @@ internal static class SparkMovementDefinitions
             0 => new(SparkProgram.Active, SparkEnemyFunction.AlwaysActive),
             1 => new(SparkProgram.Active, SparkEnemyFunction.IntermittentActive),
             2 => new(SparkProgram.Emitter, SparkEnemyFunction.EmitFallingSparks),
-            _ => new(null, AdjacentFunctionWord),
+            _ => new(null, SparkEnemyFunction.AdjacentCode),
         };
 }

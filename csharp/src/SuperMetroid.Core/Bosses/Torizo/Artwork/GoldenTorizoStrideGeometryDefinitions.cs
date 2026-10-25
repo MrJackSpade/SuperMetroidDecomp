@@ -13,10 +13,10 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     /// <summary>The ten four-component left-walking extended frames, one per walking phase.</summary>
     internal static ImmutableArray<EnemyFrameId> WalkingFrames { get; } =
     [
-        EnemyFrameId.GoldenTorizoWalkLeftA4FA, EnemyFrameId.GoldenTorizoWalkLeftA51C, EnemyFrameId.GoldenTorizoWalkLeftA53E,
-        EnemyFrameId.GoldenTorizoWalkLeftA560, EnemyFrameId.GoldenTorizoWalkLeftA582, EnemyFrameId.GoldenTorizoWalkLeftA5A4,
-        EnemyFrameId.GoldenTorizoWalkLeftA5C6, EnemyFrameId.GoldenTorizoWalkLeftA5E8, EnemyFrameId.GoldenTorizoWalkLeftA60A,
-        EnemyFrameId.GoldenTorizoWalkLeftA62C,
+        EnemyFrameId.GoldenTorizoWalkLeft0, EnemyFrameId.GoldenTorizoWalkLeft1, EnemyFrameId.GoldenTorizoWalkLeft2,
+        EnemyFrameId.GoldenTorizoWalkLeft3, EnemyFrameId.GoldenTorizoWalkLeft4, EnemyFrameId.GoldenTorizoWalkLeft5,
+        EnemyFrameId.GoldenTorizoWalkLeft6, EnemyFrameId.GoldenTorizoWalkLeft7, EnemyFrameId.GoldenTorizoWalkLeft8,
+        EnemyFrameId.GoldenTorizoWalkLeft9,
     ];
     /// <summary>The walking frames' body component, which carries the planted foot.</summary>
     internal const int BodyComponent = 2;

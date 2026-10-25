@@ -21,13 +21,13 @@ internal static class ChootPatternDefinitionsVerification
             ChootPatternDefinition definition = ChootPatternDefinitions.ForIndex(patternIndex);
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
-            AssertEqual(nativePointer, (ushort)definition.FallingPath,
+            AssertEqual(nativePointer, ChootNativeWords.ChootFallingPaths.Word(definition.FallingPath),
                 $"Choot pattern pointer {patternIndex}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)),
                 definition.FallingPatternYDistance,
                 $"Choot pattern distance {patternIndex}");
 
-            int pathAddress = 0xa20000 | (ushort)definition.FallingPath;
+            int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(definition.FallingPath);
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex]; frameIndex++)
             {
                 ChootFallingPathPoint point = ChootFallingPathDefinitions.At(

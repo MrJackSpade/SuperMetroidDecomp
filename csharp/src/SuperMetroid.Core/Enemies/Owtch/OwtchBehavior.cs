@@ -208,7 +208,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
-    internal static void RegisterOwtchBombReactions(EnemySharedReactions table)
+    internal static void AddOwtchBombReactions(EnemySharedReactions table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Owtch &&
@@ -231,7 +231,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyOwtchCue(state, cue));
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    internal static void RegisterOwtchShotReactions(EnemySharedReactions table)
+    internal static void AddOwtchShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.OwtchShot)

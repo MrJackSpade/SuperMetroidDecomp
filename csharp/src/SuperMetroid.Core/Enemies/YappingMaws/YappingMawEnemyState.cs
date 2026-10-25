@@ -39,7 +39,7 @@ public sealed class YappingMawEnemyState
     /// <summary>
     /// Approximate bank-$A0 distance from the root to Samus in room pixels, 0 through 32768: a single axis's magnitude
     /// when Samus is 255 or more pixels away on it, otherwise the sum of two short trigonometric products. An attack
-    /// caps it at <see cref="YappingMawRomData.MaximumTargetDistance"/>, so the extension sees 32 through 64.
+    /// caps it at <see cref="YappingMawAttackGeometry.MaximumTargetDistance"/>, so the extension sees 32 through 64.
     /// </summary>
     public int DistanceToSamus { get; internal set; }
 

@@ -429,7 +429,7 @@ internal sealed class NoobTubeBehavior
     }
 
     /// <summary>Connects all six native projectile pre-instruction identities to the shared room callback.</summary>
-    internal void RegisterNoobTubeProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddNoobTubeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -438,7 +438,7 @@ internal sealed class NoobTubeBehavior
     }
 
     /// <summary>Carries out the cues of the crack, shard and bubble programs.</summary>
-    internal void RegisterNoobTubeProjectileCues(EnemyProjectileHandlerTable table) =>
+    internal void AddNoobTubeProjectileCues(EnemyProjectileHandlerTable table) =>
         table.AddCue<NoobTubeProjectileCue>((context, cue) => ApplyNoobTubeProjectileCue(context.Projectile, cue));
 
     /// <summary>Carries out one cue of the crack, shard and bubble programs.</summary>

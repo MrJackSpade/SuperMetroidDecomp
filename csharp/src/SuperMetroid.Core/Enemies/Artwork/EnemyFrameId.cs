@@ -1,8 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The frames an enemy shows: every installed spritemap and extended frame, named by its installed composition, in
-/// schema order, and the shared empty frames every enemy bank repeats.
+/// The frames an enemy shows: every installed spritemap and extended frame in schema order, and the shared empty frames
+/// every enemy bank repeats. Each is named for its owner and its place among that owner's frames (the pose, index or part
+/// its frame table selects it by); each cites its installed composition, whose name also gives its installed sheet key
+/// (<see cref="EnemyFrameSheetKeys"/>), so a frame's name never reaches a file.
 /// </summary>
 public enum EnemyFrameId
 {
@@ -531,97 +533,97 @@ public enum EnemyFrameId
     /// <summary><c>ceres_baby_vertical</c>, an installed spritemap.</summary>
     CeresBabyVertical,
     /// <summary><c>rio_bd6c</c>, an installed spritemap.</summary>
-    RioBd6c,
+    RioPose0,
     /// <summary><c>rio_bd82</c>, an installed spritemap.</summary>
-    RioBd82,
+    RioPose1,
     /// <summary><c>rio_bd98</c>, an installed spritemap.</summary>
-    RioBd98,
+    RioPose2,
     /// <summary><c>rio_bdae</c>, an installed spritemap.</summary>
-    RioBdae,
+    RioPose3,
     /// <summary><c>rio_bdc4</c>, an installed spritemap.</summary>
-    RioBdc4,
+    RioPose4,
     /// <summary><c>rio_bdda</c>, an installed spritemap.</summary>
-    RioBdda,
+    RioPose5,
     /// <summary><c>rio_bdf0</c>, an installed spritemap.</summary>
-    RioBdf0,
+    RioPose6,
     /// <summary><c>rio_be06</c>, an installed spritemap.</summary>
-    RioBe06,
+    RioPose7,
     /// <summary><c>lower_norfair_rio_c8bd</c>, an installed spritemap.</summary>
-    LowerNorfairRioC8bd,
+    LowerNorfairRioPose0,
     /// <summary><c>lower_norfair_rio_c8d3</c>, an installed spritemap.</summary>
-    LowerNorfairRioC8d3,
+    LowerNorfairRioPose1,
     /// <summary><c>lower_norfair_rio_c8e9</c>, an installed spritemap.</summary>
-    LowerNorfairRioC8e9,
+    LowerNorfairRioPose2,
     /// <summary><c>lower_norfair_rio_c8ff</c>, an installed spritemap.</summary>
-    LowerNorfairRioC8ff,
+    LowerNorfairRioPose3,
     /// <summary><c>lower_norfair_rio_c915</c>, an installed spritemap.</summary>
-    LowerNorfairRioC915,
+    LowerNorfairRioPose4,
     /// <summary><c>lower_norfair_rio_c92b</c>, an installed spritemap.</summary>
-    LowerNorfairRioC92b,
+    LowerNorfairRioPose5,
     /// <summary><c>lower_norfair_rio_c941</c>, an installed spritemap.</summary>
-    LowerNorfairRioC941,
+    LowerNorfairRioPose6,
     /// <summary><c>lower_norfair_rio_c957</c>, an installed spritemap.</summary>
-    LowerNorfairRioC957,
+    LowerNorfairRioPose7,
     /// <summary><c>lower_norfair_rio_c96d</c>, an installed spritemap.</summary>
-    LowerNorfairRioC96d,
+    LowerNorfairRioPose8,
     /// <summary><c>lower_norfair_rio_c983</c>, an installed spritemap.</summary>
-    LowerNorfairRioC983,
+    LowerNorfairRioPose9,
     /// <summary><c>lower_norfair_rio_c999</c>, an installed spritemap.</summary>
-    LowerNorfairRioC999,
+    LowerNorfairRioPose10,
     /// <summary><c>lower_norfair_rio_c9af</c>, an installed spritemap.</summary>
-    LowerNorfairRioC9af,
+    LowerNorfairRioPose11,
     /// <summary><c>lower_norfair_rio_c9c5</c>, an installed spritemap.</summary>
-    LowerNorfairRioC9c5,
+    LowerNorfairRioPose12,
     /// <summary><c>lower_norfair_rio_c9db</c>, an installed spritemap.</summary>
-    LowerNorfairRioC9db,
+    LowerNorfairRioPose13,
     /// <summary><c>lower_norfair_rio_c9f1</c>, an installed spritemap.</summary>
-    LowerNorfairRioC9f1,
+    LowerNorfairRioPose14,
     /// <summary><c>lower_norfair_rio_ca07</c>, an installed spritemap.</summary>
-    LowerNorfairRioCa07,
+    LowerNorfairRioPose15,
     /// <summary><c>lower_norfair_rio_ca13</c>, an installed spritemap.</summary>
-    LowerNorfairRioCa13,
+    LowerNorfairRioPose16,
     /// <summary><c>lower_norfair_rio_ca1f</c>, an installed spritemap.</summary>
-    LowerNorfairRioCa1f,
+    LowerNorfairRioPose17,
     /// <summary><c>norfair_rio_c427</c>, an installed spritemap.</summary>
-    NorfairRioC427,
+    NorfairRioPose0,
     /// <summary><c>norfair_rio_c442</c>, an installed spritemap.</summary>
-    NorfairRioC442,
+    NorfairRioPose1,
     /// <summary><c>norfair_rio_c45d</c>, an installed spritemap.</summary>
-    NorfairRioC45d,
+    NorfairRioPose2,
     /// <summary><c>norfair_rio_c493</c>, an installed spritemap.</summary>
-    NorfairRioC493,
+    NorfairRioPose3,
     /// <summary><c>norfair_rio_c49f</c>, an installed spritemap.</summary>
-    NorfairRioC49f,
+    NorfairRioPose4,
     /// <summary><c>norfair_rio_c4ab</c>, an installed spritemap.</summary>
-    NorfairRioC4ab,
+    NorfairRioPose5,
     /// <summary><c>norfair_rio_c4b7</c>, an installed spritemap.</summary>
-    NorfairRioC4b7,
+    NorfairRioPose6,
     /// <summary><c>norfair_rio_c4d2</c>, an installed spritemap.</summary>
-    NorfairRioC4d2,
+    NorfairRioPose7,
     /// <summary><c>norfair_rio_c4ed</c>, an installed spritemap.</summary>
-    NorfairRioC4ed,
+    NorfairRioPose8,
     /// <summary><c>norfair_rio_c508</c>, an installed spritemap.</summary>
-    NorfairRioC508,
+    NorfairRioPose9,
     /// <summary><c>norfair_rio_c523</c>, an installed spritemap.</summary>
-    NorfairRioC523,
+    NorfairRioPose10,
     /// <summary><c>norfair_rio_c534</c>, an installed spritemap.</summary>
-    NorfairRioC534,
+    NorfairRioPose11,
     /// <summary><c>norfair_rio_c54f</c>, an installed spritemap.</summary>
-    NorfairRioC54f,
+    NorfairRioPose12,
     /// <summary><c>norfair_rio_c56a</c>, an installed spritemap.</summary>
-    NorfairRioC56a,
+    NorfairRioPose13,
     /// <summary><c>norfair_rio_c585</c>, an installed spritemap.</summary>
-    NorfairRioC585,
+    NorfairRioPose14,
     /// <summary><c>norfair_rio_c5a0</c>, an installed spritemap.</summary>
-    NorfairRioC5a0,
+    NorfairRioPose15,
     /// <summary><c>norfair_rio_c5bb</c>, an installed spritemap.</summary>
-    NorfairRioC5bb,
+    NorfairRioPose16,
     /// <summary><c>norfair_rio_c5d6</c>, an installed spritemap.</summary>
-    NorfairRioC5d6,
+    NorfairRioPose17,
     /// <summary><c>norfair_rio_c5e2</c>, an installed spritemap.</summary>
-    NorfairRioC5e2,
+    NorfairRioPose18,
     /// <summary><c>norfair_rio_c5ee</c>, an installed spritemap.</summary>
-    NorfairRioC5ee,
+    NorfairRioPose19,
     /// <summary><c>puyo_ground_0</c>, an installed spritemap.</summary>
     PuyoGround0,
     /// <summary><c>puyo_ground_1</c>, an installed spritemap.</summary>
@@ -951,761 +953,761 @@ public enum EnemyFrameId
     /// <summary><c>draygon_breath_bubble_8</c>, an installed spritemap.</summary>
     DraygonBreathBubble8,
     /// <summary><c>room_sprite_b4_bda6</c>, an installed spritemap.</summary>
-    RoomSpriteB4Bda6,
+    SpriteObjectEmpty,
     /// <summary><c>room_sprite_b4_c630</c>, an installed spritemap.</summary>
-    RoomSpriteB4C630,
+    SpriteObjectUnusedObject30Frame0,
     /// <summary><c>room_sprite_b4_c637</c>, an installed spritemap.</summary>
-    RoomSpriteB4C637,
+    SpriteObjectUnusedObject30Frame1,
     /// <summary><c>room_sprite_b4_c63e</c>, an installed spritemap.</summary>
-    RoomSpriteB4C63e,
+    SpriteObjectUnusedObject30Frame2,
     /// <summary><c>room_sprite_b4_c645</c>, an installed spritemap.</summary>
-    RoomSpriteB4C645,
+    SpriteObjectUnusedObject31Frame0,
     /// <summary><c>room_sprite_b4_c64c</c>, an installed spritemap.</summary>
-    RoomSpriteB4C64c,
+    SpriteObjectUnusedObject31Frame1,
     /// <summary><c>room_sprite_b4_c653</c>, an installed spritemap.</summary>
-    RoomSpriteB4C653,
+    SpriteObjectUnusedObject31Frame2,
     /// <summary><c>room_sprite_b4_c65a</c>, an installed spritemap.</summary>
-    RoomSpriteB4C65a,
+    SpriteObjectUnusedObject32Frame0,
     /// <summary><c>room_sprite_b4_c661</c>, an installed spritemap.</summary>
-    RoomSpriteB4C661,
+    SpriteObjectUnusedObject32Frame1,
     /// <summary><c>room_sprite_b4_c668</c>, an installed spritemap.</summary>
-    RoomSpriteB4C668,
+    SpriteObjectUnusedObject32Frame2,
     /// <summary><c>room_sprite_b4_c66f</c>, an installed spritemap.</summary>
-    RoomSpriteB4C66f,
+    SpriteObjectUnusedObject33Frame0,
     /// <summary><c>room_sprite_b4_c676</c>, an installed spritemap.</summary>
-    RoomSpriteB4C676,
+    SpriteObjectUnusedObject33Frame1,
     /// <summary><c>room_sprite_b4_c67d</c>, an installed spritemap.</summary>
-    RoomSpriteB4C67d,
+    SpriteObjectUnusedObject33Frame2,
     /// <summary><c>room_sprite_b4_c684</c>, an installed spritemap.</summary>
-    RoomSpriteB4C684,
+    SpriteObjectUnusedObject34Frame0,
     /// <summary><c>room_sprite_b4_c68b</c>, an installed spritemap.</summary>
-    RoomSpriteB4C68b,
+    SpriteObjectUnusedObject34Frame1,
     /// <summary><c>room_sprite_b4_c692</c>, an installed spritemap.</summary>
-    RoomSpriteB4C692,
+    SpriteObjectUnusedObject34Frame2,
     /// <summary><c>room_sprite_b4_c699</c>, an installed spritemap.</summary>
-    RoomSpriteB4C699,
+    SpriteObjectUnusedObject35Frame0,
     /// <summary><c>room_sprite_b4_c6a0</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6a0,
+    SpriteObjectUnusedObject35Frame1,
     /// <summary><c>room_sprite_b4_c6a7</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6a7,
+    SpriteObjectUnusedObject35Frame2,
     /// <summary><c>room_sprite_b4_c6ae</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6ae,
+    SpriteObjectUnusedObject36Frame0,
     /// <summary><c>room_sprite_b4_c6b5</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6b5,
+    SpriteObjectUnusedObject36Frame1,
     /// <summary><c>room_sprite_b4_c6bc</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6bc,
+    SpriteObjectUnusedObject36Frame2,
     /// <summary><c>room_sprite_b4_c6c3</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6c3,
+    SpriteObjectUnusedObject37Frame0,
     /// <summary><c>room_sprite_b4_c6ca</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6ca,
+    SpriteObjectUnusedObject37Frame1,
     /// <summary><c>room_sprite_b4_c6d1</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6d1,
+    SpriteObjectUnusedObject37Frame2,
     /// <summary><c>room_sprite_b4_c6d8</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6d8,
+    SpriteObjectUnusedRockParticles0,
     /// <summary><c>room_sprite_b4_c6ee</c>, an installed spritemap.</summary>
-    RoomSpriteB4C6ee,
+    SpriteObjectUnusedRockParticles1,
     /// <summary><c>room_sprite_b4_c704</c>, an installed spritemap.</summary>
-    RoomSpriteB4C704,
+    SpriteObjectUnusedRockParticles2,
     /// <summary><c>room_sprite_b4_c71a</c>, an installed spritemap.</summary>
-    RoomSpriteB4C71a,
+    SpriteObjectUnusedRockParticles3,
     /// <summary><c>room_sprite_b4_c730</c>, an installed spritemap.</summary>
-    RoomSpriteB4C730,
+    SpriteObjectUnusedRockParticles4,
     /// <summary><c>room_sprite_b4_c746</c>, an installed spritemap.</summary>
-    RoomSpriteB4C746,
+    SpriteObjectUnusedRockParticles5,
     /// <summary><c>room_sprite_b4_c75c</c>, an installed spritemap.</summary>
-    RoomSpriteB4C75c,
+    SpriteObjectUnusedRockParticles6,
     /// <summary><c>room_sprite_b4_c772</c>, an installed spritemap.</summary>
-    RoomSpriteB4C772,
+    SpriteObjectUnusedRockParticles7,
     /// <summary><c>room_sprite_b4_c788</c>, an installed spritemap.</summary>
-    RoomSpriteB4C788,
+    SpriteObjectUnusedRockParticles8,
     /// <summary><c>room_sprite_b4_c79e</c>, an installed spritemap.</summary>
-    RoomSpriteB4C79e,
+    SpriteObjectUnusedRockParticles9,
     /// <summary><c>room_sprite_b4_c7b4</c>, an installed spritemap.</summary>
-    RoomSpriteB4C7b4,
+    SpriteObjectUnusedRockParticles10,
     /// <summary><c>room_sprite_b4_c7ca</c>, an installed spritemap.</summary>
-    RoomSpriteB4C7ca,
+    SpriteObjectUnusedRockParticles11,
     /// <summary><c>room_sprite_b4_c7e0</c>, an installed spritemap.</summary>
-    RoomSpriteB4C7e0,
+    SpriteObjectUnusedRockParticles12,
     /// <summary><c>room_sprite_b4_c7f6</c>, an installed spritemap.</summary>
-    RoomSpriteB4C7f6,
+    SpriteObjectUnusedRockParticles13,
     /// <summary><c>room_sprite_b4_c80c</c>, an installed spritemap.</summary>
-    RoomSpriteB4C80c,
+    SpriteObjectUnusedRockParticles14,
     /// <summary><c>room_sprite_b4_c822</c>, an installed spritemap.</summary>
-    RoomSpriteB4C822,
+    SpriteObjectUnusedRockParticles15,
     /// <summary><c>room_sprite_b4_c838</c>, an installed spritemap.</summary>
-    RoomSpriteB4C838,
+    SpriteObjectBigDustCloud0,
     /// <summary><c>room_sprite_b4_c83f</c>, an installed spritemap.</summary>
-    RoomSpriteB4C83f,
+    SpriteObjectBigDustCloud1,
     /// <summary><c>room_sprite_b4_c84b</c>, an installed spritemap.</summary>
-    RoomSpriteB4C84b,
+    SpriteObjectBigDustCloud2,
     /// <summary><c>room_sprite_b4_c85c</c>, an installed spritemap.</summary>
-    RoomSpriteB4C85c,
+    SpriteObjectBigDustCloud3,
     /// <summary><c>room_sprite_b4_c872</c>, an installed spritemap.</summary>
-    RoomSpriteB4C872,
+    SpriteObjectBigDustCloud4,
     /// <summary><c>room_sprite_b4_c888</c>, an installed spritemap.</summary>
-    RoomSpriteB4C888,
+    SpriteObjectBigDustCloud5,
     /// <summary><c>room_sprite_b4_c899</c>, an installed spritemap.</summary>
-    RoomSpriteB4C899,
+    SpriteObjectBigDustCloud6,
     /// <summary><c>room_sprite_b4_c8a5</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8a5,
+    SpriteObjectBigDustCloud7,
     /// <summary><c>room_sprite_b4_c8ac</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8ac,
+    SpriteObjectUnusedDustCloudBeam0,
     /// <summary><c>room_sprite_b4_c8b3</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8b3,
+    SpriteObjectUnusedDustCloudBeam1,
     /// <summary><c>room_sprite_b4_c8ba</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8ba,
+    SpriteObjectUnusedDustCloudBeam2,
     /// <summary><c>room_sprite_b4_c8c6</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8c6,
+    SpriteObjectUnusedDustCloudBeam3,
     /// <summary><c>room_sprite_b4_c8d2</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8d2,
+    SpriteObjectUnusedDustCloudBeam4,
     /// <summary><c>room_sprite_b4_c8e3</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8e3,
+    SpriteObjectUnusedDustCloudBeam5,
     /// <summary><c>room_sprite_b4_c8f4</c>, an installed spritemap.</summary>
-    RoomSpriteB4C8f4,
+    SpriteObjectUnusedDustCloudBeam6,
     /// <summary><c>room_sprite_b4_c90a</c>, an installed spritemap.</summary>
-    RoomSpriteB4C90a,
+    SpriteObjectUnusedDustCloudBeam7,
     /// <summary><c>room_sprite_b4_c9a0</c>, an installed spritemap.</summary>
-    RoomSpriteB4C9a0,
+    SpriteObjectUnusedSaveStationElectricity0,
     /// <summary><c>room_sprite_b4_c9b6</c>, an installed spritemap.</summary>
-    RoomSpriteB4C9b6,
+    SpriteObjectUnusedSaveStationElectricity1,
     /// <summary><c>room_sprite_b4_c9cc</c>, an installed spritemap.</summary>
-    RoomSpriteB4C9cc,
+    SpriteObjectUnusedSaveStationElectricity2,
     /// <summary><c>room_sprite_b4_c9e2</c>, an installed spritemap.</summary>
-    RoomSpriteB4C9e2,
+    SpriteObjectUnusedSaveStationElectricity3,
     /// <summary><c>room_sprite_b4_c9f8</c>, an installed spritemap.</summary>
-    RoomSpriteB4C9f8,
+    SpriteObjectUnusedSaveStationElectricity4,
     /// <summary><c>room_sprite_b4_ca0e</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca0e,
+    SpriteObjectUnusedSaveStationElectricity5,
     /// <summary><c>room_sprite_b4_ca24</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca24,
+    SpriteObjectUnusedSaveStationElectricity6,
     /// <summary><c>room_sprite_b4_ca3a</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca3a,
+    SpriteObjectUnusedSaveStationElectricity7,
     /// <summary><c>room_sprite_b4_ca50</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca50,
+    SpriteObjectUnusedVerticalGate0,
     /// <summary><c>room_sprite_b4_ca5c</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca5c,
+    SpriteObjectUnusedVerticalGate1,
     /// <summary><c>room_sprite_b4_ca63</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca63,
+    SpriteObjectUnusedVerticalGate2,
     /// <summary><c>room_sprite_b4_ca6f</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca6f,
+    SpriteObjectUnusedVerticalGate3,
     /// <summary><c>room_sprite_b4_ca7b</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca7b,
+    SpriteObjectUnusedVerticalGate4,
     /// <summary><c>room_sprite_b4_ca8c</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca8c,
+    SpriteObjectUnusedVerticalGate5,
     /// <summary><c>room_sprite_b4_ca9d</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ca9d,
+    SpriteObjectUnusedVerticalGate6,
     /// <summary><c>room_sprite_b4_cab3</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cab3,
+    SpriteObjectUnusedVerticalGate7,
     /// <summary><c>room_sprite_b4_cac9</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cac9,
+    SpriteObjectUnusedBeamCharge0,
     /// <summary><c>room_sprite_b4_cad0</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cad0,
+    SpriteObjectUnusedBeamCharge1,
     /// <summary><c>room_sprite_b4_cad7</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cad7,
+    SpriteObjectUnusedBeamCharge2,
     /// <summary><c>room_sprite_b4_cade</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cade,
+    SpriteObjectUnusedBeamCharge3,
     /// <summary><c>room_sprite_b4_caf4</c>, an installed spritemap.</summary>
-    RoomSpriteB4Caf4,
+    SpriteObjectUnusedMotherBrainElbowParticle0,
     /// <summary><c>room_sprite_b4_cb05</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb05,
+    SpriteObjectUnusedMotherBrainElbowParticle1,
     /// <summary><c>room_sprite_b4_cb16</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb16,
+    SpriteObjectUnusedMotherBrainElbowParticle2,
     /// <summary><c>room_sprite_b4_cb27</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb27,
+    SpriteObjectUnusedMotherBrainElbowParticle3,
     /// <summary><c>room_sprite_b4_cb38</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb38,
+    SpriteObjectUnusedMotherBrainElbowParticle4,
     /// <summary><c>room_sprite_b4_cb49</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb49,
+    SpriteObjectUnusedMotherBrainElbowParticle5,
     /// <summary><c>room_sprite_b4_cb5a</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb5a,
+    SpriteObjectUnusedMotherBrainElbowEnergy0,
     /// <summary><c>room_sprite_b4_cb6b</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb6b,
+    SpriteObjectUnusedMotherBrainElbowEnergy1,
     /// <summary><c>room_sprite_b4_cb7c</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb7c,
+    SpriteObjectUnusedMotherBrainElbowEnergy2,
     /// <summary><c>room_sprite_b4_cb8d</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb8d,
+    SpriteObjectUnusedMotherBrainElbowEnergy3,
     /// <summary><c>room_sprite_b4_cb9e</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cb9e,
+    SpriteObjectUnusedMotherBrainElbowEnergy4,
     /// <summary><c>room_sprite_b4_cbaf</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cbaf,
+    SpriteObjectUnusedMotherBrainElbowEnergy5,
     /// <summary><c>room_sprite_b4_cbc0</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cbc0,
+    SpriteObjectSmallExplosion0,
     /// <summary><c>room_sprite_b4_cbc7</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cbc7,
+    SpriteObjectSmallExplosion1,
     /// <summary><c>room_sprite_b4_cbdd</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cbdd,
+    SpriteObjectSmallExplosion2,
     /// <summary><c>room_sprite_b4_cbf3</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cbf3,
+    SpriteObjectSmallExplosion3,
     /// <summary><c>room_sprite_b4_cc09</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc09,
+    SpriteObjectSmallExplosion4,
     /// <summary><c>room_sprite_b4_cc1f</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc1f,
+    SpriteObjectSmallExplosion5,
     /// <summary><c>room_sprite_b4_cc35</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc35,
+    SpriteObjectUnusedBombExplosion0,
     /// <summary><c>room_sprite_b4_cc4b</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc4b,
+    SpriteObjectUnusedBombExplosion1,
     /// <summary><c>room_sprite_b4_cc61</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc61,
+    SpriteObjectUnusedBombExplosion2,
     /// <summary><c>room_sprite_b4_cc77</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc77,
+    SpriteObjectUnusedBombExplosion3,
     /// <summary><c>room_sprite_b4_cc8d</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cc8d,
+    SpriteObjectUnusedBombExplosion4,
     /// <summary><c>room_sprite_b4_ccb9</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccb9,
+    SpriteObjectUnusedBeamTrail0,
     /// <summary><c>room_sprite_b4_ccc0</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccc0,
+    SpriteObjectUnusedBeamTrail1,
     /// <summary><c>room_sprite_b4_ccc7</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccc7,
+    SpriteObjectUnusedBeamTrail2,
     /// <summary><c>room_sprite_b4_ccce</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccce,
+    SpriteObjectUnusedBeamTrail3,
     /// <summary><c>room_sprite_b4_ccd5</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccd5,
+    SpriteObjectUnusedPowerBomb0,
     /// <summary><c>room_sprite_b4_ccdc</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccdc,
+    SpriteObjectUnusedPowerBomb1,
     /// <summary><c>room_sprite_b4_cce3</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cce3,
+    SpriteObjectUnusedPowerBomb2,
     /// <summary><c>room_sprite_b4_ccf1</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccf1,
+    SpriteObjectDudShot0,
     /// <summary><c>room_sprite_b4_ccf8</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccf8,
+    SpriteObjectDudShot1,
     /// <summary><c>room_sprite_b4_ccff</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ccff,
+    SpriteObjectDudShot2,
     /// <summary><c>room_sprite_b4_cd15</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cd15,
+    SpriteObjectDudShot3,
     /// <summary><c>room_sprite_b4_cd2b</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cd2b,
+    SpriteObjectDudShot4,
     /// <summary><c>room_sprite_b4_cd41</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cd41,
+    SpriteObjectDudShot5,
     /// <summary><c>room_sprite_b4_cd57</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cd57,
+    SpriteObjectUnusedElevatorPad0,
     /// <summary><c>room_sprite_b4_cd6d</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cd6d,
+    SpriteObjectUnusedElevatorPad1,
     /// <summary><c>room_sprite_b4_cd99</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cd99,
+    SpriteObjectSmallDustCloud0,
     /// <summary><c>room_sprite_b4_cda0</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cda0,
+    SpriteObjectSmallDustCloud1,
     /// <summary><c>room_sprite_b4_cda7</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cda7,
+    SpriteObjectSmallDustCloud2,
     /// <summary><c>room_sprite_b4_cdae</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdae,
+    SpriteObjectSmallDustCloud3,
     /// <summary><c>room_sprite_b4_cdb5</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdb5,
+    SpriteObjectPirateLandingDustCloud0,
     /// <summary><c>room_sprite_b4_cdbc</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdbc,
+    SpriteObjectPirateLandingDustCloud1,
     /// <summary><c>room_sprite_b4_cdc3</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdc3,
+    SpriteObjectPirateLandingDustCloud2,
     /// <summary><c>room_sprite_b4_cdca</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdca,
+    SpriteObjectPirateLandingDustCloud3,
     /// <summary><c>room_sprite_b4_cdd1</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdd1,
+    SpriteObjectUnusedEyeDoorSweatDrop0,
     /// <summary><c>room_sprite_b4_cdd8</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdd8,
+    SpriteObjectUnusedEyeDoorSweatDrop1,
     /// <summary><c>room_sprite_b4_cddf</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cddf,
+    SpriteObjectUnusedEyeDoorSweatDrop2,
     /// <summary><c>room_sprite_b4_cde6</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cde6,
+    SpriteObjectUnusedEyeDoorSweatDrop3,
     /// <summary><c>room_sprite_b4_cded</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cded,
+    SpriteObjectSmoke0,
     /// <summary><c>room_sprite_b4_cdf4</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdf4,
+    SpriteObjectSmoke1,
     /// <summary><c>room_sprite_b4_cdfb</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cdfb,
+    SpriteObjectSmoke2,
     /// <summary><c>room_sprite_b4_ce02</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce02,
+    SpriteObjectSmoke3,
     /// <summary><c>room_sprite_b4_ce1e</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce1e,
+    SpriteObjectUnusedSmallEnergyDropObject13Frame0,
     /// <summary><c>room_sprite_b4_ce25</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce25,
+    SpriteObjectUnusedSmallEnergyDropObject13Frame1,
     /// <summary><c>room_sprite_b4_ce2c</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce2c,
+    SpriteObjectUnusedSmallEnergyDropObject13Frame2,
     /// <summary><c>room_sprite_b4_ce33</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce33,
+    SpriteObjectUnusedSmallEnergyDropObject13Frame3,
     /// <summary><c>room_sprite_b4_ce3a</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce3a,
+    SpriteObjectUnusedBigEnergyDrop0,
     /// <summary><c>room_sprite_b4_ce50</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce50,
+    SpriteObjectUnusedBigEnergyDrop1,
     /// <summary><c>room_sprite_b4_ce66</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce66,
+    SpriteObjectUnusedBigEnergyDrop2,
     /// <summary><c>room_sprite_b4_ce7c</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce7c,
+    SpriteObjectUnusedBigEnergyDrop3,
     /// <summary><c>room_sprite_b4_ce83</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce83,
+    SpriteObjectUnusedBomb0,
     /// <summary><c>room_sprite_b4_ce8a</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce8a,
+    SpriteObjectUnusedBomb1,
     /// <summary><c>room_sprite_b4_ce91</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce91,
+    SpriteObjectUnusedBomb2,
     /// <summary><c>room_sprite_b4_ce98</c>, an installed spritemap.</summary>
-    RoomSpriteB4Ce98,
+    SpriteObjectUnusedBomb3,
     /// <summary><c>room_sprite_b4_cf87</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cf87,
+    SpriteObjectUnusedSmallEnergyDropObject16Frame0,
     /// <summary><c>room_sprite_b4_cf8e</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cf8e,
+    SpriteObjectUnusedSmallEnergyDropObject16Frame1,
     /// <summary><c>room_sprite_b4_cf95</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cf95,
+    SpriteObjectUnusedSmallEnergyDropObject16Frame2,
     /// <summary><c>room_sprite_b4_cfa3</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cfa3,
+    SpriteObjectBigExplosion0,
     /// <summary><c>room_sprite_b4_cfb9</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cfb9,
+    SpriteObjectBigExplosion1,
     /// <summary><c>room_sprite_b4_cfcf</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cfcf,
+    SpriteObjectBigExplosion2,
     /// <summary><c>room_sprite_b4_cfe5</c>, an installed spritemap.</summary>
-    RoomSpriteB4Cfe5,
+    SpriteObjectBigExplosion3,
     /// <summary><c>room_sprite_b4_d023</c>, an installed spritemap.</summary>
-    RoomSpriteB4D023,
+    SpriteObjectBigExplosion4,
     /// <summary><c>room_sprite_b4_d04d</c>, an installed spritemap.</summary>
-    RoomSpriteB4D04d,
+    SpriteObjectBigExplosion5,
     /// <summary><c>room_sprite_b4_d08b</c>, an installed spritemap.</summary>
-    RoomSpriteB4D08b,
+    SpriteObjectUnusedObject38Frame0,
     /// <summary><c>room_sprite_b4_d0ba</c>, an installed spritemap.</summary>
-    RoomSpriteB4D0ba,
+    SpriteObjectUnusedObject38Frame1,
     /// <summary><c>room_sprite_b4_d0e9</c>, an installed spritemap.</summary>
-    RoomSpriteB4D0e9,
+    SpriteObjectUnusedObject38Frame2,
     /// <summary><c>room_sprite_b4_d118</c>, an installed spritemap.</summary>
-    RoomSpriteB4D118,
+    SpriteObjectUnusedObject38Frame3,
     /// <summary><c>room_sprite_b4_d147</c>, an installed spritemap.</summary>
-    RoomSpriteB4D147,
+    SpriteObjectUnusedObject38Frame4,
     /// <summary><c>room_sprite_b4_d176</c>, an installed spritemap.</summary>
-    RoomSpriteB4D176,
+    SpriteObjectUnusedObject38Frame5,
     /// <summary><c>room_sprite_b4_d1d4</c>, an installed spritemap.</summary>
-    RoomSpriteB4D1d4,
+    SpriteObjectUnusedObject39Frame0,
     /// <summary><c>room_sprite_b4_d1ef</c>, an installed spritemap.</summary>
-    RoomSpriteB4D1ef,
+    SpriteObjectUnusedObject39Frame1,
     /// <summary><c>room_sprite_b4_d20a</c>, an installed spritemap.</summary>
-    RoomSpriteB4D20a,
+    SpriteObjectUnusedObject39Frame2,
     /// <summary><c>room_sprite_b4_d225</c>, an installed spritemap.</summary>
-    RoomSpriteB4D225,
+    SpriteObjectUnusedObject39Frame3,
     /// <summary><c>room_sprite_b4_d245</c>, an installed spritemap.</summary>
-    RoomSpriteB4D245,
+    SpriteObjectUnusedObject39Frame4,
     /// <summary><c>room_sprite_b4_d2ac</c>, an installed spritemap.</summary>
-    RoomSpriteB4D2ac,
+    SpriteObjectUnusedObject42,
     /// <summary><c>room_sprite_b4_d2b3</c>, an installed spritemap.</summary>
-    RoomSpriteB4D2b3,
+    SpriteObjectUnusedObject40Frame0,
     /// <summary><c>room_sprite_b4_d2e2</c>, an installed spritemap.</summary>
-    RoomSpriteB4D2e2,
+    SpriteObjectUnusedObject40Frame1,
     /// <summary><c>room_sprite_b4_d311</c>, an installed spritemap.</summary>
-    RoomSpriteB4D311,
+    SpriteObjectUnusedObject40Frame2,
     /// <summary><c>room_sprite_b4_d340</c>, an installed spritemap.</summary>
-    RoomSpriteB4D340,
+    SpriteObjectUnusedObject40Frame3,
     /// <summary><c>room_sprite_b4_d36f</c>, an installed spritemap.</summary>
-    RoomSpriteB4D36f,
+    SpriteObjectUnusedObject40Frame4,
     /// <summary><c>room_sprite_b4_d39e</c>, an installed spritemap.</summary>
-    RoomSpriteB4D39e,
+    SpriteObjectUnusedObject40Frame5,
     /// <summary><c>room_sprite_b4_d3fc</c>, an installed spritemap.</summary>
-    RoomSpriteB4D3fc,
+    SpriteObjectUnusedObject41Frame0,
     /// <summary><c>room_sprite_b4_d417</c>, an installed spritemap.</summary>
-    RoomSpriteB4D417,
+    SpriteObjectUnusedObject41Frame1,
     /// <summary><c>room_sprite_b4_d432</c>, an installed spritemap.</summary>
-    RoomSpriteB4D432,
+    SpriteObjectUnusedObject41Frame2,
     /// <summary><c>room_sprite_b4_d44d</c>, an installed spritemap.</summary>
-    RoomSpriteB4D44d,
+    SpriteObjectUnusedObject41Frame3,
     /// <summary><c>room_sprite_b4_d46d</c>, an installed spritemap.</summary>
-    RoomSpriteB4D46d,
+    SpriteObjectUnusedObject41Frame4,
     /// <summary><c>room_sprite_b4_d4be</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4be,
+    SpriteObjectPuromi0,
     /// <summary><c>room_sprite_b4_d4c5</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4c5,
+    SpriteObjectPuromi1,
     /// <summary><c>room_sprite_b4_d4cc</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4cc,
+    SpriteObjectPuromi2,
     /// <summary><c>room_sprite_b4_d4d3</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4d3,
+    SpriteObjectPuromi3,
     /// <summary><c>room_sprite_b4_d4da</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4da,
+    SpriteObjectPuromi4,
     /// <summary><c>room_sprite_b4_d4e1</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4e1,
+    SpriteObjectPuromi5,
     /// <summary><c>room_sprite_b4_d4e8</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4e8,
+    SpriteObjectPuromi6,
     /// <summary><c>room_sprite_b4_d4ef</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4ef,
+    SpriteObjectPuromi7,
     /// <summary><c>room_sprite_b4_d4f6</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4f6,
+    SpriteObjectPuromiRightExplosion0,
     /// <summary><c>room_sprite_b4_d4fd</c>, an installed spritemap.</summary>
-    RoomSpriteB4D4fd,
+    SpriteObjectPuromiRightExplosion1,
     /// <summary><c>room_sprite_b4_d504</c>, an installed spritemap.</summary>
-    RoomSpriteB4D504,
+    SpriteObjectPuromiRightExplosion2,
     /// <summary><c>room_sprite_b4_d50b</c>, an installed spritemap.</summary>
-    RoomSpriteB4D50b,
+    SpriteObjectPuromiRightExplosion3,
     /// <summary><c>room_sprite_b4_d512</c>, an installed spritemap.</summary>
-    RoomSpriteB4D512,
+    SpriteObjectPuromiRightExplosion4,
     /// <summary><c>room_sprite_b4_d519</c>, an installed spritemap.</summary>
-    RoomSpriteB4D519,
+    SpriteObjectPuromiRightExplosion5,
     /// <summary><c>room_sprite_b4_d520</c>, an installed spritemap.</summary>
-    RoomSpriteB4D520,
+    SpriteObjectPuromiRightExplosion6,
     /// <summary><c>room_sprite_b4_d527</c>, an installed spritemap.</summary>
-    RoomSpriteB4D527,
+    SpriteObjectPuromiLeftExplosion0,
     /// <summary><c>room_sprite_b4_d52e</c>, an installed spritemap.</summary>
-    RoomSpriteB4D52e,
+    SpriteObjectPuromiLeftExplosion1,
     /// <summary><c>room_sprite_b4_d535</c>, an installed spritemap.</summary>
-    RoomSpriteB4D535,
+    SpriteObjectPuromiLeftExplosion2,
     /// <summary><c>room_sprite_b4_d53c</c>, an installed spritemap.</summary>
-    RoomSpriteB4D53c,
+    SpriteObjectPuromiLeftExplosion3,
     /// <summary><c>room_sprite_b4_d543</c>, an installed spritemap.</summary>
-    RoomSpriteB4D543,
+    SpriteObjectPuromiLeftExplosion4,
     /// <summary><c>room_sprite_b4_d54a</c>, an installed spritemap.</summary>
-    RoomSpriteB4D54a,
+    SpriteObjectPuromiLeftExplosion5,
     /// <summary><c>room_sprite_b4_d551</c>, an installed spritemap.</summary>
-    RoomSpriteB4D551,
+    SpriteObjectPuromiLeftExplosion6,
     /// <summary><c>room_sprite_b4_d558</c>, an installed spritemap.</summary>
-    RoomSpriteB4D558,
+    SpriteObjectPuromiSplash0,
     /// <summary><c>room_sprite_b4_d564</c>, an installed spritemap.</summary>
-    RoomSpriteB4D564,
+    SpriteObjectPuromiSplash1,
     /// <summary><c>room_sprite_b4_d570</c>, an installed spritemap.</summary>
-    RoomSpriteB4D570,
+    SpriteObjectPuromiSplash2,
     /// <summary><c>room_sprite_b4_d588</c>, an installed spritemap.</summary>
-    RoomSpriteB4D588,
+    SpriteObjectPuromiSplash4,
     /// <summary><c>room_sprite_b4_d594</c>, an installed spritemap.</summary>
-    RoomSpriteB4D594,
+    SpriteObjectUnusedObject47,
     /// <summary><c>room_sprite_b4_d59b</c>, an installed spritemap.</summary>
-    RoomSpriteB4D59b,
+    SpriteObjectFallingSparkTrail0,
     /// <summary><c>room_sprite_b4_d5a2</c>, an installed spritemap.</summary>
-    RoomSpriteB4D5a2,
+    SpriteObjectFallingSparkTrail1,
     /// <summary><c>room_sprite_b4_d5a9</c>, an installed spritemap.</summary>
-    RoomSpriteB4D5a9,
+    SpriteObjectFallingSparkTrail2,
     /// <summary><c>room_sprite_b4_d5b0</c>, an installed spritemap.</summary>
-    RoomSpriteB4D5b0,
+    SpriteObjectFallingSparkTrail3,
     /// <summary><c>room_sprite_b4_d5b7</c>, an installed spritemap.</summary>
-    RoomSpriteB4D5b7,
+    SpriteObjectMetroidShell0,
     /// <summary><c>room_sprite_b4_d5eb</c>, an installed spritemap.</summary>
-    RoomSpriteB4D5eb,
+    SpriteObjectMetroidShell1,
     /// <summary><c>room_sprite_b4_d61f</c>, an installed spritemap.</summary>
-    RoomSpriteB4D61f,
+    SpriteObjectMetroidShell2,
     /// <summary><c>room_sprite_b4_d653</c>, an installed spritemap.</summary>
-    RoomSpriteB4D653,
+    SpriteObjectUnusedMetroidInsides0,
     /// <summary><c>room_sprite_b4_d67d</c>, an installed spritemap.</summary>
-    RoomSpriteB4D67d,
+    SpriteObjectUnusedMetroidInsides1,
     /// <summary><c>room_sprite_b4_d69d</c>, an installed spritemap.</summary>
-    RoomSpriteB4D69d,
+    SpriteObjectUnusedMetroidInsides2,
     /// <summary><c>room_sprite_b4_d6c7</c>, an installed spritemap.</summary>
-    RoomSpriteB4D6c7,
+    SpriteObjectUnusedMetroidInsides3,
     /// <summary><c>room_sprite_b4_d6f1</c>, an installed spritemap.</summary>
-    RoomSpriteB4D6f1,
+    SpriteObjectMetroidElectricity0,
     /// <summary><c>room_sprite_b4_d702</c>, an installed spritemap.</summary>
-    RoomSpriteB4D702,
+    SpriteObjectMetroidElectricity1,
     /// <summary><c>room_sprite_b4_d713</c>, an installed spritemap.</summary>
-    RoomSpriteB4D713,
+    SpriteObjectMetroidElectricity2,
     /// <summary><c>room_sprite_b4_d724</c>, an installed spritemap.</summary>
-    RoomSpriteB4D724,
+    SpriteObjectMetroidElectricity3,
     /// <summary><c>room_sprite_b4_d73a</c>, an installed spritemap.</summary>
-    RoomSpriteB4D73a,
+    SpriteObjectMetroidElectricity4,
     /// <summary><c>room_sprite_b4_d750</c>, an installed spritemap.</summary>
-    RoomSpriteB4D750,
+    SpriteObjectMetroidElectricity5,
     /// <summary><c>room_sprite_b4_d766</c>, an installed spritemap.</summary>
-    RoomSpriteB4D766,
+    SpriteObjectMetroidElectricity6,
     /// <summary><c>room_sprite_b4_d777</c>, an installed spritemap.</summary>
-    RoomSpriteB4D777,
+    SpriteObjectMetroidElectricity7,
     /// <summary><c>room_sprite_b4_d788</c>, an installed spritemap.</summary>
-    RoomSpriteB4D788,
+    SpriteObjectMetroidElectricity8,
     /// <summary><c>room_sprite_b4_d799</c>, an installed spritemap.</summary>
-    RoomSpriteB4D799,
+    SpriteObjectMetroidElectricity9,
     /// <summary><c>room_sprite_b4_d7af</c>, an installed spritemap.</summary>
-    RoomSpriteB4D7af,
+    SpriteObjectMetroidElectricity10,
     /// <summary><c>room_sprite_b4_d7c5</c>, an installed spritemap.</summary>
-    RoomSpriteB4D7c5,
+    SpriteObjectMetroidElectricity11,
     /// <summary><c>room_sprite_b4_d7db</c>, an installed spritemap.</summary>
-    RoomSpriteB4D7db,
+    SpriteObjectMetroidElectricity12,
     /// <summary><c>room_sprite_b4_d7e7</c>, an installed spritemap.</summary>
-    RoomSpriteB4D7e7,
+    SpriteObjectMetroidElectricity13,
     /// <summary><c>room_sprite_b4_d7ee</c>, an installed spritemap.</summary>
-    RoomSpriteB4D7ee,
+    SpriteObjectMetroidElectricity14,
     /// <summary><c>room_sprite_b4_d7fa</c>, an installed spritemap.</summary>
-    RoomSpriteB4D7fa,
+    SpriteObjectMetroidElectricity15,
     /// <summary><c>room_sprite_b4_d806</c>, an installed spritemap.</summary>
-    RoomSpriteB4D806,
+    SpriteObjectMetroidElectricity16,
     /// <summary><c>room_sprite_b4_d812</c>, an installed spritemap.</summary>
-    RoomSpriteB4D812,
+    SpriteObjectMetroidElectricity17,
     /// <summary><c>room_sprite_b4_d81e</c>, an installed spritemap.</summary>
-    RoomSpriteB4D81e,
+    SpriteObjectMetroidElectricity18,
     /// <summary><c>room_sprite_b4_d82a</c>, an installed spritemap.</summary>
-    RoomSpriteB4D82a,
+    SpriteObjectMetroidElectricity19,
     /// <summary><c>room_sprite_b4_d836</c>, an installed spritemap.</summary>
-    RoomSpriteB4D836,
+    SpriteObjectMetroidElectricity20,
     /// <summary><c>room_sprite_b4_d842</c>, an installed spritemap.</summary>
-    RoomSpriteB4D842,
+    SpriteObjectMetroidElectricity21,
     /// <summary><c>room_sprite_b4_d849</c>, an installed spritemap.</summary>
-    RoomSpriteB4D849,
+    SpriteObjectMetroidElectricity22,
     /// <summary><c>room_sprite_b4_d850</c>, an installed spritemap.</summary>
-    RoomSpriteB4D850,
+    SpriteObjectMetroidElectricity23,
     /// <summary><c>room_sprite_b4_d857</c>, an installed spritemap.</summary>
-    RoomSpriteB4D857,
+    SpriteObjectEnemyShot0,
     /// <summary><c>room_sprite_b4_d86d</c>, an installed spritemap.</summary>
-    RoomSpriteB4D86d,
+    SpriteObjectEnemyShot1,
     /// <summary><c>room_sprite_b4_d883</c>, an installed spritemap.</summary>
-    RoomSpriteB4D883,
+    SpriteObjectEnemyShot2,
     /// <summary><c>room_sprite_b4_d899</c>, an installed spritemap.</summary>
-    RoomSpriteB4D899,
+    SpriteObjectEnemyShot3,
     /// <summary><c>room_sprite_b4_d8af</c>, an installed spritemap.</summary>
-    RoomSpriteB4D8af,
+    SpriteObjectYappingMawBaseFacingDown,
     /// <summary><c>room_sprite_b4_d8b6</c>, an installed spritemap.</summary>
-    RoomSpriteB4D8b6,
+    SpriteObjectYappingMawBaseFacingUp,
     /// <summary><c>room_sprite_b4_d8bd</c>, an installed spritemap.</summary>
-    RoomSpriteB4D8bd,
+    SpriteObjectUnusedObject58Frame0,
     /// <summary><c>room_sprite_b4_d905</c>, an installed spritemap.</summary>
-    RoomSpriteB4D905,
+    SpriteObjectUnusedObject58Frame1,
     /// <summary><c>room_sprite_b4_d957</c>, an installed spritemap.</summary>
-    RoomSpriteB4D957,
+    SpriteObjectUnusedObject58Frame2,
     /// <summary><c>room_sprite_b4_d9a9</c>, an installed spritemap.</summary>
-    RoomSpriteB4D9a9,
+    SpriteObjectUnusedObject58Frame3,
     /// <summary><c>room_sprite_b4_d9fb</c>, an installed spritemap.</summary>
-    RoomSpriteB4D9fb,
+    SpriteObjectUnusedObject58Frame4,
     /// <summary><c>room_sprite_b4_da48</c>, an installed spritemap.</summary>
-    RoomSpriteB4Da48,
+    SpriteObjectUnusedObject58Frame5,
     /// <summary><c>room_sprite_b4_da90</c>, an installed spritemap.</summary>
-    RoomSpriteB4Da90,
+    SpriteObjectUnusedObject58Frame6,
     /// <summary><c>room_sprite_b4_dad8</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dad8,
+    SpriteObjectUnusedObject58Frame7,
     /// <summary><c>room_sprite_b4_dc3f</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dc3f,
+    SpriteObjectEvirFacingRight0,
     /// <summary><c>room_sprite_b4_dc7d</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dc7d,
+    SpriteObjectEvirFacingRight1,
     /// <summary><c>room_sprite_b4_dcbb</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dcbb,
+    SpriteObjectEvirFacingRight2,
     /// <summary><c>room_sprite_b4_dcf9</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dcf9,
+    SpriteObjectEvirFacingRight3,
     /// <summary><c>room_sprite_b4_dd51</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd51,
+    SpriteObjectDraygonFoamingAtTheMouth0,
     /// <summary><c>room_sprite_b4_dd58</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd58,
+    SpriteObjectDraygonFoamingAtTheMouth1,
     /// <summary><c>room_sprite_b4_dd5f</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd5f,
+    SpriteObjectDraygonFoamingAtTheMouth2,
     /// <summary><c>room_sprite_b4_dd66</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd66,
+    SpriteObjectDraygonFoamingAtTheMouth3,
     /// <summary><c>room_sprite_b4_dd6d</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd6d,
+    SpriteObjectDraygonFoamingAtTheMouth4,
     /// <summary><c>room_sprite_b4_dd74</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd74,
+    SpriteObjectDraygonFoamingAtTheMouth5,
     /// <summary><c>room_sprite_b4_dd7b</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd7b,
+    SpriteObjectDraygonFoamingAtTheMouth6,
     /// <summary><c>room_sprite_b4_dd82</c>, an installed spritemap.</summary>
-    RoomSpriteB4Dd82,
+    SpriteObjectDraygonFoamingAtTheMouth7,
     /// <summary><c>yapping_maw_a8_a8ee</c>, an installed spritemap.</summary>
-    YappingMawA8A8ee,
+    YappingMawPose0,
     /// <summary><c>yapping_maw_a8_a909</c>, an installed spritemap.</summary>
-    YappingMawA8A909,
+    YappingMawPose1,
     /// <summary><c>yapping_maw_a8_a91a</c>, an installed spritemap.</summary>
-    YappingMawA8A91a,
+    YappingMawPose2,
     /// <summary><c>yapping_maw_a8_a935</c>, an installed spritemap.</summary>
-    YappingMawA8A935,
+    YappingMawPose3,
     /// <summary><c>yapping_maw_a8_a946</c>, an installed spritemap.</summary>
-    YappingMawA8A946,
+    YappingMawPose4,
     /// <summary><c>yapping_maw_a8_a961</c>, an installed spritemap.</summary>
-    YappingMawA8A961,
+    YappingMawPose5,
     /// <summary><c>yapping_maw_a8_a972</c>, an installed spritemap.</summary>
-    YappingMawA8A972,
+    YappingMawPose6,
     /// <summary><c>yapping_maw_a8_a98d</c>, an installed spritemap.</summary>
-    YappingMawA8A98d,
+    YappingMawPose7,
     /// <summary><c>yapping_maw_a8_a99e</c>, an installed spritemap.</summary>
-    YappingMawA8A99e,
+    YappingMawPose8,
     /// <summary><c>yapping_maw_a8_a9b9</c>, an installed spritemap.</summary>
-    YappingMawA8A9b9,
+    YappingMawPose9,
     /// <summary><c>yapping_maw_a8_a9ca</c>, an installed spritemap.</summary>
-    YappingMawA8A9ca,
+    YappingMawPose10,
     /// <summary><c>yapping_maw_a8_a9e5</c>, an installed spritemap.</summary>
-    YappingMawA8A9e5,
+    YappingMawPose11,
     /// <summary><c>yapping_maw_a8_a9f6</c>, an installed spritemap.</summary>
-    YappingMawA8A9f6,
+    YappingMawPose12,
     /// <summary><c>yapping_maw_a8_aa11</c>, an installed spritemap.</summary>
-    YappingMawA8Aa11,
+    YappingMawPose13,
     /// <summary><c>yapping_maw_a8_aa22</c>, an installed spritemap.</summary>
-    YappingMawA8Aa22,
+    YappingMawPose14,
     /// <summary><c>yapping_maw_a8_aa3d</c>, an installed spritemap.</summary>
-    YappingMawA8Aa3d,
+    YappingMawPose15,
     /// <summary><c>yapping_maw_a8_aa4e</c>, an installed spritemap.</summary>
-    YappingMawA8Aa4e,
+    YappingMawPose16,
     /// <summary><c>yapping_maw_a8_aa69</c>, an installed spritemap.</summary>
-    YappingMawA8Aa69,
+    YappingMawPose17,
     /// <summary><c>yapping_maw_a8_aa7a</c>, an installed spritemap.</summary>
-    YappingMawA8Aa7a,
+    YappingMawPose18,
     /// <summary><c>yapping_maw_a8_aa95</c>, an installed spritemap.</summary>
-    YappingMawA8Aa95,
+    YappingMawPose19,
     /// <summary><c>yapping_maw_a8_aaa6</c>, an installed spritemap.</summary>
-    YappingMawA8Aaa6,
+    YappingMawPose20,
     /// <summary><c>yapping_maw_a8_aac1</c>, an installed spritemap.</summary>
-    YappingMawA8Aac1,
+    YappingMawPose21,
     /// <summary><c>yapping_maw_a8_aad2</c>, an installed spritemap.</summary>
-    YappingMawA8Aad2,
+    YappingMawPose22,
     /// <summary><c>yapping_maw_a8_aaed</c>, an installed spritemap.</summary>
-    YappingMawA8Aaed,
+    YappingMawPose23,
     /// <summary><c>ki_hunter_a8_eb2e</c>, an installed spritemap.</summary>
-    KiHunterA8Eb2e,
+    KiHunterPose0,
     /// <summary><c>ki_hunter_a8_eb58</c>, an installed spritemap.</summary>
-    KiHunterA8Eb58,
+    KiHunterPose1,
     /// <summary><c>ki_hunter_a8_eb82</c>, an installed spritemap.</summary>
-    KiHunterA8Eb82,
+    KiHunterPose2,
     /// <summary><c>ki_hunter_a8_ebac</c>, an installed spritemap.</summary>
-    KiHunterA8Ebac,
+    KiHunterPose3,
     /// <summary><c>ki_hunter_a8_ebc2</c>, an installed spritemap.</summary>
-    KiHunterA8Ebc2,
+    KiHunterPose4,
     /// <summary><c>ki_hunter_a8_ebce</c>, an installed spritemap.</summary>
-    KiHunterA8Ebce,
+    KiHunterPose5,
     /// <summary><c>ki_hunter_a8_ebf7</c>, an installed spritemap.</summary>
-    KiHunterA8Ebf7,
+    KiHunterPose6,
     /// <summary><c>ki_hunter_a8_ec21</c>, an installed spritemap.</summary>
-    KiHunterA8Ec21,
+    KiHunterPose7,
     /// <summary><c>ki_hunter_a8_ec4b</c>, an installed spritemap.</summary>
-    KiHunterA8Ec4b,
+    KiHunterPose8,
     /// <summary><c>ki_hunter_a8_ec75</c>, an installed spritemap.</summary>
-    KiHunterA8Ec75,
+    KiHunterPose9,
     /// <summary><c>ki_hunter_a8_ec8b</c>, an installed spritemap.</summary>
-    KiHunterA8Ec8b,
+    KiHunterPose10,
     /// <summary><c>ki_hunter_a8_ec97</c>, an installed spritemap.</summary>
-    KiHunterA8Ec97,
+    KiHunterPose11,
     /// <summary><c>ki_hunter_a8_eca8</c>, an installed spritemap.</summary>
-    KiHunterA8Eca8,
+    KiHunterPose12,
     /// <summary><c>ki_hunter_a8_ecc0</c>, an installed spritemap.</summary>
-    KiHunterA8Ecc0,
+    KiHunterPose13,
     /// <summary><c>ki_hunter_a8_ecea</c>, an installed spritemap.</summary>
-    KiHunterA8Ecea,
+    KiHunterPose14,
     /// <summary><c>ki_hunter_a8_ed14</c>, an installed spritemap.</summary>
-    KiHunterA8Ed14,
+    KiHunterPose15,
     /// <summary><c>ki_hunter_a8_ed3e</c>, an installed spritemap.</summary>
-    KiHunterA8Ed3e,
+    KiHunterPose16,
     /// <summary><c>ki_hunter_a8_ed68</c>, an installed spritemap.</summary>
-    KiHunterA8Ed68,
+    KiHunterPose17,
     /// <summary><c>ki_hunter_a8_ed92</c>, an installed spritemap.</summary>
-    KiHunterA8Ed92,
+    KiHunterPose18,
     /// <summary><c>ki_hunter_a8_edbc</c>, an installed spritemap.</summary>
-    KiHunterA8Edbc,
+    KiHunterPose19,
     /// <summary><c>ki_hunter_a8_ede6</c>, an installed spritemap.</summary>
-    KiHunterA8Ede6,
+    KiHunterPose20,
     /// <summary><c>ki_hunter_a8_ee10</c>, an installed spritemap.</summary>
-    KiHunterA8Ee10,
+    KiHunterPose21,
     /// <summary><c>ki_hunter_a8_ee3a</c>, an installed spritemap.</summary>
-    KiHunterA8Ee3a,
+    KiHunterPose22,
     /// <summary><c>ki_hunter_a8_ee64</c>, an installed spritemap.</summary>
-    KiHunterA8Ee64,
+    KiHunterPose23,
     /// <summary><c>ki_hunter_a8_ee8e</c>, an installed spritemap.</summary>
-    KiHunterA8Ee8e,
+    KiHunterPose24,
     /// <summary><c>ki_hunter_a8_eeb8</c>, an installed spritemap.</summary>
-    KiHunterA8Eeb8,
+    KiHunterPose25,
     /// <summary><c>ki_hunter_a8_eee2</c>, an installed spritemap.</summary>
-    KiHunterA8Eee2,
+    KiHunterPose26,
     /// <summary><c>ki_hunter_a8_ef0c</c>, an installed spritemap.</summary>
-    KiHunterA8Ef0c,
+    KiHunterPose27,
     /// <summary><c>ki_hunter_a8_ef36</c>, an installed spritemap.</summary>
-    KiHunterA8Ef36,
+    KiHunterPose28,
     /// <summary><c>ki_hunter_a8_ef60</c>, an installed spritemap.</summary>
-    KiHunterA8Ef60,
+    KiHunterPose29,
     /// <summary><c>ki_hunter_a8_ef8a</c>, an installed spritemap.</summary>
-    KiHunterA8Ef8a,
+    KiHunterPose30,
     /// <summary><c>ki_hunter_a8_efb4</c>, an installed spritemap.</summary>
-    KiHunterA8Efb4,
+    KiHunterPose31,
     /// <summary><c>ki_hunter_a8_efde</c>, an installed spritemap.</summary>
-    KiHunterA8Efde,
+    KiHunterPose32,
     /// <summary><c>ki_hunter_a8_f00d</c>, an installed spritemap.</summary>
-    KiHunterA8F00d,
+    KiHunterPose33,
     /// <summary><c>ki_hunter_a8_f03c</c>, an installed spritemap.</summary>
-    KiHunterA8F03c,
+    KiHunterPose34,
     /// <summary><c>ki_hunter_a8_f06b</c>, an installed spritemap.</summary>
-    KiHunterA8F06b,
+    KiHunterPose35,
     /// <summary><c>ki_hunter_a8_f09a</c>, an installed spritemap.</summary>
-    KiHunterA8F09a,
+    KiHunterPose36,
     /// <summary><c>ki_hunter_a8_f0c4</c>, an installed spritemap.</summary>
-    KiHunterA8F0c4,
+    KiHunterPose37,
     /// <summary><c>ki_hunter_a8_f0f3</c>, an installed spritemap.</summary>
-    KiHunterA8F0f3,
+    KiHunterPose38,
     /// <summary><c>ki_hunter_a8_f122</c>, an installed spritemap.</summary>
-    KiHunterA8F122,
+    KiHunterPose39,
     /// <summary><c>ki_hunter_a8_f151</c>, an installed spritemap.</summary>
-    KiHunterA8F151,
+    KiHunterPose40,
     /// <summary><c>mother_brain_a9_a586</c>, an installed spritemap.</summary>
-    MotherBrainA9A586,
+    MotherBrainHead0,
     /// <summary><c>mother_brain_a9_a5bf</c>, an installed spritemap.</summary>
-    MotherBrainA9A5bf,
+    MotherBrainHead1,
     /// <summary><c>mother_brain_a9_a5f8</c>, an installed spritemap.</summary>
-    MotherBrainA9A5f8,
+    MotherBrainHead2,
     /// <summary><c>mother_brain_a9_a62c</c>, an installed spritemap.</summary>
-    MotherBrainA9A62c,
+    MotherBrainHead3,
     /// <summary><c>mother_brain_a9_a660</c>, an installed spritemap.</summary>
-    MotherBrainA9A660,
+    MotherBrainHead4,
     /// <summary><c>mother_brain_a9_a694</c>, an installed spritemap.</summary>
-    MotherBrainA9A694,
+    MotherBrainNeckJoint,
     /// <summary><c>mother_brain_a9_a69b</c>, an installed spritemap.</summary>
-    MotherBrainA9A69b,
+    MotherBrainHead6,
     /// <summary><c>mother_brain_a9_a6d9</c>, an installed spritemap.</summary>
-    MotherBrainA9A6d9,
+    MotherBrainHead7,
     /// <summary><c>mother_brain_a9_a717</c>, an installed spritemap.</summary>
-    MotherBrainA9A717,
+    MotherBrainHead8,
     /// <summary><c>mother_brain_a9_a750</c>, an installed spritemap.</summary>
-    MotherBrainA9A750,
+    MotherBrainHead9,
     /// <summary><c>mother_brain_a9_a789</c>, an installed spritemap.</summary>
-    MotherBrainA9A789,
+    MotherBrainHead10,
     /// <summary><c>mother_brain_a9_ad3e</c>, an installed spritemap.</summary>
-    MotherBrainA9Ad3e,
+    MotherBrainHead11,
     /// <summary><c>mother_brain_a9_ad6d</c>, an installed spritemap.</summary>
-    MotherBrainA9Ad6d,
+    MotherBrainHead12,
     /// <summary><c>mother_brain_a9_ada1</c>, an installed spritemap.</summary>
-    MotherBrainA9Ada1,
+    MotherBrainTube0,
     /// <summary><c>mother_brain_a9_add5</c>, an installed spritemap.</summary>
-    MotherBrainA9Add5,
+    MotherBrainTube1,
     /// <summary><c>mother_brain_a9_ae09</c>, an installed spritemap.</summary>
-    MotherBrainA9Ae09,
+    MotherBrainTube2,
     /// <summary><c>mother_brain_a9_ae33</c>, an installed spritemap.</summary>
-    MotherBrainA9Ae33,
+    MotherBrainTube3,
     /// <summary><c>mother_brain_a9_ae5d</c>, an installed spritemap.</summary>
-    MotherBrainA9Ae5d,
+    MotherBrainTube4,
     /// <summary><c>dead_torizo_corpse_a9_d761</c>, an installed spritemap.</summary>
-    DeadTorizoCorpseA9D761,
+    DeadTorizoCorpseHook,
     /// <summary><c>ridley_supplement_a6_dc90</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dc90,
+    RidleyTailSegmentSmall,
     /// <summary><c>ridley_supplement_a6_dc97</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dc97,
+    RidleyTailSegmentMedium,
     /// <summary><c>ridley_supplement_a6_dc9e</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dc9e,
+    RidleyTailSegmentLarge,
     /// <summary><c>ridley_supplement_a6_dcda</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dcda,
+    RidleyTailTip12,
     /// <summary><c>ridley_supplement_a6_dce1</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dce1,
+    RidleyTailTip11,
     /// <summary><c>ridley_supplement_a6_dce8</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dce8,
+    RidleyTailTip10,
     /// <summary><c>ridley_supplement_a6_dcef</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dcef,
+    RidleyTailTip9,
     /// <summary><c>ridley_supplement_a6_dcf6</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dcf6,
+    RidleyTailTip8,
     /// <summary><c>ridley_supplement_a6_dcfd</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dcfd,
+    RidleyTailTip7,
     /// <summary><c>ridley_supplement_a6_dd04</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd04,
+    RidleyTailTip6,
     /// <summary><c>ridley_supplement_a6_dd0b</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd0b,
+    RidleyTailTip5,
     /// <summary><c>ridley_supplement_a6_dd12</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd12,
+    RidleyTailTip4,
     /// <summary><c>ridley_supplement_a6_dd19</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd19,
+    RidleyTailTip3,
     /// <summary><c>ridley_supplement_a6_dd20</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd20,
+    RidleyTailTip2,
     /// <summary><c>ridley_supplement_a6_dd27</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd27,
+    RidleyTailTip1,
     /// <summary><c>ridley_supplement_a6_dd2e</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd2e,
+    RidleyTailTip0,
     /// <summary><c>ridley_supplement_a6_dd35</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd35,
+    RidleyTailTip15,
     /// <summary><c>ridley_supplement_a6_dd3c</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd3c,
+    RidleyTailTip14,
     /// <summary><c>ridley_supplement_a6_dd43</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd43,
+    RidleyTailTip13,
     /// <summary><c>ridley_supplement_a6_dd4a</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd4a,
+    RidleyWingLeft0,
     /// <summary><c>ridley_supplement_a6_dd6a</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd6a,
+    RidleyWingLeft1,
     /// <summary><c>ridley_supplement_a6_dd85</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd85,
+    RidleyWingLeft2,
     /// <summary><c>ridley_supplement_a6_dd96</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dd96,
+    RidleyWingLeft3,
     /// <summary><c>ridley_supplement_a6_dda7</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dda7,
+    RidleyWingLeft4,
     /// <summary><c>ridley_supplement_a6_ddc2</c>, an installed spritemap.</summary>
-    RidleySupplementA6Ddc2,
+    RidleyWingLeft5,
     /// <summary><c>ridley_supplement_a6_dde2</c>, an installed spritemap.</summary>
-    RidleySupplementA6Dde2,
+    RidleyWingRight0,
     /// <summary><c>ridley_supplement_a6_de02</c>, an installed spritemap.</summary>
-    RidleySupplementA6De02,
+    RidleyWingRight1,
     /// <summary><c>ridley_supplement_a6_de1d</c>, an installed spritemap.</summary>
-    RidleySupplementA6De1d,
+    RidleyWingRight2,
     /// <summary><c>ridley_supplement_a6_de2e</c>, an installed spritemap.</summary>
-    RidleySupplementA6De2e,
+    RidleyWingRight3,
     /// <summary><c>ridley_supplement_a6_de3f</c>, an installed spritemap.</summary>
-    RidleySupplementA6De3f,
+    RidleyWingRight4,
     /// <summary><c>ridley_supplement_a6_de5a</c>, an installed spritemap.</summary>
-    RidleySupplementA6De5a,
+    RidleyWingRight5,
     /// <summary><c>sciser_upside_right_0</c>, an installed spritemap.</summary>
     SciserUpsideRight0,
     /// <summary><c>sciser_upside_right_1</c>, an installed spritemap.</summary>
@@ -1923,107 +1925,107 @@ public enum EnemyFrameId
     /// <summary><c>multiviola_spin_7</c>, an installed spritemap.</summary>
     MultiviolaSpin7,
     /// <summary><c>norfair_lava_jumper_c02c</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC02c,
+    NorfairLavaJumperPose1,
     /// <summary><c>norfair_lava_jumper_c042</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC042,
+    NorfairLavaJumperPose2,
     /// <summary><c>norfair_lava_jumper_c058</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC058,
+    NorfairLavaJumperPose3,
     /// <summary><c>norfair_lava_jumper_c064</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC064,
+    NorfairLavaJumperPose4,
     /// <summary><c>norfair_lava_jumper_c070</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC070,
+    NorfairLavaJumperPose5,
     /// <summary><c>norfair_lava_jumper_c086</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC086,
+    NorfairLavaJumperPose6,
     /// <summary><c>norfair_lava_jumper_c09c</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC09c,
+    NorfairLavaJumperPose7,
     /// <summary><c>norfair_lava_jumper_c0ad</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC0ad,
+    NorfairLavaJumperPose8,
     /// <summary><c>norfair_lava_jumper_804d</c>, an installed spritemap.</summary>
-    NorfairLavaJumper804d,
+    NorfairLavaJumperPose0,
     /// <summary><c>norfair_lava_jumper_c0c5</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC0c5,
+    NorfairLavaJumperPose10,
     /// <summary><c>norfair_lava_jumper_c0b9</c>, an installed spritemap.</summary>
-    NorfairLavaJumperC0b9,
+    NorfairLavaJumperPose9,
     /// <summary><c>chozo_statue_aa_efd8</c>, an installed spritemap.</summary>
-    ChozoStatueAaEfd8,
+    ChozoStatuePose17,
     /// <summary><c>chozo_statue_aa_f034</c>, an installed spritemap.</summary>
-    ChozoStatueAaF034,
+    ChozoStatuePose18,
     /// <summary><c>chozo_statue_aa_f08b</c>, an installed spritemap.</summary>
-    ChozoStatueAaF08b,
+    ChozoStatuePose19,
     /// <summary><c>chozo_statue_aa_f0e2</c>, an installed spritemap.</summary>
-    ChozoStatueAaF0e2,
+    ChozoStatuePose20,
     /// <summary><c>chozo_statue_aa_f4b4</c>, an installed spritemap.</summary>
-    ChozoStatueAaF4b4,
+    ChozoStatuePose21,
     /// <summary><c>chozo_statue_aa_f510</c>, an installed spritemap.</summary>
-    ChozoStatueAaF510,
+    ChozoStatuePose22,
     /// <summary><c>chozo_statue_aa_f56c</c>, an installed spritemap.</summary>
-    ChozoStatueAaF56c,
+    ChozoStatuePose23,
     /// <summary><c>chozo_statue_aa_f5c8</c>, an installed spritemap.</summary>
-    ChozoStatueAaF5c8,
+    ChozoStatuePose24,
     /// <summary><c>chozo_statue_aa_f624</c>, an installed spritemap.</summary>
-    ChozoStatueAaF624,
+    ChozoStatuePose25,
     /// <summary><c>chozo_statue_aa_e7dd</c>, an installed spritemap.</summary>
-    ChozoStatueAaE7dd,
+    ChozoStatuePose0,
     /// <summary><c>chozo_statue_aa_e839</c>, an installed spritemap.</summary>
-    ChozoStatueAaE839,
+    ChozoStatuePose1,
     /// <summary><c>chozo_statue_aa_e890</c>, an installed spritemap.</summary>
-    ChozoStatueAaE890,
+    ChozoStatuePose2,
     /// <summary><c>chozo_statue_aa_e8e7</c>, an installed spritemap.</summary>
-    ChozoStatueAaE8e7,
+    ChozoStatuePose3,
     /// <summary><c>chozo_statue_aa_ecb9</c>, an installed spritemap.</summary>
-    ChozoStatueAaEcb9,
+    ChozoStatuePose12,
     /// <summary><c>chozo_statue_aa_ed15</c>, an installed spritemap.</summary>
-    ChozoStatueAaEd15,
+    ChozoStatuePose13,
     /// <summary><c>chozo_statue_aa_ed71</c>, an installed spritemap.</summary>
-    ChozoStatueAaEd71,
+    ChozoStatuePose14,
     /// <summary><c>chozo_statue_aa_edcd</c>, an installed spritemap.</summary>
-    ChozoStatueAaEdcd,
+    ChozoStatuePose15,
     /// <summary><c>chozo_statue_aa_ee29</c>, an installed spritemap.</summary>
-    ChozoStatueAaEe29,
+    ChozoStatuePose16,
     /// <summary><c>chozo_statue_aa_ec49</c>, an installed spritemap.</summary>
-    ChozoStatueAaEc49,
+    ChozoStatuePose11,
     /// <summary><c>chozo_statue_aa_e943</c>, an installed spritemap.</summary>
-    ChozoStatueAaE943,
+    ChozoStatuePose4,
     /// <summary><c>chozo_statue_aa_e9ae</c>, an installed spritemap.</summary>
-    ChozoStatueAaE9ae,
+    ChozoStatuePose5,
     /// <summary><c>chozo_statue_aa_ea1e</c>, an installed spritemap.</summary>
-    ChozoStatueAaEa1e,
+    ChozoStatuePose6,
     /// <summary><c>chozo_statue_aa_ea8e</c>, an installed spritemap.</summary>
-    ChozoStatueAaEa8e,
+    ChozoStatuePose7,
     /// <summary><c>chozo_statue_aa_eafe</c>, an installed spritemap.</summary>
-    ChozoStatueAaEafe,
+    ChozoStatuePose8,
     /// <summary><c>chozo_statue_aa_eb69</c>, an installed spritemap.</summary>
-    ChozoStatueAaEb69,
+    ChozoStatuePose9,
     /// <summary><c>chozo_statue_aa_ebd9</c>, an installed spritemap.</summary>
-    ChozoStatueAaEbd9,
+    ChozoStatuePose10,
     /// <summary><c>viola_spin_b689</c>, an installed spritemap.</summary>
-    ViolaSpinB689,
+    ViolaSpin0,
     /// <summary><c>viola_spin_b690</c>, an installed spritemap.</summary>
-    ViolaSpinB690,
+    ViolaSpin1,
     /// <summary><c>viola_spin_b697</c>, an installed spritemap.</summary>
-    ViolaSpinB697,
+    ViolaSpin2,
     /// <summary><c>viola_spin_b69e</c>, an installed spritemap.</summary>
-    ViolaSpinB69e,
+    ViolaSpin3,
     /// <summary><c>viola_spin_b6a5</c>, an installed spritemap.</summary>
-    ViolaSpinB6a5,
+    ViolaSpin4,
     /// <summary><c>viola_spin_b6ac</c>, an installed spritemap.</summary>
-    ViolaSpinB6ac,
+    ViolaSpin5,
     /// <summary><c>viola_spin_b6b3</c>, an installed spritemap.</summary>
-    ViolaSpinB6b3,
+    ViolaSpin6,
     /// <summary><c>viola_spin_b6ba</c>, an installed spritemap.</summary>
-    ViolaSpinB6ba,
+    ViolaSpin7,
     /// <summary><c>rinka_spin_ba38</c>, an installed spritemap.</summary>
-    RinkaSpinBa38,
+    RinkaSpin0,
     /// <summary><c>rinka_spin_ba3f</c>, an installed spritemap.</summary>
-    RinkaSpinBa3f,
+    RinkaSpin1,
     /// <summary><c>rinka_spin_ba46</c>, an installed spritemap.</summary>
-    RinkaSpinBa46,
+    RinkaSpin2,
     /// <summary><c>rinka_spin_ba4d</c>, an installed spritemap.</summary>
-    RinkaSpinBa4d,
+    RinkaSpin3,
     /// <summary><c>rinka_spin_ba54</c>, an installed spritemap.</summary>
-    RinkaSpinBa54,
+    RinkaSpin4,
     /// <summary><c>dead_torizo_stationary_a9_d6e2</c>, an installed spritemap.</summary>
-    DeadTorizoStationaryA9D6e2,
+    DeadTorizoStationary,
     /// <summary><c>dead_zoomer_corpse_0</c>, an installed spritemap.</summary>
     DeadZoomerCorpse0,
     /// <summary><c>dead_zoomer_corpse_2</c>, an installed spritemap.</summary>
@@ -2941,789 +2943,789 @@ public enum EnemyFrameId
     /// <summary><c>wall_pirate_climb_right_4</c>, an installed extended frame.</summary>
     WallPirateClimbRight4,
     /// <summary><c>ninja_pirate_8A54</c>, an installed extended frame.</summary>
-    NinjaPirate8A54,
+    NinjaPiratePose0,
     /// <summary><c>ninja_pirate_8A66</c>, an installed extended frame.</summary>
-    NinjaPirate8A66,
+    NinjaPiratePose1,
     /// <summary><c>ninja_pirate_8A78</c>, an installed extended frame.</summary>
-    NinjaPirate8A78,
+    NinjaPiratePose2,
     /// <summary><c>ninja_pirate_8A8A</c>, an installed extended frame.</summary>
-    NinjaPirate8A8A,
+    NinjaPiratePose3,
     /// <summary><c>ninja_pirate_8A9C</c>, an installed extended frame.</summary>
-    NinjaPirate8A9C,
+    NinjaPiratePose4,
     /// <summary><c>ninja_pirate_8AAE</c>, an installed extended frame.</summary>
-    NinjaPirate8AAE,
+    NinjaPiratePose5,
     /// <summary><c>ninja_pirate_8AC0</c>, an installed extended frame.</summary>
-    NinjaPirate8AC0,
+    NinjaPiratePose6,
     /// <summary><c>ninja_pirate_8AD2</c>, an installed extended frame.</summary>
-    NinjaPirate8AD2,
+    NinjaPiratePose7,
     /// <summary><c>ninja_pirate_8AE4</c>, an installed extended frame.</summary>
-    NinjaPirate8AE4,
+    NinjaPiratePose8,
     /// <summary><c>ninja_pirate_8D96</c>, an installed extended frame.</summary>
-    NinjaPirate8D96,
+    NinjaPiratePose17,
     /// <summary><c>ninja_pirate_8DA0</c>, an installed extended frame.</summary>
-    NinjaPirate8DA0,
+    NinjaPiratePose18,
     /// <summary><c>ninja_pirate_8DAA</c>, an installed extended frame.</summary>
-    NinjaPirate8DAA,
+    NinjaPiratePose19,
     /// <summary><c>ninja_pirate_8DB4</c>, an installed extended frame.</summary>
-    NinjaPirate8DB4,
+    NinjaPiratePose20,
     /// <summary><c>ninja_pirate_8DBE</c>, an installed extended frame.</summary>
-    NinjaPirate8DBE,
+    NinjaPiratePose21,
     /// <summary><c>ninja_pirate_8DC8</c>, an installed extended frame.</summary>
-    NinjaPirate8DC8,
+    NinjaPiratePose22,
     /// <summary><c>ninja_pirate_8DD2</c>, an installed extended frame.</summary>
-    NinjaPirate8DD2,
+    NinjaPiratePose23,
     /// <summary><c>ninja_pirate_8DDC</c>, an installed extended frame.</summary>
-    NinjaPirate8DDC,
+    NinjaPiratePose24,
     /// <summary><c>ninja_pirate_8F56</c>, an installed extended frame.</summary>
-    NinjaPirate8F56,
+    NinjaPiratePose49,
     /// <summary><c>ninja_pirate_8F60</c>, an installed extended frame.</summary>
-    NinjaPirate8F60,
+    NinjaPiratePose50,
     /// <summary><c>ninja_pirate_8F6A</c>, an installed extended frame.</summary>
-    NinjaPirate8F6A,
+    NinjaPiratePose51,
     /// <summary><c>ninja_pirate_8F9C</c>, an installed extended frame.</summary>
-    NinjaPirate8F9C,
+    NinjaPiratePose55,
     /// <summary><c>ninja_pirate_90FE</c>, an installed extended frame.</summary>
-    NinjaPirate90FE,
+    NinjaPiratePose65,
     /// <summary><c>ninja_pirate_900A</c>, an installed extended frame.</summary>
-    NinjaPirate900A,
+    NinjaPiratePose57,
     /// <summary><c>ninja_pirate_9014</c>, an installed extended frame.</summary>
-    NinjaPirate9014,
+    NinjaPiratePose58,
     /// <summary><c>ninja_pirate_8E36</c>, an installed extended frame.</summary>
-    NinjaPirate8E36,
+    NinjaPiratePose33,
     /// <summary><c>ninja_pirate_8E48</c>, an installed extended frame.</summary>
-    NinjaPirate8E48,
+    NinjaPiratePose34,
     /// <summary><c>ninja_pirate_8E5A</c>, an installed extended frame.</summary>
-    NinjaPirate8E5A,
+    NinjaPiratePose35,
     /// <summary><c>ninja_pirate_8E6C</c>, an installed extended frame.</summary>
-    NinjaPirate8E6C,
+    NinjaPiratePose36,
     /// <summary><c>ninja_pirate_8E7E</c>, an installed extended frame.</summary>
-    NinjaPirate8E7E,
+    NinjaPiratePose37,
     /// <summary><c>ninja_pirate_8E90</c>, an installed extended frame.</summary>
-    NinjaPirate8E90,
+    NinjaPiratePose38,
     /// <summary><c>ninja_pirate_8EA2</c>, an installed extended frame.</summary>
-    NinjaPirate8EA2,
+    NinjaPiratePose39,
     /// <summary><c>ninja_pirate_8EB4</c>, an installed extended frame.</summary>
-    NinjaPirate8EB4,
+    NinjaPiratePose40,
     /// <summary><c>ninja_pirate_93EA</c>, an installed extended frame.</summary>
-    NinjaPirate93EA,
+    NinjaPiratePose69,
     /// <summary><c>ninja_pirate_9404</c>, an installed extended frame.</summary>
-    NinjaPirate9404,
+    NinjaPiratePose70,
     /// <summary><c>ninja_pirate_9416</c>, an installed extended frame.</summary>
-    NinjaPirate9416,
+    NinjaPiratePose71,
     /// <summary><c>ninja_pirate_9476</c>, an installed extended frame.</summary>
-    NinjaPirate9476,
+    NinjaPiratePose75,
     /// <summary><c>ninja_pirate_944A</c>, an installed extended frame.</summary>
-    NinjaPirate944A,
+    NinjaPiratePose73,
     /// <summary><c>ninja_pirate_8F74</c>, an installed extended frame.</summary>
-    NinjaPirate8F74,
+    NinjaPiratePose52,
     /// <summary><c>ninja_pirate_8F7E</c>, an installed extended frame.</summary>
-    NinjaPirate8F7E,
+    NinjaPiratePose53,
     /// <summary><c>ninja_pirate_8F88</c>, an installed extended frame.</summary>
-    NinjaPirate8F88,
+    NinjaPiratePose54,
     /// <summary><c>ninja_pirate_9032</c>, an installed extended frame.</summary>
-    NinjaPirate9032,
+    NinjaPiratePose61,
     /// <summary><c>ninja_pirate_9372</c>, an installed extended frame.</summary>
-    NinjaPirate9372,
+    NinjaPiratePose67,
     /// <summary><c>ninja_pirate_903C</c>, an installed extended frame.</summary>
-    NinjaPirate903C,
+    NinjaPiratePose62,
     /// <summary><c>ninja_pirate_8B86</c>, an installed extended frame.</summary>
-    NinjaPirate8B86,
+    NinjaPiratePose9,
     /// <summary><c>ninja_pirate_8B98</c>, an installed extended frame.</summary>
-    NinjaPirate8B98,
+    NinjaPiratePose10,
     /// <summary><c>ninja_pirate_8BAA</c>, an installed extended frame.</summary>
-    NinjaPirate8BAA,
+    NinjaPiratePose11,
     /// <summary><c>ninja_pirate_8BBC</c>, an installed extended frame.</summary>
-    NinjaPirate8BBC,
+    NinjaPiratePose12,
     /// <summary><c>ninja_pirate_8BCE</c>, an installed extended frame.</summary>
-    NinjaPirate8BCE,
+    NinjaPiratePose13,
     /// <summary><c>ninja_pirate_8BE0</c>, an installed extended frame.</summary>
-    NinjaPirate8BE0,
+    NinjaPiratePose14,
     /// <summary><c>ninja_pirate_8BF2</c>, an installed extended frame.</summary>
-    NinjaPirate8BF2,
+    NinjaPiratePose15,
     /// <summary><c>ninja_pirate_8C16</c>, an installed extended frame.</summary>
-    NinjaPirate8C16,
+    NinjaPiratePose16,
     /// <summary><c>ninja_pirate_8DE6</c>, an installed extended frame.</summary>
-    NinjaPirate8DE6,
+    NinjaPiratePose25,
     /// <summary><c>ninja_pirate_8DF0</c>, an installed extended frame.</summary>
-    NinjaPirate8DF0,
+    NinjaPiratePose26,
     /// <summary><c>ninja_pirate_8DFA</c>, an installed extended frame.</summary>
-    NinjaPirate8DFA,
+    NinjaPiratePose27,
     /// <summary><c>ninja_pirate_8E04</c>, an installed extended frame.</summary>
-    NinjaPirate8E04,
+    NinjaPiratePose28,
     /// <summary><c>ninja_pirate_8E0E</c>, an installed extended frame.</summary>
-    NinjaPirate8E0E,
+    NinjaPiratePose29,
     /// <summary><c>ninja_pirate_8E18</c>, an installed extended frame.</summary>
-    NinjaPirate8E18,
+    NinjaPiratePose30,
     /// <summary><c>ninja_pirate_8E22</c>, an installed extended frame.</summary>
-    NinjaPirate8E22,
+    NinjaPiratePose31,
     /// <summary><c>ninja_pirate_8E2C</c>, an installed extended frame.</summary>
-    NinjaPirate8E2C,
+    NinjaPiratePose32,
     /// <summary><c>ninja_pirate_8FB0</c>, an installed extended frame.</summary>
-    NinjaPirate8FB0,
+    NinjaPiratePose56,
     /// <summary><c>ninja_pirate_9280</c>, an installed extended frame.</summary>
-    NinjaPirate9280,
+    NinjaPiratePose66,
     /// <summary><c>ninja_pirate_901E</c>, an installed extended frame.</summary>
-    NinjaPirate901E,
+    NinjaPiratePose59,
     /// <summary><c>ninja_pirate_9028</c>, an installed extended frame.</summary>
-    NinjaPirate9028,
+    NinjaPiratePose60,
     /// <summary><c>ninja_pirate_8EC6</c>, an installed extended frame.</summary>
-    NinjaPirate8EC6,
+    NinjaPiratePose41,
     /// <summary><c>ninja_pirate_8ED8</c>, an installed extended frame.</summary>
-    NinjaPirate8ED8,
+    NinjaPiratePose42,
     /// <summary><c>ninja_pirate_8EEA</c>, an installed extended frame.</summary>
-    NinjaPirate8EEA,
+    NinjaPiratePose43,
     /// <summary><c>ninja_pirate_8EFC</c>, an installed extended frame.</summary>
-    NinjaPirate8EFC,
+    NinjaPiratePose44,
     /// <summary><c>ninja_pirate_8F0E</c>, an installed extended frame.</summary>
-    NinjaPirate8F0E,
+    NinjaPiratePose45,
     /// <summary><c>ninja_pirate_8F20</c>, an installed extended frame.</summary>
-    NinjaPirate8F20,
+    NinjaPiratePose46,
     /// <summary><c>ninja_pirate_8F32</c>, an installed extended frame.</summary>
-    NinjaPirate8F32,
+    NinjaPiratePose47,
     /// <summary><c>ninja_pirate_8F44</c>, an installed extended frame.</summary>
-    NinjaPirate8F44,
+    NinjaPiratePose48,
     /// <summary><c>ninja_pirate_9430</c>, an installed extended frame.</summary>
-    NinjaPirate9430,
+    NinjaPiratePose72,
     /// <summary><c>ninja_pirate_945C</c>, an installed extended frame.</summary>
-    NinjaPirate945C,
+    NinjaPiratePose74,
     /// <summary><c>ninja_pirate_9046</c>, an installed extended frame.</summary>
-    NinjaPirate9046,
+    NinjaPiratePose63,
     /// <summary><c>ninja_pirate_937C</c>, an installed extended frame.</summary>
-    NinjaPirate937C,
+    NinjaPiratePose68,
     /// <summary><c>ninja_pirate_9050</c>, an installed extended frame.</summary>
-    NinjaPirate9050,
+    NinjaPiratePose64,
     /// <summary><c>ridley_body_E983</c>, an installed extended frame.</summary>
-    RidleyBodyE983,
+    RidleyBodyLeft,
     /// <summary><c>ridley_body_E9A5</c>, an installed extended frame.</summary>
-    RidleyBodyE9A5,
+    RidleyBodyRight,
     /// <summary><c>ridley_body_E9C7</c>, an installed extended frame.</summary>
-    RidleyBodyE9C7,
+    RidleyBodyLeftMouthHalfOpen,
     /// <summary><c>ridley_body_E9E9</c>, an installed extended frame.</summary>
-    RidleyBodyE9E9,
+    RidleyBodyLeftMouthOpen,
     /// <summary><c>ridley_body_EA0B</c>, an installed extended frame.</summary>
-    RidleyBodyEA0B,
+    RidleyBodyRightMouthHalfOpen,
     /// <summary><c>ridley_body_EA2D</c>, an installed extended frame.</summary>
-    RidleyBodyEA2D,
+    RidleyBodyRightMouthOpen,
     /// <summary><c>ridley_body_EA4F</c>, an installed extended frame.</summary>
-    RidleyBodyEA4F,
+    RidleyBodyLeftLegsHalfExtended,
     /// <summary><c>ridley_body_EA71</c>, an installed extended frame.</summary>
-    RidleyBodyEA71,
+    RidleyBodyLeftLegsExtended,
     /// <summary><c>ridley_body_EA93</c>, an installed extended frame.</summary>
-    RidleyBodyEA93,
+    RidleyBodyRightLegsHalfExtended,
     /// <summary><c>ridley_body_EAB5</c>, an installed extended frame.</summary>
-    RidleyBodyEAB5,
+    RidleyBodyRightLegsExtended,
     /// <summary><c>ridley_body_EAD7</c>, an installed extended frame.</summary>
-    RidleyBodyEAD7,
+    RidleyBodyForward,
     /// <summary><c>draygon_oam_A2DF</c>, an installed extended frame.</summary>
-    DraygonOamA2DF,
+    DraygonFrame0,
     /// <summary><c>draygon_oam_A2E9</c>, an installed extended frame.</summary>
-    DraygonOamA2E9,
+    DraygonFrame1,
     /// <summary><c>draygon_oam_A2F3</c>, an installed extended frame.</summary>
-    DraygonOamA2F3,
+    DraygonFrame2,
     /// <summary><c>draygon_oam_A2FD</c>, an installed extended frame.</summary>
-    DraygonOamA2FD,
+    DraygonFrame3,
     /// <summary><c>draygon_oam_A307</c>, an installed extended frame.</summary>
-    DraygonOamA307,
+    DraygonFrame4,
     /// <summary><c>draygon_oam_A311</c>, an installed extended frame.</summary>
-    DraygonOamA311,
+    DraygonFrame5,
     /// <summary><c>draygon_oam_A3C5</c>, an installed extended frame.</summary>
-    DraygonOamA3C5,
+    DraygonFrame23,
     /// <summary><c>draygon_oam_A3CF</c>, an installed extended frame.</summary>
-    DraygonOamA3CF,
+    DraygonFrame24,
     /// <summary><c>draygon_oam_A3D9</c>, an installed extended frame.</summary>
-    DraygonOamA3D9,
+    DraygonFrame25,
     /// <summary><c>draygon_oam_A3E3</c>, an installed extended frame.</summary>
-    DraygonOamA3E3,
+    DraygonFrame26,
     /// <summary><c>draygon_oam_A40B</c>, an installed extended frame.</summary>
-    DraygonOamA40B,
+    DraygonFrame27,
     /// <summary><c>draygon_oam_A41D</c>, an installed extended frame.</summary>
-    DraygonOamA41D,
+    DraygonFrame28,
     /// <summary><c>draygon_oam_A42F</c>, an installed extended frame.</summary>
-    DraygonOamA42F,
+    DraygonFrame29,
     /// <summary><c>draygon_oam_A441</c>, an installed extended frame.</summary>
-    DraygonOamA441,
+    DraygonFrame30,
     /// <summary><c>draygon_oam_A453</c>, an installed extended frame.</summary>
-    DraygonOamA453,
+    DraygonFrame31,
     /// <summary><c>draygon_oam_A465</c>, an installed extended frame.</summary>
-    DraygonOamA465,
+    DraygonFrame32,
     /// <summary><c>draygon_oam_A477</c>, an installed extended frame.</summary>
-    DraygonOamA477,
+    DraygonFrame33,
     /// <summary><c>draygon_oam_A489</c>, an installed extended frame.</summary>
-    DraygonOamA489,
+    DraygonFrame34,
     /// <summary><c>draygon_oam_A4A3</c>, an installed extended frame.</summary>
-    DraygonOamA4A3,
+    DraygonFrame35,
     /// <summary><c>draygon_oam_A4C5</c>, an installed extended frame.</summary>
-    DraygonOamA4C5,
+    DraygonFrame36,
     /// <summary><c>draygon_oam_A4EF</c>, an installed extended frame.</summary>
-    DraygonOamA4EF,
+    DraygonFrame37,
     /// <summary><c>draygon_oam_A521</c>, an installed extended frame.</summary>
-    DraygonOamA521,
+    DraygonFrame38,
     /// <summary><c>draygon_oam_A55B</c>, an installed extended frame.</summary>
-    DraygonOamA55B,
+    DraygonFrame39,
     /// <summary><c>draygon_oam_A59D</c>, an installed extended frame.</summary>
-    DraygonOamA59D,
+    DraygonFrame40,
     /// <summary><c>draygon_oam_A607</c>, an installed extended frame.</summary>
-    DraygonOamA607,
+    DraygonFrame41,
     /// <summary><c>draygon_oam_A611</c>, an installed extended frame.</summary>
-    DraygonOamA611,
+    DraygonFrame42,
     /// <summary><c>draygon_oam_A61B</c>, an installed extended frame.</summary>
-    DraygonOamA61B,
+    DraygonFrame43,
     /// <summary><c>draygon_oam_A625</c>, an installed extended frame.</summary>
-    DraygonOamA625,
+    DraygonFrame44,
     /// <summary><c>draygon_oam_A62F</c>, an installed extended frame.</summary>
-    DraygonOamA62F,
+    DraygonFrame45,
     /// <summary><c>draygon_oam_A639</c>, an installed extended frame.</summary>
-    DraygonOamA639,
+    DraygonFrame46,
     /// <summary><c>draygon_oam_A6ED</c>, an installed extended frame.</summary>
-    DraygonOamA6ED,
+    DraygonFrame64,
     /// <summary><c>draygon_oam_A6F7</c>, an installed extended frame.</summary>
-    DraygonOamA6F7,
+    DraygonFrame65,
     /// <summary><c>draygon_oam_A701</c>, an installed extended frame.</summary>
-    DraygonOamA701,
+    DraygonFrame66,
     /// <summary><c>draygon_oam_A70B</c>, an installed extended frame.</summary>
-    DraygonOamA70B,
+    DraygonFrame67,
     /// <summary><c>draygon_oam_A779</c>, an installed extended frame.</summary>
-    DraygonOamA779,
+    DraygonFrame68,
     /// <summary><c>draygon_oam_A78B</c>, an installed extended frame.</summary>
-    DraygonOamA78B,
+    DraygonFrame69,
     /// <summary><c>draygon_oam_A79D</c>, an installed extended frame.</summary>
-    DraygonOamA79D,
+    DraygonFrame70,
     /// <summary><c>draygon_oam_A7AF</c>, an installed extended frame.</summary>
-    DraygonOamA7AF,
+    DraygonFrame71,
     /// <summary><c>draygon_oam_A7C1</c>, an installed extended frame.</summary>
-    DraygonOamA7C1,
+    DraygonFrame72,
     /// <summary><c>draygon_oam_A7D3</c>, an installed extended frame.</summary>
-    DraygonOamA7D3,
+    DraygonFrame73,
     /// <summary><c>draygon_oam_A7E5</c>, an installed extended frame.</summary>
-    DraygonOamA7E5,
+    DraygonFrame74,
     /// <summary><c>draygon_oam_A7F7</c>, an installed extended frame.</summary>
-    DraygonOamA7F7,
+    DraygonFrame75,
     /// <summary><c>draygon_oam_A811</c>, an installed extended frame.</summary>
-    DraygonOamA811,
+    DraygonFrame76,
     /// <summary><c>draygon_oam_A833</c>, an installed extended frame.</summary>
-    DraygonOamA833,
+    DraygonFrame77,
     /// <summary><c>draygon_oam_A85D</c>, an installed extended frame.</summary>
-    DraygonOamA85D,
+    DraygonFrame78,
     /// <summary><c>draygon_oam_A88F</c>, an installed extended frame.</summary>
-    DraygonOamA88F,
+    DraygonFrame79,
     /// <summary><c>draygon_oam_A8C9</c>, an installed extended frame.</summary>
-    DraygonOamA8C9,
+    DraygonFrame80,
     /// <summary><c>draygon_oam_A90B</c>, an installed extended frame.</summary>
-    DraygonOamA90B,
+    DraygonFrame81,
     /// <summary><c>spore_spawn_oam_EE65</c>, an installed extended frame.</summary>
-    SporeSpawnOamEE65,
+    SporeSpawnDead0,
     /// <summary><c>spore_spawn_oam_EE6F</c>, an installed extended frame.</summary>
-    SporeSpawnOamEE6F,
+    SporeSpawnClosed0,
     /// <summary><c>spore_spawn_oam_EE79</c>, an installed extended frame.</summary>
-    SporeSpawnOamEE79,
+    SporeSpawnOpening0,
     /// <summary><c>spore_spawn_oam_EE8B</c>, an installed extended frame.</summary>
-    SporeSpawnOamEE8B,
+    SporeSpawnOpening1,
     /// <summary><c>spore_spawn_oam_EE9D</c>, an installed extended frame.</summary>
-    SporeSpawnOamEE9D,
+    SporeSpawnOpening2,
     /// <summary><c>spore_spawn_oam_EEAF</c>, an installed extended frame.</summary>
-    SporeSpawnOamEEAF,
+    SporeSpawnOpening3,
     /// <summary><c>spore_spawn_oam_EEC1</c>, an installed extended frame.</summary>
-    SporeSpawnOamEEC1,
+    SporeSpawnOpening4,
     /// <summary><c>spore_spawn_oam_EED3</c>, an installed extended frame.</summary>
-    SporeSpawnOamEED3,
+    SporeSpawnOpening5,
     /// <summary><c>spore_spawn_oam_EEE5</c>, an installed extended frame.</summary>
-    SporeSpawnOamEEE5,
+    SporeSpawnOpening6,
     /// <summary><c>spore_spawn_oam_EF3D</c>, an installed extended frame.</summary>
-    SporeSpawnOamEF3D,
+    SporeSpawnOpen0,
     /// <summary><c>spore_spawn_oam_EF4F</c>, an installed extended frame.</summary>
-    SporeSpawnOamEF4F,
+    SporeSpawnOpen1,
     /// <summary><c>spore_spawn_oam_EF61</c>, an installed extended frame.</summary>
-    SporeSpawnOamEF61,
+    SporeSpawnOpen2,
     /// <summary><c>ceres_steam_oam_F142</c>, an installed extended frame.</summary>
-    CeresSteamOamF142,
+    CeresSteamPose0,
     /// <summary><c>ceres_steam_oam_F14C</c>, an installed extended frame.</summary>
-    CeresSteamOamF14C,
+    CeresSteamPose1,
     /// <summary><c>ceres_steam_oam_F156</c>, an installed extended frame.</summary>
-    CeresSteamOamF156,
+    CeresSteamPose2,
     /// <summary><c>ceres_steam_oam_F160</c>, an installed extended frame.</summary>
-    CeresSteamOamF160,
+    CeresSteamPose3,
     /// <summary><c>ceres_steam_oam_F16A</c>, an installed extended frame.</summary>
-    CeresSteamOamF16A,
+    CeresSteamPose4,
     /// <summary><c>ceres_steam_oam_F174</c>, an installed extended frame.</summary>
-    CeresSteamOamF174,
+    CeresSteamPose5,
     /// <summary><c>ceres_steam_oam_F17E</c>, an installed extended frame.</summary>
-    CeresSteamOamF17E,
+    CeresSteamPose6,
     /// <summary><c>ceres_steam_oam_F188</c>, an installed extended frame.</summary>
-    CeresSteamOamF188,
+    CeresSteamPose7,
     /// <summary><c>ceres_steam_oam_F192</c>, an installed extended frame.</summary>
-    CeresSteamOamF192,
+    CeresSteamPose8,
     /// <summary><c>ceres_steam_oam_F19C</c>, an installed extended frame.</summary>
-    CeresSteamOamF19C,
+    CeresSteamPose9,
     /// <summary><c>ceres_steam_oam_F1A6</c>, an installed extended frame.</summary>
-    CeresSteamOamF1A6,
+    CeresSteamPose10,
     /// <summary><c>ceres_steam_oam_F1B0</c>, an installed extended frame.</summary>
-    CeresSteamOamF1B0,
+    CeresSteamPose11,
     /// <summary><c>ceres_steam_oam_F1BA</c>, an installed extended frame.</summary>
-    CeresSteamOamF1BA,
+    CeresSteamPose12,
     /// <summary><c>ceres_steam_oam_F1C4</c>, an installed extended frame.</summary>
-    CeresSteamOamF1C4,
+    CeresSteamPose13,
     /// <summary><c>ceres_steam_oam_F1CE</c>, an installed extended frame.</summary>
-    CeresSteamOamF1CE,
+    CeresSteamPose14,
     /// <summary><c>ceres_steam_oam_F1D8</c>, an installed extended frame.</summary>
-    CeresSteamOamF1D8,
+    CeresSteamPose15,
     /// <summary><c>ceres_steam_oam_F1E2</c>, an installed extended frame.</summary>
-    CeresSteamOamF1E2,
+    CeresSteamPose16,
     /// <summary><c>ceres_steam_oam_F1EC</c>, an installed extended frame.</summary>
-    CeresSteamOamF1EC,
+    CeresSteamPose17,
     /// <summary><c>ceres_steam_oam_F1F6</c>, an installed extended frame.</summary>
-    CeresSteamOamF1F6,
+    CeresSteamPose18,
     /// <summary><c>ceres_steam_oam_F200</c>, an installed extended frame.</summary>
-    CeresSteamOamF200,
+    CeresSteamPose19,
     /// <summary><c>ceres_steam_oam_F20A</c>, an installed extended frame.</summary>
-    CeresSteamOamF20A,
+    CeresSteamPose20,
     /// <summary><c>ceres_steam_oam_F214</c>, an installed extended frame.</summary>
-    CeresSteamOamF214,
+    CeresSteamPose21,
     /// <summary><c>ceres_steam_oam_F21E</c>, an installed extended frame.</summary>
-    CeresSteamOamF21E,
+    CeresSteamPose22,
     /// <summary><c>ceres_steam_oam_F228</c>, an installed extended frame.</summary>
-    CeresSteamOamF228,
+    CeresSteamPose23,
     /// <summary><c>ceres_steam_oam_F232</c>, an installed extended frame.</summary>
-    CeresSteamOamF232,
+    CeresSteamPose24,
     /// <summary><c>ceres_steam_oam_F23C</c>, an installed extended frame.</summary>
-    CeresSteamOamF23C,
+    CeresSteamPose25,
     /// <summary><c>ceres_steam_oam_F246</c>, an installed extended frame.</summary>
-    CeresSteamOamF246,
+    CeresSteamPose26,
     /// <summary><c>ceres_steam_oam_F250</c>, an installed extended frame.</summary>
-    CeresSteamOamF250,
+    CeresSteamPose27,
     /// <summary><c>oum_oam_CB87</c>, an installed extended frame.</summary>
-    OumOamCB87,
+    OumPose0,
     /// <summary><c>oum_oam_CB91</c>, an installed extended frame.</summary>
-    OumOamCB91,
+    OumPose1,
     /// <summary><c>oum_oam_CB9B</c>, an installed extended frame.</summary>
-    OumOamCB9B,
+    OumPose2,
     /// <summary><c>oum_oam_CBA5</c>, an installed extended frame.</summary>
-    OumOamCBA5,
+    OumPose3,
     /// <summary><c>oum_oam_CBAF</c>, an installed extended frame.</summary>
-    OumOamCBAF,
+    OumPose4,
     /// <summary><c>oum_oam_CBB9</c>, an installed extended frame.</summary>
-    OumOamCBB9,
+    OumPose5,
     /// <summary><c>oum_oam_CBC3</c>, an installed extended frame.</summary>
-    OumOamCBC3,
+    OumPose6,
     /// <summary><c>oum_oam_CBCD</c>, an installed extended frame.</summary>
-    OumOamCBCD,
+    OumPose7,
     /// <summary><c>oum_oam_CBD7</c>, an installed extended frame.</summary>
-    OumOamCBD7,
+    OumPose8,
     /// <summary><c>oum_oam_CBE1</c>, an installed extended frame.</summary>
-    OumOamCBE1,
+    OumPose9,
     /// <summary><c>oum_oam_CBEB</c>, an installed extended frame.</summary>
-    OumOamCBEB,
+    OumPose10,
     /// <summary><c>oum_oam_CBF5</c>, an installed extended frame.</summary>
-    OumOamCBF5,
+    OumPose11,
     /// <summary><c>oum_oam_CBFF</c>, an installed extended frame.</summary>
-    OumOamCBFF,
+    OumPose12,
     /// <summary><c>oum_oam_CC09</c>, an installed extended frame.</summary>
-    OumOamCC09,
+    OumPose13,
     /// <summary><c>oum_oam_CC13</c>, an installed extended frame.</summary>
-    OumOamCC13,
+    OumPose14,
     /// <summary><c>oum_oam_CC1D</c>, an installed extended frame.</summary>
-    OumOamCC1D,
+    OumPose15,
     /// <summary><c>oum_oam_CC27</c>, an installed extended frame.</summary>
-    OumOamCC27,
+    OumPose16,
     /// <summary><c>oum_oam_CC31</c>, an installed extended frame.</summary>
-    OumOamCC31,
+    OumPose17,
     /// <summary><c>oum_oam_CC3B</c>, an installed extended frame.</summary>
-    OumOamCC3B,
+    OumPose18,
     /// <summary><c>oum_oam_CC45</c>, an installed extended frame.</summary>
-    OumOamCC45,
+    OumPose19,
     /// <summary><c>oum_oam_CC4F</c>, an installed extended frame.</summary>
-    OumOamCC4F,
+    OumPose20,
     /// <summary><c>oum_oam_CC59</c>, an installed extended frame.</summary>
-    OumOamCC59,
+    OumPose21,
     /// <summary><c>oum_oam_CC63</c>, an installed extended frame.</summary>
-    OumOamCC63,
+    OumPose22,
     /// <summary><c>oum_oam_CC6D</c>, an installed extended frame.</summary>
-    OumOamCC6D,
+    OumPose23,
     /// <summary><c>oum_oam_CC77</c>, an installed extended frame.</summary>
-    OumOamCC77,
+    OumPose24,
     /// <summary><c>oum_oam_CC81</c>, an installed extended frame.</summary>
-    OumOamCC81,
+    OumPose25,
     /// <summary><c>oum_oam_CC8B</c>, an installed extended frame.</summary>
-    OumOamCC8B,
+    OumPose26,
     /// <summary><c>oum_oam_CC95</c>, an installed extended frame.</summary>
-    OumOamCC95,
+    OumPose27,
     /// <summary><c>oum_oam_CC9F</c>, an installed extended frame.</summary>
-    OumOamCC9F,
+    OumPose28,
     /// <summary><c>oum_oam_CCA9</c>, an installed extended frame.</summary>
-    OumOamCCA9,
+    OumPose29,
     /// <summary><c>crocomire_oam_C65E</c>, an installed extended frame.</summary>
-    CrocomireOamC65E,
+    CrocomireTongueFight0,
     /// <summary><c>crocomire_oam_C668</c>, an installed extended frame.</summary>
-    CrocomireOamC668,
+    CrocomireTongueFight1,
     /// <summary><c>crocomire_oam_C672</c>, an installed extended frame.</summary>
-    CrocomireOamC672,
+    CrocomireTongueFight2,
     /// <summary><c>crocomire_oam_C67C</c>, an installed extended frame.</summary>
-    CrocomireOamC67C,
+    CrocomireTongueFight3,
     /// <summary><c>crocomire_oam_CACE</c>, an installed extended frame.</summary>
-    CrocomireOamCACE,
+    CrocomireTongueMeltingPose0,
     /// <summary><c>crocomire_oam_CAD8</c>, an installed extended frame.</summary>
-    CrocomireOamCAD8,
+    CrocomireTongueMeltingPose1,
     /// <summary><c>crocomire_oam_CAE2</c>, an installed extended frame.</summary>
-    CrocomireOamCAE2,
+    CrocomireTongueMeltingPose2,
     /// <summary><c>crocomire_oam_CAEC</c>, an installed extended frame.</summary>
-    CrocomireOamCAEC,
+    CrocomireTongueMeltingPose3,
     /// <summary><c>crocomire_oam_CAF6</c>, an installed extended frame.</summary>
-    CrocomireOamCAF6,
+    CrocomireTongueMeltingPose4,
     /// <summary><c>crocomire_body_oam_BFC4</c>, an installed extended frame.</summary>
-    CrocomireBodyOamBFC4,
+    CrocomireBody0,
     /// <summary><c>crocomire_body_oam_BFF6</c>, an installed extended frame.</summary>
-    CrocomireBodyOamBFF6,
+    CrocomireBody1,
     /// <summary><c>crocomire_body_oam_C028</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC028,
+    CrocomireBody2,
     /// <summary><c>crocomire_body_oam_C05A</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC05A,
+    CrocomireBody3,
     /// <summary><c>crocomire_body_oam_C08C</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC08C,
+    CrocomireBody4,
     /// <summary><c>crocomire_body_oam_C0BE</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC0BE,
+    CrocomireBody5,
     /// <summary><c>crocomire_body_oam_C0F0</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC0F0,
+    CrocomireBody6,
     /// <summary><c>crocomire_body_oam_C122</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC122,
+    CrocomireBody7,
     /// <summary><c>crocomire_body_oam_C154</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC154,
+    CrocomireBody8,
     /// <summary><c>crocomire_body_oam_C186</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC186,
+    CrocomireBody9,
     /// <summary><c>crocomire_body_oam_C1B8</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC1B8,
+    CrocomireBody10,
     /// <summary><c>crocomire_body_oam_C1EA</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC1EA,
+    CrocomireBody11,
     /// <summary><c>crocomire_body_oam_C2EC</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC2EC,
+    CrocomireBody12,
     /// <summary><c>crocomire_body_oam_C326</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC326,
+    CrocomireBody13,
     /// <summary><c>crocomire_body_oam_C360</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC360,
+    CrocomireBody14,
     /// <summary><c>crocomire_body_oam_C39A</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC39A,
+    CrocomireBody15,
     /// <summary><c>crocomire_body_oam_C3D4</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC3D4,
+    CrocomireBody16,
     /// <summary><c>crocomire_body_oam_C40E</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC40E,
+    CrocomireBody17,
     /// <summary><c>crocomire_body_oam_C448</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC448,
+    CrocomireBody18,
     /// <summary><c>crocomire_body_oam_C47A</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC47A,
+    CrocomireBody19,
     /// <summary><c>crocomire_body_oam_C4AC</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC4AC,
+    CrocomireBody20,
     /// <summary><c>crocomire_body_oam_C4DE</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC4DE,
+    CrocomireBody21,
     /// <summary><c>crocomire_body_oam_C510</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC510,
+    CrocomireBody22,
     /// <summary><c>crocomire_body_oam_C542</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC542,
+    CrocomireBody23,
     /// <summary><c>crocomire_body_oam_C574</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC574,
+    CrocomireBody24,
     /// <summary><c>crocomire_body_oam_C5AE</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC5AE,
+    CrocomireBody25,
     /// <summary><c>crocomire_body_oam_C5E8</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC5E8,
+    CrocomireBody26,
     /// <summary><c>crocomire_body_oam_C6A4</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC6A4,
+    CrocomireBody27,
     /// <summary><c>crocomire_body_oam_C752</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC752,
+    CrocomireBody28,
     /// <summary><c>crocomire_body_oam_C78C</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC78C,
+    CrocomireBody29,
     /// <summary><c>crocomire_body_oam_C7C6</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC7C6,
+    CrocomireBody30,
     /// <summary><c>crocomire_body_oam_C800</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC800,
+    CrocomireBody31,
     /// <summary><c>crocomire_body_oam_C83A</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC83A,
+    CrocomireBody32,
     /// <summary><c>crocomire_body_oam_C874</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC874,
+    CrocomireBody33,
     /// <summary><c>crocomire_body_oam_C8AE</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC8AE,
+    CrocomireBody34,
     /// <summary><c>crocomire_body_oam_C8E8</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC8E8,
+    CrocomireBody35,
     /// <summary><c>crocomire_body_oam_C922</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC922,
+    CrocomireBody36,
     /// <summary><c>crocomire_body_oam_C95C</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC95C,
+    CrocomireBody37,
     /// <summary><c>crocomire_body_oam_C996</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC996,
+    CrocomireBody38,
     /// <summary><c>crocomire_body_oam_C9D0</c>, an installed extended frame.</summary>
-    CrocomireBodyOamC9D0,
+    CrocomireBody39,
     /// <summary><c>crocomire_body_oam_CA0A</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCA0A,
+    CrocomireBody40,
     /// <summary><c>crocomire_body_oam_CA44</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCA44,
+    CrocomireBody41,
     /// <summary><c>crocomire_body_oam_CA7E</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCA7E,
+    CrocomireBody42,
     /// <summary><c>crocomire_body_oam_CA88</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCA88,
+    CrocomireBody43,
     /// <summary><c>crocomire_body_oam_CA92</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCA92,
+    CrocomireBody44,
     /// <summary><c>crocomire_body_oam_CA9C</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCA9C,
+    CrocomireBody45,
     /// <summary><c>crocomire_body_oam_CAA6</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCAA6,
+    CrocomireBody46,
     /// <summary><c>crocomire_body_oam_CAB0</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCAB0,
+    CrocomireBody47,
     /// <summary><c>crocomire_body_oam_CABA</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCABA,
+    CrocomireBody48,
     /// <summary><c>crocomire_body_oam_CAC4</c>, an installed extended frame.</summary>
-    CrocomireBodyOamCAC4,
+    CrocomireBody49,
     /// <summary><c>bomb_torizo_dormant</c>, an installed extended frame.</summary>
     BombTorizoDormant,
     /// <summary><c>golden_torizo_initial</c>, an installed extended frame.</summary>
     GoldenTorizoInitial,
     /// <summary><c>kraid_arm_oam_8F59</c>, an installed extended frame.</summary>
-    KraidArmOam8F59,
+    KraidArm0,
     /// <summary><c>kraid_arm_oam_8F83</c>, an installed extended frame.</summary>
-    KraidArmOam8F83,
+    KraidArm1,
     /// <summary><c>kraid_arm_oam_8FAD</c>, an installed extended frame.</summary>
-    KraidArmOam8FAD,
+    KraidArm2,
     /// <summary><c>kraid_arm_oam_8FD7</c>, an installed extended frame.</summary>
-    KraidArmOam8FD7,
+    KraidArm3,
     /// <summary><c>kraid_arm_oam_9001</c>, an installed extended frame.</summary>
-    KraidArmOam9001,
+    KraidArm4,
     /// <summary><c>kraid_arm_oam_902B</c>, an installed extended frame.</summary>
-    KraidArmOam902B,
+    KraidArm5,
     /// <summary><c>kraid_arm_oam_9055</c>, an installed extended frame.</summary>
-    KraidArmOam9055,
+    KraidArm6,
     /// <summary><c>kraid_arm_oam_907F</c>, an installed extended frame.</summary>
-    KraidArmOam907F,
+    KraidArm7,
     /// <summary><c>kraid_arm_oam_90A9</c>, an installed extended frame.</summary>
-    KraidArmOam90A9,
+    KraidArm8,
     /// <summary><c>kraid_arm_oam_90D3</c>, an installed extended frame.</summary>
-    KraidArmOam90D3,
+    KraidArm9,
     /// <summary><c>kraid_arm_oam_90FD</c>, an installed extended frame.</summary>
-    KraidArmOam90FD,
+    KraidArm10,
     /// <summary><c>kraid_arm_oam_9127</c>, an installed extended frame.</summary>
-    KraidArmOam9127,
+    KraidArm11,
     /// <summary><c>kraid_arm_oam_9151</c>, an installed extended frame.</summary>
-    KraidArmOam9151,
+    KraidArm12,
     /// <summary><c>kraid_arm_oam_917B</c>, an installed extended frame.</summary>
-    KraidArmOam917B,
+    KraidArm13,
     /// <summary><c>kraid_arm_oam_91A5</c>, an installed extended frame.</summary>
-    KraidArmOam91A5,
+    KraidArm14,
     /// <summary><c>kraid_arm_oam_91CF</c>, an installed extended frame.</summary>
-    KraidArmOam91CF,
+    KraidArm15,
     /// <summary><c>kraid_arm_oam_91F9</c>, an installed extended frame.</summary>
-    KraidArmOam91F9,
+    KraidArm16,
     /// <summary><c>kraid_arm_oam_9223</c>, an installed extended frame.</summary>
-    KraidArmOam9223,
+    KraidArm17,
     /// <summary><c>kraid_arm_oam_924D</c>, an installed extended frame.</summary>
-    KraidArmOam924D,
+    KraidArm18,
     /// <summary><c>kraid_arm_oam_9277</c>, an installed extended frame.</summary>
-    KraidArmOam9277,
+    KraidArm19,
     /// <summary><c>kraid_arm_oam_92A1</c>, an installed extended frame.</summary>
-    KraidArmOam92A1,
+    KraidArm20,
     /// <summary><c>kraid_arm_oam_92AB</c>, an installed extended frame.</summary>
-    KraidArmOam92AB,
+    KraidArm21,
     /// <summary><c>golden_torizo_awake_AA26</c>, an installed extended frame.</summary>
-    GoldenTorizoAwakeAA26,
+    GoldenTorizoAwake0,
     /// <summary><c>golden_torizo_awake_AA1C</c>, an installed extended frame.</summary>
-    GoldenTorizoAwakeAA1C,
+    GoldenTorizoAwake1,
     /// <summary><c>golden_torizo_awake_AA12</c>, an installed extended frame.</summary>
-    GoldenTorizoAwakeAA12,
+    GoldenTorizoAwake2,
     /// <summary><c>golden_torizo_awake_AA3A</c>, an installed extended frame.</summary>
-    GoldenTorizoAwakeAA3A,
+    GoldenTorizoAwake3,
     /// <summary><c>golden_torizo_awake_AA4C</c>, an installed extended frame.</summary>
-    GoldenTorizoAwakeAA4C,
+    GoldenTorizoAwake4,
     /// <summary><c>golden_torizo_awake_AA5E</c>, an installed extended frame.</summary>
-    GoldenTorizoAwakeAA5E,
+    GoldenTorizoAwake5,
     /// <summary><c>golden_torizo_walk_left_A4FA</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA4FA,
+    GoldenTorizoWalkLeft0,
     /// <summary><c>golden_torizo_walk_left_A51C</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA51C,
+    GoldenTorizoWalkLeft1,
     /// <summary><c>golden_torizo_walk_left_A53E</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA53E,
+    GoldenTorizoWalkLeft2,
     /// <summary><c>golden_torizo_walk_left_A560</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA560,
+    GoldenTorizoWalkLeft3,
     /// <summary><c>golden_torizo_walk_left_A582</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA582,
+    GoldenTorizoWalkLeft4,
     /// <summary><c>golden_torizo_walk_left_A5A4</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA5A4,
+    GoldenTorizoWalkLeft5,
     /// <summary><c>golden_torizo_walk_left_A5C6</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA5C6,
+    GoldenTorizoWalkLeft6,
     /// <summary><c>golden_torizo_walk_left_A5E8</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA5E8,
+    GoldenTorizoWalkLeft7,
     /// <summary><c>golden_torizo_walk_left_A60A</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA60A,
+    GoldenTorizoWalkLeft8,
     /// <summary><c>golden_torizo_walk_left_A62C</c>, an installed extended frame.</summary>
-    GoldenTorizoWalkLeftA62C,
+    GoldenTorizoWalkLeft9,
     /// <summary><c>golden_torizo_rightward_A4F0</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardA4F0,
+    GoldenTorizoRightward0,
     /// <summary><c>golden_torizo_rightward_AA98</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAA98,
+    GoldenTorizoRightward1,
     /// <summary><c>golden_torizo_rightward_AABA</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAABA,
+    GoldenTorizoRightward2,
     /// <summary><c>golden_torizo_rightward_AADC</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAADC,
+    GoldenTorizoRightward3,
     /// <summary><c>golden_torizo_rightward_AAFE</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAAFE,
+    GoldenTorizoRightward4,
     /// <summary><c>golden_torizo_rightward_AB20</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAB20,
+    GoldenTorizoRightward5,
     /// <summary><c>golden_torizo_rightward_AB42</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAB42,
+    GoldenTorizoRightward6,
     /// <summary><c>golden_torizo_rightward_AB64</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAB64,
+    GoldenTorizoRightward7,
     /// <summary><c>golden_torizo_rightward_AB86</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardAB86,
+    GoldenTorizoRightward8,
     /// <summary><c>golden_torizo_rightward_ABA8</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardABA8,
+    GoldenTorizoRightward9,
     /// <summary><c>golden_torizo_rightward_ABCA</c>, an installed extended frame.</summary>
-    GoldenTorizoRightwardABCA,
+    GoldenTorizoRightward10,
     /// <summary><c>torizo_jump_back_B048</c>, an installed extended frame.</summary>
-    TorizoJumpBackB048,
+    TorizoJumpBack0,
     /// <summary><c>torizo_jump_back_B062</c>, an installed extended frame.</summary>
-    TorizoJumpBackB062,
+    TorizoJumpBack1,
     /// <summary><c>torizo_jump_back_B07C</c>, an installed extended frame.</summary>
-    TorizoJumpBackB07C,
+    TorizoJumpBack2,
     /// <summary><c>golden_torizo_right_orb_AC88</c>, an installed extended frame.</summary>
-    GoldenTorizoRightOrbAC88,
+    GoldenTorizoRightOrb0,
     /// <summary><c>golden_torizo_right_orb_ACA2</c>, an installed extended frame.</summary>
-    GoldenTorizoRightOrbACA2,
+    GoldenTorizoRightOrb1,
     /// <summary><c>golden_torizo_right_orb_ACBC</c>, an installed extended frame.</summary>
-    GoldenTorizoRightOrbACBC,
+    GoldenTorizoRightOrb2,
     /// <summary><c>golden_torizo_right_orb_ACD6</c>, an installed extended frame.</summary>
-    GoldenTorizoRightOrbACD6,
+    GoldenTorizoRightOrb3,
     /// <summary><c>golden_torizo_right_orb_ACF0</c>, an installed extended frame.</summary>
-    GoldenTorizoRightOrbACF0,
+    GoldenTorizoRightOrb4,
     /// <summary><c>golden_torizo_right_orb_AD0A</c>, an installed extended frame.</summary>
-    GoldenTorizoRightOrbAD0A,
+    GoldenTorizoRightOrb5,
     /// <summary><c>golden_torizo_right_sonic_ABEC</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicABEC,
+    GoldenTorizoRightSonic0,
     /// <summary><c>golden_torizo_right_sonic_AD24</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAD24,
+    GoldenTorizoRightSonic1,
     /// <summary><c>golden_torizo_right_sonic_AD3E</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAD3E,
+    GoldenTorizoRightSonic2,
     /// <summary><c>golden_torizo_right_sonic_AD60</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAD60,
+    GoldenTorizoRightSonic3,
     /// <summary><c>golden_torizo_right_sonic_AD82</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAD82,
+    GoldenTorizoRightSonic4,
     /// <summary><c>golden_torizo_right_sonic_ADA4</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicADA4,
+    GoldenTorizoRightSonic5,
     /// <summary><c>golden_torizo_right_sonic_ADC6</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicADC6,
+    GoldenTorizoRightSonic6,
     /// <summary><c>golden_torizo_right_sonic_ADE8</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicADE8,
+    GoldenTorizoRightSonic7,
     /// <summary><c>golden_torizo_right_sonic_AE0A</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAE0A,
+    GoldenTorizoRightSonic8,
     /// <summary><c>golden_torizo_right_sonic_AE2C</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAE2C,
+    GoldenTorizoRightSonic9,
     /// <summary><c>golden_torizo_right_sonic_AE4E</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAE4E,
+    GoldenTorizoRightSonic10,
     /// <summary><c>golden_torizo_right_sonic_AE70</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAE70,
+    GoldenTorizoRightSonic11,
     /// <summary><c>golden_torizo_right_sonic_AE8A</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAE8A,
+    GoldenTorizoRightSonic12,
     /// <summary><c>golden_torizo_right_sonic_AEA4</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAEA4,
+    GoldenTorizoRightSonic13,
     /// <summary><c>golden_torizo_right_sonic_AEBE</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAEBE,
+    GoldenTorizoRightSonic14,
     /// <summary><c>golden_torizo_right_sonic_AED8</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAED8,
+    GoldenTorizoRightSonic15,
     /// <summary><c>golden_torizo_right_sonic_AEF2</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAEF2,
+    GoldenTorizoRightSonic16,
     /// <summary><c>golden_torizo_right_sonic_AF14</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAF14,
+    GoldenTorizoRightSonic17,
     /// <summary><c>golden_torizo_right_sonic_AF36</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAF36,
+    GoldenTorizoRightSonic18,
     /// <summary><c>golden_torizo_right_sonic_AF58</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAF58,
+    GoldenTorizoRightSonic19,
     /// <summary><c>golden_torizo_right_sonic_AF7A</c>, an installed extended frame.</summary>
-    GoldenTorizoRightSonicAF7A,
+    GoldenTorizoRightSonic20,
     /// <summary><c>torizo_falling_left_B014</c>, an installed extended frame.</summary>
-    TorizoFallingLeftB014,
+    TorizoFallingLeft,
     /// <summary><c>golden_torizo_left_foot_orb_AC06</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftFootOrbAC06,
+    GoldenTorizoLeftFootOrb0,
     /// <summary><c>golden_torizo_left_foot_orb_AC20</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftFootOrbAC20,
+    GoldenTorizoLeftFootOrb1,
     /// <summary><c>golden_torizo_left_foot_orb_AC3A</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftFootOrbAC3A,
+    GoldenTorizoLeftFootOrb2,
     /// <summary><c>golden_torizo_left_foot_orb_AC54</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftFootOrbAC54,
+    GoldenTorizoLeftFootOrb3,
     /// <summary><c>golden_torizo_left_foot_orb_AC6E</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftFootOrbAC6E,
+    GoldenTorizoLeftFootOrb4,
     /// <summary><c>torizo_jump_back_left_AFFA</c>, an installed extended frame.</summary>
-    TorizoJumpBackLeftAFFA,
+    TorizoJumpBackLeft0,
     /// <summary><c>torizo_jump_back_left_B02E</c>, an installed extended frame.</summary>
-    TorizoJumpBackLeftB02E,
+    TorizoJumpBackLeft1,
     /// <summary><c>golden_torizo_left_orb_A64E</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA64E,
+    GoldenTorizoLeftOrb0,
     /// <summary><c>golden_torizo_left_orb_A668</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA668,
+    GoldenTorizoLeftOrb1,
     /// <summary><c>golden_torizo_left_orb_A682</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA682,
+    GoldenTorizoLeftOrb2,
     /// <summary><c>golden_torizo_left_orb_A69C</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA69C,
+    GoldenTorizoLeftOrb3,
     /// <summary><c>golden_torizo_left_orb_A6B6</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA6B6,
+    GoldenTorizoLeftOrb4,
     /// <summary><c>golden_torizo_left_orb_A6D0</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA6D0,
+    GoldenTorizoLeftOrb5,
     /// <summary><c>golden_torizo_left_orb_A6EA</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA6EA,
+    GoldenTorizoLeftOrb6,
     /// <summary><c>golden_torizo_left_orb_A704</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA704,
+    GoldenTorizoLeftOrb7,
     /// <summary><c>golden_torizo_left_orb_A71E</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA71E,
+    GoldenTorizoLeftOrb8,
     /// <summary><c>golden_torizo_left_orb_A738</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA738,
+    GoldenTorizoLeftOrb9,
     /// <summary><c>golden_torizo_left_orb_A752</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA752,
+    GoldenTorizoLeftOrb10,
     /// <summary><c>golden_torizo_left_orb_A76C</c>, an installed extended frame.</summary>
-    GoldenTorizoLeftOrbA76C,
+    GoldenTorizoLeftOrb11,
     /// <summary><c>torizo_combat_A786</c>, an installed extended frame.</summary>
-    TorizoCombatA786,
+    TorizoCombat0,
     /// <summary><c>torizo_combat_A7A0</c>, an installed extended frame.</summary>
-    TorizoCombatA7A0,
+    TorizoCombat1,
     /// <summary><c>torizo_combat_A7C2</c>, an installed extended frame.</summary>
-    TorizoCombatA7C2,
+    TorizoCombat2,
     /// <summary><c>torizo_combat_A7E4</c>, an installed extended frame.</summary>
-    TorizoCombatA7E4,
+    TorizoCombat3,
     /// <summary><c>torizo_combat_A806</c>, an installed extended frame.</summary>
-    TorizoCombatA806,
+    TorizoCombat4,
     /// <summary><c>torizo_combat_A828</c>, an installed extended frame.</summary>
-    TorizoCombatA828,
+    TorizoCombat5,
     /// <summary><c>torizo_combat_A84A</c>, an installed extended frame.</summary>
-    TorizoCombatA84A,
+    TorizoCombat6,
     /// <summary><c>torizo_combat_A86C</c>, an installed extended frame.</summary>
-    TorizoCombatA86C,
+    TorizoCombat7,
     /// <summary><c>torizo_combat_A88E</c>, an installed extended frame.</summary>
-    TorizoCombatA88E,
+    TorizoCombat8,
     /// <summary><c>torizo_combat_A8B0</c>, an installed extended frame.</summary>
-    TorizoCombatA8B0,
+    TorizoCombat9,
     /// <summary><c>torizo_combat_A8D2</c>, an installed extended frame.</summary>
-    TorizoCombatA8D2,
+    TorizoCombat10,
     /// <summary><c>torizo_combat_A8EC</c>, an installed extended frame.</summary>
-    TorizoCombatA8EC,
+    TorizoCombat11,
     /// <summary><c>torizo_combat_A906</c>, an installed extended frame.</summary>
-    TorizoCombatA906,
+    TorizoCombat12,
     /// <summary><c>torizo_combat_A920</c>, an installed extended frame.</summary>
-    TorizoCombatA920,
+    TorizoCombat13,
     /// <summary><c>torizo_combat_A93A</c>, an installed extended frame.</summary>
-    TorizoCombatA93A,
+    TorizoCombat14,
     /// <summary><c>torizo_combat_A954</c>, an installed extended frame.</summary>
-    TorizoCombatA954,
+    TorizoCombat15,
     /// <summary><c>torizo_combat_A976</c>, an installed extended frame.</summary>
-    TorizoCombatA976,
+    TorizoCombat16,
     /// <summary><c>torizo_combat_A998</c>, an installed extended frame.</summary>
-    TorizoCombatA998,
+    TorizoCombat17,
     /// <summary><c>torizo_combat_A9BA</c>, an installed extended frame.</summary>
-    TorizoCombatA9BA,
+    TorizoCombat18,
     /// <summary><c>torizo_combat_A9DC</c>, an installed extended frame.</summary>
-    TorizoCombatA9DC,
+    TorizoCombat19,
     /// <summary><c>torizo_combat_AF9C</c>, an installed extended frame.</summary>
-    TorizoCombatAF9C,
+    TorizoCombat20,
     /// <summary><c>torizo_combat_AFA6</c>, an installed extended frame.</summary>
-    TorizoCombatAFA6,
+    TorizoCombat21,
     /// <summary><c>torizo_combat_AFB0</c>, an installed extended frame.</summary>
-    TorizoCombatAFB0,
+    TorizoCombat22,
     /// <summary><c>torizo_combat_AFBA</c>, an installed extended frame.</summary>
-    TorizoCombatAFBA,
+    TorizoCombat23,
     /// <summary><c>torizo_combat_AFC4</c>, an installed extended frame.</summary>
-    TorizoCombatAFC4,
+    TorizoCombat24,
     /// <summary><c>torizo_combat_AFD6</c>, an installed extended frame.</summary>
-    TorizoCombatAFD6,
+    TorizoCombat25,
     /// <summary><c>torizo_combat_AFE8</c>, an installed extended frame.</summary>
-    TorizoCombatAFE8,
+    TorizoCombat26,
     /// <summary><c>mother_brain_body_oam_standing</c>, an installed extended frame.</summary>
     MotherBrainBodyOamStanding,
     /// <summary><c>mother_brain_body_oam_walking_0</c>, an installed extended frame.</summary>
@@ -3759,253 +3761,253 @@ public enum EnemyFrameId
     /// <summary><c>mother_brain_body_oam_death_beam_3</c>, an installed extended frame.</summary>
     MotherBrainBodyOamDeathBeam3,
     /// <summary><c>phantoon_bg2_DEDD</c>, an installed extended frame.</summary>
-    PhantoonBg2DEDD,
+    PhantoonInvulnerableBody0,
     /// <summary><c>phantoon_bg2_DEE7</c>, an installed extended frame.</summary>
-    PhantoonBg2DEE7,
+    PhantoonFullHitboxBody0,
     /// <summary><c>phantoon_bg2_DEF1</c>, an installed extended frame.</summary>
-    PhantoonBg2DEF1,
+    PhantoonEyeHitboxBody0,
     /// <summary><c>phantoon_bg2_DEFB</c>, an installed extended frame.</summary>
-    PhantoonBg2DEFB,
+    PhantoonClosedEye0,
     /// <summary><c>phantoon_bg2_DF05</c>, an installed extended frame.</summary>
-    PhantoonBg2DF05,
+    PhantoonOpeningEye0,
     /// <summary><c>phantoon_bg2_DF0F</c>, an installed extended frame.</summary>
-    PhantoonBg2DF0F,
+    PhantoonOpeningEye1,
     /// <summary><c>phantoon_bg2_DF19</c>, an installed extended frame.</summary>
-    PhantoonBg2DF19,
+    PhantoonOpeningEye2,
     /// <summary><c>phantoon_bg2_DF23</c>, an installed extended frame.</summary>
-    PhantoonBg2DF23,
+    PhantoonCenteredEye0,
     /// <summary><c>phantoon_bg2_DF2D</c>, an installed extended frame.</summary>
-    PhantoonBg2DF2D,
+    PhantoonGaze0,
     /// <summary><c>phantoon_bg2_DF37</c>, an installed extended frame.</summary>
-    PhantoonBg2DF37,
+    PhantoonGaze4,
     /// <summary><c>phantoon_bg2_DF41</c>, an installed extended frame.</summary>
-    PhantoonBg2DF41,
+    PhantoonGaze6,
     /// <summary><c>phantoon_bg2_DF4B</c>, an installed extended frame.</summary>
-    PhantoonBg2DF4B,
+    PhantoonGaze2,
     /// <summary><c>phantoon_bg2_DF55</c>, an installed extended frame.</summary>
-    PhantoonBg2DF55,
+    PhantoonGaze5,
     /// <summary><c>phantoon_bg2_DF5F</c>, an installed extended frame.</summary>
-    PhantoonBg2DF5F,
+    PhantoonGaze3,
     /// <summary><c>phantoon_bg2_DF69</c>, an installed extended frame.</summary>
-    PhantoonBg2DF69,
+    PhantoonGaze7,
     /// <summary><c>phantoon_bg2_DF73</c>, an installed extended frame.</summary>
-    PhantoonBg2DF73,
+    PhantoonGaze1,
     /// <summary><c>phantoon_bg2_DFB3</c>, an installed extended frame.</summary>
-    PhantoonBg2DFB3,
+    PhantoonTentacle0,
     /// <summary><c>phantoon_bg2_DFC5</c>, an installed extended frame.</summary>
-    PhantoonBg2DFC5,
+    PhantoonTentacle1,
     /// <summary><c>phantoon_bg2_DFD7</c>, an installed extended frame.</summary>
-    PhantoonBg2DFD7,
+    PhantoonTentacle2,
     /// <summary><c>phantoon_bg2_DFE9</c>, an installed extended frame.</summary>
-    PhantoonBg2DFE9,
+    PhantoonMouth0,
     /// <summary><c>phantoon_bg2_DFF3</c>, an installed extended frame.</summary>
-    PhantoonBg2DFF3,
+    PhantoonMouth1,
     /// <summary><c>phantoon_bg2_DFFD</c>, an installed extended frame.</summary>
-    PhantoonBg2DFFD,
+    PhantoonMouth2,
     /// <summary><c>draygon_bg2_A31B</c>, an installed extended frame.</summary>
-    DraygonBg2A31B,
+    DraygonFrame6,
     /// <summary><c>draygon_bg2_A325</c>, an installed extended frame.</summary>
-    DraygonBg2A325,
+    DraygonFrame7,
     /// <summary><c>draygon_bg2_A32F</c>, an installed extended frame.</summary>
-    DraygonBg2A32F,
+    DraygonFrame8,
     /// <summary><c>draygon_bg2_A339</c>, an installed extended frame.</summary>
-    DraygonBg2A339,
+    DraygonFrame9,
     /// <summary><c>draygon_bg2_A343</c>, an installed extended frame.</summary>
-    DraygonBg2A343,
+    DraygonFrame10,
     /// <summary><c>draygon_bg2_A34D</c>, an installed extended frame.</summary>
-    DraygonBg2A34D,
+    DraygonFrame11,
     /// <summary><c>draygon_bg2_A357</c>, an installed extended frame.</summary>
-    DraygonBg2A357,
+    DraygonFrame12,
     /// <summary><c>draygon_bg2_A361</c>, an installed extended frame.</summary>
-    DraygonBg2A361,
+    DraygonFrame13,
     /// <summary><c>draygon_bg2_A36B</c>, an installed extended frame.</summary>
-    DraygonBg2A36B,
+    DraygonFrame14,
     /// <summary><c>draygon_bg2_A375</c>, an installed extended frame.</summary>
-    DraygonBg2A375,
+    DraygonFrame15,
     /// <summary><c>draygon_bg2_A37F</c>, an installed extended frame.</summary>
-    DraygonBg2A37F,
+    DraygonFrame16,
     /// <summary><c>draygon_bg2_A389</c>, an installed extended frame.</summary>
-    DraygonBg2A389,
+    DraygonFrame17,
     /// <summary><c>draygon_bg2_A393</c>, an installed extended frame.</summary>
-    DraygonBg2A393,
+    DraygonFrame18,
     /// <summary><c>draygon_bg2_A39D</c>, an installed extended frame.</summary>
-    DraygonBg2A39D,
+    DraygonFrame19,
     /// <summary><c>draygon_bg2_A3A7</c>, an installed extended frame.</summary>
-    DraygonBg2A3A7,
+    DraygonFrame20,
     /// <summary><c>draygon_bg2_A3B1</c>, an installed extended frame.</summary>
-    DraygonBg2A3B1,
+    DraygonFrame21,
     /// <summary><c>draygon_bg2_A3BB</c>, an installed extended frame.</summary>
-    DraygonBg2A3BB,
+    DraygonFrame22,
     /// <summary><c>draygon_bg2_A643</c>, an installed extended frame.</summary>
-    DraygonBg2A643,
+    DraygonFrame47,
     /// <summary><c>draygon_bg2_A64D</c>, an installed extended frame.</summary>
-    DraygonBg2A64D,
+    DraygonFrame48,
     /// <summary><c>draygon_bg2_A657</c>, an installed extended frame.</summary>
-    DraygonBg2A657,
+    DraygonFrame49,
     /// <summary><c>draygon_bg2_A661</c>, an installed extended frame.</summary>
-    DraygonBg2A661,
+    DraygonFrame50,
     /// <summary><c>draygon_bg2_A66B</c>, an installed extended frame.</summary>
-    DraygonBg2A66B,
+    DraygonFrame51,
     /// <summary><c>draygon_bg2_A675</c>, an installed extended frame.</summary>
-    DraygonBg2A675,
+    DraygonFrame52,
     /// <summary><c>draygon_bg2_A67F</c>, an installed extended frame.</summary>
-    DraygonBg2A67F,
+    DraygonFrame53,
     /// <summary><c>draygon_bg2_A689</c>, an installed extended frame.</summary>
-    DraygonBg2A689,
+    DraygonFrame54,
     /// <summary><c>draygon_bg2_A693</c>, an installed extended frame.</summary>
-    DraygonBg2A693,
+    DraygonFrame55,
     /// <summary><c>draygon_bg2_A69D</c>, an installed extended frame.</summary>
-    DraygonBg2A69D,
+    DraygonFrame56,
     /// <summary><c>draygon_bg2_A6A7</c>, an installed extended frame.</summary>
-    DraygonBg2A6A7,
+    DraygonFrame57,
     /// <summary><c>draygon_bg2_A6B1</c>, an installed extended frame.</summary>
-    DraygonBg2A6B1,
+    DraygonFrame58,
     /// <summary><c>draygon_bg2_A6BB</c>, an installed extended frame.</summary>
-    DraygonBg2A6BB,
+    DraygonFrame59,
     /// <summary><c>draygon_bg2_A6C5</c>, an installed extended frame.</summary>
-    DraygonBg2A6C5,
+    DraygonFrame60,
     /// <summary><c>draygon_bg2_A6CF</c>, an installed extended frame.</summary>
-    DraygonBg2A6CF,
+    DraygonFrame61,
     /// <summary><c>draygon_bg2_A6D9</c>, an installed extended frame.</summary>
-    DraygonBg2A6D9,
+    DraygonFrame62,
     /// <summary><c>draygon_bg2_A6E3</c>, an installed extended frame.</summary>
-    DraygonBg2A6E3,
+    DraygonFrame63,
     /// <summary><c>crocomire_skeleton_oam_E1FE</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE1FE,
+    CrocomireSkeleton0,
     /// <summary><c>crocomire_skeleton_oam_E228</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE228,
+    CrocomireSkeleton1,
     /// <summary><c>crocomire_skeleton_oam_E252</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE252,
+    CrocomireSkeleton2,
     /// <summary><c>crocomire_skeleton_oam_E27C</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE27C,
+    CrocomireSkeleton3,
     /// <summary><c>crocomire_skeleton_oam_E2A6</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE2A6,
+    CrocomireSkeleton4,
     /// <summary><c>crocomire_skeleton_oam_E2D0</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE2D0,
+    CrocomireSkeleton5,
     /// <summary><c>crocomire_skeleton_oam_E2FA</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE2FA,
+    CrocomireSkeleton6,
     /// <summary><c>crocomire_skeleton_oam_E324</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE324,
+    CrocomireSkeleton7,
     /// <summary><c>crocomire_skeleton_oam_E34E</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE34E,
+    CrocomireSkeleton8,
     /// <summary><c>crocomire_skeleton_oam_E378</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE378,
+    CrocomireSkeleton9,
     /// <summary><c>crocomire_skeleton_oam_E3A2</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE3A2,
+    CrocomireSkeleton10,
     /// <summary><c>crocomire_skeleton_oam_E3CC</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE3CC,
+    CrocomireSkeleton11,
     /// <summary><c>crocomire_skeleton_oam_E3F6</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE3F6,
+    CrocomireSkeleton12,
     /// <summary><c>crocomire_skeleton_oam_E420</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE420,
+    CrocomireSkeleton13,
     /// <summary><c>crocomire_skeleton_oam_E46A</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE46A,
+    CrocomireSkeleton14,
     /// <summary><c>crocomire_skeleton_oam_E4D4</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE4D4,
+    CrocomireSkeleton15,
     /// <summary><c>crocomire_skeleton_oam_E53E</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE53E,
+    CrocomireSkeleton16,
     /// <summary><c>crocomire_skeleton_oam_E5A8</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE5A8,
+    CrocomireSkeleton17,
     /// <summary><c>crocomire_skeleton_oam_E60A</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE60A,
+    CrocomireSkeleton18,
     /// <summary><c>crocomire_skeleton_oam_E65C</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE65C,
+    CrocomireSkeleton19,
     /// <summary><c>crocomire_skeleton_oam_E68E</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE68E,
+    CrocomireSkeleton20,
     /// <summary><c>crocomire_skeleton_oam_E6A8</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6A8,
+    CrocomireSkeleton21,
     /// <summary><c>crocomire_skeleton_oam_E6B2</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6B2,
+    CrocomireSkeleton22,
     /// <summary><c>crocomire_skeleton_oam_E6BC</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6BC,
+    CrocomireSkeleton23,
     /// <summary><c>crocomire_skeleton_oam_E6C6</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6C6,
+    CrocomireSkeleton24,
     /// <summary><c>crocomire_skeleton_oam_E6D0</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6D0,
+    CrocomireSkeleton25,
     /// <summary><c>crocomire_skeleton_oam_E6DA</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6DA,
+    CrocomireSkeleton26,
     /// <summary><c>crocomire_skeleton_oam_E6E4</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6E4,
+    CrocomireSkeleton27,
     /// <summary><c>crocomire_skeleton_oam_E6EE</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6EE,
+    CrocomireSkeleton28,
     /// <summary><c>crocomire_skeleton_oam_E6F8</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE6F8,
+    CrocomireSkeleton29,
     /// <summary><c>crocomire_skeleton_oam_E702</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE702,
+    CrocomireSkeleton30,
     /// <summary><c>crocomire_skeleton_oam_E70C</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE70C,
+    CrocomireSkeleton31,
     /// <summary><c>crocomire_skeleton_oam_E716</c>, an installed extended frame.</summary>
-    CrocomireSkeletonOamE716,
+    CrocomireSkeleton32,
     /// <summary><c>kraid_foot_oam_8CE3</c>, an installed extended frame.</summary>
-    KraidFootOam8CE3,
+    KraidFoot0,
     /// <summary><c>kraid_foot_oam_8CF5</c>, an installed extended frame.</summary>
-    KraidFootOam8CF5,
+    KraidFoot1,
     /// <summary><c>kraid_foot_oam_8D07</c>, an installed extended frame.</summary>
-    KraidFootOam8D07,
+    KraidFoot2,
     /// <summary><c>kraid_foot_oam_8D19</c>, an installed extended frame.</summary>
-    KraidFootOam8D19,
+    KraidFoot3,
     /// <summary><c>kraid_foot_oam_8D2B</c>, an installed extended frame.</summary>
-    KraidFootOam8D2B,
+    KraidFoot4,
     /// <summary><c>kraid_foot_oam_8D3D</c>, an installed extended frame.</summary>
-    KraidFootOam8D3D,
+    KraidFoot5,
     /// <summary><c>kraid_foot_oam_8D4F</c>, an installed extended frame.</summary>
-    KraidFootOam8D4F,
+    KraidFoot6,
     /// <summary><c>kraid_foot_oam_8D61</c>, an installed extended frame.</summary>
-    KraidFootOam8D61,
+    KraidFoot7,
     /// <summary><c>kraid_foot_oam_8D73</c>, an installed extended frame.</summary>
-    KraidFootOam8D73,
+    KraidFoot8,
     /// <summary><c>kraid_foot_oam_8D85</c>, an installed extended frame.</summary>
-    KraidFootOam8D85,
+    KraidFoot9,
     /// <summary><c>kraid_foot_oam_8D97</c>, an installed extended frame.</summary>
-    KraidFootOam8D97,
+    KraidFoot10,
     /// <summary><c>kraid_foot_oam_8DA9</c>, an installed extended frame.</summary>
-    KraidFootOam8DA9,
+    KraidFoot11,
     /// <summary><c>kraid_foot_oam_8DBB</c>, an installed extended frame.</summary>
-    KraidFootOam8DBB,
+    KraidFoot12,
     /// <summary><c>kraid_foot_oam_8DCD</c>, an installed extended frame.</summary>
-    KraidFootOam8DCD,
+    KraidFoot13,
     /// <summary><c>kraid_foot_oam_8DDF</c>, an installed extended frame.</summary>
-    KraidFootOam8DDF,
+    KraidFoot14,
     /// <summary><c>kraid_foot_oam_8DF1</c>, an installed extended frame.</summary>
-    KraidFootOam8DF1,
+    KraidFoot15,
     /// <summary><c>kraid_foot_oam_8E03</c>, an installed extended frame.</summary>
-    KraidFootOam8E03,
+    KraidFoot16,
     /// <summary><c>kraid_foot_oam_8E15</c>, an installed extended frame.</summary>
-    KraidFootOam8E15,
+    KraidFoot17,
     /// <summary><c>kraid_foot_oam_8E27</c>, an installed extended frame.</summary>
-    KraidFootOam8E27,
+    KraidFoot18,
     /// <summary><c>kraid_foot_oam_8E39</c>, an installed extended frame.</summary>
-    KraidFootOam8E39,
+    KraidFoot19,
     /// <summary><c>kraid_foot_oam_8E4B</c>, an installed extended frame.</summary>
-    KraidFootOam8E4B,
+    KraidFoot20,
     /// <summary><c>kraid_foot_oam_8E5D</c>, an installed extended frame.</summary>
-    KraidFootOam8E5D,
+    KraidFoot21,
     /// <summary><c>kraid_foot_oam_8E6F</c>, an installed extended frame.</summary>
-    KraidFootOam8E6F,
+    KraidFoot22,
     /// <summary><c>kraid_foot_oam_8E81</c>, an installed extended frame.</summary>
-    KraidFootOam8E81,
+    KraidFoot23,
     /// <summary><c>kraid_foot_oam_8E93</c>, an installed extended frame.</summary>
-    KraidFootOam8E93,
+    KraidFoot24,
     /// <summary><c>kraid_foot_oam_8EA5</c>, an installed extended frame.</summary>
-    KraidFootOam8EA5,
+    KraidFoot25,
     /// <summary><c>kraid_foot_oam_8EB7</c>, an installed extended frame.</summary>
-    KraidFootOam8EB7,
+    KraidFoot26,
     /// <summary><c>kraid_foot_oam_8EC9</c>, an installed extended frame.</summary>
-    KraidFootOam8EC9,
+    KraidFoot27,
     /// <summary><c>kraid_foot_oam_8EDB</c>, an installed extended frame.</summary>
-    KraidFootOam8EDB,
+    KraidFoot28,
     /// <summary><c>kraid_foot_oam_8EED</c>, an installed extended frame.</summary>
-    KraidFootOam8EED,
+    KraidFoot29,
     /// <summary><c>kraid_foot_oam_8EFF</c>, an installed extended frame.</summary>
-    KraidFootOam8EFF,
+    KraidFoot30,
     /// <summary><c>kraid_foot_oam_8F11</c>, an installed extended frame.</summary>
-    KraidFootOam8F11,
+    KraidFoot31,
     /// <summary><c>kraid_foot_oam_8F23</c>, an installed extended frame.</summary>
-    KraidFootOam8F23,
+    KraidFoot32,
     /// <summary><c>kraid_foot_oam_8F47</c>, an installed extended frame.</summary>
-    KraidFootOam8F47,
+    KraidFoot33,
     /// <summary><c>kraid_foot_oam_A565</c>, an installed extended frame.</summary>
-    KraidFootOamA565,
+    KraidFootStanding,
     /// <summary>The empty spritemap at the same offset in every enemy bank: an enemy showing it draws nothing.</summary>
     Empty,
     /// <summary>The visually empty one-component extended frame at the same offset in every enemy bank.</summary>

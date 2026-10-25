@@ -19,17 +19,17 @@ internal static class CrocomireBg2ScrollDefinitions
     /// </summary>
     private static readonly Dictionary<EnemyFrameId, int> Corrections = new()
     {
-        [EnemyFrameId.CrocomireBodyOamBFF6] = -2,
-        [EnemyFrameId.CrocomireBodyOamC028] = -2,
-        [EnemyFrameId.CrocomireBodyOamC05A] = -1,
-        [EnemyFrameId.CrocomireBodyOamC08C] = -2,
-        [EnemyFrameId.CrocomireBodyOamC0BE] = -2,
-        [EnemyFrameId.CrocomireBodyOamC0F0] = -1,
-        [EnemyFrameId.CrocomireBodyOamC122] = -1,
-        [EnemyFrameId.CrocomireBodyOamC4AC] = -2,
-        [EnemyFrameId.CrocomireBodyOamC4DE] = -4,
-        [EnemyFrameId.CrocomireBodyOamC510] = -2,
-        [EnemyFrameId.CrocomireBodyOamC542] = -1,
+        [EnemyFrameId.CrocomireBody1] = -2,
+        [EnemyFrameId.CrocomireBody2] = -2,
+        [EnemyFrameId.CrocomireBody3] = -1,
+        [EnemyFrameId.CrocomireBody4] = -2,
+        [EnemyFrameId.CrocomireBody5] = -2,
+        [EnemyFrameId.CrocomireBody6] = -1,
+        [EnemyFrameId.CrocomireBody7] = -1,
+        [EnemyFrameId.CrocomireBody20] = -2,
+        [EnemyFrameId.CrocomireBody21] = -4,
+        [EnemyFrameId.CrocomireBody22] = -2,
+        [EnemyFrameId.CrocomireBody23] = -1,
     };
 
     /// <summary>The signed Y correction aligning BG2 to body frame <paramref name="frame"/>.</summary>

@@ -69,7 +69,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if ((unchecked((ushort)(state.Heading + MultiviolaCosineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
         {
-            NativeMultiviolaNegate(ref state, axis: Axis.Horizontal);
+            NegateWithoutFractionCarry(ref state, axis: Axis.Horizontal);
         }
 
         int horizontalDisplacement = state.Velocity.X.RawValue;
@@ -86,7 +86,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if ((unchecked((ushort)(state.Heading + MultiviolaSineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
-            NativeMultiviolaNegate(ref state, axis: Axis.Vertical);
+            NegateWithoutFractionCarry(ref state, axis: Axis.Vertical);
 
         int verticalDisplacement = state.Velocity.Y.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
@@ -117,21 +117,21 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// does not carry into the already-complemented whole word, leaving the velocity exactly
     /// one pixel/frame too negative. The retail disassembly explicitly documents this bug.
     /// </summary>
-    private static void NativeMultiviolaNegate(
+    private static void NegateWithoutFractionCarry(
         ref MultiviolaEnemyState state,
         Axis axis)
     {
         if (axis == Axis.Horizontal)
         {
-            state.Velocity = state.Velocity.WithX(NativeMultiviolaNegate(state.Velocity.X));
+            state.Velocity = state.Velocity.WithX(NegateWithoutFractionCarry(state.Velocity.X));
             return;
         }
 
-        state.Velocity = state.Velocity.WithY(NativeMultiviolaNegate(state.Velocity.Y));
+        state.Velocity = state.Velocity.WithY(NegateWithoutFractionCarry(state.Velocity.Y));
     }
 
     /// <summary>Applies the native separate-word complement and fractional increment, including its missing carry.</summary>
-    private static SnesSignedSixteenSixteen NativeMultiviolaNegate(SnesSignedSixteenSixteen axis) =>
+    private static SnesSignedSixteenSixteen NegateWithoutFractionCarry(SnesSignedSixteenSixteen axis) =>
         SnesSignedSixteenSixteen.FromParts(
             unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
 

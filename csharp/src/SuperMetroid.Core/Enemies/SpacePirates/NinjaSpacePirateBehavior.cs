@@ -657,7 +657,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
-    internal static void RegisterNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -684,7 +684,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
-    internal static void RegisterGoldNinjaPirateBombReactions(EnemySharedReactions table)
+    internal static void AddGoldNinjaPirateBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja &&
                                   c.UsesExtendedHitboxes && c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,

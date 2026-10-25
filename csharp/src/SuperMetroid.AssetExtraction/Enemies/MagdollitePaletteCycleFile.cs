@@ -23,14 +23,14 @@ public static class MagdollitePaletteCycleFile
 
         if (document.Version != MagdollitePaletteCycleFormat.Version ||
             document.Frames is null ||
-            document.Frames.Length != MagdollitePaletteRomData.FrameCount)
+            document.Frames.Length != MagdollitePaletteDefinitions.FrameCount)
             throw new InvalidDataException("Magdollite palette cycle requires four version-one frames.");
 
-        var compiled = new Bgr555[MagdollitePaletteRomData.FrameCount][];
+        var compiled = new Bgr555[MagdollitePaletteDefinitions.FrameCount][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
-            if (source is null || source.Length != MagdollitePaletteRomData.AnimatedColorCount)
+            if (source is null || source.Length != MagdollitePaletteDefinitions.AnimatedColorCount)
                 throw new InvalidDataException($"Magdollite palette frame {frame} requires four RGB5 colors.");
             compiled[frame] = new Bgr555[source.Length];
             for (int color = 0; color < source.Length; color++)

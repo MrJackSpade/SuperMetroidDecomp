@@ -57,13 +57,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population's first parameter holds the chain's initial motion flags; the chain then writes its flags
         // to every segment together.
-        state.MotionFlags = (ShaktoolMotionFlags)slot.Spawn.Population.Parameter1;
+        state.MotionFlags = InitialMotionFlags(slot.Spawn.Population.Parameter1);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.TargetAngle = SnesAngle.Zero;
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
-        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerNativeOffset / EnemySlotTable.NativeSlotSize;
+        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerSlotDistance;
         state.PreInstruction = definition.PreInstruction;
         // Native initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
@@ -134,6 +134,18 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // prebuilt active list. Their final orbit uses the cleared coordinates.
 
         slot.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToByteAngle()));
+    }
+
+    /// <summary>
+    /// The chain's initial motion state from the population's first parameter: bit 13 reversed once, bit 14
+    /// straightening, bit 15 clockwise. No other bit of the word is read.
+    /// </summary>
+    private static ShaktoolMotionFlags InitialMotionFlags(int parameter)
+    {
+        static bool Has(int parameter, int bit) => (parameter >> bit & 1) != 0;
+        return (Has(parameter, 13) ? ShaktoolMotionFlags.ReversedOnce : 0) |
+            (Has(parameter, 14) ? ShaktoolMotionFlags.Straightening : 0) |
+            (Has(parameter, 15) ? ShaktoolMotionFlags.Clockwise : 0);
     }
 
     /// <summary>Ports the common orbit step at <c>$AA:DCAC</c>.</summary>
@@ -252,7 +264,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             SetShaktoolGroupMotionFlags(
                 slot,
                 (flags ^ ShaktoolMotionFlags.Clockwise) &
-                ShaktoolOrbitDefinitions.SecondReversalKeptFlags);
+                ~(ShaktoolMotionFlags.ReversedOnce | ShaktoolMotionFlags.Straightening));
         }
         else
         {
@@ -507,7 +519,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>
-    internal void RegisterShaktoolBombReactions(EnemySharedReactions table)
+    internal void AddShaktoolBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ShaktoolShot)
@@ -517,7 +529,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers front and linked attack-circle movement callbacks.</summary>
-    internal void RegisterShaktoolProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddShaktoolProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -549,7 +561,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
-    internal void RegisterShaktoolTouch(EnemySharedReactions table)
+    internal void AddShaktoolTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Shaktool &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShaktoolTouch,
@@ -557,7 +569,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for regular projectile hits.</summary>
-    internal void RegisterShaktoolShotReactions(EnemySharedReactions table)
+    internal void AddShaktoolShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShaktoolShot)
@@ -582,10 +594,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        ushort ownerNativeIndex = checked((ushort)projectile.Variable0);
-        if ((ownerNativeIndex & 1) != 0 ||
-            ownerNativeIndex >= _projectiles.EnemyProjectiles.Count * 2 ||
-            !_projectiles.EnemyProjectiles[ownerNativeIndex >> 1].IsActive)
+        ushort ownerProjectileOffset = checked((ushort)projectile.Variable0);
+        if ((ownerProjectileOffset & 1) != 0 ||
+            ownerProjectileOffset >= _projectiles.EnemyProjectiles.Count * 2 ||
+            !_projectiles.EnemyProjectiles[ownerProjectileOffset >> 1].IsActive)
         {
             projectile.Clear();
             return;

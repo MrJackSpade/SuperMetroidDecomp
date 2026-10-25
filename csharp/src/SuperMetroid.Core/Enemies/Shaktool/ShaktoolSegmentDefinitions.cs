@@ -30,10 +30,9 @@ internal static class ShaktoolSegmentDefinitions
         : EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision;
 
     /// <summary>
-    /// $AA:DEA3 RAMOffset: 64*index for validated segment 0..6, the native enemy-record
-    /// stride. Independently checked for #1165; caller subtracts with ushort wrap.
+    /// $AA:DEA3 RAMOffset: how many slots segment 0..6 sits after the chain's first segment, its owner: its own index.
     /// </summary>
-    private static ushort OwnerOffsetForSegment(int index) => (ushort)(64 * index);
+    private static int OwnerDistanceForSegment(int index) => index;
 
     /// <summary>
     /// $AA:DEBF initialInstListPointer: both saws select their primary-piece list,
@@ -77,7 +76,7 @@ internal static class ShaktoolSegmentDefinitions
                 $"Shaktool segment {index} is outside the seven native definition records.");
         }
 
-        return new(PropertiesForSegment(index), OwnerOffsetForSegment(index),
+        return new(PropertiesForSegment(index), OwnerDistanceForSegment(index),
             InitialAngleForSegment(index), InstructionForSegment(index), LayerForSegment(index),
             CallbackForSegment(index), AngularVelocityForSegment(index));
     }

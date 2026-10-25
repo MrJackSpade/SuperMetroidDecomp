@@ -1009,10 +1009,10 @@ internal static class LookupStream2Verification
         // stock tile coverage. Native staging must still copy the same artwork rows.
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [EnemyFrameId.DeadTorizoStationaryA9D6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
+            [EnemyFrameId.DeadTorizoStationary] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
                 SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
-        var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationaryA9D6e2] = EnemyFrameId.DeadTorizoStationaryA9D6e2 };
+        var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationary] = EnemyFrameId.DeadTorizoStationary };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
@@ -1311,7 +1311,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)PipeBugDefinitions.NorfairPostRiseFunction(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugDefinitions.NorfairPostRiseFunction(member)),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -1333,7 +1333,7 @@ internal static class LookupStream2Verification
                 var state = enemies.PipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)state.NorfairPostRiseFunction,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(state.NorfairPostRiseFunction),
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
                 AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight),
@@ -1534,9 +1534,9 @@ internal static class LookupStream2Verification
             return new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }).ToArray();
         var original = new ChozoAndTubeColorDocument { Version = 1,
-            TubeCracks = Read(ChozoAndTubeColorRomData.TubeCracksSource),
-            WreckedShip = Read(ChozoAndTubeColorRomData.WreckedShipSource),
-            LowerNorfair = Read(ChozoAndTubeColorRomData.LowerNorfairSource) };
+            TubeCracks = Read(EnemySpeciesSourceDefinitions.ChozoAndTube.TubeCracksColors),
+            WreckedShip = Read(EnemySpeciesSourceDefinitions.ChozoAndTube.WreckedShipColors),
+            LowerNorfair = Read(EnemySpeciesSourceDefinitions.ChozoAndTube.LowerNorfairColors) };
         ChozoAndTubeColorCatalog Load(ChozoAndTubeColorDocument document) =>
             ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(document), writable: false));
         var stock = Load(original);
@@ -1578,17 +1578,17 @@ internal static class LookupStream2Verification
             {
                 ushort word = Word(document.TubeCracks[color]);
                 AssertEqual(word, catalog.ResolveTubeCracks(color), "independent tube color preserved");
-                AssertEqual(word, cgram.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "tube color reaches CGRAM");
+                AssertEqual(word, cgram.Colors[ChozoAndTubeColorTransfer.Destination + color], "tube color reaches CGRAM");
                 AssertEqual(Word(document.WreckedShip[color]), catalog.ResolveWreckedShip(color), "Wrecked Ship palette preserved");
                 AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
             }
             var statues = new GameplayColours(new SpriteColourSets());
             catalog.ApplyWreckedShip(statues.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
-                AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "Wrecked Ship color reaches CGRAM");
+                AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorTransfer.Destination + color], "Wrecked Ship color reaches CGRAM");
             catalog.ApplyLowerNorfair(statues.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
-                AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "Lower Norfair color reaches CGRAM");
+                AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorTransfer.Destination + color], "Lower Norfair color reaches CGRAM");
             string expected = SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
             {
                 content.AppendWords("tubeCracks", document.TubeCracks.Select(Word).ToArray());

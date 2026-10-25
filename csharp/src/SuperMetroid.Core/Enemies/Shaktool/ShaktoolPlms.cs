@@ -35,7 +35,7 @@ internal sealed class ShaktoolPlms
         slot.BlockIndex = 0;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
+        for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
         return true;
     }
@@ -50,9 +50,9 @@ internal sealed class ShaktoolPlms
         // The cartridge tests the entire status word, not just its active high bit.
         // This also admits the pending/time-frozen status value.
         if (powerBombExplosionStatus != 0)
-            for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
+            for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
                 scrolls.SetStorage(cell, RoomScrollState.Blue);
-        if (samus.Position.X.Whole <= ShaktoolRoomPlmRomData.ClearedPathXBoundary) return;
+        if (samus.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary) return;
         _events.Set(EventNumber.ShaktoolClearedPath);
         // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
         slot.Header = 0;

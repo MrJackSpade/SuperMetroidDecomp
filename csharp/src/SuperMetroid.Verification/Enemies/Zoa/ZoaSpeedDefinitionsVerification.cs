@@ -14,28 +14,30 @@ internal static class ZoaSpeedDefinitionsVerification
     internal static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-        for (ushort offset = 0; offset <= 16; offset++)
+        // #1412: the catalog states each stage's speed in eighths of a pixel; the cartridge's whole/fraction record for
+        // that stage decodes to the same 16.16 speed, and the trailing record is the stationary zero no stage reaches.
+        int Record(int stage)
         {
-            int address = ZoaSpeedDefinitions.ReferenceAddress + offset;
-            int expected = unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(address), Word(address + 2))));
-            AssertEqual(expected, ZoaSpeedDefinitions.Displacement(offset), "Zoa byte-indexed native split velocity");
+            int address = ZoaSpeedSources.SpeedTable + stage * ZoaSpeedSources.RecordBytes;
+            return unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(address), Word(address + 2))));
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(17), "Zoa incomplete record rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(ushort.MaxValue), "Zoa invalid index rejected");
+        AssertEqual(4, ZoaSpeedDefinitions.StageSpeedEighths.Length, "Zoa has four speed stages");
+        for (int stage = 0; stage < ZoaSpeedDefinitions.StageSpeedEighths.Length; stage++)
+            AssertEqual(Record(stage), ZoaSpeedDefinitions.StageSpeedEighths[stage] * 8192, $"Zoa speed stage {stage} decodes to the catalog speed");
+        AssertEqual(0, Record(ZoaSpeedDefinitions.StageSpeedEighths.Length), "Zoa's trailing speed record is stationary");
         if (definitionsOnly)
         {
-            Console.WriteLine("Zoa speed cases: all 17 original byte windows and invalid bounds pass.");
+            Console.WriteLine("Zoa speed cases: all four stage speeds match the cartridge records.");
             return;
         }
         var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();
-        for (ushort offset = 0; offset <= 16; offset += 4)
+        for (int stage = 0; stage < ZoaSpeedDefinitions.StageSpeedEighths.Length; stage++)
         {
-            int address = 0xa3b415 + offset;
-            int magnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(address), Word(address + 2))));
-            state.XSpeedTableIndex = offset;
+            int magnitude = Record(stage);
+            state.ShotSpeedStage = stage;
             for (ushort direction = 0; direction <= 2; direction += 2)
             {
                 // Keep the same animation installed: this exercises movement without an art-data bus.
@@ -57,19 +59,19 @@ internal static class ZoaSpeedDefinitionsVerification
 
         // #1269: leaving the camera square snaps Zoa to its spawn coordinate. $A3:B51E-$B527
         // writes only the whole words, so both subpixel fractions carry into the next flight.
-        state.XSpeedTableIndex = 0;
+        state.ShotSpeedStage = 0;
         state.InstructionListTableIndex = state.PreviousInstructionListTableIndex =
             ZoaAnimationSelector.None;
         state.SpawnPosition = new(0x560, 0xd8);
         actor.Position = new(new(128, 0x8000), new(128, 0x4000));
-        int resetDisplacement = -unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(0xa3b415), Word(0xa3b417))));
+        int resetDisplacement = -Record(0);
         uint movedX = unchecked(0x00808000u + (uint)resetDisplacement);
         shoot(actor, state, new(0x1000, 0x1000));
         AssertEqual((ushort)0x560, actor.Position.X.Whole, "off-screen Zoa returns to its spawn X");
         AssertEqual((ushort)0xd8, actor.Position.Y.Whole, "off-screen Zoa returns to its spawn Y");
         AssertEqual((ushort)movedX, actor.Position.X.Fraction, "the spawn reset keeps the moved sub-X");
         AssertEqual((ushort)0x4000, actor.Position.Y.Fraction, "the spawn reset keeps sub-Y");
-        Console.WriteLine("Zoa compiled speeds: all 17 native byte windows and 655360 real signed/subpixel integrations match without a speed-table bus.");
+        Console.WriteLine("Zoa compiled speeds: all four stage speeds and 524288 real signed/subpixel integrations match without a speed-table bus.");
     }
 
     /// <summary>Runs the retail Zoa speed and movement comparison.</summary>

@@ -22,7 +22,7 @@ internal static class CrawlerAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'E' => (ushort)cue.Function,
+                    'E' => CrawlersNativeWords.CrawlerEnemyFunctions.Word(cue.Function),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

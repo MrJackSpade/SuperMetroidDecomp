@@ -44,9 +44,9 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         RoomCollisionBlock block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {
         bool wreckedShip = _area == AreaId.WreckedShip &&
-            block.Bts == ChozoStatuePlmRomData.WreckedShipHandBts;
+            block.Bts == ChozoStatueRoomDefinitions.WreckedShipHandBts;
         bool lowerNorfair = _area == AreaId.Norfair &&
-            block.Bts == ChozoStatuePlmRomData.LowerNorfairHandBts;
+            block.Bts == ChozoStatueRoomDefinitions.LowerNorfairHandBts;
         if (!wreckedShip && !lowerNorfair) return;
         // Both native setups return SEC regardless of admission. The morph-left pose
         // is deliberately absent: the cartridge explicitly lists these three poses.
@@ -89,13 +89,13 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         slot.InstructionTimer = WrappingCountdown.Start(1);
         if (request.Header == PlmHeaderId.WreckedShipChozoHand)
             WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
-                ChozoStatuePlmRomData.WreckedShipHandBts.Value);
+                ChozoStatueRoomDefinitions.WreckedShipHandBts.Value);
         else if (request.Header == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
         {
             // Native D108 omits LDA: the two spawn entry points leave different A
             // values, so preserve that quirk rather than reading the previous tile.
             level.SetForegroundEntry(index, request.IsHardcoded
-                ? ChozoStatuePlmRomData.HardcodedCrumbleSetupLevelWord : (ushort)0);
+                ? ChozoStatueRoomDefinitions.HardcodedCrumbleSetupLevelWord : (ushort)0);
         }
         return true;
     }
@@ -117,33 +117,33 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>
     internal static void TransformSpikesToSlopes(RoomLevelData level)
     {
-        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
-            RoomCollisionType.Slope, ChozoStatuePlmRomData.FirstSlopeBts);
-        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
-            RoomCollisionType.Slope, ChozoStatuePlmRomData.SecondSlopeBts);
+        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex,
+            RoomCollisionType.Slope, ChozoStatueRoomDefinitions.FirstSlopeBts);
+        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1,
+            RoomCollisionType.Slope, ChozoStatueRoomDefinitions.SecondSlopeBts);
     }
 
     /// <summary>Turns the Wrecked Ship Chozo slopes back into spikes.</summary>
     internal static void RevertSlopesToSpikes(RoomLevelData level)
     {
-        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
+        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex,
             RoomCollisionType.SpikeBlock, 0);
-        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
+        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1,
             RoomCollisionType.SpikeBlock, 0);
     }
 
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
     internal void SetLoweredAcidHeight() =>
         (_chozoRoomFx ?? throw new InvalidOperationException("Chozo PLM has no FX owner."))
-            .ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
+            .ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
 
     /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
-        int index = level.GetBlockIndex(new(ChozoStatuePlmRomData.LowerNorfairTriggerX, ChozoStatuePlmRomData.LowerNorfairTriggerY));
-        if (level.GetCollisionBlockByIndex(index).PackedWord.Raw != ChozoStatuePlmRomData.BlankAirLevelWord) return;
+        int index = level.GetBlockIndex(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
+        if (level.GetCollisionBlockByIndex(index).PackedWord.Raw != ChozoStatueRoomDefinitions.BlankAirLevelWord) return;
         WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
-            ChozoStatuePlmRomData.LowerNorfairHandBts.Value);
+            ChozoStatueRoomDefinitions.LowerNorfairHandBts.Value);
         slot.Delete();
     }
 }

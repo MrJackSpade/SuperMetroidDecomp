@@ -1173,9 +1173,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CrocomireBehavior.Combat.RegisterCrocomireBombReactions(table);
         KraidBehavior.Combat.RegisterKraidBombReactions(table);
 
-        NinjaSpacePirateBehavior.RegisterGoldNinjaPirateBombReactions(table);
-        ShuttersBehavior.RegisterShuttersBombReactions(table);
-        MetroidBehavior.RegisterMetroidBombReactions(table);
+        NinjaSpacePirateBehavior.AddGoldNinjaPirateBombReactions(table);
+        ShuttersBehavior.AddShuttersBombReactions(table);
+        MetroidBehavior.AddMetroidBombReactions(table);
         ShitroidBehavior.RegisterShitroidBombReactions(table);
         CeresRidleyBehavior.Hits.RegisterCeresRidleyBombReactions(table);
         BombTorizoBehavior.Combat.RegisterBombTorizoBombReactions(table);
@@ -1184,40 +1184,40 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // body callback performs no health, phase, or multipart-state work of its own.
         MotherBrainCombat.RegisterMotherBrainBodyBombReactions(table);
         MotherBrainBehavior.Combat.RegisterMotherBrainBombReactions(table);
-        DeadTorizoBehavior.RegisterDeadTorizoBombReactions(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperBombReactions(table);
-        DeadTourianBehavior.RegisterDeadTourianBombReactions(table);
+        DeadTorizoBehavior.AddDeadTorizoBombReactions(table);
+        DeadSidehopperBehavior.AddDeadSidehopperBombReactions(table);
+        DeadTourianBehavior.AddDeadTourianBombReactions(table);
         PhantoonBehavior.Combat.RegisterPhantoonBombReactions(table);
-        MamaTurtleBehavior.RegisterMamaTurtleBombReactions(table);
+        MamaTurtleBehavior.AddMamaTurtleBombReactions(table);
         RinkaBehavior.RegisterRinkaBombReactions(table);
-        MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailBombReactions(table);
-        RipperBehavior.RegisterRipperBombReactions(table);
-        DragonBehavior.RegisterDragonBombReactions(table);
+        MaridiaLargeSnailBehavior.AddMaridiaLargeSnailBombReactions(table);
+        RipperBehavior.AddRipperBombReactions(table);
+        DragonBehavior.AddDragonBombReactions(table);
         // `$A3:8B0F` restores the dying actor's graphics long enough to seed four debris actors, then clears both
         // words. The host death flag does not erase the record, so the exact source remains here.
-        MetareeBehavior.RegisterMetareeBombReactions(table);
-        FirefleaBehavior.RegisterFirefleaBombReactions(table);
+        MetareeBehavior.AddMetareeBombReactions(table);
+        FirefleaBehavior.AddFirefleaBombReactions(table);
         FakeKraidBehavior.RegisterFakeKraidBombReactions(table);
-        PlatformsBehavior.RegisterPlatformsBombReactions(table);
+        PlatformsBehavior.AddPlatformsBombReactions(table);
         // Skree's callback owns its four-piece burst and death animation because it called
         // `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).
-        SkreeBehavior.RegisterSkreeBombReactions(table);
+        SkreeBehavior.AddSkreeBombReactions(table);
         ZebetiteBehavior.RegisterZebetiteBombReactions(table);
         SporeSpawnBehavior.RegisterSporeSpawnBombReactions(table);
         DraygonBehavior.Combat.RegisterDraygonBombReactions(table);
         BotwoonBehavior.RegisterBotwoonBombReactions(table);
         RidleyInteractions.RegisterRidleyBombReactions(table);
-        ShaktoolBehavior.RegisterShaktoolBombReactions(table);
-        ShuttersBehavior.RegisterDestroyableShutterBombReactions(table);
-        EvirBehavior.RegisterEvirBombReactions(table);
-        YappingMawBehavior.RegisterYappingMawBombReactions(table);
-        KagoBehavior.RegisterKagoBombReactions(table);
-        MagdolliteBehavior.RegisterMagdolliteBombReactions(table);
-        BeetomBehavior.RegisterBeetomBombReactions(table);
-        PowampBehavior.RegisterPowampBombReactions(table);
-        WorkRobotBehavior.RegisterWorkRobotBombReactions(table);
-        KiHunterBehavior.RegisterKiHunterBombReactions(table);
-        OwtchBehavior.RegisterOwtchBombReactions(table);
+        ShaktoolBehavior.AddShaktoolBombReactions(table);
+        ShuttersBehavior.AddDestroyableShutterBombReactions(table);
+        EvirBehavior.AddEvirBombReactions(table);
+        YappingMawBehavior.AddYappingMawBombReactions(table);
+        KagoBehavior.AddKagoBombReactions(table);
+        MagdolliteBehavior.AddMagdolliteBombReactions(table);
+        BeetomBehavior.AddBeetomBombReactions(table);
+        PowampBehavior.AddPowampBombReactions(table);
+        WorkRobotBehavior.AddWorkRobotBombReactions(table);
+        KiHunterBehavior.AddKiHunterBombReactions(table);
+        OwtchBehavior.AddOwtchBombReactions(table);
 }
 
     /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
@@ -1235,23 +1235,23 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         {
             ReplacesCommon = static (_, _) => { },
         });
-        ShuttersBehavior.RegisterShuttersPowerBombReactions(table);
+        ShuttersBehavior.AddShuttersPowerBombReactions(table);
         CrocomireBehavior.Combat.RegisterCrocomirePowerBombReactions(table);
-        DeadTorizoBehavior.RegisterDeadTorizoPowerBombReactions(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperPowerBombReactions(table);
-        DeadTourianBehavior.RegisterDeadTourianPowerBombReactions(table);
+        DeadTorizoBehavior.AddDeadTorizoPowerBombReactions(table);
+        DeadSidehopperBehavior.AddDeadSidehopperPowerBombReactions(table);
+        DeadTourianBehavior.AddDeadTourianPowerBombReactions(table);
         ShitroidBehavior.RegisterShitroidPowerBombReactions(table);
-        FirefleaBehavior.RegisterFirefleaPowerBombReactions(table);
-        MetroidBehavior.RegisterMetroidPowerBombReactions(table);
+        FirefleaBehavior.AddFirefleaPowerBombReactions(table);
+        MetroidBehavior.AddMetroidPowerBombReactions(table);
         FakeKraidBehavior.RegisterFakeKraidPowerBombReactions(table);
-        PowampBehavior.RegisterPowampPowerBombReactions(table);
-        MagdolliteBehavior.RegisterMagdollitePowerBombReactions(table);
+        PowampBehavior.AddPowampPowerBombReactions(table);
+        MagdolliteBehavior.AddMagdollitePowerBombReactions(table);
         RinkaBehavior.RegisterRinkaPowerBombReactions(table);
-        DragonBehavior.RegisterDragonPowerBombReactions(table);
-        EvirBehavior.RegisterEvirPowerBombReactions(table);
-        KiHunterBehavior.RegisterKiHunterPowerBombReactions(table);
+        DragonBehavior.AddDragonPowerBombReactions(table);
+        EvirBehavior.AddEvirPowerBombReactions(table);
+        KiHunterBehavior.AddKiHunterPowerBombReactions(table);
         BotwoonBehavior.RegisterBotwoonPowerBombReactions(table);
-        WallSpacePirateBehavior.RegisterWallSpacePiratePowerBombReactions(table);
+        WallSpacePirateBehavior.AddWallSpacePiratePowerBombReactions(table);
         RidleyInteractions.RegisterRidleyPowerBombReactions(table);
         DraygonBehavior.Combat.RegisterDraygonPowerBombReactions(table);
 }
@@ -1281,37 +1281,37 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     void IEnemyProjectileHandlerSource.AddEnemyProjectileHandlers(EnemyProjectileHandlerTable table)
     {
         // Species register first; generic and cross-species registrations follow.
-        AlcoonBehavior.RegisterAlcoonProjectiles(table);
+        AlcoonBehavior.AddAlcoonProjectiles(table);
         BombTorizoBehavior.Attacks.RegisterBombTorizoProjectiles(table);
         BotwoonBehavior.RegisterBotwoonProjectiles(table);
-        CacatacBehavior.RegisterCacatacProjectiles(table);
+        CacatacBehavior.AddCacatacProjectiles(table);
         CrocomireBehavior.Combat.RegisterCrocomireProjectiles(table);
         DownwardGateBehavior.AddDownwardGateProjectiles(table);
-        DragonBehavior.RegisterDragonProjectiles(table);
+        DragonBehavior.AddDragonProjectiles(table);
         DraygonBehavior.Goop.RegisterDraygonProjectiles(table);
-        EyeDoorBehavior.RegisterEyeDoorProjectiles(table);
+        EyeDoorBehavior.AddEyeDoorProjectiles(table);
         FakeKraidBehavior.RegisterFakeKraidProjectiles(table);
-        FallingSparksBehavior.RegisterFallingSparksProjectiles(table);
-        FuneNamiheBehavior.RegisterFuneNamiheProjectiles(table);
-        KagoBehavior.RegisterKagoProjectiles(table);
-        KiHunterBehavior.RegisterKiHunterProjectiles(table);
+        FallingSparksBehavior.AddFallingSparksProjectiles(table);
+        FuneNamiheBehavior.AddFuneNamiheProjectiles(table);
+        KagoBehavior.AddKagoProjectiles(table);
+        KiHunterBehavior.AddKiHunterProjectiles(table);
         KraidProjectiles.RegisterKraidProjectiles(table);
         KraidProjectiles.RegisterKraidRockAnimations(table);
-        MagdolliteBehavior.RegisterMagdolliteProjectiles(table);
+        MagdolliteBehavior.AddMagdolliteProjectiles(table);
         MotherBrainBehavior.Projectiles.RegisterMotherBrainProjectiles(table);
-        NinjaSpacePirateBehavior.RegisterNinjaSpacePirateProjectiles(table);
-        NoobTubeBehavior.RegisterNoobTubeProjectiles(table);
+        NinjaSpacePirateBehavior.AddNinjaSpacePirateProjectiles(table);
+        NoobTubeBehavior.AddNoobTubeProjectiles(table);
         PhantoonBehavior.Combat.RegisterPhantoonProjectiles(table);
-        PolypBehavior.RegisterPolypProjectiles(table);
-        PowampBehavior.RegisterPowampProjectiles(table);
+        PolypBehavior.AddPolypProjectiles(table);
+        PowampBehavior.AddPowampProjectiles(table);
         PrePhantoonRoomBehavior.RegisterPrePhantoonRoomProjectiles(table);
-        ShaktoolBehavior.RegisterShaktoolProjectiles(table);
+        ShaktoolBehavior.AddShaktoolProjectiles(table);
         SporeSpawnBehavior.RegisterSporeSpawnProjectiles(table);
-        StokeBehavior.RegisterStokeProjectiles(table);
+        StokeBehavior.AddStokeProjectiles(table);
         TourianEntranceStatueBehavior.RegisterTourianEntranceStatueProjectiles(table);
         TourianUnlockBehavior.RegisterTourianUnlockProjectiles(table);
-        WalkingSpacePirateBehavior.RegisterWalkingSpacePirateProjectiles(table);
-        WorkRobotBehavior.RegisterWorkRobotProjectiles(table);
+        WalkingSpacePirateBehavior.AddWalkingSpacePirateProjectiles(table);
+        WorkRobotBehavior.AddWorkRobotProjectiles(table);
 
         DeathsAndDrops.RegisterPickupPreInstruction(table);
 
@@ -1328,9 +1328,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         EnemyProjectileEngine.AddGunshipDustCues(table);
 
 
-        OldTourianEscapeShaftWallBehavior.RegisterWallExplosionCues(table);
+        OldTourianEscapeShaftWallBehavior.AddWallExplosionCues(table);
 
-        NoobTubeBehavior.RegisterNoobTubeProjectileCues(table);
+        NoobTubeBehavior.AddNoobTubeProjectileCues(table);
 
 
         RidleyProjectiles.RegisterFireballCues(table);
@@ -1347,9 +1347,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// tongue also uses NormalEnemyShot.</remarks>
     private void RegisterShotReactions(EnemySharedReactions table)
     {
-        DeadTorizoBehavior.RegisterDeadTorizoShotReactions(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperShotReactions(table);
-        DeadTourianBehavior.RegisterDeadTourianShotReactions(table);
+        DeadTorizoBehavior.AddDeadTorizoShotReactions(table);
+        DeadSidehopperBehavior.AddDeadSidehopperShotReactions(table);
+        DeadTourianBehavior.AddDeadTourianShotReactions(table);
         ShitroidBehavior.RegisterShitroidShotReactions(table);
         MotherBrainBehavior.Combat.RegisterMotherBrainShotReactions(table);
 
@@ -1357,47 +1357,47 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
         DraygonBehavior.Combat.RegisterDraygonShotReactions(table);
         BombTorizoBehavior.Combat.RegisterBombTorizoShotReactions(table);
-        MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailShotReactions(table);
+        MaridiaLargeSnailBehavior.AddMaridiaLargeSnailShotReactions(table);
         SporeSpawnBehavior.RegisterSporeSpawnShotReactions(table);
         KraidBehavior.Combat.RegisterKraidShotReactions(table);
         CrocomireBehavior.Combat.RegisterCrocomireShotReactions(table);
-        OwtchBehavior.RegisterOwtchShotReactions(table);
-        WallSpacePirateBehavior.RegisterWallSpacePirateShotReactions(table);
-        ShuttersBehavior.RegisterShuttersShotReactions(table);
+        OwtchBehavior.AddOwtchShotReactions(table);
+        WallSpacePirateBehavior.AddWallSpacePirateShotReactions(table);
+        ShuttersBehavior.AddShuttersShotReactions(table);
 
-        MetroidBehavior.RegisterMetroidShotReactions(table);
-        YardBehavior.RegisterYardShotReactions(table);
+        MetroidBehavior.AddMetroidShotReactions(table);
+        YardBehavior.AddYardShotReactions(table);
 
         // `$A3:8B0F` saves these graphics words around common shot AI, uses them for four metal debris actors on
         // death, then clears the dead body. Spawning before the clears preserves that exact graphics index.
-        MetareeBehavior.RegisterMetareeShotReactions(table);
+        MetareeBehavior.AddMetareeShotReactions(table);
 
         // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
         // common death animation releases the enemy slot.
-        SkreeBehavior.RegisterSkreeShotReactions(table);
-        FirefleaBehavior.RegisterFirefleaShotReactions(table);
-        PlatformsBehavior.RegisterPlatformsShotReactions(table);
-        BeetomBehavior.RegisterBeetomShotReactions(table);
-        PowampBehavior.RegisterPowampShotReactions(table);
-        WorkRobotBehavior.RegisterWorkRobotShotReactions(table);
+        SkreeBehavior.AddSkreeShotReactions(table);
+        FirefleaBehavior.AddFirefleaShotReactions(table);
+        PlatformsBehavior.AddPlatformsShotReactions(table);
+        BeetomBehavior.AddBeetomShotReactions(table);
+        PowampBehavior.AddPowampShotReactions(table);
+        WorkRobotBehavior.AddWorkRobotShotReactions(table);
         FakeKraidBehavior.RegisterFakeKraidShotReactions(table);
-        MamaTurtleBehavior.RegisterMamaTurtleShotReactions(table);
-        KagoBehavior.RegisterKagoShotReactions(table);
-        MagdolliteBehavior.RegisterMagdolliteShotReactions(table);
+        MamaTurtleBehavior.AddMamaTurtleShotReactions(table);
+        KagoBehavior.AddKagoShotReactions(table);
+        MagdolliteBehavior.AddMagdolliteShotReactions(table);
         RinkaBehavior.RegisterRinkaShotReactions(table);
-        RipperBehavior.RegisterRipperShotReactions(table);
-        DragonBehavior.RegisterDragonShotReactions(table);
-        ShuttersBehavior.RegisterDestroyableAndHorizontalShutterShotReactions(table);
+        RipperBehavior.AddRipperShotReactions(table);
+        DragonBehavior.AddDragonShotReactions(table);
+        ShuttersBehavior.AddDestroyableAndHorizontalShutterShotReactions(table);
         ZebetiteBehavior.RegisterZebetiteShotReactions(table);
-        EvirBehavior.RegisterEvirShotReactions(table);
-        YappingMawBehavior.RegisterYappingMawShotReactions(table);
-        KiHunterBehavior.RegisterKiHunterShotReactions(table);
+        EvirBehavior.AddEvirShotReactions(table);
+        YappingMawBehavior.AddYappingMawShotReactions(table);
+        KiHunterBehavior.AddKiHunterShotReactions(table);
         BotwoonBehavior.RegisterBotwoonShotReactions(table);
-        ShaktoolBehavior.RegisterShaktoolShotReactions(table);
+        ShaktoolBehavior.AddShaktoolShotReactions(table);
 
         // Ordinary common shot AI with no species stage.
         CeresSteamBehavior.RegisterCeresSteamShotReactions(table);
-        MochtroidBehavior.RegisterMochtroidShotReactions(table);
+        MochtroidBehavior.AddMochtroidShotReactions(table);
         // Several retail helper/projectile definitions point their shot callback at a literal RTL in their own enemy
         // bank. Radius collision still dispatches those callbacks after its projectile prelude.
         table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition, EnemyCollision.ShotAi(enemy))));
@@ -1416,10 +1416,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
         MotherBrainCombat.RegisterMotherBrainHeadTouch(table);
         ShitroidBehavior.RegisterShitroidTouch(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperTouch(table);
-        DeadTourianBehavior.RegisterDeadTourianTouch(table);
-        DeadTorizoBehavior.RegisterDeadTorizoTouch(table);
-        WallSpacePirateBehavior.RegisterWallSpacePirateTouch(table);
+        DeadSidehopperBehavior.AddDeadSidehopperTouch(table);
+        DeadTourianBehavior.AddDeadTourianTouch(table);
+        DeadTorizoBehavior.AddDeadTorizoTouch(table);
+        WallSpacePirateBehavior.AddWallSpacePirateTouch(table);
         BombTorizoBehavior.Combat.RegisterBombTorizoTouch(table);
 
         PhantoonBehavior.Combat.RegisterPhantoonBodyTouch(table);
@@ -1427,33 +1427,33 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         SporeSpawnBehavior.RegisterSporeSpawnTouch(table);
         CeresSteamBehavior.RegisterCeresSteamTouch(table);
         CrocomireBehavior.Combat.RegisterCrocomireTouch(table);
-        MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailTouch(table);
-        PlatformsBehavior.RegisterPlatformsTouch(table);
+        MaridiaLargeSnailBehavior.AddMaridiaLargeSnailTouch(table);
+        PlatformsBehavior.AddPlatformsTouch(table);
 
         // Fifteen inventoried header/hitbox callbacks are literal RTL routines. Classify their bank-qualified
         // identities rather than probing executable ROM bytes at runtime. The collision is still reported, but the
         // callback performs no damage, knockback, or actor reaction.
         table.AddTouch(slot => slot.Definition.TouchBody == EnemyCallbackBody.ImmediateReturn,
             static _ => { });
-        ShuttersBehavior.RegisterShuttersTouch(table);
-        MochtroidBehavior.RegisterMochtroidTouch(table);
-        MetroidBehavior.RegisterMetroidTouch(table);
-        YappingMawBehavior.RegisterYappingMawTouch(table);
-        YardBehavior.RegisterYardTouch(table);
-        BeetomBehavior.RegisterBeetomTouch(table);
-        PowampBehavior.RegisterPowampTouch(table);
-        WorkRobotBehavior.RegisterWorkRobotTouch(table);
-        FirefleaBehavior.RegisterFirefleaTouch(table);
-        MamaTurtleBehavior.RegisterMamaTurtleTouch(table);
-        MagdolliteBehavior.RegisterMagdolliteTouch(table);
+        ShuttersBehavior.AddShuttersTouch(table);
+        MochtroidBehavior.AddMochtroidTouch(table);
+        MetroidBehavior.AddMetroidTouch(table);
+        YappingMawBehavior.AddYappingMawTouch(table);
+        YardBehavior.AddYardTouch(table);
+        BeetomBehavior.AddBeetomTouch(table);
+        PowampBehavior.AddPowampTouch(table);
+        WorkRobotBehavior.AddWorkRobotTouch(table);
+        FirefleaBehavior.AddFirefleaTouch(table);
+        MamaTurtleBehavior.AddMamaTurtleTouch(table);
+        MagdolliteBehavior.AddMagdolliteTouch(table);
         RinkaBehavior.RegisterRinkaTouch(table);
-        DragonBehavior.RegisterDragonTouch(table);
-        EvirBehavior.RegisterEvirTouch(table);
+        DragonBehavior.AddDragonTouch(table);
+        EvirBehavior.AddEvirTouch(table);
         BotwoonBehavior.RegisterBotwoonTouch(table);
 
         ZebetiteBehavior.RegisterZebetiteTouch(table);
         FakeKraidBehavior.RegisterFakeKraidTouch(table);
-        ShaktoolBehavior.RegisterShaktoolTouch(table);
+        ShaktoolBehavior.AddShaktoolTouch(table);
 
         table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.NormalEnemyTouch,
             context => Collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
@@ -1476,7 +1476,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// pointer is last.</remarks>
     private void RegisterHurtAi(EnemySharedReactions table)
     {
-        MetroidBehavior.RegisterMetroidHurtAi(table);
+        MetroidBehavior.AddMetroidHurtAi(table);
         BombTorizoBehavior.Combat.RegisterBombTorizoHurtAi(table);
         RidleyBehavior.RegisterRidleyHurtAi(table);
         PhantoonBehavior.RegisterPhantoonHurtAi(table);
@@ -1490,7 +1490,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     private void RegisterFrozenAi(EnemySharedReactions table)
     {
         RinkaBehavior.RegisterRinkaFrozenPreemption(table);
-        MetroidBehavior.RegisterMetroidFrozenAi(table);
-        YappingMawBehavior.RegisterYappingMawFrozenAi(table);
+        MetroidBehavior.AddMetroidFrozenAi(table);
+        YappingMawBehavior.AddYappingMawFrozenAi(table);
     }
 }

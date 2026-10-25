@@ -502,7 +502,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
-    internal void RegisterPowampBombReactions(EnemySharedReactions table)
+    internal void AddPowampBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Powamp &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.PowampShot)
@@ -513,7 +513,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects radial spikes to their bank-$86 movement pre-instruction.</summary>
-    internal static void RegisterPowampProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddPowampProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -535,7 +535,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
-    internal void RegisterPowampPowerBombReactions(EnemySharedReactions table)
+    internal void AddPowampPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Powamp &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.PowampPowerBomb)
@@ -549,7 +549,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
-    internal void RegisterPowampShotReactions(EnemySharedReactions table)
+    internal void AddPowampShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Powamp &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.PowampShot)
@@ -564,7 +564,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies touch behavior only to the body before its fatal-shot state begins.</summary>
-    internal void RegisterPowampTouch(EnemySharedReactions table)
+    internal void AddPowampTouch(EnemySharedReactions table)
     {
         // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
         // interactive list because population property $0400 excludes them, but retain the handler's literal guard.

@@ -988,7 +988,7 @@ internal sealed class RoomLoader
             plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
             plms.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
-                assets.LevelData.GetBlockIndex(new(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY)));
+                assets.LevelData.GetBlockIndex(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         // `$8F:91A9` spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
         // forty native slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)

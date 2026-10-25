@@ -128,14 +128,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
             ChozoStatueColors().ApplyWreckedShip(ChozoAndTubeColours());
-            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatuePlmRomData.WreckedShipHandBlock);
-            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
+            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
+            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
             ChozoStatueColors().ApplyLowerNorfair(ChozoAndTubeColours());
-            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatuePlmRomData.LowerNorfairHandBlock);
+            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
     }
 
@@ -161,8 +161,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
-        int triggerBlockX = state.IsWreckedShip ? ChozoStatuePlmRomData.WreckedShipHandBlock.X : ChozoStatuePlmRomData.LowerNorfairTriggerX;
-        int triggerBlockY = state.IsWreckedShip ? ChozoStatuePlmRomData.WreckedShipHandBlock.Y : ChozoStatuePlmRomData.LowerNorfairTriggerY;
+        int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;
+        int triggerBlockY = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.Y : ChozoStatueRoomDefinitions.LowerNorfairTriggerY;
         int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
@@ -179,7 +179,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-                ChozoStatuePlmRomData.LowerNorfairHandBlock);
+                ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
         else
         {
@@ -192,7 +192,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.RoomScroll.Write(14, RoomScrollState.Blue);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.ClearSlopeAccessForWreckedShipChozo,
-                ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
+                ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
     }
 
@@ -258,7 +258,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
+                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.UnlockSamus }:
@@ -380,7 +380,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         PublishHardcodedChozoPlm(
             PlmHeaderId.BlockSlopeAccessForWreckedShipChozo,
-            ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
+            ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
     }
 
     /// <summary>Gives Samus her controls back, in both the room service and observable state.</summary>

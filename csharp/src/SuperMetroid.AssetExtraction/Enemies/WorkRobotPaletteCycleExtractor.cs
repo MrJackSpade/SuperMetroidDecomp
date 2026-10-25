@@ -25,7 +25,7 @@ public static class WorkRobotPaletteCycleExtractor
         var frames = new PaletteRgb5[WorkRobotPaletteTimingDefinitions.RecordCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
-            frames[frame] = new PaletteRgb5[WorkRobotPaletteRomData.ColorCount];
+            frames[frame] = new PaletteRgb5[WorkRobotPaletteDefinitions.ColorCount];
             for (int color = 0; color < frames[frame].Length; color++)
             {
                 int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +

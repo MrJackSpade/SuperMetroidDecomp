@@ -337,7 +337,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
-    internal static void RegisterPlatformsBombReactions(EnemySharedReactions table)
+    internal static void AddPlatformsBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Tripper &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.TripperShot)
@@ -363,7 +363,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyPlatformCue(slot, cue));
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
-    internal static void RegisterPlatformsShotReactions(EnemySharedReactions table)
+    internal static void AddPlatformsShotReactions(EnemySharedReactions table)
     {
         // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
         // frame with a direction-specific two-piece frozen map.
@@ -379,7 +379,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers native RTL touch behavior so ordinary overlap does not damage Samus.</summary>
-    internal static void RegisterPlatformsTouch(EnemySharedReactions table)
+    internal static void AddPlatformsTouch(EnemySharedReactions table)
     {
         // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider test live in other handlers;
         // ordinary body overlap must neither injure Samus nor synthesize knockback here.

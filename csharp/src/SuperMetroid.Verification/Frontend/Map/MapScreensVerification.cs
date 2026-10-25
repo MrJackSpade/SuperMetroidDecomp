@@ -19,6 +19,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -197,16 +198,16 @@ internal static class MapScreensVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
         var forbidden = new HashSet<int>();
-        Add(FileSelectMapRomData.InitialMenuBackground, MapScreenDefinitions.PageBytes);
-        Add(FileSelectMapRomData.AreaForeground, MapScreenDefinitions.PageBytes);
-        Add(FileSelectMapRomData.AreaBackgrounds, MapScreenDefinitions.PageBytes * MapScreenDefinitions.ZebesAreas);
-        Add(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
-        Add(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
-        Add(FileSelectMapRomData.RoomFrame, 1600);
-        Add(FileSelectMapRomData.RoomFrameFooter, 322);
-        Add(FileSelectMapRomData.AreaLabelPointerTable, MapScreenDefinitions.ZebesAreas * 2);
+        Add(MapSourceDefinitions.Menu.Background, MapScreenDefinitions.PageBytes);
+        Add(MapSourceDefinitions.FileSelectMap.AreaForeground, MapScreenDefinitions.PageBytes);
+        Add(MapSourceDefinitions.FileSelectMap.AreaBackgrounds, MapScreenDefinitions.PageBytes * MapScreenDefinitions.ZebesAreas);
+        Add(MapSourceDefinitions.Menu.ForegroundCharacters, WorldMapArtworkFormat.ForegroundBytes);
+        Add(MapSourceDefinitions.Menu.BackgroundCharacters, WorldMapArtworkFormat.BackgroundBytes);
+        Add(MapSourceDefinitions.FileSelectMap.RoomFrame, 1600);
+        Add(MapSourceDefinitions.FileSelectMap.RoomFrameFooter, 322);
+        Add(MapSourceDefinitions.FileSelectMap.AreaLabelPointers, MapScreenDefinitions.ZebesAreas * 2);
         for (int area = 0; area < MapScreenDefinitions.ZebesAreas; area++)
-            Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, FileSelectMapRomData.AreaLabelPointerTable + area * 2), 24);
+            Add(MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, MapSourceDefinitions.FileSelectMap.AreaLabelPointers + area * 2), 24);
         void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(forbidden.Contains, address => $"Installed map screens read cartridge presentation at {address:X6}.");

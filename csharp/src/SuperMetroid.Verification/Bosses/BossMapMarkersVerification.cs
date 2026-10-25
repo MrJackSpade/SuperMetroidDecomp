@@ -12,6 +12,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Bosses;
 
 using SuperMetroid.Verification.Harness;
@@ -27,14 +28,14 @@ internal static class BossMapMarkersVerification
         int markers = 0;
         for (int area = 0; area < 6; area++)
         {
-            ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapIconRomData.BossLists + area * 2);
+            ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Landmarks.BossLists + area * 2);
             if (list == 0) continue;
             for (int record = 0; record < 8; record++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4));
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1) continue;
-                ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
+                ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });

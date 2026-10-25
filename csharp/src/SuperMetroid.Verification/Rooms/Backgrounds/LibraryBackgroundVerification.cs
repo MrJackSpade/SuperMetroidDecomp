@@ -82,8 +82,8 @@ static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundNativeOperand> romTransfers)
 {
     LibraryBackgroundNativeOperand transfer = romTransfers.First(source =>
-        source.SourceAddress == HudTileAtlasFormat.SourceAddress);
-    if (romTransfers.Where(source => source.SourceAddress == HudTileAtlasFormat.SourceAddress)
+        source.SourceAddress == MapSourceDefinitions.Artwork.HudCharacters);
+    if (romTransfers.Where(source => source.SourceAddress == MapSourceDefinitions.Artwork.HudCharacters)
         .Any(source => source.Command != transfer.Command ||
             source.TransferByteCount != transfer.TransferByteCount ||
             source.VramDestination != transfer.VramDestination))
@@ -93,7 +93,7 @@ static void VerifyKraidLibraryHudArtwork(
     AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, (transfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires transfer.TransferByteCount.")),
         "Kraid HUD upload contains characters without the normal clearing half");
 
-    byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress,
+    byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.HudCharacters,
         HudTileAtlasFormat.CharacterByteCount);
     byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
         out Extent16<ImagePixels> size);

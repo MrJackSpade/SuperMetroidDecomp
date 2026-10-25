@@ -17,6 +17,4 @@ public static class MapTileAtlasFormat
     public const int ByteCount = Width * Height / 2;
     /// <summary>The atlas's 4-bpp characters.</summary>
     public const int CharacterCount = ByteCount / 32;
-    /// <summary>$B6:8000: first 256 shared map/menu 4-bpp characters, imported once rather than reread at runtime.</summary>
-    public const int SourceAddress = MapTileAtlasRomData.CharacterData;
 }

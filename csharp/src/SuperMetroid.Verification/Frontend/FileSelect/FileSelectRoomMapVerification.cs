@@ -19,6 +19,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
@@ -41,7 +42,7 @@ internal static class FileSelectRoomMapVerification
         Suite(nameof(VerifyFileSelectMapAnimations), () => VerifyFileSelectMapAnimations());
         Suite(nameof(VerifyMapCancelPresentation), () => VerifyMapCancelPresentation());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
+        for (int areaIndex = 0; areaIndex < FileSelectMapDefinitions.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
         {
             AreaId area = (AreaId)areaIndex;
@@ -75,13 +76,13 @@ internal static class FileSelectRoomMapVerification
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.AreaLabelPointerTable + areaIndex * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + areaIndex * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800
-                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrame + word * 2)
+                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrame + word * 2)
                     : word < 960
-                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + (word - 799) * 2)
+                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrameFooter + (word - 799) * 2)
                         : (ushort)0x2801;
                 if (word is >= 170 and < 182)
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);

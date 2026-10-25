@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -17,7 +18,7 @@ internal static class MapPaletteCycleExtractor
         var frames = new List<MapPaletteCycleFrame>();
         for (int frame = 0; frame <= MapPaletteCycleFormat.MaximumFrames; frame++)
         {
-            byte duration = bus.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * MapAnimationRomData.PaletteTimingStride);
+            byte duration = bus.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * MapSourceDefinitions.Animation.PaletteTimingStride);
             if (duration == byte.MaxValue)
             {
                 using var json = new MemoryStream();
@@ -30,7 +31,7 @@ internal static class MapPaletteCycleExtractor
             for (int color = 0; color < colors.Length; color++)
             {
                 ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    MapAnimationRomData.PaletteColors + (frame * colors.Length + color) * sizeof(ushort));
+                    MapSourceDefinitions.Animation.PaletteColors + (frame * colors.Length + color) * sizeof(ushort));
                 colors[color] = new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
             }
             frames.Add(new() { DurationTicks = duration, Colors = colors });

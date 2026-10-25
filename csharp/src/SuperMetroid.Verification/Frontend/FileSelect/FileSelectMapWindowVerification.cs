@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 using SuperMetroid.Verification.Harness;
@@ -57,7 +58,7 @@ internal static class FileSelectMapWindowVerification
         int[] durations = [52, 54, 46, 52, 52, 35];
         int[] labelX = [91, 42, 94, 206, 206, 135];
         int[] labelY = [50, 127, 181, 80, 159, 139];
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             var window = new FileSelectMapWindow(area, RetailPresentationFixture().Labels);
             AssertEqual(labelX[area], window.TopLeft.X, "map window starts at native area label X");
@@ -133,15 +134,15 @@ internal static class FileSelectMapWindowVerification
         var maps = RetailPresentationFixture();
         var graphics = new FileSelectAreaMapGraphics(0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.For(maps));
         graphics.BindLabels(maps.Labels);
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             graphics.SelectArea(area);
             AssertEqual(activeColors[area], graphics.screen.Palette.Colors[indices[area]], $"area {area} active map color");
             if (area != 0)
                 AssertEqual(0x4a52, graphics.screen.Palette.Colors[86], "switching area restores Crateria inactive color");
-            for (int offset = 0; offset < FileSelectMapRomData.TilemapBytes; offset++)
-                AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, FileSelectMapRomData.AreaBackgrounds + area * FileSelectMapRomData.TilemapBytes + offset),
-                    MenuScreenFixtures.Vram(graphics.screen).ReadByte(FileSelectMapRomDataConstants.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
+            for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)
+                AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, MapSourceDefinitions.FileSelectMap.AreaBackgrounds + area * MapSourceDefinitions.Menu.TilemapBytes + offset),
+                    MenuScreenFixtures.Vram(graphics.screen).ReadByte(FileSelectMapNativeSources.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
             Rgba32[] frame = graphics.RenderBackgrounds();
             AssertEqual(256 * 224, frame.Length, "area map physical viewport size");
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");
@@ -163,11 +164,11 @@ internal static class FileSelectMapWindowVerification
     private static TestAddressSpace CreateFractionalMapWindowCartridge()
     {
         var fake = new TestAddressSpace();
-        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowTimers, 1);
         // The lower-bound clamp must preserve .C000, or frame two will still
         // report pixel one instead of pixel two. No rendering endpoint can hide it.
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities, 0xc000);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 8, 0xc000);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowVelocities, 0xc000);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowVelocities + 8, 0xc000);
         return fake;
     }
 
@@ -176,13 +177,13 @@ internal static class FileSelectMapWindowVerification
     private static TestAddressSpace CreateComposedMapWindowCartridge()
     {
         var fake = new TestAddressSpace();
-        WriteTestWord(fake, FileSelectMapRomData.LabelPositions, 40);
-        WriteTestWord(fake, FileSelectMapRomData.LabelPositions + 2, 30);
-        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 2);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 2, 0xffff);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 6, 1);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
+        WriteTestWord(fake, MapSourceDefinitions.FileSelectMap.LabelPositions, 40);
+        WriteTestWord(fake, MapSourceDefinitions.FileSelectMap.LabelPositions + 2, 30);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowTimers, 2);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowVelocities + 2, 0xffff);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowVelocities + 6, 1);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowVelocities + 10, 0xffff);
+        WriteTestWord(fake, FileSelectMapNativeSources.WindowVelocities + 14, 1);
         return fake;
     }
 

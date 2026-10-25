@@ -7,13 +7,13 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpriteNamesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -100,8 +100,8 @@ internal static class MapSpriteCasesVerification
         OamBuffer native; var installed = ScreenSpritesFixtures.Blank();
         foreach (var frame in MapSpriteRoleOracle())
         {
-            int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                FileSelectMapRomData.SpritemapPointerTableAddress + frame.NativeId * 2);
+            int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                MapSourceDefinitions.Menu.SpritemapPointers + frame.NativeId * 2);
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255, 65535 })
             for (int palette = 0; palette < 8; palette++)

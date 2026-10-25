@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -13,7 +13,7 @@ internal static class MenuSpriteExtractor
     /// <summary>Decodes an indexed bank-$82 spritemap into bounded OAM parts, leaving palette choice to the caller as native menu rendering does.</summary>
     public static SpriteVisualPart[] Read(ISnesAddressSpace bus, ushort id)
     {
-        int address = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SpritemapPointerTableAddress + id * 2);
+        int address = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.SpritemapPointers + id * 2);
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > MapSpriteFormat.MaximumParts) throw new InvalidDataException($"Menu sprite {id:X4} exceeds OAM capacity.");
         var parts = new SpriteVisualPart[count];

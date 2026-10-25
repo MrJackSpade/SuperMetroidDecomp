@@ -54,8 +54,8 @@ internal static class ScreenTilePicturesVerification
         Check(fileSelect.CaptureRenderSnapshot(), fileSelect.ShownVram(), "file select");
         var explored = new Bank80SystemState();
         explored.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
-        ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapRomData.AreaCount).ToArray();
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
             Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.WithBackdrop), world.ShownVram(), $"{(AreaId)area} area map");

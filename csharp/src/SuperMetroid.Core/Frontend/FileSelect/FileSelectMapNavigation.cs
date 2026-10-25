@@ -23,7 +23,7 @@ public sealed class FileSelectMapNavigation
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
     public FileSelectMapNavigation(int area, SnesButton initialHeldInput = SnesButton.None)
     {
-        if ((uint)area >= FileSelectMapRomData.AreaCount)
+        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         this.area = area;
         previousInput = initialHeldInput;

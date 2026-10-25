@@ -28,7 +28,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
     private readonly int area;
     /// <summary>Per-area used-station words restored from the selected save slot.</summary>
-    private readonly ushort[] usedStations = new ushort[FileSelectMapRomData.AreaCount];
+    private readonly ushort[] usedStations = new ushort[FileSelectMapDefinitions.AreaCount];
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
@@ -74,7 +74,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         Ensure.NotNull(slot);
         area = slot.Area;
         stationIndex = slot.SaveStation;
-        if ((uint)area >= FileSelectMapRomData.AreaCount)
+        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
@@ -172,7 +172,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.AreaReturnRequested:
-                if (++pendingFrames < FileSelectMapRomData.ReturnSetupFrames) break;
+                if (++pendingFrames < FileSelectMapDefinitions.ReturnSetupFrames) break;
                 if (returnWindow is null)
                 {
                     returnWindow = FileSelectMapWindow.CreateReturn(area, mapPresentation?.Labels);
@@ -190,9 +190,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
                 pendingFrames++;
-                if (pendingFrames <= FileSelectMapRomData.LoadPreludeFrames) break;
+                if (pendingFrames <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (brightness > 0) { brightness--; break; }
-                LoadRequested = pendingFrames >= FileSelectMapRomData.LoadPreludeFrames + 15 + FileSelectMapRomData.LoadBlackFrames;
+                LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + 15 + FileSelectMapDefinitions.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
             case FileSelectMapNavigationPhase.Area:
@@ -231,9 +231,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             FileSelectMapNavigationPhase.Room when !markerDrawn => Room(null),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(marker),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(marker),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
-                Insert(Frame(), Area(), FileSelectMapRomData.EntryWindowLeft, FileSelectMapRomData.EntryWindowTop,
-                    FileSelectMapRomData.EntryWindowRight + 1, SnesPpuLayout.ScreenHeightPixels - FileSelectMapRomData.EntryWindowTop),
+            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapDefinitions.ReturnSetupFrames - 1 =>
+                Insert(Frame(), Area(), FileSelectMapDefinitions.EntryWindowLeft, FileSelectMapDefinitions.EntryWindowTop,
+                    FileSelectMapDefinitions.EntryWindowRight + 1, SnesPpuLayout.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => Frame(),
             FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or

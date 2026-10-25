@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -116,7 +117,7 @@ internal static class MapStationLayoutVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
         var blocked = new HashSet<int>();
-        foreach (int table in new[] { FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.MapStationLists })
+        foreach (int table in new[] { MapSourceDefinitions.Landmarks.MissileLists, MapSourceDefinitions.Landmarks.EnergyLists, MapSourceDefinitions.Landmarks.MapStationLists })
         for (int area = 0; area < AreaIds.RetailCount; area++)
         {
             int entry = table + area * 2;
@@ -125,7 +126,7 @@ internal static class MapStationLayoutVerification
             if (list == 0) continue;
             for (int record = 0; ; record++)
             {
-                int address = FileSelectMapRomData.MenuObjectBank | (list + record * 4);
+                int address = MapSourceDefinitions.Menu.ObjectBank | (list + record * 4);
                 blocked.Add(address); blocked.Add(address + 1);
                 if ((short)RomDataReader.ReadWordFixedBank(cartridge, address) < 0) break;
                 blocked.Add(address + 2); blocked.Add(address + 3);

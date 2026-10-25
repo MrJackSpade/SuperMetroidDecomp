@@ -20,6 +20,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -52,7 +53,7 @@ internal static class MapSpritesVerification
         }
         var vram = new SnesVram(); original.Sprites.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MenuVramLayout.MapSpriteByteAddress, MapSpriteFormat.ByteCount).SequenceEqual(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
 
         Directory.CreateDirectory(overrides);
@@ -154,12 +155,12 @@ internal static class MapSpritesVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
         var forbidden = new HashSet<int>();
-        Add(MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount);
-        Add(FileSelectMapRomData.LabelSpritemapBase, 2);
+        Add(MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount);
+        Add(MapSourceDefinitions.FileSelectMap.LabelSpritemaps, 2);
         foreach (var frame in MapSpriteDefinitions.Frames)
         {
-            int entry = FileSelectMapRomData.SpritemapPointerTableAddress + (int)frame.Id * 2;
-            int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);
+            int entry = MapSourceDefinitions.Menu.SpritemapPointers + (int)frame.Id * 2;
+            int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);
             Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(cartridge, pointer));
         }
         void Add(int start, int count) { for (int index = 0; index < count; index++) forbidden.Add(start + index); }

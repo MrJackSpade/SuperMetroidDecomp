@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -70,8 +71,8 @@ public static class FileSelectPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [FileSelectPresentationDefinitions.BackgroundPageName] = Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.InitialMenuBackground,
-                    FileSelectMapRomData.TilemapBytes)),
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
+                    MapSourceDefinitions.Menu.TilemapBytes)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)] = Cells(mainWithData),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainEmpty)] = Cells(mainEmpty),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopySource)] = Cells(CopyPage(

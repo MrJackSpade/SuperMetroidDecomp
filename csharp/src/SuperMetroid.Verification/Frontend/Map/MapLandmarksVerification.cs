@@ -126,8 +126,8 @@ internal static class MapLandmarksVerification
         var blocked = new HashSet<int>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            AddList(FileSelectMapIconRomData.BossLists, area, 4);
-            if (area != AreaId.Ceres) AddList(FileSelectMapIconRomData.ElevatorLists, area, 6);
+            AddList(MapSourceDefinitions.Landmarks.BossLists, area, 4);
+            if (area != AreaId.Ceres) AddList(MapSourceDefinitions.Landmarks.ElevatorLists, area, 6);
         }
         // Full room rendering still reads selected-save coordinates. The direct
         // icon comparison can additionally block the shared gunship coordinate.
@@ -136,7 +136,7 @@ internal static class MapLandmarksVerification
             int table = (int)FrontendSourceDefinitions.SavePointMapPointers;
             int pointer = RomDataReader.ReadWordFixedBank(cartridge, table);
             blocked.Add(table); blocked.Add(table + 1);
-            for (int i = 0; i < 4; i++) blocked.Add(FileSelectMapRomData.MenuObjectBank | (pointer + i));
+            for (int i = 0; i < 4; i++) blocked.Add(MapSourceDefinitions.Menu.ObjectBank | (pointer + i));
         }
         void AddList(int table, AreaId area, int stride)
         {
@@ -146,7 +146,7 @@ internal static class MapLandmarksVerification
             if (list == 0) return;
             for (int record = 0; ; record++)
             {
-                int address = FileSelectMapRomData.MenuObjectBank | (list + record * stride);
+                int address = MapSourceDefinitions.Menu.ObjectBank | (list + record * stride);
                 blocked.Add(address); blocked.Add(address + 1);
                 if (RomDataReader.ReadWordFixedBank(cartridge, address) == ushort.MaxValue) break;
                 for (int i = 2; i < stride; i++) blocked.Add(address + i);

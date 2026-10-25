@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal static class FileSelectTilemapFormat
 {
     /// <summary>Bank containing the file-select text streams.</summary>
-    public const int Bank = FileSelectMapRomData.TilemapTextBank;
+    public const int Bank = MapSourceDefinitions.Menu.TilemapTextBank;
     /// <summary>Terminates one tilemap text stream.</summary>
     public const ushort End = ushort.MaxValue;
     /// <summary>Moves the output cursor to the same column on the following row.</summary>

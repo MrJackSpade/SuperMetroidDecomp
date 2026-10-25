@@ -48,7 +48,7 @@ internal static class PauseMenuFixtureVerification
             Enum.GetValues<AreaId>().Select(_ => Read(0xb6e000, 0x0800)).ToArray(),
             Read((int)PauseMenuSourceDefinitions.PauseButtonTilemap, PauseBackdropDefinitions.ButtonCells * 2));
         var hud = new byte[HudTileAtlasFormat.ByteCount];
-        Read(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
+        Read(MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
             TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
@@ -73,7 +73,7 @@ internal static class PauseMenuFixtureVerification
         {
             Areas = areas,
             ContentIdentity = "constructed-pause-interaction-fixture",
-            Tiles = new MapTileCharacters(Read(MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount)),
+            Tiles = new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)),
             HudTiles = new HudTileAtlas(hud),
             HighlightCycle = stock.HighlightCycle,
             Palettes = palettes,
@@ -85,7 +85,7 @@ internal static class PauseMenuFixtureVerification
             Screens = stock.Screens,
             WorldArtwork = stock.WorldArtwork,
             Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
-            PauseTiles = new MapTileCharacters(Read(PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)),
+            PauseTiles = new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)),
             PauseBackdrops = backdrops,
             PauseWireframes = stock.PauseWireframes,
             PauseSelectors = PauseSelectorPresentation.Load(selectorJson),

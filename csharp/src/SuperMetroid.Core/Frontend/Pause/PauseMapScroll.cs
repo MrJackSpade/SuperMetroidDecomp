@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -49,11 +48,11 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
             tick = 0;
         }
         if (direction == MapScrollDirection.None) return false;
-        if (++tick == FileSelectMapRomData.ScrollPulseTick)
+        if (++tick == MapScrollDefinitions.PulseTick)
         {
             scroll += MapScrollControls.StepOffset(direction);
         }
-        if (tick != FileSelectMapRomData.ScrollStepTicks) return false;
+        if (tick != MapScrollDefinitions.StepTicks) return false;
         tick = 0;
         direction = MapScrollDirection.None;
         return true;

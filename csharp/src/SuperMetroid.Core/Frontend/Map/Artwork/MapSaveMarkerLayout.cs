@@ -48,7 +48,7 @@ public sealed class MapSaveMarkerLayout
             document.Markers.Count != MapSaveMarkerDefinitions.AllIds().Count())
             throw new InvalidDataException("Save marker layout requires version 1 and every known marker.");
         var overrides = new Dictionary<string, AnchorOverride>(StringComparer.Ordinal);
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         foreach (int index in MapSaveMarkerDefinitions.Indices((AreaId)area))
         {
             string id = MapSaveMarkerDefinitions.Id((AreaId)area, index);

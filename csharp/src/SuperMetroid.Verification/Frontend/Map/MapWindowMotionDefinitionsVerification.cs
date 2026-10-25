@@ -108,11 +108,11 @@ internal static class MapWindowMotionDefinitionsVerification
     {
         uint ReadVelocity(int edge)
         {
-            int address = FileSelectMapRomData.WindowVelocities + area * FileSelectMapRomData.VelocityRecordBytes + edge * 4;
+            int address = FileSelectMapNativeSources.WindowVelocities + area * FileSelectMapNativeSources.VelocityRecordBytes + edge * 4;
             return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address) |
                 (SnesSixteenSixteen.FromWhole((uint)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
-        return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.WindowTimers + area * 2),
+        return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapNativeSources.WindowTimers + area * 2),
             ReadVelocity(0), ReadVelocity(1), ReadVelocity(2), ReadVelocity(3));
     }
 }

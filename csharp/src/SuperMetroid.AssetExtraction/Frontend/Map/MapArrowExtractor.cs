@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -26,17 +26,17 @@ public static class MapArrowExtractor
         for (int index = 0; index < MapArrowDefinitions.Count; index++)
         {
             MapScrollDirection direction = ArrowDirections[index];
-            int record = FileSelectMapRomData.ScrollArrows + index * 10;
+            int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * MapSourceDefinitions.FileSelectMap.ScrollArrowRecordBytes;
             int animation = Read(record + 4);
             if (animation is < 1 or > 9) throw new InvalidDataException("Invalid cartridge map arrow animation.");
-            int program = Read(MapAnimationRomData.SpritePrograms + (animation - 1) * 2);
-            int variants = Read(MapAnimationRomData.SpriteBases + (animation - 1) * 2);
-            if (Read(FileSelectMapRomData.MenuObjectBank | variants) != (ushort)MapArrowDefinitions.SpriteBase(direction))
+            int program = Read(MapSourceDefinitions.Animation.SpritePrograms + (animation - 1) * 2);
+            int variants = Read(MapSourceDefinitions.Animation.SpriteBases + (animation - 1) * 2);
+            if (Read(MapSourceDefinitions.Menu.ObjectBank | variants) != (ushort)MapArrowDefinitions.SpriteBase(direction))
                 throw new InvalidDataException($"Cartridge arrow shape differs for {direction}.");
             var durations = new List<int>();
             for (int phase = 0; ; phase++)
             {
-                int address = FileSelectMapRomData.MenuObjectBank | (program + phase * 3);
+                int address = MapSourceDefinitions.Menu.ObjectBank | (program + phase * 3);
                 byte duration = bus.ReadCartridgeByte(address);
                 if (duration == byte.MaxValue) break;
                 if (phase == MapArrowFormat.MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");

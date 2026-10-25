@@ -2,12 +2,12 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -31,7 +31,7 @@ public static class GameOptionsPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.BackgroundPageName] = Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.InitialMenuBackground,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     GameOptionsRomData.TilemapByteCount)),
             [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.Primary)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.Primary)),
             [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.ControllerEnglish)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerEnglish)),

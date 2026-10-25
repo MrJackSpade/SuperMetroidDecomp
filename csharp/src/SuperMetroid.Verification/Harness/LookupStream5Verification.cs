@@ -633,7 +633,7 @@ internal static class LookupStream5Verification
         MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
         MapSpriteCatalog sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
-        int Read(int pointer) => ReadVerificationWord(rom, FileSelectMapRomData.MenuObjectBank | pointer);
+        int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
         int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
         string[] expectedIds = ["Crateria.Elevator.0", "Crateria.Elevator.1", "Crateria.Elevator.2", "Crateria.Elevator.3", "Crateria.Elevator.4",
             "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
@@ -649,7 +649,7 @@ internal static class LookupStream5Verification
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             var bosses = MapLandmarkDefinitions.Bosses(area);
-            int pointer = Root(FileSelectMapIconRomData.BossLists, area);
+            int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area);
             int count = 0;
             if (pointer != 0)
                 while (Read(pointer + count * 4) != ushort.MaxValue)
@@ -670,7 +670,7 @@ internal static class LookupStream5Verification
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
             var elevators = MapLandmarkDefinitions.Elevators(area);
-            pointer = Root(FileSelectMapIconRomData.ElevatorLists, area);
+            pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
             count = 0;
             while (Read(pointer + count * 6) != ushort.MaxValue)
             {
@@ -698,7 +698,7 @@ internal static class LookupStream5Verification
             icons.BindLandmarks(adjustment == 0 ? layout : editedLayout); icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
             var actual = ScreenSpritesFixtures.Blank(); var expected = ScreenSpritesFixtures.Blank();
             icons.DrawBossMarkers(actual, new(7, 9));
-            int pointer = Root(FileSelectMapIconRomData.BossLists, area), bits = defeated ? 1 : 0;
+            int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area), bits = defeated ? 1 : 0;
             if (pointer != 0)
                 for (int i = 0; Read(pointer + i * 4) != ushort.MaxValue; i++, bits >>= 1)
                 {
@@ -706,10 +706,10 @@ internal static class LookupStream5Verification
                     if (x == 0xfffe) continue;
                     if ((bits & 1) != 0)
                     {
-                        Draw(MapSpriteId.MarkerDefeatedBoss, x, y, FileSelectMapRomData.StationMarkerPalette);
-                        Draw(MapSpriteId.MarkerBoss, x, y, FileSelectMapIconRomData.DefeatedBossPalette);
+                        Draw(MapSpriteId.MarkerDefeatedBoss, x, y, FileSelectMapDefinitions.StationMarkerPalette);
+                        Draw(MapSpriteId.MarkerBoss, x, y, FileSelectMapDefinitions.DefeatedBossPalette);
                     }
-                    else if (downloaded) Draw(MapSpriteId.MarkerBoss, x, y, FileSelectMapRomData.StationMarkerPalette);
+                    else if (downloaded) Draw(MapSpriteId.MarkerBoss, x, y, FileSelectMapDefinitions.StationMarkerPalette);
                 }
             if (area != AreaId.Ceres)
             {
@@ -717,11 +717,11 @@ internal static class LookupStream5Verification
                 if (area == AreaId.Crateria)
                 {
                     int ship = Root((int)FrontendSourceDefinitions.SavePointMapPointers, area);
-                    Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), FileSelectMapRomData.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), FileSelectMapDefinitions.StationMarkerPalette);
                 }
                 if (downloaded)
                 {
-                    pointer = Root(FileSelectMapIconRomData.ElevatorLists, area);
+                    pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
                     for (int i = 0; Read(pointer + i * 6) != ushort.MaxValue; i++)
                         Draw((MapSpriteId)Read(pointer + i * 6 + 4), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
                 }
@@ -887,8 +887,8 @@ internal static class LookupStream5Verification
         var native = new SnesButton[4];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = (SnesButton)ReadVerificationWord(rom, FileSelectMapRomData.ScrollArrows + i * 10 + 6);
-            AssertEqual(i + 1, (int)ReadVerificationWord(rom, FileSelectMapRomData.ScrollArrows + i * 10 + 8), "Native direction identity");
+            native[i] = (SnesButton)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 6);
+            AssertEqual(i + 1, (int)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 8), "Native direction identity");
             AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)(i + 1)), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
         }
@@ -1326,10 +1326,10 @@ internal static class LookupStream5Verification
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
         {
-            DurationTicks = rom.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3),
+            DurationTicks = rom.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * 3),
             Colors = Enumerable.Range(0, 16).Select(color =>
             {
-                ushort word = ReadVerificationWord(rom, MapAnimationRomData.PaletteColors + (frame * 16 + color) * 2);
+                ushort word = ReadVerificationWord(rom, MapSourceDefinitions.Animation.PaletteColors + (frame * 16 + color) * 2);
                 return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
             }).ToArray(),
         }).ToArray();
@@ -1340,7 +1340,7 @@ internal static class LookupStream5Verification
         AssertEqual(8, stock.colors.Length, "Only independent color phases remain");
         for (int frame = 0; frame < 14; frame++)
         {
-            AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
+            AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
             var durationEdit = (MapPaletteCycleFrame[])frames.Clone();
             durationEdit[frame] = frames[frame] with { DurationTicks = 254 };
             Check(original with { Frames = durationEdit });

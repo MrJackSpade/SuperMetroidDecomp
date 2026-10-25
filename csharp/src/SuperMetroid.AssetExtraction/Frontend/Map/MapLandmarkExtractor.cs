@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -24,7 +23,7 @@ public static class MapLandmarkExtractor
         var points = new Dictionary<string, Position16<MapPixels>>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            int boss = Pointer(SnesAddress.FromBusAddress(FileSelectMapIconRomData.BossLists), area);
+            int boss = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.BossLists), area);
             var bosses = MapLandmarkDefinitions.Bosses(area);
             if (boss == 0 && !bosses.IsEmpty) throw new InvalidDataException($"Missing {area} boss list.");
             for (int i = 0; i < bosses.Length; i++)
@@ -40,7 +39,7 @@ public static class MapLandmarkExtractor
             if (boss != 0 && Read(boss + bosses.Length * 4) != ushort.MaxValue)
                 throw new InvalidDataException($"Unexpected {area} boss slots.");
             if (area == AreaId.Ceres) continue;
-            int elevator = Pointer(SnesAddress.FromBusAddress(FileSelectMapIconRomData.ElevatorLists), area);
+            int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
             var elevators = MapLandmarkDefinitions.Elevators(area);
             for (int i = 0; i < elevators.Length; i++)
             {
@@ -59,6 +58,6 @@ public static class MapLandmarkExtractor
         return stream.ToArray();
 
         ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(AreaIds.ToIndex(area) * 2));
-        ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | pointer);
+        ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | pointer);
     }
 }

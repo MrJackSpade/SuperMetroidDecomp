@@ -1431,7 +1431,7 @@ internal static class LookupStream4Verification
                 int word=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceIndex*2);
                 for(int y=0;y<8;y++)for(int x=0;x<8;x++)
                 {
-                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=HudTileAtlasFormat.SourceAddress+(word&0x3ff)*16+sy*2;
+                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=MapSourceDefinitions.Artwork.HudCharacters+(word&0x3ff)*16+sy*2;
                     int ink=(rom.ReadCartridgeByte(address)>>(7-sx)&1)|(rom.ReadCartridgeByte(address+1)>>(7-sx)&1)<<1;
                     for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[((cell/width*8+y)*scale+dy)*imageWidth+(startX+cell%width*8+x)*scale+dx]=(byte)ink;
                 }
@@ -1512,7 +1512,7 @@ internal static class LookupStream4Verification
         const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
         for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
         {
-            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=HudTileAtlasFormat.SourceAddress+tile*16+y*2;
+            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=MapSourceDefinitions.Artwork.HudCharacters+tile*16+y*2;
             int ink=(rom.ReadCartridgeByte(address)>>(7-x)&1)|(rom.ReadCartridgeByte(address+1)>>(7-x)&1)<<1;
             for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
         }

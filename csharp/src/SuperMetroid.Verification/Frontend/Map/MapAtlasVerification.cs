@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -24,7 +25,7 @@ internal static class MapAtlasVerification
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount);
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
         var vram = new SnesVram();
         original.Tiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         for (int i = 0; i < source.Length; i++) AssertEqual(source[i], vram.ReadByte(i), "stock PNG recompiles exact map tile bytes");

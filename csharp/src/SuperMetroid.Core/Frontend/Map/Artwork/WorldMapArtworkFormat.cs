@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Map-world PNG identities, native source transfers, and compiled PPU destinations.</summary>
+/// <summary>The world map's installed character atlases: their file names and geometry.</summary>
 public static class WorldMapArtworkFormat
 {
     /// <summary>Indexed PNG containing the shared 4-bpp world-map foreground characters.</summary>
@@ -11,16 +11,12 @@ public static class WorldMapArtworkFormat
     public const int TileColumns = 16;
     /// <summary>Atlas width in pixels.</summary>
     public const int Width = TileColumns * 8;
-    /// <summary>$81:8DDB LoadInitialMenuTiles transfers $5600 bytes from $8E:8000.</summary>
-    public const int ForegroundSource = SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.InitialMenuForegroundCharacters;
     /// <summary>Size in bytes of the native 4-bpp foreground character transfer.</summary>
     public const int ForegroundBytes = 22016;
     /// <summary>Number of 32-byte 4-bpp characters in the foreground atlas.</summary>
     public const int ForegroundTileCount = ForegroundBytes / 32;
     /// <summary>Foreground atlas height in pixels.</summary>
     public const int ForegroundHeight = ForegroundTileCount / TileColumns * 8;
-    /// <summary>$81:8DDB also installs $600 bytes of 2-bpp BG3 characters from $8E:D600.</summary>
-    public const int BackgroundSource = SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.InitialMenuBackgroundCharacters;
     /// <summary>Size in bytes of the native 2-bpp background character transfer.</summary>
     public const int BackgroundBytes = 1536;
     /// <summary>Number of 16-byte 2-bpp characters in the background atlas.</summary>

@@ -1531,19 +1531,19 @@ internal static class MapPresentationVerification
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + CgramPalettes.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.EntryPalette + CgramPalettes.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
+                (address >= MapSourceDefinitions.Artwork.PauseColors && address < MapSourceDefinitions.Artwork.PauseColors + CgramPalettes.ByteCount) ||
+                (address >= MapSourceDefinitions.Menu.Colors && address < MapSourceDefinitions.Menu.Colors + CgramPalettes.ByteCount) ||
+                (address >= MapSourceDefinitions.FileSelectMap.PaletteColors && address < MapStaticPalettesNativeSources.WorldPaletteDataEnd),
             address => $"Live presentation read static map palette ROM at {address:X6}.");
         guard.Forbid(address =>
-                (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTiming &&
-                    address <= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTimingStride) ||
-                (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors &&
-                    address < SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
+                (address >= MapSourceDefinitions.Animation.PaletteTiming &&
+                    address <= MapSourceDefinitions.Animation.PaletteTiming + MapAnimationNativeSources.PaletteFrameCount * MapSourceDefinitions.Animation.PaletteTimingStride) ||
+                (address >= MapSourceDefinitions.Animation.PaletteColors &&
+                    address < MapSourceDefinitions.Animation.PaletteColors + MapAnimationNativeSources.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
             address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
-        guard.Forbid(address => address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.ByteCount),
+        guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.HudCharacters and < (MapSourceDefinitions.Artwork.HudCharacters + HudTileAtlasFormat.ByteCount),
             address => $"Live presentation read HUD atlas ROM at {address:X6}.");
-        guard.Forbid(address => address is >= MapTileAtlasFormat.SourceAddress and < (MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount),
+        guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.MapCharacters and < (MapSourceDefinitions.Artwork.MapCharacters + MapTileAtlasFormat.ByteCount),
             address => $"Live presentation read map atlas ROM at {address:X6}.");
         guard.Forbid(address =>
                 (address >= AreaMapRomData.TilemapPointerTable && address < AreaMapRomData.TilemapPointerTable + AreaIds.RetailCount * 3) ||

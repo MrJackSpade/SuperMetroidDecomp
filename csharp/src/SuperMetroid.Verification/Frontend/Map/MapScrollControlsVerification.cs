@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -22,7 +23,7 @@ internal static class MapScrollControlsVerification
         var buttons = new SnesButton[MapScrollControls.DirectionCount];
         for (int index = 0; index < buttons.Length; index++)
         {
-            int record = FileSelectMapRomData.ScrollArrows + index * 10;
+            int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * 10;
             buttons[index] = (SnesButton)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6);
             AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8), "compiled map direction order matches native records");
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
@@ -64,7 +65,7 @@ internal static class MapScrollControlsVerification
     /// <summary>Forbids runtime reads of controller binding and direction operands in native arrow records.</summary>
     private static CartridgeReadGuard NewMapScrollControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
-            address => (uint)(address - FileSelectMapRomData.ScrollArrows) < MapScrollControls.DirectionCount * 10 &&
-                (address - FileSelectMapRomData.ScrollArrows) % 10 >= 6,
+            address => (uint)(address - MapSourceDefinitions.FileSelectMap.ScrollArrows) < MapScrollControls.DirectionCount * 10 &&
+                (address - MapSourceDefinitions.FileSelectMap.ScrollArrows) % 10 >= 6,
             _ => "Map navigation read controller bindings from the visual arrow ROM records.");
 }

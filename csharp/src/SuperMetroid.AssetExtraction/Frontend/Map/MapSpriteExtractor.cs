@@ -3,10 +3,10 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -25,12 +25,12 @@ public static class MapSpriteExtractor
     /// <exception cref="InvalidDataException">The world-title binding or generated composition/artwork pair is incompatible with the installed sprite format.</exception>
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelSpritemapBase) != (ushort)MapSpriteId.WorldTitle)
+        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.LabelSpritemaps) != (ushort)MapSpriteId.WorldTitle)
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in MapSpriteDefinitions.Frames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, (ushort)definition.Id));
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));

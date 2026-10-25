@@ -37,7 +37,7 @@ internal static class MapPaletteCycleVerification
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();
         arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, MenuSheetFixtures.MapSprites(original.Sprites)); arrowOam.FinishFrame();
-        ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
+        ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationNativeSources.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual(SnesLittleEndian.HighByte(nativeArrowPalette), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
@@ -45,7 +45,7 @@ internal static class MapPaletteCycleVerification
         native.Bind(original.HighlightCycle);
         var installed = new MapPaletteAnimation();
         installed.Bind(original.HighlightCycle);
-        AssertEqual(MapAnimationRomData.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
+        AssertEqual(MapAnimationNativeSources.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
         var nativeColors = new ScreenPalette();
         var installedColors = new ScreenPalette();
         int loops = 0;

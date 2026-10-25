@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 

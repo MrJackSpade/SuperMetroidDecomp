@@ -8,16 +8,6 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// </summary>
 internal static class ClosedNativeWords
 {
-    /// <summary>Decodes <paramref name="word"/> or throws, naming <paramref name="meaning"/>.</summary>
-    public static TEnum Decode<TEnum>(ushort word, string meaning)
-        where TEnum : struct, Enum
-    {
-        TEnum value = Unsafe.BitCast<ushort, TEnum>(word);
-        return Enum.IsDefined(value)
-            ? value
-            : throw new InvalidDataException($"${word:X4} is not a {meaning} ({typeof(TEnum).Name}).");
-    }
-
     /// <summary>Decodes a native byte selector or throws, naming <paramref name="meaning"/>.</summary>
     public static TEnum Decode<TEnum>(byte value, string meaning)
         where TEnum : struct, Enum

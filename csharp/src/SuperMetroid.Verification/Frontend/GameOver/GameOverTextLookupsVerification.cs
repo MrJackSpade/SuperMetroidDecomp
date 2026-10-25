@@ -24,7 +24,6 @@ internal static class GameOverTextLookupsVerification
     {
         GameOverTextStream[] enumerated = GameOverTexts.All.ToArray();
         AssertEqual(5, enumerated.Length, "native game-over text load count");
-        AssertEqual(5, GameOverTexts.Count, "bounded game-over text count");
         for (int index = 0; index < 5; index++)
         {
             int instruction = 0x819206 + index * 9 + fieldOffset;

@@ -14,10 +14,6 @@ internal static class SamusPoseNumbering
     /// <summary>The number of poses with records in the cartridge's pose tables.</summary>
     internal const int RecordCount = 253;
 
-    /// <summary>The poses with records, in number order.</summary>
-    internal static IReadOnlyList<SamusPoseId> Recorded { get; } =
-        [.. Enumerable.Range(0, RecordCount).Select(number => FromNumber(number))];
-
     /// <summary>The pose's number.</summary>
     internal static byte Number(SamusPoseId pose) => (byte)pose;
 

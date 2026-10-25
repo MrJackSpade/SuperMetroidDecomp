@@ -1667,7 +1667,7 @@ internal static class LookupStream1Verification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseRecordCodec.FacingByte((SamusPoseId)pose), "Native named-pose facing case");
-            AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodec.MovementByte((SamusPoseId)pose), "Native named-pose raw movement case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodecTooling.MovementByte((SamusPoseId)pose), "Native named-pose raw movement case");
             AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), (byte)SamusPoseDispatchDefinitions.ReadNoInputPose((SamusPoseId)pose), "Native named-pose no-input case");
         }
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));

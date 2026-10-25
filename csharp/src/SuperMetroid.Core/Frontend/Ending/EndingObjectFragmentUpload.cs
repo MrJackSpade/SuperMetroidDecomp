@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>One authored explosion OBJ fragment.</summary>

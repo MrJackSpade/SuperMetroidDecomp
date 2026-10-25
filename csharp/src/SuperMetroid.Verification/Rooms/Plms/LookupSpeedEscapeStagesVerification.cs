@@ -46,7 +46,7 @@ internal static class LookupSpeedEscapeStagesVerification
                 {
                     0 => stage.TargetSamusX,
                     1 => stage.MaximumFxY,
-                    _ => stage.PackedYVelocity,
+                    _ => stage.YVelocity.RawValue,
                 };
                 AssertEqual(ReadSamusEaterPlmWord(rom, records[index] + field * 2), actual,
                     $"Speed escape stage {index} original field {field}");

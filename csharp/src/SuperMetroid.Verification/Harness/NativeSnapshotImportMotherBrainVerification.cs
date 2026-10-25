@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
@@ -65,9 +66,9 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         state.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         state.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        state.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+        state.LowerNeckMovementIndex = ClosedNativeWordDecoding.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        state.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+        state.UpperNeckMovementIndex = ClosedNativeWordDecoding.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.NextLegTilePage = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
@@ -200,20 +201,20 @@ internal static class NativeSnapshotImportMotherBrainVerification
         sequence.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         sequence.State.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        sequence.State.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+        sequence.State.LowerNeckMovementIndex = ClosedNativeWordDecoding.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        sequence.State.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+        sequence.State.UpperNeckMovementIndex = ClosedNativeWordDecoding.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }
 
     /// <summary>Decodes the snapshot's form word, rejecting a stage the encounter does not have.</summary>
     internal static MotherBrainForm DecodeForm(ushort word) =>
-        ClosedNativeWords.Decode<MotherBrainForm>(word, "Mother Brain form");
+        ClosedNativeWordDecoding.Decode<MotherBrainForm>(word, "Mother Brain form");
 
     /// <summary>Decodes the snapshot's corpse-handshake word, rejecting a value outside living, corpse and revived.</summary>
     internal static MotherBrainPhase2CorpseState DecodePhase2CorpseState(ushort word) =>
-        ClosedNativeWords.Decode<MotherBrainPhase2CorpseState>(word, "Mother Brain phase-two corpse state");
+        ClosedNativeWordDecoding.Decode<MotherBrainPhase2CorpseState>(word, "Mother Brain phase-two corpse state");
 
     /// <summary>
     /// Decodes the snapshot's leg-transfer list pointer into the next leg-artwork page. A zero pointer is a list that

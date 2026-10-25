@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// </remarks>
 public static class GameOverTexts
 {
-    /// <summary>Five bounded text elements loaded in initialization order: title, objective, prompt, Yes, and No.</summary>
-    public const int Count = 5;
-
     /// <summary>Selects one text element; unsupported selectors are rejected.</summary>
     public static GameOverTextStream Get(GameOverTextElement element) => element switch
     {

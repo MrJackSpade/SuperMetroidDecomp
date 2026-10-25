@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Grouped selections over bank-$84 <see cref="PlmHeaderId"/> headers.</summary>
 internal static class RoomPlmHeaders
 {
-    /// <summary>Number of concrete headers in each permanent-collectible presentation.</summary>
-    public const int PermanentCollectibleKindCount = 21;
-
     /// <summary>Selects the named contact-crumble header for bank-$94 special-block
     /// BTS $00..07 at $94:9139. Sizes 1x1, 2x1, 1x2, 2x2 appear first as
     /// respawning blocks, then as permanent blocks.</summary>

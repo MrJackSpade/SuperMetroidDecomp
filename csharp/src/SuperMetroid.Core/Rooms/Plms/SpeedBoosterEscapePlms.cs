@@ -130,7 +130,7 @@ internal sealed class SpeedBoosterEscapePlms
             baseYPosition: stage.Value.MaximumFxY < fx.BaseY.Whole
                 ? stage.Value.MaximumFxY
                 : null,
-            packedYVelocity: stage.Value.PackedYVelocity);
+            packedYVelocity: stage.Value.YVelocity.RawValue);
         slot.LoopTimer = unchecked((ushort)(
             slot.LoopTimer + SpeedBoosterEscapeStageDefinitions.RecordByteCount));
     }

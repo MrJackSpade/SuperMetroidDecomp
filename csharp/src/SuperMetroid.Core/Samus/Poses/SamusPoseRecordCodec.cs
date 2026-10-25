@@ -31,16 +31,6 @@ internal static class SamusPoseRecordCodec
         [SamusPoseId.AdjacentCodePoseFF] = 0x12,
     }.ToFrozenDictionary();
 
-    /// <summary>
-    /// The adjacent-code poses whose record movement byte lies beyond the retail movement dispatcher: the opcodes of
-    /// the $91:BE11 X-ray HDMA routine.
-    /// </summary>
-    private static readonly FrozenDictionary<SamusPoseId, byte> IrregularMovementBytes = new Dictionary<SamusPoseId, byte>
-    {
-        [SamusPoseId.AdjacentCodePoseFD] = 0x8b,
-        [SamusPoseId.AdjacentCodePoseFF] = 0x38,
-    }.ToFrozenDictionary();
-
     /// <summary>Record byte zero, the pose's facing as the cartridge stores it.</summary>
     internal static byte FacingByte(SamusPoseId pose) =>
         IrregularFacingBytes.TryGetValue(pose, out byte irregular)
@@ -55,12 +45,6 @@ internal static class SamusPoseRecordCodec
         SamusFacingDirection.Right => 0x08,
         _ => throw new InvalidOperationException($"Undefined {nameof(SamusFacingDirection)} {facing}."),
     };
-
-    /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it.</summary>
-    internal static byte MovementByte(SamusPoseId pose) =>
-        IrregularMovementBytes.TryGetValue(pose, out byte irregular)
-            ? irregular
-            : MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose));
 
     /// <summary>
     /// The packed direction/movement word a committed transition records in the pose history: the facing byte, then
@@ -77,5 +61,5 @@ internal static class SamusPoseRecordCodec
     }
 
     /// <summary>A movement type's dispatcher index: the movement types are declared in dispatcher order.</summary>
-    private static byte MovementByte(SamusMovementType movement) => (byte)movement;
+    internal static byte MovementByte(SamusMovementType movement) => (byte)movement;
 }

@@ -194,16 +194,16 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
         samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
-        samus.Kinematics.YDirection = ClosedNativeWords.Decode<SamusVerticalDirection>(
+        samus.Kinematics.YDirection = ClosedNativeWordDecoding.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
         samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
-        samus.HorizontalSpeed.ContactDamageIndex = ClosedNativeWords.Decode<SamusContactDamageIndex>(
+        samus.HorizontalSpeed.ContactDamageIndex = ClosedNativeWordDecoding.Decode<SamusContactDamageIndex>(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
-        samus.MorphBallBounceState = ClosedNativeWords.Decode<SamusBallBounceState>(
+        samus.MorphBallBounceState = ClosedNativeWordDecoding.Decode<SamusBallBounceState>(
             W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
         samus.BombJumpDirection = W(NativeSnapshotMemory.BombJumpDirection);
 
@@ -229,7 +229,7 @@ internal static class NativeSnapshotImportVerification
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }
         samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
-        samus.LiquidPhysics.LiquidPhysicsType = ClosedNativeWords.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");
+        samus.LiquidPhysics.LiquidPhysicsType = ClosedNativeWordDecoding.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");
         samus.LiquidPhysics.PeriodicSubDamage = W(NativeSnapshotMemory.PeriodicSubDamage);
         samus.LiquidPhysics.PeriodicDamage = W(NativeSnapshotMemory.PeriodicDamage);
 

@@ -52,7 +52,7 @@ internal static class EndingExplosionSpriteArtworkVerification
         AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PoseOf(
                 (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(invalid),

@@ -7,7 +7,7 @@ public static class KraidMovementChoices
 {
     /// <summary>A named second-phase destination: one of Kraid's X positions in room pixels.</summary>
     /// <param name="X">The destination's X position in room pixels.</param>
-    private sealed record Destination(ushort X)
+    private sealed record Destination(int X)
     {
         /// <summary>The leftmost second-phase destination.</summary>
         internal static readonly Destination Leftmost = new(208);

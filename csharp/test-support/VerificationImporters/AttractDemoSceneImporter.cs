@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
@@ -39,8 +38,8 @@ internal static class AttractDemoSceneImporter
             new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)),
                 unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop))),
             Room(AttractDemoSceneRoomFields.Duration),
-            ClosedNativeWords.Decode<AttractDemoRoomSetup>(Room(AttractDemoSceneRoomFields.Setup), "demo room setup"),
-            ClosedNativeWords.Decode<AttractDemoSamusSetup>(setup, "demo Samus setup"),
+            AttractDemoNativeWords.RoomSetups.Decode(Room(AttractDemoSceneRoomFields.Setup), "demo room setup"),
+            AttractDemoNativeWords.SamusSetups.Decode(setup, "demo Samus setup"),
             (SamusEquipmentFlags)(Equipment(AttractDemoSceneEquipmentFields.Items)), Equipment(AttractDemoSceneEquipmentFields.Missiles),
             Equipment(AttractDemoSceneEquipmentFields.SuperMissiles), Equipment(AttractDemoSceneEquipmentFields.PowerBombs),
             Equipment(AttractDemoSceneEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),

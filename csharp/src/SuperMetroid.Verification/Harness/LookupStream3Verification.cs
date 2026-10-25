@@ -1066,10 +1066,10 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainVisualDefinitionsConstants.Frame(invalid), "stream 3 visual root bounds");
         MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
         [
-            new("mother-brain-leg-tiles.png", 0xb79000, 8, 320),
-            new("mother-brain-baby-tiles.png", 0xb18800, 4, 448),
-            new("mother-brain-attack-tiles.png", 0xb7a000, 4, 448),
-            new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 256),
+            new(MotherBrainSpritePageSheet.Legs, "mother-brain-leg-tiles.png", 8, 320),
+            new(MotherBrainSpritePageSheet.BabyMetroid, "mother-brain-baby-tiles.png", 4, 448),
+            new(MotherBrainSpritePageSheet.Attack, "mother-brain-attack-tiles.png", 4, 448),
+            new(MotherBrainSpritePageSheet.ExplodedDoor, "mother-brain-exploded-door-tiles.png", 2, 256),
         ];
         AssertTrue(expectedSheets.SequenceEqual(MotherBrainSpecialSpriteArtworkDefinitions.All),
             "stream 3 named special sheet order and every field");
@@ -1424,7 +1424,7 @@ internal static class LookupStream3Verification
             AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (EscapeTextArtworkDefinitions.TimerPageCount + page) * 7 + 2),
                 EscapeTextArtworkDefinitions.PageSource(page), "stream 3 escape text page source");
         AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa9902f + 2),
-            (uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.SourceAddress, "stream 3 exploded door source");
+            (uint)MotherBrainSourceDefinitions.SpecialSprites.Sources[MotherBrainSpritePageSheet.ExplodedDoor], "stream 3 exploded door source");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
@@ -1460,7 +1460,8 @@ internal static class LookupStream3Verification
                 rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
-            AssertEqual(source, MotherBrainCorpseArtworkDefinitions.PageSource(row), "stream 3 corpse source page");
+            AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseArtworkDefinitions.PageOffset(row)),
+                "stream 3 corpse page starts at its offset in the corpse sheet");
             SpriteCharacterPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
@@ -1481,7 +1482,7 @@ internal static class LookupStream3Verification
             byte[] atlas = new byte[MotherBrainCorpseArtworkDefinitions.ByteCount];
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
                 expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row))
-                    .CopyTo(atlas.AsSpan(MotherBrainCorpseArtworkDefinitions.InitialCopySource(row) - MotherBrainCorpseArtworkDefinitions.SourceAddress));
+                    .CopyTo(atlas.AsSpan(MotherBrainCorpseArtworkDefinitions.InitialCopyOffset(row)));
             CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
@@ -1522,7 +1523,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageSource(invalid), "stream 3 corpse source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageOffset(invalid), "stream 3 corpse page offset bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 corpse page character bounds");
         }
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());

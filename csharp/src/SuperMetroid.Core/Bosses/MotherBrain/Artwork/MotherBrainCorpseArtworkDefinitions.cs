@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Editable source characters for Mother Brain's row-by-row corpse decay.</summary>
 public static class MotherBrainCorpseArtworkDefinitions
 {
-    /// <summary>$B7:CE00, the tile-aligned bank source containing the native right-hand corpse frame.</summary>
-    public const int SourceAddress = 0xb7ce00;
-
     /// <summary>$0C00 bytes, covering every initial corpse copy through $B7:D99F.</summary>
     public const int ByteCount = 0x0c00;
 
@@ -42,9 +39,9 @@ public static class MotherBrainCorpseArtworkDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(column)),
     };
 
-    /// <summary>$A9:E08B initial MVN sources select the right frame in each source page.</summary>
-    public static int InitialCopySource(int row) => (uint)row < RowCount
-        ? SourceAddress + row * SourcePageBytes + RightFrameColumn * TileBytes : throw new ArgumentOutOfRangeException(nameof(row));
+    /// <summary>Where in the corpse sheet the initial copy of row <paramref name="row"/> starts: the right frame of its source page ($A9:E08B).</summary>
+    public static int InitialCopyOffset(int row) => (uint)row < RowCount
+        ? row * SourcePageBytes + RightFrameColumn * TileBytes : throw new ArgumentOutOfRangeException(nameof(row));
     /// <summary>$A9:E08B omits the empty final tile in the first four source rows.</summary>
     public static int InitialCopyLength(int row) => (uint)row < RowCount
         ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new ArgumentOutOfRangeException(nameof(row));
@@ -63,9 +60,9 @@ public static class MotherBrainCorpseArtworkDefinitions
         new(Row: 5, FirstColumn: 0, ColumnCount: 7),
     ];
 
-    /// <summary>Where corpse page <paramref name="page"/> begins in the cartridge's corpse source ($A9:9003-$902E).</summary>
-    public static uint PageSource(int page) => (uint)page < RowCount
-        ? (uint)(SourceAddress + page * SourcePageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
+    /// <summary>Where in the corpse sheet corpse page <paramref name="page"/> begins ($A9:9003-$902E).</summary>
+    public static int PageOffset(int page) => (uint)page < RowCount
+        ? page * SourcePageBytes : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>The sprite character corpse page <paramref name="page"/> shows from.</summary>
     public static int PageFirstCharacter(int page) => (uint)page < RowCount

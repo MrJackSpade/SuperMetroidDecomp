@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -131,6 +132,30 @@ internal static class MotherBrainSourceDefinitions
 
         /// <summary>The bytes between consecutive cycle colours: the cartridge's cursor steps four bytes, skipping every other colour word.</summary>
         internal const int ColorEntryBytes = 2 * ColorWordBytes;
+    }
+
+    /// <summary>Mother Brain's corpse characters.</summary>
+    internal static class Corpse
+    {
+        /// <summary>$B7:CE00, the tile-aligned source of the corpse sheet, containing the right-hand corpse frame.</summary>
+        internal const int Characters = 0xb7ce00;
+    }
+
+    /// <summary>The sheets whose pages Mother Brain's encounter shows its sprites.</summary>
+    internal static class SpecialSprites
+    {
+        /// <summary>
+        /// Where each sheet's characters begin: $B7:9000 (legs, eight pages), $B1:8800 (Baby Metroid, four), $B7:A000
+        /// (attack, four) and $AB:F400 (exploded door, two). The installed manifest names each sheet's hash by its source.
+        /// </summary>
+        internal static readonly IReadOnlyDictionary<MotherBrainSpritePageSheet, int> Sources =
+            new Dictionary<MotherBrainSpritePageSheet, int>
+            {
+                [MotherBrainSpritePageSheet.Legs] = 0xb79000,
+                [MotherBrainSpritePageSheet.BabyMetroid] = 0xb18800,
+                [MotherBrainSpritePageSheet.Attack] = 0xb7a000,
+                [MotherBrainSpritePageSheet.ExplodedDoor] = 0xabf400,
+            };
     }
 
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>

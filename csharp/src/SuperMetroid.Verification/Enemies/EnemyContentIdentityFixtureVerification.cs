@@ -197,7 +197,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     .Select(index => Words("ceres-door-mode7-" + index, CeresDoorVisualRomData.Mode7FrameByteCount).Select(word => (int)word).ToArray()).ToArray(),
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(definition =>
-                KeyValuePair.Create(definition.SourceAddress, Characters(definition.FileName, definition.ByteCount)))));
+                KeyValuePair.Create(definition.Sheet, Characters(definition.FileName, definition.ByteCount)))));
             var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Select(definition =>
                 Characters(definition.FileName, definition.ByteCount)).ToArray());
             var ceresTiles = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(definition =>

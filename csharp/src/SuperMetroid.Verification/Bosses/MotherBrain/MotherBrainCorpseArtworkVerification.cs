@@ -34,7 +34,7 @@ internal static class MotherBrainCorpseArtworkVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain corpse character sheet")]
     private static byte[] ReadNativeMotherBrainCorpseArtwork(CartridgeImportAddressSpace rom) =>
         RomDataReader.ReadFixedBank(rom,
-            MotherBrainCorpseArtworkDefinitions.SourceAddress,
+            MotherBrainSourceDefinitions.Corpse.Characters,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
 
     /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
@@ -54,8 +54,7 @@ internal static class MotherBrainCorpseArtworkVerification
         byte[] stockCharacters = TransferMotherBrainCorpsePages(stock);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
-            int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.PageSource(page) -
-                MotherBrainCorpseArtworkDefinitions.SourceAddress);
+            int sourceOffset = MotherBrainCorpseArtworkDefinitions.PageOffset(page);
             int shownOffset = MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(page) * RoomCharacterAtlasFormat.BytesPerTile;
             AssertTrue(stockCharacters.AsSpan(shownOffset,
                     MotherBrainCorpseArtworkDefinitions.PageByteCount)

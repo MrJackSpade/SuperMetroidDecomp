@@ -29,10 +29,10 @@ internal static class MotherBrainSheetsPresentationContractChecks
             png.Position = 0;
             return RoomCharacterAtlasPng.Read(png, count);
         }
-        var sheets = MotherBrainSpecialSpriteArtworkDefinitions.All.ToDictionary(sheet => sheet.SourceAddress,
+        var sheets = MotherBrainSpecialSpriteArtworkDefinitions.All.ToDictionary(sheet => sheet.Sheet,
             sheet => Sheet(sheet.ByteCount));
-        int first = MotherBrainSpecialSpriteArtworkDefinitions.Legs.SourceAddress;
-        var malformed = new Dictionary<int, RoomCharacterAtlas>(sheets);
+        MotherBrainSpritePageSheet first = MotherBrainSpecialSpriteArtworkDefinitions.Legs.Sheet;
+        var malformed = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>(sheets);
         malformed[first] = Sheet(RoomCharacterAtlasFormat.BytesPerTile);
         bool rejected = false;
         try { _ = new MotherBrainSpecialSpriteArtworkCatalog(malformed); }
@@ -50,10 +50,10 @@ internal static class MotherBrainSheetsPresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
             class SheetConsumer {
-                void Inspect(MotherBrainSpecialSpriteArtworkCatalog sheets, int selected) {
-                    sheets.Get({{first}});
+                void Inspect(MotherBrainSpecialSpriteArtworkCatalog sheets, MotherBrainSpritePageSheet selected) {
+                    sheets.Get(MotherBrainSpritePageSheet.{{first}});
                     sheets.Get(selected);
-                    sheets.Get(0);
+                    sheets.Get(MotherBrainSpritePageSheet.Corpse);
                 }
             }
             """, path: "fixture-mb-sheets-consumer.cs");

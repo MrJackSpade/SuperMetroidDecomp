@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -48,8 +49,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                  MotherBrainSpecialSpriteArtworkDefinitions.All)
         {
             byte[] native = RomDataReader.ReadFixedBank(rom,
-                sheet.SourceAddress, sheet.ByteCount);
-            AssertTrue(installed.Get(sheet.SourceAddress).Characters.Span.SequenceEqual(native),
+                MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], sheet.ByteCount);
+            AssertTrue(installed.Get(sheet.Sheet).Characters.Span.SequenceEqual(native),
                 $"installed {sheet.FileName} preserves native characters");
             SnesVram installedVram = ShowMotherBrainSpecialPages(stock,
                 sheet);
@@ -76,7 +77,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
             image.Pixels[0] ^= 1;
             string overrideDirectory = Path.Combine(directory,
-                "mother-brain-special-" + sheet.SourceAddress.ToString("X6"));
+                "mother-brain-special-" + sheet.Sheet);
             Directory.CreateDirectory(overrideDirectory);
             string overridePath = Path.Combine(overrideDirectory, sheet.FileName);
             using (var output = File.Create(overridePath))
@@ -94,9 +95,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                     MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)),
                 $"{sheet.FileName} edit leaves neighboring bytes unchanged");
             RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.SourceAddress);
+                .Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.Sheet);
             AssertTrue(reloaded.Characters.Span.SequenceEqual(
-                    (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.SourceAddress).Characters.Span),
+                    (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.Sheet).Characters.Span),
                 $"{sheet.FileName} override survives catalog reload");
 
             File.WriteAllBytes(overridePath, [0]);
@@ -118,7 +119,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 $"Baby tile record {page} size");
             uint source = (uint)(int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
-            AssertEqual((uint)(baby.SourceAddress +
+            AssertEqual((uint)(MotherBrainSourceDefinitions.SpecialSprites.Sources[baby.Sheet] +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)),
@@ -229,10 +230,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     /// <summary>The VRAM image byte sprite character <paramref name="character"/> begins at.</summary>
     private static int ShownByte(int character) => ObjectCharactersByte + character * RoomCharacterAtlasFormat.BytesPerTile;
 
-    /// <summary>The page sheet each of <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/> is, in the same order.</summary>
-    private static readonly MotherBrainSpritePageSheet[] SpecialSheets =
-        [MotherBrainSpritePageSheet.Legs, MotherBrainSpritePageSheet.BabyMetroid, MotherBrainSpritePageSheet.Attack, MotherBrainSpritePageSheet.ExplodedDoor];
-
     /// <summary>Copies each native sheet page directly from retail data into its authored VRAM destination for the oracle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle: independent cartridge transfer of a Mother Brain special sprite sheet")]
@@ -243,7 +240,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         for (int page = 0; page < sheet.PageCount; page++)
         {
             byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                sheet.SourceAddress + page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
+                MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet] + page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
             int destination = ShownByte(sheet.PageFirstCharacter(page));
             vram.LoadBytes(destination, bytes);
@@ -257,7 +254,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters,
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
-        MotherBrainSpritePageSheet shown = SpecialSheets[MotherBrainSpecialSpriteArtworkDefinitions.All.ToList().IndexOf(sheet)];
+        MotherBrainSpritePageSheet shown = sheet.Sheet;
         for (int page = 0; page < sheet.PageCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(shown, page));
         return ObjVram();

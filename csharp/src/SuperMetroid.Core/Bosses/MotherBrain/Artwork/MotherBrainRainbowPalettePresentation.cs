@@ -70,7 +70,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             MotherBrainRainbowPaletteFormat.BlueAddition);
         this.rainbow = rainbow;
         toGrey[0] = PaletteFrame.ShareDrainStart(toGrey[0],
-            rainbow[MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort)]);
+            rainbow[MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame]);
         toGrey[^1] = PaletteFrame.ShareDrainEnd(toGrey[^1]);
         this.toGrey = new PaletteFade(toGrey);
         fromGrey[0] = PaletteFrame.ShareDrainEnd(fromGrey[0]);
@@ -109,7 +109,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Reconstructs the five hue legs using the cartridge's asymmetric blue-to-magenta shift.</summary>
         private static Bgr555 Calculate(int index)
         {
-            int step = index * MotherBrainBeamRomData.ColorStride / Bgr555.ByteCount;
+            int step = index * MotherBrainBeamDefinitions.HueStepsPerColor;
             int red, green, blue;
             if (step <= 15)
             {
@@ -145,15 +145,13 @@ public sealed class MotherBrainRainbowPalettePresentation
     public Bgr555 BeamInitialColor { get; }
 
     /// <summary>
-    /// Resolves the native byte cursor. The cycle's signed terminator is engine control,
-    /// not an editable color: it returns false, and the HDMA owner performs the reset.
+    /// Reads beam cycle colour <paramref name="index"/>. The cycle's end is engine control, not an editable colour: the
+    /// index one past the last colour returns false, and the beam performs the reset.
     /// </summary>
-    public bool TryReadBeamColor(int byteCursor, out Bgr555 color)
+    public bool TryReadBeamColor(int index, out Bgr555 color)
     {
-        if (byteCursor < 0 || byteCursor % MotherBrainBeamRomData.ColorStride != 0 ||
-            byteCursor > beamCycle.Length * MotherBrainBeamRomData.ColorStride)
-            throw new InvalidDataException($"Mother Brain beam color cursor ${byteCursor:X} is outside its authored cycle.");
-        int index = byteCursor / MotherBrainBeamRomData.ColorStride;
+        if (index < 0 || index > beamCycle.Length)
+            throw new InvalidDataException($"Mother Brain beam color {index} is outside its authored cycle.");
         if (index == beamCycle.Length)
         {
             color = Bgr555.Black;
@@ -164,79 +162,79 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Copies one cartridge rainbow-list entry to the three body/brain/leg slots.</summary>
-    public void ApplyRainbow(GameplayColours cgram, int frame) => ApplyFull(cgram, rainbow, frame);
+    public void ApplyRainbow(GameplayColours gameplayColours, int frame) => ApplyFull(gameplayColours, rainbow, frame);
 
     /// <summary>Restores the two fixed normal-palette sources after the beam finishes.</summary>
-    public void ApplyNormal(GameplayColours cgram) =>
-        ApplyColors(cgram, normal);
+    public void ApplyNormal(GameplayColours gameplayColours) =>
+        ApplyColors(gameplayColours, normal);
 
     /// <summary>Copies a drain fade.</summary>
-    public void ApplyToGrey(GameplayColours cgram, int frame) =>
-        ApplyGrey(cgram, toGrey, frame);
+    public void ApplyToGrey(GameplayColours gameplayColours, int frame) =>
+        ApplyGrey(gameplayColours, toGrey, frame);
 
     /// <summary>Copies a revival fade, preserving the two native body/brain tail colors.</summary>
-    public void ApplyFromGrey(GameplayColours cgram, int frame) =>
-        ApplyGrey(cgram, fromGrey, frame);
+    public void ApplyFromGrey(GameplayColours gameplayColours, int frame) =>
+        ApplyGrey(gameplayColours, fromGrey, frame);
 
     /// <summary>Changes only the three brain colors during the fake-death descent.</summary>
-    public void ApplyFakeDeathToGrey(GameplayColours cgram, int frame)
+    public void ApplyFakeDeathToGrey(GameplayColours gameplayColours, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(gameplayColours);
         if ((uint)frame >= fakeDeathToGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
-        for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            new MotherBrainColours(cgram).FakeDeathBrain.Write(color,
+        for (int color = 0; color < MotherBrainFakeDeathPaletteDefinitions.ColorCount; color++)
+            new MotherBrainColours(gameplayColours).FakeDeathBrain.Write(color,
                 fakeDeathToGrey.Body(frame, color));
     }
 
     /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
-    public void ApplyFakeDeathFromGrey(GameplayColours cgram, int frame)
+    public void ApplyFakeDeathFromGrey(GameplayColours gameplayColours, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(gameplayColours);
         if ((uint)frame >= fromGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
-        for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            new MotherBrainColours(cgram).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
+        for (int color = 0; color < MotherBrainFakeDeathPaletteDefinitions.ColorCount; color++)
+            new MotherBrainColours(gameplayColours).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
     }
 
     /// <summary>Copies a complete selected rainbow phase into body, brain, and rear-leg CGRAM slots.</summary>
-    private static void ApplyFull(GameplayColours cgram, PaletteFrame[] frames, int frame)
+    private static void ApplyFull(GameplayColours gameplayColours, PaletteFrame[] frames, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(gameplayColours);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain rainbow frame {frame} is outside the authored loop.");
-        ApplyColors(cgram, frames[frame]);
+        ApplyColors(gameplayColours, frames[frame]);
     }
 
     /// <summary>
     /// Copies a grey-transition phase. The cartridge also writes the trailing rear color to <c>$7E:017C</c>, a word
     /// nothing reads, so the port does not keep it.
     /// </summary>
-    private static void ApplyGrey(GameplayColours cgram, IPaletteFade frames, int frame)
+    private static void ApplyGrey(GameplayColours gameplayColours, IPaletteFade frames, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(gameplayColours);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain grey-transition frame {frame} is outside the authored sequence.");
         for (int color = 0; color < frames.BodyCount; color++)
         {
             Bgr555 value = frames.Body(frame, color);
-            new MotherBrainColours(cgram).Body.Write(color, value);
-            new MotherBrainColours(cgram).Brain.Write(color, value);
+            new MotherBrainColours(gameplayColours).Body.Write(color, value);
+            new MotherBrainColours(gameplayColours).Brain.Write(color, value);
         }
         for (int color = 0; color < frames.LegCount; color++)
-            new MotherBrainColours(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
+            new MotherBrainColours(gameplayColours).DrainedRearLegs.Write(color, frames.Leg(frame, color));
     }
 
     /// <summary>Mirrors body inks to the brain palette and writes the selected rear-leg inks.</summary>
-    private static void ApplyColors(GameplayColours cgram, PaletteFrame selected)
+    private static void ApplyColors(GameplayColours gameplayColours, PaletteFrame selected)
     {
         for (int color = 0; color < selected.Body.Length; color++)
         {
-            new MotherBrainColours(cgram).Body.Write(color, selected.Body[color]);
-            new MotherBrainColours(cgram).Brain.Write(color, selected.Body[color]);
+            new MotherBrainColours(gameplayColours).Body.Write(color, selected.Body[color]);
+            new MotherBrainColours(gameplayColours).Brain.Write(color, selected.Body[color]);
         }
         for (int color = 0; color < selected.LegCount; color++)
-            new MotherBrainColours(cgram).RearLegs.Write(color, selected.Leg(color));
+            new MotherBrainColours(gameplayColours).RearLegs.Write(color, selected.Leg(color));
     }
 
     /// <summary>One body and rear-leg phase, optionally recognized as shared stock or half-intensity paint.</summary>
@@ -259,7 +257,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             Body = new BodyColors(body);
             LegCount = legs.Length;
             TrailingColor = trailingColor;
-            bool matchesRear = legs.Length == MotherBrainRainbowPaletteRomData.ColorCount;
+            bool matchesRear = legs.Length == MotherBrainRainbowPaletteDefinitions.ColorCount;
             for (int color = 0; matchesRear && color < legs.Length; color++)
                 matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color);
             if (matchesRear) { stockRear = true; return; }
@@ -299,15 +297,15 @@ public sealed class MotherBrainRainbowPalettePresentation
         public int LegCount { get; }
         /// <summary>WRAM spill color, drawn from the shared rear source when an endpoint matches.</summary>
         public Bgr555? TrailingColor => rearSource is not null
-            ? rearSource.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
+            ? rearSource.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
             : drainedRear || normalRearSubset ? Leg(1) : field;
         /// <summary>Selects the appropriate rainbow, drained, stock, or independently edited rear ink.</summary>
         public Bgr555 Leg(int color) => rearSource is not null
-            ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
+            ? rearSource.Leg(color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)
             : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
-                color + MotherBrainDrainedPaletteRomData.RearSourceColor))
+                color + MotherBrainDrainedPaletteDefinitions.RearSourceColor))
             : normalRearSubset ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
-                color + MotherBrainDrainedPaletteRomData.RearSourceColor)
+                color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)
             : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
@@ -317,8 +315,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             for (int color = 0; color < drain.Body.Length; color++)
                 if (drain.Body[color] != rainbow.Body[color]) return drain;
             for (int color = 0; color < drain.LegCount; color++)
-                if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return drain;
-            return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
+                if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return drain;
+            return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
                 ? new PaletteFrame(rainbow, MotherBrainRearPaint.Rainbow) : drain;
         }
         /// <summary>Recognizes a drained stock rear subset, including its trailing ink, at the fade endpoint.</summary>
@@ -326,14 +324,14 @@ public sealed class MotherBrainRainbowPalettePresentation
         {
             for (int color = 0; color < drain.LegCount; color++)
                 if (drain.Leg(color) != HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
-                    color + MotherBrainDrainedPaletteRomData.RearSourceColor))) return drain;
+                    color + MotherBrainDrainedPaletteDefinitions.RearSourceColor))) return drain;
             return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, MotherBrainRearPaint.Drained) : drain;
         }
         /// <summary>Constructs a validated drain endpoint view over either rainbow or stock rear paint.</summary>
         private PaletteFrame(PaletteFrame source, MotherBrainRearPaint rear)
         {
             Body = source.Body;
-            LegCount = MotherBrainDrainedPaletteRomData.BackLegCount;
+            LegCount = MotherBrainDrainedPaletteDefinitions.BackLegCount;
             drainedRear = rear == MotherBrainRearPaint.Drained;
             rearSource = drainedRear ? null : source;
         }
@@ -343,14 +341,14 @@ public sealed class MotherBrainRainbowPalettePresentation
         {
             for (int color = 0; color < frame.LegCount; color++)
                 if (frame.Leg(color) != MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
-                    color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return frame;
+                    color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return frame;
             return frame.TrailingColor == frame.Leg(1) ? new PaletteFrame(frame) : frame;
         }
         /// <summary>Creates the validated normal rear subset while retaining its body colors.</summary>
         private PaletteFrame(PaletteFrame source)
         {
             Body = source.Body;
-            LegCount = MotherBrainDrainedPaletteRomData.BackLegCount;
+            LegCount = MotherBrainDrainedPaletteDefinitions.BackLegCount;
             normalRearSubset = true;
         }
 
@@ -385,7 +383,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Accepts the red-origin model only when its red ramp and both gradients reproduce all fifteen inks.</summary>
         internal static RedOriginColors? TryCreate(BodyColors colors)
         {
-            if (colors.Length != MotherBrainRainbowPaletteRomData.ColorCount ||
+            if (colors.Length != MotherBrainRainbowPaletteDefinitions.ColorCount ||
                 colors[0].Red < (RedOriginLayout.PlateStart - 1) * MotherBrainRainbowPaletteFormat.HeadRedStep) return null;
             var selected = new RedOriginColors(colors);
             for (int color = 0; color < colors.Length; color++)
@@ -489,7 +487,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal BodyColors(RedOriginColors colors)
         {
             redOrigin = colors;
-            Length = MotherBrainRainbowPaletteRomData.ColorCount;
+            Length = MotherBrainRainbowPaletteDefinitions.ColorCount;
         }
         /// <summary>Rainbow phase modeled by shared channels plus independent paint.</summary>
         internal readonly SharedBodyChannels? sharedChannels;
@@ -524,7 +522,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         public BodyColors(Bgr555[] colors)
         {
             Length = colors.Length;
-            bool normal = Length is MotherBrainFakeDeathPaletteRomData.ColorCount or MotherBrainDrainedPaletteRomData.RevivalColors or MotherBrainRainbowPaletteRomData.ColorCount;
+            bool normal = Length is MotherBrainFakeDeathPaletteDefinitions.ColorCount or MotherBrainDrainedPaletteDefinitions.RevivalColors or MotherBrainRainbowPaletteDefinitions.ColorCount;
             for (int color = 0; normal && color < Length; color++)
                 normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
             if (normal) return;
@@ -573,7 +571,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             bool stock = true;
             for (int color = 0; stock && color < colors.Length; color++) stock = colors[color] == Calculate(color);
             if (stock) return;
-            if (colors.Length == MotherBrainFakeDeathPaletteRomData.ColorCount) { supplied = colors; return; }
+            if (colors.Length == MotherBrainFakeDeathPaletteDefinitions.ColorCount) { supplied = colors; return; }
             outline = colors[3];
             if (!TryChannel(ColorChannel.Red, out int lr, out int dr) ||
                 !TryChannel(ColorChannel.Green, out int lg, out int dg) ||
@@ -681,10 +679,17 @@ public sealed class MotherBrainRainbowPalettePresentation
             : color < BodyCount + LegCount ? palette.Leg(color - BodyCount)
             : palette.TrailingColor ?? throw new InvalidDataException("A supplied revival frame has no WRAM spill color.");
 
+        /// <summary>The image whose shade revival colour <paramref name="color"/> shows on <paramref name="frame"/>: the held tissue colour repeats its preceding shade for one step.</summary>
+        private static int RevivalInterpolationFrame(int frame, int color) =>
+            frame == MotherBrainDrainedPaletteDefinitions.RevivalTissueHoldFrame &&
+            color == MotherBrainDrainedPaletteDefinitions.RevivalHeldTissueColor
+                ? frame - 1
+                : frame;
+
         /// <summary>Applies the native per-ink revival frame choice before nearest RGB5 interpolation.</summary>
         private Bgr555 Interpolate(int frame, int color)
         {
-            frame = MotherBrainDrainedPaletteRomData.RevivalInterpolationFrame(frame, color);
+            frame = RevivalInterpolationFrame(frame, color);
             Bgr555 start = ReadColor(first, color);
             Bgr555 end = ReadColor(last, color);
             int intervals = Length - 1;

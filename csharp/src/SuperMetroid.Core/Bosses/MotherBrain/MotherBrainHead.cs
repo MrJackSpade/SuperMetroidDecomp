@@ -111,7 +111,7 @@ internal sealed class MotherBrainHead
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain brain function $A9:{(ushort)state.BrainFunction:X4} is not translated.");
+                    $"Mother Brain brain function {state.BrainFunction} is not translated.");
         }
     }
 

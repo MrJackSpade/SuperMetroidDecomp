@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -37,16 +38,16 @@ internal static class MotherBrainFakeDeathPaletteVerification
             Action<MotherBrainEnemyState> step = toGrey
                 ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
                 : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
-            int table = toGrey ? MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable :
-                MotherBrainFakeDeathPaletteRomData.FromGreyPointerTable;
+            int table = toGrey ? MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable :
+                MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
             for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
                 ushort pointer = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, pointerAddress), CpuBusRegionRead.Read(rom, pointerAddress + 1));
                 AssertTrue(pointer != 0, "native Mother Brain fake-death palette frame exists");
-                SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainRainbowPaletteRomData.SourceBank | pointer,
-                    MotherBrainFakeDeathPaletteRomData.ColorCount,
-                    MotherBrainFakeDeathPaletteRomDataConstants.BrainColor);
+                SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
+                    MotherBrainFakeDeathPaletteDefinitions.ColorCount,
+                    MotherBrainColorDestinations.BrainColor);
                 state.FunctionTimer = WrappingCountdown.Start(0);
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),

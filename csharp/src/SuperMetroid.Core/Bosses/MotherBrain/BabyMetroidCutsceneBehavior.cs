@@ -126,7 +126,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid cutscene requires installed colors.");
-        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
             _presentation.BossColours().BabyMetroidCutscene.Write(color, colors.InitialColor(color));
     }
 
@@ -265,7 +265,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid fade requires installed colors.");
-        for (int color = 0; color < BabyMetroidCutsceneColorRomData.FadeColorCount; color++)
+        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.FadeColorCount; color++)
             _presentation.BossColours().BabyMetroidCutscene.Write(color, colors.FadeColor(shade, color));
     }
 

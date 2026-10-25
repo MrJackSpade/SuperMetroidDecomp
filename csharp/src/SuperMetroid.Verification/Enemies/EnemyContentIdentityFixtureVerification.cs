@@ -198,7 +198,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     .Select(index => Words("ceres-door-mode7-" + index, CeresDoorVisualRomData.Mode7FrameByteCount).Select(word => (int)word).ToArray()).ToArray(),
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(definition =>
-                KeyValuePair.Create(definition.SourceAddress, Characters(definition.FileName, definition.ByteCount)))));
+                KeyValuePair.Create(definition.Sheet, Characters(definition.FileName, definition.ByteCount)))));
             var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Select(definition =>
                 Characters(definition.FileName, definition.ByteCount)).ToArray());
             var ceresTiles = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(definition =>
@@ -239,20 +239,20 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("healthBands", DraygonColorRomData.HealthBandCount, DraygonColorRomData.HealthBandColorCount)), PhantoonColors = ColorCatalog(PhantoonColorFile.Read,
                     new EnemyContentIdentityFixtureField("healthBands", PhantoonColorRomData.HealthBandCount, PhantoonColorRomData.HealthBandColorCount),
                     new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorRomData.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", 0, PhantoonColorRomData.PowerOnCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorFile.Read,
-                    new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorRomData.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SporeSpawnColorRomData.HealthFrameCount, SporeSpawnColorRomData.ColorsPerFrame),
-                    new EnemyContentIdentityFixtureField("deathSprite", SporeSpawnColorRomData.DeathSpriteFrameCount, SporeSpawnColorRomData.ColorsPerFrame),
-                    new EnemyContentIdentityFixtureField("deathLevel", SporeSpawnColorRomData.DeathSceneFrameCount, SporeSpawnColorRomData.ColorsPerFrame),
-                    new EnemyContentIdentityFixtureField("deathBackground", SporeSpawnColorRomData.DeathSceneFrameCount, SporeSpawnColorRomData.ColorsPerFrame)), ShitroidColors = ColorCatalog(ShitroidColorFile.Read,
-                    new EnemyContentIdentityFixtureField("normal", ShitroidColorRomData.NormalFrameCount, ShitroidColorRomData.NormalColorsPerFrame),
-                    new EnemyContentIdentityFixtureField("sidehopper", 0, ShitroidColorRomData.TargetColorCount), new EnemyContentIdentityFixtureField("shitroid", 0, ShitroidColorRomData.TargetColorCount),
-                    new EnemyContentIdentityFixtureField("deadSidehopper", 0, ShitroidColorRomData.TargetColorCount)), BabyMetroidCutsceneColors = ColorCatalog(BabyMetroidCutsceneColorFile.Read,
-                    new EnemyContentIdentityFixtureField("initial", 0, BabyMetroidCutsceneColorRomData.InitialColorCount),
-                    new EnemyContentIdentityFixtureField("fade", BabyMetroidCutsceneColorRomData.FadeFrameCount, BabyMetroidCutsceneColorRomData.FadeColorCount)), BotwoonColors = ColorCatalog(BotwoonColorFile.Read,
+                    new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorDefinitions.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SporeSpawnColorDefinitions.HealthFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("deathSprite", SporeSpawnColorDefinitions.DeathSpriteFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("deathLevel", SporeSpawnColorDefinitions.DeathSceneFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("deathBackground", SporeSpawnColorDefinitions.DeathSceneFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame)), ShitroidColors = ColorCatalog(ShitroidColorFile.Read,
+                    new EnemyContentIdentityFixtureField("normal", ShitroidColorDefinitions.NormalFrameCount, ShitroidColorDefinitions.NormalColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("sidehopper", 0, ShitroidColorDefinitions.TargetColorCount), new EnemyContentIdentityFixtureField("shitroid", 0, ShitroidColorDefinitions.TargetColorCount),
+                    new EnemyContentIdentityFixtureField("deadSidehopper", 0, ShitroidColorDefinitions.TargetColorCount)), BabyMetroidCutsceneColors = ColorCatalog(BabyMetroidCutsceneColorFile.Read,
+                    new EnemyContentIdentityFixtureField("initial", 0, BabyMetroidCutsceneColorDefinitions.InitialColorCount),
+                    new EnemyContentIdentityFixtureField("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount)), BotwoonColors = ColorCatalog(BotwoonColorFile.Read,
                     new EnemyContentIdentityFixtureField("health", BotwoonHealthPaletteDefinitions.PaletteCount, BotwoonHealthPaletteDefinitions.ColorsPerPalette)), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFile.Read,
-                    new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathRomData.BodyFadeFrameCount, MotherBrainDeathRomData.BodyColorCount),
-                    new EnemyContentIdentityFixtureField("legFade", MotherBrainDeathRomData.BodyFadeFrameCount, MotherBrainDeathRomData.BodyColorCount),
-                    new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathRomData.CorpseFadeFrameCount, MotherBrainDeathRomData.CorpseColorCount),
-                    new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathRomData.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFile.Read,
+                    new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathDefinitions.BodyFadeFrameCount, MotherBrainDeathDefinitions.BodyColorCount),
+                    new EnemyContentIdentityFixtureField("legFade", MotherBrainDeathDefinitions.BodyFadeFrameCount, MotherBrainDeathDefinitions.BodyColorCount),
+                    new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathDefinitions.CorpseFadeFrameCount, MotherBrainDeathDefinitions.CorpseColorCount),
+                    new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathDefinitions.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteDefinitions.InitialColorCount),
                     new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealRowCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
                     Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount), CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoSwaps = torizo },

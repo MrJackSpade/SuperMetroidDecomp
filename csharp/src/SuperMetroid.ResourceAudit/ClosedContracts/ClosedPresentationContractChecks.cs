@@ -83,8 +83,8 @@ internal static class ClosedPresentationContractChecks
                     phantoon.ResolvePowerOn(112);
                     statues.ApplyEye(cgram, 6);
                     statues.ApplyEye(cgram, 1);
-                    rainbow.TryReadBeamColor(152, out _);
-                    rainbow.TryReadBeamColor(154, out _);
+                    rainbow.TryReadBeamColor(38, out _);
+                    rainbow.TryReadBeamColor(39, out _);
                     rainbow.ApplyRainbow(cgram, 9);
                     rainbow.ApplyRainbow(cgram, 10);
                     rainbow.ApplyFakeDeathToGrey(cgram, 7);

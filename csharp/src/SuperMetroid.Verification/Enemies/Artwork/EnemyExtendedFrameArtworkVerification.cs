@@ -143,7 +143,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         }
         Console.WriteLine("  Extended enemy OAM: every installed composition matches native component offsets, clipping, and packed sprite bytes at all three fixture origins.");
         Suite(nameof(VerifyInstalledSporeSpawnSelectorPrograms), () => VerifyInstalledSporeSpawnSelectorPrograms(rom, stock));
-        AssertEqual(BossOamFrameDefinitions.RidleyFrameCount,
+        AssertEqual(BossSpriteFrameDefinitions.RidleyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("ridley_body_", StringComparison.Ordinal)),
             "all Ceres/Lower Norfair Ridley body frames are installed");
@@ -208,11 +208,11 @@ internal static class EnemyExtendedFrameArtworkVerification
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("golden_torizo_left_foot_orb_", StringComparison.Ordinal)),
             "all new Golden Torizo left-foot orb visual frames are installed");
-        AssertEqual(BossOamFrameDefinitions.DraygonOamFrameCount,
+        AssertEqual(BossSpriteFrameDefinitions.DraygonSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
             "all selected ordinary-OAM Draygon extended frames are installed");
-        AssertEqual(BossOamFrameDefinitions.SporeSpawnOamFrameCount,
+        AssertEqual(BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)),
             "all selected Spore Spawn extended frames are installed");

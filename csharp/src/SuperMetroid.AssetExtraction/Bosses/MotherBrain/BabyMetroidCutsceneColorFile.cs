@@ -23,12 +23,12 @@ public static class BabyMetroidCutsceneColorFile
         if (document.Version != BabyMetroidCutsceneColorFormat.Version)
             throw new InvalidDataException("Cutscene Baby colors require the supported version.");
         if (document.Fade is null ||
-            document.Fade.Length != BabyMetroidCutsceneColorRomData.FadeFrameCount)
+            document.Fade.Length != BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new InvalidDataException("Cutscene Baby fade requires six displayed frames.");
         return new(Compile(document.Initial,
-                BabyMetroidCutsceneColorRomData.InitialColorCount, "initial"),
+                BabyMetroidCutsceneColorDefinitions.InitialColorCount, "initial"),
             document.Fade.Select((frame, index) => Compile(frame,
-                BabyMetroidCutsceneColorRomData.FadeColorCount,
+                BabyMetroidCutsceneColorDefinitions.FadeColorCount,
                 $"fade frame {index + 1}")).ToArray());
     }
 

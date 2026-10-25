@@ -39,9 +39,9 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
     /// <summary>Pairs reflected parts for the three native poses and shares identical negative-Y dome parts with the first pose; otherwise retains the supplied composition.</summary>
     internal static EnemySpritemapParts Compile(EnemyFrameId frame, SpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
     {
-        if (!BabyMetroidCompositionDefinitions.Poses.Contains(frame) || supplied.Length != BabyMetroidCompositionDefinitions.NativePartCount)
+        if (!BabyMetroidCompositionDefinitions.Poses.Contains(frame) || supplied.Length != BabyMetroidCompositionDefinitions.PartCount)
             return FromOwnedArray(supplied);
-        var halves = new List<SpritemapPart>(BabyMetroidCompositionDefinitions.NativePartCount / 2);
+        var halves = new List<SpritemapPart>(BabyMetroidCompositionDefinitions.PartCount / 2);
         var order = new sbyte[supplied.Length];
         for (int index = 0; index < supplied.Length; index++)
         {

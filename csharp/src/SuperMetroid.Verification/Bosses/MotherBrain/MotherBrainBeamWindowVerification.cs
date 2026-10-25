@@ -38,8 +38,8 @@ internal static class MotherBrainBeamWindowVerification
             "a missing geometry misses every line");
         void Step() => beam.Step(true, new(100, 95), SnesAngle.QuarterTurn, Width(64));
         Step();
-        AssertEqual(MotherBrainBeamRomData.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
-        AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96, MotherBrainBeamRomData.Direction.Right),
+        AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
+        AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96, MotherBrainBeamDirection.Right),
             beam.Geometry, "right beam publishes the low-byte mouth X, mouth Y and both wrapped edges");
         MotherBrainBeamLine[] windows = RainbowBeamWindowBuilder.Build(beam.Geometry);
         AssertEqual(new MotherBrainBeamLine(0x73, 0xff), windows[99], "right beam upper apex accumulates before writing");
@@ -57,12 +57,12 @@ internal static class MotherBrainBeamWindowVerification
             Step();
             AssertEqual((ushort)(frame % 2 == 0 ? 31 : 992), beam.Color,
                 $"beam installed cycle color {frame}");
-            AssertEqual((frame + 1) * MotherBrainBeamRomData.ColorStride, beam.ColorCursor,
-                "beam retains native byte-cursor stride");
+            AssertEqual(frame + 1, beam.ColorIndex,
+                "beam advances one cycle colour per update");
         }
         Step();
         AssertEqual(31, beam.Color, "negative terminator selects entry zero");
-        AssertEqual(0, beam.ColorCursor, "reset frame does not increment color cursor");
+        AssertEqual(0, beam.ColorIndex, "reset frame does not increment the cycle colour");
         Step();
         AssertEqual(31, beam.Color, "entry zero repeats after wrap as in E7F5");
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot;
@@ -71,15 +71,15 @@ internal static class MotherBrainBeamWindowVerification
         var capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot);
         AssertEqual(new ColorAddWindow(115, 255, 255, 0, 0), (capture ?? throw new InvalidOperationException("Verification requires capture.")).Windows[100],
             "shared render packet includes beam geometry and native color");
-        int cursor = beam.ColorCursor;
+        int cursor = beam.ColorIndex;
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
-        AssertEqual(cursor, beam.ColorCursor, "repainting cannot advance beam simulation");
+        AssertEqual(cursor, beam.ColorIndex, "repainting cannot advance beam simulation");
         beam.Step(false, new(0, 0), default, 0);
         AssertTrue(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot) is null,
             "deleted HDMA object emits no render layer");
         AssertEqual(snapshot.Geometry, beam.Geometry, "deactivation keeps the last geometry");
         Step();
-        AssertEqual(MotherBrainBeamRomData.InitialColor, beam.Color, "new attack resets HDMA color");
+        AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "new attack resets HDMA color");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
             beam.Step(true, new(100, 95), SnesAngle.FromTableIndex(angle), 512);
@@ -127,7 +127,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual("6E2CA9E2B685191B", Build(150, 60, 0, Width(32)), "down dispatcher golden");
         string downLeft = Build(16, 80, 224, Width(32));
         AssertEqual("CFBC8396E8E49C1E", downLeft, "down-left zero-sentinel golden");
-        AssertEqual(MotherBrainBeamRomData.Direction.Down, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).Direction, "down-left fixture uses the down dispatcher");
+        AssertEqual(MotherBrainBeamDirection.Down, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).Direction, "down-left fixture uses the down dispatcher");
         AssertTrue(beam.Geometry.Value.EdgeA >= 128 && beam.Geometry.Value.EdgeB >= 128, "down-left fixture has both edges negative");
         MotherBrainBeamLine[] downLeftWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
         AssertTrue(downLeftWindows[beam.Geometry.Value.MouthY + 1] != MotherBrainBeamLine.None
@@ -137,7 +137,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual("8A62CA68461C8B8F", overflow, "rightward overflow-break golden");
         MotherBrainBeamLine[] overflowWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
         AssertTrue(overflowWindows.Any(line => line != MotherBrainBeamLine.None)
-            && overflowWindows[MotherBrainBeamRomData.FirstLine] == MotherBrainBeamLine.None,
+            && overflowWindows[MotherBrainBeamDefinitions.FirstLine] == MotherBrainBeamLine.None,
             "overflow fixture stops writing once an edge passes $FFFF");
 
         // Retain after a prior build, in the same active run.

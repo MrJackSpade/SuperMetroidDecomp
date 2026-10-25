@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -20,24 +21,24 @@ internal static class MotherBrainRainbowPaletteExtractor
         MotherBrainRainbowPaletteFile.Write(json, new MotherBrainRainbowPaletteDocument
         {
             Version = (int)MotherBrainRainbowPaletteVersion.Current,
-            Rainbow = ReadTable(MotherBrainRainbowPaletteRomData.PointerTable,
+            Rainbow = ReadTable(MotherBrainSourceDefinitions.Palettes.RainbowPointerTable,
                 MotherBrainRainbowPaletteFormat.RainbowFrameCount,
-                MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, false),
-            ToGrey = ReadTable(MotherBrainDrainedPaletteRomData.ToGreyTable,
+                MotherBrainRainbowPaletteDefinitions.ColorCount,
+                MotherBrainRainbowPaletteDefinitions.ColorCount, false),
+            ToGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable,
                 MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteRomData.DrainedColors,
-                MotherBrainDrainedPaletteRomData.BackLegCount, true),
-            FromGrey = ReadTable(MotherBrainDrainedPaletteRomData.FromGreyTable,
+                MotherBrainDrainedPaletteDefinitions.DrainedColors,
+                MotherBrainDrainedPaletteDefinitions.BackLegCount, true),
+            FromGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable,
                 MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteRomData.RevivalColors,
-                MotherBrainDrainedPaletteRomData.BackLegCount, true),
+                MotherBrainDrainedPaletteDefinitions.RevivalColors,
+                MotherBrainDrainedPaletteDefinitions.BackLegCount, true),
             FakeDeathToGrey = ReadFakeDeathToGrey(),
-            Normal = ReadFrame(MotherBrainRainbowPaletteRomData.NormalBrainSource,
-                MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, false,
-                MotherBrainRainbowPaletteRomData.NormalSecondarySource),
-            BeamInitial = PaletteRgb5.From(MotherBrainBeamRomData.InitialColor),
+            Normal = ReadFrame(MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
+                MotherBrainRainbowPaletteDefinitions.ColorCount,
+                MotherBrainRainbowPaletteDefinitions.ColorCount, false,
+                MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
+            BeamInitial = PaletteRgb5.From(MotherBrainBeamDefinitions.InitialColor),
             BeamCycle = ReadBeamCycle(),
         });
         return json.ToArray();
@@ -52,7 +53,7 @@ internal static class MotherBrainRainbowPaletteExtractor
                 ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
-                values[frame] = ReadFrame(MotherBrainRainbowPaletteRomData.SourceBank | pointer,
+                values[frame] = ReadFrame(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     bodyCount, legCount, trailing);
             }
             if (CartridgeImportSource.Require(bus).ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
@@ -62,18 +63,18 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5[][] ReadFakeDeathToGrey()
         {
-            var frames = new PaletteRgb5[MotherBrainFakeDeathPaletteRomData.FrameCount][];
+            var frames = new PaletteRgb5[MotherBrainFakeDeathPaletteDefinitions.FrameCount][];
             for (int frame = 0; frame < frames.Length; frame++)
             {
-                int address = MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
+                int address = MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                     frame * sizeof(ushort);
                 ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
-                frames[frame] = ReadColors(MotherBrainRainbowPaletteRomData.SourceBank | pointer,
-                    MotherBrainFakeDeathPaletteRomData.ColorCount);
+                frames[frame] = ReadColors(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
+                    MotherBrainFakeDeathPaletteDefinitions.ColorCount);
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                 frames.Length * sizeof(ushort))) != 0)
                 throw new InvalidDataException("Mother Brain fake-death fade lacks its native terminator.");
             return frames;
@@ -106,14 +107,14 @@ internal static class MotherBrainRainbowPaletteExtractor
             var colors = new PaletteRgb5[MotherBrainRainbowPaletteFormat.BeamCycleColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
-                    index * MotherBrainBeamRomData.ColorStride));
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
+                    index * MotherBrainSourceDefinitions.Beam.ColorEntryBytes));
                 if (!Bgr555.IsColorWord(word))
                     throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
                 colors[index] = ToColor(word);
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
-                colors.Length * MotherBrainBeamRomData.ColorStride)) != ushort.MaxValue)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
+                colors.Length * MotherBrainSourceDefinitions.Beam.ColorEntryBytes)) != ushort.MaxValue)
                 throw new InvalidDataException("Mother Brain beam cycle lacks its native signed terminator.");
             return colors;
         }

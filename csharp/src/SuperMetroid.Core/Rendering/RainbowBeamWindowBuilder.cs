@@ -12,6 +12,21 @@ internal static class RainbowBeamWindowBuilder
     /// </summary>
     private static readonly ushort MissedLineWord = SnesLittleEndian.Word(checked((byte)MotherBrainBeamLine.None.Left), checked((byte)MotherBrainBeamLine.None.Right));
 
+    /// <summary>The working edge word's right column at the rightmost screen pixel, with the left column empty.</summary>
+    private static readonly ushort RightScreenEdge = SnesLittleEndian.Word(0, byte.MaxValue);
+
+    /// <summary>The working table's two leading entries that precede the first beam line.</summary>
+    private const int DataPrefixWords = 2;
+
+    /// <summary>The beam lines the rasterization's first run covers.</summary>
+    private const int FirstRunLines = 112;
+
+    /// <summary>The working-table entry the rightward rasterization's second run starts at, skipping four entries after the first run.</summary>
+    private const int RightSecondRunWord = 118;
+
+    /// <summary>The working-table entry the downward rasterization's second run starts at, skipping one entry after the first run.</summary>
+    private const int DownSecondRunWord = 115;
+
     /// <summary>
     /// Returns the screen columns the beam crosses on each visible scanline. The HUD lines and every line the beam
     /// misses are <see cref="MotherBrainBeamLine.None"/>, and a null geometry misses every line.
@@ -21,25 +36,25 @@ internal static class RainbowBeamWindowBuilder
         var windows = new MotherBrainBeamLine[SnesPpuLayout.ScreenHeightPixels];
         Array.Fill(windows, MotherBrainBeamLine.None);
         if (geometry is not { } beam) return windows;
-        bool right = beam.Direction == MotherBrainBeamRomData.Direction.Right;
-        bool up = beam.Direction == MotherBrainBeamRomData.Direction.Up;
-        bool down = beam.Direction == MotherBrainBeamRomData.Direction.Down;
+        bool right = beam.Direction == MotherBrainBeamDirection.Right;
+        bool up = beam.Direction == MotherBrainBeamDirection.Up;
+        bool down = beam.Direction == MotherBrainBeamDirection.Down;
         if (!right && !up && !down)
             throw new ArgumentOutOfRangeException(nameof(geometry), beam.Direction,
                 "Rainbow-beam geometry must select the right, up or down dispatcher.");
         int a = beam.EdgeA, b = beam.EdgeB;
         int originY = beam.MouthY;
-        if (originY is <= MotherBrainBeamRomData.FirstLine or >= MotherBrainBeamRomData.EndLine)
+        if (originY is <= MotherBrainBeamDefinitions.FirstLine or >= MotherBrainBeamDefinitions.EndLine)
             throw new ArgumentOutOfRangeException(nameof(geometry), originY,
                 "Rainbow-beam mouth Y is outside its native scanline work area.");
         int origin = SnesEightEight.FromWhole(beam.MouthScreenX);
-        var data = new ushort[MotherBrainBeamRomData.EndLine];
+        var data = new ushort[MotherBrainBeamDefinitions.EndLine];
         Array.Fill(data, MissedLineWord);
-        int count = originY - MotherBrainBeamRomData.FirstLine;
+        int count = originY - MotherBrainBeamDefinitions.FirstLine;
         if (right)
         {
             FillRight(count + 1, -1, count, Tangent(b));
-            FillRight(count + 2, 1, MotherBrainBeamRomData.EndLine - originY, Tangent(a));
+            FillRight(count + 2, 1, MotherBrainBeamDefinitions.EndLine - originY, Tangent(a));
         }
         else
         {
@@ -50,13 +65,13 @@ internal static class RainbowBeamWindowBuilder
             int leftStep = Tangent(leftNegative ? -leftAngle : leftAngle) * (leftNegative ? -1 : 1);
             int rightStep = Tangent(rightNegative ? -rightAngle : rightAngle) * (rightNegative ? -1 : 1);
             int index = up ? count + 1 : count + 2;
-            int length = up ? count : MotherBrainBeamRomData.EndLine - originY;
+            int length = up ? count : MotherBrainBeamDefinitions.EndLine - originY;
             int left = origin, rightEdge = origin;
             for (int row = 0; row < length; row++, index += up ? -1 : 1)
             {
                 left = Math.Clamp(left + leftStep, 0, ushort.MaxValue);
                 rightEdge = Math.Clamp(rightEdge + rightStep, 0, ushort.MaxValue);
-                ushort word = (ushort)(SnesEightEight.WholeOf(left) | (rightEdge & MotherBrainBeamRomData.RightScreenEdge));
+                ushort word = (ushort)(SnesEightEight.WholeOf(left) | (rightEdge & RightScreenEdge));
                 // Down-left uses zero as its off-screen sentinel; the other routines
                 // test FFFF. Keep that asymmetry instead of normalizing the native edges.
                 bool empty = down && leftNegative && rightNegative ? word == 0 : word == ushort.MaxValue;
@@ -64,14 +79,14 @@ internal static class RainbowBeamWindowBuilder
             }
         }
 
-        for (int y = MotherBrainBeamRomData.FirstLine; y < windows.Length; y++)
+        for (int y = MotherBrainBeamDefinitions.FirstLine; y < windows.Length; y++)
         {
-            int row = y - MotherBrainBeamRomData.FirstLine;
+            int row = y - MotherBrainBeamDefinitions.FirstLine;
             if (up && row >= count) continue;
-            int index = row + MotherBrainBeamRomData.DataPrefixWords;
-            if (!up && row >= MotherBrainBeamRomData.FirstRunLines)
-                index = row - MotherBrainBeamRomData.FirstRunLines + (right
-                    ? MotherBrainBeamRomData.RightSecondRunWord : MotherBrainBeamRomData.DownSecondRunWord);
+            int index = row + DataPrefixWords;
+            if (!up && row >= FirstRunLines)
+                index = row - FirstRunLines + (right
+                    ? RightSecondRunWord : DownSecondRunWord);
             windows[y] = new MotherBrainBeamLine(SnesLittleEndian.LowByte(data[index]), SnesLittleEndian.HighByte(data[index]));
         }
         return windows;
@@ -83,7 +98,7 @@ internal static class RainbowBeamWindowBuilder
             {
                 edge += slope;
                 if (edge > ushort.MaxValue) break;
-                data[index] = (ushort)(SnesEightEight.WholeOf(edge) | MotherBrainBeamRomData.RightScreenEdge);
+                data[index] = (ushort)(SnesEightEight.WholeOf(edge) | RightScreenEdge);
             }
         }
     }

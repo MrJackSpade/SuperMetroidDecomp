@@ -56,7 +56,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         return CreateResult(
             before,
-            nativeCarry: reachedWall);
+            reachedBoundary: reachedWall);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         return CreateResult(
             before,
-            nativeCarry: reachedVerticalBoundary);
+            reachedBoundary: reachedVerticalBoundary);
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // carry is intentionally discarded by the following LDA/ADC sequence.
         return CreateResult(
             before,
-            nativeCarry: reachedVerticalBoundary);
+            reachedBoundary: reachedVerticalBoundary);
     }
 
     /// <summary>Projects an 8.8 beam speed onto the vertical axis using the native quarter-turn sine lookup.</summary>
@@ -133,7 +133,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         SamusState samus,
         ushort velocity)
     {
-        ushort candidate = AddNativeEightEightVelocity(
+        ushort candidate = AddVelocityToHighSubpixel(
             samus.Position.Y.Whole,
             samus.Kinematics.Position.Y.Fraction,
             velocity,
@@ -165,7 +165,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Applies native 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=$EB.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, ushort velocity)
     {
-        ushort candidate = AddNativeEightEightVelocity(
+        ushort candidate = AddVelocityToHighSubpixel(
             samus.Position.X.Whole,
             samus.Kinematics.Position.X.Fraction,
             velocity,
@@ -189,7 +189,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Adds velocity to only the high subposition byte and carries into the whole pixel word, retaining the low byte.</summary>
-    private static ushort AddNativeEightEightVelocity(
+    private static ushort AddVelocityToHighSubpixel(
         ushort wholePosition,
         ushort subposition,
         ushort velocity,
@@ -204,10 +204,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Records Samus's position before a forced movement helper mutates it.</summary>
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;
 
-    /// <summary>Packages the previous position with the native carry returned by the active arena clamp.</summary>
+    /// <summary>Packages the previous position with whether the active arena clamp reached its boundary.</summary>
     private static MotherBrainForcedSamusMovementResult CreateResult(
         FixedPosition<RoomPixels> before,
-        bool nativeCarry) => new(
+        bool reachedBoundary) => new(
             before,
-            nativeCarry);
+            reachedBoundary);
 }

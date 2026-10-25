@@ -129,7 +129,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native writes these sixteen colors to target-palette row F. Room loading currently
         // presents completed fades directly, so install the identical final words in CGRAM
         // while retaining the independent target copy above.
-        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
             Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
@@ -192,7 +192,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Spore Spawn function $A5:{(ushort)state.Function:X4} is not translated.");
+                    $"Spore Spawn function {state.Function} is not translated.");
         }
     }
 
@@ -328,7 +328,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults.SporeSpawnCeiling = new PlmSpawnRequest(new(7, 30), header);
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
-    internal void RegisterSporeSpawnBombReactions(EnemySharedReactions table)
+    internal void AddSporeSpawnBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SporeSpawnShot)
@@ -339,7 +339,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds spore movement, emitter timing, impact properties, and drop opcodes.</summary>
-    internal void RegisterSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -407,7 +407,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
-    internal void RegisterSporeSpawnShotReactions(EnemySharedReactions table)
+    internal void AddSporeSpawnShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SporeSpawnShot)
@@ -442,7 +442,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes vulnerable hitbox touch through common damage while excluding no-op hitboxes.</summary>
-    internal void RegisterSporeSpawnTouch(EnemySharedReactions table)
+    internal void AddSporeSpawnTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SporeSpawnTouch,
@@ -489,17 +489,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.CloseAndMove);
                 body.InstructionTimer = WrappingCountdown.Start(1);
 
-                ushort paletteOffset = body.Health >= 770
-                    ? (ushort)0
+                int healthFrame = body.Health >= 770
+                    ? 0
                     : body.Health >= 410
-                        ? (ushort)32
+                        ? 1
                         : body.Health >= 70
-                            ? (ushort)64
-                            : (ushort)96;
+                            ? 2
+                            : 3;
                 if (body.Health != state.PreviousHealth)
                 {
                     state.PreviousHealth = body.Health;
-                    LoadSporeSpawnHealthPalette(paletteOffset);
+                    LoadSporeSpawnHealthPalette(healthFrame);
                 }
             }
         }
@@ -573,10 +573,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = setFunction.Function;
                 return;
             case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(loadDeathPalette.DeathPaletteStep), copy: SporeSpawnPaletteCopy.CurrentAndTarget);
+                LoadSporeSpawnDeathPalette(loadDeathPalette.DeathPaletteStep, copy: SporeSpawnPaletteCopy.CurrentAndTarget);
                 return;
             case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(loadDeathTargetPalette.DeathPaletteStep), copy: SporeSpawnPaletteCopy.TargetOnly);
+                LoadSporeSpawnDeathPalette(loadDeathTargetPalette.DeathPaletteStep, copy: SporeSpawnPaletteCopy.TargetOnly);
                 return;
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
                 SpawnSporeSpawnHardeningDust(state);
@@ -589,15 +589,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>The source byte offset of death-palette fade step <paramref name="step"/>, as the native operand gives it.</summary>
-    private static ushort DeathPaletteRow(int step) => checked((ushort)(step * SporeSpawnColorRomData.FrameByteCount));
-
-    /// <summary>Ports <c>SporeSpawn_Func_7</c> at $A5:EE4A.</summary>
-    internal void LoadSporeSpawnHealthPalette(ushort sourceByteOffset)
+    /// <summary>Ports <c>SporeSpawn_Func_7</c> at $A5:EE4A: shows health-stage body image <paramref name="frame"/>.</summary>
+    internal void LoadSporeSpawnHealthPalette(int frame)
     {
-        int frame = SporeSpawnColorRomData.FrameFromByteOffset(
-            sourceByteOffset, SporeSpawnColorRomData.HealthFrameCount);
-        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
             _presentation.BossColours().SporeSpawnBody.Write(
                 color,
@@ -607,23 +602,23 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Loads sprite, level, and background death colors into CGRAM or fade targets.</summary>
-    internal void LoadSporeSpawnDeathPalette(ushort sourceByteOffset, SporeSpawnPaletteCopy copy)
+    internal void LoadSporeSpawnDeathPalette(int step, SporeSpawnPaletteCopy copy)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn palette instruction ran without the boss state.");
         CopySporeSpawnPaletteRow(
             SporeSpawnDeathPaletteLayer.Sprite,
-            sourceByteOffset,
+            step,
             state,
             copy == SporeSpawnPaletteCopy.TargetOnly);
         CopySporeSpawnPaletteRow(
             SporeSpawnDeathPaletteLayer.Level,
-            sourceByteOffset,
+            step,
             state,
             copy == SporeSpawnPaletteCopy.TargetOnly);
         CopySporeSpawnPaletteRow(
             SporeSpawnDeathPaletteLayer.Background,
-            sourceByteOffset,
+            step,
             state,
             copy == SporeSpawnPaletteCopy.TargetOnly);
     }
@@ -631,15 +626,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Writes one installed death-color row to its native destination or target buffer.</summary>
     private void CopySporeSpawnPaletteRow(
         SporeSpawnDeathPaletteLayer layer,
-        ushort sourceByteOffset,
+        int frame,
         SporeSpawnEnemyState state,
         bool targetOnly)
     {
-        int frame = SporeSpawnColorRomData.FrameFromByteOffset(sourceByteOffset,
-            layer == SporeSpawnDeathPaletteLayer.Sprite
-                ? SporeSpawnColorRomData.DeathSpriteFrameCount
-                : SporeSpawnColorRomData.DeathSceneFrameCount);
-        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
             Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);

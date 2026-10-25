@@ -21,7 +21,7 @@ internal sealed class BabyMetroidInitialPalette
     /// <summary>Selects an independently supplied color or the reviewed dome, innard, and fang paint.</summary>
     internal Bgr555 Resolve(int color)
     {
-        if ((uint)color >= BabyMetroidCutsceneColorRomData.InitialColorCount)
+        if ((uint)color >= BabyMetroidCutsceneColorDefinitions.InitialColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return supplied is null ? Calculate(color) : supplied[color];
     }
@@ -78,7 +78,7 @@ internal sealed class BabyMetroidInitialPalette
     /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
-        Span<Bgr555> colors = stackalloc Bgr555[BabyMetroidCutsceneColorRomData.InitialColorCount];
+        Span<Bgr555> colors = stackalloc Bgr555[BabyMetroidCutsceneColorDefinitions.InitialColorCount];
         for (int color = 0; color < colors.Length; color++) colors[color] = Resolve(color);
         content.AppendColors("initial", colors);
     }

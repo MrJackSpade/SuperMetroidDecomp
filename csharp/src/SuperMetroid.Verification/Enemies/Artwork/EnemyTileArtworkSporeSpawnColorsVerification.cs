@@ -16,6 +16,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
@@ -31,18 +32,18 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     {
         SporeSpawnColorCatalog native = stock.Bosses.SporeSpawnColors ??
             throw new InvalidDataException("Installed enemy art has no Spore Spawn colors.");
-        Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnColorRomData.SporeSource, native.ResolveSpore,
+        Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
-        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.HealthSource,
-            SporeSpawnColorRomData.HealthFrameCount, native.ResolveHealth, "health"));
-        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.DeathSpriteSource,
-            SporeSpawnColorRomData.DeathSpriteFrameCount, native.ResolveDeathSprite,
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
+            SporeSpawnColorDefinitions.HealthFrameCount, native.ResolveHealth, "health"));
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
+            SporeSpawnColorDefinitions.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
-        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.DeathLevelSource,
-            SporeSpawnColorRomData.DeathSceneFrameCount, native.ResolveDeathLevel,
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathLevelColors,
+            SporeSpawnColorDefinitions.DeathSceneFrameCount, native.ResolveDeathLevel,
             "death level"));
-        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.DeathBackgroundSource,
-            SporeSpawnColorRomData.DeathSceneFrameCount, native.ResolveDeathBackground,
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathBackgroundColors,
+            SporeSpawnColorDefinitions.DeathSceneFrameCount, native.ResolveDeathBackground,
             "death background"));
 
         string file = Path.Combine(stockDirectory, SporeSpawnColorFormat.FileName);
@@ -71,12 +72,12 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             "Spore Spawn initial spore edit changes its selected color");
         AssertEqual(native.ResolveSpore(4), colors.ResolveSpore(4),
             "Spore Spawn spore edit leaves adjacent color unchanged");
-        for (int frame = 0; frame < SporeSpawnColorRomData.HealthFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
             CheckEditedFrame(native.ResolveHealth, colors.ResolveHealth, frame, "health");
-        for (int frame = 0; frame < SporeSpawnColorRomData.DeathSpriteFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSpriteFrameCount; frame++)
             CheckEditedFrame(native.ResolveDeathSprite, colors.ResolveDeathSprite,
                 frame, "death sprite");
-        for (int frame = 0; frame < SporeSpawnColorRomData.DeathSceneFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSceneFrameCount; frame++)
         {
             CheckEditedFrame(native.ResolveDeathLevel, colors.ResolveDeathLevel,
                 frame, "death level");
@@ -89,10 +90,10 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             "Spore Spawn override survives catalog reload");
 
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= SporeSpawnColorRomData.SporeSource and
-                < (SporeSpawnColorRomData.DeathBackgroundSource +
-                    SporeSpawnColorRomData.DeathSceneFrameCount *
-                    SporeSpawnColorRomData.FrameByteCount),
+            address => address is >= SporeSpawnSourceDefinitions.SporeColors and
+                < (SporeSpawnSourceDefinitions.DeathBackgroundColors +
+                    SporeSpawnColorDefinitions.DeathSceneFrameCount *
+                    SporeSpawnSourceDefinitions.ImageBytes),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
@@ -107,9 +108,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
         SporeSpawnEnemyState state = enemies.SporeSpawn ??
             throw new InvalidDataException("Live Spore Spawn initializer did not install state.");
-        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
-            int slot = SporeSpawnColorRomDataConstants.SporeDestination + color;
+            int slot = SporeSpawnColorDestinations.SporeDestination + color;
             AssertEqual(colors.ResolveSpore(color), cgram.Colors[slot],
                 $"live spore CGRAM color {color}");
             AssertEqual(colors.ResolveSpore(color), StagedAt(state, slot),
@@ -118,21 +119,20 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive),
             state.BodyProgram, "Spore Spawn starts its living program");
 
-        for (int frame = 0; frame < SporeSpawnColorRomData.HealthFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
         {
-            enemies.SporeSpawnBehavior.LoadSporeSpawnHealthPalette((ushort)(frame * SporeSpawnColorRomData.FrameByteCount));
-            for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+            enemies.SporeSpawnBehavior.LoadSporeSpawnHealthPalette(frame);
+            for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(colors.ResolveHealth(frame, color),
-                    cgram.Colors[SporeSpawnColorRomDataConstants.SpriteDestination + color],
+                    cgram.Colors[SporeSpawnColorDestinations.SpriteDestination + color],
                     $"live Spore Spawn health frame {frame} color {color}");
         }
 
-        for (int frame = 0; frame < SporeSpawnColorRomData.DeathSceneFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSceneFrameCount; frame++)
         {
-            ushort offset = (ushort)(frame * SporeSpawnColorRomData.FrameByteCount);
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, SporeSpawnPaletteCopy.TargetOnly);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame, SporeSpawnPaletteCopy.TargetOnly);
             CheckDeath(frame, targetOnly: true);
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, SporeSpawnPaletteCopy.CurrentAndTarget);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame, SporeSpawnPaletteCopy.CurrentAndTarget);
             CheckDeath(frame, targetOnly: false);
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -159,16 +159,16 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
         void VerifyFrame(int source, Func<int, Bgr555> resolve, string name)
         {
-            for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+            for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    source + color * sizeof(ushort)), resolve(color),
+                    source + color * SporeSpawnSourceDefinitions.ColorWordBytes), resolve(color),
                     $"installed {name} color {color} matches cartridge");
         }
 
         void VerifyFrames(int source, int count, Func<int, int, Bgr555> resolve, string name)
         {
             for (int frame = 0; frame < count; frame++)
-                VerifyFrame(source + frame * SporeSpawnColorRomData.FrameByteCount,
+                VerifyFrame(source + frame * SporeSpawnSourceDefinitions.ImageBytes,
                     color => resolve(frame, color), $"{name} frame {frame}");
         }
 
@@ -180,8 +180,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
             void CheckLayer(SporeSpawnDeathPaletteLayer layer)
             {
-                int destination = SporeSpawnColorRomDataConstants.DeathDestination(layer);
-                for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+                int destination = SporeSpawnColorDestinations.DeathDestination(layer);
+                for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
                 {
                     Bgr555 actual = targetOnly
                         ? StagedAt(state, destination + color)

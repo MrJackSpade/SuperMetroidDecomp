@@ -93,13 +93,13 @@ internal sealed class MotherBrainRainbowAndDeath
             state.DeathBg2Cleared = true;
             state.DeathBg2Hidden = false;
             state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
-            var words = new ushort[MotherBrainDeathRomData.Bg2LastByte / 2 + 1];
-            Array.Fill(words, MotherBrainDeathRomData.EmptyBodyTile);
+            var words = new ushort[MotherBrainBg2Definitions.DeathClearLastByte / 2 + 1];
+            Array.Fill(words, MotherBrainBg2Definitions.BlankTile);
             ushort[] bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
             _presentation.RequireBg2Image().Write(0, words);
-            state.EnemyBg2TilemapSize = MotherBrainDeathRomData.Bg2LastByte;
+            state.EnemyBg2TilemapSize = MotherBrainBg2Definitions.DeathClearLastByte;
             state.EnemyBg2TilemapTransferRequested = true;
         }
         if (sequence.ThirdPhaseDeath.BrainDrawSetupRequested)
@@ -121,7 +121,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.MusicStopQueued) state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         if (step.EscapeMusicQueued) state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
-        if (step.EscapeMusicTrackQueued) state.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathRomData.EscapeMusicTrack), MusicQueueDelay.Shortest);
+        if (step.EscapeMusicTrackQueued) state.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
         foreach (MotherBrainSpritePage page in step.EscapeSequencePages) _motherBrainEncounter.ShowSpritePage(page);
         if (step.EscapeTypewriterSetupRequested)
         {
@@ -168,7 +168,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
-            for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
             {
                 Bgr555 shared = colors.BodyColor(frame, color);
                 _presentation.BossColours().MotherBrainBody.Write(color, shared);
@@ -185,7 +185,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
-            for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)
                 _presentation.BossColours().MotherBrainCorpse.Write(color, colors.CorpseColor(frame, color));
             return;
         }
@@ -197,7 +197,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
-            for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
                 _presentation.BossColours().MotherBrainBrain.Write(color, colors.ExplodedDoorColor(color));
             return;
         }
@@ -225,9 +225,9 @@ internal sealed class MotherBrainRainbowAndDeath
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
         MotherBrainProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphicsIndex: 0);
-        fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathRomData.DoorX, MotherBrainDeathRomData.DoorY) + definition.Offset);
+        fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathDefinitions.DoorX, MotherBrainDeathDefinitions.DoorY) + definition.Offset);
         fragment.Velocity = definition.Velocity;
-        fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
+        fragment.Variable0 = MotherBrainDeathDefinitions.DoorFragmentLifetime;
     }
 
     /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>
@@ -475,7 +475,7 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's drained palette requires installed artwork.");
-            installed.ApplyRainbow(_presentation.Colours, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
+            installed.ApplyRainbow(_presentation.Colours, MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame);
             return;
         }
         bool rainbowPhase = step.PhaseBefore is

@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -27,19 +28,19 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
     {
         BabyMetroidCutsceneColorCatalog native = stock.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Installed enemy art has no cutscene Baby colors.");
-        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    BabyMetroidCutsceneColorRomData.InitialSource + color * 2),
+                    MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * 2),
                 native.InitialColor(color),
                 $"installed cutscene Baby initial color {color}");
-        for (int index = 1; index <= BabyMetroidCutsceneColorRomData.FadeFrameCount; index++)
+        for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
-            int source = BabyMetroidCutsceneColorRomData.FadeSource(index);
+            int source = MotherBrainSourceDefinitions.BabyMetroid.FadeColors(index);
             AssertEqual(unchecked((ushort)source),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    BabyMetroidCutsceneColorRomData.FadePointerTable + index * 2),
+                    MotherBrainSourceDefinitions.BabyMetroid.FadePointerTable + index * 2),
                 $"native cutscene Baby fade selector {index}");
-            for (int color = 0; color < BabyMetroidCutsceneColorRomData.FadeColorCount; color++)
+            for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.FadeColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.FadeColor(index, color),
                     $"installed cutscene Baby fade {index} color {color}");
@@ -68,7 +69,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             "cutscene Baby initial edit takes effect");
         AssertEqual(native.InitialColor(4), colors.InitialColor(4),
             "cutscene Baby initial adjacent color stays native");
-        for (int index = 1; index <= BabyMetroidCutsceneColorRomData.FadeFrameCount; index++)
+        for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
             AssertTrue(native.FadeColor(index, 5) != colors.FadeColor(index, 5),
                 $"cutscene Baby fade {index} edit takes effect");
@@ -91,15 +92,15 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
         AssertEqual(0x1234, cgram.Colors[destination - 1],
             "cutscene Baby initial load preserves palette color zero");
-        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
             AssertEqual(colors.InitialColor(color), cgram.Colors[destination + color],
                 $"live cutscene Baby initial color {color}");
         Bgr555 initialLastColor = cgram.Colors[destination + 14];
 
-        for (int index = 1; index <= BabyMetroidCutsceneColorRomData.FadeFrameCount; index++)
+        for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
             enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneFadePalette(index);
-            for (int color = 0; color < BabyMetroidCutsceneColorRomData.FadeColorCount; color++)
+            for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.FadeColorCount; color++)
                 AssertEqual(colors.FadeColor(index, color), cgram.Colors[destination + color],
                     $"live cutscene Baby fade {index} color {color}");
             AssertEqual(initialLastColor, cgram.Colors[destination + 14],
@@ -138,12 +139,12 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
     private static CartridgeReadGuard NewBabyMetroidCutsceneColorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
-                    address is >= BabyMetroidCutsceneColorRomData.InitialSource and
-                        < (BabyMetroidCutsceneColorRomData.InitialSource +
-                            BabyMetroidCutsceneColorRomData.InitialColorCount * sizeof(ushort)) ||
-                    address >= BabyMetroidCutsceneColorRomData.FirstFadeSource &&
-                    address < BabyMetroidCutsceneColorRomData.FadeSource(
-                        BabyMetroidCutsceneColorRomData.FadeFrameCount) +
-                        BabyMetroidCutsceneColorRomData.FadeColorCount * sizeof(ushort),
+                    address is >= MotherBrainSourceDefinitions.BabyMetroid.InitialColors and
+                        < (MotherBrainSourceDefinitions.BabyMetroid.InitialColors +
+                            BabyMetroidCutsceneColorDefinitions.InitialColorCount * sizeof(ushort)) ||
+                    address >= MotherBrainSourceDefinitions.BabyMetroid.FirstFadeColors &&
+                    address < MotherBrainSourceDefinitions.BabyMetroid.FadeColors(
+                        BabyMetroidCutsceneColorDefinitions.FadeFrameCount) +
+                        BabyMetroidCutsceneColorDefinitions.FadeColorCount * sizeof(ushort),
                 address => $"Live cutscene Baby read migrated color ROM ${address:X6}.");
 }

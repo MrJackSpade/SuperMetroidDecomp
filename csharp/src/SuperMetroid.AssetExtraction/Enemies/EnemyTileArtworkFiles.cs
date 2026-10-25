@@ -244,7 +244,7 @@ public static class EnemyTileArtworkFiles
         // Preserve the complete tile-aligned source around the right-hand corpse
         // frame so edits can feed the native row-by-row WRAM decay processor.
         byte[] corpsePlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            MotherBrainCorpseArtworkDefinitions.SourceAddress,
+            MotherBrainSourceDefinitions.Corpse.Characters,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
         byte[] corpsePixels = SnesGraphics.DecodePlanarTiles(corpsePlanar, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> corpseSize);
@@ -285,7 +285,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] png = ExtractMotherBrainSpecialSpritePng(bus, sheet);
             File.WriteAllBytes(Path.Combine(directory, sheet.FileName), png);
-            motherBrainSpecialHashes.Add(sheet.SourceAddress,
+            motherBrainSpecialHashes.Add(MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet],
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         byte[] upperKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.UpperBodyTilemap);
@@ -817,19 +817,19 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Mother Brain escape-text PNG {EscapeTextArtworkDefinitions.FileName}: {error.Message}",
                 error);
         }
-        var motherBrainSpecialSheets = new Dictionary<int, RoomCharacterAtlas>();
+        var motherBrainSpecialSheets = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteArtworkDefinitions.All)
         {
             if (!manifest.MotherBrainSpecialSpritesSha256.TryGetValue(
-                    sheet.SourceAddress, out string? expectedHash) ||
+                    MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], out string? expectedHash) ||
                 string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits {sheet.FileName}.");
             try
             {
                 byte[] selected = ReadStockOrOverride(sheet.FileName, expectedHash);
-                motherBrainSpecialSheets.Add(sheet.SourceAddress,
+                motherBrainSpecialSheets.Add(sheet.Sheet,
                     RoomCharacterAtlasPng.Read(
                         new MemoryStream(selected, writable: false), sheet.ByteCount));
             }
@@ -1283,7 +1283,7 @@ public static class EnemyTileArtworkFiles
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            sheet.SourceAddress, sheet.ByteCount);
+            MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], sheet.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var output = new MemoryStream();

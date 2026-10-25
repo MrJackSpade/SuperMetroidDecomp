@@ -32,7 +32,7 @@ public static class MotherBrainHealthPaletteFile
             for (int state = 0; state < frames.Length; state++)
             {
                 PaletteRgb5[]? colors = frames[state];
-                if (colors is null || colors.Length != MotherBrainRainbowPaletteRomData.ColorCount)
+                if (colors is null || colors.Length != MotherBrainRainbowPaletteDefinitions.ColorCount)
                     throw new InvalidDataException($"Mother Brain {name} state {state} requires fifteen colors.");
                 values[state] = new Bgr555[colors.Length];
                 for (int color = 0; color < colors.Length; color++)

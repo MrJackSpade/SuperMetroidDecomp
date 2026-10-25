@@ -71,7 +71,7 @@ internal static class SporeSpawnDeathColorDefinitions
     /// <summary>Moves each RGB5 channel toward its final color over the seven death-scene frames with nearest rounding.</summary>
     private static Bgr555 Interpolate(Bgr555 initial, Bgr555 finalColor, int step)
     {
-        int intervals = SporeSpawnColorRomData.DeathSceneFrameCount;
+        int intervals = SporeSpawnColorDefinitions.DeathSceneFrameCount;
         return initial.Zip(finalColor, (_, first, last) => (first * (intervals - step) + last * step + intervals / 2) / intervals);
     }
 }

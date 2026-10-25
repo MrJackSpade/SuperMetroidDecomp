@@ -66,7 +66,7 @@ internal static class EnemyExtendedFrameFiles
         bool motherBrainMixed = MotherBrainBodyVisualDefinitions.HasBg2(definition.Frame);
         bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed
-            ? MotherBrainBodyVisualDefinitions.MaximumNativeComponents
+            ? MotherBrainBodyVisualDefinitions.MaximumComponents
             : bg2Only ? PhantoonBg2FrameDefinitions.IsFrame(definition.Frame)
                 ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
                 : EnemyExtendedFrameDefinitions.MaximumOamComponents(definition);

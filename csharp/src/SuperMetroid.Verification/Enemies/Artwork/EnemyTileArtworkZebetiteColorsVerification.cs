@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -31,8 +32,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         SamusColourRig nativeCgram = SeedColors();
         ushort nativeCounter = 0;
         CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(
-            address => address is >= ZebetiteDefinitions.PaletteSource and
-                < (ZebetiteDefinitions.PaletteSource +
+            address => address is >= MotherBrainSourceDefinitions.Zebetite.PulseColors and
+                < (MotherBrainSourceDefinitions.Zebetite.PulseColors +
                     ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
                     sizeof(ushort)),
             address => $"Installed Zebetite pulse read migrated ROM color ${address:X6}.");

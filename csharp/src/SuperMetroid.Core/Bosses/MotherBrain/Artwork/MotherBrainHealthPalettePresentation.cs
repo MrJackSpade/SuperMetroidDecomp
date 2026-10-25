@@ -40,20 +40,20 @@ public sealed class MotherBrainHealthPalettePresentation
         });
     }
     /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
-    /// <param name="cgram">Mutable destination; body colors replace indices 65..79 and 145..159, while rear-leg colors replace indices 177..191. Transparent palette slots remain unchanged.</param>
+    /// <param name="gameplayColours">Mutable destination; body colors replace indices 65..79 and 145..159, while rear-leg colors replace indices 177..191. Transparent palette slots remain unchanged.</param>
     /// <param name="damageState">Zero-based health-band selector: zero for health at least 9000, one for 5400..8999, two for 1800..5399, and three below 1800; health selection itself remains in gameplay code.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="damageState"/> is outside zero through three.</exception>
-    public void Apply(GameplayColours cgram, int damageState)
+    public void Apply(GameplayColours gameplayColours, int damageState)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(gameplayColours);
         if ((uint)damageState >= MotherBrainHealthPaletteFormat.StateCount)
             throw new ArgumentOutOfRangeException(nameof(damageState));
-        for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)
+        for (int color = 0; color < MotherBrainRainbowPaletteDefinitions.ColorCount; color++)
         {
-            new MotherBrainColours(cgram).Body.Write(color, body.Color(damageState, color));
-            new MotherBrainColours(cgram).Brain.Write(color, body.Color(damageState, color));
-            new MotherBrainColours(cgram).RearLegs.Write(color, backLegs.Color(damageState, color));
+            new MotherBrainColours(gameplayColours).Body.Write(color, body.Color(damageState, color));
+            new MotherBrainColours(gameplayColours).Brain.Write(color, body.Color(damageState, color));
+            new MotherBrainColours(gameplayColours).RearLegs.Write(color, backLegs.Color(damageState, color));
         }
     }
 

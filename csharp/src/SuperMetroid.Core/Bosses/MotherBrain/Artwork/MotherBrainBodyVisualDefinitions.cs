@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainBodyVisualDefinitions
 {
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
-    internal const int MaximumNativeComponents = EnemyBg2FrameLayout.MaximumComponents;
+    internal const int MaximumComponents = EnemyBg2FrameLayout.MaximumComponents;
     /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
     internal const int FrameCount = 17;
     /// <summary>Schema revision of the selected BG2 body-frame document.</summary>

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -24,31 +25,31 @@ public static class SporeSpawnColorExtractor
         return SporeSpawnColorFile.Write(new SporeSpawnColorDocument
         {
             Version = SporeSpawnColorFormat.Version,
-            Spores = Read(SporeSpawnColorRomData.SporeSource),
-            Health = ReadFrames(SporeSpawnColorRomData.HealthSource,
-                SporeSpawnColorRomData.HealthFrameCount),
-            DeathSprite = ReadFrames(SporeSpawnColorRomData.DeathSpriteSource,
-                SporeSpawnColorRomData.DeathSpriteFrameCount),
-            DeathLevel = ReadFrames(SporeSpawnColorRomData.DeathLevelSource,
-                SporeSpawnColorRomData.DeathSceneFrameCount),
-            DeathBackground = ReadFrames(SporeSpawnColorRomData.DeathBackgroundSource,
-                SporeSpawnColorRomData.DeathSceneFrameCount),
+            Spores = Read(SporeSpawnSourceDefinitions.SporeColors),
+            Health = ReadFrames(SporeSpawnSourceDefinitions.HealthColors,
+                SporeSpawnColorDefinitions.HealthFrameCount),
+            DeathSprite = ReadFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
+                SporeSpawnColorDefinitions.DeathSpriteFrameCount),
+            DeathLevel = ReadFrames(SporeSpawnSourceDefinitions.DeathLevelColors,
+                SporeSpawnColorDefinitions.DeathSceneFrameCount),
+            DeathBackground = ReadFrames(SporeSpawnSourceDefinitions.DeathBackgroundColors,
+                SporeSpawnColorDefinitions.DeathSceneFrameCount),
         });
 
         PaletteRgb5[][] ReadFrames(int source, int count)
         {
             var frames = new PaletteRgb5[count][];
             for (int frame = 0; frame < count; frame++)
-                frames[frame] = Read(source + frame * SporeSpawnColorRomData.FrameByteCount);
+                frames[frame] = Read(source + frame * SporeSpawnSourceDefinitions.ImageBytes);
             return frames;
         }
 
         PaletteRgb5[] Read(int source)
         {
-            var colors = new PaletteRgb5[SporeSpawnColorRomData.ColorsPerFrame];
+            var colors = new PaletteRgb5[SporeSpawnColorDefinitions.ColorsPerFrame];
             for (int color = 0; color < colors.Length; color++)
             {
-                int address = source + color * sizeof(ushort);
+                int address = source + color * SporeSpawnSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(

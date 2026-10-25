@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -19,8 +20,8 @@ internal static class MotherBrainHealthPaletteExtractor
         MotherBrainHealthPaletteFile.Write(json, new MotherBrainHealthPaletteDocument
         {
             Version = MotherBrainHealthPaletteFormat.Version,
-            Body = ReadTable(MotherBrainHealthPaletteRomData.BrainTable),
-            BackLegs = ReadTable(MotherBrainHealthPaletteRomData.BackLegTable),
+            Body = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable),
+            BackLegs = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable),
         });
         return json.ToArray();
 
@@ -30,8 +31,8 @@ internal static class MotherBrainHealthPaletteExtractor
             for (int state = 0; state < states.Length; state++)
             {
                 int pointer = table + state * sizeof(ushort);
-                int source = (MotherBrainRainbowPaletteRomData.SourceBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
-                states[state] = new PaletteRgb5[MotherBrainRainbowPaletteRomData.ColorCount];
+                int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
+                states[state] = new PaletteRgb5[MotherBrainRainbowPaletteDefinitions.ColorCount];
                 for (int color = 0; color < states[state].Length; color++)
                 {
                     int address = source + color * sizeof(ushort);

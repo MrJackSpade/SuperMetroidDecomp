@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -25,8 +25,8 @@ public static class ZebetiteColorExtractor
             frames[frame] = new PaletteRgb5[ZebetiteColorFormat.ColorsPerFrame];
             for (int color = 0; color < frames[frame].Length; color++)
             {
-                int address = ZebetiteDefinitions.PaletteSource +
-                    (frame * ZebetiteColorFormat.ColorsPerFrame + color) * sizeof(ushort);
+                int address = MotherBrainSourceDefinitions.Zebetite.PulseColors +
+                    (frame * ZebetiteColorFormat.ColorsPerFrame + color) * MotherBrainSourceDefinitions.ColorWordBytes;
                 ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                 frames[frame][color] = new PaletteRgb5
                 {

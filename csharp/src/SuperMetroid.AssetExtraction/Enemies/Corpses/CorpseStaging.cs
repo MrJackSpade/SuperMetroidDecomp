@@ -61,7 +61,7 @@ internal sealed class CorpseStaging
     {
         var staged = new CorpseStaging();
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-            staged.heap.Copy(atlas, MotherBrainCorpseArtworkDefinitions.InitialCopySource(row) - MotherBrainCorpseArtworkDefinitions.SourceAddress,
+            staged.heap.Copy(atlas, MotherBrainCorpseArtworkDefinitions.InitialCopyOffset(row),
                 row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row));
         return staged;
     }

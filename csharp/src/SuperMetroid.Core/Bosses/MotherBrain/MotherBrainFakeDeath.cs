@@ -74,7 +74,7 @@ internal sealed class MotherBrainFakeDeath
         {
             state.FunctionTimer = WrappingCountdown.Start(8);
             int step = state.GrayFadeIndex++;
-            if (step == MotherBrainFakeDeathPaletteRomData.FrameCount)
+            if (step == MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             {
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentCollapseTubes;
             }
@@ -239,7 +239,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain tube function $A9:{(ushort)state.TubeCollapseFunction:X4} is not translated.");
+                    $"Mother Brain tube function {state.TubeCollapseFunction} is not translated.");
         }
     }
 
@@ -386,7 +386,7 @@ internal sealed class MotherBrainFakeDeath
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
         // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
         // liquid scroll objects (and any X-ray object) for the rest of the encounter.
-        _frameResults.DeleteLiquidHdmaObjects = true;
+        _frameResults.RemoveLiquidEffects = true;
         state.Head.Position = state.Head.Position.WithWholeY(196);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
 
@@ -560,7 +560,7 @@ internal sealed class MotherBrainFakeDeath
 
         state.FunctionTimer = WrappingCountdown.Start(4);
         int paletteStep = state.GrayTransitionCounter++;
-        if (paletteStep < MotherBrainFakeDeathPaletteRomData.FrameCount)
+        if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
             if (_bossArtwork.MotherBrainRainbowColors is { } colors)

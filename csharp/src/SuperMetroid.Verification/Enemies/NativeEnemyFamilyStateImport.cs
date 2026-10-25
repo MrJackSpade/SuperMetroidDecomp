@@ -121,7 +121,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<MotherBrainFallingTubeState>() is { } fallingTubeRecord)
         {
-            fallingTubeRecord.Function = words.A == 0 ? null : (MotherBrainTubeFunction)words.A;
+            fallingTubeRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.MotherBrainTubeFunctions.Decode(words.A, "recorded MotherBrainTubeFunction");
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SnesSignedEightEight(words.C);
             fallingTubeRecord.SmokeDelay = WrappingCountdown.FromRaw(words.D);
@@ -170,7 +170,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
         {
-            shitroidRecord.Function = words.A == 0 ? null : (ShitroidAiFunction)words.A;
+            shitroidRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ShitroidAiFunctions.Decode(words.A, "recorded ShitroidAiFunction");
             shitroidRecord.Velocity = new(new SnesSignedEightEight(words.B), new SnesSignedEightEight(words.C));
             shitroidRecord.PalettePhase = SnesLittleEndian.LowByte(words.D);
             shitroidRecord.PaletteTimer = SnesLittleEndian.HighByte(words.D);
@@ -217,9 +217,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
-            zebetiteRecord.Function = words.A == 0 ? null : (ZebetiteAiFunction)words.A;
+            zebetiteRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteAiFunctions.Decode(words.A, "recorded ZebetiteAiFunction");
             zebetiteRecord.Generation = words.D;
-            zebetiteRecord.GenerationFlags = (ZebetiteGenerationFlags)words.F;
+            zebetiteRecord.GenerationFlags = MotherBrainNativeWords.DecodeGenerationFlags(words.F);
         }
         // Slot zero's word C is the Zebetites' shared palette counter whichever enemy occupies the slot.
         if (slot.SlotIndex == 0)
@@ -390,7 +390,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
-            rinkaRecord.Function = words.A == 0 ? null : (RinkaEnemyFunction)words.A;
+            rinkaRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.RinkaEnemyFunctions.Decode(words.A, "recorded RinkaEnemyFunction");
             rinkaRecord.Velocity = new(new SnesSignedEightEight(words.B), new SnesSignedEightEight(words.C));
             rinkaRecord.SpawnResourceToken = words.D;
             rinkaRecord.DelayTimer = WrappingCountdown.FromRaw(words.F);

@@ -82,7 +82,7 @@ public sealed class ShitroidEnemyState
     internal Span<Bgr555> TargetColours(ShitroidColorTarget target) =>
         targetColours.TryGetValue(target, out Bgr555[]? colours)
             ? colours
-            : targetColours[target] = new Bgr555[ShitroidColorRomData.TargetColorCount];
+            : targetColours[target] = new Bgr555[ShitroidColorDefinitions.TargetColorCount];
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions (parameter two): set while

@@ -60,7 +60,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
 
         // `$A9:B9C5-$B9D3` selects command five at 700 energy or above and command `$18`
-        // below it. CPY/BPL is a signed 16-bit branch, retained by NativeAtLeast.
+        // below it. CPY/BPL is a signed 16-bit branch, retained by AtLeastBySignedDifference.
         if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else

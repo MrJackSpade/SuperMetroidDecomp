@@ -142,7 +142,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;
             bool reachedWalkTarget = unchecked((short)(80 - _state.Body.Position.X)) < 0 ||
-                MotherBrainLateFightState.NativeAtLeast(_state.Body.Position.X, 128);
+                MotherBrainLateFightState.AtLeastBySignedDifference(_state.Body.Position.X, 128);
             if (reachedWalkTarget)
             {
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Revived;

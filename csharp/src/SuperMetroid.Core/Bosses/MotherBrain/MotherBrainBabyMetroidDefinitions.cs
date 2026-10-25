@@ -10,10 +10,12 @@ internal static class MotherBrainBabyMetroidDefinitions
 
     /// <summary>
     /// The single embedded population record at <c>$A9:BE28-$A9:BE37</c>. Baby init AI
-    /// subsequently replaces the actor coordinates, but the complete record remains its
-    /// physical spawn snapshot and supplies the native property word.
+    /// subsequently replaces the actor coordinates, but the record remains its physical spawn
+    /// snapshot and supplies the native property word. Its initialization parameter is zero: the
+    /// cartridge's record carries the Baby's first instruction list there, which the cutscene's own
+    /// program replaces and nothing reads.
     /// </summary>
     internal static readonly RoomEnemyPopulationRecord SpawnPopulation =
-        new(EnemyDefinitionId.BabyMetroidCutscene, new(0x0180, 0x0040), 0xcfa2,
+        new(EnemyDefinitionId.BabyMetroidCutscene, new(0x0180, 0x0040), 0,
             new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen), new EnemyExtraPropertyWord(EnemyExtraProperties.None), 0, 0);
 }

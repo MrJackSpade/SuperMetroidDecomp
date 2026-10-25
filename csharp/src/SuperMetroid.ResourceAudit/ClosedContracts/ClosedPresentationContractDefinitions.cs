@@ -65,7 +65,7 @@ internal static class ClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomColorRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainAttackPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRecoveryPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomFlashPaintDefinitions.cs"),

@@ -123,7 +123,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
                         case 0xe82d: radius = Read(cursor + 2); cursor += 6; break;
                         case 0xe87c: properties = (ushort)((properties & 0x5bff) | 0xa000); cursor += 2; break;
                         case 0xe8b1: drops = true; cursor += 2; break;
-                        case 0xe8ba: function = (SporeSpawnFunction)Read(cursor + 2); cursor += 4; break;
+                        case 0xe8ba: function = SporeSpawnNativeWords.SporeSpawnFunctions.Decode(Read(cursor + 2), "Spore Spawn function operand"); cursor += 4; break;
                         case 0xe872: case 0xe895: case 0xe8ca: case 0xe91c: cursor += 4; break;
                         case 0xe771: case 0xe96e: case 0xe9b1: cursor += 2; break;
                         default: throw new InvalidDataException($"Unexpected native Spore Spawn opcode {opcode:X4} at {cursor:X4}.");

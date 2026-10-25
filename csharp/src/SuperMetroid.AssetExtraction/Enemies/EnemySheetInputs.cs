@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkCatalog Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePaletteCatalog Palettes, EscapeTimerTileAtlas EscapeTimer)
-    : IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
+    : IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static EnemySheetInputs Load(string content)
@@ -54,7 +54,7 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
         "No encounter uploads room-FX animated tiles over the OBJ characters an enemy sheet composes over.");
 
     /// <inheritdoc/>
-    BossArtworkCatalog IInstalledBossObjCharacterArtwork.BossTiles => Bosses;
+    BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => Bosses;
 
     /// <inheritdoc/>
     AreaArtworkCatalog IInstalledAreaObjCharacterArtwork.AreaTiles => Areas;

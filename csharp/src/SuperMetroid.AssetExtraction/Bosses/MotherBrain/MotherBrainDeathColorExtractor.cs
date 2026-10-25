@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -17,27 +18,27 @@ public static class MotherBrainDeathColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var body = new PaletteRgb5[MotherBrainDeathRomData.BodyFadeFrameCount][];
+        var body = new PaletteRgb5[MotherBrainDeathDefinitions.BodyFadeFrameCount][];
         var leg = new PaletteRgb5[body.Length][];
         for (int frame = 0; frame < body.Length; frame++)
         {
-            int source = MotherBrainDeathRomData.BodyFadeSource(frame);
-            body[frame] = Read(source, MotherBrainDeathRomData.BodyColorCount);
-            leg[frame] = Read(source + MotherBrainDeathRomData.BodyColorCount *
-                sizeof(ushort), MotherBrainDeathRomData.BodyColorCount);
+            int source = MotherBrainSourceDefinitions.Death.BodyFadeColors(frame);
+            body[frame] = Read(source, MotherBrainDeathDefinitions.BodyColorCount);
+            leg[frame] = Read(source + MotherBrainDeathDefinitions.BodyColorCount *
+                sizeof(ushort), MotherBrainDeathDefinitions.BodyColorCount);
         }
-        var corpse = new PaletteRgb5[MotherBrainDeathRomData.CorpseFadeFrameCount][];
+        var corpse = new PaletteRgb5[MotherBrainDeathDefinitions.CorpseFadeFrameCount][];
         for (int frame = 0; frame < corpse.Length; frame++)
-            corpse[frame] = Read(MotherBrainDeathRomData.CorpseFadeSource(frame),
-                MotherBrainDeathRomData.CorpseColorCount);
+            corpse[frame] = Read(MotherBrainSourceDefinitions.Death.CorpseFadeColors(frame),
+                MotherBrainDeathDefinitions.CorpseColorCount);
         return MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
         {
             Version = MotherBrainDeathColorFormat.Version,
             BodyFade = body,
             LegFade = leg,
             CorpseFade = corpse,
-            ExplodedDoor = Read(MotherBrainDeathRomData.DoorPalette,
-                MotherBrainDeathRomData.BodyColorCount),
+            ExplodedDoor = Read(MotherBrainSourceDefinitions.Death.ExplodedDoorColors,
+                MotherBrainDeathDefinitions.BodyColorCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

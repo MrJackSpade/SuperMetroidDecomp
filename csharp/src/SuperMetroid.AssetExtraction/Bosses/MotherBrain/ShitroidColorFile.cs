@@ -21,14 +21,14 @@ public static class ShitroidColorFile
         if (document.Version != ShitroidColorFormat.Version)
             throw new InvalidDataException("Shitroid colors require the supported version.");
         if (document.Normal is null ||
-            document.Normal.Length != ShitroidColorRomData.NormalFrameCount)
+            document.Normal.Length != ShitroidColorDefinitions.NormalFrameCount)
             throw new InvalidDataException("Shitroid normal cycle requires eight frames.");
         return new(document.Normal.Select((frame, index) =>
-                Compile(frame, ShitroidColorRomData.NormalColorsPerFrame,
+                Compile(frame, ShitroidColorDefinitions.NormalColorsPerFrame,
                     $"normal frame {index}")).ToArray(),
-            Compile(document.Sidehopper, ShitroidColorRomData.TargetColorCount, "sidehopper"),
-            Compile(document.Shitroid, ShitroidColorRomData.TargetColorCount, "Shitroid"),
-            Compile(document.DeadSidehopper, ShitroidColorRomData.TargetColorCount,
+            Compile(document.Sidehopper, ShitroidColorDefinitions.TargetColorCount, "sidehopper"),
+            Compile(document.Shitroid, ShitroidColorDefinitions.TargetColorCount, "Shitroid"),
+            Compile(document.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount,
                 "dead sidehopper"));
     }
 

@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -28,17 +29,17 @@ internal static class EnemyTileArtworkShitroidColorsVerification
     {
         ShitroidColorCatalog native = stock.Bosses.ShitroidColors ??
             throw new InvalidDataException("Installed enemy art has no Shitroid colors.");
-        for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
-        for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
+        for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
+        for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    ShitroidColorRomData.NormalCycle +
-                    (frame * ShitroidColorRomData.NormalColorsPerFrame + color) * 2),
+                    MotherBrainSourceDefinitions.Shitroid.NormalCycle +
+                    (frame * ShitroidColorDefinitions.NormalColorsPerFrame + color) * 2),
                 native.NormalColor(frame, color),
                 $"installed Shitroid normal frame {frame} color {color}");
-        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.Sidehopper, ShitroidColorRomData.SidehopperTarget));
-        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.Shitroid, ShitroidColorRomData.ShitroidTarget));
+        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.Sidehopper, MotherBrainSourceDefinitions.Shitroid.SidehopperTarget));
+        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.Shitroid, MotherBrainSourceDefinitions.Shitroid.ShitroidTarget));
         Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.DeadSidehopper,
-            ShitroidColorRomData.DeadSidehopperTarget));
+            MotherBrainSourceDefinitions.Shitroid.DeadSidehopperTarget));
 
         string file = Path.Combine(stockDirectory, ShitroidColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
@@ -56,7 +57,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         ShitroidColorCatalog colors = edited.Bosses.ShitroidColors ??
             throw new InvalidDataException("Edited enemy art has no Shitroid colors.");
-        for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
+        for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
         {
             AssertTrue(native.NormalColor(frame, 2) != colors.NormalColor(frame, 2),
                 $"Shitroid normal frame {frame} edit takes effect");
@@ -76,13 +77,13 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             "Shitroid color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= ShitroidColorRomData.NormalCycle and
-                    < (ShitroidColorRomData.NormalCycle +
-                        ShitroidColorRomData.NormalFrameCount *
-                        ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort))
-                    or >= ShitroidColorRomData.DeadSidehopperTarget and
-                    < (ShitroidColorRomData.ShitroidTarget +
-                        ShitroidColorRomData.TargetColorCount * sizeof(ushort)),
+            address => address is >= MotherBrainSourceDefinitions.Shitroid.NormalCycle and
+                    < (MotherBrainSourceDefinitions.Shitroid.NormalCycle +
+                        ShitroidColorDefinitions.NormalFrameCount *
+                        ShitroidColorDefinitions.NormalColorsPerFrame * sizeof(ushort))
+                    or >= MotherBrainSourceDefinitions.Shitroid.DeadSidehopperTarget and
+                    < (MotherBrainSourceDefinitions.Shitroid.ShitroidTarget +
+                        ShitroidColorDefinitions.TargetColorCount * sizeof(ushort)),
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
@@ -95,14 +96,14 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         CheckLiveTarget(ShitroidColorTarget.Sidehopper, 0x90);
         CheckLiveTarget(ShitroidColorTarget.Shitroid, 0xa0);
         CheckLiveTarget(ShitroidColorTarget.DeadSidehopper, 0xf0);
-        for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
+        for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
         {
             state.PalettePhase = (frame + 7) % 8;
             state.PaletteTimer = 0;
             enemies.ShitroidBehavior.StepShitroidNormalPalette(state);
             AssertEqual(frame, state.PalettePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
             AssertEqual(state.PaletteDelay, state.PaletteTimer, $"Shitroid normal frame {frame} reloads the palette timer");
-            for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
+            for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
                 AssertEqual(colors.NormalColor(frame, color), cgram.Colors[165 + color],
                     $"live Shitroid normal frame {frame} color {color}");
         }
@@ -130,7 +131,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
         void VerifyTarget(ShitroidColorTarget target, int source)
         {
-            for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
+            for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.TargetColor(target, color),
                     $"installed Shitroid {target} target color {color}");
@@ -138,7 +139,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
         void CheckLiveTarget(ShitroidColorTarget target, int destination)
         {
-            for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
+            for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
             {
                 Bgr555 expected = colors.TargetColor(target, color);
                 AssertEqual(expected, state.TargetColours(target)[color],

@@ -88,7 +88,7 @@ internal sealed class ClosedPresentationAudit
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
                     ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapCompositions))]
                     : [ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameSequence)),
-                        ContractTypeNames.MetadataName(typeof(BossOamFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameCompositions)),
+                        ContractTypeNames.MetadataName(typeof(BossSpriteFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameCompositions)),
                         ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions))];
                 valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
@@ -217,7 +217,7 @@ internal sealed class ClosedPresentationAudit
                 (SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
                     SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level or
                     SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Background)
-                range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorRomData.DeathSceneFrameCount);
+                range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorDefinitions.DeathSceneFrameCount);
             if (!range.Value.Contains(number))
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }

@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Cartridge values and helpers of <see cref="MotherBrainRoomColorRomData"/> that only verification reads.</summary>
-internal static class MotherBrainRoomColorRomDataConstants
+/// <summary>Where the cartridge writes Mother Brain's room colour images in its colour memory: verification's native view of the colour sets.</summary>
+internal static class MotherBrainRoomColorDestinations
 {
     /// <summary>The first source slice starts at CGRAM byte offset $68.</summary>
     public const int FirstColor = 0x0068 / sizeof(ushort);

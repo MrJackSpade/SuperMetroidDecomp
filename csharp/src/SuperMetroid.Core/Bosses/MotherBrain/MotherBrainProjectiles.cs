@@ -75,7 +75,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Registers the encounter-owned bombs, glass, beams, rings, turrets, tubes, and effects.</summary>
-    internal void RegisterMotherBrainProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddMotherBrainProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
         table.AddShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
@@ -356,25 +356,25 @@ internal sealed class MotherBrainProjectiles
     {
         bool negative = unchecked((short)fragment.Velocity.X.RawValue) < 0;
         ushort magnitude = negative ? unchecked((ushort)-fragment.Velocity.X.RawValue) : fragment.Velocity.X.RawValue;
-        short slowed = unchecked((short)(magnitude - MotherBrainDeathRomData.DoorFragmentDrag));
+        short slowed = unchecked((short)(magnitude - MotherBrainDeathDefinitions.DoorFragmentDrag));
         int speed = Math.Max(0, (int)slowed);
         fragment.Velocity = fragment.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(negative ? -speed : speed))));
-        fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathRomData.DoorFragmentGravity))));
+        fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime counts down in variable zero and expires when it passes zero.
         CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
         fragment.Variable0 = lifetime.Remaining.RawValue;
         if (lifetime.IsNonNegative) return;
-        ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathRomData.DoorDustYOffset));
+        ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathDefinitions.DoorDustYOffset));
         fragment.Clear();
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MotherBrainDeathRomData.DoorDustParameter);
+        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MotherBrainDeathDefinitions.DoorDustParameter);
     }
 
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(RoomEnemyProjectileSlot subtitle)
     {
         subtitle.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
-        subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathRomData.SubtitleX, MotherBrainDeathRomData.SubtitleY));
+        subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
     /// <summary>Runs pre-instruction $86:CBE7 for the four falling ceiling-tube actors.</summary>

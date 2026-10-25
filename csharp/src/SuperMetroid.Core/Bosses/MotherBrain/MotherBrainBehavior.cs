@@ -230,7 +230,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain body function $A9:{(ushort)state.Function:X4} is not translated.");
+                    $"Mother Brain body function {state.Function} is not translated.");
         }
     }
 
@@ -473,7 +473,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing:
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain fake-death function $A9:{(ushort)state.Function:X4} is not translated.");
+                    $"Mother Brain fake-death function {state.Function} is not translated.");
         }
     }
 
@@ -692,7 +692,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain phase-two function $A9:{(ushort)state.Function:X4} is not translated.");
+                    $"Mother Brain phase-two function {state.Function} is not translated.");
         }
     }
     /// <summary>Six authored drool spawn offsets from the brain's center.</summary>

@@ -37,26 +37,26 @@ public static class MotherBrainRoomColorFile
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
         var flash = new Bgr555[document.Flash.Length][];
         for (int index = 0; index < flash.Length; index++)
-            flash[index] = Compile(document.Flash[index], MotherBrainRoomColorRomData.SliceColors * 2,
+            flash[index] = Compile(document.Flash[index], MotherBrainRoomColorDefinitions.SliceColors * 2,
                 $"flash row {index}");
-        Bgr555[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room");
+        Bgr555[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorDefinitions.SliceColors * 2, "final room");
         // A legacy override inherits the families it predates from the current stock the
         // version check above required; a null family says so.
         return MotherBrainRoomColorPresentation.Create(new MotherBrainRoomColours
         {
             Flash = flash,
             FinalRoom = finalRoom,
-            PhaseTwoAttack = Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
+            PhaseTwoAttack = Compile(document.PhaseTwoAttack, MotherBrainRoomColorDefinitions.PhaseTwoColors,
                 "phase-two attack"),
-            PhaseTwoRearLeg = Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
+            PhaseTwoRearLeg = Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorDefinitions.PhaseTwoColors,
                 "phase-two rear leg"),
             InitialGlassShard = inheritsRoomEntry
                 ? null
-                : Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
+                : Compile(document.InitialGlassShard, MotherBrainRoomColorDefinitions.InitialColors,
                     "room-entry glass shard"),
             InitialTubeProjectile = inheritsRoomEntry
                 ? null
-                : Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
+                : Compile(document.InitialTubeProjectile, MotherBrainRoomColorDefinitions.InitialColors,
                     "room-entry tube projectile"),
             RecoveryLights = inheritsRecoveryLights
                 ? null
@@ -67,12 +67,12 @@ public static class MotherBrainRoomColorFile
     /// <summary>Validates the seven recovery frames and compiles their RGB5 words.</summary>
     private static Bgr555[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {
-        if (frames is null || frames.Length != MotherBrainRoomColorRomData.RecoveryLightsFrames)
+        if (frames is null || frames.Length != MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException("Mother Brain room-light recovery requires seven frames.");
         var compiled = new Bgr555[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)
             compiled[frame] = Compile(frames[frame],
-                MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2,
+                MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2,
                 $"room-light recovery frame {frame}");
         return compiled;
     }

@@ -24,15 +24,15 @@ public static class MotherBrainDeathColorFile
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
         return new(CompileFrames(document.BodyFade,
-                MotherBrainDeathRomData.BodyFadeFrameCount,
-                MotherBrainDeathRomData.BodyColorCount, "body fade"),
+                MotherBrainDeathDefinitions.BodyFadeFrameCount,
+                MotherBrainDeathDefinitions.BodyColorCount, "body fade"),
             CompileFrames(document.LegFade,
-                MotherBrainDeathRomData.BodyFadeFrameCount,
-                MotherBrainDeathRomData.BodyColorCount, "leg fade"),
+                MotherBrainDeathDefinitions.BodyFadeFrameCount,
+                MotherBrainDeathDefinitions.BodyColorCount, "leg fade"),
             CompileFrames(document.CorpseFade,
-                MotherBrainDeathRomData.CorpseFadeFrameCount,
-                MotherBrainDeathRomData.CorpseColorCount, "corpse fade"),
-            Compile(document.ExplodedDoor, MotherBrainDeathRomData.BodyColorCount,
+                MotherBrainDeathDefinitions.CorpseFadeFrameCount,
+                MotherBrainDeathDefinitions.CorpseColorCount, "corpse fade"),
+            Compile(document.ExplodedDoor, MotherBrainDeathDefinitions.BodyColorCount,
                 "exploded door"));
     }
 

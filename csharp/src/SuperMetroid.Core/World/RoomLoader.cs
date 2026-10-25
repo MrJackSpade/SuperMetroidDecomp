@@ -44,7 +44,7 @@ internal sealed class RoomLoader
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Receives room and player palette data during a load.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
@@ -102,7 +102,7 @@ internal sealed class RoomLoader
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _cgram = dependencies.Cgram;
+        _colours = dependencies.Colours;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
@@ -874,7 +874,7 @@ internal sealed class RoomLoader
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHdmaConfigured)
             : null;
 
-        assets.LoadGraphics(_backgrounds, _cgram.BackgroundSets);
+        assets.LoadGraphics(_backgrounds, _colours.BackgroundSets);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
         scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloorMap() : null;
 
@@ -891,7 +891,7 @@ internal sealed class RoomLoader
         // animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
-            _cgram.BackgroundSets,
+            _colours.BackgroundSets,
             room.State.Fx,
             door,
             _system.RandomNumber,
@@ -1021,7 +1021,7 @@ internal sealed class RoomLoader
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
             _backgrounds,
-            _cgram)
+            _colours)
         {
             Level = assets.LevelData,
             Samus = _player.Samus,
@@ -1089,8 +1089,8 @@ internal sealed class RoomLoader
     {
         GameplayBasePaletteCatalog artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Room loading requires the installed gameplay palette catalog.");
-        artwork.LoadCommonSprites(_cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
-        artwork.LoadEnemyProjectileSprites(_cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
+        artwork.LoadCommonSprites(_colours.SpriteSets.Set(SpriteColourSetDefinitions.Common));
+        artwork.LoadEnemyProjectileSprites(_colours.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
     }
 
     /// <summary>

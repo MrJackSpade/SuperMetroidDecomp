@@ -25,7 +25,7 @@ internal sealed class SamusFramePhases
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input word.</summary>
     private readonly IAttractSamusInput _attractDemo;
     /// <summary>Receives Samus and grapple palette writes at their gameplay phase.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
@@ -53,7 +53,7 @@ internal sealed class SamusFramePhases
         _artwork = dependencies.Artwork;
         _attractDemo = dependencies.AttractDemo;
         _xray = dependencies.Xray;
-        _cgram = dependencies.Cgram;
+        _colours = dependencies.Colours;
         _controller1 = dependencies.Controller1;
         _freeze = dependencies.Freeze;
         _gameTime = dependencies.GameTime;
@@ -1342,7 +1342,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         {
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
                 samus,
-                _cgram,
+                _colours,
                 _player.Colours,
                 _artwork.SamusBodyArt?.DeathPalettes);
         }

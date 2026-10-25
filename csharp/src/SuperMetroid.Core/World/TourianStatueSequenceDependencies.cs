@@ -10,8 +10,8 @@ internal sealed record TourianStatueSequenceDependencies
 {
 
 
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
+    /// <summary>Gameplay's colours.</summary>
+    public required GameplayColours Colours { get; init; }
 
 
     /// <summary>Player.</summary>

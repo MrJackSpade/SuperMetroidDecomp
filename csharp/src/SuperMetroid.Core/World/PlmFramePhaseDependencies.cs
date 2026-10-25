@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
@@ -14,9 +13,6 @@ internal sealed record PlmFramePhaseDependencies
     public required RuntimeArtwork Artwork { get; init; }
 
 
-
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

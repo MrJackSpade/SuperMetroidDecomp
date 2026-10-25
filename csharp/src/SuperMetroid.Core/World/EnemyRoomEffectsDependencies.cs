@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="EnemyRoomEffects"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyRoomEffectsDependencies
 {
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
+    /// <summary>Gameplay's colours.</summary>
+    public required GameplayColours Colours { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }

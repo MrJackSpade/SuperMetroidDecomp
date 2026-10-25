@@ -29,8 +29,8 @@ internal sealed record RoomLoaderDependencies
 
 
 
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
+    /// <summary>Gameplay's colours.</summary>
+    public required GameplayColours Colours { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

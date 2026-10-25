@@ -21,7 +21,7 @@ public sealed class TourianStatueSequence
 {
 
     /// <summary>Receives the black clear and installed grey-color palette writes from tile instructions.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Holds statue busy/released bits, effect spawning, vertical offset, and descent earthquake state.</summary>
     private readonly RoomEnemySystem _enemies;
     /// <summary>Supplies equipped items to palette FX created during the release animation.</summary>
@@ -49,7 +49,7 @@ public sealed class TourianStatueSequence
         RoomPaletteFxSystem roomPaletteFx, RoomPlmSystem plms, RoomEnemySystem enemies)
     {
 
-        _cgram = dependencies.Cgram;
+        _colours = dependencies.Colours;
         _enemies = Ensure.NotNull(enemies);
         _player = dependencies.Player;
         _room = dependencies.Room;
@@ -229,7 +229,7 @@ public sealed class TourianStatueSequence
                     statue.AnimationState |= TourianStatueAnimationState.ReleaseInProgress;
                     return null;
                 case TourianStatueTileCueKind.ClearThreeColors:
-                    definition.ClearedColours.In(_cgram).Fill(Bgr555.Black);
+                    definition.ClearedColours.In(_colours).Fill(Bgr555.Black);
                     return null;
                 case TourianStatueTileCueKind.SpawnEyeGlow:
                     statue.SpawnEyeGlow(definition.UnlockEffectParameter);
@@ -249,7 +249,7 @@ public sealed class TourianStatueSequence
                 case TourianStatueTileCueKind.ApplyGreyColors:
                     (_enemies.AreaArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
                         "Tourian statue animation requires installed grey colors."))
-                        .ApplyGrey(definition.GreyColours.In(_cgram));
+                        .ApplyGrey(definition.GreyColours.In(_colours));
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueTileCueKind)} {cue.Kind}.");

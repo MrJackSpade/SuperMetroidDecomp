@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies;
@@ -12,9 +11,6 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="RuntimeArtwork"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record RuntimeArtworkDependencies
 {
-
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }

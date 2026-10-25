@@ -80,7 +80,7 @@ internal static class SporeSpawnCeilingPlmsVerification
             int cursor = PlmDrawAddressCodec.Of(draw.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {
-                AssertDrawWord(run.DirectionAndCount);
+                AssertDrawWord(checked((ushort)run.DirectionAndCount));
                 foreach (ushort word in run.LevelWords.Span)
                     AssertDrawWord(word);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),

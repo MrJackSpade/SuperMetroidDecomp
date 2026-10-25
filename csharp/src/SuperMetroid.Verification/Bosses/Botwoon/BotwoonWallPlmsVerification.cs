@@ -31,7 +31,7 @@ internal static class BotwoonWallPlmsVerification
         AssertEqual((ushort)0x8009, draw.Runs.Span[0].DirectionAndCount,
             "Botwoon clear is nine blocks tall");
         int cursor = PlmDrawAddressCodec.Of(draw.Draw);
-        AssertWord(draw.Runs.Span[0].DirectionAndCount);
+        AssertWord(checked((ushort)draw.Runs.Span[0].DirectionAndCount));
         foreach (ushort word in draw.Runs.Span[0].LevelWords.Span)
             AssertWord(word);
         for (int index = 0; index < 9; index++)

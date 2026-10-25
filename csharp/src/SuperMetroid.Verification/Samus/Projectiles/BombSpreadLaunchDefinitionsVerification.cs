@@ -62,7 +62,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
         for (int slot = 0; slot < MorphBallBombDefinitions.SlotCount; slot++)
         {
-            ushort launchWord = SamusBombSpreadLaunchDefinitions.ForSlot(slot).XVelocity;
+            int launchWord = SamusBombSpreadLaunchDefinitions.ForSlot(slot).XVelocity;
             foreach (BombSpreadHorizontalVelocity velocity in new[] {
                 BombSpreadHorizontalVelocity.FromLaunchWord(launchWord),
                 BombSpreadHorizontalVelocity.FromLaunchWord(launchWord).Reversed() })

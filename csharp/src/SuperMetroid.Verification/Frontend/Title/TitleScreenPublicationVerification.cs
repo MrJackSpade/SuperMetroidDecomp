@@ -28,10 +28,10 @@ internal static class TitleScreenPublicationVerification
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
         SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(maps.TitleGraphics).Get(SpriteSheetId.Title);
         byte[] baby = maps.TitleGraphics.BabyCharacters.ToArray();
-        int pageBytes = TitleSequenceRomData.Transfers.BabyCharacterPageByteCount;
+        int pageBytes = TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount;
         var shownPages = new List<int>();
         bool drewSprites = false;
-        for (int frame = 0; frame < 9 * TitleSequenceRomData.Timing.BabyFrameDuration; frame++)
+        for (int frame = 0; frame < 9 * TitleSequenceDefinitions.Timing.BabyFrameDuration; frame++)
         {
             FloorScene snapshot = title.CaptureRenderSnapshot();
             byte[] snapshotVram = title.ShownVram();

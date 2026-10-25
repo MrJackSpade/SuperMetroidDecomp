@@ -165,9 +165,9 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // The divider occupies only rows 24-27. Preserve live typewriter
                 // words and caret state in every other row on debugger rebind.
                 value.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
-                    IntroCinematicRomData.Text.FinalLineFirstCell,
-                    IntroCinematicRomData.Text.FinalLineWordCount));
-                value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicRomData.Text.FinalLineFirstCell..]);
+                    IntroCinematicDefinitions.Text.FinalLineFirstCell,
+                    IntroCinematicDefinitions.Text.FinalLineWordCount));
+                value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicDefinitions.Text.FinalLineFirstCell..]);
             }
             tilemaps.LoadScenePages(value.BackgroundPages.Span);
             tilemaps.LoadPortrait(value.PortraitTilemap.Span);
@@ -206,7 +206,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     /// <summary>Staging words for progressively written BG3 narration pages.</summary>
     private readonly ushort[] textTilemap =
-        new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
+        new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
     /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
     private readonly Bgr555[] introColours = new Bgr555[ScreenPalette.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
@@ -307,17 +307,17 @@ public sealed class IntroCinematicState : IFrontendScreen
         characterArtwork.Palette.LoadTo(palette);
         palette.Colors.CopyTo(introColours);
 
-        RequireMinimum(characterArtwork.BackgroundCharacters.Characters.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
+        RequireMinimum(characterArtwork.BackgroundCharacters.Characters.Length, IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
         RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
-            IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
-        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicRomData.Transfers.SamusHeadTilemapBytes,
+            IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
+        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicDefinitions.Artwork.SamusHeadTilemapBytes,
             "Samus-head BG2 tilemap");
-        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes,
+        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicDefinitions.Artwork.BackgroundPageTilemapBytes,
             "intro BG1 page tilemaps");
-        RequireMinimum(characterArtwork.CinematicObjectCharacters.Characters.Length, IntroCinematicRomData.Transfers.ObjectCharacterBytes,
+        RequireMinimum(characterArtwork.CinematicObjectCharacters.Characters.Length, IntroCinematicDefinitions.Artwork.ObjectCharacterBytes,
             "intro OBJ characters");
-        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicRomData.Transfers.NarrationTilemapBytes,
+        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicDefinitions.Artwork.NarrationTilemapBytes,
             "first narration BG3 tilemap");
         RequireFont(introFont);
 
@@ -382,7 +382,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     // $8B:A5A7 seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeInFirstNarration;
-                    fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
+                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
                 }
                 break;
 
@@ -412,9 +412,9 @@ public sealed class IntroCinematicState : IFrontendScreen
                     audio?.QueueMusicDelayed8(
                         MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
                     audio?.QueueMusicDelayed(
-                        MusicRequest.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
+                        MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.SceneTrack),
                         MusicQueueDelay.AtLeastShortest(
-                            IntroCinematicRomData.Music.SceneTrackDelayArgument));
+                            IntroCinematicDefinitions.Music.SceneTrackDelay));
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
                     timer = 8;
                 }
@@ -433,7 +433,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     // $8B:A64C seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
-                    fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
+                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
                 }
                 break;
 
@@ -455,7 +455,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     Objects.StartEnglishPageOne();
                     // $8B:A82B seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
-                    fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
+                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
                 }
                 break;
 
@@ -609,7 +609,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             {
                 // $B240 selects the ordinary fade-out owner with delay/counter one. The
                 // framebuffer on this request frame is still full-brightness page six.
-                fade.SetTiming(IntroCinematicRomData.Fade.FinishFade, IntroCinematicRomData.Fade.FinishFade);
+                fade.SetTiming(IntroCinematicDefinitions.Fade.FinishFade, IntroCinematicDefinitions.Fade.FinishFade);
                 Phase = IntroCinematicPhase.IntroFadeOut;
             }
         }
@@ -727,12 +727,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $8B:B018 replaces the target palette with kPalettes_Intro, decomposes every
         // component, clears only the incoming gameplay ranges, and immediately composes.
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
         paletteFader.ComposeInto(palette);
 
         // The sprite setup stored 127 in both cinematic_var13 and (through sprite object
         // $CE55's setup) cinematic_var4. $B250 tests the old counter, then decrements it.
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
@@ -747,10 +747,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // $8B:B250 updates only when the pre-decrement counter is divisible by four.
         // Values 124..0 therefore yield exactly 32 component updates.
-        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
         {
-            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
-            FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
+            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
+            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
             PaletteFader.ComposeInto(palette);
         }
 
@@ -771,9 +771,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // text palette routine, and restores the already allocated caret object.
         Objects.StartEnglishPageTwo();
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
@@ -788,10 +788,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Fades gameplay and projectile ranges out while restoring portrait and text ranges.</summary>
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
         {
-            FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
-            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Narration);
+            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
+            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
             PaletteFader.ComposeInto(palette);
         }
 
@@ -823,19 +823,19 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles.Reset();
 
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
     internal void StepBabyDiscoveryCrossfade()
     {
-        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
         {
-            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
-            FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
+            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
+            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
             PaletteFader.ComposeInto(palette);
         }
 
@@ -857,9 +857,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // routine used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
@@ -885,13 +885,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentBabyDiscovery = null;
 
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
         paletteFader.ComposeInto(palette);
 
         // The native intro alternates two adjacent WRAM counters. Page-three setup left
         // CinematicFunctionTimer at $007F; this setup writes the separate intro counter.
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
@@ -906,10 +906,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Advances the text-to-laboratory palette spans using the cinematic-function countdown.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
         {
-            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
-            FadeInPaletteSpans(IntroCinematicRomData.Palette.Discovery);
+            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
+            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
             PaletteFader.ComposeInto(palette);
         }
 
@@ -929,9 +929,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // still-$007F IntroCrossFadeTimer set by the delivery scene.
         Objects.StartEnglishPageFour();
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
@@ -948,8 +948,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         if ((introCrossfadeCounter.RawValue & 3) == 0)
         {
-            FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
-            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Discovery);
+            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
+            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
             PaletteFader.ComposeInto(palette);
         }
 
@@ -967,10 +967,10 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
@@ -983,9 +983,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         Objects.StartEnglishPageFive();
         paletteFader = new CinematicPaletteFader(introColours);
-        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
+        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
@@ -998,7 +998,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // $8B:B1EB seeds IntroCrossFadeTimer. English takes B1F4's direct fall-through into
         // B207; Japanese text selects B207 as the next dispatch's cinematic function.
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
         else
@@ -1296,7 +1296,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // initial $9A:D200 -> VMADD $6000 DMA.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
                 caretPose, objectSprites, Objects.Caret.ToOam(),
-                IntroCinematicRomData.Objects.ScientistPalette.Raw);
+                IntroCinematicDefinitions.Objects.ScientistPalette.Raw);
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
@@ -1319,29 +1319,29 @@ level, samus, FrameCounterWord(elapsedUpdates));
 
         // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
         // native border then replaces four 32-tile rows at the top and bottom.
-        Array.Fill(textTilemap, IntroCinematicRomData.Text.Blank.Raw);
+        Array.Fill(textTilemap, IntroCinematicDefinitions.Text.Blank.Raw);
         for (int index = 0;
-             index < IntroCinematicRomData.Text.GameplayBlankStartIndex;
+             index < IntroCinematicDefinitions.Text.GameplayBlankStartIndex;
              index++)
         {
-            textTilemap[index] = IntroCinematicRomData.Text.JapaneseBlank.Raw;
-            textTilemap[index + IntroCinematicRomData.Text.JapaneseBlankBottomDelta] =
-                IntroCinematicRomData.Text.JapaneseBlank.Raw;
+            textTilemap[index] = IntroCinematicDefinitions.Text.JapaneseBlank.Raw;
+            textTilemap[index + IntroCinematicDefinitions.Text.JapaneseBlankBottomDelta] =
+                IntroCinematicDefinitions.Text.JapaneseBlank.Raw;
         }
 
         // $8B:A72B maps Japanese subtitle glyph staging into BG3 rows 24-27.
         (CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork."))
             .FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
-                IntroCinematicRomData.Text.FinalLineFirstCell,
-                IntroCinematicRomData.Text.FinalLineWordCount));
+                IntroCinematicDefinitions.Text.FinalLineFirstCell,
+                IntroCinematicDefinitions.Text.FinalLineWordCount));
 
         // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset
         // $11E therefore aliases words 911/912 of the staging map; both receive $1C29.
-        textTilemap[IntroCinematicRomData.Text.FinalBlankLeftIndex] =
-            IntroCinematicRomData.Text.FinalBlank.Raw;
-        textTilemap[IntroCinematicRomData.Text.FinalBlankRightIndex] =
-            IntroCinematicRomData.Text.FinalBlank.Raw;
+        textTilemap[IntroCinematicDefinitions.Text.FinalBlankLeftIndex] =
+            IntroCinematicDefinitions.Text.FinalBlank.Raw;
+        textTilemap[IntroCinematicDefinitions.Text.FinalBlankRightIndex] =
+            IntroCinematicDefinitions.Text.FinalBlank.Raw;
 
         textTilemap.CopyTo(tilemaps.Narration);
         CurrentObjects = new IntroCinematicObjectSystem(
@@ -1355,10 +1355,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
         audio?.QueueMusicDelayed8(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
         audio?.QueueMusicDelayed(
-            MusicRequest.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
+            MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.SceneTrack),
             MusicQueueDelay.AtLeastShortest(
-                IntroCinematicRomData.Music.SceneTrackDelayArgument));
-        timer = IntroCinematicRomData.Music.DiscoveryInitialTimer;
+                IntroCinematicDefinitions.Music.SceneTrackDelay));
+        timer = IntroCinematicDefinitions.Music.DiscoveryInitialTimer;
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
     }
 
@@ -1373,10 +1373,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
     {
         Array.Fill(
             textTilemap,
-            IntroCinematicRomData.Text.Blank.Raw,
-            startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
-            count: IntroCinematicRomData.Text.GameplayBlankWordCount);
-        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextCellCount).CopyTo(tilemaps.Narration);
+            IntroCinematicDefinitions.Text.Blank.Raw,
+            startIndex: IntroCinematicDefinitions.Text.GameplayBlankStartIndex,
+            count: IntroCinematicDefinitions.Text.GameplayBlankWordCount);
+        textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
     }
 
     /// <summary>Clears selected CGRAM spans before an incoming scene palette begins crossfading.</summary>

@@ -9,6 +9,6 @@ internal static class CinematicSpriteDrawDefinitions
     /// <summary>$8B:9746: admit biased Y strictly below $01FF, corresponding to signed origins -128 through 382.</summary>
     public const int BiasedOriginYLimit = 511;
 
-    /// <summary>$8B:9746: a nonzero Y high byte selects $81:8853 instead of the on-screen $81:879F loader.</summary>
-    public const int OriginYHighByteMask = 0xff00;
+    /// <summary>Origins at or below this row (or above the screen) draw through the off-screen clipping path.</summary>
+    public const int OnScreenOriginYLimit = 256;
 }

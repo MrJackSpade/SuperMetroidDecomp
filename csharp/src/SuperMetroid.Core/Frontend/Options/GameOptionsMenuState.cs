@@ -181,8 +181,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeIn:
-                brightness = Math.Min(GameOptionsRomData.MaximumBrightness, brightness + 1);
-                if (brightness == GameOptionsRomData.MaximumBrightness)
+                brightness = Math.Min(GameOptionsDefinitions.MaximumBrightness, brightness + 1);
+                if (brightness == GameOptionsDefinitions.MaximumBrightness)
                     Phase = GameOptionsPhase.Main;
                 break;
 
@@ -203,8 +203,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.DissolveIn:
-                brightness = Math.Min(GameOptionsRomData.MaximumBrightness, brightness + 1);
-                if (brightness == GameOptionsRomData.MaximumBrightness)
+                brightness = Math.Min(GameOptionsDefinitions.MaximumBrightness, brightness + 1);
+                if (brightness == GameOptionsDefinitions.MaximumBrightness)
                 {
                     Phase = page switch
                     {
@@ -225,13 +225,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.ScrollControllerDown:
-                bg1VerticalScroll += GameOptionsRomData.ControllerScrollPixelsPerFrame;
-                if (bg1VerticalScroll == GameOptionsRomData.ControllerScrollLimit)
+                bg1VerticalScroll += GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
+                if (bg1VerticalScroll == GameOptionsDefinitions.ControllerScrollLimit)
                     Phase = GameOptionsPhase.ControllerSettings;
                 break;
 
             case GameOptionsPhase.ScrollControllerUp:
-                bg1VerticalScroll -= GameOptionsRomData.ControllerScrollPixelsPerFrame;
+                bg1VerticalScroll -= GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
                 if (bg1VerticalScroll == 0)
                     Phase = GameOptionsPhase.ControllerSettings;
                 break;
@@ -289,13 +289,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         if ((pressed & SnesButton.Up) != 0)
         {
             SelectedItem = SelectedItem == 0
-                ? GameOptionsRomData.Rows.PrimaryCount - 1
+                ? GameOptionsDefinitions.Rows.PrimaryCount - 1
                 : SelectedItem - 1;
             QueueMoveSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            SelectedItem = SelectedItem == GameOptionsRomData.Rows.PrimaryCount - 1
+            SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.PrimaryCount - 1
                 ? 0
                 : SelectedItem + 1;
             QueueMoveSound();
@@ -349,10 +349,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             SelectedItem--;
             if (SelectedItem < 0)
             {
-                SelectedItem = GameOptionsRomData.Rows.ControllerReset;
+                SelectedItem = GameOptionsDefinitions.Rows.ControllerReset;
                 Phase = GameOptionsPhase.ScrollControllerDown;
             }
-            else if (SelectedItem == GameOptionsRomData.Rows.ControllerActionCount - 1)
+            else if (SelectedItem == GameOptionsDefinitions.Rows.ControllerActionCount - 1)
             {
                 Phase = GameOptionsPhase.ScrollControllerUp;
             }
@@ -362,12 +362,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         {
             QueueMoveSound();
             SelectedItem++;
-            if (SelectedItem == GameOptionsRomData.Rows.ControllerCount)
+            if (SelectedItem == GameOptionsDefinitions.Rows.ControllerCount)
             {
                 SelectedItem = 0;
                 Phase = GameOptionsPhase.ScrollControllerUp;
             }
-            else if (GameOptionsRomData.Rows.ControllerRowKind(SelectedItem) == GameOptionsControllerRowKind.Exit)
+            else if (GameOptionsLayout.ControllerRowKind(SelectedItem) == GameOptionsControllerRowKind.Exit)
             {
                 Phase = GameOptionsPhase.ScrollControllerDown;
             }
@@ -379,7 +379,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // Native queues the confirmation sound for any newly pressed word on this page,
         // even when an action row cannot find an assignable button in that word.
         QueueSelectSound();
-        GameOptionsControllerRowKind kind = GameOptionsRomData.Rows.ControllerRowKind(SelectedItem);
+        GameOptionsControllerRowKind kind = GameOptionsLayout.ControllerRowKind(SelectedItem);
         if (kind == GameOptionsControllerRowKind.Action)
         {
             for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
@@ -420,13 +420,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         if ((pressed & SnesButton.Up) != 0)
         {
             SelectedItem = SelectedItem == 0
-                ? GameOptionsRomData.Rows.SpecialCount - 1
+                ? GameOptionsDefinitions.Rows.SpecialCount - 1
                 : SelectedItem - 1;
             QueueMoveSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            SelectedItem = SelectedItem == GameOptionsRomData.Rows.SpecialCount - 1
+            SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.SpecialCount - 1
                 ? 0
                 : SelectedItem + 1;
             QueueMoveSound();
@@ -516,7 +516,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Controller labels require installed presentation assets.");
-        for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
+        for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
         {
             content.GameOptions.ApplyControllerLabel(visibleTilemap, action,
                 Input.ControllerBindings.AssignableButtonIndex(ControllerBindings[action]) ?? 0);
@@ -545,11 +545,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private void QueueMoveSound() =>
         audio?.QueueSound(
             Library1Sound.MenuCursor,
-            maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
+            maximumQueued: GameOptionsDefinitions.MaximumQueuedMenuSounds);
 
     /// <summary>Queues the native confirmation sound within the menu sound limit.</summary>
     private void QueueSelectSound() =>
         audio?.QueueSound(
             Library1Sound.MenuConfirm,
-            maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
+            maximumQueued: GameOptionsDefinitions.MaximumQueuedMenuSounds);
 }

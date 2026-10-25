@@ -66,6 +66,52 @@ internal static class PauseMenuSourceDefinitions
     /// <summary>$7E:3800, the equipment page's mutable tilemap, which label and reserve destinations address.</summary>
     internal const int EquipmentTilemapBase = 0x3800;
 
+    /// <summary>$B6:E800, the equipment page's 32-by-32 template tilemap.</summary>
+    internal const int EquipmentPage = 0xb6e800;
+
+
+    /// <summary>
+    /// The equipment-page label tables of each inventory category, named by the category pointer tables at $82:C02C
+    /// (label places) and $82:C044 (label tilemaps).
+    /// </summary>
+    internal static readonly FrozenDictionary<PauseEquipmentCategory, PauseEquipmentLabelTables> EquipmentLabelTables =
+        new Dictionary<PauseEquipmentCategory, PauseEquipmentLabelTables>
+        {
+            [PauseEquipmentCategory.Beams] = new(Places: 0x82c06c, Labels: 0x82c08c),
+            [PauseEquipmentCategory.Suits] = new(Places: 0x82c076, Labels: 0x82c096),
+            [PauseEquipmentCategory.Boots] = new(Places: 0x82c082, Labels: 0x82c0a2),
+        }.ToFrozenDictionary();
+
+    /// <summary>$82:C01A, kEquipmentScreenTilemap_Blank: the bank-$82 word of the nine-cell blank label.</summary>
+    internal const ushort BlankEquipmentLabel = 0xc01a;
+
+    /// <summary>$82:C0A8, kHyperBeamWeaponsTilemaps: the beam label pointers Hyper mode shows instead.</summary>
+    internal const int HyperBeamLabels = 0x82c0a8;
+
+    /// <summary>$82:C1D6, EquipmentScreen_ReserveTank_Xpositions: the six reserve-gauge columns, the end cap's last.</summary>
+    internal const int ReserveTankXPositions = 0x82c1d6;
+
+    /// <summary>$82:C1E2: the reserve gauge's row plus one, which the draw routine decrements.</summary>
+    internal const int ReserveTankYPosition = 0x82c1e2;
+
+    /// <summary>$82:B3D9: the two identical eight-entry tables of partly filled tank spritemaps.</summary>
+    internal const int ReserveTankPartialFills = 0x82b3d9;
+
+    /// <summary>The partly filled tank spritemaps of both tables at <see cref="ReserveTankPartialFills"/>.</summary>
+    internal const int ReserveTankPartialFillCount = 16;
+
+    /// <summary>$82:BF22, the MANUAL label that replaces the mode label's last four cells.</summary>
+    internal const int ReserveManualText = 0x82bf22;
+
+    /// <summary>$82:BF2A, the AUTO label that replaces the mode label's last four cells.</summary>
+    internal const int ReserveAutoText = 0x82bf2a;
+
+    /// <summary>$82:AD5D, the reserve arrow's first animated colour, one per pulse frame.</summary>
+    internal const int ReserveArrowFirstColours = 0x82ad5d;
+
+    /// <summary>$82:AD9D, the reserve arrow's second animated colour, one per pulse frame.</summary>
+    internal const int ReserveArrowSecondColours = 0x82ad9d;
+
     /// <summary>The spritemap each equipment category's selector shows.</summary>
     internal static readonly FrozenDictionary<PauseEquipmentCategory, ushort> SelectorSpritemaps =
         new Dictionary<PauseEquipmentCategory, ushort>

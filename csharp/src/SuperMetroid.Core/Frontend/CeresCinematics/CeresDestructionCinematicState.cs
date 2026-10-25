@@ -132,10 +132,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal FixedPosition<Mode7Pixels> Background { get; private set; } = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
     /// <summary>
     /// Mode-7 scene scale in 1/256 units (256 is identity). Every producer keeps it within zero through
-    /// <see cref="CeresDestructionRomData.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
+    /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
     /// is guarded by the minimum-scale test, so it never wraps.
     /// </summary>
-    internal int Zoom { get; private set; } = CeresDestructionRomData.Motion.IdentityScale;
+    internal int Zoom { get; private set; } = CeresDestructionSceneDefinitions.Motion.IdentityScale;
     /// <summary>Mode-7 rotation angle sampled from the compiled signed sine table.</summary>
     private SnesAngle angle;
     /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
@@ -199,7 +199,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// than entering MainGameLoop.
     /// </summary>
     internal bool ResumesAfterFrameWait =>
-        initialFrameWaits is > 0 and <= CeresDestructionRomData.InitialFrameWaits;
+        initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
     internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
@@ -242,12 +242,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // $8B:C11B waits for nine NMIs within its first dispatch; each wait is one update
         // that resumes it. After the last it sets up the scene and returns to the state-$22
         // wrapper, whose object handling and frame-counter tail ($8B:A367) then run once.
-        if (initialFrameWaits < CeresDestructionRomData.InitialFrameWaits)
+        if (initialFrameWaits < CeresDestructionSceneDefinitions.InitialFrameWaits)
         {
             initialFrameWaits++;
             return;
         }
-        if (initialFrameWaits == CeresDestructionRomData.InitialFrameWaits)
+        if (initialFrameWaits == CeresDestructionSceneDefinitions.InitialFrameWaits)
         {
             initialFrameWaits++;
             SetupCeresDestruction();
@@ -257,9 +257,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 MusicRequest.LoadDataSet(MusicDataSet.Ceres));
             audio?.QueueMusicDelayed(
                 MusicRequest.SelectTrack(WithSamus
-                    ? CeresDestructionRomData.Music.CeresWithSamusTrack
-                    : CeresDestructionRomData.Music.CeresTrack),
-                MusicQueueDelay.AtLeastShortest(CeresDestructionRomData.Music.DelayArgument));
+                    ? CeresDestructionSceneDefinitions.Music.CeresWithSamusTrack
+                    : CeresDestructionSceneDefinitions.Music.CeresTrack),
+                MusicQueueDelay.AtLeastShortest(CeresDestructionSceneDefinitions.Music.QueueDelay));
         }
         else
         {
@@ -300,7 +300,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.ApproachExplosion:
                 StepInitialDrift();
-                if (Zoom < CeresDestructionRomData.Motion.CeresZoomLimit)
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.CeresZoomLimit)
                 {
                     Zoom++;
                 }
@@ -308,7 +308,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     // `$8B:C345` snaps the scale to $0300, creates the final blast, and
                     // installs the flying-away function on this exact handler call.
-                    Zoom = CeresDestructionRomData.Motion.CeresExplosionScale;
+                    Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionScale;
                     SpawnFinalCeresExplosion();
                     Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
                 }
@@ -317,14 +317,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FlyingAwayFromExplosion:
                 Background = Background.WithX(Background.X.WithWhole(unchecked((ushort)(Background.X.Whole + 2))));
                 angle = angle.AddTableUnits(-1);
-                if (Zoom < CeresDestructionRomData.Motion.MinimumScale)
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumScale)
                 {
-                    phaseTimer = CeresDestructionRomData.Timing.ExplosionHoldFrames;
+                    phaseTimer = CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames;
                     Phase = CeresDestructionPhase.HoldAfterExplosion;
                 }
                 else
                 {
-                    Zoom -= CeresDestructionRomData.Motion.SlowScaleStep;
+                    Zoom -= CeresDestructionSceneDefinitions.Motion.SlowScaleStep;
                 }
                 break;
 
@@ -370,9 +370,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesA:
-                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
-                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionRomData.Motion.NegativeHalfPixel16Point16));
-                if (Zoom < CeresDestructionRomData.Motion.ZebesApproachScaleLimit)
+                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
+                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel16Point16));
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachScaleLimit)
                     Zoom += 4;
                 else
                     Phase = CeresDestructionPhase.FlyingTowardZebesB;
@@ -380,33 +380,33 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesB:
-                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
-                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionRomData.Motion.NegativeHalfPixel16Point16));
+                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
+                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel16Point16));
                 if (unchecked((short)Background.X.Whole) < -128)
                 {
                     Phase = CeresDestructionPhase.FlyingTowardZebesC;
                 }
                 else
                 {
-                    Zoom += CeresDestructionRomData.Motion.SlowScaleStep;
+                    Zoom += CeresDestructionSceneDefinitions.Motion.SlowScaleStep;
                     angle = angle.AddTableUnits(-1);
                 }
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesC:
-                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
-                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionRomData.Motion.EighthPixel16Point16));
-                if (Zoom < CeresDestructionRomData.Motion.FarZebesScaleLimit)
+                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
+                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit)
                 {
-                    Zoom += CeresDestructionRomData.Motion.FastScaleStep;
+                    Zoom += CeresDestructionSceneDefinitions.Motion.FastScaleStep;
                 }
                 else
                 {
                     // The cartridge disables the ship's BG1 plane before the hold, not
                     // when the later pan starts. Planet and star OBJ remain enabled.
                     mainScreenLayers = ScreenLayers.Sprites;
-                    phaseTimer = CeresDestructionRomData.Timing.ZebesHoldFrames;
+                    phaseTimer = CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
@@ -442,7 +442,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             if (PaletteFx is null)
             {
                 PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-                PaletteFx.SpawnDefinition(CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
+                PaletteFx.SpawnDefinition(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
             }
             PaletteFx.Step(new ScreenPaletteFxColours(palette), paletteFxColors ?? throw new InvalidOperationException(
                     "Ceres palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -461,14 +461,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        RequireMinimum(content.CeresFlight.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresDestructionRomData.Transfers.FloorCharacterBytes,
+        RequireMinimum(content.CeresFlight.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightArtworkFormat.FloorByteCount,
             "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
         // screens used by this setup call. `$8B:C345` later consumes the front-gunship
         // screen at +$000 and the clear screen at +$C00 without decompressing again.
         RequireMinimum(content.CeresFlight.FloorMaps.Length + content.CeresDestruction.CeresMaps.Length,
-            CeresDestructionRomData.Transfers.CeresMinimumTilemapBytes, "Ceres cinematic tilemaps");
-        RequireMinimum(content.CeresFlight.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresDestructionRomData.Transfers.FloorCharacterBytes,
+            CeresDestructionSceneDefinitions.Floor.MapCells, "Ceres cinematic tilemaps");
+        RequireMinimum(content.CeresFlight.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightArtworkFormat.ObjectByteCount,
             "Ceres cinematic OBJ characters");
 
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The
@@ -490,9 +490,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actors.Add(CreateActor(definition));
         }
         ceresActorSlots.Clear();
-        ceresActorSlots.Add(new CeresActorSlot(actors[0], CeresDestructionRomData.Sprites.AsteroidSlot));
-        ceresActorSlots.Add(new CeresActorSlot(actors[1], CeresDestructionRomData.Sprites.SmallAsteroidSlot));
-        ceresActorSlots.Add(new CeresActorSlot(actors[2], CeresDestructionRomData.Sprites.VortexSlot));
+        ceresActorSlots.Add(new CeresActorSlot(actors[0], CeresDestructionSceneDefinitions.Sprites.AsteroidSlot));
+        ceresActorSlots.Add(new CeresActorSlot(actors[1], CeresDestructionSceneDefinitions.Sprites.SmallAsteroidSlot));
+        ceresActorSlots.Add(new CeresActorSlot(actors[2], CeresDestructionSceneDefinitions.Sprites.VortexSlot));
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
@@ -501,9 +501,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
-        RequireMinimum(content.CeresDestruction.ZebesMap.Bytes.Length, CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes,
+        RequireMinimum(content.CeresDestruction.ZebesMap.Bytes.Length, CeresDestructionArtworkFormat.ZebesMapByteCount,
             "Zebes reveal tilemap");
-        RequireMinimum(content.CeresDestruction.ZebesCharacters.Characters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
+        RequireMinimum(content.CeresDestruction.ZebesCharacters.Characters.Length, CeresDestructionArtworkFormat.ZebesCharacterByteCount,
             "Zebes reveal characters");
 
         // C699 starts in Mode 1. It also stages the rear-gunship low-byte map at VRAM
@@ -513,10 +513,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actors.Clear();
         Background = FixedPosition<Mode7Pixels>.Zero;
         angle = SnesAngle.Zero;
-        Zoom = CeresDestructionRomData.Motion.IdentityScale;
+        Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         brightness = 0;
         fadeCounter = 1;
-        phaseTimer = CeresDestructionRomData.Timing.InitialMosaic;
+        phaseTimer = CeresDestructionSceneDefinitions.Timing.InitialMosaicSize;
         usesFloor = false;
     }
 
@@ -524,10 +524,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void SetupZebesFloorActors()
     {
         usesFloor = true;
-        Background = new(Background.X.WithWhole(CeresDestructionRomData.Sprites.ZebesInitialBackgroundX),
+        Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
             Background.Y.WithWhole(unchecked((ushort)-104)));
-        angle = CeresDestructionRomData.Motion.ApproachAngle;
-        Zoom = CeresDestructionRomData.Motion.IdentityScale;
+        angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
+        Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         actors.Clear();
         ZebesPlanetActor = CreateZebesActor(0);
         actors.Add(ZebesPlanetActor);
@@ -544,8 +544,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Drifts the Ceres camera by one sixteenth pixel down and one quarter pixel left.</summary>
     private void StepInitialDrift()
     {
-        Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionRomData.Motion.SixteenthPixel16Point16));
-        Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionRomData.Motion.NegativeQuarterPixel16Point16));
+        Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.SixteenthPixel16Point16));
+        Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel16Point16));
     }
 
     /// <summary>Raises master brightness one level on alternating calls, capped at fifteen.</summary>
@@ -572,9 +572,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         if ((cinematicFrameCounter & 3) != 0)
             return false;
-        phaseTimer = unchecked((byte)(
-            phaseTimer - CeresDestructionRomData.Timing.MosaicFadeStep));
-        return (phaseTimer & CeresDestructionRomData.Timing.MosaicSizeMask) == 0;
+        phaseTimer--;
+        return phaseTimer == 0;
     }
 
     /// <summary>Waits for queued cartridge music, using a fixed fallback when audio is absent.</summary>
@@ -705,8 +704,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.X - Background.X.Whole));
-        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.Y - Background.Y.Whole));
+        ushort x = unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole));
+        ushort y = unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole));
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(new(x, y));
@@ -714,7 +713,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             maximumQueued: SoundQueueLimit.Max15);
         var cinematicExplosion = new IntroDiscoverySprite(
             new(x, y),
-            CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
+            CeresDestructionSceneDefinitions.Sprites.ExplosionPalette.Raw,
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallPreInstruction(
             CeresExplosionDefinitions.StationBlastActor.PreInstruction);
@@ -729,11 +728,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
-            new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.X -
+            new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X -
                     unchecked((short)Background.X.Whole) + placement.Offset.X)),
-                unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.Y -
+                unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
                     unchecked((short)Background.Y.Whole) + placement.Offset.Y))),
-            CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
+            CeresDestructionSceneDefinitions.Sprites.ExplosionPalette.Raw,
             definition.Program);
         actor.InstallPreInstruction(definition.PreInstruction);
 
@@ -749,9 +748,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // Native allocation searches the highest free slot. The invisible spawner
         // owns its slot until its final spawn instruction and deletion have run.
-        for (int slot = CeresDestructionRomData.Sprites.AsteroidSlot; slot >= 0; slot--)
+        for (int slot = CeresDestructionSceneDefinitions.Sprites.AsteroidSlot; slot >= 0; slot--)
         {
-            if (slot == CeresDestructionRomData.Sprites.SpawnerSlot &&
+            if (slot == CeresDestructionSceneDefinitions.Sprites.SpawnerSlot &&
                 explosionSpawnerFrame <= CeresExplosionDefinitions.SpawnerFinalFrame)
                 continue;
             if (ceresActorSlots.Exists(entry => entry.Slot == slot)) continue;
@@ -772,11 +771,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             IntroCinematicMotion.AddSixteenSixteen(
                 actor.Position.X,
                 0,
-                CeresDestructionRomData.Motion.GunshipXSubvelocity),
+                CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
             IntroCinematicMotion.AddSixteenSixteen(
                 actor.Position.Y,
-                CeresDestructionRomData.Motion.GunshipYVelocity.WholeWord,
-                CeresDestructionRomData.Motion.GunshipYVelocity.Fraction));
+                CeresDestructionSceneDefinitions.Motion.GunshipYVelocity.WholeWord,
+                CeresDestructionSceneDefinitions.Motion.GunshipYVelocity.Fraction));
     }
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>
@@ -843,10 +842,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
-                Background = new(Background.X.WithWhole(CeresDestructionRomData.Motion.FloorExitX),
+                Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
                     Background.Y.WithWhole(unchecked((ushort)-112)));
-                angle = CeresDestructionRomData.Motion.ApproachAngle;
-                Zoom = CeresDestructionRomData.Motion.MinimumScale;
+                angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
+                Zoom = CeresDestructionSceneDefinitions.Motion.MinimumScale;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
                 return;
 
@@ -886,11 +885,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
     }
 
-    /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate to the native world mask.</summary>
+    /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
         SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole & CeresDestructionRomData.Rendering.WorldXMask)));
+        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
     /// <summary>Subtracts an unsigned 8.8 slide velocity from the actor's 16.16 Y position with borrow.</summary>
@@ -918,8 +917,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             AffineTransform floor = FloorRotationMatrix.Transform(angle, Zoom,
                 Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresFloorCenter
-                    : CeresDestructionRomData.Rendering.ZebesFloorCenter,
+                    ? CeresDestructionSceneDefinitions.CeresFloorCenter
+                    : CeresDestructionSceneDefinitions.ZebesFloorCenter,
                 Background.Whole.AsSignedRegister());
             layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];

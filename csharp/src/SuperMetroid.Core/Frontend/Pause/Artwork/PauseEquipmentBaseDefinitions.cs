@@ -11,8 +11,6 @@ public static class PauseEquipmentBaseDefinitions
 
     /// <summary>The 32-column, 32-row tilemap geometry and its calculated 1024-cell extent.</summary>
     public const int Columns = 32, Rows = 32, Cells = Columns * Rows;
-    /// <summary>$B6:E800, native 32x32 equipment-page template.</summary>
-    public const int Source = PauseMenuRomData.EquipmentTilemap;
 
     /// <summary>
     /// $82:C06C-$C087 destinations: beams occupy rows16-20, suits/misc rows9-10

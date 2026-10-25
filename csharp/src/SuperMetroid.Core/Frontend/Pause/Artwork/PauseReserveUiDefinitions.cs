@@ -19,17 +19,6 @@ public static class PauseReserveUiDefinitions
     public const int ArrowSecondColour = 11;
     /// <summary>Number of decimal places in the reserve-supply display.</summary>
     public const int SupplyDigitPlaces = 3;
-    /// <summary>$82:AB47 preserves priority, palette and flip fields while replacing MANUAL/AUTO characters.</summary>
-    public const ushort TileAttributeMask = 0xfc00;
-
-    /// <summary>$82:BF22, MANUAL replacement text.</summary>
-    public const int ManualSource = 0x82bf22;
-    /// <summary>$82:BF2A, AUTO replacement text.</summary>
-    public const int AutoSource = 0x82bf2a;
-    /// <summary>$82:AD5D, animated reserve-arrow palette-six color-six sequence.</summary>
-    public const int ArrowColor6Source = 0x82ad5d;
-    /// <summary>$82:AD9D, animated reserve-arrow palette-six color-eleven sequence.</summary>
-    public const int ArrowColor11Source = 0x82ad9d;
     /// <summary>$82:AB47 destination for MANUAL/AUTO replacement text.</summary>
     public const int ModeCell = 327;
     /// <summary>$82:8FCE destination for the three reserve-supply digits.</summary>

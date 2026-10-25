@@ -898,7 +898,7 @@ internal static class LookupStream2Verification
             nativeJson, ArtworkJson.Options);
         for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
         {
-            int address = 0x820000 | (PauseEquipmentLabelDefinitions.BlankSource + cell * 2);
+            int address = 0x820000 | (PauseMenuSourceDefinitions.BlankEquipmentLabel + cell * 2);
             AssertEqual((byte)0, rom.ReadCartridgeByte(address), "Native blank low byte");
             AssertEqual((byte)0, rom.ReadCartridgeByte(address + 1), "Native blank high byte");
         }

@@ -20,22 +20,22 @@ internal static class IntroScreenMemory
         ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
-        intro.BackgroundCharacters.Load(artwork.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes]);
+        intro.BackgroundCharacters.Load(artwork.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes]);
         intro.FontOne.Load(font);
         if (japaneseGlyphsBlanked)
         {
             // BlankOut_JapanText_Tiles writes the same 16-byte 2-bpp character 96 times and DMA copies the $600 bytes
             // to VMADD $4180. BTS[$1E8E-$1E9D] aliases the resident font, so the repeated character is the font's own.
-            ReadOnlySpan<byte> blank = font.Slice(IntroCinematicRomData.Text.JapaneseBlankSourceOffset,
-                IntroCinematicRomDataTextConstants.JapaneseBlankCharacterByteCount);
-            var blanked = new byte[IntroCinematicRomData.Transfers.JapaneseBlankCharactersByteCount];
+            ReadOnlySpan<byte> blank = font.Slice(IntroCinematicDefinitions.Text.JapaneseBlankSourceOffset,
+                IntroJapaneseBlankGlyph.ByteCount);
+            var blanked = new byte[IntroCinematicDefinitions.Artwork.JapaneseBlankCharactersByteCount];
             for (int offset = 0; offset < blanked.Length; offset += blank.Length)
                 blank.CopyTo(blanked.AsSpan(offset));
             intro.JapaneseBlankCharacters.Load(blanked);
         }
-        intro.BackgroundPages.Load(artwork.BackgroundPages.Span[..IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes]);
+        intro.BackgroundPages.Load(artwork.BackgroundPages.Span[..IntroCinematicDefinitions.Artwork.BackgroundPageTilemapBytes]);
         intro.IntroObjectCharacters.Load(artwork.IntroObjectCharacters.Characters.Span);
-        intro.CinematicObjectCharacters.Load(artwork.CinematicObjectCharacters.Characters.Span[..IntroCinematicRomData.Transfers.ObjectCharacterBytes]);
+        intro.CinematicObjectCharacters.Load(artwork.CinematicObjectCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.ObjectCharacterBytes]);
         return vram.CaptureImage();
     }
 

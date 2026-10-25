@@ -32,29 +32,29 @@ public static class GameOptionsPresentationExtractor
         {
             [GameOptionsPresentationDefinitions.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
-                    GameOptionsRomData.TilemapByteCount)),
-            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.Primary)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.Primary)),
-            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.ControllerEnglish)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerEnglish)),
-            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.ControllerJapanese)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerJapanese)),
-            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.SpecialEnglish)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialEnglish)),
-            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.SpecialJapanese)] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese)),
+                    GameOptionsDefinitions.TilemapByteCount)),
+            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.Primary]),
+            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerEnglish]),
+            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.ControllerJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerJapanese]),
+            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.SpecialEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialEnglish]),
+            [GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.SpecialJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialJapanese]),
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
-        for (int index = 0; index < GameOptionsRomData.Rows.ControllerActionCount; index++)
+        for (int index = 0; index < GameOptionsDefinitions.Rows.ControllerActionCount; index++)
         {
             labels.Add(GameOptionsPresentationDefinitions.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(index)), Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    GameOptionsRomData.MenuBank | GameOptionsRomData.ControllerLabels.Source(index),
+                    GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
-            .Select(GameOptionsRomData.ControllerLabels.Anchor)
+        Position16<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount)
+            .Select(GameOptionsLayout.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
-            Enumerable.Range(0, GameOptionsRomData.LanguagePaletteRegionCount)
-                .Select(GameOptionsRomData.LanguagePaletteRegion)
+            Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount)
+                .Select(GameOptionsLayout.LanguagePaletteRegion)
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
@@ -63,18 +63,18 @@ public static class GameOptionsPresentationExtractor
                 .ToArray();
         var toggles = new Dictionary<string, GameOptionsToggleVisualDocument>(StringComparer.Ordinal)
         {
-            [GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)] = Toggle(GameOptionsRomData.SpecialToggles.IconCancel),
-            [GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.Moonwalk)] = Toggle(GameOptionsRomData.SpecialToggles.Moonwalk),
+            [GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)] = Toggle(GameOptionsLayout.IconCancel),
+            [GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.Moonwalk)] = Toggle(GameOptionsLayout.Moonwalk),
         };
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.HeadingSpriteName(GameOptionsPage.Primary)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Primary)),
+                MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Primary]),
             [GameOptionsPresentationDefinitions.HeadingSpriteName(GameOptionsPage.Controller)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Controller)),
+                MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Controller]),
             [GameOptionsPresentationDefinitions.HeadingSpriteName(GameOptionsPage.Special)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Special)),
+                MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Special]),
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
@@ -85,23 +85,23 @@ public static class GameOptionsPresentationExtractor
         var headings = new Dictionary<string, Position16<OamPixels>>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)] = new(
-                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Primary),
-                GameOptionsRomData.Spritemaps.HeadingY),
+                GameOptionsLayout.HeadingX(GameOptionsPage.Primary),
+                GameOptionsDefinitions.Headings.HeadingY),
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Controller)] = new(
-                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Controller),
-                GameOptionsRomData.Spritemaps.HeadingY),
+                GameOptionsLayout.HeadingX(GameOptionsPage.Controller),
+                GameOptionsDefinitions.Headings.HeadingY),
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Special)] = new(
-                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Special),
-                GameOptionsRomData.Spritemaps.HeadingY),
+                GameOptionsLayout.HeadingX(GameOptionsPage.Special),
+                GameOptionsDefinitions.Headings.HeadingY),
         };
         var cursors = new Dictionary<string, Position16<OamPixels>[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)] = Points(
-                GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Rows.PrimaryCount, GameOptionsRomData.Cursors.PrimaryY),
+                GameOptionsDefinitions.Cursors.PrimaryX, GameOptionsDefinitions.Rows.PrimaryCount, GameOptionsLayout.PrimaryY),
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Controller)] = Points(
-                GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Rows.ControllerCount, GameOptionsRomData.Cursors.ControllerY),
+                GameOptionsDefinitions.Cursors.ControllerX, GameOptionsDefinitions.Rows.ControllerCount, GameOptionsLayout.ControllerY),
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Special)] = Points(
-                GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Rows.SpecialCount, GameOptionsRomData.Cursors.SpecialY),
+                GameOptionsDefinitions.Cursors.SpecialX, GameOptionsDefinitions.Rows.SpecialCount, GameOptionsLayout.SpecialY),
         };
 
         using var output = new MemoryStream();
@@ -116,9 +116,9 @@ public static class GameOptionsPresentationExtractor
             Sprites = sprites,
             HeadingAnchors = headings,
             CursorAnchors = cursors,
-            HiddenCursor = new(GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY),
-            SelectedPalette = GameOptionsRomData.TilePalettes.Selected,
-            UnselectedPalette = GameOptionsRomData.TilePalettes.Unselected,
+            HiddenCursor = new(GameOptionsDefinitions.Cursors.HiddenX, GameOptionsDefinitions.Cursors.HiddenY),
+            SelectedPalette = GameOptionsDefinitions.TilePalettes.Selected,
+            UnselectedPalette = GameOptionsDefinitions.TilePalettes.Unselected,
             CursorPalette = MenuRenderDefinitions.ObjectPaletteBits >> 9,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
@@ -127,12 +127,12 @@ public static class GameOptionsPresentationExtractor
         MapPresentationCell[] Page(GameOptionsPageResource resource)
         {
             byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(bus), resource.Address,
-                maximumOutputBytes: GameOptionsRomData.TilemapByteCount);
-            if (bytes.Length != GameOptionsRomData.TilemapByteCount)
+                maximumOutputBytes: GameOptionsDefinitions.TilemapByteCount);
+            if (bytes.Length != GameOptionsDefinitions.TilemapByteCount)
             {
                 throw new InvalidDataException(
                     $"The {resource.Description} options screen expanded to " +
-                    $"${bytes.Length:X} bytes, expected ${GameOptionsRomData.TilemapByteCount:X}.");
+                    $"${bytes.Length:X} bytes, expected ${GameOptionsDefinitions.TilemapByteCount:X}.");
             }
             return Cells(bytes);
         }
@@ -178,12 +178,12 @@ public static class GameOptionsPresentationExtractor
     private static GameOptionsToggleVisualDocument Toggle(GameOptionsToggleLayout layout) => new()
     {
         EnabledCells = CellRange(layout.EnabledTop,
-            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount)
+            GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)
             .Concat(CellRange(layout.EnabledBottom,
-                GameOptionsRomData.SpecialToggles.PaletteRegionByteCount)).ToArray(),
+                GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)).ToArray(),
         DisabledCells = CellRange(layout.DisabledTop,
-            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount)
+            GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)
             .Concat(CellRange(layout.DisabledBottom,
-                GameOptionsRomData.SpecialToggles.PaletteRegionByteCount)).ToArray(),
+                GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)).ToArray(),
     };
 }

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
 
@@ -36,7 +37,7 @@ internal static class GameOptionsPageCasesVerification
             AssertEqual((byte)0xa9, CpuBusRegionRead.Read(rom, instruction + 5), "native page address LDA immediate");
             int source = (int)new SnesAddress(SnesLittleEndian.HighByte(ReadVerificationWord(rom, instruction + 1)), ReadVerificationWord(rom, instruction + 6));
             var expected = originalOrder[index];
-            GameOptionsPageResource actual = GameOptionsRomData.Pages.Get(expected.Page);
+            GameOptionsPageResource actual = GameOptionsSourceDefinitions.Pages[expected.Page];
             AssertEqual(source, actual.Address, "original options resource address");
             AssertEqual(expected.Description, actual.Description, "preserved resource diagnostic name");
             byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(rom), source, maximumOutputBytes: 0x800);
@@ -45,7 +46,7 @@ internal static class GameOptionsPageCasesVerification
                 "named installed page matches independently selected native resource");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.Pages.Get((GameOptionsTilemap)invalid),
+            AssertThrows<KeyNotFoundException>(() => _ = GameOptionsSourceDefinitions.Pages[(GameOptionsTilemap)invalid],
                 "unsupported options tilemap selector");
     }
 

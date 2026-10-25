@@ -90,7 +90,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)
-            .Select(color => ReadVerificationWord(rom, IntroCinematicRomData.Assets.Palette + 2 * color)).ToArray();
+            .Select(color => ReadVerificationWord(rom, IntroCinematicSourceDefinitions.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
         var rows = (Array)stock.rows;
@@ -207,7 +207,7 @@ internal static class LookupStream3Verification
     {
         var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
         for (int index = 0; index < native.Length; index++)
-            native[index] = ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + 2 * index);
+            native[index] = ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + 2 * index);
         IntroFinalLineTilemap stock = Load(native);
         AssertTrue(native.SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
         AssertTrue(stock.suppliedWords is null,
@@ -1016,8 +1016,8 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamQuadrants.DirectionForPair(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
         IReadOnlyList<IntroPaletteSpan>[] introRegions =
-        [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
-         IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
+        [IntroCinematicDefinitions.Palette.Gameplay, IntroCinematicDefinitions.Palette.GameplayClear,
+         IntroCinematicDefinitions.Palette.Narration, IntroCinematicDefinitions.Palette.Discovery];
         IntroPaletteSpan[][] expectedIntroRegions =
         [
             [new(0, 20), new(48, 16), new(233, 6)],
@@ -3074,7 +3074,7 @@ internal static class LookupStream3Verification
             string source = Path.GetFullPath("Super Metroid.smc");
             var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicRomData.Assets.FirstNarrationTilemap, maximumOutputBytes: 2048);
+                IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
@@ -3086,7 +3086,7 @@ internal static class LookupStream3Verification
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
+                IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
             AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
                 "actual opening constructor transfers all calculated font bytes");
@@ -3095,10 +3095,10 @@ internal static class LookupStream3Verification
                 "actual opening constructor transfers calculated narration to native VRAM destination");
             intro.SetupFirstIllustratedPage();
             var subtitleUpload = intro.ShownVram().AsSpan(
-                (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicRomData.Text.FinalLineFirstCell * 2,
+                (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicDefinitions.Text.FinalLineFirstCell * 2,
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
-                AssertEqual(ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + index * 2),
+                AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),
                     SnesLittleEndian.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < 1024; word++)
@@ -3210,7 +3210,7 @@ internal static class LookupStream3Verification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-            IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
+            IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
         AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
         AssertTrue(stock.suppliedCharacters is null, "native font retains no planar output array");
@@ -3261,7 +3261,7 @@ internal static class LookupStream3Verification
             string source = Path.GetFullPath("Super Metroid.smc");
             var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicRomData.Assets.BackgroundPageTilemaps, maximumOutputBytes: 8192);
+                IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
@@ -3408,7 +3408,7 @@ BranchesToSharedBody:true),
             string source = Path.GetFullPath("Super Metroid.smc");
             var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicRomData.Assets.SamusHeadTilemap, maximumOutputBytes: 2048);
+                IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);

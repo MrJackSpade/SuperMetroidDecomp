@@ -39,7 +39,7 @@ public sealed class CeresFlightActorLayout
     private static CeresFlightActorPlacement DefaultPlacement(int index)
     {
         var actor = CeresFlightActorDefinitions.RearViewActor(index);
-        return new() { Id = CeresFlightActorDefinitions.RearViewPlacementSource(index).Id, X = actor.Position.X, Y = actor.Position.Y };
+        return new() { Id = CeresFlightActorDefinitions.RearViewPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightActorLayout), content =>
@@ -82,7 +82,7 @@ public sealed class CeresFlightActorLayout
         {
             CeresFlightActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresFlightActorDefinitions.RearViewPlacementSource(index).Id ||
+                placement.Id != CeresFlightActorDefinitions.RearViewPlacementId(index) ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(

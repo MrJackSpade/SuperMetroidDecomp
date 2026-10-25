@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -22,15 +23,15 @@ internal static class CeresFlightArtworkExtractor
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] characters = Read(CeresFlightRomData.Assets.FloorCharacters,
+        byte[] characters = Read(CeresCinematicSourceDefinitions.FlightFloorCharacters,
             CeresFlightArtworkFormat.FloorByteCount, "Mode-7 characters");
-        byte[] objectCharacters = Read(CeresFlightRomData.Assets.ObjectCharacters,
+        byte[] objectCharacters = Read(CeresCinematicSourceDefinitions.FlightObjectCharacters,
             CeresFlightArtworkFormat.ObjectByteCount, "OBJ characters");
-        byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresFlightRomData.Assets.FloorMaps,
+        byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 4096);
-        if (decompressedMap.Length < CeresFlightRomData.Transfers.FloorMapByteCount)
+        if (decompressedMap.Length < CeresFlightArtworkFormat.MapCellCount)
             throw new InvalidDataException("Ceres flight lacks its front and rear Mode-7 map slices.");
-        byte[] map = decompressedMap.AsSpan(0, CeresFlightRomData.Transfers.FloorMapByteCount).ToArray();
+        byte[] map = decompressedMap.AsSpan(0, CeresFlightArtworkFormat.MapCellCount).ToArray();
 
         byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(characters, 16,
             out Extent16<ImagePixels> mode7Size);
@@ -56,7 +57,7 @@ internal static class CeresFlightArtworkExtractor
         });
         byte[] mapFile = mapJson.ToArray();
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.Palette, CgramPalettes.ByteCount);
+            CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         var colors = new PaletteRgb5[CgramPalettes.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
@@ -96,11 +97,11 @@ internal static class CeresFlightArtworkExtractor
             CeresFlightActorDefinitions.RearViewActorCount];
         for (int index = 0; index < placements.Length; index++)
         {
-            var source = CeresFlightActorDefinitions.RearViewPlacementSource(index);
+            var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresFlightActorDefinitions.NativeBank | source.XAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.XAddress);
             ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresFlightActorDefinitions.NativeBank | source.YAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.YAddress);
             CeresFlightActorDefinition translated =
                 CeresFlightActorDefinitions.RearViewActor(index);
             if (x != translated.Position.X || y != translated.Position.Y)

@@ -8,7 +8,7 @@ internal static class TitleScreenAmbientPaletteFxColorDefinitionAccess
     extension(TitleScreenAmbientPaletteFxColorDefinition self)
     {
         /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
-        internal ushort DefinitionPointer => PaletteFxObjectAccess.NativeAddress(self.IsTubeLight ? TitleSequenceRomData.ConsolePaletteFx.SlowLights : TitleSequenceRomData.ConsolePaletteFx.FastLights);
+        internal ushort DefinitionPointer => PaletteFxObjectAccess.NativeAddress(self.IsTubeLight ? TitleSequenceDefinitions.ConsolePaletteFx.SlowLights : TitleSequenceDefinitions.ConsolePaletteFx.FastLights);
 
         /// <summary>The complete loop duration in frames.</summary>
         internal int CycleFrames => self.FrameCount * self.FrameDuration;

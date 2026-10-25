@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 
@@ -157,7 +158,7 @@ internal static class PaletteDefinitionAudit
         var recorder = new SyntheticCartridge(
             _ => new InvalidDataException("Palette audit unexpectedly requested non-color-bank data."));
         recorder.DeclareZero(address => (SnesAddressMath.BankNumber(address)) == ResourceBanks.ProjectileOamAndPaletteFx);
-        recorder.DeclareZero(TitleSequenceRomData.Assets.PaletteAddress, CgramPalettes.ByteCount);
+        recorder.DeclareZero(TitleSourceDefinitions.Palette, CgramPalettes.ByteCount);
         return recorder;
     }
 

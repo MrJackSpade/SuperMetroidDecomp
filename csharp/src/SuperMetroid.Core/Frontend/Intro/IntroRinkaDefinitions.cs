@@ -87,6 +87,6 @@ internal static class IntroRinkaDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
     };
 
-    /// <summary><c>$8B:B8E4/$B947</c>, shared half-pixel X/Y fractional velocity.</summary>
-    public const ushort HalfPixelFraction = 0x8000;
+    /// <summary>The Rinkas' shared half-pixel X/Y velocity.</summary>
+    public static SnesSignedSixteenSixteen HalfPixel { get; } = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(8);
 }

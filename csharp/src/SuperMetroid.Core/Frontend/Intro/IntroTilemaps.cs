@@ -14,7 +14,7 @@ internal sealed class IntroTilemaps
     private readonly ushort[] portrait = new ushort[SnesPpuLayout.TilemapPageWordCount];
 
     /// <summary>The narration tilemap's words.</summary>
-    private readonly ushort[] narration = new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
+    private readonly ushort[] narration = new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
 
     /// <summary>The portrait tilemap.</summary>
     internal Span<ushort> Portrait => portrait;
@@ -32,11 +32,11 @@ internal sealed class IntroTilemaps
 
     /// <summary>Loads the installed portrait image.</summary>
     internal void LoadPortrait(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(portrait, littleEndianWords[..IntroCinematicRomData.Transfers.SamusHeadTilemapBytes]);
+        Load(portrait, littleEndianWords[..IntroCinematicDefinitions.Artwork.SamusHeadTilemapBytes]);
 
     /// <summary>Loads the installed first narration card.</summary>
     internal void LoadNarration(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(narration, littleEndianWords[..IntroCinematicRomData.Transfers.NarrationTilemapBytes]);
+        Load(narration, littleEndianWords[..IntroCinematicDefinitions.Artwork.NarrationTilemapBytes]);
 
     /// <summary>Loads little-endian words into the start of <paramref name="destination"/>.</summary>
     private static void Load(Span<ushort> destination, ReadOnlySpan<byte> littleEndianWords)

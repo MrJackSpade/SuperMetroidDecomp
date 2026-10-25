@@ -27,6 +27,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Bosses.Torizo;
@@ -56,7 +57,7 @@ internal static class FrontendRomFreeVerification
         var blockedBg2Bytes = new HashSet<int>();
         var guardedBus = NewFrontendCartridgeReadGuard(installedMemory, blockedBg2Bytes);
         AssertThrows<InvalidOperationException>(
-            () => guardedBus.ReadByte(TitleSequenceRomData.Assets.FloorCharactersAddress),
+            () => guardedBus.ReadByte(TitleSourceDefinitions.FloorCharacters),
             "startup ROM guard rejects an otherwise valid title graphics source");
 
         var native = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());

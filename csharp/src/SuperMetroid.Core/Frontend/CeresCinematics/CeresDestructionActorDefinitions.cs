@@ -4,9 +4,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>Fixed actor metadata and physical motion for Ceres destruction and Zebes reveal.</summary>
 internal static class CeresDestructionActorDefinitions
 {
-    /// <summary>Bank containing the native cinematic-object definitions.</summary>
-    public const int NativeBank = 0x8b0000;
-
     /// <summary>Number of persistent scene actors allocated by <c>$8B:C27C-$C295</c>.</summary>
     public const int InitialActorCount = 3;
 
@@ -24,18 +21,16 @@ internal static class CeresDestructionActorDefinitions
     /// <summary>Number of reveal actors allocated by <c>$8B:C810-$C831</c>.</summary>
     public const int ZebesActorCount = 6;
 
-    /// <summary>Native reveal actor placement operands in bank $8B, in spawn order.</summary>
-    /// <remarks>Role cases follow $C810..C831 spawn order and identify X/Y immediates in each
-    /// initializer. #1165 verifies all six original entries and ROM operands. Invalid indices
-    /// throw ArgumentOutOfRangeException.</remarks>
-    public static CinematicPlacementSourceDefinition ZebesPlacementSource(int index) => index switch
+    /// <summary>The installed layout id of each of the six reveal actors, in spawn order.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the six actors.</exception>
+    public static string ZebesPlacementId(int index) => index switch
     {
-        0 => new("planet", 0xc83c, 0xc842),
-        1 => new("stars-upper-left", 0xc944, 0xc94a),
-        2 => new("stars-upper-right", 0xc958, 0xc95e),
-        3 => new("stars-lower-left", 0xc96c, 0xc972),
-        4 => new("stars-lower-right", 0xc980, 0xc986),
-        5 => new("planet-zebes-title", 0xc993, 0xc999),
+        0 => "planet",
+        1 => "stars-upper-left",
+        2 => "stars-upper-right",
+        3 => "stars-lower-left",
+        4 => "stars-lower-right",
+        5 => "planet-zebes-title",
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 

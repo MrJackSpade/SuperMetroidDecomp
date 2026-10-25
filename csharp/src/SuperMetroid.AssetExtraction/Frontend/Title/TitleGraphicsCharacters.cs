@@ -42,7 +42,7 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
 
     /// <summary>The title OBJ page the compositions draw from: the OBJ sheet as the title uploads it (#1358).</summary>
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
-        objectCharacters.AsSpan(0, Math.Min(TitleSequenceRomData.Transfers.ObjectCharacterByteCount, objectCharacters.Length)));
+        objectCharacters.AsSpan(0, Math.Min(TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, objectCharacters.Length)));
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>
     /// <param name="floorTilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>

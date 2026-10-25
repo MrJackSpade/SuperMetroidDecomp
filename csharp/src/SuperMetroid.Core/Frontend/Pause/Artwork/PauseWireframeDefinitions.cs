@@ -75,7 +75,10 @@ public static class PauseWireframeDefinitions
     /// <summary>$82:D60F and counterparts: diagonal equipment-guide connector.</summary>
     private const int DiagonalConnector = 0x155;
     /// <summary>Native BG word priority and reflected connector attributes.</summary>
-    private const int Priority = 0x2000, ConnectorAttributes = 0xe000;
+    private const int Priority = 0x2000;
+    /// <summary>The diagonal connector is drawn in front and mirrored both ways.</summary>
+    private const int ConnectorAttributes =
+        SnesBgTilemapWord.PriorityMask | SnesBgTilemapWord.HorizontalFlipMask | SnesBgTilemapWord.VerticalFlipMask;
 
     /// <summary>Compose one cell of the four authored equipment diagrams at $82:D521/D631/D741/D851.</summary>
     /// <remarks>The thirty named pieces, placements, variant membership and layering specify these

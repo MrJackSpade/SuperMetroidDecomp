@@ -56,7 +56,6 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/PauseEquipmentCategory.cs")]),
         new("SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveTankPresentation", "pause-reserve-complete-anchors-and-sprites", ["Anchor", "Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseReserveTankPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseReserveTankDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Pause/PauseReserveTankRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseReserveTankDefinitions.cs")]),
     ];
 }

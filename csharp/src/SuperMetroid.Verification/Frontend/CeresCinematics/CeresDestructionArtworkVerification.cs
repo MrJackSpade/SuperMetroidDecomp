@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres destruction and Zebes reveal art against cartridge transfers and live cinematic rendering.</summary>
@@ -29,21 +30,21 @@ internal static class CeresDestructionArtworkVerification
     {
         IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
         byte[] nativeMaps = RomDataReader.Decompress(bus,
-            CeresDestructionRomData.Assets.CeresTilemaps,
-            maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
+            CeresCinematicSourceDefinitions.CeresTilemaps,
+            maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         AssertTrue(stock.CeresDestruction.CeresMaps.Span.SequenceEqual(nativeMaps.AsSpan(
                 2 * CeresFlightArtworkFormat.MapCellsPerView,
                 CeresDestructionArtworkFormat.MapByteCount)),
             "installed destruction JSON preserves the three remaining Ceres map slices");
         byte[] nativeZebesMap = RomDataReader.Decompress(bus,
-            CeresDestructionRomData.Assets.ZebesTilemap,
-            maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
+            CeresCinematicSourceDefinitions.ZebesTilemap,
+            maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         AssertTrue(stock.CeresDestruction.ZebesMap.Bytes.Span.SequenceEqual(
                 nativeZebesMap.AsSpan(0, CeresDestructionArtworkFormat.ZebesMapByteCount)),
             "installed Zebes reveal JSON preserves every transferred BG word");
         AssertTrue(stock.CeresDestruction.ZebesCharacters.Characters.Span.SequenceEqual(
                 RomDataReader.Decompress(bus,
-                    CeresDestructionRomData.Assets.ZebesCharacters,
+                    CeresCinematicSourceDefinitions.ZebesCharacters,
                     maximumOutputBytes: CeresDestructionArtworkFormat.ZebesCharacterByteCount)),
             "installed Zebes reveal PNG preserves every transferred character byte");
 
@@ -53,9 +54,9 @@ internal static class CeresDestructionArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
+                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
+                    IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)
@@ -117,15 +118,15 @@ internal static class CeresDestructionArtworkVerification
             throw new InvalidDataException("Stock Zebes reveal actor layout is empty.");
         for (int index = 0; index < actorsDocument.Actors.Length; index++)
         {
-            var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
+            var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             AssertEqual(source.Id, actorsDocument.Actors[index].Id,
                 $"Zebes reveal actor {index} retains its native identity");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresDestructionActorDefinitions.NativeBank | source.XAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.XAddress),
                 actorsDocument.Actors[index].X,
                 $"Zebes reveal actor {index} X matches the cartridge operand");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresDestructionActorDefinitions.NativeBank | source.YAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.YAddress),
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");
         }

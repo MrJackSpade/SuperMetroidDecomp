@@ -399,7 +399,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (samus.MaxReserveEnergy != 0)
         {
             SelectedCategory = PauseEquipmentCategory.Reserves;
-            SelectedItem = PauseReserveTransferRomData.ModeItem;
+            SelectedItem = PauseReserveEnergyDefinitions.ModeItem;
             return;
         }
         foreach (PauseEquipmentCategory categoryIndex in PauseEquipmentCategories.InventoryCategories)
@@ -1078,22 +1078,20 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if (samus.MaxReserveEnergy == 0) return;
         int tank = 0;
-        int full = samus.ReserveEnergy / PauseReserveTankRomData.EnergyPerTank;
-        int remainder = samus.ReserveEnergy % PauseReserveTankRomData.EnergyPerTank;
+        int full = samus.ReserveEnergy / PauseReserveEnergyDefinitions.EnergyPerTank;
+        int remainder = samus.ReserveEnergy % PauseReserveEnergyDefinitions.EnergyPerTank;
         for (; tank < full; tank++) Draw(PauseReserveTankVisual.Full, tank);
         if (remainder != 0)
         {
-            int quotient = remainder / PauseReserveTankRomData.EnergyPerFillStep;
-            int tableOffset = quotient * sizeof(ushort);
-            if (tableOffset < PauseReserveTankRomData.FlickerDoubledQuotientLimit &&
-                remainder % PauseReserveTankRomData.EnergyPerFillStep != 0 &&
-                (pauseFrameCounterByte & PauseReserveTankRomData.FlickerFrameMask) == 0)
-                tableOffset += sizeof(ushort);
-            if (samus.ReserveEnergy >= PauseReserveTankRomData.EnergyPerTank)
-                tableOffset += PauseReserveTankRomData.SecondTableOffset;
-            Draw(PauseReserveTankDefinitions.PartialMap(tableOffset / sizeof(ushort)), tank++);
+            // A low partial tank flickers its next, partly filled step on and off.
+            int steps = remainder / PauseReserveEnergyDefinitions.EnergyPerFillStep;
+            if (steps < PauseReserveEnergyDefinitions.FlickerFillStepLimit &&
+                remainder % PauseReserveEnergyDefinitions.EnergyPerFillStep != 0 &&
+                pauseFrameCounterByte / PauseReserveEnergyDefinitions.FlickerPhaseFrames % 2 == 0)
+                steps++;
+            Draw(PauseReserveTankDefinitions.FillLevel(steps), tank++);
         }
-        for (; tank < samus.MaxReserveEnergy / PauseReserveTankRomData.EnergyPerTank; tank++)
+        for (; tank < samus.MaxReserveEnergy / PauseReserveEnergyDefinitions.EnergyPerTank; tank++)
             Draw(PauseReserveTankVisual.Empty, tank);
         Draw(PauseReserveTankVisual.EndCap, tank);
 
@@ -1135,12 +1133,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             if ((pressed & SnesButton.A) == 0) return;
             ReserveTransferSoundDelay = WrappingCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
-                PauseReserveTransferRomData.SoundCadenceMask) & ~PauseReserveTransferRomData.SoundCadenceMask)));
+                PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval)));
         }
         ReserveTransferSoundDelay = ReserveTransferSoundDelay.Decrement().Remaining;
-        if ((ReserveTransferSoundDelay.RawValue & PauseReserveTransferRomData.SoundCadenceMask) ==
-            PauseReserveTransferRomData.SoundCadenceMask)
-            audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
+        if (ReserveTransferSoundDelay.RawValue % PauseReserveEnergyDefinitions.RefillSoundInterval ==
+            PauseReserveEnergyDefinitions.RefillSoundInterval - 1)
+            audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.MaximumQueuedSounds);
 
         ushort amount = PauseEquipmentRules.ReserveEnergyPerFrame;
         samus.Health += amount;
@@ -1160,6 +1158,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         samus.ReserveEnergy = 0;
         ReserveTransferSoundDelay = WrappingCountdown.Start(0);
         SelectedCategory = PauseEquipmentCategory.Reserves;
-        SelectedItem = PauseReserveTransferRomData.ModeItem;
+        SelectedItem = PauseReserveEnergyDefinitions.ModeItem;
     }
 }

@@ -10,6 +10,9 @@ using SuperMetroid.Core.Frontend.Intro;
 /// <summary>Checks front and rear Ceres flight actor metadata against the native setup instructions.</summary>
 internal static class CeresFlightActorMetadataVerification
 {
+    /// <summary>The bank of the flight's actor definitions and initializers, which these checks read.</summary>
+    private const int ActorBank = 0x8b0000;
+
     /// <summary>Compares actor programs, positions, callbacks, speeds, and nine-bit wrap masks with bank $8B.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight actor metadata")]
     internal static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
@@ -34,7 +37,7 @@ internal static class CeresFlightActorMetadataVerification
             VerifyActor(retail, actor, definition, $"rear actor {index}");
             AssertEqual((ushort)0, actor.InitialTimer, "rear initializer leaves cleared timer");
             if (index != 4)
-                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((CeresFlightActorDefinitions.NativeBank | (definition + 2))),
+                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
                     actor.ActivePreInstruction.NativeAddress, "rear initializer preserves the definition callback");
             switch (index)
             {
@@ -83,7 +86,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
         AssertEqual(front.Program, CeresFlightActorDefinitions.RearViewActor(4).Program, "front/rear program alias");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((CeresFlightActorDefinitions.NativeBank | (frontDefinition + 2))),
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             front.ActivePreInstruction.NativeAddress, "front stars preserve the definition callback");
         AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
@@ -93,7 +96,7 @@ internal static class CeresFlightActorMetadataVerification
             ushort definitionPointer,
             string name)
         {
-            int address = CeresFlightActorDefinitions.NativeBank | definitionPointer;
+            int address = ActorBank | definitionPointer;
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program),
                 $"{name} instruction list");
         }

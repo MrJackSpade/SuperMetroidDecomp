@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
-/// <summary>Initial Mode-7 transform installed by one title-scene command.</summary>
-/// <param name="Phase">Pan or zoom phase entered by the scene-trigger command.</param>
-/// <param name="Scale">Initial native 8.8 transform scale, with $0100 representing unity.</param>
-/// <param name="Position">Background position in pixels as two's-complement words, before fixed-point pan updates.</param>
+/// <summary>The floor transform one title scene starts with.</summary>
+/// <param name="Phase">Pan or zoom phase the scene runs in.</param>
+/// <param name="Scale">Starting zoom in 1/256 units; 256 is unscaled.</param>
+/// <param name="Position">Starting background offset in signed pixels, before the pan moves it.</param>
 public readonly record struct TitleFloorSceneDefinition(
     TitleSequencePhase Phase,
     int Scale,
-    Position16<Mode7Pixels> Position);
+    Offset16<Mode7Pixels> Position);

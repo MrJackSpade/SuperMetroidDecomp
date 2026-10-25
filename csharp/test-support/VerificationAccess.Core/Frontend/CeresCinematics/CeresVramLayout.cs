@@ -15,7 +15,7 @@ internal static class CeresVramLayout
 
     /// <summary>VMADD $5C00-$5FFF: the Mode 1 BG1 "SPACE COLONY" caption tilemap.</summary>
     public static readonly PpuLayoutCell SpaceColonyTilemap = new(nameof(SpaceColonyTilemap), PpuLayoutRegion.Vram,
-        CeresFlightRomDataConstants.Layers.SpaceColonyTilemapWord, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
+        0x5c00, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $5C00-$5FFF (bytes $B800-$BFFF): the Zebes reveal's Mode 1 tilemap, reusing the caption plane.</summary>
     public static readonly PpuLayoutCell ZebesTilemap = new(nameof(ZebesTilemap), PpuLayoutRegion.Vram,

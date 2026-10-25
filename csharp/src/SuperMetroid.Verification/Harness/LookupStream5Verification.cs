@@ -1692,7 +1692,7 @@ internal static class LookupStream5Verification
     {
         var flight = Enumerable.Range(0, 5).Select(index =>
         {
-            var source = CeresFlightActorDefinitions.RearViewPlacementSource(index);
+            var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             return new CeresFlightActorPlacement { Id = source.Id,
                 X = ReadVerificationWord(rom, 0x8b0000 | source.XAddress),
                 Y = ReadVerificationWord(rom, 0x8b0000 | source.YAddress) };
@@ -1708,7 +1708,7 @@ internal static class LookupStream5Verification
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var reveal = Enumerable.Range(0, 6).Select(index =>
         {
-            var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
+            var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             return new CeresRevealActorPlacement { Id = source.Id,
                 X = ReadVerificationWord(rom, 0x8b0000 | source.XAddress),
                 Y = ReadVerificationWord(rom, 0x8b0000 | source.YAddress) };
@@ -1913,7 +1913,7 @@ internal static class LookupStream5Verification
         var colors = new PaletteRgb5[SnesCgram.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
-            ushort value = ReadVerificationWord(rom, CeresFlightRomData.Assets.Palette + index * sizeof(ushort));
+            ushort value = ReadVerificationWord(rom, CeresCinematicSourceDefinitions.FlightPalette + index * sizeof(ushort));
             colors[index] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
         }
         CeresFlightPalette stock = Check();
@@ -1943,7 +1943,7 @@ internal static class LookupStream5Verification
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
-        for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresFlightRomData.Assets.Palette + index);
+        for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresCinematicSourceDefinitions.FlightPalette + index);
         string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
         {
             content.Append("mode7-characters", catalog.FloorCharacters.Span);

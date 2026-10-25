@@ -230,8 +230,8 @@ internal sealed class IntroBabyDiscoveryState
                 for (byte index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
                     eggParticles.Add(new IntroEggParticle(index));
                 audio?.QueueSound(
-                    IntroCinematicRomData.Objects.EggHatch,
-                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
+                    IntroCinematicDefinitions.Objects.EggHatch,
+                    maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
                 return;
 
             case CinematicSpriteCueKind.StartIntroPage3:
@@ -373,8 +373,8 @@ internal sealed class IntroBabyDiscoveryState
             // `$8B:BA73` publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio?.QueueSound(
-                IntroCinematicRomData.Objects.BabyCry1,
-                maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
+                IntroCinematicDefinitions.Objects.BabyCry1,
+                maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
@@ -414,8 +414,8 @@ internal sealed class IntroBabyDiscoveryState
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
             if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(
-                    IntroCinematicRomData.Objects.BabyCry1,
-                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
+                    IntroCinematicDefinitions.Objects.BabyCry1,
+                    maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
         BabyVelocity = BabyVelocity.WithX(AccelerateToward(

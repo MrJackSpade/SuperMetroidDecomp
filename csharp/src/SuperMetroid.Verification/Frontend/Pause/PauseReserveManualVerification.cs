@@ -24,7 +24,7 @@ internal static class PauseReserveManualVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
-        AssertEqual(PauseReserveTransferRomData.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
+        AssertEqual(PauseReserveEnergyDefinitions.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
         pause.Step(0, SnesButton.A);
         AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "A changes AUTO to MANUAL");
         pause.Step(0, SnesButton.Down);

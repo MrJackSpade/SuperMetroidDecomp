@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Verification.Frontend;
 
@@ -66,8 +67,8 @@ internal static class CinematicScreenPublicationVerification
         FramePaint rear = flight.CaptureRenderSnapshot().Paint;
         byte[] rearVram = flight.ShownVram();
         ReadOnlySpan<byte> maps = InstalledFixtures.IntroArtwork.CeresFlight.FloorMaps.Span;
-        for (int cell = 0; cell < CeresFlightRomData.Transfers.FloorMapSliceByteCount; cell++)
-            AssertEqual(maps[CeresFlightRomData.Transfers.FloorMapSliceByteCount + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
+        for (int cell = 0; cell < CeresFlightArtworkFormat.MapCellsPerView; cell++)
+            AssertEqual(maps[CeresFlightArtworkFormat.MapCellsPerView + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);
         restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
         AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");

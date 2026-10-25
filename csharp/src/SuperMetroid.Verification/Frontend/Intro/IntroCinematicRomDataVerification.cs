@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -13,49 +14,50 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 internal static class IntroCinematicRomDataVerification
 {
     /// <summary>
-    /// Verifies that intro resources are mapped, fixed VRAM regions fit, palette spans are
-    /// byte-aligned/in-range, and actor sounds retain their library-qualified identities.
+    /// Verifies that the import's intro sources are mapped, fixed VRAM regions fit, palette spans are
+    /// byte-aligned/in-range, and actor sounds retain their library-qualified identities. Since #1416 the
+    /// sources are the import's (IntroCinematicSourceDefinitions) and the extents Core's definitions.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     internal static void VerifyIntroCinematicRomData()
     {
         int[] resources =
         [
-            IntroCinematicRomData.Assets.Palette,
-            IntroCinematicRomData.Assets.BackgroundCharacters,
-            IntroCinematicRomData.Assets.FontOne,
-            IntroCinematicRomData.Assets.SamusHeadTilemap,
-            IntroCinematicRomData.Assets.BackgroundPageTilemaps,
-            IntroCinematicRomData.Assets.ObjectCharacters,
-            IntroCinematicRomData.Assets.FirstNarrationTilemap,
-            IntroCinematicRomData.Assets.JapaneseFontTwo,
-            IntroCinematicRomData.Assets.MotherBrainLevelData,
-            IntroCinematicRomData.Assets.IntroObjectCharacters,
-            IntroCinematicRomData.Assets.FinalTextLine,
+            IntroCinematicSourceDefinitions.Palette,
+            IntroCinematicSourceDefinitions.BackgroundCharacters,
+            IntroCinematicSourceDefinitions.FontOne,
+            IntroCinematicSourceDefinitions.SamusHeadTilemap,
+            IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
+            IntroCinematicSourceDefinitions.ObjectCharacters,
+            IntroCinematicSourceDefinitions.FirstNarrationTilemap,
+            IntroCinematicCheckSources.JapaneseFontTwo,
+            IntroCinematicCheckSources.MotherBrainLevelData,
+            IntroCinematicSourceDefinitions.IntroObjectCharacters,
+            IntroCinematicSourceDefinitions.FinalTextLine,
         ];
         foreach (int address in resources)
             AssertTrue(address is >= 0x808000 and <= 0xffffff,
                 $"intro resource ${address:X6} is mapped ROM");
 
-        AssertEqual(IntroCinematicRomData.Layers.TextTilemapWordCount,
-            IntroCinematicRomData.Layers.TilemapWidth * IntroCinematicRomData.Layers.TilemapWidth,
+        AssertEqual(IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount,
+            IntroCinematicDefinitions.Tilemaps.TilemapWidth * IntroCinematicDefinitions.Tilemaps.TilemapWidth,
             "intro text tilemap is 32x32 words");
         AssertTrue(
             (IntroVramLayout.CinematicObjectCharacters.Offset * 2) +
-                IntroCinematicRomData.Transfers.ObjectCharacterBytes <= SnesVram.ByteCount,
+                IntroCinematicDefinitions.Artwork.ObjectCharacterBytes <= SnesVram.ByteCount,
             "intro object DMA fits VRAM");
 
-        AssertIntroPaletteSpans(IntroCinematicRomData.Palette.Gameplay, "gameplay");
-        AssertIntroPaletteSpans(IntroCinematicRomData.Palette.GameplayClear, "gameplay clear");
-        AssertIntroPaletteSpans(IntroCinematicRomData.Palette.Narration, "narration");
-        AssertIntroPaletteSpans(IntroCinematicRomData.Palette.Discovery, "discovery");
+        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay, "gameplay");
+        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear, "gameplay clear");
+        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Narration, "narration");
+        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Discovery, "discovery");
         AssertEqual(SoundEffectLibrary.Library2,
-            IntroCinematicRomData.Objects.EggHatch.Library,
+            IntroCinematicDefinitions.Objects.EggHatch.Library,
             "egg hatch sound library");
         AssertEqual(SoundEffectLibrary.Library3,
-            IntroCinematicRomData.Objects.BabyCry1.Library,
+            IntroCinematicDefinitions.Objects.BabyCry1.Library,
             "Baby cry sound library");
-        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 0x23), IntroCinematicRomData.Objects.BabyCry1,
+        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 0x23), IntroCinematicDefinitions.Objects.BabyCry1,
             "Baby cry one sequence");
 
         Suite(nameof(VerifyCinematicCodePointerCatalog), () => VerifyCinematicCodePointerCatalog());
@@ -77,11 +79,9 @@ internal static class IntroCinematicRomDataVerification
         ushort[] bank8BCodePointers = GetUshortConstants(typeof(CinematicCodePointers))
             .Where(field => field.Name != nameof(CinematicCodePointers.InstructionCommandBit))
             .Select(field => field.RequiredConstant<ushort>())
-            .Concat(new[]
-            {
-                typeof(CinematicSpriteInstruction), typeof(TitleSequenceInstruction),
-                typeof(CinematicIndirectInstructionFunction),
-            }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
+            .Concat(Enum.GetValues<CinematicSpriteInstruction>().Cast<object>().Select(Convert.ToUInt16))
+            .Concat(new[] { IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction })
+            .Concat(Enum.GetValues<TitleSequenceInstruction>().Select(TitleNativeWords.Instructions.Word))
             .Concat(CinematicSpritePreInstruction.NativeAddresses)
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
             .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)
@@ -122,7 +122,7 @@ internal static class IntroCinematicRomDataVerification
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (ushort pointer in bank8BCodePointers.Concat(bank8BLists))
-            _ = CinematicCodePointerCatalogRomByte(bus, IntroCinematicRomData.Banks.CinematicCode | pointer);
+            _ = CinematicCodePointerCatalogRomByte(bus, IntroCinematicCheckSources.CinematicCode | pointer);
         foreach (ushort pointer in bank8CLists)
             _ = CinematicCodePointerCatalogRomByte(bus, (int)new SnesAddress(0x8c, pointer));
     }

@@ -19,6 +19,8 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>
@@ -39,20 +41,20 @@ internal static class CeresFlightArtworkVerification
     {
         CeresFlightArtworkCatalog stock = installation.LoadIntroCinematicArt().CeresFlight;
         AssertTrue(stock.FloorCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
-                CeresFlightRomData.Assets.FloorCharacters,
-                maximumOutputBytes: CeresFlightRomData.Transfers.FloorCharacterByteCount)),
+                CeresCinematicSourceDefinitions.FlightFloorCharacters,
+                maximumOutputBytes: CeresFlightArtworkFormat.FloorByteCount)),
             "installed Ceres Mode-7 PNG preserves every native character byte");
         AssertTrue(stock.ObjectCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
-                CeresFlightRomData.Assets.ObjectCharacters,
-                maximumOutputBytes: CeresFlightRomData.Transfers.ObjectCharacterByteCount)),
+                CeresCinematicSourceDefinitions.FlightObjectCharacters,
+                maximumOutputBytes: CeresFlightArtworkFormat.ObjectByteCount)),
             "installed Ceres OBJ PNG preserves every native character byte");
-        byte[] nativeMaps = RomDataReader.Decompress(bus, CeresFlightRomData.Assets.FloorMaps,
+        byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);
         AssertTrue(stock.FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
-                CeresFlightRomData.Transfers.FloorMapByteCount)),
+                CeresFlightArtworkFormat.MapCellCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.Palette, CgramPalettes.ByteCount);
+            CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),
                 stock.Palette.ColorAt(index), "installed Ceres palette preserves every native color");
@@ -211,15 +213,15 @@ internal static class CeresFlightArtworkVerification
             throw new InvalidDataException("Stock Ceres flight actor layout is empty.");
         for (int index = 0; index < document.Actors.Length; index++)
         {
-            var source = CeresFlightActorDefinitions.RearViewPlacementSource(index);
+            var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             AssertEqual(source.Id, document.Actors[index].Id,
                 $"Ceres flight actor {index} retains its native role");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresFlightActorDefinitions.NativeBank | source.XAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.XAddress),
                 document.Actors[index].X,
                 $"Ceres flight actor {index} X matches the cartridge operand");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresFlightActorDefinitions.NativeBank | source.YAddress),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.YAddress),
                 document.Actors[index].Y,
                 $"Ceres flight actor {index} Y matches the cartridge operand");
         }
@@ -326,7 +328,7 @@ internal static class CeresFlightArtworkVerification
         var editedDestruction = new CeresDestructionCinematicState(artwork: editedParent,
             spriteSheets: CinematicSheetFixtures.WithIntro(editedParent));
         // $8B:C11B loads the shared Ceres palette only after its initial NMI waits.
-        for (int update = 0; update <= CeresDestructionRomData.InitialFrameWaits; update++)
+        for (int update = 0; update <= CeresDestructionSceneDefinitions.InitialFrameWaits; update++)
         {
             restoredDestruction.Step();
             editedDestruction.Step();
@@ -439,13 +441,13 @@ internal static class CeresFlightArtworkVerification
     private static byte[] ExpectedCeresFlightVram(CeresFlightArtworkCatalog artwork, bool rear)
     {
         var expected = new byte[SnesVram.ByteCount];
-        for (int word = 0; word < CeresFlightRomData.Transfers.FloorMapFillWordCount; word++)
+        for (int word = 0; word < AffineFloor.CellCount; word++)
         {
-            expected[word * 2] = CeresFlightRomData.Transfers.FloorBlankMapTile;
+            expected[word * 2] = CeresFlightSceneDefinitions.BlankFloorCharacter;
             expected[word * 2 + 1] = artwork.FloorCharacters.Span[word];
         }
-        int mapOffset = rear ? CeresFlightRomData.Transfers.FloorMapSliceByteCount : 0;
-        for (int word = 0; word < CeresFlightRomData.Transfers.FloorMapSliceByteCount; word++)
+        int mapOffset = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
+        for (int word = 0; word < CeresFlightArtworkFormat.MapCellsPerView; word++)
             expected[word * 2] = artwork.FloorMaps.Span[mapOffset + word];
         artwork.ObjectCharacters.Span.CopyTo(expected.AsSpan(
             (CeresVramLayout.ObjectCharacters.Offset * 2)));

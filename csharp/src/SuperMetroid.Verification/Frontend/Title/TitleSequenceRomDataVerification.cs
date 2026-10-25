@@ -62,9 +62,9 @@ internal static class TitleSequenceRomDataVerification
             maximumFrames: 2_500,
             "complete natural title sequence");
         AssertSequenceEqual(naturalOrder, observed, "natural title phase order");
-        AssertEqual(TitleSequenceRomData.Scenes.IdentityScale, state.Mode7MatrixScale,
+        AssertEqual(TitleSequenceDefinitions.Scenes.IdentityScale, state.Mode7MatrixScale,
             "natural title reaches identity Mode-7 scale");
-        AssertEqual(TitleSequenceRomData.Timing.TitleScreenNtscFrames,
+        AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenNtscFrames,
             state.TitleScreenFramesRemaining,
             "natural title arms NTSC demo countdown");
 
@@ -94,16 +94,16 @@ internal static class TitleSequenceRomDataVerification
             "title skip fade route");
         AssertTrue(skipPhases.Contains(TitleSequencePhase.TitleScreenFadeIn),
             "title skip rebuilds objects before fading back in");
-        AssertEqual(TitleSequenceRomData.Timing.MaximumBrightness, skipped.Brightness,
+        AssertEqual(TitleSequenceDefinitions.Timing.MaximumBrightness, skipped.Brightness,
             "title skip returns at full brightness");
-        for (int idle = 1; idle < TitleSequenceRomData.Timing.TitleScreenNtscFrames; idle++)
+        for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenNtscFrames; idle++)
             skipped.Step(0);
         skipped.Step(SnesButton.Start);
         StepUntil(() => skipped.DemoRequested, _ => skipped.Step(0), 40,
             "title timeout takes priority over same-frame confirmation");
         AssertTrue(!skipped.FileSelectRequested, "timeout routes only to the attract dispatcher");
 
-        AssertEqual(SnesAngle.Zero, TitleSequenceRomData.Scenes.Rotation,
+        AssertEqual(SnesAngle.Zero, TitleSequenceDefinitions.Scenes.Rotation,
             "title Mode-7 scenes use typed zero rotation");
         Console.WriteLine(
             "  Title: ROM catalog, complete natural phase chain, Mode-7 transforms, " +
@@ -124,45 +124,45 @@ internal static class TitleSequenceRomDataVerification
         WriteRomWord(rom, FrontendSourceDefinitions.TitleGradientBlendTable + 2, 0x317f);
         WriteRepeatedCompressedStream(
             rom,
-            TitleSequenceRomData.Assets.FloorCharactersAddress,
-            TitleSequenceRomData.Transfers.FloorCharacterByteCount,
+            TitleSourceDefinitions.FloorCharacters,
+            TitleSequenceDefinitions.Graphics.FloorCharacterByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
-            TitleSequenceRomData.Assets.FloorMapAddress,
-            TitleSequenceRomData.Transfers.FloorMapByteCount,
+            TitleSourceDefinitions.FloorMap,
+            TitleSequenceDefinitions.Graphics.FloorMapByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
-            TitleSequenceRomData.Assets.ObjectCharactersAddress,
-            TitleSequenceRomData.Transfers.ObjectCharacterByteCount,
+            TitleSourceDefinitions.ObjectCharacters,
+            TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
-            TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
-            TitleSequenceRomData.Transfers.BabyCharacterByteCount,
+            TitleSourceDefinitions.BabyMetroidCharacters,
+            TitleSequenceDefinitions.Graphics.BabyCharacterByteCount,
             0);
 
         WriteConstructedTitleTextList(
             rom,
-            TitleSequenceRomData.TextSequences.Year,
-            (ushort)TitleSequenceInstruction.TriggerScene0);
+            TitleSequenceDefinitions.TextSequences.Year,
+            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene0));
         WriteConstructedTitleTextList(
             rom,
-            TitleSequenceRomData.TextSequences.Nintendo,
-            (ushort)TitleSequenceInstruction.TriggerScene1);
+            TitleSequenceDefinitions.TextSequences.Nintendo,
+            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene1));
         WriteConstructedTitleTextList(
             rom,
-            TitleSequenceRomData.TextSequences.Presents,
-            (ushort)TitleSequenceInstruction.TriggerScene2);
+            TitleSequenceDefinitions.TextSequences.Presents,
+            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene2));
         WriteConstructedTitleTextList(
             rom,
-            TitleSequenceRomData.TextSequences.MetroidThree,
-            (ushort)TitleSequenceInstruction.TriggerScene3);
+            TitleSequenceDefinitions.TextSequences.MetroidThree,
+            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene3));
         WriteRomWord(
             rom,
             (int)FrontendSourceDefinitions.TitleLogoSpritemapOperand,
-            TitleSequenceRomDataSpritesConstants.SuperMetroidLogo);
+            TitleNativeWords.SuperMetroidLogoSpritemap);
         return rom;
     }
 
@@ -174,19 +174,19 @@ internal static class TitleSequenceRomDataVerification
     {
         // Timing/selector identities are typed now. Keep synthetic blank
         // artwork, but provide the complete selector inventory to the extractor.
-        int pointer = definition.InstructionAddress;
+        int pointer = TitleSourceDefinitions.TextLists[definition.Phase];
         foreach (TitleCardStep step in TitleCards.Steps(definition.Phase))
         {
             if (step.Command is { } command)
             {
-                WriteRomWord(rom, pointer, (ushort)command);
-                AssertEqual(sceneCommand, (ushort)command, "constructed title scene command");
+                WriteRomWord(rom, pointer, TitleNativeWords.Instructions.Word(command));
+                AssertEqual(sceneCommand, TitleNativeWords.Instructions.Word(command), "constructed title scene command");
                 break;
             }
             WriteRomWord(rom, pointer, checked((ushort)step.Duration));
             WriteRomWord(rom, pointer + sizeof(ushort), step.Sprite is { } sprite
                 ? ConstructedSpritemap(sprite) : FrontendSourceDefinitions.TitleBlankSpritemap);
-            pointer += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
+            pointer += TitleSourceDefinitions.TimedEntryByteCount;
         }
     }
 

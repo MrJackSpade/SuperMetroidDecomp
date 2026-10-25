@@ -17,6 +17,12 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks equipment-mask, wireframe, and reserve-transfer rules through the live pause menu.</summary>
 internal static class PauseEquipmentRulesVerification
 {
+    /// <summary>$82:B257, the four equipment sets that select the wireframe drawing.</summary>
+    private const int EquipmentSetTable = 0x82b257;
+
+    /// <summary>$82:BF04, ReserveTank_TransferEnergyPerFrame, the manual refill's energy per update.</summary>
+    private const int ReserveTransferAmount = 0x82bf04;
+
     /// <summary>Native $82:C04C/$C056/$C062 beam, suit/misc and boot upgrade-mask tables.</summary>
     private static int PauseMaskTableAddress(PauseEquipmentCategory category) => category switch
     {
@@ -126,7 +132,7 @@ internal static class PauseEquipmentRulesVerification
         AssertTrue(startAndA.Step(SnesButton.Start, SnesButton.A), "Start unpauses");
         AssertEqual(SamusEquipmentFlags.None, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
+            EquipmentSetTable + index * 2)).ToArray();
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToNativeWord()) }))
         {
@@ -141,7 +147,7 @@ internal static class PauseEquipmentRulesVerification
                     BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(PauseMenuLayoutConstants.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
                     "selected native wireframe artwork reaches the actual equipment tilemap");
         }
-        ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTransferRomData.TransferAmount);
+        ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ReserveTransferAmount);
         AssertEqual(nativeAmount, PauseEquipmentRules.ReserveEnergyPerFrame, "manual reserve rate matches native word");
         foreach (var scenario in new[] { new VerifyCompiledPauseEquipmentRulesCase(Health:20, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:98, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:99, Reserve:1) })
         {
@@ -171,8 +177,8 @@ internal static class PauseEquipmentRulesVerification
     /// <summary>Forbids production reads of migrated equipment masks, wireframe masks, and reserve-transfer rate.</summary>
     private static CartridgeReadGuard NewPauseRulesReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => (uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
-                (uint)(address - PauseReserveTransferRomData.TransferAmount) < 2 ||
+            .Forbid(address => (uint)(address - EquipmentSetTable) < 8 ||
+                (uint)(address - ReserveTransferAmount) < 2 ||
                 Enum.GetValues<PauseEquipmentCategory>().Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
                     (uint)(address - PauseMaskTableAddress(category.Category)) < category.ItemCount * 2),
                 address => $"Pause read compiled inventory/transfer rule at {address:X6}.");

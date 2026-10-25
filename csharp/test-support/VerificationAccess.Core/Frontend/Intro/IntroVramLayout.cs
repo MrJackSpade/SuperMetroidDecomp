@@ -14,7 +14,7 @@ internal static class IntroVramLayout
 
     /// <summary>VMADD $4000-$447F: the first font, BG3's 2-bpp narration characters.</summary>
     public static readonly PpuLayoutCell FontOne = new(nameof(FontOne), PpuLayoutRegion.Vram,
-        IntroCinematicRomDataLayersConstants.FontCharacterBaseWord, 0x0480, "2-bpp BG3 characters", PpuMemoryLayout.Vram);
+        IntroVramWords.FontCharacterBaseWord, 0x0480, "2-bpp BG3 characters", PpuMemoryLayout.Vram);
 
     /// <summary>
     /// VMADD $4180-$447F: the Japanese glyph area <c>BlankOut_JapanText_Tiles</c> overwrites with one
@@ -31,16 +31,16 @@ internal static class IntroVramLayout
 
     /// <summary>VMADD $4800-$4BFF: the Samus portrait BG tilemap.</summary>
     public static readonly PpuLayoutCell PortraitTilemap = new(nameof(PortraitTilemap), PpuLayoutRegion.Vram,
-        IntroCinematicRomDataLayersConstants.PortraitTilemapWord, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
+        IntroVramWords.PortraitTilemapWord, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $4C00-$4FFF: BG3's narration tilemap, rewritten from the <c>$7E:3000</c> staging map.</summary>
     public static readonly PpuLayoutCell NarrationTilemap = new(nameof(NarrationTilemap), PpuLayoutRegion.Vram,
-        IntroCinematicRomDataLayersConstants.NarrationTilemapWord, IntroCinematicRomData.Layers.TextTilemapWordCount,
+        IntroVramWords.NarrationTilemapWord, IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount,
         "BG3 tilemap words (32x32)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $5000-$5FFF: the four scene BG tilemap pages (scene BG1, scene BG2, scientists and spare).</summary>
     public static readonly PpuLayoutCell BackgroundPages = new(nameof(BackgroundPages), PpuLayoutRegion.Vram,
-        IntroCinematicRomDataLayersConstants.SceneBg1TilemapWord, 0x1000, "BG tilemap words (four 32x32 pages)", PpuMemoryLayout.Vram);
+        IntroVramWords.SceneBg1TilemapWord, 0x1000, "BG tilemap words (four 32x32 pages)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $6000-$6FFF: the intro-specific OBJ characters from <c>$9A:D200</c>.</summary>
     public static readonly PpuLayoutCell IntroObjectCharacters = new(nameof(IntroObjectCharacters), PpuLayoutRegion.Vram,

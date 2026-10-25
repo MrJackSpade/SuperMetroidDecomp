@@ -33,8 +33,8 @@ internal readonly struct IntroVram(SnesVram vram)
     /// <summary>The VRAM word base of the background page that <paramref name="scene"/> shows, for its render layer.</summary>
     internal static ushort LaboratoryTilemapWord(IntroLaboratoryScene scene) => scene switch
     {
-        IntroLaboratoryScene.Delivery => IntroCinematicRomDataLayersConstants.ScientistTilemapWord,
-        IntroLaboratoryScene.Examination => IntroCinematicRomDataLayersConstants.ScientistExaminationTilemapWord,
+        IntroLaboratoryScene.Delivery => IntroVramWords.ScientistTilemapWord,
+        IntroLaboratoryScene.Examination => IntroVramWords.ScientistExaminationTilemapWord,
         _ => throw new ArgumentOutOfRangeException(nameof(scene), scene, "Undefined intro laboratory scene."),
     };
 }

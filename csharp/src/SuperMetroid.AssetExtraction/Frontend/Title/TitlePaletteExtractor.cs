@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -18,7 +19,7 @@ internal static class TitlePaletteExtractor
     {
         Ensure.NotNull(bus);
         var source = new SnesCgram();
-        CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
+        CartridgePaletteImporter.LoadToCgram(source, bus, TitleSourceDefinitions.Palette);
         PaletteRgb5[] colors = new CgramPalettes(source).Image.SelectToArray(PaletteRgb5.From);
         using var json = new MemoryStream();
         TitlePaletteFile.Write(json, new TitlePaletteDocument
@@ -29,8 +30,8 @@ internal static class TitlePaletteExtractor
                 TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight),
             FlickeringDisplays = ExtractAmbient(
                 TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays),
-            SkipCopyrightWhite = PaletteRgb5.From(TitleSequenceRomData.Palette.CopyrightWhite),
-            SkipCopyrightRed = PaletteRgb5.From(TitleSequenceRomData.Palette.CopyrightRed),
+            SkipCopyrightWhite = PaletteRgb5.From(TitleSequenceDefinitions.Palette.CopyrightWhite),
+            SkipCopyrightRed = PaletteRgb5.From(TitleSequenceDefinitions.Palette.CopyrightRed),
         });
         return json.ToArray();
 

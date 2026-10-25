@@ -28,7 +28,7 @@ internal static class IntroEyeInstructionsVerification
         var narration = IntroNarrationPresentation.Load(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
         var vram = new IntroTilemaps();
-        var objects = new IntroCinematicObjectSystem(vram, new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount],
+        var objects = new IntroCinematicObjectSystem(vram, new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount],
             new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration, eyeArtwork: artwork);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
@@ -56,8 +56,8 @@ internal static class IntroEyeInstructionsVerification
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)
             {
-                int word = IntroCinematicRomDataLayersConstants.PortraitTilemapWord +
-                    (cell.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + cell.X + column;
+                int word = IntroVramWords.PortraitTilemapWord +
+                    (cell.Y + row) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + cell.X + column;
                 AssertEqual(expected[row * size.X + column], IntroTilemapsFixtures.Vram(vram).ReadWord(word), $"{at}: portrait eye frame");
             }
         }
@@ -138,7 +138,7 @@ internal static class IntroEyeInstructionsVerification
 
         /// <summary>The bank-$8C word at <paramref name="offset"/>.</summary>
         private int Word(int offset) => IntroEyeListWord(rom, (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps, checked((ushort)offset)));
+            IntroCinematicSourceDefinitions.SpritemapBank, checked((ushort)offset)));
     }
 
     /// <summary>Reads one cartridge word solely for the verification oracle.</summary>

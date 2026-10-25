@@ -78,8 +78,8 @@ public sealed class PauseReserveUiPresentation
         {
             ushort word = label.Word(index / sizeof(ushort));
             if (attributes == LabelAttributes.Preserve)
-                word = (ushort)((BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(label.Offset + index)) &
-                    PauseReserveUiDefinitions.TileAttributeMask) | (word & ~PauseReserveUiDefinitions.TileAttributeMask));
+                word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(label.Offset + index)))
+                    .WithCharacterIndex(new SnesBgTilemapWord(word).CharacterIndex);
             BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(label.Offset + index), word);
         }
     }

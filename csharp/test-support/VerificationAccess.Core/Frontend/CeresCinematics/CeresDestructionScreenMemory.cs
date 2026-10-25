@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -26,20 +27,20 @@ internal static class CeresDestructionScreenMemory
             {
                 case CeresDestructionUpload.CeresScene:
                     // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair.
-                    mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes]);
-                    mode7.FillMap(CeresDestructionRomData.Transfers.InitialFloorMapCharacter, CeresDestructionRomData.Transfers.FloorMapCapacityBytes);
-                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.CeresSceneTilemapOffset, CeresDestructionRomData.Transfers.CeresSceneTilemapBytes));
+                    mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);
+                    mode7.FillMap(CeresDestructionSceneDefinitions.Floor.BlankCharacter, AffineFloor.CellCount);
+                    mode7.LoadMap(maps.AsSpan(CeresDestructionSceneDefinitions.Floor.CeresSceneStart, CeresDestructionSceneDefinitions.Floor.CeresSceneCells));
                     break;
                 case CeresDestructionUpload.FinalExplosionMaps:
                     // State $22 shows the front gunship in the upper rows; state $25 has no gunship and clears them too.
-                    int upperSource = withSamus ? CeresDestructionRomData.Transfers.ClearMapSourceOffset : 0;
-                    mode7.LoadMap(maps.AsSpan(upperSource, CeresDestructionRomData.Transfers.MapHalfBytes));
-                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.ClearMapSourceOffset, CeresDestructionRomData.Transfers.MapHalfBytes),
-                        cell: CeresDestructionRomData.Transfers.ClearMapFirstCell);
+                    int upperSource = withSamus ? CeresDestructionSceneDefinitions.Floor.BlankViewStart : 0;
+                    mode7.LoadMap(maps.AsSpan(upperSource, CeresDestructionSceneDefinitions.Floor.ViewCells));
+                    mode7.LoadMap(maps.AsSpan(CeresDestructionSceneDefinitions.Floor.BlankViewStart, CeresDestructionSceneDefinitions.Floor.ViewCells),
+                        cell: CeresDestructionSceneDefinitions.Floor.LowerViewFirstCell);
                     break;
                 case CeresDestructionUpload.ZebesReveal:
-                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.MapHalfBytes, CeresDestructionRomData.Transfers.MapHalfBytes));
-                    ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes]);
+                    mode7.LoadMap(maps.AsSpan(CeresDestructionSceneDefinitions.Floor.ViewCells, CeresDestructionSceneDefinitions.Floor.ViewCells));
+                    ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionArtworkFormat.ZebesMapByteCount]);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(uploads), upload, "Undefined Ceres destruction upload.");

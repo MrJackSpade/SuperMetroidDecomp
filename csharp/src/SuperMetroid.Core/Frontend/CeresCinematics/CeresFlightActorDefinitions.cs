@@ -4,27 +4,18 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>Fixed actor metadata and motion parameters for Samus's flight toward Ceres.</summary>
 internal static class CeresFlightActorDefinitions
 {
-    /// <summary>Bank containing the native actor definitions and initializer immediates.</summary>
-    public const int NativeBank = 0x8b0000;
-
     /// <summary>Number of actors allocated by <c>$8B:BE3B-$8B:BE5C</c>.</summary>
     public const int RearViewActorCount = 5;
 
-    /// <summary>
-    /// Native bank-$8B X/Y initializer operands for the five rear-view actors.
-    /// The final X word is signed -32 represented in its native 16-bit form.
-    /// </summary>
-    /// <remarks>Explicit role selection in native spawn order $BE3B..BE5C. Addresses identify
-    /// X/Y operands in each role's initializer, including the nonzero-parameter vortex/star branches.
-    /// #1165 independently verifies the five original entries and ROM operands; unsupported indices
-    /// throw ArgumentOutOfRangeException.</remarks>
-    public static CinematicPlacementSourceDefinition RearViewPlacementSource(int index) => index switch
+    /// <summary>The installed layout id of each of the five rear-view actors, in spawn order.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the five actors.</exception>
+    public static string RearViewPlacementId(int index) => index switch
     {
-        0 => new("large-asteroid", 0xbf23, 0xbf29),
-        1 => new("station-under-attack", 0xbf4d, 0xbf53),
-        2 => new("small-asteroid", 0xbf77, 0xbf7d),
-        3 => new("vortex", 0xbfb4, 0xbfba),
-        4 => new("rear-stars", 0xbea3, 0xbea9),
+        0 => "large-asteroid",
+        1 => "station-under-attack",
+        2 => "small-asteroid",
+        3 => "vortex",
+        4 => "rear-stars",
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 

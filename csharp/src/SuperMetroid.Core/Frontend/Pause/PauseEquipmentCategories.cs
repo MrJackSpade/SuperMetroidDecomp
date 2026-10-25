@@ -14,17 +14,16 @@ internal static class PauseEquipmentCategories
         [PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits, PauseEquipmentCategory.Boots];
 
     /// <summary>Selects the native data contract for a named equipment category.</summary>
-    /// <remarks>The category dispatcher at $82:AC58 selects distinct controls, not
-    /// a numeric sequence. Pointer fields correspond to $82:C02C/C034/C044;
-    /// item counts follow $82:ABCC/ABEB/AC05 and copy lengths $82:AFCE/B0C8/B156.
-    /// Reserves use separate controls and retain the managed zero-data contract.
+    /// <remarks>Each category is a distinct control, not a numeric sequence. Beams list five items with
+    /// five-cell labels; suits and miscellaneous items six, and boots three, with nine-cell labels.
+    /// Reserves use separate controls and list nothing.
     /// </remarks>
     public static PauseEquipmentCategoryDefinition Get(PauseEquipmentCategory category) => category switch
     {
-        PauseEquipmentCategory.Reserves => new(PauseEquipmentCategory.Reserves, 0, 0, 0, 0),
-        PauseEquipmentCategory.Beams => new(PauseEquipmentCategory.Beams, PauseMenuRomData.BeamOffsetTable, PauseMenuRomData.BeamTilemapPointerTable, 5, 5),
-        PauseEquipmentCategory.Suits => new(PauseEquipmentCategory.Suits, PauseMenuRomData.SuitOffsetTable, PauseMenuRomData.SuitTilemapPointerTable, 6, 9),
-        PauseEquipmentCategory.Boots => new(PauseEquipmentCategory.Boots, PauseMenuRomData.BootOffsetTable, PauseMenuRomData.BootTilemapPointerTable, 3, 9),
+        PauseEquipmentCategory.Reserves => new(PauseEquipmentCategory.Reserves, 0, 0),
+        PauseEquipmentCategory.Beams => new(PauseEquipmentCategory.Beams, 5, 5),
+        PauseEquipmentCategory.Suits => new(PauseEquipmentCategory.Suits, 6, 9),
+        PauseEquipmentCategory.Boots => new(PauseEquipmentCategory.Boots, 3, 9),
         _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
     };
 }

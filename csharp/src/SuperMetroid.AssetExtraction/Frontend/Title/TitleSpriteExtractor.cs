@@ -44,17 +44,17 @@ internal static class TitleSpriteExtractor
         };
         foreach (TitleTextSequenceDefinition sequence in new[]
                  {
-                     TitleSequenceRomData.TextSequences.Year,
-                     TitleSequenceRomData.TextSequences.Nintendo,
-                     TitleSequenceRomData.TextSequences.Presents,
-                     TitleSequenceRomData.TextSequences.MetroidThree,
+                     TitleSequenceDefinitions.TextSequences.Year,
+                     TitleSequenceDefinitions.TextSequences.Nintendo,
+                     TitleSequenceDefinitions.TextSequences.Presents,
+                     TitleSequenceDefinitions.TextSequences.MetroidThree,
                  })
         {
-            int entry = sequence.InstructionAddress;
+            int entry = TitleSourceDefinitions.TextLists[sequence.Phase];
             foreach (TitleCardStep step in TitleCards.Steps(sequence.Phase))
             {
                 ushort durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
-                bool nativeCommand = (durationOrCommand & TitleSequenceRomData.TextSequences.CommandBit) != 0;
+                bool nativeCommand = (durationOrCommand & TitleSourceDefinitions.CommandBit) != 0;
                 if (step.Command is not null)
                 {
                     if (!nativeCommand)
@@ -73,7 +73,7 @@ internal static class TitleSpriteExtractor
                 {
                     throw new InvalidDataException($"Title composition {sprite} appears twice in the title cards.");
                 }
-                entry += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
+                entry += TitleSourceDefinitions.TimedEntryByteCount;
                 if (SnesAddressMath.OffsetInBank(entry) >= FrontendSourceDefinitions.TitleLogoSpritemapOperand.Offset)
                     throw new InvalidDataException("Title text list did not terminate before the logo pointer.");
             }

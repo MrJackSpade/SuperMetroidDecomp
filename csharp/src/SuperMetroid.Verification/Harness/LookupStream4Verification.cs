@@ -1659,19 +1659,19 @@ internal static class LookupStream4Verification
         AssertEqual(TitleSpriteDefinitions.All.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
         AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Values),
             "extraction maps every native title selector to exactly one named composition");
-        AssertEqual(4, TitleSequenceRomData.Transfers.BabyAnimationSourcePages.Length, "title baby animation phase count");
+        AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages.Length, "title baby animation phase count");
         for (int frame = 0; frame < 4; frame++)
         {
             ushort transfer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8ba133 + frame * 4));
             int nativeSource = CartridgeImportSource.Require(rom).ReadCartridgeLong((0x8b0001 + transfer));
             int firstSource = CartridgeImportSource.Require(rom).ReadCartridgeLong(0x8ba338);
             AssertEqual((nativeSource - firstSource) / 256,
-                (int)TitleSequenceRomData.Transfers.BabyAnimationSourcePages[frame], "native title baby source page");
+                (int)TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[frame], "native title baby source page");
             AssertEqual((ushort)256, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0004 + transfer)), "native baby transfer size");
             AssertEqual((ushort)0x3800, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0006 + transfer)), "native baby transfer destination");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceRomData.Transfers.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
         Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
     }
 

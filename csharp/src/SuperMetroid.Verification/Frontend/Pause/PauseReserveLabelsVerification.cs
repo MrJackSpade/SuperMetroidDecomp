@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -38,7 +39,7 @@ internal static class PauseReserveLabelsVerification
             for (int row = 0; row < 2; row++)
             {
                 int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c068 + row * 2) - 0x3800;
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemap + destination, 14)
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage + destination, 14)
                     .CopyTo(expectedVram, 0x6000 + destination);
             }
             if (capacity != 0)

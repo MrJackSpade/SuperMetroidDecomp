@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Cartridge values and helpers of <see cref="IntroCinematicRomData.Layers"/> that only verification reads.</summary>
-internal static class IntroCinematicRomDataLayersConstants
+/// <summary>The opening cinematic's video-memory words that only verification reads.</summary>
+internal static class IntroVramWords
 {
         /// <summary>BG screen-base word used for the portrait tilemap.</summary>
         public const ushort PortraitTilemapWord = 0x4800;

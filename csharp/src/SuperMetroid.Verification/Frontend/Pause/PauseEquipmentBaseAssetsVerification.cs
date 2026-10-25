@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -30,7 +31,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         string path = Path.Combine(overrides, PauseEquipmentBaseDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
         var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(stockBytes, ArtworkJson.Options);
-        byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentBaseDefinitions.Source,
+        byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         AssertTrue(nativeBase.SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match native words");
@@ -147,7 +148,7 @@ internal static class PauseEquipmentBaseAssetsVerification
 
     /// <summary>Blocks the native equipment base tilemap while installed pause pages render.</summary>
     private static CartridgeReadGuard NewPauseEquipmentBaseReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(PauseEquipmentBaseDefinitions.Source,
+        new CartridgeReadGuard(source).ForbidRange(PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort),
             address => $"Installed pause read equipment base at {address:X6}.");
 }

@@ -66,32 +66,32 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             AssertTrue(stock.BackgroundCharacters.Characters.Span.SequenceEqual(
-                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
+                    RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "installed intro BG PNG preserves every native tile byte");
             AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.IntroObjectCharacters,
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
             AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
-                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.ObjectCharacters,
+                    RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount)),
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
             AssertTrue(stock.BackgroundPages.Span.SequenceEqual(
-                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundPageTilemaps,
-                        maximumOutputBytes: IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes)),
+                    RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
+                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.BackgroundPageTilemapBytes)),
                 "four installed BG page JSON files preserve every native tilemap word");
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(
-                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.SamusHeadTilemap,
-                        maximumOutputBytes: IntroCinematicRomData.Transfers.SamusHeadTilemapBytes)),
+                    RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.SamusHeadTilemap,
+                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.SamusHeadTilemapBytes)),
                 "installed portrait JSON preserves every native tilemap word");
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(
-                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
-                        maximumOutputBytes: IntroCinematicRomData.Transfers.NarrationTilemapBytes)),
+                    RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,
+                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.NarrationTilemapBytes)),
                 "installed initial narration JSON preserves every native tilemap word");
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
-                int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
+                int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
                 ushort nativeWord = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1));
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
@@ -99,7 +99,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             {
-                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
                         frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
@@ -121,7 +121,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
             AssertTrue(stock.Palette.ColorWords.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.Palette,
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
@@ -285,8 +285,8 @@ internal static class IntroCinematicArtworkVerification
             var editedDividerState = CreateRetailIntroFixture(characterArtwork: editedDivider);
             editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
-            int dividerByte = (IntroCinematicRomDataLayersConstants.NarrationTilemapWord +
-                IntroCinematicRomData.Text.FinalLineFirstCell + changedCell) * sizeof(ushort);
+            int dividerByte = (IntroVramWords.NarrationTilemapWord +
+                IntroCinematicDefinitions.Text.FinalLineFirstCell + changedCell) * sizeof(ushort);
             BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
                 editedDivider.FinalLine.Words.Span[changedCell]);
             AssertTrue(!expectedDividerVram.SequenceEqual(stockDividerVram) &&
@@ -633,8 +633,8 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(program, installed.EyeProgram,
             "eye art rebind preserves blink program position");
         var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
-        int destination = IntroCinematicRomDataLayersConstants.PortraitTilemapWord +
-            eyeCell.Y * IntroCinematicRomData.Layers.TilemapWidth + eyeCell.X;
+        int destination = IntroVramWords.PortraitTilemapWord +
+            eyeCell.Y * IntroCinematicDefinitions.Tilemaps.TilemapWidth + eyeCell.X;
         AssertEqual(edited.FrameWords(0)[0], IntroTilemapsFixtures.Vram(installedVram).ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
         installed.BindEyeArtwork(stock.EyeFrames);
@@ -669,13 +669,13 @@ internal static class IntroCinematicArtworkVerification
         Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
         const ushort originY = 24;
-        ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
+        ushort paletteBits = IntroCinematicDefinitions.Objects.ScientistPalette.Raw;
         foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
-                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose)), new(originX, originY), paletteBits);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
@@ -812,7 +812,7 @@ internal static class IntroCinematicArtworkVerification
             var native = new OamBuffer();
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
-                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose)),
                 new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
                 IntroMotherBrainSpriteState.PaletteBits);
@@ -887,14 +887,14 @@ internal static class IntroCinematicArtworkVerification
     {
         const ushort x = 120;
         const ushort y = 100;
-        ushort palette = IntroCinematicRomData.Objects.ExplosionPalette.Raw;
+        ushort palette = IntroCinematicDefinitions.Objects.ExplosionPalette.Raw;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
-                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose)), new(x, y), palette);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
@@ -987,7 +987,7 @@ internal static class IntroCinematicArtworkVerification
             foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
+                    IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
                     return $"Ceres flight reread installed spritemap ${address:X6}.";
@@ -1000,60 +1000,59 @@ internal static class IntroCinematicArtworkVerification
                 CeresDestructionSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
+                    IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
                     return $"Ceres destruction reread installed spritemap ${address:X6}.";
                 }
             }
         }
-        if (address is IntroCinematicRomData.Assets.BackgroundCharacters or
-            IntroCinematicRomData.Assets.BackgroundPageTilemaps or
-            IntroCinematicRomData.Assets.SamusHeadTilemap or
-            IntroCinematicRomData.Assets.FirstNarrationTilemap or
-            IntroCinematicRomData.Assets.IntroObjectCharacters or
-            IntroCinematicRomData.Assets.ObjectCharacters or
-            CeresFlightRomData.Assets.FloorCharacters or
-            CeresFlightRomData.Assets.FloorMaps or
-            CeresFlightRomData.Assets.ObjectCharacters or
-            CeresDestructionRomData.Assets.ZebesTilemap or
-            CeresDestructionRomData.Assets.ZebesCharacters or
-            CeresDestructionRomDataAssetsConstants.SharedObjectCharacters)
+        if (address is IntroCinematicSourceDefinitions.BackgroundCharacters or
+            IntroCinematicSourceDefinitions.BackgroundPageTilemaps or
+            IntroCinematicSourceDefinitions.SamusHeadTilemap or
+            IntroCinematicSourceDefinitions.FirstNarrationTilemap or
+            IntroCinematicSourceDefinitions.ObjectCharacters or
+            CeresCinematicSourceDefinitions.FlightFloorCharacters or
+            CeresCinematicSourceDefinitions.CeresTilemaps or
+            CeresCinematicSourceDefinitions.FlightObjectCharacters or
+            CeresCinematicSourceDefinitions.ZebesTilemap or
+            CeresCinematicSourceDefinitions.ZebesCharacters or
+            IntroCinematicSourceDefinitions.IntroObjectCharacters)
         {
             return $"Cinematic reread character source ${address:X6}.";
         }
-        if (address is >= CeresFlightRomData.Assets.Palette and
-            < (CeresFlightRomData.Assets.Palette + CgramPalettes.ByteCount))
+        if (address is >= CeresCinematicSourceDefinitions.FlightPalette and
+            < (CeresCinematicSourceDefinitions.FlightPalette + CgramPalettes.ByteCount))
         {
             return $"Cinematic reread Ceres flight palette ${address:X6}.";
         }
-        if (address is >= IntroCinematicRomData.Assets.Palette and
-            < (IntroCinematicRomData.Assets.Palette + CgramPalettes.ByteCount))
+        if (address is >= IntroCinematicSourceDefinitions.Palette and
+            < (IntroCinematicSourceDefinitions.Palette + CgramPalettes.ByteCount))
         {
             return $"Cinematic reread opening palette ${address:X6}.";
         }
-        if (address is >= IntroCinematicRomData.Assets.FinalTextLine and
-            < (IntroCinematicRomData.Assets.FinalTextLine +
+        if (address is >= IntroCinematicSourceDefinitions.FinalTextLine and
+            < (IntroCinematicSourceDefinitions.FinalTextLine +
                 IntroFinalLineTilemapFormat.CellCount * sizeof(ushort)))
         {
             return $"Cinematic reread opening divider ${address:X6}.";
         }
-        if (address >= IntroCinematicRomData.Assets.MotherBrainLevelData &&
-            address < IntroCinematicRomData.Assets.MotherBrainLevelData +
-                IntroCinematicRomDataFlashbackConstants.MotherBrainLevelByteCount)
+        if (address >= IntroCinematicCheckSources.MotherBrainLevelData &&
+            address < IntroCinematicCheckSources.MotherBrainLevelData +
+                IntroMotherBrainFlashbackConstants.MotherBrainLevelByteCount)
         {
             return $"Cinematic reread Mother Brain collision source ${address:X6}.";
         }
-        int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+        int eyeScriptStart = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
             IntroEyeAnimationDefinitionsConstants.StartPointer);
         if (CinematicSpriteNativeListAddresses.InListRegion(address))
             return $"Cinematic reread a native cinematic sprite list ${address:X6}.";
-        int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+        int eyeFrameStart = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
             FrontendSourceDefinitions.IntroEyeFrameRecords);
         foreach (CinematicSpriteFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
         {
             int sourceAddress = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(caret.Pose));
+                IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(caret.Pose));
             int byteCount = 2 + caret.StockPartCount * 5;
             if (address >= sourceAddress && address < sourceAddress + byteCount)
             {
@@ -1085,7 +1084,7 @@ internal static class IntroCinematicArtworkVerification
 
         // Whether the read lands inside one of the frames' stock spritemap records.
         bool RereadsFrame(IEnumerable<CinematicSpriteFrameDefinition> frames) => frames.Any(frame =>
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose)) is var start &&
+            (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose)) is var start &&
             address >= start && address < start + 2 + frame.StockPartCount * 5);
     }
 

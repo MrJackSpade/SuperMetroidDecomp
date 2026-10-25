@@ -12,13 +12,13 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>The JSON name of the common BG2 background page, separate from the foreground option pages.</summary>
     public const string BackgroundPageName = "Background";
     /// <summary>Number of row-major tile cells in each 32-by-32 options page.</summary>
-    public const int PageCellCount = GameOptionsRomData.MenuTilemapWidth * GameOptionsRomData.MenuTilemapHeight;
+    public const int PageCellCount = GameOptionsDefinitions.MenuTilemapWidth * GameOptionsDefinitions.MenuTilemapHeight;
     /// <summary>Height in characters of the atlas addressed by authored background cells.</summary>
     public const int CharacterRows = 32;
     /// <summary>Width in tile cells of a controller-button label patch: three.</summary>
-    public const int ControllerLabelWidth = GameOptionsRomData.ControllerLabels.WidthInTiles;
+    public const int ControllerLabelWidth = GameOptionsDefinitions.ControllerLabels.WidthInTiles;
     /// <summary>Height in tile cells of a controller-button label patch: two.</summary>
-    public const int ControllerLabelHeight = GameOptionsRomData.ControllerLabels.HeightInTiles;
+    public const int ControllerLabelHeight = GameOptionsDefinitions.ControllerLabels.HeightInTiles;
     /// <summary>Six row-major tile cells required for each controller-button glyph patch.</summary>
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
@@ -178,7 +178,7 @@ public static class GameOptionsPresentationDefinitions
         return SnesBgTilemapWord.Create(tile, 0, false, flips).Raw;
     }
     /// <summary>$82:F639 controller label boxes: three tile rows per action.</summary>
-    internal static Position16<TilemapCells> ControllerAnchor(int action) => GameOptionsRomData.ControllerLabels.Anchor(action);
+    internal static Position16<TilemapCells> ControllerAnchor(int action) => GameOptionsLayout.ControllerLabelAnchor(action);
 
     /// <summary>$82:F307/F31B/F33F selection missile rows, including controller scroll displacement.</summary>
     internal static Position16<OamPixels> CursorAnchor(GameOptionsPage page, int row)
@@ -187,21 +187,21 @@ public static class GameOptionsPresentationDefinitions
             throw new InvalidDataException($"Options cursor {page}[{row}] is not authored.");
         return page switch
         {
-            GameOptionsPage.Primary => new(GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Cursors.PrimaryY(row)),
-            GameOptionsPage.Controller => new(GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Cursors.ControllerY(row)),
-            GameOptionsPage.Special => new(GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Cursors.SpecialY(row)),
+            GameOptionsPage.Primary => new(GameOptionsDefinitions.Cursors.PrimaryX, GameOptionsLayout.PrimaryY(row)),
+            GameOptionsPage.Controller => new(GameOptionsDefinitions.Cursors.ControllerX, GameOptionsLayout.ControllerY(row)),
+            GameOptionsPage.Special => new(GameOptionsDefinitions.Cursors.SpecialX, GameOptionsLayout.SpecialY(row)),
             _ => throw new ArgumentOutOfRangeException(nameof(page)),
         };
     }
 
     /// <summary>$82:F34B/F353/F35B and F369 named page heading setup anchors.</summary>
     internal static Position16<OamPixels> HeadingAnchor(GameOptionsPage page) =>
-        new(GameOptionsRomData.Spritemaps.HeadingX(page), GameOptionsRomData.Spritemaps.HeadingY);
+        new(GameOptionsLayout.HeadingX(page), GameOptionsDefinitions.Headings.HeadingY);
 
     /// <summary>$82:EDF2..EE51 language highlight calls cover consecutive tile words in two text rows.</summary>
     internal static IEnumerable<int> LanguageCells(int index)
     {
-        var region = GameOptionsRomData.LanguagePaletteRegion(index);
+        var region = GameOptionsLayout.LanguagePaletteRegion(index);
         for (int word = 0; word < region.ByteCount / sizeof(ushort); word++)
             yield return region.ByteOffset / sizeof(ushort) + word;
     }
@@ -211,23 +211,23 @@ public static class GameOptionsPresentationDefinitions
     {
         var layout = toggle switch
         {
-            GameOptionsToggle.IconCancel => GameOptionsRomData.SpecialToggles.IconCancel,
-            GameOptionsToggle.Moonwalk => GameOptionsRomData.SpecialToggles.Moonwalk,
+            GameOptionsToggle.IconCancel => GameOptionsLayout.IconCancel,
+            GameOptionsToggle.Moonwalk => GameOptionsLayout.Moonwalk,
             _ => throw new ArgumentOutOfRangeException(nameof(toggle)),
         };
         int first = state == GameOptionsToggleState.Enabled ? layout.EnabledTop : layout.DisabledTop;
         int second = state == GameOptionsToggleState.Enabled ? layout.EnabledBottom : layout.DisabledBottom;
         for (int row = 0; row < 2; row++)
-        for (int word = 0; word < GameOptionsRomData.SpecialToggles.PaletteRegionByteCount / sizeof(ushort); word++)
+        for (int word = 0; word < GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount / sizeof(ushort); word++)
             yield return (row == 0 ? first : second) / sizeof(ushort) + word;
     }
     /// <summary>Returns the number of selection-row anchors required by a menu layout.</summary>
     /// <returns>Five for primary, nine for controller including Exit and Reset, or three for special including Exit.</returns>
     internal static int CursorCount(GameOptionsPage page) => page switch
     {
-        GameOptionsPage.Primary => GameOptionsRomData.Rows.PrimaryCount,
-        GameOptionsPage.Controller => GameOptionsRomData.Rows.ControllerCount,
-        GameOptionsPage.Special => GameOptionsRomData.Rows.SpecialCount,
+        GameOptionsPage.Primary => GameOptionsDefinitions.Rows.PrimaryCount,
+        GameOptionsPage.Controller => GameOptionsDefinitions.Rows.ControllerCount,
+        GameOptionsPage.Special => GameOptionsDefinitions.Rows.SpecialCount,
         _ => throw new ArgumentOutOfRangeException(nameof(page)),
     };
 }

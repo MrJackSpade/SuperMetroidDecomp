@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>Checks typed DMA source routing across cartridge, WRAM and unmapped regions, SRAM windows included.</summary>

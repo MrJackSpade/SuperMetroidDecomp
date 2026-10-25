@@ -25,6 +25,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Constructs valid palette JSON baselines for the shared schema-mutation checks.</summary>

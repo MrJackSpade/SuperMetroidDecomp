@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>

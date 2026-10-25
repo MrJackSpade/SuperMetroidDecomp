@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 
 /// <summary>Checks installed and edited reward-icon artwork through native partial VRAM uploads and the ending shot.</summary>

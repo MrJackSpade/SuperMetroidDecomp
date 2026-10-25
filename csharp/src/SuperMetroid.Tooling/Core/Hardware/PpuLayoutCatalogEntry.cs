@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>One PPU layout catalog cell found by reflection: its declaring catalog, member and descriptor.</summary>

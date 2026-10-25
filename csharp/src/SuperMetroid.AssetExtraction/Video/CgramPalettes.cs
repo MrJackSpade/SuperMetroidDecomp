@@ -1,4 +1,8 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Hardware-level palette views of a whole CGRAM (#630): the complete colour table, the
@@ -8,12 +12,19 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("rendering view: whole-CGRAM banks and rows")]
 public readonly struct CgramPalettes(IPaletteColors cgram)
 {
+    /// <summary>Views a frontend screen's own colours, which it addresses by palette position.</summary>
+    /// <param name="screen">The screen's colours.</param>
+    public CgramPalettes(ScreenPalette screen)
+        : this(new ScreenPaletteColors(Ensure.NotNull(screen)))
+    {
+    }
+
     /// <summary>Colours in a complete CGRAM image.</summary>
-    public const int ColorCount = SnesPpuLayout.CgramColorCount;
+    public const int ColorCount = SnesCgram.ColorCount;
 
     /// <summary>Bytes in a complete CGRAM image of little-endian colour words.</summary>
     [PpuLayoutAccess]
-    public const int ByteCount = SnesPpuLayout.CgramByteCount;
+    public const int ByteCount = ColorCount * RgbColor.ByteCount;
 
     /// <summary>All 256 colours.</summary>
     [PpuLayoutAccess]

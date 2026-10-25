@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Whole-image comparisons of PPU state that only verification performs (#630).</summary>

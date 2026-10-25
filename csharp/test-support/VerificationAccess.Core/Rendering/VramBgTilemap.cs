@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>

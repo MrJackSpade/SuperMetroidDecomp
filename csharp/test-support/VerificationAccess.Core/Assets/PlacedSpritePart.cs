@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction;

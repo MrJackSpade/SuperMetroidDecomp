@@ -16,6 +16,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
 /// <summary>Deterministic audit of stable fingerprints and both deduplication layers.</summary>

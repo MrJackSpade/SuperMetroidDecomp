@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;

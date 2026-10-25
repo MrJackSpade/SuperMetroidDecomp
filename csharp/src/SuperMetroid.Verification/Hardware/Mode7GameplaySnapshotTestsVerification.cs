@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>Checks Mode 7 gameplay packets keep their registers, and a captured Ceres Ridley scene draws as the live frame did.</summary>

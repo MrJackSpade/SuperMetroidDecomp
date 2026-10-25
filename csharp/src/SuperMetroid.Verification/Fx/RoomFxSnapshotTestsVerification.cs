@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Checks captured room FX color math keeps the HUD band and owns its register rows.</summary>

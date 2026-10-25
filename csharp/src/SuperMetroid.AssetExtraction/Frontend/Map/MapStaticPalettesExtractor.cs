@@ -8,6 +8,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Resolves native palette-copy programs at import time into named world-selection palettes.</summary>

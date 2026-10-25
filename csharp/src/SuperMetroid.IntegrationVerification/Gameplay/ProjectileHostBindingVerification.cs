@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.Sessions;

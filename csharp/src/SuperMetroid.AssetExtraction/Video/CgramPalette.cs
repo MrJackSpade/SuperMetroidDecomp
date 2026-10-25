@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// A bounded, typed view of consecutive CGRAM colours (#630). Callers address colours by their

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Verification access to <see cref="BeamTileAtlas"/> members production does not use.</summary>

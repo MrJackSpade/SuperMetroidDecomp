@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>

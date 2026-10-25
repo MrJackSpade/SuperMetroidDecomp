@@ -22,6 +22,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Retail CGRAM and guarded-source checks for editable Tourian entrance statue colors.</summary>

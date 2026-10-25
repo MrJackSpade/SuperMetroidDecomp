@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Assets;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>Checks a frame's paint against its sources and source-array ownership (#1403).</summary>

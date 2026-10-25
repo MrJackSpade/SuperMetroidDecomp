@@ -12,6 +12,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
 /// <summary>Checks Ninja Space Pirate target colors sourced from shared Gold Pirate artwork.</summary>

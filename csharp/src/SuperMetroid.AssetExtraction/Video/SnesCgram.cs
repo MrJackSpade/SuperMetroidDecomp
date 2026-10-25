@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// The SNES PPU's 256-entry Color Generator RAM (CGRAM), retained as native <see cref="RgbColor"/> colors.
@@ -12,7 +14,7 @@ namespace SuperMetroid.Core.Hardware;
 public sealed class SnesCgram : IPaletteColors
 {
     /// <summary>The number of native palette words held by CGRAM.</summary>
-    public const int ColorCount = SnesPpuLayout.CgramColorCount;
+    public const int ColorCount = 256;
 
     /// <summary>Native 15-bit palette words retained until rendering or inspection converts them.</summary>
     private readonly RgbColor[] _colors = new RgbColor[ColorCount];

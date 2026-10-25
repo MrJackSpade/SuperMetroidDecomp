@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Verification access to <see cref="SamusBodyFrameState"/> for checks that still picture sprites through emulated character memory.</summary>

@@ -23,12 +23,4 @@ public sealed class RoomStaticPalette
 
     /// <summary>The 128 colours packed as little-endian BGR555 words, two bytes each, after discarding the unused high bit.</summary>
     public ReadOnlyMemory<byte> PackedColours => packedColours;
-
-    /// <summary>Loads all 128 colours into the background colours beginning at colour zero.</summary>
-    /// <param name="colours">The colours that receive the room palette.</param>
-    public void LoadTo(IPaletteColors colours)
-    {
-        Ensure.NotNull(colours);
-        new CgramPalettes(colours).Background.LoadPortBytes(packedColours);
-    }
 }

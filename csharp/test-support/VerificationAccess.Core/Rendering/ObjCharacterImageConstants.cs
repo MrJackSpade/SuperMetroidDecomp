@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Cartridge values and helpers of <see cref="ObjCharacterImage"/> that only verification reads.</summary>

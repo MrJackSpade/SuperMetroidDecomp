@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard's contact-driven kick velocity words against its native vertical-speed table.</summary>

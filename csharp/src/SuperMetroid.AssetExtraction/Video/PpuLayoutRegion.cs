@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Which PPU-side store a <see cref="PpuLayoutCell"/> describes, and the unit of its offsets.</summary>
 public enum PpuLayoutRegion

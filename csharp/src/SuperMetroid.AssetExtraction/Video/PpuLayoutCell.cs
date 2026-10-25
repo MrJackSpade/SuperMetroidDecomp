@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// One named PPU layout location or bounded range (#630): a VRAM tilemap/character region, a CGRAM
@@ -27,12 +29,15 @@ public sealed record PpuLayoutCell(string Name, PpuLayoutRegion Region, int Offs
         ? Count
         : throw new ArgumentOutOfRangeException(nameof(Count), Count, "A PPU layout cell holds at least one unit.");
 
+    /// <summary>The objects OAM describes.</summary>
+    private const int OamObjectCount = 128;
+
     /// <summary>The number of addressable units in <paramref name="region"/>.</summary>
     public static int Capacity(PpuLayoutRegion region) => region switch
     {
-        PpuLayoutRegion.Vram => SnesPpuLayout.VramWordCount,
-        PpuLayoutRegion.Cgram => SnesPpuLayout.CgramColorCount,
-        PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh => SnesPpuLayout.OamSpriteCount,
+        PpuLayoutRegion.Vram => SnesVram.WordCount,
+        PpuLayoutRegion.Cgram => SnesCgram.ColorCount,
+        PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh => OamObjectCount,
         _ => throw new ArgumentOutOfRangeException(nameof(region), region, "Unknown PPU layout region."),
     };
 

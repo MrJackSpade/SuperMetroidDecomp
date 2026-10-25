@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
@@ -42,7 +43,7 @@ internal static class RoomStaticPalettesVerification
             var expected = new SnesCgram();
             var actual = new SnesCgram();
             expected.LoadBytes(native.AsSpan(0, RoomStaticPaletteFormat.ByteCount));
-            palette.LoadTo(actual);
+            new CgramPalettes(actual).Background.LoadPortBytes(palette.PackedColours.Span);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 $"graphics-set palette ${source:X6} keeps all 128 native CGRAM colors");
             compiled.Add(source, palette);
@@ -75,8 +76,8 @@ internal static class RoomStaticPalettesVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)));
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        catalog.GetAt(selectedSource).LoadTo(stockCgram);
-        replacement.LoadTo(editedCgram);
+        new CgramPalettes(stockCgram).Background.LoadPortBytes(catalog.GetAt(selectedSource).PackedColours.Span);
+        new CgramPalettes(editedCgram).Background.LoadPortBytes(replacement.PackedColours.Span);
         AssertTrue(stockCgram.Colors[0] != editedCgram.Colors[0] &&
             stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),

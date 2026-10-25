@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The intro's shown tilemaps as checks read them (#1358): at their native words in an otherwise empty VRAM.</summary>

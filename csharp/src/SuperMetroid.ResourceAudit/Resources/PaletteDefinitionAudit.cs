@@ -13,6 +13,7 @@ using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.ResourceAudit.Resources;
 
 /// <summary>

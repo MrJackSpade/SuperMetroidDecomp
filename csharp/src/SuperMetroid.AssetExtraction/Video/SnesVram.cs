@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// The SNES PPU's 64 KiB of video RAM, exposed as bytes while retaining word-addressed
@@ -8,10 +10,10 @@ namespace SuperMetroid.Core.Hardware;
 public sealed class SnesVram
 {
     /// <summary>The PPU contains 32,768 16-bit VRAM words.</summary>
-    public const int WordCount = SnesPpuLayout.VramWordCount;
+    public const int WordCount = 32 * 1024;
 
     /// <summary>Two bytes per word gives the physical 64 KiB storage size.</summary>
-    public const int ByteCount = SnesPpuLayout.VramByteCount;
+    public const int ByteCount = WordCount * sizeof(ushort);
 
     /// <summary>VMADD's fifteen address bits: register arithmetic wraps within the VRAM words.</summary>
     private const int WordAddressMask = WordCount - 1;

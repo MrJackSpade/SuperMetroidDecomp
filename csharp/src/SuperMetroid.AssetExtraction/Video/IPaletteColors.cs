@@ -1,8 +1,10 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// The 256 colours a palette view reads and writes (#1358): the PPU's CGRAM during gameplay, or a frontend screen's own
-/// palette, which the screen publishes instead of owning PPU memory.
+/// The 256 colours the import pipeline's palette views read and write (#1358, #1422): an import scratch CGRAM, or a
+/// frontend screen's own colours viewed by palette position.
 /// </summary>
 public interface IPaletteColors
 {

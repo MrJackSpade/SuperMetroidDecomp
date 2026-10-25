@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Converts the title's complete cartridge CGRAM image to editable RGB5 JSON.</summary>

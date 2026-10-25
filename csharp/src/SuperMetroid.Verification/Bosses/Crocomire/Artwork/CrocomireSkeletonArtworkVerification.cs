@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks Crocomire skeleton tile uploads against native source bytes and full VRAM results.</summary>

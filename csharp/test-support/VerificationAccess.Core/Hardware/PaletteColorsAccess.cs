@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="IPaletteColors"/> reads production does not make.</summary>

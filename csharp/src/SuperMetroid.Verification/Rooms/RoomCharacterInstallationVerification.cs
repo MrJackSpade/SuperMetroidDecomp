@@ -22,6 +22,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
@@ -151,7 +152,7 @@ internal static class RoomCharacterInstallationVerification
                     .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
                 "installed RGB5 override changes only its room CGRAM color");
             var compiledStockCgram = new SnesCgram();
-            stockPalettes.GetAt(paletteSource).LoadTo(compiledStockCgram);
+            new CgramPalettes(compiledStockCgram).Background.LoadPortBytes(stockPalettes.GetAt(paletteSource).PackedColours.Span);
             AssertTrue(new CgramPalettes(stockCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(compiledStockCgram)),
                 "installed stock room palette matches native room CGRAM");
 

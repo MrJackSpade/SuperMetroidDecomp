@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>A menu screen as cartridge-transfer checks read it (#1358): its composed image as PPU memory.</summary>

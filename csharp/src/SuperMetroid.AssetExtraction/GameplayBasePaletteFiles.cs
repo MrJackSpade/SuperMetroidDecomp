@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts the starting gameplay CGRAM image and shared room-sprite palette.</summary>

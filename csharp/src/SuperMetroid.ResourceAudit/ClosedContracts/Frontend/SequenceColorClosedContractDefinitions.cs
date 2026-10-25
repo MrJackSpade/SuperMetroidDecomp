@@ -38,7 +38,6 @@ internal static class SequenceColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.GameplayBasePaletteCatalog", "gameplay-base-v1-complete-cgram-image",
             ["LoadInitial", "LoadCommonSprites", "LoadEnemyProjectileSprites"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesCgram.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],

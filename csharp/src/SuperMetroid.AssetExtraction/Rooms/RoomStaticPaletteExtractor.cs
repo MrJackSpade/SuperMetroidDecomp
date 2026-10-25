@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Extracts exactly the base CGRAM colors consumed by room graphics loading.</summary>
@@ -59,7 +60,7 @@ public static class RoomStaticPaletteExtractor
             var compiledCgram = new SnesCgram();
             new CgramPalettes(nativeCgram).All.LoadPortBytes(decompressed.AsSpan(
                 0, RoomStaticPaletteFormat.ByteCount));
-            compiled.LoadTo(compiledCgram);
+            new CgramPalettes(compiledCgram).Background.LoadPortBytes(compiled.PackedColours.Span);
             if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                 throw new InvalidDataException(
                     $"Room palette JSON {name} changed base CGRAM colors at extraction.");

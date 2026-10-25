@@ -118,13 +118,13 @@ internal sealed class MotherBrainFakeDeath
         // The index steps backward through the eight positions, from the first back to the last.
         state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
-        (ushort x, ushort y) = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
+        Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
         // `$A9:8904` samples the existing RNG word and never advances it. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
         int sampledRandom = _room.Random.Read();
         MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animation);
+        _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
         state.LastSoundEffect = Library2Sound.SmallExplosion;
     }
 
@@ -257,7 +257,7 @@ internal sealed class MotherBrainFakeDeath
         Position16<RoomBlocks> block,
         PlmHeaderId header,
         MotherBrainTubeCollapseFunction next,
-        ushort timer)
+        int timer)
     {
         _access.RequestMotherBrainPlm(block, header);
         state.TubeCollapseFunction = next;
@@ -374,9 +374,8 @@ internal sealed class MotherBrainFakeDeath
             tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
-        ushort headY = unchecked((ushort)(tube.Position.Y.Whole - 56));
-        state.Head.Position = state.Head.Position.WithWholeY(headY);
-        if (headY < 196)
+        state.Head.Position = state.Head.Position.WithWholeY(unchecked((ushort)(tube.Position.Y.Whole - 56)));
+        if (state.Head.Position.Y.Whole < 196)
         {
             SpawnMotherBrainTubeSmoke(tube);
             return;
@@ -422,10 +421,9 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Finishes a falling tube with its explosion and tile update.</summary>
     private void ExplodeMotherBrainTube(RoomEnemySlot tube)
     {
-        ushort x = tube.Position.X.Whole;
-        ushort y = tube.Position.Y.Whole;
+        Position16<RoomPixels> position = tube.Position.Whole;
         tube.Properties = tube.Properties.With(EnemyProperties.Deleted);
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallExplosion);
+        _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
         if (_motherBrainEncounter.MotherBrain is not null)
             _motherBrainEncounter.MotherBrain.LastSoundEffect = Library2Sound.SmallExplosion;
     }
@@ -437,7 +435,7 @@ internal sealed class MotherBrainFakeDeath
         PlmHeaderId secondHeader,
         MotherBrainBodyFunction next)
     {
-        byte firstRow = state.Function switch
+        int firstRow = state.Function switch
         {
             MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3 => 2,
             MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5 => 4,
@@ -548,8 +546,8 @@ internal sealed class MotherBrainFakeDeath
                 MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        _access.RequestMotherBrainPlm(new(2, firstRow), firstHeader);
-        _access.RequestMotherBrainPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
+        _access.RequestMotherBrainPlm(new(2, (ushort)firstRow), firstHeader);
+        _access.RequestMotherBrainPlm(new(2, (ushort)(firstRow + 1)), secondHeader);
         state.Function = next;
     }
 

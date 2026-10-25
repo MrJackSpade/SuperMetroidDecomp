@@ -283,14 +283,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        ushort mapX = ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0;
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
-        ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
+        Position16<BgPlanePixels> mapScroll = new(
+            ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0,
+            unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline)));
         // Every plane draws from the pause screen's pre-coloured tiles (#1392).
         ScreenLayerPictures planes = screen.PlaneTiles;
         var bg1 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(64, 32), planes),
-            new Position16<BgPlanePixels>(mapX, mapY), false);
+            mapScroll, false);
         var bg2 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
             new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), false);
         // The HUD plane shows its first screen through the viewport.
@@ -546,11 +547,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             break;
         }
 
-        ushort minimumX = unchecked((ushort)(left * 8 - (area == AreaId.Maridia ? 24 : 0)));
-        ushort maximumX = unchecked((ushort)(right * 8));
-        ushort minimumY = unchecked((ushort)(top * 8));
-        ushort maximumY = unchecked((ushort)(bottom * 8));
-        CurrentMapScrollBounds = new PauseMapScroll(new(minimumX, minimumY), new(maximumX, maximumY));
+        // Every map word below keeps its sixteen-bit wrap where it is computed; the signed
+        // tests read those words as the cartridge's branches do.
+        int minimumX = unchecked((ushort)(left * 8 - (area == AreaId.Maridia ? 24 : 0)));
+        int maximumX = unchecked((ushort)(right * 8));
+        int minimumY = unchecked((ushort)(top * 8));
+        int maximumY = unchecked((ushort)(bottom * 8));
+        CurrentMapScrollBounds = new PauseMapScroll(new((ushort)minimumX, (ushort)minimumY), new((ushort)maximumX, (ushort)maximumY));
 
         // SetupMapScrollingForPauseMenu($80) uses 16-bit ADC/SBC throughout. These local
         // helpers retain wrapping before every signed branch so an edge-of-map position
@@ -558,13 +561,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The player's map cell: the room's map origin plus Samus's room screen, with the
         // map convention's one-row downward offset.
         Position16<MapPixels> player = SamusMapCell().ToMapPixels();
-        ushort horizontal = unchecked((ushort)(
+        int horizontal = unchecked((ushort)(
             minimumX + unchecked((ushort)(maximumX - minimumX)) / 2 - 128));
-        ushort horizontalScreenPosition = unchecked((ushort)(player.X - horizontal));
-        short distanceFromRightClamp = unchecked((short)(224 - horizontalScreenPosition));
+        int horizontalScreenPosition = unchecked((ushort)(player.X - horizontal));
+        int distanceFromRightClamp = unchecked((short)(224 - horizontalScreenPosition));
         if (distanceFromRightClamp >= 0)
         {
-            ushort distanceFromLeftClamp = unchecked((ushort)(32 - horizontalScreenPosition));
+            int distanceFromLeftClamp = unchecked((ushort)(32 - horizontalScreenPosition));
             if (unchecked((short)distanceFromLeftClamp) >= 0)
                 horizontal = unchecked((ushort)(horizontal - distanceFromLeftClamp));
         }
@@ -573,19 +576,19 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             horizontal = unchecked((ushort)(horizontal - distanceFromRightClamp));
         }
 
-        ushort verticalMiddle = unchecked((ushort)(
+        int verticalMiddle = unchecked((ushort)(
             minimumY + unchecked((ushort)(maximumY - minimumY)) / 2 + 16));
-        ushort verticalCenterOffset = unchecked((ushort)((128 - verticalMiddle) & ~7));
-        ushort vertical = unchecked((ushort)-verticalCenterOffset);
-        ushort playerMapY = unchecked((ushort)(player.Y + verticalCenterOffset));
-        short distanceFromTopClamp = unchecked((short)(64 - playerMapY));
+        int verticalCenterOffset = unchecked((ushort)((128 - verticalMiddle) & ~7));
+        int vertical = unchecked((ushort)-verticalCenterOffset);
+        int playerMapY = unchecked((ushort)(player.Y + verticalCenterOffset));
+        int distanceFromTopClamp = unchecked((short)(64 - playerMapY));
         if (distanceFromTopClamp >= 0)
         {
             vertical = unchecked((ushort)(vertical - distanceFromTopClamp));
             if (unchecked((short)(vertical + 40)) < 0)
                 vertical = unchecked((ushort)-40);
         }
-        MapScrollPosition = new(horizontal, vertical);
+        MapScrollPosition = new((ushort)horizontal, (ushort)vertical);
     }
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
@@ -685,11 +688,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             for (int word = 0; word < wordCount; word++)
             {
                 int byteOffset = (localWordIndex + word) * 2;
-                ushort tile = unchecked(
-                    SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1]));
-                tile = new SnesBgTilemapWord(tile).WithPaletteIndex(palette);
-                pauseButtonTilemap[byteOffset] = unchecked((byte)tile);
-                pauseButtonTilemap[byteOffset + 1] = SnesLittleEndian.HighByte(tile);
+                SnesBgTilemapWord tile = new SnesBgTilemapWord(
+                    SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1])).WithPaletteIndex(palette);
+                pauseButtonTilemap[byteOffset] = SnesLittleEndian.LowByte(tile.Raw);
+                pauseButtonTilemap[byteOffset + 1] = SnesLittleEndian.HighByte(tile.Raw);
             }
         }
 
@@ -730,7 +732,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Draws a map sprite sheet frame with its selected palette bits.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, ushort paletteBits) =>
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, int paletteBits) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, paletteBits);
@@ -1140,7 +1142,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             PauseReserveEnergyDefinitions.RefillSoundInterval - 1)
             audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.MaximumQueuedSounds);
 
-        ushort amount = PauseEquipmentRules.ReserveEnergyPerFrame;
+        int amount = PauseEquipmentRules.ReserveEnergyPerFrame;
         samus.Health += amount;
         if (samus.Health >= samus.MaxHealth)
             samus.Health = samus.MaxHealth;

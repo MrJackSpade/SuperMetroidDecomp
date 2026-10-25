@@ -72,8 +72,7 @@ public sealed class EndingTextPresentation
         {
             get
             {
-                ushort stock = EndingTextLayoutDefinitions.SubtitleWord(index);
-                return owner.subtitleOverrides.GetValueOrDefault(index, stock);
+                return owner.subtitleOverrides.GetValueOrDefault(index, EndingTextLayoutDefinitions.SubtitleWord(index));
             }
         }
         /// <summary>Copies all 64 subtitle words in row-major order, leaving any additional destination cells unchanged.</summary>

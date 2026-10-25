@@ -445,12 +445,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (unchecked((short)slot.Position.Y.Whole) < 0)
             return true;
-        ushort relativeY = unchecked((ushort)(slot.Position.Y.Whole + 16 - _rinkaCamera.Y));
+        int relativeY = unchecked((ushort)(slot.Position.Y.Whole + 16 - _rinkaCamera.Y));
         if (unchecked((short)relativeY) < 0 || !EnemyMath.IsNegative16(relativeY - 256))
             return true;
         if (unchecked((short)slot.Position.X.Whole) < 0)
             return true;
-        ushort relativeX = unchecked((ushort)(slot.Position.X.Whole + 16 - _rinkaCamera.X));
+        int relativeX = unchecked((ushort)(slot.Position.X.Whole + 16 - _rinkaCamera.X));
         return unchecked((short)relativeX) < 0 || !EnemyMath.IsNegative16(relativeX - 288);
     }
 

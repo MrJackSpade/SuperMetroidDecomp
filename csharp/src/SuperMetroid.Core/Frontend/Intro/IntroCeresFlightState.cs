@@ -226,8 +226,7 @@ internal sealed class IntroCeresFlightState
         layers.Add(new ObjPriorityRenderLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            byte flash = checked((byte)flashIntensity);
-            layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
+            layers.Add(new FixedColorAddRenderLayer(checked((byte)flashIntensity), checked((byte)flashIntensity), checked((byte)flashIntensity)));
         }
         return new(new FramePaint(palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
     }
@@ -432,7 +431,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Adds a fractional X delta and wraps the actor within the native 512-pixel span.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
+    private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
         SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % 512)));

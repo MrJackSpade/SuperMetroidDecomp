@@ -25,7 +25,7 @@ internal abstract record MotherBrainBodyCue
     /// <summary>Moves the body vertically, counter-scrolling BG2 with a horizontal bias.</summary>
     /// <param name="Y">The vertical move.</param>
     /// <param name="ScrollBias">The horizontal bias BG2 scrolls with.</param>
-    internal sealed record MoveWithScrollBias(short Y, short ScrollBias) : MotherBrainBodyCue;
+    internal sealed record MoveWithScrollBias(int Y, int ScrollBias) : MotherBrainBodyCue;
 
     /// <summary>Spawns a charge particle at the hand.</summary>
     /// <param name="Offset">Where the particle spawns, from the body.</param>

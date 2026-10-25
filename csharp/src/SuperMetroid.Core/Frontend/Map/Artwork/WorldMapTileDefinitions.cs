@@ -23,7 +23,7 @@ internal static class WorldMapTileDefinitions
         or >= 0x9d and <= 0x9f or >= 0xa5 and <= 0xaa or >= 0xad and <= 0xaf or 0xc8 or 0xcc);
 
     /// <summary>One-pixel southeast cast shadow of the selected glyph silhouette; differing bevels remain supplied.</summary>
-    internal static bool TryForegroundFontPixel(int index, Func<int, ulong> footprint, out byte value)
+    internal static bool TryForegroundFontPixel(int index, Func<int, ulong> footprint, out int value)
     {
         int x = index % WorldMapArtworkFormat.Width % Side;
         int imageY = index / WorldMapArtworkFormat.Width, y = imageY % Side;
@@ -61,7 +61,7 @@ internal static class WorldMapTileDefinitions
     /// <summary>Selected pen-two digit footprint, surrounded by a one-pixel eight-neighbor pen-one outline.</summary>
     /// <remarks>The ten selected typeface footprints and five original edge choices are narrowly retained font design;
     /// the surrounding outline calculates rather than storing another bitmap.</remarks>
-    internal static bool TryOutlinedPixel(int tile, Position16<CharacterPixels> point, ulong footprint, out byte value)
+    internal static bool TryOutlinedPixel(int tile, Position16<CharacterPixels> point, ulong footprint, out int value)
     {
         if (!IsOutlinedDigit(tile) || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));
@@ -78,7 +78,7 @@ internal static class WorldMapTileDefinitions
     }
 
     /// <summary>Calculates the native solid, guide, room-edge, arrow, panel and binary wedge cells. Font/icon contours return false.</summary>
-    internal static bool TryBackgroundPixel(int tile, Position16<CharacterPixels> point, out byte value)
+    internal static bool TryBackgroundPixel(int tile, Position16<CharacterPixels> point, out int value)
     {
         if ((uint)tile >= WorldMapArtworkFormat.BackgroundTileCount || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));

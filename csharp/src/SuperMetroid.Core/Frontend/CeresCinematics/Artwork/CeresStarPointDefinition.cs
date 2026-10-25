@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// <param name="X">The star's X offset.</param>
 /// <param name="Y">The star's Y offset.</param>
 /// <param name="Tile">The star's tile.</param>
-internal readonly record struct CeresStarPointDefinition(int X, byte Y, int Tile);
+internal readonly record struct CeresStarPointDefinition(int X, int Y, int Tile);

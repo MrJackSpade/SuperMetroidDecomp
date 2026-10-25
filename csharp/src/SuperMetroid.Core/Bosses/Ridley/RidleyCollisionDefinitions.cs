@@ -20,8 +20,8 @@ internal static class RidleyCollisionDefinitions
     internal static bool IsOutsideInteractionWindow(Position16<RoomPixels> position, Position16<RoomPixels> camera)
     {
         Offset16<ScreenPixels> relative = (position + InteractionWindowMargin).RelativeToCamera(camera);
-        short relativeX = relative.X;
-        short relativeY = relative.Y;
+        int relativeX = relative.X;
+        int relativeY = relative.Y;
         return unchecked((short)position.X) < 0 || unchecked((short)position.Y) < 0 ||
             relativeX < 0 || relativeY < 0 ||
             unchecked((short)(relativeX - 320)) >= 0 ||

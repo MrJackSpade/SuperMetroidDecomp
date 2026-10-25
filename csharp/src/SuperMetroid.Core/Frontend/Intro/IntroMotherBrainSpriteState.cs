@@ -63,8 +63,8 @@ internal sealed class IntroMotherBrainSpriteState
     public void RunPreInstruction(
         ScreenPalette colours,
         ReadOnlySpan<Bgr555> introPalette,
-        ushort cinematicFrameCounter,
-        ushort introCrossfadeTimer)
+        int cinematicFrameCounter,
+        int introCrossfadeTimer)
     {
         if (CrossfadingToPageTwo)
         {
@@ -149,7 +149,7 @@ internal sealed class IntroMotherBrainSpriteState
     });
 
     /// <summary>Alternates BG1 scroll by four pixels from the inherited flashback offset.</summary>
-    private void ApplyScreenShake(ushort cinematicFrameCounter)
+    private void ApplyScreenShake(int cinematicFrameCounter)
     {
         // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.
         // The inherited $0008 value therefore alternates $000C/$0008; starting this host

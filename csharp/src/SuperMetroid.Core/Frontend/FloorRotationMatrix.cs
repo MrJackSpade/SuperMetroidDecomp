@@ -12,17 +12,15 @@ internal static class FloorRotationMatrix
     internal static AffineTransform Transform(SnesAngle angle, int zoom, Offset16<Mode7Pixels> center,
         Offset16<Mode7Pixels> scroll)
     {
-        short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
-        short sine = ReadSine(angle.TableIndex);
-        short a = Scale(cosine, zoom);
-        short b = Scale(sine, zoom);
-        return new(a, b, unchecked((short)-b), a, center, scroll);
+        int a = Scale(ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle()), zoom);
+        int b = Scale(ReadSine(angle.ToByteAngle()), zoom);
+        return new((short)a, (short)b, unchecked((short)-b), (short)a, center, scroll);
     }
 
-    /// <summary>Reads the compiled signed sine sample for a floor angle index.</summary>
-    internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(new SnesByteAngle(index));
+    /// <summary>Reads the compiled signed sine sample for a floor angle.</summary>
+    internal static short ReadSine(SnesByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
 
     /// <summary>Multiplies a signed trigonometric component by the 8.8 scale, which stays below 32768, keeping signed 16 bits.</summary>
-    private static short Scale(short component, int scalar) =>
+    private static short Scale(int component, int scalar) =>
         unchecked((short)(SnesEightEight.Multiply(component, checked((short)scalar))));
 }

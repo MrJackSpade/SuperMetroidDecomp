@@ -75,16 +75,16 @@ internal static class RidleyExplosionDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>Spawns every part's authored parameter in the breakup's allocation order.</summary>
-    internal static void SpawnInBreakupOrder(Action<ushort> spawn)
+    internal static void SpawnInBreakupOrder(Action<int> spawn)
     {
         Ensure.NotNull(spawn);
         foreach (RidleyExplosionPart part in BreakupOrder)
-            spawn(checked((ushort)PartParameters.Parameter(part)));
+            spawn(PartParameters.Parameter(part));
     }
 
     /// <summary>The definition of the part an authored spawn parameter selects.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The parameter selects no part.</exception>
-    public static RidleyExplosionPartDefinition GetPart(ushort parameter) => new(Lifetimes[PartParameters.Decode(parameter)]);
+    public static RidleyExplosionPartDefinition GetPart(int parameter) => new(Lifetimes[PartParameters.Decode(parameter)]);
 
     /// <summary>
     /// Returns one of the ten body-relative positions consumed cyclically by

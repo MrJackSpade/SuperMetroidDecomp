@@ -27,14 +27,14 @@ internal sealed class IntroMotherBrainExplosionSystem
         // Despite their adjacent definition addresses, the retail routine explicitly
         // spawns three small actors first and five big actors second. Each initializer uses
         // its parameter as an index into independent position and start-delay tables.
-        for (ushort parameter = 0; parameter < IntroMotherBrainDefinitions.SmallExplosionCount; parameter++)
+        for (int parameter = 0; parameter < IntroMotherBrainDefinitions.SmallExplosionCount; parameter++)
             actors.Add(ExplosionActor.CreateSmall(parameter));
-        for (ushort parameter = 0; parameter < IntroMotherBrainDefinitions.BigExplosionCount; parameter++)
+        for (int parameter = 0; parameter < IntroMotherBrainDefinitions.BigExplosionCount; parameter++)
             actors.Add(ExplosionActor.CreateBig(parameter));
     }
 
     /// <summary>Advances every allocated object through the exact bank-$8B list format.</summary>
-    public void Step(ushort introCrossfadeTimer)
+    public void Step(int introCrossfadeTimer)
     {
         foreach (ExplosionActor actor in actors)
             actor.Step(introCrossfadeTimer);
@@ -81,7 +81,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         public bool IsActive => sprite.IsActive;
 
         /// <summary>Starts a big explosion from its five-entry position and delay table.</summary>
-        public static ExplosionActor CreateBig(ushort parameter)
+        public static ExplosionActor CreateBig(int parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
                 IntroMotherBrainDefinitions.BigExplosion(parameter);
@@ -92,7 +92,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
 
         /// <summary>Starts a small explosion from its three-entry position and delay table.</summary>
-        public static ExplosionActor CreateSmall(ushort parameter)
+        public static ExplosionActor CreateSmall(int parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
                 IntroMotherBrainDefinitions.SmallExplosion(parameter);
@@ -103,7 +103,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
 
         /// <summary>Consumes one cinematic handler call.</summary>
-        public void Step(ushort introCrossfadeTimer)
+        public void Step(int introCrossfadeTimer)
         {
             if (!IsActive)
                 return;

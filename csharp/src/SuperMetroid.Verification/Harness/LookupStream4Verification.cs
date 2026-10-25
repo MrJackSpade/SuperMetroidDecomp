@@ -390,7 +390,7 @@ internal static class LookupStream4Verification
             AssertEqual(largeDeviation, EndingFontAtlasFormat.IsRequiredLargeGlyphDeviation(pixel), "exact31 unresolved native large-glyph sites");
             AssertEqual(!space && (!outlined || cutout || largeDeviation), stored.ContainsKey(pixel), "exact unresolved source pixel membership");
             AssertEqual(outlined && image.Pixels[pixel] == 1, footprint.Contains(pixel), "exact independent original glyph footprint positions");
-            bool calculated = EndingFontAtlasFormat.TryCalculatedPixel(pixel, footprint, out byte ink);
+            bool calculated = EndingFontAtlasFormat.TryCalculatedPixel(pixel, footprint, out int ink);
             AssertEqual(space || outlined && !cutout && !largeDeviation, calculated, "exact calculated-domain membership");
             if (calculated) AssertEqual(image.Pixels[pixel], ink, "direct native outline/blank calculation with no stored fallback");
             if (space || outlined) edits.Add(pixel);
@@ -3429,7 +3429,7 @@ internal static class LookupStream4Verification
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
             enemies.Presentation.BindColours(cgram.Gameplay);
-            Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette;
+            Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
             for (int row = 0; row < 9; row++)
             {
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));

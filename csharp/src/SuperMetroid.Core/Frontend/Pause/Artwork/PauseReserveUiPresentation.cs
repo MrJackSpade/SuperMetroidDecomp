@@ -76,10 +76,10 @@ public sealed class PauseReserveUiPresentation
             throw new ArgumentException("Reserve label target is shorter than the authored tilemap range.", nameof(tilemap));
         for (int index = 0; index < label.WordCount * sizeof(ushort); index += sizeof(ushort))
         {
-            ushort word = label.Word(index / sizeof(ushort));
+            SnesBgTilemapWord word = label.Word(index / sizeof(ushort));
             if (attributes == LabelAttributes.Preserve)
                 word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(label.Offset + index)))
-                    .WithCharacterIndex(new SnesBgTilemapWord(word).CharacterIndex);
+                    .WithCharacterIndex(word.CharacterIndex);
             BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(label.Offset + index), word);
         }
     }
@@ -93,8 +93,8 @@ public sealed class PauseReserveUiPresentation
     {
         if ((uint)position >= PauseReserveUiDefinitions.SupplyDigitPlaces || (uint)value >= PauseReserveUiDefinitions.DigitCount)
             throw new ArgumentOutOfRangeException();
-        ushort word = digits is null ? DigitWord(value) : BinaryPrimitives.ReadUInt16LittleEndian(digits[value]);
-        BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(digitOffset + position * sizeof(ushort)), word);
+        BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(digitOffset + position * sizeof(ushort)),
+            digits is null ? DigitWord(value) : BinaryPrimitives.ReadUInt16LittleEndian(digits[value]));
     }
 
     /// <summary>Replaces only the palette selectors of the ten authored arrow cells, preserving their characters, priority, and flips.</summary>
@@ -185,8 +185,8 @@ public sealed class PauseReserveUiPresentation
         /// <summary>Uses the native strip width for the selected label.</summary>
         internal int WordCount => PauseReserveUiDefinitions.StockLabelWords(name);
         /// <summary>Returns an edited tile word or the corresponding stock glyph and attributes.</summary>
-        internal ushort Word(int index) => edits.TryGetValue(index, out ushort selected)
-            ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
+        internal ushort Word(int index) => edits.ContainsKey(index)
+            ? edits[index] : PauseReserveUiDefinitions.StockLabelWord(name, index);
 
         /// <summary>Compares every supplied little-endian word and destination with stock, retaining only differences.</summary>
         internal static ReserveLabel Load(PauseReserveLabel name, int offset, ReadOnlySpan<byte> bytes)
@@ -194,8 +194,8 @@ public sealed class PauseReserveUiPresentation
             var edits = new Dictionary<int, ushort>();
             for (int index = 0; index < bytes.Length / sizeof(ushort); index++)
             {
-                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * sizeof(ushort))..]);
-                if (value != PauseReserveUiDefinitions.StockLabelWord(name, index)) edits.Add(index, value);
+                int value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * sizeof(ushort))..]);
+                if (value != PauseReserveUiDefinitions.StockLabelWord(name, index)) edits.Add(index, (ushort)value);
             }
             int? editedOffset = offset == PauseReserveUiDefinitions.StockLabelOffset(name) ? null : offset;
             return new(name, editedOffset, edits);

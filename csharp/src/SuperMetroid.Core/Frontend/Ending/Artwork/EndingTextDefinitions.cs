@@ -115,9 +115,9 @@ public static class EndingTextDefinitions
     /// <param name="style">The text style that owns the word.</param>
     /// <param name="bottom">Whether the supplied word is a large glyph's bottom half.</param>
     /// <returns>The decoded space, letter, or copyright digit.</returns>
-    public static char DecodeGlyph(ushort word, EndingTextStyle style, bool bottom = false)
+    public static char DecodeGlyph(int word, EndingTextStyle style, bool bottom = false)
     {
-        ushort blank = CompileGlyph(' ', style, bottom);
+        int blank = CompileGlyph(' ', style, bottom);
         if (word == blank) return ' ';
         if (style == EndingTextStyle.CopyrightLarge)
         {
@@ -144,7 +144,7 @@ public static class EndingTextDefinitions
     }
 
     /// <summary>Maps A-Z into the split large-font tile ranges and optionally selects the bottom half.</summary>
-    private static ushort CompileLarge(int letter, ushort attributes, bool bottom)
+    private static ushort CompileLarge(int letter, int attributes, bool bottom)
     {
         int tile = letter < LargeSecondGroupFirstLetter
             ? LargeFirstGroupTopBase + letter

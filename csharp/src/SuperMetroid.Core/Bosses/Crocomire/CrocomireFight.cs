@@ -149,13 +149,13 @@ internal sealed class CrocomireFight
     {
         if (samus is null || state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
             return;
-        ushort leftEdge = unchecked((ushort)(
+        int leftEdge = unchecked((ushort)(
             body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X));
         if (unchecked((short)(leftEdge - samus.Position.X.Whole)) >= 0)
             return;
 
         _collision.ResolveNormalEnemyTouch(body, samus);
-        samus.Position = samus.Position.WithWholeX(leftEdge);
+        samus.Position = samus.Position.WithWholeX((ushort)leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(-4, -1));
     }
 
@@ -168,9 +168,9 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state = _access.Crocomire is { } owner && ReferenceEquals(owner.Tongue, tongue)
             ? owner
             : throw new InvalidOperationException("Crocomire's tongue has no body owner.");
-        ushort oldTimer = tongue.InstructionTimer.RawValue;
-        tongue.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = tongue.InstructionTimer.Decrement();
+        tongue.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             tongue.ExtraProperties = tongue.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -195,12 +195,12 @@ internal sealed class CrocomireFight
     /// update its native timer would, and a newly shown frame raises the new-frame flag exactly as a native
     /// timed frame does.
     /// </summary>
-    internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, ushort cameraX)
+    internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, int cameraX)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
-        ushort oldTimer = body.InstructionTimer.RawValue;
-        body.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = body.InstructionTimer.Decrement();
+        body.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             body.ExtraProperties = body.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -242,7 +242,7 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        ushort cameraX,
+        int cameraX,
         CrocomireBodyCue cue,
         CrocomireBodyProgram continuation)
     {
@@ -328,7 +328,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Whether the body's left edge lies within 260 pixels right of the camera: the step-back moves' on-screen test.</summary>
-    private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, ushort cameraX) =>
+    private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>
         unchecked((short)(body.Position.X.Whole - body.Radius.X - 260 - cameraX)) < 0;
 
     /// <summary>Ports $A4:86B3-$8A39, including the shipped but normally unused states.</summary>

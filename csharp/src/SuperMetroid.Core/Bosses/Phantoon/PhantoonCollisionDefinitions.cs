@@ -56,7 +56,7 @@ internal static class PhantoonCollisionDefinitions
     private static PhantoonCollisionHitbox BodyHitbox(int index)
     {
         var vertical = RequiredVerticalBounds[index];
-        (short left, short right) = index switch
+        PhantoonHorizontalExtent horizontal = index switch
         {
             0 => Centered(BodyHalfWidth),
             EyeRectangle => Centered(EyeHalfWidth),
@@ -65,9 +65,9 @@ internal static class PhantoonCollisionDefinitions
             4 => Centered(CenterTentacleHalfWidth),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        return new(left, vertical.Top, right, vertical.Bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
+        return new(horizontal.Left, vertical.Top, horizontal.Right, vertical.Bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
 
-        static PhantoonHorizontalExtent Centered(short halfWidth) => new PhantoonHorizontalExtent((short)-halfWidth, (short)(halfWidth - 1));
+        static PhantoonHorizontalExtent Centered(int halfWidth) => new PhantoonHorizontalExtent(-halfWidth, halfWidth - 1);
     }
     /// <summary>
     /// Each Phantoon BG2 frame's components: the full body and the eye alone each have one component, the three

@@ -369,7 +369,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     /// </summary>
     internal static bool CountHit(PlmSlot slot)
     {
-        byte next = unchecked((byte)(slot.RoomArgument + 1));
+        int next = unchecked((byte)(slot.RoomArgument + 1));
         if (next < DraygonCannonDefinitions.HitsToDestroy)
         {
             slot.RoomArgument = next;
@@ -408,10 +408,10 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         int blockIndex,
         DraygonCannonTerrain terrain)
     {
-        ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
+        RoomLevelWord original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
         level.SetPlmForegroundEntry(
             blockIndex,
-            new RoomLevelWord(original).WithCollisionType(terrain.Type).Raw);
+            original.WithCollisionType(terrain.Type).Raw);
         level.SetPlmBehavior(blockIndex, terrain.Behavior);
     }
 

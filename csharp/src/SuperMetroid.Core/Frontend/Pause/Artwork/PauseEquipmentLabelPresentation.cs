@@ -166,8 +166,8 @@ public sealed class PauseEquipmentLabelPresentation
         var blankEdits = new Dictionary<int, ushort>();
         for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(blankBytes.AsSpan(cell * sizeof(ushort)));
-            if (word != 0) blankEdits.Add(cell, word);
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(blankBytes.AsSpan(cell * sizeof(ushort)));
+            if (word != 0) blankEdits.Add(cell, (ushort)word);
         }
         return new(compiled, blankEdits, document.DisabledPalette,
             Convert.ToHexString(SHA256.HashData(source)));
@@ -192,9 +192,9 @@ public sealed class PauseEquipmentLabelPresentation
     private void WriteBlank(Span<byte> destination)
     {
         destination.Clear();
-        foreach ((int cell, ushort word) in blankEdits)
-            if (cell < destination.Length / sizeof(ushort))
-                BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..], word);
+        foreach (KeyValuePair<int, ushort> edit in blankEdits)
+            if (edit.Key < destination.Length / sizeof(ushort))
+                BinaryPrimitives.WriteUInt16LittleEndian(destination[(edit.Key * sizeof(ushort))..], edit.Value);
     }
 
     /// <summary>Rejects partial buffers so fixed label destinations remain within the complete 32-by-32 pause tilemap.</summary>
@@ -210,8 +210,8 @@ public sealed class PauseEquipmentLabelPresentation
     {
         for (int offset = 0; offset < bytes.Length; offset += sizeof(ushort))
         {
-            ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..]);
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..], new SnesBgTilemapWord(raw).WithPaletteIndex(palette).Raw);
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..],
+                new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..])).WithPaletteIndex(palette).Raw);
         }
     }
 
@@ -229,8 +229,8 @@ public sealed class PauseEquipmentLabelPresentation
             var edits = new Dictionary<int, ushort>();
             for (int cell = 0; cell < bytes.Length / sizeof(ushort); cell++)
             {
-                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(cell * sizeof(ushort))..]);
-                if (value != PauseEquipmentLabelDefinitions.StockWord(id, cell)) edits.Add(cell, value);
+                int value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(cell * sizeof(ushort))..]);
+                if (value != PauseEquipmentLabelDefinitions.StockWord(id, cell)) edits.Add(cell, (ushort)value);
             }
             int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockPageByte(id)
                 ? null : destination;
@@ -242,7 +242,7 @@ public sealed class PauseEquipmentLabelPresentation
         {
             for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)
                 BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..],
-                    edits.TryGetValue(cell, out ushort selected) ? selected
+                    edits.ContainsKey(cell) ? edits[cell]
                         : PauseEquipmentLabelDefinitions.StockWord(id, cell));
         }
     }

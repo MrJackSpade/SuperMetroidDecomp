@@ -48,7 +48,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
         {
             int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
             if (source != index) return foreground[index] != (source < 0 ? 0 : foreground[source]);
-            return !WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out byte value) || foreground[index] != value;
+            return !WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out int value) || foreground[index] != value;
         }).ToDictionary(index => index, index => foreground[index]);
         for (int tile = 0; tile < WorldMapArtworkFormat.BackgroundTileCount; tile++)
         {
@@ -132,7 +132,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
         int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
         if (source < 0) return 0;
         if (source != index) return ForegroundPixel(source);
-        return WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out value) ? value
+        return WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out int pen) ? (byte)pen
             : throw new InvalidDataException("World foreground source pixel is unavailable.");
     }
 
@@ -141,9 +141,11 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     {
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;
         int tile = y / 8 * WorldMapArtworkFormat.TileColumns + x / 8;
-        if (digitFill.TryGetValue(tile, out ulong footprint))
-            return WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out value);
-        return WorldMapTileDefinitions.TryBackgroundPixel(tile,
-            new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
+        int pen;
+        bool found = digitFill.TryGetValue(tile, out ulong footprint)
+            ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out pen)
+            : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out pen);
+        value = (byte)pen;
+        return found;
     }
 }

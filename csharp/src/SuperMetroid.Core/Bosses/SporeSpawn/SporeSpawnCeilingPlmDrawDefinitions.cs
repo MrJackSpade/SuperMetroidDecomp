@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
@@ -14,22 +15,22 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     /// Clear fills with the blank tile; crumble advances through tiles $53..55
     /// in its three successive sixteen-byte records. Every cell uses the same air word.
     /// </summary>
-    internal static bool TryGetWord(PlmDraw request, out int word)
+    internal static bool TryGetWord(PlmDraw request, out RoomLevelWord word)
     {
         if (request is not PlmFrameDraw<SporeSpawnCeilingDraw>)
         {
-            word = 0;
+            word = default;
             return false;
         }
         var list = PlmDraw.FrameOf<SporeSpawnCeilingDraw>(request, "SporeSpawnCeilingDraw");
-        word = list switch
+        word = new RoomLevelWord(list switch
         {
             SporeSpawnCeilingDraw.Clear => 0x00ff,
             SporeSpawnCeilingDraw.CrumbleFirst => 0x53,
             SporeSpawnCeilingDraw.CrumbleSecond => 0x54,
             SporeSpawnCeilingDraw.CrumbleThird => 0x55,
             _ => throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {list}."),
-        };
+        });
         return true;
     }
 
@@ -69,7 +70,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     internal static bool TryGet(PlmDraw request,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        if (TryGetWord(request, out int word))
+        if (TryGetWord(request, out RoomLevelWord word))
         {
             list = Square(request, checked((ushort)word));
             return true;
@@ -80,12 +81,12 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
 
     /// <summary>Duplicates one physical tile across the two horizontal runs of the ceiling's two-by-two layout.</summary>
     private static RoomPlmShotBlockDrawDefinitions.DrawList Square(
-        PlmDraw draw, ushort physicalWord) => new(draw,
+        PlmDraw draw, RoomLevelWord physicalWord) => new(draw,
         new RoomPlmShotBlockDrawDefinitions.Run[]
         {
             new RoomPlmShotBlockDrawDefinitions.Run(
-                2, new ushort[] { physicalWord, physicalWord }, new(0, 1)),
+                2, new ushort[] { physicalWord.Raw, physicalWord.Raw }, new(0, 1)),
             new RoomPlmShotBlockDrawDefinitions.Run(
-                2, new ushort[] { physicalWord, physicalWord }, new(0, 0)),
+                2, new ushort[] { physicalWord.Raw, physicalWord.Raw }, new(0, 0)),
         });
 }

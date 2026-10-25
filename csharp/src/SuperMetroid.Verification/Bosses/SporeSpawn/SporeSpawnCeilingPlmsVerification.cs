@@ -58,11 +58,11 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out int word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomLevelWord word), "Spore ceiling scalar ownership");
             AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {
-                AssertEqual((ushort)0, word, "missing Spore ceiling scalar zero");
+                AssertEqual((ushort)0, word.Raw, "missing Spore ceiling scalar zero");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
                 continue;
             }
@@ -71,7 +71,7 @@ internal static class SporeSpawnCeilingPlmsVerification
             for (int column = 0; column < 2; column++)
             {
                 ushort native = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + row * 8 + column * 2 + 2));
-                AssertEqual(native, word, "Spore ceiling calculated scalar covers each native cell");
+                AssertEqual(native, word.Raw, "Spore ceiling calculated scalar covers each native cell");
                 AssertEqual(native, dto.Runs.Span[row].LevelWords.Span[column], "Spore ceiling direct DTO word");
             }
         }

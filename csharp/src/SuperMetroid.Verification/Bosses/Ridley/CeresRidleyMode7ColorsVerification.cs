@@ -81,7 +81,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
-        Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette;
+        Action<ushort> select = selectedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(selectedZoom);
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {

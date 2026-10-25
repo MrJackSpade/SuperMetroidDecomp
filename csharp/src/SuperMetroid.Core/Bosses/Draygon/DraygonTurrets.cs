@@ -26,7 +26,7 @@ internal sealed class DraygonTurrets
     internal void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         if ((frameCounterLow & 63) != 0)
             return;

@@ -106,21 +106,21 @@ public static class PauseWireframeDefinitions
             else if (varia && !hiJump && row == 16 && column == 7) tile = RegularFootOuter + PieceRowStride + 1;
             else tile = -1;
         }
-        ushort word;
-        if (tile >= 0) word = (ushort)(CommonPieceAttributes | tile);
+        int word;
+        if (tile >= 0) word = CommonPieceAttributes | tile;
         else if (column < Columns / 2) word = 0;
         else
         {
-            ushort paired = StockWord(kind, row * Columns + Columns - 1 - column);
-            word = paired == 0 ? (ushort)0 : (ushort)(paired ^ MapPresentationFormat.FlipXBit);
+            int paired = StockWord(kind, row * Columns + Columns - 1 - column);
+            word = paired == 0 ? 0 : paired ^ MapPresentationFormat.FlipXBit;
         }
         bool underlay = (row == 13 && column == 3 && !(varia && hiJump))
             || (!varia && hiJump && column == 1 && row is 13 or 14)
             || (hiJump && column == 3 && row == 15)
             || (varia && !hiJump && column is 1 or 4 && row is 11 or 12);
-        if (underlay) word = (ushort)(word & ~Priority);
+        if (underlay) word &= ~Priority;
         if (varia && !hiJump && column == 6 && row is 11 or 12) word |= Priority;
-        return word;
+        return (ushort)word;
     }
     /// <summary>Calculate tile references within identified rectangular body pieces.</summary>
     /// <remarks>The named piece composition is authored drawing content; StockWord completes its

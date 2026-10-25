@@ -139,15 +139,12 @@ internal sealed class CrocomireBridgeCollapse
     /// </summary>
     private void PublishCrocomireBridgeCollapsePlms()
     {
-        for (byte blockX = 97; blockX <= 106; blockX++)
+        for (int blockX = 97; blockX <= 106; blockX++)
             _access.PublishCrocomirePlm(
-                new Position16<RoomBlocks>(blockX, 11), PlmHeaderId.ClearCrocomireBridgeBlock);
+                new Position16<RoomBlocks>((ushort)blockX, 11), PlmHeaderId.ClearCrocomireBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
-        {
-            (ushort x, ushort y) = CrocomireBridgeDustPosition(puff);
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.BigDustCloud);
-        }
+            _projectiles.SpawnRoomGraphicsDustExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
 
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
     }
@@ -299,7 +296,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Selects the body melting program for the rows still above the acid.</summary>
     internal static void SelectCrocomireRisingInstruction(CrocomireEnemyState state)
     {
-        ushort y = state.Body.Position.Y.Whole;
+        int y = state.Body.Position.Y.Whole;
         CrocomireBodyProgram program = y < 248
             ? CrocomireBodyProgram.MeltingTwoTopFourRows
             : y < 264

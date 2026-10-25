@@ -12,12 +12,13 @@ internal static class IntroCinematicMotion
     /// <summary>Adds a native whole/fraction velocity pair to one axis.</summary>
     public static SnesFixedPosition AddSixteenSixteen(
         SnesFixedPosition position,
-        ushort wholeVelocity,
-        ushort fractionalVelocity) =>
+        int wholeVelocity,
+        int fractionalVelocity) =>
         // Native 16-bit ADC first adds the fractional words, then propagates its carry into
         // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
+        // Each velocity word keeps its low sixteen bits.
         SnesSignedSixteenSixteen
-            .FromParts(unchecked((short)wholeVelocity), fractionalVelocity)
+            .FromParts(unchecked((short)wholeVelocity), unchecked((ushort)fractionalVelocity))
             .AddTo(position.Whole, position.Fraction);
 
     /// <summary>Adds a packed signed 16.16 delta (whole word in the high half) to one axis.</summary>

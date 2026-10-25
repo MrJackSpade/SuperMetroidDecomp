@@ -49,7 +49,7 @@ internal static class IntroMotherBrainCollisionDefinitions
         for (int row = 0; row < SourceRows; row++)
             for (int column = 0; column < Columns; column++)
             {
-                ushort word = Block(row, column);
+                int word = Block(row, column);
                 int offset = (row * Columns + column) * sizeof(ushort);
                 bytes[offset] = (byte)word;
                 bytes[offset + 1] = SnesLittleEndian.HighByte(word);

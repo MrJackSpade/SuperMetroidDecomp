@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Period">Animation frame duration.</param>
 /// <param name="Delay">Initial invisible delay; zero starts immediately.</param>
 internal readonly record struct EndingShootingStarDefinition(
-    EightEightVector<ScreenPixels> Acceleration, ushort Period, ushort Delay);
+    EightEightVector<ScreenPixels> Acceleration, int Period, int Delay);

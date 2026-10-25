@@ -90,5 +90,5 @@ internal static class KraidBodyTilemap
     }
 
     /// <summary>Clears the BG2 priority bit from a Kraid background tile word.</summary>
-    private static ushort WithoutPriority(ushort word) => (ushort)(word & ~SnesBgTilemapWord.PriorityMask);
+    private static ushort WithoutPriority(int word) => (ushort)(word & ~SnesBgTilemapWord.PriorityMask);
 }

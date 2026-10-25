@@ -214,7 +214,7 @@ internal sealed class TorizoMovement
         int displacement = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
         if (_terrain.MoveEnemyVertically(level, torizo, displacement))
         {
-            short velocity = state.Velocity.Y.SignedRawValue;
+            int velocity = state.Velocity.Y.SignedRawValue;
             if (velocity is >= 0 and not 256)
             {
                 _earthquake.EarthquakeType = 4;

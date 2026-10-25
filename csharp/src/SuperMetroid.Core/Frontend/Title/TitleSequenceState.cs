@@ -380,11 +380,10 @@ public sealed class TitleSequenceState : IFrontendScreen
     public FloorScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        short scale = unchecked((short)Zoom);
         return new(new FramePaint(palette.Colors, objects.Draws),
             floorBackgroundEnabled
-                ? new AffineTransform(scale, TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
-                    0, scale, new Offset16<Mode7Pixels>(128, 128), panPosition.Whole.AsSignedRegister())
+                ? new AffineTransform(unchecked((short)Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
+                    0, unchecked((short)Zoom), new Offset16<Mode7Pixels>(128, 128), panPosition.Whole.AsSignedRegister())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
             floorBackgroundEnabled ? AffineFloor.Of(FloorMap(), FloorTiles(TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame])) : null);

@@ -136,7 +136,7 @@ internal sealed class FrontendDisplay
     internal void PublishBlack() => capturedDisplay = new(NextIdentity(), Black);
 
     /// <summary>Applies one write of the brightness register $51 to the published display.</summary>
-    internal void ApplyBrightness(byte brightness)
+    internal void ApplyBrightness(int brightness)
     {
         DisplayPacket frame = capturedDisplay;
         capturedDisplay = Reframe(frame, frame.Identity, frame.Fades.Add(new FadeLevel(brightness)));

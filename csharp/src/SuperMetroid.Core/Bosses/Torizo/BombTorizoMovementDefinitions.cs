@@ -35,9 +35,9 @@ internal static class BombTorizoMovementDefinitions
 
         int xIndex = tableOffset >> 1;
         int yIndex = (tableOffset & 0x000f) >> 1;
-        short horizontal = LeftPostureX[xIndex % LeftPostureX.Length];
+        int horizontal = LeftPostureX[xIndex % LeftPostureX.Length];
         return new Offset16<RoomPixels>(
-            xIndex < LeftPostureX.Length ? horizontal : (short)-horizontal, PostureY[yIndex]);
+            (short)(xIndex < LeftPostureX.Length ? horizontal : -horizontal), PostureY[yIndex]);
     }
 
     /// <summary>Returns the walking velocity selected by an even byte offset.</summary>
@@ -51,7 +51,7 @@ internal static class BombTorizoMovementDefinitions
         }
 
         int index = tableOffset >> 1;
-        short velocity = LeftWalkVelocities[index % LeftWalkVelocities.Length];
+        int velocity = LeftWalkVelocities[index % LeftWalkVelocities.Length];
         return unchecked((ushort)(index < LeftWalkVelocities.Length ? velocity : -velocity));
     }
 }

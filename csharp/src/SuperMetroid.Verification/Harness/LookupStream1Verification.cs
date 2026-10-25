@@ -119,7 +119,7 @@ internal static class LookupStream1Verification
             int x = index % size.X, y = index / size.X;
             int tile = y / 8 * 16 + x / 8;
             bool available = tile is >= 0x3c and <= 0x45
-                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out byte value)
+                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out int value)
                 : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
             if (available) { AssertEqual(pixels[index], value, $"Native primitive tile{y / 8 * 16 + x / 8:X2} pixel{x % 8},{y % 8}"); calculated++; }
             AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
@@ -2605,7 +2605,7 @@ internal static class LookupStream1Verification
             if (source >= 0)
                 AssertEqual(source, WorldMapTileDefinitions.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
             AssertEqual(pixels[index], source < 0 ? (byte)0 : pixels[source], $"Direct foreground relation at pixel{index}");
-            bool font = WorldMapTileDefinitions.TryForegroundFontPixel(index, NativeMask, out byte fontValue);
+            bool font = WorldMapTileDefinitions.TryForegroundFontPixel(index, NativeMask, out int fontValue);
             bool required = source == index && (!font || pixels[index] != fontValue);
             AssertEqual(required, stored.ContainsKey(index), "Exact selected source/contour basis; zero stock relation exceptions");
             if (source == index && font && pixels[index] != fontValue) fontDifferences++;

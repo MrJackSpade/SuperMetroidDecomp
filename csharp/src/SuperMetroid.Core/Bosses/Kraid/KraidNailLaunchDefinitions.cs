@@ -16,6 +16,6 @@ public static class KraidNailLaunchDefinitions
     /// sign-selected Y whole word have separate original-record proofs; no
     /// random choice changes these words or requires a stored lookup.
     /// </remarks>
-    public static FixedVector<RoomPixels> FromSiblingVelocity(ushort siblingYWhole) =>
+    public static FixedVector<RoomPixels> FromSiblingVelocity(int siblingYWhole) =>
         FixedVector<RoomPixels>.FromWords(ushort.MaxValue, 0, unchecked((short)siblingYWhole) < 0 ? (ushort)1 : ushort.MaxValue, 0);
 }

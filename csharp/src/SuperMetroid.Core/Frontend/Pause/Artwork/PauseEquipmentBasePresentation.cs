@@ -15,8 +15,8 @@ public sealed class PauseEquipmentBasePresentation
         // Compare each supplied word independently with immutable stock composition.
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(selected[(cell * sizeof(ushort))..]);
-            if (word != DefaultWord(cell)) remainingCells.Add(cell, word);
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(selected[(cell * sizeof(ushort))..]);
+            if (word != DefaultWord(cell)) remainingCells.Add(cell, (ushort)word);
         }
     }
 
@@ -31,7 +31,7 @@ public sealed class PauseEquipmentBasePresentation
     }
 
     /// <summary>Uses a supplied visual edit when present and calculates the stock cell otherwise.</summary>
-    private ushort Word(int cell) => remainingCells.TryGetValue(cell, out ushort value) ? value : DefaultWord(cell);
+    private ushort Word(int cell) => remainingCells.ContainsKey(cell) ? remainingCells[cell] : DefaultWord(cell);
 
     /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
     private static ushort DefaultWord(int cell)
@@ -60,11 +60,11 @@ public sealed class PauseEquipmentBasePresentation
                     equipmentLabels.OwnsLiveCell(cell);
             if (liveOwned) continue;
             int offset = cell * sizeof(ushort);
-            ushort replacement = Word(cell);
+            SnesBgTilemapWord replacement = Word(cell);
             if (PauseEquipmentBaseDefinitions.IsArrowCell(cell))
             {
                 int palette = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(current.Slice(offset))).PaletteIndex;
-                replacement = new SnesBgTilemapWord(replacement).WithPaletteIndex(palette).Raw;
+                replacement = replacement.WithPaletteIndex(palette);
             }
             BinaryPrimitives.WriteUInt16LittleEndian(current.Slice(offset), replacement);
         }
@@ -81,11 +81,11 @@ public sealed class PauseEquipmentBasePresentation
         {
             if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell)) continue;
             int offset = cell * sizeof(ushort);
-            ushort replacement = Word(cell);
+            SnesBgTilemapWord replacement = Word(cell);
             if (PauseEquipmentBaseDefinitions.IsArrowCell(cell))
             {
                 int palette = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(current.Slice(offset))).PaletteIndex;
-                replacement = new SnesBgTilemapWord(replacement).WithPaletteIndex(palette).Raw;
+                replacement = replacement.WithPaletteIndex(palette);
             }
             BinaryPrimitives.WriteUInt16LittleEndian(current.Slice(offset), replacement);
         }

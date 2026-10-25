@@ -71,9 +71,9 @@ public class TitleGraphicsPresentation
         ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
 
     /// <summary>Places one title frame of the title sheet, its parts in the row <paramref name="paletteBits"/> select.</summary>
-    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits) =>
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<OamPixels> origin, int paletteBits) =>
         Ensure.NotNull(sprites).AddImage(Ensure.NotNull(sheet).Frame(TitleSpriteDefinitions.FrameName(sprite)), origin,
-            FrontendSheetPalette.Override(paletteBits));
+            FrontendSheetPalette.Override(checked((ushort)paletteBits)));
 
     /// <summary>Validates and writes an editable title Mode 7 map document as UTF-8 JSON.</summary>
     /// <param name="json">The destination stream.</param>

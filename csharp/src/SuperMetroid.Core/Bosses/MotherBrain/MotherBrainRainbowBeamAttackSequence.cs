@@ -96,8 +96,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Inherits word <c>$0FF2</c> from the room's encounter state when the live sequence
     /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
-    internal void InheritDeathAndEscapeExplosionIndex(ushort bodySubFunctionTimer) =>
-        ThirdPhaseDeath.DeathAndEscapeExplosionIndex = WrappingCountdown.FromRaw(bodySubFunctionTimer);
+    internal void InheritDeathAndEscapeExplosionIndex(WrappingCountdown bodySubFunctionTimer) =>
+        ThirdPhaseDeath.DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.
@@ -224,7 +224,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public bool RequestBabyStumbleBackward()
     {
-        ushort targetX = unchecked((ushort)(State.Body.Position.X - 1));
+        int targetX = unchecked((ushort)(State.Body.Position.X - 1));
         return State.MakeBodyWalkBackwards(targetX, MotherBrainBodyProgram.WalkBackwardReallyFast).Requested;
     }
 

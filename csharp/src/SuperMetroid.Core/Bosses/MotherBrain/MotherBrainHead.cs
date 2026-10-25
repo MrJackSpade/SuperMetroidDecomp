@@ -198,7 +198,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         RoomEnemySlot head)
     {
-        ushort shake;
+        int shake;
         if (!state.BrainMainShakeTimer.IsZero)
         {
             state.BrainMainShakeTimer = state.BrainMainShakeTimer.Decrement().Remaining;
@@ -330,7 +330,7 @@ internal sealed class MotherBrainHead
                 SpawnMotherBrainOnionRing(state, unchecked(new SnesByteAngle((byte)state.OnionRingsTargetAngle)));
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
-                SpawnMotherBrainBomb(state, (ushort)bomb.Afterburns);
+                SpawnMotherBrainBomb(state, bomb.Afterburns);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnLaser }:
                 SpawnMotherBrainMouthLaser(state);
@@ -398,9 +398,8 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> target)
     {
         RoomEnemySlot head = state.Head;
-        short deltaX = unchecked((short)(target.X - head.Position.X.Whole - 10));
-        short deltaY = unchecked((short)(target.Y - head.Position.Y.Whole - 16));
-        byte angle = EnemyMath.CalculateBearing(new(deltaX, deltaY)).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
+        Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
+        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
 
         // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps
@@ -416,7 +415,7 @@ internal sealed class MotherBrainHead
     /// <summary>Ports initializer <c>$86:C482-C4C7</c>.</summary>
     private void SpawnMotherBrainBomb(
         MotherBrainEnemyState state,
-        ushort afterburnCount)
+        int afterburnCount)
     {
         RoomEnemyProjectileSlot? bomb = _projectiles.AllocateEnemyProjectile();
         if (bomb is null)

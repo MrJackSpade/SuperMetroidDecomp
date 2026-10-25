@@ -221,7 +221,7 @@ internal sealed class IntroRinkaSystem
                 MoveHalfPixelX(rinka,
                     IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
-                short y = unchecked((short)rinka.WholePosition.Y);
+                int y = unchecked((short)rinka.WholePosition.Y);
                 if (y < 16 || y >= 208 || motherBrainExploding)
                     rinka.Delete();
                 return;

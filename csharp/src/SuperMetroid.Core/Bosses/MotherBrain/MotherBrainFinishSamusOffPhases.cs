@@ -20,21 +20,22 @@ internal sealed class MotherBrainFinishSamusOffPhases
     public int RainbowBeamPaletteAnimationIndex { get; internal set; }
 
     /// <summary>Applies Gravity/Varia damage reduction and the native extra scaling used only by the $50 beam strike.</summary>
-    private static ushort CalculateFinishOffHealthThreshold(SamusState samus, ushort nominalDamage)
+    /// <remarks>The nominal damage is 80 or 160, so the scaled threshold never exceeds 340.</remarks>
+    private static int CalculateFinishOffHealthThreshold(SamusState samus, int nominalDamage)
     {
         // `$A0:A45E` gives Gravity Suit priority and divides damage by four. Otherwise
         // Varia's bit zero divides by two; Power Suit leaves it untouched. `$A9:BD4C`
         // then multiplies the divided `$50` result by four, while `$BD68` deliberately
         // does not multiply the divided `$A0` result. The caller selects that distinction.
-        ushort divided = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? (ushort)(nominalDamage >> 2)
+        int divided = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? nominalDamage >> 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? (ushort)(nominalDamage >> 1)
+                ? nominalDamage >> 1
                 : nominalDamage;
 
         return nominalDamage == 80
-            ? unchecked((ushort)(divided * 4 + 20))
-            : unchecked((ushort)(divided + 20));
+            ? divided * 4 + 20
+            : divided + 20;
     }
 
     /// <summary>Selects the next Baby Metroid page, rejecting calls after its last page has shown.</summary>

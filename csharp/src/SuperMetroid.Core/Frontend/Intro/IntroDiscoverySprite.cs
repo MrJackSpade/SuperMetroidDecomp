@@ -20,11 +20,11 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Creates an actor at a whole-pixel origin with its starting OBJ attributes and program.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
-        ushort paletteBits,
+        int paletteBits,
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
-        Attributes = new(paletteBits);
+        Attributes = new(checked((ushort)paletteBits));
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
@@ -135,7 +135,7 @@ internal sealed class IntroDiscoverySprite
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
         // Counter steps count the actor's goto-timer word, as the native timer-load and countdown opcodes do. Only a
         // counter step changes it, so an owner's own use of the word between steps survives.
-        ushort timerBefore = checked((ushort)GeneralTimer);
+        int timerBefore = GeneralTimer;
         WrappingCountdown counter = InstructionLoopCountdown;
         AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) =>
@@ -183,7 +183,7 @@ internal sealed class IntroDiscoverySprite
         if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
-        ushort y = origin.Y;
+        int y = origin.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >=
             CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
             return;

@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <param name="TargetHoleIndex">The destination hole, zero through three.</param>
 internal readonly record struct BotwoonPathDescriptorDefinition(
     int FirstSampleIndex,
-    short Direction,
+    int Direction,
     int TargetHoleIndex);

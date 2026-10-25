@@ -49,7 +49,7 @@ public static class PauseSelectorDefinitions
     public static Position16<OamPixels> StockAnchor(PauseEquipmentCategory category, int item)
     {
         _ = Anchor(category, item);
-        var (x, y) = category switch
+        Position16<ScreenPixels> anchor = category switch
         {
             PauseEquipmentCategory.Reserves => new Position16<ScreenPixels>(0x1b, 0x54),
             PauseEquipmentCategory.Beams => new Position16<ScreenPixels>(0x30, 0x84),
@@ -57,7 +57,7 @@ public static class PauseSelectorDefinitions
             PauseEquipmentCategory.Boots => new Position16<ScreenPixels>(0xcc, 0x9c),
             _ => throw new ArgumentOutOfRangeException(nameof(category)),
         };
-        return new(checked((ushort)(x - 1)), checked((ushort)(y + item * 8 - 1)));
+        return new(checked((ushort)(anchor.X - 1)), checked((ushort)(anchor.Y + item * 8 - 1)));
     }
     /// <summary>Selects the visual animation role for an equipment category, sharing the Equipment role between suit/miscellaneous items and boots.</summary>
     /// <param name="category">Native equipment category: 0 reserves, 1 beams, 2 suit/miscellaneous items, or 3 boots.</param>

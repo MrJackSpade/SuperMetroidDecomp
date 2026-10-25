@@ -199,7 +199,7 @@ internal sealed class KraidRise
                 if ((body.Position.Y.Whole & 3) == 0 && state.Parts[body.SlotIndex].CeilingRockOffset < 18)
                 {
                     int ceilingIndex = state.Parts[body.SlotIndex].CeilingRockOffset / 2;
-                    ushort rockX = KraidCeilingRockPositionDefinitions.AtByteOffset(checked((ushort)state.Parts[body.SlotIndex].CeilingRockOffset));
+                    int rockX = KraidCeilingRockPositionDefinitions.AtByteOffset(state.Parts[body.SlotIndex].CeilingRockOffset);
                     if (_background.SpawnKraidCeilingRock(rockX))
                         state.CeilingRockSpawnCount++;
                     _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);

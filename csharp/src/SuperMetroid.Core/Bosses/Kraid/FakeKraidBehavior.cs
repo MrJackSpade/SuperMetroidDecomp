@@ -103,12 +103,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the RNG. Use the read callback when available and reserve NextRandom for older
         // isolated callers that did not expose that native seam.
         int random = ReadFakeKraidRandomNumber();
-        ushort seedDelay = unchecked((ushort)((random & 3) + 2));
+        int seedDelay = (random & 3) + 2;
         state.WalkStepTimer = WrappingCountdown.FromRaw(seedDelay);
         state.SpitDecisionTimer = WrappingCountdown.FromRaw(seedDelay);
-        state.SpikeTimers[0] = unchecked((ushort)(seedDelay + 64));
-        state.SpikeTimers[1] = unchecked((ushort)(seedDelay + 96));
-        state.SpikeTimers[2] = unchecked((ushort)(seedDelay + 48));
+        state.SpikeTimers[0] = (ushort)(seedDelay + 64);
+        state.SpikeTimers[1] = (ushort)(seedDelay + 96);
+        state.SpikeTimers[2] = (ushort)(seedDelay + 48);
         state.SpikeTimerIndex = 0;
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
@@ -135,10 +135,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // into scratch RAM alias the three adjacent clocks above rather than three enemy slots.
         int timerIndex = state.SpikeTimerIndex;
         state.SpikeTimerIndex = timerIndex >= state.SpikeTimers.Length - 1 ? 0 : timerIndex + 1;
-        ushort timer = state.SpikeTimers[timerIndex];
+        int timer = state.SpikeTimers[timerIndex];
         if (timer != 0)
         {
-            state.SpikeTimers[timerIndex] = unchecked((ushort)(timer - 1));
+            state.SpikeTimers[timerIndex] = (ushort)(timer - 1);
             return;
         }
 
@@ -189,11 +189,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (reverse)
-            state.WalkDelta = unchecked((short)-state.WalkDelta);
+            state.WalkDelta = -state.WalkDelta;
 
         state.FacingDelta = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
-            ? (short)4
-            : (short)-4;
+            ? 4
+            : -4;
     }
 
     /// <summary>Ports animation opcode <c>$A6:9B74</c> and returns the animation it continues at.</summary>
@@ -227,7 +227,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         HorizontalDirection direction)
     {
-        short xOffset = direction == HorizontalDirection.Right ? (short)4 : (short)-4;
+        int xOffset = direction == HorizontalDirection.Right ? 4 : -4;
         for (int projectile = 0; projectile < 2; projectile++)
         {
             EightEightVector<RoomPixels> launch =
@@ -244,7 +244,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <returns>False when the enemy projectile pool is full.</returns>
     internal bool SpawnFakeKraidSpit(
         RoomEnemySlot source,
-        short xOffset,
+        int xOffset,
         EightEightVector<RoomPixels> velocity)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -257,7 +257,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
-            source.Position.Whole + new Offset16<RoomPixels>(xOffset, -16));
+            source.Position.Whole + new Offset16<RoomPixels>((short)xOffset, -16));
         projectile.Velocity = velocity;
         return true;
     }
@@ -283,8 +283,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.StartAnimation(new FakeKraidProjectileAnimation(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? FakeKraidProjectilePose.SpikeLeft
             : FakeKraidProjectilePose.SpikeRight));
-        short yOffset = FakeKraidProjectileDefinitions.SpikeYOffset(row);
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(source.Position.X.Whole, unchecked((ushort)(source.Position.Y.Whole + yOffset))));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(
+            source.Position.Whole + new Offset16<RoomPixels>(0, FakeKraidProjectileDefinitions.SpikeYOffset(row)));
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;
@@ -306,8 +306,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        short oldVelocity = unchecked((short)projectile.Velocity.Y.RawValue);
-        short nextVelocity = unchecked((short)(oldVelocity + 64));
+        int oldVelocity = projectile.Velocity.Y.SignedRawValue;
+        int nextVelocity = unchecked((short)(oldVelocity + 64));
         if (nextVelocity >= 0 && oldVelocity >= 960)
             nextVelocity = 1024;
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)nextVelocity)));

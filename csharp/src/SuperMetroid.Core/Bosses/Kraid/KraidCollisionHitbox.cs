@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="Bottom">Bottom edge relative to the component origin, in room pixels.</param>
 /// <param name="Touch">The reaction when Samus touches the rectangle.</param>
 /// <param name="Shot">The reaction when a Samus projectile hits the rectangle.</param>
-internal readonly record struct KraidCollisionHitbox(short Left, short Top, short Right, short Bottom, KraidHitboxTouch Touch, KraidHitboxShot Shot);
+internal readonly record struct KraidCollisionHitbox(int Left, int Top, int Right, int Bottom, KraidHitboxTouch Touch, KraidHitboxShot Shot);

@@ -26,7 +26,9 @@ public sealed class ScreenFade
     public WrappingCountdown Counter { get; private set; }
 
     /// <summary>Stores both fade words, as menu setup code does before a fade.</summary>
-    public void SetTiming(ushort delay, ushort counter)
+    /// <param name="delay">The dispatches each brightness step waits, 0 through 65535.</param>
+    /// <param name="counter">The dispatches before the first brightness step, 0 through 65535.</param>
+    public void SetTiming(int delay, int counter)
     {
         Delay = WrappingCountdown.FromRaw(delay);
         Counter = WrappingCountdown.FromRaw(counter);

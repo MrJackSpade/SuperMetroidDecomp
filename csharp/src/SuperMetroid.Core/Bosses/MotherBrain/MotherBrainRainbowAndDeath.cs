@@ -239,7 +239,7 @@ internal sealed class MotherBrainRainbowAndDeath
     internal void RunLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
         SamusState samus,
-        byte enemyFrameCounter,
+        int enemyFrameCounter,
         SamusBombProjectileSystem? sharedProjectiles)
     {
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??

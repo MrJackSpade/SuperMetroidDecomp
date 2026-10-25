@@ -379,17 +379,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int OnionRingsTargetAngle { get; internal set; }
 
-    /// <summary>Native parameter identities for the twelve turrets requested at room entry.</summary>
-    private readonly ushort[] _initialTurretParameters = new ushort[12];
     /// <summary>Music commands emitted during the current enemy frame.</summary>
     private readonly List<DelayedMusicRequest> _musicRequests = new();
-
-    /// <summary>Records all twelve turret parameter identities for encounter initialization.</summary>
-    internal void RecordInitialTurretRequests()
-    {
-        for (ushort parameter = 0; parameter < _initialTurretParameters.Length; parameter++)
-            _initialTurretParameters[parameter] = parameter;
-    }
 
     /// <summary>Clears one-frame encounter requests and diagnostic witnesses before AI advances.</summary>
     internal void BeginFrame()

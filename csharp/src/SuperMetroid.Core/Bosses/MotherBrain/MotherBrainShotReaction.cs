@@ -26,7 +26,7 @@ internal static class MotherBrainShotReaction
         // The table returns two for beams, one for missiles/supers, and zero for every
         // remaining projectile class. Form four gives only reaction type two the special
         // Hyper Beam path; ordinary phase-two beams continue through the generic branch.
-        ushort reactionType = projectileType switch
+        int reactionType = projectileType switch
         {
             MotherBrainProjectileType.Beam => 2,
             MotherBrainProjectileType.Missile or MotherBrainProjectileType.SuperMissile => 1,
@@ -47,10 +47,10 @@ internal static class MotherBrainShotReaction
         }
 
         // DEC turns reaction one into zero, sending either missile kind directly to the
-        // zero label. Reaction zero wraps to `$FFFF`; reaction two outside form four leaves
-        // one. Both nonzero cases subtract `$0100` and clamp signed underflow to zero.
-        reactionType = WrappingCounter.Decrement(reactionType).Value;
-        if (reactionType == 0)
+        // zero label; only that zero is tested. Reaction zero wraps to `$FFFF` and reaction
+        // two outside form four leaves one: both nonzero cases subtract `$0100` and clamp
+        // signed underflow to zero.
+        if (reactionType == 1)
             return new MotherBrainShotReactionResult(MotherBrainWalkCredit.Empty, HyperBeamRecoil: false);
 
         return new MotherBrainShotReactionResult(

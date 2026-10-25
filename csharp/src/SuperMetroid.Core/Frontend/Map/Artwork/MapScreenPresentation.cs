@@ -36,12 +36,11 @@ public sealed class MapScreenPresentation
                 if (cell is null || (uint)cell.TileColumn >= definition.TileColumns ||
                     (uint)cell.TileRow >= definition.TileCount / definition.TileColumns || (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
                     throw new InvalidDataException($"Map-screen {definition.Id.Name} cell {index} has an invalid atlas coordinate or palette.");
-                ushort word = (ushort)(cell.TileRow * definition.TileColumns + cell.TileColumn |
+                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), (ushort)(cell.TileRow * definition.TileColumns + cell.TileColumn |
                     cell.Palette << MapPresentationFormat.PaletteShift |
                     (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
                     (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) |
-                    (cell.FlipY ? MapPresentationFormat.FlipYBit : 0));
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), word);
+                    (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
             }
             pages.Add(definition.Id, bytes);
         }

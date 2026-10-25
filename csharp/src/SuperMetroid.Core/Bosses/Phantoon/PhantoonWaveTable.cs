@@ -7,8 +7,13 @@ public static class PhantoonWaveTable
     /// Builds one complete native cycle. Phase has already advanced for this call;
     /// the HDMA owner controls phase timing and repeats this cycle over the screen.
     /// </summary>
-    public static void Build(ushort mode, ushort phase,
-        ushort amplitude, ushort bg2Scroll, Span<ushort> destination)
+    /// <param name="mode">The wave channel's nonzero mode; bit zero selects the long cycle.</param>
+    /// <param name="phase">The sine phase the cycle starts at, 0 through 65535; only its byte phase within one cycle is read.</param>
+    /// <param name="amplitude">The wave amplitude, 0 through 65535.</param>
+    /// <param name="bg2Scroll">The base horizontal scroll the wave displaces, 0 through 65535.</param>
+    /// <param name="destination">Receives one horizontal scroll per line of the cycle.</param>
+    public static void Build(int mode, int phase,
+        int amplitude, int bg2Scroll, Span<ushort> destination)
     {
         if (mode == 0) throw new ArgumentOutOfRangeException(nameof(mode), "Inactive HDMA does not build a wave.");
         int half = (mode & PhantoonWaveDefinitions.LongWaveModeBit) != 0
@@ -17,7 +22,7 @@ public static class PhantoonWaveTable
         int step = (PhantoonWaveDefinitions.PhaseMask + 1) / (half * 2);
         for (int i = 0; i < half; i++)
         {
-            int displacement = CalculateDisplacement(unchecked((ushort)(phase + i * step)), amplitude);
+            int displacement = CalculateDisplacement(phase + i * step, amplitude);
             destination[i] = unchecked((ushort)(bg2Scroll + displacement));
             destination[i + half] = unchecked((ushort)(bg2Scroll - displacement));
         }
@@ -29,25 +34,29 @@ public static class PhantoonWaveTable
     /// <see cref="PhantoonWaveDefinitions.TrailingByte"/>). Independently reviewed for #1165: every phase matches the
     /// original, including the read past the last sample.
     /// </summary>
-    public static short ReadSineAtBytePhase(ushort phase)
+    /// <param name="phase">The byte phase, nonnegative; only its position within one cycle is read.</param>
+    public static short ReadSineAtBytePhase(int phase)
     {
         int offset = phase & PhantoonWaveDefinitions.PhaseMask;
         int sample = offset / PhantoonWaveDefinitions.SampleBytes;
-        ushort value = unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)sample)));
+        int value = unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)sample)));
         if (offset % PhantoonWaveDefinitions.SampleBytes == 0) return unchecked((short)value);
-        byte next = offset == PhantoonWaveDefinitions.PhaseMask ? PhantoonWaveDefinitions.TrailingByte :
-            SnesLittleEndian.LowByte(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)(sample + 1)))));
-        return unchecked((short)SnesLittleEndian.Word(SnesLittleEndian.HighByte(value), next));
+        return unchecked((short)SnesLittleEndian.Word(
+            SnesLittleEndian.HighByte(value),
+            offset == PhantoonWaveDefinitions.PhaseMask ? PhantoonWaveDefinitions.TrailingByte :
+                SnesLittleEndian.LowByte(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)(sample + 1)))))));
     }
 
     /// <summary>
     /// Multiplies the signed sine sample by amplitude, retaining only native product
     /// bits 16-23 before restoring sign, including for unaligned phase samples.
     /// </summary>
-    internal static int CalculateDisplacement(ushort phase, ushort amplitude)
+    /// <param name="phase">The byte phase, nonnegative.</param>
+    /// <param name="amplitude">The wave amplitude, 0 through 65535.</param>
+    internal static int CalculateDisplacement(int phase, int amplitude)
     {
-        short sine = ReadSineAtBytePhase(phase);
-        int magnitude = unchecked((byte)SnesSixteenSixteen.Multiply(Math.Abs((int)sine), amplitude));
+        int sine = ReadSineAtBytePhase(phase);
+        int magnitude = unchecked((byte)SnesSixteenSixteen.Multiply(Math.Abs(sine), amplitude));
         return sine < 0 ? -magnitude : magnitude;
     }
 }

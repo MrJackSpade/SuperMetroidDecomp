@@ -25,9 +25,9 @@ internal static class MotherBrainTurretDefinitions
     private const int MuzzleRadius = 17;
 
     /// <summary>Returns one of the twelve physical turret definitions.</summary>
-    internal static MotherBrainTurretDefinition ForTurret(ushort parameter)
+    internal static MotherBrainTurretDefinition ForTurret(int parameter)
     {
-        if (parameter >= TurretCount)
+        if (parameter is < 0 or >= TurretCount)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(parameter), parameter, "Mother Brain turret parameter must be zero through eleven.");
@@ -44,15 +44,19 @@ internal static class MotherBrainTurretDefinitions
             _ when bay == 3 => MotherBrainTurretDirection.DownLeft,
             _ => MotherBrainTurretDirection.Down,
         };
-        byte allowed = column switch
+        MotherBrainTurretDirection first = column switch
         {
-            0 => Sector(MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.DownRight),
-            1 => Sector(wideSector ? MotherBrainTurretDirection.DownLeft : MotherBrainTurretDirection.Down,
-                MotherBrainTurretDirection.Right),
-            _ => Sector(MotherBrainTurretDirection.Left,
-                wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down),
+            0 => MotherBrainTurretDirection.DownLeft,
+            1 => wideSector ? MotherBrainTurretDirection.DownLeft : MotherBrainTurretDirection.Down,
+            _ => MotherBrainTurretDirection.Left,
         };
-        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)), initial, allowed);
+        MotherBrainTurretDirection last = column switch
+        {
+            0 => MotherBrainTurretDirection.DownRight,
+            1 => MotherBrainTurretDirection.Right,
+            _ => wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down,
+        };
+        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)), initial, first, last);
     }
 
     /// <summary>
@@ -70,7 +74,7 @@ internal static class MotherBrainTurretDefinitions
     {
         int index = Ring.PositionOf(direction);
         double angle = index * Math.PI / 4;
-        short muzzleY = direction switch
+        int muzzleY = direction switch
         {
             MotherBrainTurretDirection.Left or MotherBrainTurretDirection.Right => -9,
             MotherBrainTurretDirection.DownLeft or MotherBrainTurretDirection.DownRight => 3,
@@ -79,18 +83,15 @@ internal static class MotherBrainTurretDefinitions
             MotherBrainTurretDirection.Up => -21,
             _ => throw new ArgumentOutOfRangeException(nameof(direction)),
         };
-        return new(new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY),
+        return new(new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), (short)muzzleY),
             new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
     }
 
     /// <summary>Whether turret <paramref name="turret"/> may rotate to <paramref name="direction"/>.</summary>
-    internal static bool IsRotationAllowed(ushort turret, MotherBrainTurretDirection direction)
+    internal static bool IsRotationAllowed(int turret, MotherBrainTurretDirection direction)
     {
-        int directionIndex = Ring.PositionOf(direction);
-        return (ForTurret(turret).AllowedDirectionMask & (1 << directionIndex)) != 0;
+        MotherBrainTurretDefinition definition = ForTurret(turret);
+        int position = Ring.PositionOf(direction);
+        return position >= Ring.PositionOf(definition.FirstAllowedDirection) && position <= Ring.PositionOf(definition.LastAllowedDirection);
     }
-
-    /// <summary>Builds the contiguous allowed-direction bit mask between two octants.</summary>
-    private static byte Sector(MotherBrainTurretDirection first, MotherBrainTurretDirection last) =>
-        (byte)(((1 << (Ring.PositionOf(last) - Ring.PositionOf(first) + 1)) - 1) << Ring.PositionOf(first));
 }

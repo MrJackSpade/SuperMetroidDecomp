@@ -32,8 +32,8 @@ internal static class MotherBrainNeckKinematics
         ref MotherBrainNeckMovement lowerMovementIndex,
         ref MotherBrainNeckMovement upperMovementIndex,
         int angleDelta,
-        ushort brainY,
-        ushort samusY)
+        int brainY,
+        int samusY)
     {
         switch (lowerMovementIndex)
         {
@@ -168,14 +168,14 @@ internal static class MotherBrainNeckKinematics
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
         // individual segment equations auditable against the disassembly.
         Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
-        byte lower = lowerAngle.TableIndex;
-        byte upper = upperAngle.TableIndex;
+        SnesByteAngle lower = lowerAngle.ToByteAngle();
+        SnesByteAngle upper = upperAngle.ToByteAngle();
 
         var joints = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
         for (int joint = 0; joint < MotherBrainNeckJointDefinitions.LowerCount; joint++)
-            joints[joint] = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances[joint]);
+            joints[joint] = CalculateLowerSegment(reference, lower, distances[joint]);
         for (int joint = MotherBrainNeckJointDefinitions.LowerCount; joint < MotherBrainNeckJointDefinitions.Count; joint++)
-            joints[joint] = joints[MotherBrainNeckJointDefinitions.UpperAnchor] + CalculatePolarOffset(new SnesByteAngle(upper), distances[joint]);
+            joints[joint] = joints[MotherBrainNeckJointDefinitions.UpperAnchor] + CalculatePolarOffset(upper, distances[joint]);
         return [.. joints];
     }
 
@@ -199,7 +199,7 @@ internal static class MotherBrainNeckKinematics
         SnesByteAngle angle,
         int distance)
     {
-        short sine = EnemyTrigonometryTables.SignedSine(angle);
+        int sine = EnemyTrigonometryTables.SignedSine(angle);
         int product = sine * unchecked((sbyte)distance);
         return unchecked((short)SnesEightEight.WholeOf(product));
     }

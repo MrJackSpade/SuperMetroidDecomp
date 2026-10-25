@@ -178,8 +178,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     private const LevelBlockFlipFlags FlipXY = LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical;
 
     /// <summary>One air mural cell: tileset tile <paramref name="index"/> with <paramref name="flips"/>.</summary>
-    private static RoomLevelWord Tile(ushort index, LevelBlockFlipFlags flips = LevelBlockFlipFlags.None) =>
-        RoomLevelWord.Create(index, flips, RoomCollisionType.Air);
+    private static RoomLevelWord Tile(int index, LevelBlockFlipFlags flips = LevelBlockFlipFlags.None) =>
+        RoomLevelWord.Create(checked((ushort)index), flips, RoomCollisionType.Air);
 
     /// <summary>
     /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty

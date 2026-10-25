@@ -222,10 +222,10 @@ internal sealed class MotherBrainAscent
         if (timer.IsNegative)
             state.BodySubFunctionTimer = WrappingCountdown.Start(7);
 
-        ushort x = MotherBrainBehavior.MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue];
         int random = _room.Random.Read();
         MiscDustAnimation animation = (SnesLittleEndian.HighByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, 212), animation);
+        _projectiles.SpawnRoomGraphicsDustExplosion(
+            new(MotherBrainBehavior.MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue], 212), animation);
         state.LastSoundEffect = MotherBrainSoundDefinitions.AscentDust;
     }
 

@@ -39,12 +39,12 @@ public sealed class PhantoonWaveEffect
     /// zero amplitude, without advancing setup or changing the latched display.
     /// </summary>
     /// <param name="bg2HorizontalScroll">The second background layer's base horizontal scroll in whole pixels, which every line shows.</param>
-    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => _built = new(_built.Phase, 0, bg2HorizontalScroll);
+    public void InitializeDeathScroll(int bg2HorizontalScroll) => _built = new(_built.Phase, 0, bg2HorizontalScroll);
 
     /// <summary>$88:E487 requests a new wave; its setup runs at the next update of the per-line effect phase.</summary>
     /// <param name="mode">Nonzero native eye-parameter-one value; bit zero selects a 128-line cycle instead of 64 lines. A new request replaces any pending mode.</param>
     /// <exception cref="ArgumentOutOfRangeException">The mode is zero, which ends the wave rather than setting one up.</exception>
-    public void Begin(ushort mode)
+    public void Begin(int mode)
     {
         if (mode == 0) throw new ArgumentOutOfRangeException(nameof(mode));
         _pendingMode = mode;

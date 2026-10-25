@@ -13,10 +13,10 @@ public sealed class FakeKraidEnemyState
     internal AnimationProgramCursor<FakeKraidProgram> Program { get; set; }
 
     /// <summary>Signed whole-pixel walk delta.</summary>
-    public short WalkDelta { get; internal set; }
+    public int WalkDelta { get; internal set; }
 
     /// <summary>Signed four-pixel facing marker.</summary>
-    public short FacingDelta { get; internal set; }
+    public int FacingDelta { get; internal set; }
 
     /// <summary>
     /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero; a cleared

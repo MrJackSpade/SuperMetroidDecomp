@@ -23,7 +23,8 @@ internal static class FileSelectMapWindowMotions
     /// </remarks>
     public static FileSelectMapWindowMotion Get(int area)
     {
-        var (x, y) = StockOrigin(area);
+        Position16<ScreenPixels> origin = StockOrigin(area);
+        int x = origin.X, y = origin.Y;
         int farthest = Math.Max(Math.Max(x, 256 - x), Math.Max(y, 256 - y));
         uint Velocity(int distance, int sign) => unchecked((uint)(sign * ((256 * distance / farthest) << 10)));
         return new(farthest / 4, Velocity(x, -1), Velocity(256 - x, 1),

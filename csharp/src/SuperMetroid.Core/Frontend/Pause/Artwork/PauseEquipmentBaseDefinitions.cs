@@ -146,10 +146,10 @@ public static class PauseEquipmentBaseDefinitions
             int first = PauseEquipmentLabelDefinitions.StockPageByte(label.Label) / sizeof(ushort);
             int index = cell - first;
             if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Label)) continue;
-            ushort word = PauseEquipmentLabelDefinitions.StockWord(label.Label, index);
+            int word = PauseEquipmentLabelDefinitions.StockWord(label.Label, index);
             bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
                 (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);
-            return grayTemplate ? (ushort)((word & ~0x1c00) | PauseEquipmentLabelDefinitions.DisabledPalette << 10) : word;
+            return (ushort)(grayTemplate ? (word & ~0x1c00) | PauseEquipmentLabelDefinitions.DisabledPalette << 10 : word);
         }
         // Copied transparent edge metadata and guide-layer policy are separately accounted
         // composition inputs, not unexplained full-word fallbacks.

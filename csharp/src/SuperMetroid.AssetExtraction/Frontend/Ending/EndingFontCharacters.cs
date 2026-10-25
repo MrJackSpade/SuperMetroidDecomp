@@ -21,7 +21,7 @@ public sealed class EndingFontCharacters : EndingFontAtlas
             if (EndingFontAtlasFormat.IsOutlinedAlphabetPixel(pixel) && supplied[pixel] == EndingFontAtlasFormat.GlyphFillInk)
                 glyphFootprint.Add(pixel);
         for (int pixel = 0; pixel < supplied.Length; pixel++)
-            if (!EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out byte calculated)
+            if (!EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out int calculated)
                 || supplied[pixel] != calculated) pixels[pixel] = supplied[pixel];
     }
     /// <summary>Materializes a new $1400-byte SNES 4-bpp transfer containing all 160 selected font/subtitle tiles in atlas order, without retaining a packed-transfer cache.</summary>
@@ -32,7 +32,7 @@ public sealed class EndingFontCharacters : EndingFontAtlas
 
     /// <summary>Resolves one selected atlas pixel from retained artwork or its glyph outline rule.</summary>
     private byte Pixel(int pixel) => pixels.TryGetValue(pixel, out byte value) ? value
-        : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out byte calculated) ? calculated
+        : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out int calculated) ? (byte)calculated
         : throw new InvalidOperationException("Required ending font pixel is absent.");
     /// <summary>Loads the 128x80 indexed ending-font sheet and validates its sixteen-color index range and native transfer size, preserving supplied artwork rather than matching PNG RGB colors.</summary>
     /// <param name="png">Noninterlaced indexed PNG stream at its current position, read through the image end and left open.</param>

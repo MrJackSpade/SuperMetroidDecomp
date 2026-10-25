@@ -179,9 +179,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             int parameter = style == MotherBrainDeathExplosionStyle.Mixed
                 ? random < 16384 ? 0 : random < 57344 ? 1 : 2
                 : 1;
-            (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
-                Offset: new Offset16<RoomPixels>(xOffset, yOffset),
+                Offset: MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex),
                 ProjectileParameter: parameter,
                 SoundEffect: MotherBrainSoundDefinitions.Explosion));
         }
@@ -420,9 +419,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         // its high byte as this frame's whole-pixel displacement, and accumulate Y.
         // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
         _state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_state.FunctionTimer.RawValue + 32)));
-        ushort fallingDisplacement = SnesLittleEndian.HighByte(_state.FunctionTimer.RawValue);
-        ushort candidateBrainY = unchecked((ushort)(_state.BrainPosition.Y + fallingDisplacement));
-        if (candidateBrainY >= 196)
+        int fallingDisplacement = SnesLittleEndian.HighByte(_state.FunctionTimer.RawValue);
+        Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, (short)fallingDisplacement);
+        if (candidate.Y >= 196)
         {
             _state.EarthquakeType = 2;
             _state.EarthquakeTimer = WrappingCountdown.Start(20);
@@ -433,7 +432,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         }
         else
         {
-            _state.BrainPosition = _state.BrainPosition.WithY(candidateBrainY);
+            _state.BrainPosition = candidate;
         }
         return false;
     }

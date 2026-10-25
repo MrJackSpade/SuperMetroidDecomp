@@ -64,7 +64,7 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Returns null when every glyph matches its stock consecutive tile word.</summary>
-    private static ushort[]? PreserveEditedGlyphs(ushort[] values, ushort first)
+    private static ushort[]? PreserveEditedGlyphs(ushort[] values, int first)
     {
         for (int index = 0; index < values.Length; index++)
             if (values[index] != first + index)

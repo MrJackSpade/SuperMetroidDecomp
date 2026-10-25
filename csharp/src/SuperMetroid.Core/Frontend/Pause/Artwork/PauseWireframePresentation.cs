@@ -61,14 +61,14 @@ public sealed class PauseWireframePresentation
             this.kind = kind;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
-                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
-                if (value != PauseWireframeDefinitions.StockWord(kind, cell)) edits.Add(cell, value);
+                int value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
+                if (value != PauseWireframeDefinitions.StockWord(kind, cell)) edits.Add(cell, (ushort)value);
             }
         }
 
         /// <summary>Resolves an edited cell or calculates the variant's stock word.</summary>
-        internal ushort Word(int cell) => edits.TryGetValue(cell, out ushort value)
-            ? value : PauseWireframeDefinitions.StockWord(kind, cell);
+        internal ushort Word(int cell) => edits.ContainsKey(cell)
+            ? edits[cell] : PauseWireframeDefinitions.StockWord(kind, cell);
     }
     /// <summary>Serializes a wireframe document using the map-presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
     /// <param name="output">Caller-owned destination stream for the validated UTF-8 JSON.</param>

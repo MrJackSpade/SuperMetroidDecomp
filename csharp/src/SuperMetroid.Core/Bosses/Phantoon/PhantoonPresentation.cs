@@ -29,14 +29,14 @@ internal sealed class PhantoonPresentation
     internal void AdvancePhantoonFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        ushort denominator)
+        int denominator)
     {
         if ((_frameContext.FrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
         state.Parts[eye.SlotIndex].FadeDenominator = denominator;
-        ushort numerator = checked((ushort)state.Parts[eye.SlotIndex].FadeNumerator);
+        int numerator = state.Parts[eye.SlotIndex].FadeNumerator;
         if (unchecked((ushort)(denominator + 1)) < numerator)
         {
             state.Parts[eye.SlotIndex].FadeNumerator = 0;
@@ -57,9 +57,13 @@ internal sealed class PhantoonPresentation
     }
 
     /// <summary>Interpolates one RGB5 color during Phantoon's fade using native channel rounding.</summary>
+    /// <param name="numerator">The fade's step, 0 through 65535.</param>
+    /// <param name="denominator">The fade's step count, 0 through 65535.</param>
+    /// <param name="current">The colour now shown.</param>
+    /// <param name="target">The colour the fade reaches.</param>
     internal static Bgr555 CalculatePhantoonTransitionColor(
-        ushort numerator,
-        ushort denominator,
+        int numerator,
+        int denominator,
         Bgr555 current,
         Bgr555 target)
     {
@@ -69,8 +73,8 @@ internal sealed class PhantoonPresentation
 
     /// <summary>Interpolates one RGB5 channel during a palette transition.</summary>
     private static int CalculatePhantoonTransitionComponent(
-        ushort numerator,
-        ushort denominator,
+        int numerator,
+        int denominator,
         int current,
         int target)
     {
@@ -82,7 +86,7 @@ internal sealed class PhantoonPresentation
         // then applies its sign before selecting the high byte. Integer division
         // of the signed delta both adds an extra fade step and rounds darkening
         // in the wrong direction. The native divisor is an eight-bit register.
-        byte remainingSteps = unchecked((byte)(denominator - numerator + 1));
+        int remainingSteps = unchecked((byte)(denominator - numerator + 1));
         int quotient = remainingSteps == 0 ? ushort.MaxValue : SnesEightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
         return SnesLittleEndian.HighByte((ushort)(SnesEightEight.FromWhole(current) + signedStep));
@@ -91,12 +95,12 @@ internal sealed class PhantoonPresentation
     /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
         PhantoonPartState mouth,
-        ushort delta,
-        ushort maximum)
+        int delta,
+        int maximum)
     {
         if (mouth.WaveAmplitudeShrinking)
         {
-            ushort previous = checked((ushort)mouth.WaveAmplitude);
+            int previous = mouth.WaveAmplitude;
             mouth.WaveAmplitude = unchecked((ushort)(mouth.WaveAmplitude - delta));
             if (previous < delta)
             {

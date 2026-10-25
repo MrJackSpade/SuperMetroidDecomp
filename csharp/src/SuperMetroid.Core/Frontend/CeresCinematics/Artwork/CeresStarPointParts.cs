@@ -38,7 +38,7 @@ internal sealed class CeresStarPointParts(CeresStarPointDefinition[] points, Sne
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var point = points[index];
-            return new(SnesSpritemapXWord.Create(point.X, false), new SnesSpritemapYByte(point.Y),
+            return new(SnesSpritemapXWord.Create(point.X, false), new SnesSpritemapYByte(checked((byte)point.Y)),
                 SnesObjAttributeWord.Create(point.Tile, 0, 0, flips), true);
         }
     }

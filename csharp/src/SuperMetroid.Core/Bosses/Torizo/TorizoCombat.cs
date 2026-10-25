@@ -317,17 +317,15 @@ internal sealed class TorizoCombat
                  TorizoCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            ushort componentX = componentOrigin.X;
-            ushort componentY = componentOrigin.Y;
             IReadOnlyList<GoldenTorizoCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
             for (int index = 0; index < rectangles.Count; index++)
             {
                 GoldenTorizoCollisionHitbox hitbox = rectangles[index];
-                ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
                 callback = probe.SelectShotCallback
                     ? TorizoHitboxCallbackCodec.ToCallback(hitbox.Shot)

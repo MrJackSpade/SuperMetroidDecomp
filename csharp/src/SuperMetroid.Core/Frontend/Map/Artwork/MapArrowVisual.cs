@@ -28,7 +28,7 @@ public sealed class MapArrowVisual
     public byte Duration(int phase)
     {
         if ((uint)phase >= (uint)PhaseCount) throw new ArgumentOutOfRangeException(nameof(phase));
-        return durationOverrides is not null && durationOverrides.TryGetValue(phase, out byte value)
-            ? value : MenuSelectorTiming.Duration(phase);
+        return durationOverrides is not null && durationOverrides.ContainsKey(phase)
+            ? durationOverrides[phase] : MenuSelectorTiming.Duration(phase);
     }
 }

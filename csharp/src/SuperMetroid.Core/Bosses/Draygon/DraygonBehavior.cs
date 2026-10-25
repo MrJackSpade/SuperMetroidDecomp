@@ -70,7 +70,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>MainAI_DraygonBody</c> at <c>$A5:86FC</c>.</summary>
-    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, byte frameCounterLow)
+    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounterLow)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
         switch (state.Function)

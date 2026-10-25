@@ -10,7 +10,7 @@ internal sealed class IntroEggParticle
     internal readonly IntroDiscoverySprite sprite;
 
     /// <summary>Spawns one of six shell fragments at its compiled native position with its selected instruction list.</summary>
-    public IntroEggParticle(byte index)
+    public IntroEggParticle(int index)
     {
         CinematicActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
         // $A958 indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores

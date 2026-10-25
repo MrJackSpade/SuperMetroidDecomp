@@ -92,7 +92,7 @@ internal sealed class KraidBackground
     }
 
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a slot is free.</summary>
-    internal bool SpawnKraidCeilingRock(ushort xPosition)
+    internal bool SpawnKraidCeilingRock(int xPosition)
     {
         RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)
@@ -102,7 +102,7 @@ internal sealed class KraidBackground
             RoomEnemyProjectileKind.KraidCeilingRock,
             graphicsIndex: EnemyPaletteBits.Palette3);
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(checked((ushort)xPosition), 312));
         rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(0));
         rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((_access.ReadKraidRandomNumber() & 63) + 64))));
         rock.GraphicsIndex = EnemyPaletteBits.Palette3;

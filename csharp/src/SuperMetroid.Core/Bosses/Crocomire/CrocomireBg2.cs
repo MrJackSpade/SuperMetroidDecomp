@@ -64,8 +64,9 @@ internal sealed class CrocomireBg2
     }
 
     /// <summary>Writes a uniform vertical offset to the per-scanline BG2 scroll table.</summary>
-    internal void FillCrocomireBg2ScrollTable(ushort verticalScroll) =>
-        _access.RequireCrocomireDeath().MutableBg2ScrollByScanline.Fill(verticalScroll);
+    /// <param name="verticalScroll">The vertical scroll every line shows, 0 through 65535.</param>
+    internal void FillCrocomireBg2ScrollTable(int verticalScroll) =>
+        _access.RequireCrocomireDeath().MutableBg2ScrollByScanline.Fill(checked((ushort)verticalScroll));
 
     /// <summary>Ports $A4:8B5B: places BG2 vertically at the body, then falls through into $A4:8BA4.</summary>
     internal void UpdateCrocomireBg2Scroll(CrocomireEnemyState state)
@@ -90,29 +91,21 @@ internal sealed class CrocomireBg2
             tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + offset)), body.Position.Y.Whole));
         }
 
-        ushort horizontal;
-        if (unchecked((short)(body.Position.X.Whole - state.Camera.X)) >= 0)
-        {
-            horizontal = unchecked((short)(
-                body.Position.X.Whole - 128 - (state.Camera.X + 256))) < 0
-                ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole, state.Camera)
-                : (ushort)256;
-        }
-        else
-        {
-            horizontal = unchecked((short)(
-                body.Position.X.Whole + 128 - state.Camera.X)) < 0
-                ? (ushort)256
-                : CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole, state.Camera);
-        }
-        CrocomireBg2Scroll = CrocomireBg2Scroll.WithX(horizontal);
+        bool onScreen = unchecked((short)(body.Position.X.Whole - state.Camera.X)) >= 0
+            ? unchecked((short)(body.Position.X.Whole - 128 - (state.Camera.X + 256))) < 0
+            : unchecked((short)(body.Position.X.Whole + 128 - state.Camera.X)) >= 0;
+        CrocomireBg2Scroll = CrocomireBg2Scroll.WithX(onScreen
+            ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole, state.Camera)
+            : (ushort)256);
     }
 
     /// <summary>Converts the body X position into the BG2 horizontal scroll used to keep Crocomire onscreen.</summary>
-    private static ushort CalculateOnScreenCrocomireBg2Horizontal(ushort bodyX, Position16<RoomPixels> camera)
+    /// <param name="bodyX">The body's whole X coordinate, 0 through 65535.</param>
+    /// <param name="camera">The camera position.</param>
+    private static ushort CalculateOnScreenCrocomireBg2Horizontal(int bodyX, Position16<RoomPixels> camera)
     {
-        ushort relative = unchecked((ushort)(camera.X - bodyX + 51));
-        return EnemyMath.WrappedMagnitude(relative) >= 284 ? (ushort)256 : relative;
+        int relative = unchecked((ushort)(camera.X - bodyX + 51));
+        return EnemyMath.WrappedMagnitude((ushort)relative) >= 284 ? (ushort)256 : (ushort)relative;
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
@@ -125,9 +118,11 @@ internal sealed class CrocomireBg2
         death.AcidSmokeTimer = WrappingCountdown.Start(6);
 
         int random = _access.ReadCrocomireRandom();
-        ushort xOffset = unchecked((ushort)(random & 63));
+        // The offset is complemented, not negated, when bit one is clear; the smoke's X keeps
+        // sixteen bits where the offset is added.
+        int xOffset = random & 63;
         if ((random & 2) == 0)
-            xOffset = unchecked((ushort)~xOffset);
+            xOffset = ~xOffset;
         int acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
         _spriteObjects.SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((SnesLittleEndian.HighByte(random) & 31))))),

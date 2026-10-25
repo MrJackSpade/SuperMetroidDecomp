@@ -51,5 +51,5 @@ internal sealed class PauseTilemaps
         Ensure.NotNull(gameplay).Words[Layer3Plane.Columns..FxRowsWord].CopyTo(bg3.AsSpan(Layer3Plane.Columns));
 
     /// <summary>Fills every BG3 row below the HUD with <paramref name="tile"/>, as <c>QueueClearingOfFxTilemap</c> ($80:A211) does.</summary>
-    internal void ClearFx(ushort tile) => bg3.AsSpan(FxRowsWord).Fill(tile);
+    internal void ClearFx(SnesBgTilemapWord tile) => bg3.AsSpan(FxRowsWord).Fill(tile);
 }

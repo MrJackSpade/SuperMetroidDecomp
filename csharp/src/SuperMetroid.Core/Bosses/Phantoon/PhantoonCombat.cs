@@ -63,7 +63,7 @@ internal sealed class PhantoonCombat
                     throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
                 int appliedDamage = c.HealthBefore - c.Enemy.Health;
                 phantoon.AcceptedProjectileHits++;
-                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.PackedType.Raw, appliedDamage);
+                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.PackedType, appliedDamage);
             },
         });
     }
@@ -164,8 +164,8 @@ internal sealed class PhantoonCombat
             if (!projectile.HasEnemyCollisionPayload)
                 continue;
 
-            ushort projectileType = projectile.PackedType.Raw;
-            ushort projectileDamage = checked((ushort)projectile.Damage);
+            SamusProjectileTypeWord projectileType = projectile.PackedType;
+            int projectileDamage = projectile.Damage;
             SamusProjectileFamily family = projectile.PackedType.Family;
             // A0:9BE6..9BF6 excludes bombs and every family at/above beam
             // explosions. Lingering missile explosions must not reach shot AI.
@@ -219,14 +219,14 @@ internal sealed class PhantoonCombat
             // penetrating Plasma retains its type, direction, and instruction stream.
             projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile.SlotIndex,
                 body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                !new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma));
+                !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
             int healthBefore = body.Health;
             // Phantoon calls common normal-shot damage, including its charged-beam
             // override. SBA particles retain that bit; reading only the uncharged
             // combination row made Wave Shield disappear without damaging the boss.
             EnemyCollision.NormalShotVulnerability vulnerability =
-                EnemyCollision.ReadNormalShotVulnerability(body, new SamusProjectileTypeWord(projectileType));
+                EnemyCollision.ReadNormalShotVulnerability(body, projectileType);
             if (vulnerability.FreezeImmediately)
             {
                 body.FrozenTimer = WrappingCountdown.Start(400);
@@ -242,7 +242,7 @@ internal sealed class PhantoonCombat
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared native damage helper.
-                    if (new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma))
+                    if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
                         body.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
                     body.Health = damage >= body.Health
                         ? 0
@@ -267,7 +267,7 @@ internal sealed class PhantoonCombat
     internal void ResolvePhantoonShotReaction(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         int damage)
     {
         if (body.Health == 0)
@@ -283,7 +283,7 @@ internal sealed class PhantoonCombat
             return;
 
         state.LastCombatSoundEffect = PhantoonSoundDefinitions.ShotCry;
-        SamusProjectileFamily family = new SamusProjectileTypeWord(projectileType).Family;
+        SamusProjectileFamily family = projectileType.Family;
         PhantoonAiFunction function = state.Parts[body.SlotIndex].Function;
         bool vulnerableWindow = function is
             PhantoonAiFunction.EyeTracksSamus or
@@ -315,7 +315,7 @@ internal sealed class PhantoonCombat
 
             if (vulnerableWindow)
             {
-                ushort random = unchecked((ushort)(_room.Random.Generate() & 7));
+                int random = _room.Random.Generate() & 7;
                 state.Parts[state.Eye.SlotIndex].ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[random];
                 state.Parts[state.Mouth.SlotIndex].ShotPattern = random;
                 state.Parts[state.Tentacles.SlotIndex].HitReaction = 1;
@@ -554,7 +554,7 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         RoomEnemySlot body,
         SnesByteAngle angle,
-        ushort radius)
+        int radius)
     {
         // Unlike the common byte-table enemy sine routine, this callback uses a
         // word sample. Its high byte preserves the exact full radius at cardinal angles.
@@ -564,11 +564,13 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
-    internal static int ReadPhantoonFlameComponent(SnesByteAngle angle, ushort radius)
+    /// <param name="angle">The flame's orbit angle.</param>
+    /// <param name="radius">The orbit radius, of which only the low eight bits are read.</param>
+    internal static int ReadPhantoonFlameComponent(SnesByteAngle angle, int radius)
     {
         int byteAngle = angle.RawValue;
         int sample = EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)(byteAngle & 127)));
-        int magnitude = (SnesEightEight.Multiply(unchecked((byte)sample), SnesLittleEndian.LowByte(radius))) + SnesEightEight.WholeOf(sample) * (SnesLittleEndian.LowByte(radius));
+        int magnitude = (SnesEightEight.Multiply(unchecked((byte)sample), unchecked((byte)radius))) + SnesEightEight.WholeOf(sample) * unchecked((byte)radius);
         return byteAngle < 128 ? magnitude : -magnitude;
     }
 
@@ -661,11 +663,11 @@ internal sealed class PhantoonCombat
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                if (!probe.Overlaps(left, top, right, bottom))
+                if (!probe.Overlaps(
+                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
+                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
+                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
                     continue;
                 callback = probe.SelectShotCallback
                     ? PhantoonHitboxCallbackCodec.ToCallback(hitbox.Shot)

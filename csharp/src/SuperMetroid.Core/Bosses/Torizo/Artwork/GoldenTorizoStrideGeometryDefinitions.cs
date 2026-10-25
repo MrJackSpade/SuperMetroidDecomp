@@ -83,11 +83,11 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     }
 
     /// <summary>Retains each authored foot tile's non-X appearance while deriving its planted origin.</summary>
-    private readonly record struct FootAppearance(ushort XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
+    private readonly record struct FootAppearance(int XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
     {
         /// <summary>Separates high X/size flags from the nine-bit authored local coordinate.</summary>
         internal static FootAppearance From(SpritemapPart part) =>
-            new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
+            new(part.X.Raw & ~0x1ff, part.Y, part.Attributes);
         /// <summary>Repositions a support or departing foot tile for the current stride pose.</summary>
         internal SpritemapPart At(int phase)
         {

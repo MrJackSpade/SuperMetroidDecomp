@@ -14,7 +14,7 @@ internal sealed class EndingShootingStars
         for (int index = 0; index < stars.Length; index++)
         {
             Reset(ref stars[index]);
-            ushort delay = EndingShootingStarDefinitions.Records[index].Delay;
+            int delay = EndingShootingStarDefinitions.Records[index].Delay;
             if (delay == 0) continue;
             stars[index].Delayed = true;
             stars[index].Timer = WrappingCountdown.FromRaw(delay);

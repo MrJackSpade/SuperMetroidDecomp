@@ -283,9 +283,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby's program ran without Mother Brain's encounter state.");
-        ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
+        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
+        slot.InstructionTimer = instructionTimer.Remaining;
+        if (!instructionTimer.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;

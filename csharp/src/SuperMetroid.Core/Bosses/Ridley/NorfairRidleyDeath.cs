@@ -194,7 +194,7 @@ internal sealed class NorfairRidleyDeath
 
         RidleyExplosionDefinitions.SpawnInBreakupOrder(SpawnPart);
 
-        void SpawnPart(ushort parameter)
+        void SpawnPart(int parameter)
         {
             // The embedded records at $A6:C987-$CA46 all use the same zero position,
             // property $2C00, and one even parameter. Initialization replaces position and
@@ -232,13 +232,13 @@ internal sealed class NorfairRidleyDeath
         fragment.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.RidleyExplosion];
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
         int random = _room.Random.Generate();
-        ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));
+        int horizontalMagnitude = random & RidleyExplosionDefinitions.FragmentSpeedMask;
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Spawn.Population.Parameter1)).Lifetime),
-            Velocity = new(new SnesSignedEightEight(unchecked((short)random) < 0
-                ? unchecked((ushort)-horizontalMagnitude)
-                : horizontalMagnitude), default),
+            Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(fragment.Spawn.Population.Parameter1).Lifetime),
+            Velocity = new(SnesSignedEightEight.FromSignedRaw((short)(unchecked((short)random) < 0
+                ? -horizontalMagnitude
+                : horizontalMagnitude)), default),
         };
         fragment.SetSpeciesState(fragmentState, fragmentState.ClearWithRecord);
 

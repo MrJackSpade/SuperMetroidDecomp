@@ -46,11 +46,12 @@ public static class KraidPlmDefinitions
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                byte column = (byte)(KraidCeilingRockPositionDefinitions.AtByteOffset(2 * index) >> 4);
+                // Every rock center lies inside Kraid's room, so its block column is below 256.
+                int column = KraidCeilingRockPositionDefinitions.AtByteOffset(2 * index) >> 4;
                 PlmHeaderId header = column == 2 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground1
                     : (column & 1) == 0 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground3
                     : PlmHeaderId.CrumbleKraidCeilingIntoBackground2;
-                return new(new(column, 0x12), header);
+                return new(new(checked((ushort)column), 0x12), header);
             }
         }
         /// <summary>Visits ceiling mutations in growth-stage callback order.</summary>
@@ -64,7 +65,7 @@ public static class KraidPlmDefinitions
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
     public static PlmSpawnRequest? ForSinkCallback(KraidSinkCallback callback)
     {
-        byte column;
+        int column;
         switch (callback)
         {
             case KraidSinkCallback.NoOperation: return null;
@@ -78,7 +79,7 @@ public static class KraidPlmDefinitions
         }
         // The surviving platforms share the ceiling row and alternate background
         // blocks by column parity, as in the native C691..C714 inline arguments.
-        return new(new(column, 0x12), (column & 1) != 0
+        return new(new(checked((ushort)column), 0x12), (column & 1) != 0
             ? PlmHeaderId.CrumbleKraidPlatformVariant1
             : PlmHeaderId.CrumbleKraidPlatformVariant2);
     }

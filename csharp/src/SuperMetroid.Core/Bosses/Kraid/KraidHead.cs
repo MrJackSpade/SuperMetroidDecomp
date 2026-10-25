@@ -108,7 +108,7 @@ internal sealed class KraidHead
     /// <summary>Advances the open-mouth attack and its head instruction timing.</summary>
     internal void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
     {
-        ushort result = ProcessKraidHeadInstruction(body, state);
+        int result = ProcessKraidHeadInstruction(body, state);
         if (result == ushort.MaxValue)
         {
             SetupKraidFirstPhaseThinking(body, state);

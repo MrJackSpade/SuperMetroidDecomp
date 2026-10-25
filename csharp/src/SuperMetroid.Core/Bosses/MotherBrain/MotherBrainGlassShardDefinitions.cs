@@ -13,14 +13,13 @@ internal static class MotherBrainGlassShardDefinitions
     /// </summary>
     internal static MotherBrainGlassShardPlacement Placement(MotherBrainGlassShard shard)
     {
-        short x = shard switch
+        return new(new Offset16<RoomPixels>(shard switch
         {
             MotherBrainGlassShard.Right => RightEmitterX,
             MotherBrainGlassShard.Left => LeftEmitterX,
             MotherBrainGlassShard.Centre => CentreEmitterX,
             _ => throw new ArgumentOutOfRangeException(nameof(shard), shard, "Undefined Mother Brain glass emitter."),
-        };
-        return new(new Offset16<RoomPixels>(x, 2 * 16));
+        }, 2 * 16));
     }
     /// <summary>$86:CE61: right glass emitter, half a block right of the PLM origin.</summary>
     private const short RightEmitterX = 8;

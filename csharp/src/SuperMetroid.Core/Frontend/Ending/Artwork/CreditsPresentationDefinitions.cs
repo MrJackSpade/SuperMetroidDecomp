@@ -142,10 +142,10 @@ public static class CreditsPresentationDefinitions
     /// <param name="bottom">Whether the selector belongs to the lower row of a large glyph; nonblank small glyphs require false.</param>
     /// <returns>The represented glyph; large decoding also recognizes Font-3 copyright digits through the shared ending-text decoder, although authored credits compilation excludes digits.</returns>
     /// <exception cref="InvalidDataException">The selector does not have a supported mapping for the requested style and glyph half.</exception>
-    public static char DecodeGlyph(ushort word, CreditsLineStyle style,
+    public static char DecodeGlyph(int word, CreditsLineStyle style,
         bool bottom = false)
     {
-        ushort tile = (ushort)(word & 0x03ff);
+        int tile = word & 0x03ff;
         if (tile == BlankWord)
             return ' ';
         if (style == CreditsLineStyle.Small && !bottom && tile <= 25)

@@ -418,8 +418,7 @@ internal sealed class BossRoomMutationPlms
 
         // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
         // bits. Bit 15 is the independent tile priority flag and survives setup.
-        ushort authored = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
-        level.SetForegroundEntry(blockIndex, new RoomLevelWord(authored).WithPlmDeactivation().Raw);
+        level.SetForegroundEntry(blockIndex, level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithPlmDeactivation().Raw);
         return true;
     }
 
@@ -783,11 +782,9 @@ internal sealed class BossRoomMutationPlms
         for (int rowOffset = 0; rowOffset < 10; rowOffset++)
         {
             int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
-            ushort current = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
-            ushort replacement = new RoomLevelWord(current).WithCollisionType(header == PlmHeaderId.CreateBabyMetroidInvisibleWall
-                ? RoomCollisionType.SolidBlock
-                : RoomCollisionType.Air).Raw;
-            level.SetForegroundEntry(blockIndex, replacement);
+            RoomLevelWord replacement = level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(
+                header == PlmHeaderId.CreateBabyMetroidInvisibleWall ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
+            level.SetForegroundEntry(blockIndex, replacement.Raw);
         }
         return true;
     }

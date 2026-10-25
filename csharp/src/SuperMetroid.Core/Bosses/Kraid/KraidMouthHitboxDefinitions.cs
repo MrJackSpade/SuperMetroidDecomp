@@ -24,7 +24,7 @@ internal static class KraidMouthHitboxDefinitions
     /// <summary>The left, top and bottom edges collision tests against for <paramref name="shape"/>; the right edge is unused.</summary>
     public static KraidMouthCollisionEdges ResolveCollision(KraidMouthHitbox shape)
     {
-        (int left, int top, _, int bottom) = Resolve(shape);
-        return new(checked((short)left), checked((short)top), checked((short)bottom));
+        EnemyHitboxRectangle rectangle = Resolve(shape);
+        return new(rectangle.Left, rectangle.Top, rectangle.Bottom);
     }
 }

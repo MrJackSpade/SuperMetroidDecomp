@@ -241,14 +241,12 @@ internal sealed class CeresRidleyHits
         foreach (RidleyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
-            ushort componentX = componentOrigin.X;
-            ushort componentY = componentOrigin.Y;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
-                int left = unchecked((ushort)(componentX + hitbox.Left));
-                int top = unchecked((ushort)(componentY + hitbox.Top));
-                int right = unchecked((ushort)(componentX + hitbox.Right));
-                int bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                int left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                int top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                int right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                int bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
 
                 // $A0:9B14/$9B20/$9B2C/$9B38 use signed comparisons and treat touching
                 // right/bottom edges as non-overlap. Ceres coordinates remain in the low

@@ -40,8 +40,8 @@ internal static class CompiledProjectileMathVerification
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         var enemy = new Func<ushort, byte, ushort>((speed, angle) => EnemyMath.MultiplySineSample(speed, new SnesByteAngle(angle)));
-        var baby = new Func<ushort, byte, ushort>(BabyMetroidCutsceneState.CalculateVelocityComponent);
-        var rainbow = new Func<ushort, SnesAngle, ushort>(MotherBrainRainbowBeamSamusMovement.CalculateYVelocity);
+        var baby = new Func<ushort, byte, ushort>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new SnesByteAngle(babyAngle)));
+        var rainbow = new Func<ushort, SnesAngle, ushort>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle));
         var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
         var glass = new Func<int, ushort>(MotherBrainProjectiles.ReadSignedSineSample);
         var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);

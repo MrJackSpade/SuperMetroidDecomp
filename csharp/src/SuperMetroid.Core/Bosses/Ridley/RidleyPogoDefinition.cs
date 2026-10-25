@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="Velocity">The launch velocity: the horizontal magnitude and the upward vertical speed.</param>
 /// <param name="UpwardAcceleration">The acceleration while rising.</param>
 /// <param name="DownwardAcceleration">The acceleration while falling.</param>
-public readonly record struct RidleyPogoDefinition(EightEightVector<RoomPixels> Velocity, ushort UpwardAcceleration, ushort DownwardAcceleration);
+public readonly record struct RidleyPogoDefinition(EightEightVector<RoomPixels> Velocity, int UpwardAcceleration, int DownwardAcceleration);

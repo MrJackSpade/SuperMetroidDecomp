@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// The corpse handshake between Mother Brain and the Baby Metroid at the end of the second phase. The Baby stops
 /// draining once Mother Brain is a corpse, and the health palette resumes only once she has revived and walked back
-/// to her target. The backing values are the snapshot word the import decodes through
-/// <see cref="Programs.ClosedNativeWords"/>.
+/// to her target. The backing values are the snapshot word the verification import decodes.
 /// </summary>
 public enum MotherBrainPhase2CorpseState : ushort
 {

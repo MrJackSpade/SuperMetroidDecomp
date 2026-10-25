@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Verification.Input;

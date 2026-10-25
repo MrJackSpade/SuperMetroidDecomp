@@ -308,7 +308,7 @@ internal static class EnemyContentIdentityFixtureVerification
             Register("oam-binding");
             return new EnemySpritemapDocument
             {
-                Version = EnemySpritemapSchema.Current,
+                Version = EnemySpritemapSchema.Current.Revision,
                 Frames = Ordered(definitions.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, Parts("oam", index == definitions.Length - 1)))),
                 DisplayFrames = Ordered(definitions.Select((frame, index) => KeyValuePair.Create(frame.Name,
@@ -340,7 +340,7 @@ internal static class EnemyContentIdentityFixtureVerification
             });
             return new EnemyExtendedFrameDocument
             {
-                Version = EnemyExtendedFrameSchema.Current, Frames = Ordered(frames),
+                Version = EnemyExtendedFrameSchema.Current.Revision, Frames = Ordered(frames),
                 DisplayFrames = Ordered(definitions.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, index == 0 && edit == "extended-binding" ? definitions[1].Name : frame.Name))),
             };

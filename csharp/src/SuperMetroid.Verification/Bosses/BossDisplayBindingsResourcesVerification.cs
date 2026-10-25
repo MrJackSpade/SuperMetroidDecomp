@@ -49,7 +49,7 @@ internal static class BossDisplayBindingsResourcesVerification
         EnemySpritemapDefinition[] old = EnemyExtendedFrameDefinitions.Frames.ToArray()[..EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount];
         var legacy = edits.Oam with
         {
-            Version = EnemyExtendedFrameSchema.PreBg2BossBindings,
+            Version = EnemyExtendedFrameSchema.PreBg2BossBindings.Revision,
             Frames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.Frames[frame.Name]),
             DisplayFrames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.DisplayFrames[frame.Name]),
         };

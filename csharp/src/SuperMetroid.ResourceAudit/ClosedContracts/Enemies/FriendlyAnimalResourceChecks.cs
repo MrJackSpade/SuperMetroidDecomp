@@ -11,7 +11,7 @@ internal static class FriendlyAnimalResourceChecks
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;
-        int previousVersion = EnemySpritemapSchema.PreFriendlyAnimal;
+        int previousVersion = EnemySpritemapSchema.PreFriendlyAnimal.Revision;
         int escapeStart = previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount + FriendlyAnimalVisualDefinitions.DachoraFrameCount;
         switch (family)
         {

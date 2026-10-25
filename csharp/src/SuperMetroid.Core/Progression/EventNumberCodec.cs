@@ -17,7 +17,8 @@ public static class EventNumberCodec
     /// <summary>The named event that event-table bit <paramref name="bit"/> records, when the retail game names one.</summary>
     public static bool TryFromEventBit(int bit, out EventNumber eventNumber)
     {
-        eventNumber = (EventNumber)bit;
-        return Enum.IsDefined(eventNumber);
+        bool named = Enum.IsDefined((EventNumber)bit);
+        eventNumber = named ? (EventNumber)bit : default;
+        return named;
     }
 }

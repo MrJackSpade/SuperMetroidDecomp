@@ -66,7 +66,7 @@ internal static class BotwoonVisualsVerification
         using var previousJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapSchema.PreBotwoon,
+                Version = EnemySpritemapSchema.PreBotwoon.Revision,
                 Frames = previousFrames,
                 DisplayFrames = previousBindings,
             }, CamelCaseJson));

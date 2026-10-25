@@ -2670,7 +2670,7 @@ internal static class LookupStream3Verification
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapSchema.Current,
+            Version = EnemySpritemapSchema.Current.Revision,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };

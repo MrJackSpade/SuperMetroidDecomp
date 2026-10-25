@@ -40,15 +40,19 @@ public sealed class CrocomireColorCatalog
     internal CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
         Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
     {
-        (Band Band, Bgr555[] Colors)[] supplied =
-        [
-            (Band.FightBody, fightBody), (Band.InitialWall, initialWall), (Band.InitialProjectile, initialProjectile),
-            (Band.SkeletonArm, skeletonArm), (Band.WallSpikes, wallSpikes),
-        ];
-        foreach ((Band band, Bgr555[] colors) in supplied)
-            for (int color = 0; color < colors.Length; color++)
-                if (colors[color] != Stock(band, color))
-                    edits.Add(new CrocomireColorKey(band, color), colors[color]);
+        RetainEdits(Band.FightBody, fightBody);
+        RetainEdits(Band.InitialWall, initialWall);
+        RetainEdits(Band.InitialProjectile, initialProjectile);
+        RetainEdits(Band.SkeletonArm, skeletonArm);
+        RetainEdits(Band.WallSpikes, wallSpikes);
+    }
+
+    /// <summary>Keeps each supplied color of one band that differs from its calculated stock paint.</summary>
+    private void RetainEdits(Band band, Bgr555[] colors)
+    {
+        for (int color = 0; color < colors.Length; color++)
+            if (colors[color] != Stock(band, color))
+                edits.Add(new CrocomireColorKey(band, color), colors[color]);
     }
 
     /// <summary>Each named material calculates its native paint and transfer overlaps; supplied edits never alias across fields.</summary>

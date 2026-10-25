@@ -104,8 +104,9 @@ public sealed class RoomScrollGrid
     }
 
     /// <summary>
-    /// Typed view of a native-relative read, including legal adjacent-WRAM reads. Enum casts
-    /// preserve unexpected byte values; callers can still distinguish every raw state.
+    /// Typed view of a native-relative read, including legal adjacent-WRAM reads. A byte past the three
+    /// authored states reads as the camera treats it, <see cref="RoomScrollState.Green"/>; the raw byte stays
+    /// available through <see cref="ReadCameraStorage"/>.
     /// </summary>
     public RoomScrollState ReadCameraState(int index) =>
         RoomScrollStates.FromStorageByte(ReadCameraStorage(index));

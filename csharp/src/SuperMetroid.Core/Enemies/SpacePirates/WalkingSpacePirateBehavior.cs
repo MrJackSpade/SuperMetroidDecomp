@@ -637,7 +637,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             {
                 SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
                 SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,
-                _ => SamusProjectileDirection.DownFacingLeft,
+                SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight
+                    or SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft
+                    or SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft
+                    or SamusProjectileDirection.UpFacingLeft or null => SamusProjectileDirection.DownFacingLeft,
+                _ => throw new InvalidDataException($"Projectile aim {c.Projectile.Direction} decoded to an undefined direction."),
             };
             c.Projectile.Direction = reflected.ToAimIndex();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),

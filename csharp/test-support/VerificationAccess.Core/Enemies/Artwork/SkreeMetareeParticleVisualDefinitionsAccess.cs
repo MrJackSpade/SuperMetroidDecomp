@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 

@@ -62,13 +62,13 @@ internal static class EndingSpriteSheetComposer
             return Shooting(logoQuarters);
         return sheet switch
         {
-            SpriteSheetId.EndingCloudSprites => new(EndingObjectSheet.Clouds, EndingReward.Armored, [new(EndingUploadKind.EscapeClouds, 0, null)],
+            SpriteSheetId.EndingCloudSprites => new(EndingObjectSheet.Clouds, EndingReward.Armored, [new EndingSheetUpload(EndingUploadKind.EscapeClouds)],
                 objects => [objects.CloudSprites], Stars: false, EscapeColours),
             SpriteSheetId.EndingExplosionSprites => new(EndingObjectSheet.Explosion, EndingReward.Armored,
                 [
-                    new(EndingUploadKind.ExplosionObjects, 0, null),
-                    .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingUpload(EndingUploadKind.ObjectFragment, 0, null, fragment)),
-                    new(EndingUploadKind.EndingFont, 0, null),
+                    new EndingSheetUpload(EndingUploadKind.ExplosionObjects),
+                    .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingObjectFragmentUpload(fragment)),
+                    new EndingSheetUpload(EndingUploadKind.EndingFont),
                 ],
                 objects => [objects.ExplosionSprites, objects.CompletionTextSprites, EndingAnimalEscapeDefinitions.Sprites], Stars: false,
                 (palettes, cgram) =>
@@ -119,7 +119,7 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>The post-credits reward page of an ending of <paramref name="reward"/>.</summary>
     private static EndingPage Reward(EndingReward reward) => new(EndingObjectSheet.Reward, reward,
-        [new(EndingUploadKind.CreditsCharacterArt, 0, null)], objects => [objects.RewardSprites], Stars: true, PostCreditsColours);
+        [new EndingSheetUpload(EndingUploadKind.CreditsCharacterArt)], objects => [objects.RewardSprites], Stars: true, PostCreditsColours);
 
     /// <summary>
     /// The shooting scene's page once <paramref name="logoQuarters"/> of the logo's character transfers have replaced its
@@ -127,13 +127,13 @@ internal static class EndingSpriteSheetComposer
     /// </summary>
     private static EndingPage Shooting(int logoQuarters)
     {
-        List<EndingUpload> transfers = [new(EndingUploadKind.CreditsCharacterArt, 0, null)];
+        List<EndingUpload> transfers = [new EndingSheetUpload(EndingUploadKind.CreditsCharacterArt)];
         int logo = 0;
         for (int index = 0; index < EndingPostShotUploadDefinitions.Count; index++)
         {
             if (EndingPostShotUploadDefinitions.Get(index).Source == EndingPostShotUploadSource.LogoTiles && logo++ == logoQuarters)
                 break;
-            transfers.Add(new(EndingUploadKind.PostShotTransfer, index, null));
+            transfers.Add(new EndingChunkUpload(EndingUploadKind.PostShotTransfer, index));
         }
         bool logoIn = logoQuarters == EndingSpriteSheets.ShootingSheets.Length - 1;
         return new(EndingObjectSheet.RewardFalling, EndingReward.Armored, [.. transfers],

@@ -59,5 +59,8 @@ public static class CeresDestructionSpriteDefinitions
 
     /// <summary>Each backdrop's pose, keyed by the backdrop its frame declares.</summary>
     private static readonly FrozenDictionary<CeresDestructionBackdrop, CinematicSpritePose> BackdropPoses =
-        Frames.Where(frame => frame.Backdrop is not null).ToFrozenDictionary(frame => frame.Backdrop!.Value, frame => frame.Pose);
+        Frames.SelectMany(frame => frame.Backdrop is CeresDestructionBackdrop backdrop
+                ? new[] { KeyValuePair.Create(backdrop, frame.Pose) }
+                : [])
+            .ToFrozenDictionary();
 }

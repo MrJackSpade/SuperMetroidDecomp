@@ -37,7 +37,7 @@ internal static class SingleFrameEnemyVisualsVerification
         string edited = previous[0].Name;
         var legacy = document with
         {
-            Version = EnemySpritemapSchema.PreSingleFrame,
+            Version = EnemySpritemapSchema.PreSingleFrame.Revision,
             Frames = previous.ToDictionary(frame => frame.Name, frame => document.Frames[frame.Name]),
             DisplayFrames = previous.ToDictionary(frame => frame.Name, frame => frame.Name),
         };

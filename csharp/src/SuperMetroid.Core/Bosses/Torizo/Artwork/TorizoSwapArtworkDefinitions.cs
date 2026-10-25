@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>The installed Torizo character pages: each page's size and file; where it comes from in the cartridge is extraction's knowledge.</summary>
@@ -35,35 +37,9 @@ internal static class TorizoSwapArtworkDefinitions
     internal static readonly TorizoTileSheet ChozoDebris =
         new(TorizoTilePage.ChozoDebris, 0x0400, "torizo-chozo-debris-tiles.png");
 
-    /// <summary>Enumerates the eight tile pages in stable installed-manifest and hash order.</summary>
-    internal static PageSequence All => default;
-
-    /// <summary>Indexable view of the fixed set of Torizo instruction tile sources.</summary>
-    internal readonly struct PageSequence : IReadOnlyList<TorizoTileSheet>
-    {
-        /// <summary>Gets the number of required tile sheets.</summary>
-        public int Count => 8;
-        /// <summary>Gets the sequence length for callers using array-style access.</summary>
-        public int Length => Count;
-        /// <summary>Gets the tile sheet assigned to a stable page-role index.</summary>
-        public TorizoTileSheet this[int index] => index switch
-        {
-            0 => SharedDeath,
-            1 => StatueCrumble,
-            2 => LeftAttack,
-            3 => RightAttack,
-            4 => GoldenAwakening,
-            5 => GoldenLeftAttack,
-            6 => GoldenRightAttack,
-            7 => ChozoDebris,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Yields every required tile sheet in page-role order.</summary>
-        public IEnumerator<TorizoTileSheet> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same page-role order to non-generic collection consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>The eight tile pages in stable installed-manifest and hash order.</summary>
+    internal static readonly ImmutableArray<TorizoTileSheet> All =
+    [
+        SharedDeath, StatueCrumble, LeftAttack, RightAttack, GoldenAwakening, GoldenLeftAttack, GoldenRightAttack, ChozoDebris,
+    ];
 }

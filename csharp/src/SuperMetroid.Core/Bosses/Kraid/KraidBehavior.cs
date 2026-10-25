@@ -334,6 +334,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
+            case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");

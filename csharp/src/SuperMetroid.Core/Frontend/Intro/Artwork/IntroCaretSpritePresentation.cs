@@ -31,7 +31,7 @@ public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
         IntroCaretSpriteDocument document;
         document = JsonAssetDocument.Read<IntroCaretSpriteDocument>(json, ArtworkJson.Options, "opening caret composition");
         var definitions = IntroCaretSpriteDefinitions.Frames;
-        int version = document.Version;
+        IntroCaretSpriteVersion? version = IntroCaretSpriteVersion.FromRevision(document.Version);
         bool previousVersion = version == IntroCaretSpriteVersion.Previous;
         if (document.Frames is null ||
             (previousVersion

@@ -283,6 +283,7 @@ internal sealed class KraidLimbs
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
+            case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid foot function {state.Parts[foot.SlotIndex].Function} is not translated.");

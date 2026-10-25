@@ -1,6 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -47,7 +46,7 @@ internal sealed class DraygonTurrets
         int random)
     {
         DraygonCannonTarget target = DraygonCannonData.FiringTarget(
-            ClosedNativeWords.Decode<DraygonFiringCannon>((byte)(random & 3), "Draygon firing cannon"));
+            DraygonCannonData.FiringOrder[random & 3]);
         if (state.DisabledCannonWords.Contains(target.DisabledWord))
             return;
 

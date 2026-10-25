@@ -81,7 +81,7 @@ internal static class LookupStream2Verification
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapSchema.Current,
+            Version = EnemySpritemapSchema.Current.Revision,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
@@ -1204,8 +1204,8 @@ internal static class LookupStream2Verification
             AssertEqual(native[index][^1], artwork.Characters(page.Page, page.ByteCount - 1, 1).Span[0], "Actual resolver returns correct final byte");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = artwork.Characters(page.Page, 0, page.ByteCount + 1), "Actual resolver rejects page overrun");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[-1], "Torizo page lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[8], "Torizo page upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[-1], "Torizo page lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[8], "Torizo page upper bound");
         Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
     }
     /// <summary>Checks Kago visual frame pointers and geometry against compiled native frames.</summary>

@@ -75,7 +75,7 @@ internal sealed class EndingArtwork
         byte[] clouds = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Escape clouds require installed object artwork.")).Clouds.Characters.ToArray();
         EndingStage.RequireMinimum(clouds, EndingArtworkExtentDefinitions.FloorBytes, "escape cloud characters");
-        screen.Record(EndingUploadKind.EscapeClouds, 0);
+        screen.Record(EndingUploadKind.EscapeClouds);
     }
 
     /// <summary>Uploads explosion OBJ art, four fragments and the ending font at their native VRAM destinations.</summary>
@@ -86,14 +86,14 @@ internal sealed class EndingArtwork
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
         EndingStage.RequireMinimum(main, EndingArtworkExtentDefinitions.ExplosionObjectBytes,
             "ending OBJ characters");
-        screen.Record(EndingUploadKind.ExplosionObjects, 0);
+        screen.Record(EndingUploadKind.ExplosionObjects);
         LoadObjectFragment(EndingObjectFragmentId.Segment70);
         LoadObjectFragment(EndingObjectFragmentId.Segment74);
         LoadObjectFragment(EndingObjectFragmentId.Segment78);
         LoadObjectFragment(EndingObjectFragmentId.Segment7C);
         EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingArtworkExtentDefinitions.ObjectFragmentLimit,
             "ending font characters");
-        screen.Record(EndingUploadKind.EndingFont, 0);
+        screen.Record(EndingUploadKind.EndingFont);
     }
 
     /// <summary>Copies one authored ending OBJ fragment into its named VRAM lane.</summary>
@@ -117,7 +117,7 @@ internal sealed class EndingArtwork
             "credits font");
 
         screen.Clear();
-        screen.Record(EndingUploadKind.CreditsFont, 0);
+        screen.Record(EndingUploadKind.CreditsFont);
         LoadCreditsCharacterArt();
 
         creditsAssetsLoaded = true;
@@ -160,7 +160,7 @@ internal sealed class EndingArtwork
             "post-credits reward characters");
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
         // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.
-        screen.Record(EndingUploadKind.CreditsCharacterArt, 0);
+        screen.Record(EndingUploadKind.CreditsCharacterArt);
     }
 
     /// <summary>

@@ -28,15 +28,15 @@ internal static class EndingScreenTiles
         {
             if (upload.Kind == EndingUploadKind.FloorSceneTiles)
             {
-                Mode7CharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[upload.SubjectAs<EndingFloorSceneId>()]);
+                Mode7CharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[upload.As<EndingFloorSceneUpload>().Scene]);
                 tiles.Show(scene, 0, 0, scene.Tiles);
             }
             // The flyaway's first lane uploads the gunship's characters; its second, the map.
-            else if (upload.Kind == EndingUploadKind.FlyawayChunk && upload.Key < chunksPerLane)
-                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingFlyawayMode7Tiles), upload.Key * chunkTiles, upload.Key * chunkTiles, chunkTiles);
+            else if (upload.Kind == EndingUploadKind.FlyawayChunk && upload.As<EndingChunkUpload>().Chunk < chunksPerLane)
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingFlyawayMode7Tiles), upload.As<EndingChunkUpload>().Chunk * chunkTiles, upload.As<EndingChunkUpload>().Chunk * chunkTiles, chunkTiles);
             // Each reward chunk pictures the next run of the floor's tiles.
             else if (upload.Kind == EndingUploadKind.RewardChunk)
-                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles), upload.Key * rewardTiles, upload.Key * rewardTiles, rewardTiles);
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles), upload.As<EndingChunkUpload>().Chunk * rewardTiles, upload.As<EndingChunkUpload>().Chunk * rewardTiles, rewardTiles);
             else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
                 tiles.Clear(0, EndingArtworkExtentDefinitions.FloorBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
         }
@@ -62,17 +62,17 @@ internal static class EndingScreenTiles
                     else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
                         Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.TextWaitingFirstTile, 0, EndingArtworkExtentDefinitions.WaitingCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.PostShotTransfer)
-                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.TextLogoFirstTile);
+                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.TextLogoFirstTile);
                     break;
                 case EndingTileLayer.Waiting:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
                         Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.WaitingFirstTile, 0, EndingArtworkExtentDefinitions.WaitingCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.PostShotTransfer)
-                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.WaitingLogoFirstTile);
+                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.WaitingLogoFirstTile);
                     break;
                 case EndingTileLayer.Logo:
                     if (upload.Kind == EndingUploadKind.PostShotTransfer)
-                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.LogoFirstTile);
+                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.LogoFirstTile);
                     break;
                 case EndingTileLayer.WavySamus:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)

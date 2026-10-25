@@ -293,6 +293,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             case GunshipFunction.NoOperation:
                 throw new InvalidDataException(
                     $"Gunship function {Part(top).Function} is not translated.");
+            case GunshipFunction.None:
             default:
                 throw new InvalidOperationException($"Undefined GunshipFunction {function}.");
         }

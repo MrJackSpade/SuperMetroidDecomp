@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -141,9 +142,13 @@ public sealed class GameplayMessageTitlePresentation
     }
 
     /// <summary>Encodes a supported title character as a priority BG3 tilemap word with the selected palette.</summary>
-    internal static ushort CompileGlyph(char character, int palette)
-    {
-        ushort tile = character switch
+    internal static ushort CompileGlyph(char character, int palette) =>
+        unchecked((ushort)(GlyphTile(character) |
+            GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
+
+    /// <summary>The title tile that draws a supported character.</summary>
+    private static ushort GlyphTile(char character) =>
+        character switch
         {
             ' ' => GameplayMessageTitleDefinitions.SpaceTile,
             '-' => GameplayMessageTitleDefinitions.HyphenTile,
@@ -153,25 +158,22 @@ public sealed class GameplayMessageTitlePresentation
             _ => throw new InvalidDataException(
                 $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
         };
-        return unchecked((ushort)(tile |
-            GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
-    }
 
     /// <summary>Recovers a supported title character from the tile portion of a BG3 word.</summary>
     internal static char DecodeGlyph(ushort word)
     {
         ushort tile = (ushort)new SnesBgTilemapWord(word).CharacterIndex;
-        if (GameplayMessageTitleDefinitions.IsLetterTile(tile))
-            return (char)('A' + tile - GameplayMessageTitleDefinitions.FirstLetterTile);
-        return tile switch
-        {
-            GameplayMessageTitleDefinitions.SpaceTile => ' ',
-            GameplayMessageTitleDefinitions.HyphenTile => '-',
-            GameplayMessageTitleDefinitions.PeriodTile => '.',
-            GameplayMessageTitleDefinitions.QuestionMarkTile => '?',
-            _ => throw new InvalidDataException($"${tile:X4} is not a gameplay-message title glyph."),
-        };
+        return GlyphsByTile.TryGetValue(tile, out char character)
+            ? character
+            : throw new InvalidDataException($"${tile:X4} is not a gameplay-message title glyph.");
     }
+
+    /// <summary>Every character a title can show.</summary>
+    private const string TitleAlphabet = " -.?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    /// <summary>Each title character keyed by the tile <see cref="GlyphTile"/> draws it with.</summary>
+    private static readonly FrozenDictionary<ushort, char> GlyphsByTile =
+        TitleAlphabet.ToFrozenDictionary(GlyphTile, character => character);
 
     /// <summary>Validated title text and palette retained independently of the mutable JSON document.</summary>
     private sealed record CompiledTitle(string Text, int Palette);

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies;
@@ -5,6 +6,13 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Compiled fixed program selectors for enemy drops.</summary>
 internal static class EnemyPickupDefinitions
 {
+    /// <summary>The kinds the pickup table holds, in table order.</summary>
+    internal static ImmutableArray<EnemyPickupKind> TableKinds { get; } =
+    [
+        EnemyPickupKind.None, EnemyPickupKind.SmallEnergy, EnemyPickupKind.BigEnergy, EnemyPickupKind.PowerBomb,
+        EnemyPickupKind.Missile, EnemyPickupKind.SuperMissile,
+    ];
+
     /// <summary>
     /// The none, small energy, big energy, Power Bomb, missile and Super Missile entries of the pickup table at
     /// <c>$86:EF04-$86:EF0F</c>: each kind's table offset and drop program. <see cref="EnemyPickupKind.None"/> has no
@@ -20,6 +28,7 @@ internal static class EnemyPickupDefinitions
             EnemyPickupKind.PowerBomb => new(6, EnemyDeathProjectileProgram.PowerBombs),
             EnemyPickupKind.Missile => new(8, EnemyDeathProjectileProgram.Missiles),
             EnemyPickupKind.SuperMissile => new(10, EnemyDeathProjectileProgram.SuperMissiles),
+            EnemyPickupKind.NoDrop => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
             _ => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
         };
     }

@@ -23,20 +23,20 @@ internal static class EndingScreenFloor
             {
                 case EndingUploadKind.FloorSceneTiles:
                     // A scene's map is laid out twice, one copy after the other.
-                    ReadOnlySpan<byte> map = Floor(floor)[upload.SubjectAs<EndingFloorSceneId>()].Map.Span;
+                    ReadOnlySpan<byte> map = Floor(floor)[upload.As<EndingFloorSceneUpload>().Scene].Map.Span;
                     map.CopyTo(cells);
                     map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
                     break;
-                case EndingUploadKind.FlyawayChunk when upload.Key >= chunksPerLane:
+                case EndingUploadKind.FlyawayChunk when upload.As<EndingChunkUpload>().Chunk >= chunksPerLane:
                     // The flyaway's second lane lays out the flight's map, padded with the blank tile to the whole floor.
-                    int offset = upload.Key % chunksPerLane * chunkBytes;
+                    int offset = upload.As<EndingChunkUpload>().Chunk % chunksPerLane * chunkBytes;
                     FlyawayMap(flight).AsSpan(offset, chunkBytes).CopyTo(cells.AsSpan(offset));
                     break;
                 case EndingUploadKind.RewardChunk:
                     // Each reward chunk uploads words of a map cell and a tile pixel; it lays out the cells of its words.
                     int chunkCells = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort);
-                    int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.Key) / sizeof(ushort);
-                    Floor(floor).RewardIcon.Map.Span.Slice(source, chunkCells).CopyTo(cells.AsSpan(upload.Key * chunkCells));
+                    int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.As<EndingChunkUpload>().Chunk) / sizeof(ushort);
+                    Floor(floor).RewardIcon.Map.Span.Slice(source, chunkCells).CopyTo(cells.AsSpan(upload.As<EndingChunkUpload>().Chunk * chunkCells));
                     break;
                 case EndingUploadKind.FlyawayChunk:
                 case EndingUploadKind.EscapeClouds:

@@ -704,7 +704,7 @@ internal static class IntroCinematicArtworkVerification
         {
             IntroCaretSpritePresentation.Write(previousJson, new IntroCaretSpriteDocument
             {
-                Version = IntroCaretSpriteVersion.Previous,
+                Version = IntroCaretSpriteVersion.Previous.Revision,
                 Frames = previousFrames,
             });
             previousJson.Position = 0;

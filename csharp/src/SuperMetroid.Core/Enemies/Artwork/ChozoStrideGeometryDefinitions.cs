@@ -17,11 +17,15 @@ internal static class ChozoStrideGeometryDefinitions
     /// <summary>Width of one OBJ glyph, the distance from the left foot to the adjacent right foot.</summary>
     private const int TilePixels = 8;
 
-    /// <summary>$AA:E954/E959 and following poses: the adjacent support-foot glyphs.</summary>
-    /// <summary>The character of the support foot's left half.</summary>
-    private const int LeftFootTile = 0x170;
-    /// <summary>The character of the support foot's right half.</summary>
-    private const int RightFootTile = 0x171;
+    /// <summary>One half of the support foot: its OBJ character and its distance from the left half's origin.</summary>
+    /// <param name="Tile">The OBJ character drawing this half.</param>
+    /// <param name="OffsetFromLeft">The half's horizontal distance from the left half's origin.</param>
+    private sealed record FootHalf(int Tile, int OffsetFromLeft);
+
+    /// <summary>$AA:E954/E959 and following poses: the support foot's left half.</summary>
+    private static readonly FootHalf LeftHalf = new(0x170, 0);
+    /// <summary>The support foot's right half, one glyph to the right of the left half.</summary>
+    private static readonly FootHalf RightHalf = new(0x171, TilePixels);
     /// <summary>$AA:E959/E9C4/EA34/EAA4: chosen left-foot origins -31/-28/-14/-7.</summary>
     private const int WeightShiftFootX = -31, EarlySupportFootX = -28,
         LateSupportFootX = -14, PushOffFootX = -7;
@@ -36,7 +40,10 @@ internal static class ChozoStrideGeometryDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(phase)),
     };
 
-    /// <summary>Uses phase-derived foot positions only when the supplied pose has exactly one matching glyph pair.</summary>
+    /// <summary>
+    /// Uses phase-derived foot positions only when the supplied pose has exactly one matching glyph pair. Parts drawn
+    /// with neither foot character are the body's other artwork and keep their supplied positions.
+    /// </summary>
     internal static EnemySpritemapParts Compile(EnemyFrameId frame, EnemySpritemapParts supplied)
     {
         int pose = Poses.IndexOf(frame);
@@ -46,19 +53,15 @@ internal static class ChozoStrideGeometryDefinitions
         for (int index = 0; index < supplied.Count; index++)
         {
             SpritemapPart part = supplied[index];
-            switch (part.Attributes.TileNumber)
+            if (part.Attributes.TileNumber == LeftHalf.Tile)
             {
-                case LeftFootTile:
-                    if (left >= 0 || part.X.SignedOffset != SupportFootX(phase)) return supplied;
-                    left = index;
-                    break;
-                case RightFootTile:
-                    if (right >= 0 || part.X.SignedOffset != SupportFootX(phase) + TilePixels) return supplied;
-                    right = index;
-                    break;
-                default:
-                    throw new InvalidOperationException(
-                        $"Undefined Chozo foot tile {part.Attributes.TileNumber}.");
+                if (left >= 0 || part.X.SignedOffset != SupportFootX(phase) + LeftHalf.OffsetFromLeft) return supplied;
+                left = index;
+            }
+            else if (part.Attributes.TileNumber == RightHalf.Tile)
+            {
+                if (right >= 0 || part.X.SignedOffset != SupportFootX(phase) + RightHalf.OffsetFromLeft) return supplied;
+                right = index;
             }
         }
         if (left < 0 || right < 0) return supplied;
@@ -108,7 +111,7 @@ internal static class ChozoStrideGeometryDefinitions
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index == leftIndex) return left.At(SupportFootX(phase));
-                if (index == rightIndex) return right.At(SupportFootX(phase) + TilePixels);
+                if (index == rightIndex) return right.At(SupportFootX(phase) + RightHalf.OffsetFromLeft);
                 return otherParts[index - (index > leftIndex ? 1 : 0) - (index > rightIndex ? 1 : 0)];
             }
         }

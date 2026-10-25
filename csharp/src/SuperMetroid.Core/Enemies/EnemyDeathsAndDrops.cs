@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -485,13 +484,23 @@ internal sealed class EnemyDeathsAndDrops
         CollectEnemyPickup(projectile, samus);
     }
 
+    /// <summary>The pickup kind whose table offset <paramref name="projectile"/> keeps in variable 0.</summary>
+    /// <exception cref="InvalidDataException">No pickup table entry has that offset.</exception>
+    private static EnemyPickupKind PickupKindAt(RoomEnemyProjectileSlot projectile)
+    {
+        foreach (EnemyPickupKind kind in EnemyPickupDefinitions.TableKinds)
+            if (EnemyPickupDefinitions.Animation(kind).TableOffset == projectile.Variable0)
+                return kind;
+        throw new InvalidDataException(
+            $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");
+    }
+
     /// <summary>Applies health or ammo from a touched pickup, publishes its sound, and makes it dormant.</summary>
     private void CollectEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
-        EnemyPickupKind kind = ClosedNativeWords.Decode<EnemyPickupKind>(
-            (ushort)(projectile.Variable0 >> 1), "enemy pickup kind");
+        EnemyPickupKind kind = PickupKindAt(projectile);
         switch (kind)
         {
             case EnemyPickupKind.SmallEnergy:

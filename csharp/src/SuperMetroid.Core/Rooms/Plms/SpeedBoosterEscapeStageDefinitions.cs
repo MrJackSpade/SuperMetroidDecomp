@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -12,18 +12,21 @@ internal static class SpeedBoosterEscapeStageDefinitions
     /// <summary>Native byte offset of the terminal $8000 target-X sentinel.</summary>
     internal const ushort TerminatorOffset = 18;
 
-    /// <summary>The four valid record offsets into $84:B876: three checkpoint actions and the terminator.</summary>
-    private enum StageOffset : ushort
-    {
-        /// <summary>$84:B876: eastern checkpoint action, reached first while escaping left.</summary>
-        EasternCheckpoint = 0,
-        /// <summary>$84:B87C: central checkpoint action, reached after the eastern rise.</summary>
-        CentralCheckpoint = 6,
-        /// <summary>$84:B882: western checkpoint action, the final rise before completion.</summary>
-        WesternCheckpoint = 12,
-        /// <summary>$84:B888: the terminal $8000 target-X sentinel that completes the event.</summary>
-        Terminator = TerminatorOffset,
-    }
+    /// <summary>$84:B876: eastern checkpoint action, reached first while escaping left.</summary>
+    private static readonly SpeedBoosterEscapeStageDefinition EasternCheckpoint = new(0x072b, 0x01bf, 0xff50);
+
+    /// <summary>$84:B87C: central checkpoint action, reached after the eastern rise.</summary>
+    private static readonly SpeedBoosterEscapeStageDefinition CentralCheckpoint = new(0x050a, 0x0167, 0xff20);
+
+    /// <summary>$84:B882: western checkpoint action, the final rise before completion.</summary>
+    private static readonly SpeedBoosterEscapeStageDefinition WesternCheckpoint = new(0x0244, 0x0100, 0xff20);
+
+    /// <summary>
+    /// The stage each record of $84:B876 selects, in table order; the last record ($84:B888, the terminal $8000
+    /// target-X sentinel) completes the event and selects none.
+    /// </summary>
+    private static readonly ImmutableArray<SpeedBoosterEscapeStageDefinition?> Stages =
+        [EasternCheckpoint, CentralCheckpoint, WesternCheckpoint, null];
 
     /// <summary>
     /// Selects the three position-triggered actions at $84:B846, in east-to-west order.
@@ -42,13 +45,6 @@ internal static class SpeedBoosterEscapeStageDefinitions
                 "offset into table $84:B876.");
         }
 
-        return ClosedNativeWords.Decode<StageOffset>(tableByteOffset, "Speed Booster escape stage offset") switch
-        {
-            StageOffset.EasternCheckpoint => new(0x072b, 0x01bf, 0xff50),
-            StageOffset.CentralCheckpoint => new(0x050a, 0x0167, 0xff20),
-            StageOffset.WesternCheckpoint => new(0x0244, 0x0100, 0xff20),
-            StageOffset.Terminator => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(StageOffset)} {tableByteOffset:X4}."),
-        };
+        return Stages[tableByteOffset / RecordByteCount];
     }
 }

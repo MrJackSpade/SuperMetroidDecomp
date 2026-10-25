@@ -12,6 +12,7 @@ internal static class DragonAnimationDefinitions
         DragonAnimationSelector.WingsFacingRight => DragonProgram.WingsFacingRight,
         DragonAnimationSelector.AttackingFacingLeft => DragonProgram.AttackingFacingLeft,
         DragonAnimationSelector.AttackingFacingRight => DragonProgram.AttackingFacingRight,
+        DragonAnimationSelector.ForceReinstall => throw NotLive(selector),
         _ => throw new InvalidDataException($"Dragon animation selector {selector} exceeds its six-entry domain."),
     };
 
@@ -29,6 +30,7 @@ internal static class DragonAnimationDefinitions
         DragonAnimationSelector.AttackingFacingLeft or DragonAnimationSelector.AttackingFacingRight => facingLeft
             ? DragonAnimationSelector.AttackingFacingLeft
             : DragonAnimationSelector.AttackingFacingRight,
+        DragonAnimationSelector.ForceReinstall => throw NotLive(selector),
         _ => throw NotLive(selector),
     };
 
@@ -51,6 +53,7 @@ internal static class DragonAnimationDefinitions
             DragonAnimationSelector.AttackingFacingLeft => true,
         DragonAnimationSelector.IdleFacingRight or DragonAnimationSelector.WingsFacingRight or
             DragonAnimationSelector.AttackingFacingRight => false,
+        DragonAnimationSelector.ForceReinstall => throw NotLive(selector),
         _ => throw NotLive(selector),
     };
 

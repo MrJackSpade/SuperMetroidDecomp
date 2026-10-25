@@ -31,16 +31,16 @@ internal static class EnemyLegacyOverridesVerification
         EnemySpritemapCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
         ExtendedEnemySchemaFixturesResult[] schemas = EnemyOamSchemaFixtures();
-        AssertEqual(EnemySpritemapSchema.Current - EnemySpritemapSchema.Legacy + 1,
+        AssertEqual(EnemySpritemapSchema.Current.Revision - EnemySpritemapSchema.Legacy.Revision + 1,
             schemas.Length, "every accepted enemy OAM schema has a compatibility fixture");
         int bindingSchemas = 0;
         for (int index = 0; index < schemas.Length; index++)
         {
             (int version, int count) = schemas[index];
-            AssertEqual(EnemySpritemapSchema.Legacy + index, version,
+            AssertEqual(EnemySpritemapSchema.Legacy.Revision + index, version,
                 "historical enemy OAM schema fixtures are contiguous");
             EnemySpritemapDefinition[] authored = definitions[..count];
-            bool hasBindings = version > EnemySpritemapSchema.PreDisplayBindings;
+            bool hasBindings = version > EnemySpritemapSchema.PreDisplayBindings.Revision;
             EnemySpritemapDocument document = stockDocument with
             {
                 Version = version,
@@ -84,7 +84,7 @@ internal static class EnemyLegacyOverridesVerification
                 prefix + "authored bindings take precedence; older schemas inherit stock bindings");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "loading an override does not mutate stock");
 
-            if (version != EnemySpritemapSchema.Current)
+            if (version != EnemySpritemapSchema.Current.Revision)
                 AssertThrows<InvalidDataException>(() => Load(document),
                     prefix + "a legacy override requires complete current stock");
             if (!hasBindings) continue;
@@ -108,9 +108,9 @@ internal static class EnemyLegacyOverridesVerification
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = crossBank }, stock),
                 prefix + "cross-bank remaps are rejected");
         }
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemySpritemapSchema.Legacy - 1 }, stock),
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemySpritemapSchema.Legacy.Revision - 1 }, stock),
             "enemy OAM rejects schemas older than its accepted compatibility boundary");
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemySpritemapSchema.Current + 1 }, stock),
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemySpritemapSchema.Current.Revision + 1 }, stock),
             "enemy OAM rejects unknown future schemas");
         Console.WriteLine($"PASS enemy OAM overrides: all {schemas.Length} schemas, {bindingSchemas} binding schemas, " +
             "exact art/remap preservation, stock inheritance, reload identity and malformed-data rejection. No ROM or gameplay probes.");
@@ -124,13 +124,14 @@ internal static class EnemyLegacyOverridesVerification
     }
 
     /// <summary>
-    /// Pairs every declared schema revision with its declared frame count, not the loader's
-    /// branch results. New revisions automatically join the coverage; version gaps fail.
+    /// Pairs every declared schema revision with its declared frame count. New revisions automatically join the
+    /// coverage; version gaps fail.
     /// </summary>
     private static ExtendedEnemySchemaFixturesResult[] EnemyOamSchemaFixtures() =>
         [.. typeof(EnemySpritemapSchema).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
-            .Where(field => field.IsLiteral).Select(field => (int)field.GetRawConstantValue()!)
-            .Select(schema => new ExtendedEnemySchemaFixturesResult(schema, EnemySpritemapFrameCounts.FrameCount(schema)))
+            .Where(field => field.FieldType == typeof(EnemySpritemapSchema))
+            .Select(field => (EnemySpritemapSchema)field.GetValue(null)!)
+            .Select(schema => new ExtendedEnemySchemaFixturesResult(schema.Revision, schema.FrameCount))
             .OrderBy(schema => schema.Version)];
 
     /// <summary>Runs ordinary, extended, and projectile legacy override checks.</summary>

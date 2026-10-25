@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Schema, glyph encoding, and fixed layout limits for opening narration.</summary>
@@ -57,33 +59,20 @@ public static class IntroNarrationDefinitions
     /// <param name="word">Complete tilemap word; palette, priority, or flip variations outside the canonical glyph words are not accepted.</param>
     /// <returns>The supported space, uppercase letter, digit, or punctuation character represented by the word.</returns>
     /// <exception cref="InvalidDataException"><paramref name="word"/> has no supported, exact narration glyph mapping.</exception>
-    public static char DecodeGlyph(ushort word) => word switch
-    {
-        >= UppercaseAWord and <= UppercaseAWord + 25 =>
-            (char)('A' + word - UppercaseAWord),
-        >= DigitZeroWord and <= DigitZeroWord + 9 =>
-            (char)('0' + word - DigitZeroWord),
-        BlankWord => ' ',
-        PeriodWord => '.',
-        CommaWord => ',',
-        ApostropheWord => '\'',
-        ExclamationWord => '!',
-        _ => throw new InvalidDataException($"${word:X4} is not an opening-narration glyph word."),
-    };
+    public static char DecodeGlyph(ushort word) =>
+        GlyphsByWord.TryGetValue(word, out char character)
+            ? character
+            : throw new InvalidDataException($"${word:X4} is not an opening-narration glyph word.");
 
     /// <summary>Checks whether a character can be compiled without changing case or substituting punctuation.</summary>
     /// <param name="character">The UTF-16 character from an editable narration line.</param>
     /// <returns>True only for the space, A-Z, 0-9, period, comma, straight-apostrophe, and exclamation alphabet accepted by <see cref="CompileGlyph"/>.</returns>
-    public static bool IsSupportedGlyph(char character)
-    {
-        try
-        {
-            _ = CompileGlyph(character);
-            return true;
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            return false;
-        }
-    }
+    public static bool IsSupportedGlyph(char character) => Alphabet.Contains(character, StringComparison.Ordinal);
+
+    /// <summary>Every character the narration supports, which <see cref="CompileGlyph"/> accepts.</summary>
+    private const string Alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,'!";
+
+    /// <summary>Each supported character keyed by the native tilemap word <see cref="CompileGlyph"/> gives it.</summary>
+    private static readonly FrozenDictionary<ushort, char> GlyphsByWord =
+        Alphabet.ToFrozenDictionary(CompileGlyph, character => character);
 }

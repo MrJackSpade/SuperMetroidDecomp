@@ -72,10 +72,10 @@ internal static class IntroScientistPartsVerification
             var expected = new OamBuffer(); expected.BeginFrame();
             IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, new(120, 72), 0x0c00);
             expected.FinalizeFrame();
-            foreach (int version in new[] { IntroCaretSpriteVersion.Previous, IntroCaretSpriteVersion.Current })
+            foreach (int version in new[] { IntroCaretSpriteVersion.Previous.Revision, IntroCaretSpriteVersion.Current.Revision })
             {
                 var frames = new Dictionary<string, SpriteVisualPart[]>();
-                if (version == IntroCaretSpriteVersion.Previous)
+                if (version == IntroCaretSpriteVersion.Previous.Revision)
                 {
                     foreach (string name in IntroCaretSpriteDefinitions.PreviousFrameNames) frames.Add(name, []);
                     frames[IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = visual;

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -36,15 +37,15 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 EnemyRomTablePointersGunship.LiftoffGraphicsSourceWords + index * 2);
             ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointersGunship.LiftoffVramDestinationWords + index * 2);
-            AssertEqual(0x940000 | source, transfer.SourceAddress,
-                $"gunship frame {index} compiled source matches the cartridge");
+            AssertEqual(0x940000 | source, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
+                $"gunship frame {index}'s import source matches the cartridge's takeoff list");
             AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte / 32),
                 $"gunship frame {index} compiled place among the OBJ characters matches the cartridge");
             ReadOnlySpan<byte> pixels = installed.Resolve(transfer.Asset).Span;
             AssertEqual(GunshipLiftoffTransferDefinitions.ByteCount, pixels.Length,
                 $"gunship frame {index} transfer length");
             for (int offset = 0; offset < pixels.Length; offset++)
-                AssertEqual(CpuBusRegionRead.Read(bus, transfer.SourceAddress + offset), pixels[offset],
+                AssertEqual(CpuBusRegionRead.Read(bus, EnemySourceDefinitions.GunshipLiftoffPageSource(index) + offset), pixels[offset],
                     $"gunship frame {index} byte {offset} matches cartridge art");
         }
 
@@ -61,7 +62,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 $"takeoff frame {index} shows its installed page");
             AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte, stockPages.Uploads[index].FirstByte,
                 $"takeoff frame {index} keeps its compiled place among the OBJ characters");
-            nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount, transfer.SourceAddress,
+            nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(stockPages.Uploads[index].FirstByte / 32)));
         }
         var nativeVram = new SnesVram();

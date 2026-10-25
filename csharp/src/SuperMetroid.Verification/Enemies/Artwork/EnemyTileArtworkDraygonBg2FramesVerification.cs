@@ -48,7 +48,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 4)),
                 $"Draygon {frame.Name} BG2 component Y offset");
             ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6));
-            AssertEqual(EnemyBg2FrameLayout.StreamMarker,
+            AssertEqual(EnemyBg2FrameLayoutConstants.StreamMarker,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, stream)))),
                 $"Draygon {frame.Name} selects a BG2 command stream");
             int cursor = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, unchecked((ushort)(stream + 2))));
@@ -72,7 +72,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             {
                 EnemyBg2TilemapWrite write = installed.Span[index];
                 AssertEqual(native[index].Destination,
-                    checked((ushort)(EnemyBg2FrameLayout.WorkingRamBase +
+                    checked((ushort)(EnemyBg2FrameLayoutConstants.WorkingRamBase +
                         write.FirstCell * 2)),
                     $"Draygon {frame.Name} write {index} preserves destination");
                 AssertTrue(write.Tiles.Span.SequenceEqual(native[index].Tiles),

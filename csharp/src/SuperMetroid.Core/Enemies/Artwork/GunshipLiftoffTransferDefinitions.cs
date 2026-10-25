@@ -1,19 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Compiled $A2:AC07/$A2:AC11 transfer pairs for the five gunship takeoff uploads.</summary>
+/// <summary>The five gunship takeoff uploads, in takeoff order.</summary>
 internal static class GunshipLiftoffTransferDefinitions
 {
     /// <summary>One takeoff upload contains $400 bytes of 4-bpp OBJ characters.</summary>
     internal const ushort ByteCount = 0x0400;
-    /// <summary>$94:C800, first gunship takeoff character chunk selected by $A2:AC07.</summary>
-    private const int FirstSourceAddress = 0x94c800;
-
-    /// <summary>$A2:AC07/$AC11 select five consecutive $400-byte source and VRAM regions.</summary>
+    /// <summary>The takeoff's five uploads show five consecutive installed pages.</summary>
     internal static GunshipLiftoffTransferDefinition Frame(int index)
     {
         if ((uint)index >= 5)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return new(FirstSourceAddress + index * ByteCount, VramAssetId.GunshipLiftoffFirstTiles + index);
+        return new(VramAssetId.GunshipLiftoffFirstTiles + index);
     }
 
     /// <summary>Calculated five-frame transfer sequence without a stored record table.</summary>
@@ -25,13 +22,13 @@ internal static class GunshipLiftoffTransferDefinitions
     /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
     internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>
     {
-        /// <summary>Five consecutive source and destination pairs in the native takeoff list.</summary>
+        /// <summary>The five uploads of the takeoff list.</summary>
         public int Count => 5;
         /// <summary>Array-style extent exposed to callers expecting the transfer count.</summary>
         public int Length => Count;
-        /// <summary>Calculates the selected transfer pair without retaining a frame table.</summary>
+        /// <summary>Calculates the selected upload without retaining a frame table.</summary>
         public GunshipLiftoffTransferDefinition this[int index] => Frame(index);
-        /// <summary>Visits the five source and destination pairs in takeoff order.</summary>
+        /// <summary>Visits the five uploads in takeoff order.</summary>
         public IEnumerator<GunshipLiftoffTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)

@@ -802,7 +802,7 @@ internal static class FrontendRomFreeVerification
                     ushort first = CartridgeImportSource.Require(catalogueSource).ReadCartridgeWord(address);
                     if (command == 0)
                     {
-                        AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
+                        AssertEqual(EnemyBg2FrameLayoutConstants.StreamMarker, first,
                             $"{frame.Name} has a native BG2 stream");
                         blockedPresentationBytes.Add(address);
                         blockedPresentationBytes.Add(address + 1);

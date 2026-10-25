@@ -3,6 +3,6 @@
 /// <summary>Development-tool members of <see cref="GunshipLiftoffTransferDefinitions"/>; never linked by player hosts.</summary>
 internal static class GunshipLiftoffTransferDefinitionsTooling
 {
-    /// <summary>First $94:C800 character chunk, uploaded to VRAM word $7600.</summary>
+    /// <summary>The first takeoff page.</summary>
     internal static GunshipLiftoffTransferDefinition First => GunshipLiftoffTransferDefinitions.Frame(0);
 }

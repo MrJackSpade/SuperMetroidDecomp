@@ -2581,11 +2581,18 @@ internal static class LookupStream3Verification
     {
         EnemyAuxiliaryPaletteDefinition[] definitions =
         [
-            new(EnemyAuxiliaryPalette.FaceBlock, 0xa8e7cc, 8, 4, 4),
-            new(EnemyAuxiliaryPalette.DeadSidehopper, 0xa9ebcc, 7, 15, 16),
-            new(EnemyAuxiliaryPalette.GoldenTorizoBody, 0x848032, 8, 16, 16),
-            new(EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16),
+            new(EnemyAuxiliaryPalette.FaceBlock, 8, 4),
+            new(EnemyAuxiliaryPalette.DeadSidehopper, 7, 15),
+            new(EnemyAuxiliaryPalette.GoldenTorizoBody, 8, 16),
+            new(EnemyAuxiliaryPalette.GoldenTorizoBelly, 8, 16),
         ];
+        // Where each family's rows sit is the import's knowledge: the oracle reads the retail rows from the import's
+        // source catalog, and the stored stride must match the cartridge layout recorded in this check.
+        AssertEqual(0xa8e7cc, EnemySourceDefinitions.AuxiliaryPalettes[EnemyAuxiliaryPalette.FaceBlock].FirstRow.Value, "stream 3 face-block rows' source");
+        AssertEqual(0xa9ebcc, EnemySourceDefinitions.AuxiliaryPalettes[EnemyAuxiliaryPalette.DeadSidehopper].FirstRow.Value, "stream 3 dead-sidehopper rows' source");
+        AssertEqual(16, EnemySourceDefinitions.AuxiliaryPalettes[EnemyAuxiliaryPalette.DeadSidehopper].RowStrideColors, "stream 3 dead-sidehopper row stride");
+        AssertEqual(0x848032, EnemySourceDefinitions.AuxiliaryPalettes[EnemyAuxiliaryPalette.GoldenTorizoBody].FirstRow.Value, "stream 3 Golden Torizo body rows' source");
+        AssertEqual(0x848132, EnemySourceDefinitions.AuxiliaryPalettes[EnemyAuxiliaryPalette.GoldenTorizoBelly].FirstRow.Value, "stream 3 Golden Torizo belly rows' source");
         AssertTrue(definitions.SequenceEqual(EnemyAuxiliaryColorDefinitions.All), "stream 3 auxiliary definition fields/order");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
@@ -2593,7 +2600,8 @@ internal static class LookupStream3Verification
             Enumerable.Range(0, definition.FrameCount).Select(frame =>
                 Enumerable.Range(0, definition.ColorCount).Select(color =>
                 {
-                    int address = definition.SourceAddress + 2 * (frame * definition.NativeFrameStrideColors + color);
+                    EnemyAuxiliaryPaletteSource stored = EnemySourceDefinitions.AuxiliaryPalettes[definition.Id];
+                    int address = stored.FirstRow.Value + 2 * (frame * stored.RowStrideColors + color);
                     return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 }).ToArray()).ToArray());
         EnemyAuxiliaryColorCatalog Load()

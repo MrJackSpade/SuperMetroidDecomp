@@ -1449,7 +1449,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
             int spriteAddress = ((int)new SnesAddress(bank, sprite));
             int parts = SnesLittleEndian.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((int)new SnesAddress(bank, unchecked((ushort)(sprite + 1)))));
-            if (parts == EnemyBg2FrameLayout.StreamMarker)
+            if (parts == EnemyBg2FrameLayoutConstants.StreamMarker)
             {
                 Block(bank, sprite, 2);
                 ushort cursor = unchecked((ushort)(sprite + 2));

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -81,7 +82,7 @@ internal static class EnemyExtendedFrameFiles
             short y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(record + 2))))));
             ushort spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(record + 4)))));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, spritePointer))) ==
-                EnemyBg2FrameLayout.StreamMarker)
+                EnemySourceDefinitions.Bg2StreamMarker)
             {
                 // Multipart bodies combine ordinary OAM with BG2 streams
                 // in one native extended root. Its BG2 half is extracted

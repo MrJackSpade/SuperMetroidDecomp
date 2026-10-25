@@ -218,11 +218,10 @@ public static class EnemyTileArtworkFiles
         var gunshipLiftoffHashes = new Dictionary<int, string>();
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
         {
-            GunshipLiftoffTransferDefinition transfer =
-                GunshipLiftoffTransferDefinitions.Frames[index];
+            int pageSource = EnemySourceDefinitions.GunshipLiftoffPageSource(index);
             var planar = new byte[GunshipLiftoffTransferDefinitions.ByteCount];
             for (int offset = 0; offset < planar.Length; offset++)
-                planar[offset] = bus.ReadCartridgeByte(transfer.SourceAddress + offset);
+                planar[offset] = bus.ReadCartridgeByte(pageSource + offset);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
                 RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
             using var image = new MemoryStream();

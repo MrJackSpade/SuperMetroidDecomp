@@ -1,4 +1,5 @@
 using SuperMetroid.Tooling;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
 using System.Text;
@@ -227,8 +228,9 @@ internal static class EnemyDefinitionBoundaryVerification
         foreach (var definition in EnemyAuxiliaryColorDefinitions.All)
             for (int frame = 0; frame < definition.FrameCount; frame++)
                 for (int color = 0; color < definition.ColorCount; color++)
-                    AssertEqual((ushort)(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((definition.SourceAddress +
-                        (frame * definition.NativeFrameStrideColors + color) * 2)) & 0x7fff),
+                    AssertEqual((ushort)(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((
+                        EnemySourceDefinitions.AuxiliaryPalettes[definition.Id].FirstRow.Value +
+                        (frame * EnemySourceDefinitions.AuxiliaryPalettes[definition.Id].RowStrideColors + color) * 2)) & 0x7fff),
                         catalog.Resolve(definition.Id, frame, color), "editable auxiliary RGB5 color");
         var document = RequiredJson.Deserialize<EnemyAuxiliaryColorDocument>(json,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

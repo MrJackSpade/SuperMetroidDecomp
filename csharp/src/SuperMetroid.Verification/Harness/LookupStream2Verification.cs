@@ -1678,7 +1678,7 @@ internal static class LookupStream2Verification
         {
             int source = 0x940000 | ReadVerificationWord(rom, 0xa2ac07 + 2 * enumerated);
             ushort destination = ReadVerificationWord(rom, 0xa2ac11 + 2 * enumerated);
-            AssertEqual(source, transfer.SourceAddress, "Gunship original source");
+            AssertEqual(source, EnemySourceDefinitions.GunshipLiftoffPageSource(enumerated), "Gunship import source matches the takeoff list");
             AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[enumerated].FirstByte / 32), "Gunship original destination");
             AssertEqual(VramAssetId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");

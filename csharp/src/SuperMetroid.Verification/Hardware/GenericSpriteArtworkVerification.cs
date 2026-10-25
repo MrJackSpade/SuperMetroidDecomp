@@ -73,8 +73,8 @@ internal static class GenericSpriteArtworkVerification
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank,
                 FrontendSourceDefinitions.TitleCopyrightSpritemap),
-            new(TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y),
-            TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
+            new(TitleSequenceDefinitions.Sprites.CopyrightOrigin.X, TitleSequenceDefinitions.Sprites.CopyrightOrigin.Y),
+            TitleSequenceDefinitions.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();
         EqualSprites(expected, title.objects, "title copyright owner parity");
 

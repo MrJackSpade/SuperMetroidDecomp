@@ -149,7 +149,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             audio?.QueueMusicDelayed8(
                 MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
             audio?.QueueMusicDelayed8(
-                MusicRequest.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
+                MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
         // `$8B:9B87` expands the four artwork streams and uploads them; the title binds that
@@ -160,8 +160,8 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         // The Year object's pre-instruction forces full brightness on the first
         // processing frame; its position and palette come from the native definition.
-        Brightness = TitleSequenceRomData.Timing.MaximumBrightness;
-        BeginTextSequence(TitleSequenceRomData.TextSequences.Year);
+        Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
+        BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
 
     /// <summary>Current native title sub-state, exposed as a stable debugger label.</summary>
@@ -215,8 +215,8 @@ public sealed class TitleSequenceState : IFrontendScreen
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
             WriteCopyright(
-                presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
-                presentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
+                presentation?.SkipCopyrightWhite ?? TitleSequenceDefinitions.Palette.CopyrightWhite,
+                presentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);
         }
     }
 
@@ -231,7 +231,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
         // their brightness levels are observable in native traces.
         bool confirmPressed =
-            controller.NewlyPressed.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
+            controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
         if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)
         {
             Phase = TitleSequencePhase.SkipFadeOut;
@@ -249,36 +249,36 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.SceneZeroPan:
                 panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    panPosition.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
-                if (unchecked((short)panPosition.X.Whole) < TitleSequenceRomData.Scenes.SceneZeroEndX)
-                    BeginTextSequence(TitleSequenceRomData.TextSequences.Nintendo);
+                    panPosition.X, -TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
+                if (unchecked((short)panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneZeroEndX)
+                    BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.SceneOnePan:
                 panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    panPosition.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
-                if (unchecked((short)panPosition.X.Whole) < TitleSequenceRomData.Scenes.SceneOneEndX)
-                    BeginTextSequence(TitleSequenceRomData.TextSequences.Presents);
+                    panPosition.X, -TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
+                if (unchecked((short)panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneOneEndX)
+                    BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.SceneTwoPan:
                 panPosition = panPosition.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    panPosition.Y, TitleSequenceRomData.Scenes.PanVelocity16Point16));
-                if (unchecked((short)panPosition.Y.Whole) >= TitleSequenceRomData.Scenes.SceneTwoEndY)
-                    BeginTextSequence(TitleSequenceRomData.TextSequences.MetroidThree);
+                    panPosition.Y, TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
+                if (unchecked((short)panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.SceneTwoEndY)
+                    BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;
 
             case TitleSequencePhase.SceneThreeZoom:
                 // `$8B:9E8B` increments only on even NMI frame counters.
-                if ((PhaseTimer++ & 1) == 0 && Zoom < TitleSequenceRomData.Scenes.IdentityScale)
+                if ((PhaseTimer++ & 1) == 0 && Zoom < TitleSequenceDefinitions.Scenes.IdentityScale)
                     Zoom++;
-                if (Zoom >= TitleSequenceRomData.Scenes.IdentityScale)
+                if (Zoom >= TitleSequenceDefinitions.Scenes.IdentityScale)
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
-                    ActiveOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-                    ActiveObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
+                    ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
+                    ActiveObjectPalette = TitleSequenceDefinitions.Sprites.LogoPalette;
                     Phase = TitleSequencePhase.TitleLogoFade;
-                    PhaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
+                    PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                 }
                 break;
 
@@ -289,7 +289,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     // 900-frame demo countdown. The palette FX itself remains future work;
                     // its final cartridge palette is already the visible CGRAM source.
                     Phase = TitleSequencePhase.CopyrightFade;
-                    PhaseTimer = TitleSequenceRomData.Timing.CopyrightHoldFrames;
+                    PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
                 }
                 break;
 
@@ -301,13 +301,13 @@ public sealed class TitleSequenceState : IFrontendScreen
             case TitleSequencePhase.SkipFadeOut:
                 Brightness = Math.Max(
                     0,
-                    Brightness - TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
+                    Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
                 if (Brightness == 0)
                 {
                     // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
                     // rebuilding the immediate title objects.
                     audio?.QueueMusicDelayed8(
-                        MusicRequest.SelectTrack(TitleSequenceRomData.Music.ImmediateTitleTrack));
+                        MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
                     rebuildConsolePaletteFxAfterStep = true;
                     Phase = TitleSequencePhase.TitleScreenFadeIn;
@@ -316,9 +316,9 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.TitleScreenFadeIn:
                 Brightness = Math.Min(
-                    TitleSequenceRomData.Timing.MaximumBrightness,
-                    Brightness + TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
-                if (Brightness == TitleSequenceRomData.Timing.MaximumBrightness)
+                    TitleSequenceDefinitions.Timing.MaximumBrightness,
+                    Brightness + TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
+                if (Brightness == TitleSequenceDefinitions.Timing.MaximumBrightness)
                     EnterTitleScreen();
                 break;
 
@@ -328,19 +328,19 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     fadingToDemo = true;
                     Phase = TitleSequencePhase.TitleScreenFadeOut;
-                    PhaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
+                    PhaseTimer = TitleSequenceDefinitions.Timing.TitleFadeCadenceFrames;
                 }
                 else if (confirmPressed)
                 {
                     Phase = TitleSequencePhase.TitleScreenFadeOut;
-                    PhaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
+                    PhaseTimer = TitleSequenceDefinitions.Timing.TitleFadeCadenceFrames;
                 }
                 break;
 
             case TitleSequencePhase.TitleScreenFadeOut:
                 if (--PhaseTimer <= 0)
                 {
-                    PhaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
+                    PhaseTimer = TitleSequenceDefinitions.Timing.TitleFadeCadenceFrames;
                     Brightness = Math.Max(0, Brightness - 1);
                     if (Brightness == 0)
                     {
@@ -368,8 +368,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
-        consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
+        consolePaletteFx.SpawnDefinition(TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, 0);
+        consolePaletteFx.SpawnDefinition(TitleSequenceDefinitions.ConsolePaletteFx.FastLights, 0);
     }
 
     /// <summary>
@@ -383,11 +383,11 @@ public sealed class TitleSequenceState : IFrontendScreen
         short scale = unchecked((short)Zoom);
         return new(new FramePaint(palette.Colors, objects.Draws),
             floorBackgroundEnabled
-                ? new AffineTransform(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
+                ? new AffineTransform(scale, TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), panPosition.Whole.AsSignedRegister())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
-            floorBackgroundEnabled ? AffineFloor.Of(FloorMap(), FloorTiles(TitleSequenceRomData.Transfers.BabyAnimationSourcePages[BabyFrame])) : null);
+            floorBackgroundEnabled ? AffineFloor.Of(FloorMap(), FloorTiles(TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame])) : null);
     }
 
     /// <summary>
@@ -401,11 +401,11 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (floorMap is not null)
             return floorMap;
         ReadOnlySpan<byte> map = (TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork.")).FloorMap;
-        if (map.Length < TitleSequenceRomData.Transfers.FloorMapByteCount)
+        if (map.Length < TitleSequenceDefinitions.Graphics.FloorMapByteCount)
             throw new InvalidDataException("Title Mode 7 map stream is shorter than its $1000-byte DMA.");
         var cells = new byte[AffineFloor.CellCount];
-        cells.AsSpan().Fill(TitleSequenceRomData.Transfers.FloorInitialMapByte);
-        map[..TitleSequenceRomData.Transfers.FloorMapByteCount].CopyTo(cells);
+        cells.AsSpan().Fill(TitleSequenceDefinitions.Graphics.FloorInitialMapByte);
+        map[..TitleSequenceDefinitions.Graphics.FloorMapByteCount].CopyTo(cells);
         return floorMap = cells;
     }
 
@@ -435,8 +435,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
-                TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
-                TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
+                TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToOam(),
+                TitleSequenceDefinitions.Sprites.CopyrightPalette.Raw);
         }
 
         objects.FinishFrame();
@@ -463,19 +463,19 @@ public sealed class TitleSequenceState : IFrontendScreen
                 case TitleSequenceInstruction.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
                     floorBackgroundEnabled = true; // `$8B:9CE3-$9CE5` shows the floor beside the objects.
-                    ApplyScene(TitleSequenceRomData.Scenes.SceneZero);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneZero);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene1:
                     Phase = TitleSequencePhase.SceneOnePan;
                     floorBackgroundEnabled = true; // `$8B:9D5D-$9D61` shows the floor beside the objects.
-                    ApplyScene(TitleSequenceRomData.Scenes.SceneOne);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneOne);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene2:
                     Phase = TitleSequencePhase.SceneTwoPan;
                     floorBackgroundEnabled = true; // `$8B:9DD6-$9DDA` shows the floor beside the objects.
-                    ApplyScene(TitleSequenceRomData.Scenes.SceneTwo);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneTwo);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene3:
@@ -483,7 +483,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     gradientEnabled = true;
                     floorBackgroundEnabled = true; // `$8B:9E58-$9E5C` shows the floor beside the objects.
                     PhaseTimer = 0;
-                    ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneThree);
                     return;
 
                 case TitleSequenceInstruction.Delete:
@@ -505,7 +505,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         sequenceEntryTimer = 1;
         ActiveSprite = null;
         ActiveOrigin = definition.Origin;
-        ActiveObjectPalette = definition.CharacterOffset;
+        ActiveObjectPalette = definition.Palette;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
         // Initial setup and each of the first three completed pan functions hide the floor,
@@ -530,14 +530,14 @@ public sealed class TitleSequenceState : IFrontendScreen
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
         WriteCopyright(
-            titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
-            titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
+            titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceDefinitions.Palette.CopyrightWhite,
+            titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);
         ActiveSprite = TitleSprite.SuperMetroidLogo;
-        ActiveOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-        ActiveObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
+        ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
+        ActiveObjectPalette = TitleSequenceDefinitions.Sprites.LogoPalette;
         floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
-        Zoom = TitleSequenceRomData.Scenes.IdentityScale;
+        Zoom = TitleSequenceDefinitions.Scenes.IdentityScale;
     }
 
     /// <summary>Opens the idle title screen at full brightness with its native demo countdown.</summary>
@@ -545,8 +545,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         EnterImmediateTitleObjects();
         Phase = TitleSequencePhase.TitleScreen;
-        PhaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
-        Brightness = TitleSequenceRomData.Timing.MaximumBrightness;
+        PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenNtscFrames;
+        Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
     }
 
     /// <summary>Advances the Baby Metroid page cycle when its authored frame duration expires.</summary>
@@ -555,8 +555,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (--babyFrameTimer > 0)
             return;
 
-        BabyFrame = (BabyFrame + 1) % TitleSequenceRomData.Transfers.BabyAnimationSourcePages.Length;
-        babyFrameTimer = TitleSequenceRomData.Timing.BabyFrameDuration;
+        BabyFrame = (BabyFrame + 1) % TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages.Length;
+        babyFrameTimer = TitleSequenceDefinitions.Timing.BabyFrameDuration;
     }
 
     /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>
@@ -565,7 +565,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         Phase = definition.Phase;
         floorBackgroundEnabled = true;
         Zoom = definition.Scale;
-        panPosition = new(panPosition.X.WithWhole(definition.Position.X), panPosition.Y.WithWhole(definition.Position.Y));
+        panPosition = new(panPosition.X.WithWhole(unchecked((ushort)definition.Position.X)),
+            panPosition.Y.WithWhole(unchecked((ushort)definition.Position.Y)));
         ActiveSprite = null;
     }
 }

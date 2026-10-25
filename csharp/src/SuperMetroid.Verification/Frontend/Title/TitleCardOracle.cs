@@ -13,8 +13,8 @@ internal static class TitleCardOracle
     /// <summary>The four title cards, in authored order.</summary>
     internal static TitleTextSequenceDefinition[] Cards { get; } =
     [
-        TitleSequenceRomData.TextSequences.Year, TitleSequenceRomData.TextSequences.Nintendo,
-        TitleSequenceRomData.TextSequences.Presents, TitleSequenceRomData.TextSequences.MetroidThree,
+        TitleSequenceDefinitions.TextSequences.Year, TitleSequenceDefinitions.TextSequences.Nintendo,
+        TitleSequenceDefinitions.TextSequences.Presents, TitleSequenceDefinitions.TextSequences.MetroidThree,
     ];
 
     /// <summary>
@@ -31,15 +31,15 @@ internal static class TitleCardOracle
         int compared = 0;
         foreach (TitleTextSequenceDefinition card in Cards)
         {
-            int address = card.InstructionAddress;
+            int address = TitleSourceDefinitions.TextLists[card.Phase];
             foreach (TitleCardStep step in TitleCards.Steps(card.Phase))
             {
                 ushort word = cartridge.ReadCartridgeWord(address);
                 string at = $"{card.Phase} at ${address:X6}";
                 if (step.Command is { } command)
                 {
-                    AssertEqual((ushort)command, word, $"{at}: command");
-                    address += TitleSequenceRomDataTextSequencesConstants.InstructionWordByteCount;
+                    AssertEqual(TitleNativeWords.Instructions.Word(command), word, $"{at}: command");
+                    address += TitleNativeWords.InstructionWordByteCount;
                 }
                 else
                 {
@@ -49,7 +49,7 @@ internal static class TitleCardOracle
                         AssertEqual(nativeSpritemap, extracted[sprite], $"{at}: {sprite} is extracted from the listed spritemap");
                     else
                         AssertEqual(FrontendSourceDefinitions.TitleBlankSpritemap, nativeSpritemap, $"{at}: blank typed frame is a blank native entry");
-                    address += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
+                    address += TitleSourceDefinitions.TimedEntryByteCount;
                 }
                 compared++;
             }

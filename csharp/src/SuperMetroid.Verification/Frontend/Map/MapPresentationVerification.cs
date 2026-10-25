@@ -1408,7 +1408,7 @@ internal static class MapPresentationVerification
             File.ReadAllBytes(Path.Combine(stock, name)), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title layout is null.");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+            TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus)[TitleSprite.YearReveal1],
             "the year's first letter is the year card's first listed spritemap");
         TitleSpriteFrame year = document.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);

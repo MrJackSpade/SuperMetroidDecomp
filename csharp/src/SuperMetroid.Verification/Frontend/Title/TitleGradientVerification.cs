@@ -76,17 +76,17 @@ internal static class TitleGradientVerification
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        AssertSource(TitleSequenceRomData.Assets.FloorCharactersAddress,
-            TitleSequenceRomData.Transfers.FloorCharacterByteCount, presentation.FloorCharacters,
+        AssertSource(TitleSourceDefinitions.FloorCharacters,
+            TitleSequenceDefinitions.Graphics.FloorCharacterByteCount, presentation.FloorCharacters,
             "title Mode 7 characters");
-        AssertSource(TitleSequenceRomData.Assets.FloorMapAddress,
-            TitleSequenceRomData.Transfers.FloorMapByteCount, presentation.FloorMap,
+        AssertSource(TitleSourceDefinitions.FloorMap,
+            TitleSequenceDefinitions.Graphics.FloorMapByteCount, presentation.FloorMap,
             "title Mode 7 map");
-        AssertSource(TitleSequenceRomData.Assets.ObjectCharactersAddress,
-            TitleSequenceRomData.Transfers.ObjectCharacterByteCount, presentation.ObjectCharacters,
+        AssertSource(TitleSourceDefinitions.ObjectCharacters,
+            TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, presentation.ObjectCharacters,
             "title OBJ characters");
-        AssertSource(TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
-            TitleSequenceRomData.Transfers.BabyCharacterByteCount, presentation.BabyCharacters,
+        AssertSource(TitleSourceDefinitions.BabyMetroidCharacters,
+            TitleSequenceDefinitions.Graphics.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
         // The installed title uses compiled card timing and sprite selectors alongside
@@ -131,7 +131,7 @@ internal static class TitleGradientVerification
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+            TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         IReadOnlyDictionary<TitleSprite, ushort> spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
         AssertEqual(yearPointer, spritemaps[TitleSprite.YearReveal1], "the year's first letter is the year card's first listed spritemap");
@@ -235,19 +235,19 @@ internal static class TitleGradientVerification
         TitlePalettePresentation presentation = TitlePaletteFile.Read(
             new MemoryStream(extracted, writable: false));
         var expected = new SnesCgram();
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSequenceRomData.Assets.PaletteAddress);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSourceDefinitions.Palette);
         if (!presentation.Colors.SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
-        AssertEqual(TitleSequenceRomData.Palette.CopyrightWhite,
+        AssertEqual(TitleSequenceDefinitions.Palette.CopyrightWhite,
             presentation.SkipCopyrightWhite, "extracted title skip copyright white");
-        AssertEqual(TitleSequenceRomData.Palette.CopyrightRed,
+        AssertEqual(TitleSequenceDefinitions.Palette.CopyrightRed,
             presentation.SkipCopyrightRed, "extracted title skip copyright red");
 
         Suite(nameof(VerifyExtractedTitleAmbientPalette), () => VerifyExtractedTitleAmbientPalette(bus, presentation));
 
         Suite(nameof(VerifyTitlePaletteValidation), () => VerifyTitlePaletteValidation(extracted));
         var paletteAddresses = Enumerable.Range(
-            TitleSequenceRomData.Assets.PaletteAddress,
+            TitleSourceDefinitions.Palette,
             CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
         var title = CreateTitlePresentationFixture(titlePalettePresentation: presentation);

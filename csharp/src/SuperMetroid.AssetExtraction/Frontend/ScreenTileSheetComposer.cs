@@ -196,7 +196,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The title's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleMode7(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).FloorCharacters[..TitleSequenceRomData.Transfers.FloorCharacterByteCount], TitleColours(palette));
+        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).FloorCharacters[..TitleSequenceDefinitions.Graphics.FloorCharacterByteCount], TitleColours(palette));
 
     /// <summary>The title's Baby Metroid animation pages under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleBaby(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>

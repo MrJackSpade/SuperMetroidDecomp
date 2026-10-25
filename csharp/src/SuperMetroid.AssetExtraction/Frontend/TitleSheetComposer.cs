@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -35,6 +36,6 @@ internal static class TitleSheetComposer
         var colours = new ScreenPalette();
         palette.Apply(colours);
         return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(),
-            ObjectSelectionCodec.Sizes(TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true);
+            ObjectSelectionCodec.Sizes(TitleSourceDefinitions.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true);
     }
 }

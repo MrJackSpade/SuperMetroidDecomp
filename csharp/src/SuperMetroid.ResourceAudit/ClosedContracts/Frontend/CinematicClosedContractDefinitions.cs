@@ -1,3 +1,4 @@
+
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
 /// <summary>Source-reviewed title, opening and Ceres visual providers; no scene, timing or pixel-parity claim.</summary>
@@ -10,7 +11,7 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitlePalettePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleAmbientColorDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Title.Artwork.TitleGradientPresentation", "title-complete-masked-gradient-variants", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGradientPresentation.cs")]),
         new("SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentation", "title-complete-compiled-sprite-identities", ["DrawSprite"],
@@ -20,7 +21,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardStep.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSprite.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCards.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEyeTilemapPresentation.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteSheet", "intro-sheet-complete-owned-poses", ["Draw"],

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -17,20 +18,20 @@ internal static class TitleGraphicsExtractor
     {
         Ensure.NotNull(bus);
         byte[] mode7 = Read(
-            TitleSequenceRomData.Assets.FloorCharactersAddress,
-            TitleSequenceRomData.Transfers.FloorCharacterByteCount,
+            TitleSourceDefinitions.FloorCharacters,
+            TitleSequenceDefinitions.Graphics.FloorCharacterByteCount,
             "Mode 7 characters");
         byte[] map = Read(
-            TitleSequenceRomData.Assets.FloorMapAddress,
-            TitleSequenceRomData.Transfers.FloorMapByteCount,
+            TitleSourceDefinitions.FloorMap,
+            TitleSequenceDefinitions.Graphics.FloorMapByteCount,
             "Mode 7 map");
         byte[] objects = Read(
-            TitleSequenceRomData.Assets.ObjectCharactersAddress,
-            TitleSequenceRomData.Transfers.ObjectCharacterByteCount,
+            TitleSourceDefinitions.ObjectCharacters,
+            TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount,
             "OBJ characters");
         byte[] baby = Read(
-            TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
-            TitleSequenceRomData.Transfers.BabyCharacterByteCount,
+            TitleSourceDefinitions.BabyMetroidCharacters,
+            TitleSequenceDefinitions.Graphics.BabyCharacterByteCount,
             "Baby Metroid characters");
 
         byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out Extent16<ImagePixels> mode7Size);

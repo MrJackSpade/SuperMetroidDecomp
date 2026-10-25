@@ -30,7 +30,7 @@ public sealed class KraidHeadTilemapAtlas
             document.Width != KraidHeadTilemapFormat.Width ||
             document.Height != KraidHeadTilemapFormat.Height ||
             document.Cells is null ||
-            document.Cells.Length != KraidBackgroundRomData.HeadTilemapWords)
+            document.Cells.Length != KraidBackgroundDefinitions.HeadImageCells)
             throw new InvalidDataException("Kraid head tilemap must have 32 by 11 ordered cells.");
 
         var words = new ushort[document.Cells.Length];
@@ -53,18 +53,18 @@ public sealed class KraidHeadTilemapAtlas
     }
 
     /// <summary>Converts one native head frame to indented camel-case UTF-8 JSON, then reloads it and verifies that every tile word round-trips unchanged.</summary>
-    /// <param name="native">Exactly 704 bytes containing 352 little-endian BG tile words in 32-column row-major order.</param>
+    /// <param name="tilemap">Exactly 704 bytes containing 352 little-endian BG tile words in 32-column row-major order.</param>
     /// <returns>A new JSON byte array expressing character coordinates, palette, priority, and horizontal/vertical flips for every cell.</returns>
     /// <exception cref="InvalidDataException">The source length is incorrect or the JSON round-trip changes a native tile word.</exception>
-    public static byte[] Encode(ReadOnlySpan<byte> native)
+    public static byte[] Encode(ReadOnlySpan<byte> tilemap)
     {
-        if (native.Length != KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort))
+        if (tilemap.Length != KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort))
             throw new InvalidDataException("Kraid head tilemap source has wrong length.");
-        var cells = new RoomBackgroundTilemapCell[KraidBackgroundRomData.HeadTilemapWords];
+        var cells = new RoomBackgroundTilemapCell[KraidBackgroundDefinitions.HeadImageCells];
         for (int index = 0; index < cells.Length; index++)
         {
             var word = new SnesBgTilemapWord(
-                BinaryPrimitives.ReadUInt16LittleEndian(native[(index * 2)..]));
+                BinaryPrimitives.ReadUInt16LittleEndian(tilemap[(index * 2)..]));
             cells[index] = new RoomBackgroundTilemapCell
             {
                 TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
@@ -84,7 +84,7 @@ public sealed class KraidHeadTilemapAtlas
         }, JsonOptions);
         KraidHeadTilemapAtlas roundtrip = Load(new MemoryStream(json, writable: false));
         for (int index = 0; index < roundtrip.words.Length; index++)
-            if (roundtrip.words[index] != BinaryPrimitives.ReadUInt16LittleEndian(native[(index * 2)..]))
+            if (roundtrip.words[index] != BinaryPrimitives.ReadUInt16LittleEndian(tilemap[(index * 2)..]))
                 throw new InvalidDataException("Kraid head JSON changed a native tile word.");
         return json;
     }

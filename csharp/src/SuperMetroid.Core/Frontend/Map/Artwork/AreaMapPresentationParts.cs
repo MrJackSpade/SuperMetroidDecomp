@@ -185,7 +185,7 @@ internal sealed record AreaMapPresentationParts
     public required CeresRidleyColorCatalog CeresRidleyColors { get; init; }
 
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
-    public required CeresRidleyMode7ColorCatalog CeresRidleyFloorColors { get; init; }
+    public required CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; init; }
 
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public required SamusHyperBeamColorCatalog SamusHyperBeamColors { get; init; }

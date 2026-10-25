@@ -59,8 +59,10 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     private const int MainGlyphCount = 16;
     /// <summary>BG tile attribute selecting the foreground warning layer.</summary>
     private const int Priority = 1 << 13;
+    /// <summary>The background palette the English warning uses: the one the self-destruct alarm cycle recolours.</summary>
+    private const int EnglishAlarmPalette = 6;
     /// <summary>Foreground priority combined with the English alarm and Japanese subtitle palette rows.</summary>
-    private const int EnglishStyle = Priority | (CeresRidleyPaletteRomData.AlarmCgramIndex / 16) << 10,
+    private const int EnglishStyle = Priority | EnglishAlarmPalette << 10,
         JapaneseStyle = Priority | 7 << 10;
 
     /// <summary>Calculates a stock English or Japanese overlay word from its authored glyph order, tile half, priority, and palette.</summary>

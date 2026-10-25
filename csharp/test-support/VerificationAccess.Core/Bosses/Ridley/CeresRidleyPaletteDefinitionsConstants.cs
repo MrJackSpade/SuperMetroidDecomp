@@ -1,8 +1,8 @@
 ﻿
-namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Cartridge values and helpers of <see cref="CeresRidleyPaletteRomData"/> that only verification reads.</summary>
-internal static class CeresRidleyPaletteRomDataConstants
+/// <summary>Cartridge values and helpers of <see cref="CeresRidleyPaletteDefinitions"/> that only verification reads.</summary>
+internal static class CeresRidleyPaletteDefinitionsConstants
 {
     /// <summary>CGRAM color index 160 (native byte offset $0140), the start of OBJ palette 2; the 32-color initialization also fills OBJ palette 3.</summary>
     public const int StartCgramIndex = 0x140 / 2;
@@ -22,6 +22,8 @@ internal static class CeresRidleyPaletteRomDataConstants
     public const int RetreatSharedBgCgramIndex = 0x042 / 2;
     /// <summary>CGRAM color index 241 (native byte offset $01E2), OBJ palette 7 color 1, receiving the same eight retreat colors as BG palette 2.</summary>
     public const int RetreatSharedObjCgramIndex = 0x1e2 / 2;
+    /// <summary>CGRAM color index 97 (native byte offset $00C2), BG palette 6 color 1; the alarm cycle updates indices 97..99.</summary>
+    public const int AlarmCgramIndex = 97;
     /// <summary>CGRAM color index 81 (native byte offset $00A2), BG palette 5 color 1, updated by native zoom-palette routine $A6:B0EF.</summary>
     public const int Mode7ZoomCgramIndex = 0x0a2 / 2;
 }

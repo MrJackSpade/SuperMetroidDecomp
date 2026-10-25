@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
@@ -30,7 +31,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    BotwoonHealthPaletteDefinitions.NativePaletteAddress +
+                    BotwoonSourceDefinitions.HealthColors +
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) * 2),
                 native.HealthColor(band, color),
                 $"installed Botwoon health band {band} color {color}");
@@ -124,7 +125,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
 
     /// <summary>Guards the migrated Botwoon palette range against live cartridge reads.</summary>
     internal static CartridgeReadGuard NewBotwoonColorReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(BotwoonHealthPaletteDefinitions.NativePaletteAddress,
+        new CartridgeReadGuard(source).ForbidRange(BotwoonSourceDefinitions.HealthColors,
             BotwoonHealthPaletteDefinitions.PaletteCount *
                 BotwoonHealthPaletteDefinitions.ColorsPerPalette * sizeof(ushort),
             address => $"Live Botwoon read migrated color ROM ${address:X6}.");

@@ -1327,8 +1327,8 @@ internal static class LookupStream4Verification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
-        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
-        var state = new RidleyEnemyState { Mode7TableIndex = 1 };
+        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
+        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
         int expectedPhase = 0;
@@ -1340,7 +1340,7 @@ internal static class LookupStream4Verification
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(state, null, nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published Mode 7 map");
-            AssertEqual((ushort)expectedPhase, state.Mode7BabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
             int pointer = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + expectedPhase * 2));
             for (int row = 0; row < 2; row++, pointer += 9)
             {
@@ -1851,7 +1851,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index)), segments[index].Angle, "Actual initialized link angle matches native progression");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance, "Unresolved independent tail distance remains unchanged");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
-            AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1), segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
+            AssertEqual((int?)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1), segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
         }
         var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
         for (int direction = 0; direction < 16; direction++)
@@ -2816,7 +2816,7 @@ internal static class LookupStream4Verification
                             cgram.Colors[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
-                AssertEqual(RidleyLiquidRomData.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
+                AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
                 AssertEqual((ushort)8, state.WingAnimationTimer.RawValue, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
             }
@@ -3266,7 +3266,7 @@ internal static class LookupStream4Verification
             selected.ApplyBaby(cgram, 0);
             for (int color = 0; color < 15; color++)
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
-                    cgram.Colors[CeresRidleyPaletteRomDataConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
+                    cgram.Colors[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
@@ -3434,7 +3434,7 @@ internal static class LookupStream4Verification
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
             enemies.Presentation.BindColours(cgram.Gameplay);
-            Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
+            Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette;
             for (int row = 0; row < 9; row++)
             {
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));

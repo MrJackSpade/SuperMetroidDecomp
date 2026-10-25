@@ -12,9 +12,10 @@ public sealed class RidleyTailSegment
     /// <summary>
     /// Gets the accumulated angular stagger, in tail-angle units, before this segment activates the next segment. It counts
     /// up from zero (seventeen at initialization) by the tail's angular step until it reaches the ideal inter-segment angle,
-    /// then holds <see cref="RidleyTailDefinitions.StaggerPropagated"/> once the next segment has been activated.
+    /// then has none (null) once the next segment has been activated: no stagger compares below the ideal angle, as the
+    /// cartridge's -1 word does not (#1413).
     /// </summary>
-    public int StaggerAngle { get; internal set; }
+    public int? StaggerAngle { get; internal set; }
     /// <summary>Gets whether this segment moves clockwise, toward decreasing angles; otherwise it moves counterclockwise.</summary>
     public bool Clockwise { get; internal set; }
     /// <summary>

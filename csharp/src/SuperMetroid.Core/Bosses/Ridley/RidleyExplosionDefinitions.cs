@@ -16,7 +16,7 @@ internal static class RidleyExplosionDefinitions
     /// Native allocation order encoded by <c>SpawnEnemy_RidleyExplosion</c> at
     /// <c>$A6:C932-$A6:C986</c>. Enemy-slot/OAM order makes this sequence observable.
     /// </summary>
-    internal static void SpawnInNativeOrder(Action<ushort> spawn)
+    internal static void SpawnInBreakupOrder(Action<ushort> spawn)
     {
         Ensure.NotNull(spawn);
         for (int parameter = (int)RidleyExplosionPart.TailTip; parameter >= (int)RidleyExplosionPart.Tail0;

@@ -71,7 +71,7 @@ internal sealed class KraidRise
 
         _access.Kraid = new KraidEnemyState();
         KraidEnemyState state = _access.Kraid;
-        KraidEncounterAccess.RegisterKraidPart(body, state);
+        KraidEncounterAccess.AttachKraidPart(body, state);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {
             // `$A7:A959` installs the dead-room BG palette before the shared part initializer
@@ -142,7 +142,7 @@ internal sealed class KraidRise
     {
         KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter,
+        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
             art.RoomBackgroundTiles.Characters.Span);
     }
 
@@ -164,7 +164,7 @@ internal sealed class KraidRise
     /// <summary>Copies one Kraid palette source band to its CGRAM destination.</summary>
     internal void LoadKraidColorBand(KraidPaletteSource source, ColourRun destination)
     {
-        for (int color = 0; color < KraidPaletteRomData.BandColors; color++)
+        for (int color = 0; color < KraidPalettes.BandColors; color++)
             destination.Write(color, _background.ReadKraidColor(source, color));
     }
 

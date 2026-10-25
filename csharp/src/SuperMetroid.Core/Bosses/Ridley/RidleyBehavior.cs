@@ -383,7 +383,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.CeresRetrieveBaby:
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Ridley function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Lower Norfair Ridley function {state.Function} is not translated.");
         }
     }
 
@@ -492,10 +492,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Registers Ridley's hurt callback for the post-hit AI window.</summary>
+    /// <summary>Adds Ridley's hurt callback for the post-hit AI window.</summary>
     /// <remarks>$A6:B297 owns hurt frames instead of falling back to ordinary main AI. Movement/function work runs only
     /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
-    internal void RegisterRidleyHurtAi(EnemySharedReactions table) =>
+    internal void AddRidleyHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
             slot,
             frame.Samus,

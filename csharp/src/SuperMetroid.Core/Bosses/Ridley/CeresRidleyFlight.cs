@@ -392,7 +392,7 @@ internal sealed class CeresRidleyFlight
         // dispatcher switches BG mode. They are not decorative bookkeeping:
         // Mode 7 has no BG2, so these OBJ strips are what keep the chamber
         // visible around the rotating Ridley/Baby image.
-        SpawnCeresRidleyMode7Walls();
+        SpawnCeresRidleyGetawayWalls();
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         state.TailFunctionIndex = RidleyTailFunction.None;
         state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
@@ -591,18 +591,18 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>Allocates two real enemy records for the OBJ wall strips shown during Mode 7.</summary>
-    private void SpawnCeresRidleyMode7Walls()
+    private void SpawnCeresRidleyGetawayWalls()
     {
         // SpawnEnemy consumes the first two free native slots and initializes the literal
         // population records embedded at $A6:AA2F/$AA3F. Keeping these as real slots makes
         // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
         // flow through the same scheduler as the cartridge instead of painting host panels.
-        SpawnCeresRidleyMode7Wall(xPosition: 8, parameter1: 5);
-        SpawnCeresRidleyMode7Wall(xPosition: 248, parameter1: 6);
+        SpawnCeresRidleyGetawayWall(xPosition: 8, parameter1: 5);
+        SpawnCeresRidleyGetawayWall(xPosition: 248, parameter1: 6);
     }
 
     /// <summary>Initializes one native wall actor at its authored X coordinate and variant parameter.</summary>
-    private void SpawnCeresRidleyMode7Wall(ushort xPosition, ushort parameter1)
+    private void SpawnCeresRidleyGetawayWall(ushort xPosition, ushort parameter1)
     {
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)

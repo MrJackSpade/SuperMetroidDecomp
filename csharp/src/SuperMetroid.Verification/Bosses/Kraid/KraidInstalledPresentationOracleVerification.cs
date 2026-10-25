@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -16,22 +17,22 @@ internal static class KraidInstalledPresentationOracleVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the Kraid upper and lower BG2 tilemaps")]
     internal static ushort[] ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
     {
-        byte[] upper = RomDataReader.Decompress(source, KraidBackgroundRomData.UpperTilemap,
-            KraidBackgroundRomData.DecompressedTilemapBytes);
-        byte[] lower = RomDataReader.Decompress(source, KraidBackgroundRomData.LowerTilemap,
-            KraidBackgroundRomData.DecompressedTilemapBytes);
-        var result = new ushort[KraidBackgroundRomData.WorkingTilemapWords];
+        byte[] upper = RomDataReader.Decompress(source, KraidSourceDefinitions.UpperBodyTilemap,
+            KraidBackgroundDefinitions.SourceTilemapBytes);
+        byte[] lower = RomDataReader.Decompress(source, KraidSourceDefinitions.LowerBodyTilemap,
+            KraidBackgroundDefinitions.SourceTilemapBytes);
+        var result = new ushort[KraidBackgroundDefinitions.WorkingMapCells];
         for (int word = 0; word < result.Length; word++)
         {
             // Native copies only the first $600 lower bytes up to $2800. The
             // untouched $2E00-$2FFF tail still contains its decompressed lower data.
-            int selected = word < KraidBackgroundRomData.VisiblePageWords ? word :
-                word < KraidBackgroundRomData.PreservedLowerTailFirstWord ? word - KraidBackgroundRomData.WorkingLowerHalfWord : word;
-            byte[] bytes = word < KraidBackgroundRomData.VisiblePageWords ? upper : lower;
+            int selected = word < KraidBackgroundDefinitions.PageCells ? word :
+                word < KraidBackgroundDefinitions.PreservedLowerTailFirstWord ? word - KraidBackgroundDefinitions.LowerPageFirstCell : word;
+            byte[] bytes = word < KraidBackgroundDefinitions.PageCells ? upper : lower;
             ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(selected * 2));
-            result[word] = word >= KraidBackgroundRomData.BlankRowWorkingWord
-                ? KraidBackgroundRomData.BlankTile : word >= KraidBackgroundRomData.PreservedLowerTailFirstWord
-                ? value : (ushort)(value & ~KraidBackgroundRomData.PriorityBit);
+            result[word] = word >= KraidBackgroundDefinitions.BlankRowFirstCell
+                ? KraidBackgroundDefinitions.BlankTile : word >= KraidBackgroundDefinitions.PreservedLowerTailFirstWord
+                ? value : (ushort)(value & ~SnesBgTilemapWord.PriorityMask);
         }
         return result;
     }
@@ -44,15 +45,15 @@ internal static class KraidInstalledPresentationOracleVerification
     internal static ReadImportedKraidHeadFrameResult ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {
-        byte[] bytes = RomDataReader.ReadFixedBank(source, KraidBackgroundRomData.NativeBank | pointer,
-            KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
-        var head = new ushort[KraidBackgroundRomData.HeadTilemapWords];
+        byte[] bytes = RomDataReader.ReadFixedBank(source, KraidSourceDefinitions.CodeBank | pointer,
+            KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort));
+        var head = new ushort[KraidBackgroundDefinitions.HeadImageCells];
         for (int word = 0; word < head.Length; word++)
             head[word] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(word * 2));
         var state = new KraidEnemyState();
         return new ReadImportedKraidHeadFrameResult(state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
 
-        static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundRomData.BlankTile, KraidBackgroundRomData.VisiblePageWords).ToArray();
+        static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundDefinitions.BlankTile, KraidBackgroundDefinitions.PageCells).ToArray();
     }
 
     /// <summary>Checks every typed head step and cursor read against the authored control words before the RAM-only clock fixture runs.</summary>

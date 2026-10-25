@@ -16,7 +16,7 @@ internal static class KraidPaletteSources
     internal static int SourceAddress(KraidPaletteSource source) => source switch
     {
         KraidPaletteSource.RoomBackdrop => EnemySourceDefinitions.KraidRoomBackgroundColors,
-        KraidPaletteSource.InitialTarget => KraidPaletteRomData.InitialTargetPaletteWords,
+        KraidPaletteSource.InitialTarget => KraidSourceDefinitions.InitialTargetColors,
         KraidPaletteSource.Health => EnemySourceDefinitions.KraidHealthColors,
         KraidPaletteSource.Secondary => EnemySourceDefinitions.KraidSecondaryColors,
         KraidPaletteSource.DeathArm => EnemySourceDefinitions.KraidDeathArmColors,

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.World.Artwork;
@@ -174,12 +175,12 @@ internal static class EnemyContentIdentityFixtureVerification
                 KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
-                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidBackgroundRomData.HeadTilemapWords),
+                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidBackgroundDefinitions.HeadImageCells),
                 }))),
                 KeyValuePair.Create(1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
-                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidBackgroundRomData.HeadTilemapWords),
+                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidBackgroundDefinitions.HeadImageCells),
                 }))),
             });
             var meltFirstMap = MeltMap("melt-first-map");
@@ -222,14 +223,14 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("speed", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
                 new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount), CrocomireMeltingArtworkFormat.FirstByteCount),
-                    RoomCharacterAtlasPng.Read(Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
-                    Map("kraid-lower", KraidBackgroundRomData.DecompressedTilemapBytes), heads,
-                    Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
-                    new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.RoomBackdrop)),
-                    new EnemyContentIdentityFixtureField("initialTarget", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.InitialTarget)),
-                    new EnemyContentIdentityFixtureField("health", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Health)),
-                    new EnemyContentIdentityFixtureField("secondary", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Secondary)),
-                    new EnemyContentIdentityFixtureField("deathArm", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.DeathArm))), CrocomireColors = ColorCatalog(CrocomireColorFile.Read,
+                    RoomCharacterAtlasPng.Read(Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundDefinitions.SourceTilemapBytes),
+                    Map("kraid-lower", KraidBackgroundDefinitions.SourceTilemapBytes), heads,
+                    Characters("kraid-background", KraidSourceDefinitions.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
+                    new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPalettes.ColorCount(KraidPaletteSource.RoomBackdrop)),
+                    new EnemyContentIdentityFixtureField("initialTarget", 0, KraidPalettes.ColorCount(KraidPaletteSource.InitialTarget)),
+                    new EnemyContentIdentityFixtureField("health", 0, KraidPalettes.ColorCount(KraidPaletteSource.Health)),
+                    new EnemyContentIdentityFixtureField("secondary", 0, KraidPalettes.ColorCount(KraidPaletteSource.Secondary)),
+                    new EnemyContentIdentityFixtureField("deathArm", 0, KraidPalettes.ColorCount(KraidPaletteSource.DeathArm))), CrocomireColors = ColorCatalog(CrocomireColorFile.Read,
                     new EnemyContentIdentityFixtureField("fightBody", 0, CrocomirePaletteRomData.FightBodyCount), new EnemyContentIdentityFixtureField("initialWall", 0, CrocomirePaletteRomData.InitialWallCount),
                     new EnemyContentIdentityFixtureField("initialProjectile", 0, CrocomirePaletteRomData.InitialProjectileCount), new EnemyContentIdentityFixtureField("skeletonArm", 0, CrocomirePaletteRomData.SkeletonArmCount),
                     new EnemyContentIdentityFixtureField("wallSpikes", 0, CrocomirePaletteRomData.WallSpikesCount)), DraygonColors = ColorCatalog(DraygonColorFile.Read,
@@ -252,8 +253,8 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("legFade", MotherBrainDeathRomData.BodyFadeFrameCount, MotherBrainDeathRomData.BodyColorCount),
                     new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathRomData.CorpseFadeFrameCount, MotherBrainDeathRomData.CorpseColorCount),
                     new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathRomData.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFile.Read,
-                    new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteRomData.InitialColorCount),
-                    new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteRomData.RevealRowCount, NorfairRidleyPaletteRomData.RevealColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
+                    new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteDefinitions.InitialColorCount),
+                    new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealRowCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
                     Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount), CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaArtworkCatalog { CeresDoorVisual = door, TourianStatueColors = ColorCatalog(TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatuePaletteRomData.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatuePaletteRomData.StatueColorCount),

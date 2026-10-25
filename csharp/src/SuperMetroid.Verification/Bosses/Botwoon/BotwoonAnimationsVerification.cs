@@ -193,9 +193,11 @@ internal static class BotwoonAnimationsVerification
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");
         body.Position = body.Position.WithWholeY(200);
-        body.Velocity = body.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));
+        state.SegmentFunctions[1] = BotwoonBodyFunction.Falling;
         runBody(body, 0);
-        AssertEqual((ushort)BotwoonBodyFunction.Landed, body.Velocity.X.RawValue, "a landed body installs the cartridge RTS state");
+        // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
+        // X-velocity slot.
+        AssertEqual(BotwoonBodyFunction.Landed, state.SegmentFunctions[1], "a landed body enters its inert landed phase");
         AssertTrue(body.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.BigExplosion },
             "a landed body runs the shared misc-dust big explosion");
         Pass(body);

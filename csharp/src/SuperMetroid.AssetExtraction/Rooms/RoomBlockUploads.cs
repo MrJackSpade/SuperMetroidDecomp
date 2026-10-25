@@ -127,7 +127,7 @@ internal static class RoomBlockUploads
     {
         if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
-            yield return new BgCharacterPlacement(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter,
+            yield return new BgCharacterPlacement(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
                 (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                     .RoomBackgroundTiles.Characters);
         }
@@ -337,7 +337,7 @@ internal static class RoomBlockUploads
         if (!state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
             yield break;
         for (int quarter = 0; quarter < HudTileAtlasFormat.RestoreQuarterCount; quarter++)
-            yield return KraidBackgroundRomData.Bg3RestoreQuarter(quarter, inputs.Hud.KraidRestoreQuarter(quarter));
+            yield return KraidHudRestoration.Placement(quarter, inputs.Hud.KraidRestoreQuarter(quarter));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>

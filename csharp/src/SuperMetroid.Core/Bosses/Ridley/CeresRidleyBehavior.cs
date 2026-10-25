@@ -266,7 +266,7 @@ internal sealed class CeresRidleyBehavior
                 state.Function = RidleyAiFunction.CeresInactive;
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-                CeresRidleyGetaway.SetupCeresRidleyMode7(state);
+                CeresRidleyGetaway.SetupCeresRidleyGetawayFloor(state);
                 break;
 
             case RidleyAiFunction.CeresInactive:
@@ -316,7 +316,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.NorfairDeathComplete:
             default:
                 throw new InvalidDataException(
-                    $"Ceres Ridley function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Ceres Ridley function {state.Function} is not translated.");
         }
 
         // Once the eye fade enables composite animation, CeresRidley_Main performs the
@@ -352,5 +352,5 @@ internal sealed class CeresRidleyBehavior
         [12, 14, 16, 18, 28, 32, 40, 48];
 
     /// <summary>A signed 8.8 coefficient of one, unit scale, as the getaway's setup installs it.</summary>
-    internal static readonly SnesSignedEightEight Mode7UnitCoefficient = SnesSignedEightEight.FromSignedRaw(256);
+    internal static readonly SnesSignedEightEight FloorUnitCoefficient = SnesSignedEightEight.FromSignedRaw(256);
 }

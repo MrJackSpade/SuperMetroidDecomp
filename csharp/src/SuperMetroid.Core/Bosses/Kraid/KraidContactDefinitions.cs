@@ -4,10 +4,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidContactDefinitions
 {
     /// <summary>
-    /// The word the common shot callback leaves in DP $14, the mouth's upper bound, when a shot hits Kraid's mouth: the
-    /// native location of Kraid's vulnerability table. The next shot's signed compare reads it as a coordinate.
+    /// The mouth's upper bound the next shot is tested against after a shot hits Kraid's mouth: 3750 pixels above the
+    /// room's top, so every following shot passes the upper test. The common shot callback leaves its vulnerability
+    /// lookup over the bound, and the next shot's signed compare reads that leftover as this coordinate (#1413).
     /// </summary>
-    internal const ushort ShotVulnerabilityResidue = 0xf15a;
+    internal const short ShotUpperBoundAfterHit = -3750;
 
     /// <summary>$A7:B97C-B983: Hitbox_KraidLint.left ($92B7, -24) minus two.</summary>
     internal const short LintLeadingEdge = -26;

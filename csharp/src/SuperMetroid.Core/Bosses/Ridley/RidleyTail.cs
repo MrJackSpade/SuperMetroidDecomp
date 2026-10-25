@@ -209,9 +209,9 @@ internal sealed class RidleyTail
                 return;
             }
 
-            if (segment.StaggerAngle != RidleyTailDefinitions.StaggerPropagated)
+            if (segment.StaggerAngle is not null)
             {
-                segment.StaggerAngle = RidleyTailDefinitions.StaggerPropagated;
+                segment.StaggerAngle = null;
                 if (index + 1 < state.TailSegments.Length)
                 {
                     state.TailSegments[index + 1].Active = true;

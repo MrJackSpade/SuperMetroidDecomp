@@ -34,8 +34,8 @@ internal static class KraidBodyPublicationVerification
         BossArtworkCatalog art = runtime.BossArtwork.Artwork
             ?? throw new InvalidOperationException("The retail runtime installs boss artwork.");
         ushort[] working = KraidBodyFixtures.WorkingMap(art);
-        ReadOnlySpan<ushort> upper = working.AsSpan(0, KraidBackgroundRomData.VisiblePageWords);
-        ReadOnlySpan<ushort> lower = working.AsSpan(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords);
+        ReadOnlySpan<ushort> upper = working.AsSpan(0, KraidBackgroundDefinitions.PageCells);
+        ReadOnlySpan<ushort> lower = working.AsSpan(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells);
         AssertTrue(state.OwnsBg2Tilemap, "Kraid takes BG2 when his room loads");
 
         // Risen: both body pages uploaded, at the scroll his body position computed.
@@ -64,7 +64,7 @@ internal static class KraidBodyPublicationVerification
         // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
         state.DisplayedBody = KraidBodyFrame.Blank;
         BossBg2Layer cleared = Published(runtime);
-        AssertTrue(cleared.Tilemap.Words.All(word => word == KraidBackgroundRomData.BlankTile),
+        AssertTrue(cleared.Tilemap.Words.All(word => word == KraidBackgroundDefinitions.BlankTile),
             "the cleared body publishes only the blank tile");
         var dead = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(dead, runtime), "BG2 shows the cleared map, not the room's");

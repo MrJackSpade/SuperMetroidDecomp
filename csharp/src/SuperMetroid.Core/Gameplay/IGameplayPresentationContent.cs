@@ -52,7 +52,7 @@ public interface IGameplayPresentationContent : IAreaMapSource, IVramAssetProvid
     CeresRidleyColorCatalog CeresRidleyColors { get; }
 
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors.</summary>
-    CeresRidleyMode7ColorCatalog CeresRidleyFloorColors { get; }
+    CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
 
     /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
     RoomPaletteFxPresentation RoomPaletteFx { get; }

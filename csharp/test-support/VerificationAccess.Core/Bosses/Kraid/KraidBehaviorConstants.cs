@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -8,5 +7,5 @@ internal static class KraidBehaviorConstants
 {
     /// <summary>Converts a recorded native mouth-shape address into wrapped world-space collision bounds.</summary>
     internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer) =>
-        KraidCombat.LoadKraidCollisionScratch(body, ClosedNativeWords.Decode<KraidMouthHitbox>(pointer, "Kraid mouth hitbox"));
+        KraidCombat.LoadKraidCollisionScratch(body, KraidNativeWords.MouthHitboxes.Decode(pointer, "Kraid mouth hitbox"));
 }

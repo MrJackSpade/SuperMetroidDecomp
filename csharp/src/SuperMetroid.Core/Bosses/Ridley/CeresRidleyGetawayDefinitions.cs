@@ -3,16 +3,13 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Immutable NTSC Ceres getaway zoom and translation curves.</summary>
 public static class CeresRidleyGetawayDefinitions
 {
-    /// <summary>Native zoom terminator; no translation records are consumed on this frame.</summary>
-    public const ushort Finished = 0xffff;
-
     /// <summary>Preserves the serialized native byte index, including its terminal entry.</summary>
     public static CeresRidleyGetawayFrame FromIndex(int frame)
     {
         if (frame is < 0 or > 112)
             throw new InvalidDataException($"Ceres Ridley getaway frame {frame} is outside its authored entries.");
         if (frame == 112)
-            return new(Finished, Offset16<Mode7Pixels>.Zero);
+            return new(0, Offset16<Mode7Pixels>.Zero, IsFinished: true);
         int zoom = frame switch
         {
             < 32 => 0x800,

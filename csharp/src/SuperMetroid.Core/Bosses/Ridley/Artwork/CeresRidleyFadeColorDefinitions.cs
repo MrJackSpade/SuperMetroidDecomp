@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -36,10 +35,10 @@ internal sealed class CeresRidleyFadeColorDefinitions
     internal readonly Dictionary<ColourCell, Bgr555> overrides = new();
     /// <summary>Number of colors in a row of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
-        ? CeresRidleyPaletteRomData.EyeFadeColorCount : CeresRidleyPaletteRomData.BodyFadeColorCount;
+        ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
     /// <summary>Number of native fade steps for the selected table.</summary>
     private int Rows => kind == CeresRidleyFadeKind.Eyes
-        ? CeresRidleyPaletteRomData.EyeFadeRowCount : CeresRidleyPaletteRomData.BodyFadeRowCount;
+        ? CeresRidleyPaletteDefinitions.EyeFadeRowCount : CeresRidleyPaletteDefinitions.BodyFadeRowCount;
 
     /// <summary>Retains selected endpoint paints and exceptions to the shared fade formula.</summary>
     internal CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind kind, Bgr555[][] rows)

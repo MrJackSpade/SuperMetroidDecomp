@@ -1,15 +1,12 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Fixed health-band policy and cartridge presentation addresses for Botwoon's palette
-/// handler. The eight authored color images are independently extractable visual assets.
+/// Fixed health-band policy for Botwoon's palette handler. The eight authored color images are independently
+/// extractable visual assets; where they sit in the cartridge is the import's knowledge (#1413).
 /// </summary>
 internal static class BotwoonHealthPaletteDefinitions
 {
-    /// <summary><c>BotwoonHealthBasedPalettes</c> at $B3:971B: eight 16-color records.</summary>
-    public const int NativePaletteAddress = 0xb3971b;
-
-    /// <summary>Eight complete sixteen-color palette images at $B3:971B-$981A.</summary>
+    /// <summary>Eight complete sixteen-color palette images, one per health band.</summary>
     public const int PaletteCount = 8;
     /// <summary>Each Botwoon health-band image occupies one sixteen-color sprite palette.</summary>
     public const int ColorsPerPalette = 16;

@@ -78,8 +78,8 @@ internal sealed class NorfairRidleyDeath
             return;
 
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
-        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidRomData.DrainedHeight,
-            RidleyLiquidRomData.DrainVelocity, RidleyLiquidRomData.DrainDelay);
+        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.DrainedHeight,
+            RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer = WrappingCountdown.Start(0);
         state.DeathExplosionCount = 0;
         state.Function = RidleyAiFunction.NorfairDeathFall;
@@ -191,7 +191,7 @@ internal sealed class NorfairRidleyDeath
             return;
         state.DeathBreakupSpawned = true;
 
-        RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
+        RidleyExplosionDefinitions.SpawnInBreakupOrder(SpawnPart);
 
         void SpawnPart(ushort parameter)
         {

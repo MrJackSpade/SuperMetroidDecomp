@@ -15,9 +15,9 @@ internal static class KraidPaintDefinitions
     /// <summary>Largest SNES RGB5 channel value used by the hit-flash and bright paint endpoints.</summary>
     private const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>Health palette bands, including the flash and final hide endpoints.</summary>
-    private const int Bands = KraidPaletteRomData.HealthBandCount;
+    private const int Bands = KraidPalettes.HealthBandCount;
     /// <summary>Colors per Kraid health band for flattened index decoding.</summary>
-    private const int BandColors = KraidPaletteRomData.BandColors;
+    private const int BandColors = KraidPalettes.BandColors;
 
     /// <summary>First and last colors of the first health band's hide ramp (colors four to eleven).</summary>
     private static readonly Bgr555 RampLight = new(26, 19, 4);
@@ -34,7 +34,7 @@ internal static class KraidPaintDefinitions
     /// <summary>Routes room, target, health, death-arm, and secondary palette requests to their stock paint rules.</summary>
     internal static Bgr555 Color(KraidPaletteSource source, int index)
     {
-        if ((uint)index >= KraidPaletteRomData.ColorCount(source))
+        if ((uint)index >= KraidPalettes.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
         return source switch
         {

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -149,15 +148,15 @@ internal sealed class CeresRidleyHits
             return;
 
         int paletteIndex = state.HitCounter < 70
-            ? CeresRidleyPaletteRomData.HealthMidRow
-            : CeresRidleyPaletteRomData.HealthLateRow;
+            ? CeresRidleyPaletteDefinitions.HealthMidRow
+            : CeresRidleyPaletteDefinitions.HealthLateRow;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
             .ApplyHealth(_presentation.Colours, paletteIndex);
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>
-    internal void RegisterCeresRidleyBombReactions(EnemySharedReactions table)
+    internal void AddCeresRidleyBombReactions(EnemySharedReactions table)
     {
         // `$A6:DF8A` branches on area index before it ever reaches common vulnerability damage. Ceres therefore
         // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the bank-$A0

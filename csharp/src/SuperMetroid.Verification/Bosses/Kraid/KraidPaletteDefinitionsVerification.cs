@@ -47,9 +47,9 @@ internal static class KraidPaletteDefinitionsVerification
             new Extent(KraidPaletteSource.DeathArm, 0xb4f3, 0xb513),
         ];
         foreach (var (source, start, end) in extents)
-            AssertEqual((end - start) / 2, KraidPaletteRomData.ColorCount(source), "Complete native palette extent");
+            AssertEqual((end - start) / 2, KraidPalettes.ColorCount(source), "Complete native palette extent");
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidPaletteRomData.ColorCount((KraidPaletteSource)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidPalettes.ColorCount((KraidPaletteSource)invalid),
                 "Unknown palette size source rejected");
     }
 }

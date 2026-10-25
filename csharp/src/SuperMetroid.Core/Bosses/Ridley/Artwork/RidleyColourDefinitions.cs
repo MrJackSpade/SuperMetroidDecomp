@@ -35,7 +35,7 @@ public static class RidleyColourDefinitions
     public static readonly SpriteColourRun CeresBaby = new(3, 1, 15);
 
     /// <summary>Ceres Mode 7 zoom shade.</summary>
-    public static readonly BackgroundColourRun CeresMode7Zoom = new(5, 1, 15);
+    public static readonly BackgroundColourRun CeresFloorZoom = new(5, 1, 15);
 
     /// <summary>Norfair initial palettes.</summary>
     public static readonly SpriteColourRun NorfairInitial = new(2, 0, 32);

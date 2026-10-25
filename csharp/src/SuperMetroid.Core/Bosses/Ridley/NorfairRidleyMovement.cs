@@ -71,7 +71,7 @@ internal sealed class NorfairRidleyMovement
                 Subtract(step);
             }
             Subtract(step);
-            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MinimumVelocity)) < 0) velocity = RidleyInertiaDefinitions.MinimumVelocity;
+            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MinimumVelocity.RawValue)) < 0) velocity = RidleyInertiaDefinitions.MinimumVelocity.RawValue;
         }
         else
         {
@@ -84,7 +84,7 @@ internal sealed class NorfairRidleyMovement
                 Add(step);
             }
             Add(step);
-            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity;
+            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity.RawValue)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity.RawValue;
         }
         return velocity;
 

@@ -77,9 +77,11 @@ internal static class EnemyDefinitionsVerification
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
             AssertEqual(ReadNativeHeaderWords(bus, pointer), RoomEnemyDefinitionNative.Of(pointer),
                 $"verification's native words for {pointer} match the cartridge header");
+        // Kraid's post-hit mouth bound is a coordinate in Core (#1413); the ROM oracle confirms it is the word the
+        // cartridge leaves: the native location of Kraid's vulnerability table.
         AssertEqual(RoomEnemyDefinitionNative.Of(EnemyDefinitionId.Kraid).VulnerabilityPointer,
-            SuperMetroid.Core.Bosses.Kraid.KraidContactDefinitions.ShotVulnerabilityResidue,
-            "Kraid's shot residue is the native location of its vulnerability table");
+            unchecked((ushort)SuperMetroid.Core.Bosses.Kraid.KraidContactDefinitions.ShotUpperBoundAfterHit),
+            "Kraid's post-hit mouth bound is the native location of its vulnerability table");
         foreach (EnemyDefinitionId pointer in auxiliaryPointers)
         {
             AssertTrue(RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer,

@@ -83,7 +83,7 @@ public sealed class KraidColorCatalog
         }
 
         /// <summary>Native color count of this named source.</summary>
-        public int Count => KraidPaletteRomData.ColorCount(source);
+        public int Count => KraidPalettes.ColorCount(source);
         /// <summary>Edited color at an index, or its calculated stock paint.</summary>
         public Bgr555 this[int index] => deviations.TryGetValue(new ColourCell(0, index), out Bgr555 supplied)
             ? supplied : KraidPaintDefinitions.Color(source, index);
@@ -104,7 +104,7 @@ public sealed class KraidColorCatalog
     /// </summary>
     internal static Bgr555 InterpolateHealth(Bgr555 first, Bgr555 last, int band)
     {
-        int intervals = KraidPaletteRomData.HealthBandCount - 2;
+        int intervals = KraidPalettes.HealthBandCount - 2;
         return first.Zip(last, (_, start, end) =>
         {
             int delta = end - start;
@@ -137,7 +137,7 @@ public sealed class KraidColorCatalog
         }
 
         /// <summary>White flash plus eight native sixteen-color health bands.</summary>
-        public int Count => KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors;
+        public int Count => KraidPalettes.HealthBandCount * KraidPalettes.BandColors;
         /// <summary>Selected health color, preserving independent edits over calculated bands.</summary>
         public Bgr555 this[int index]
         {
@@ -154,12 +154,12 @@ public sealed class KraidColorCatalog
         {
             if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 authored)
                 return authored;
-            int band = index / KraidPaletteRomData.BandColors;
-            int color = index % KraidPaletteRomData.BandColors;
-            int finalBand = (KraidPaletteRomData.HealthBandCount - 1) * KraidPaletteRomData.BandColors;
+            int band = index / KraidPalettes.BandColors;
+            int color = index % KraidPalettes.BandColors;
+            int finalBand = (KraidPalettes.HealthBandCount - 1) * KraidPalettes.BandColors;
             if (color == 0)
                 return this[finalBand];
-            return InterpolateHealth(this[KraidPaletteRomData.BandColors + color], this[finalBand + color], band);
+            return InterpolateHealth(this[KraidPalettes.BandColors + color], this[finalBand + color], band);
         }
 
         /// <summary>Visits flash and health bands in their native contiguous order.</summary>

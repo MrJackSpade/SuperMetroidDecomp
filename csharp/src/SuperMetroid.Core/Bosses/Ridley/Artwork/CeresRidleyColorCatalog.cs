@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -64,86 +63,86 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
     public Bgr555 ResolveRetreatBg(int color)
     {
-        if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
+        if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatBg.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : CalculateRetreatBg(color);
     }
     /// <summary>Composes the native retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
     private Bgr555 CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
-        : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
+        : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyFloorPaintDefinitions.RetreatNeutral;
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
     public Bgr555 ResolveRetreatShared(int color)
     {
-        if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
+        if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatShared.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : start.Resolve(color + 1);
     }
 
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
-    public void ApplyStart(GameplayColours cgram)
+    public void ApplyStart(GameplayColours colours)
     {
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.StartColorCount; color++)
-            new RidleyColours(cgram).CeresStart.Write(color, start.Resolve(color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.StartColorCount; color++)
+            new RidleyColours(colours).CeresStart.Write(color, start.Resolve(color));
     }
 
     /// <summary>Copies one eye-fade row, index 0..15, to CGRAM entries 252..254; native $A6:E2AA's three-color rows fade from full eye paint to black.</summary>
-    public void ApplyEyeFade(GameplayColours cgram, int row)
+    public void ApplyEyeFade(GameplayColours colours, int row)
     {
         eyeFade.ValidateRow(row);
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.EyeFadeColorCount; color++)
-            new RidleyColours(cgram).CeresEyeFade.Write(color, eyeFade.Resolve(row, color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.EyeFadeColorCount; color++)
+            new RidleyColours(colours).CeresEyeFade.Write(color, eyeFade.Resolve(row, color));
     }
 
     /// <summary>Copies one eleven-color body-fade row, index 0..15, to both BG CGRAM entries 145..155 and OBJ entries 241..251; native $A6:E30A progresses from black to full body paint.</summary>
-    public void ApplyBodyFade(GameplayColours cgram, int row)
+    public void ApplyBodyFade(GameplayColours colours, int row)
     {
         bodyFade.ValidateRow(row);
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
-            new RidleyColours(cgram).CeresBodyFadeShadow.Write(color, bodyFade.Resolve(row, color));
-        for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
-            new RidleyColours(cgram).CeresBodyFade.Write(color, bodyFade.Resolve(row, color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
+            new RidleyColours(colours).CeresBodyFadeShadow.Write(color, bodyFade.Resolve(row, color));
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
+            new RidleyColours(colours).CeresBodyFade.Write(color, bodyFade.Resolve(row, color));
     }
     /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
-    public void ApplyHealth(GameplayColours cgram, int row)
+    public void ApplyHealth(GameplayColours colours, int row)
     {
         _ = health.Resolve(row, 0);
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.HealthColorCount; color++)
-            new RidleyColours(cgram).Health.Write(color, health.Resolve(row, color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
+            new RidleyColours(colours).Health.Write(color, health.Resolve(row, color));
     }
 
     /// <summary>Copies one self-destruct EMERGENCY-text phase, index 0..15, to CGRAM entries 97..99, preserving the reflected three-color cycle at native $A6:C1DF.</summary>
-    public void ApplyAlarm(GameplayColours cgram, int row)
+    public void ApplyAlarm(GameplayColours colours, int row)
     {
         _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
-            new RidleyColours(cgram).CeresAlarm.Write(color, alarm.Resolve(row, color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
+            new RidleyColours(colours).CeresAlarm.Write(color, alarm.Resolve(row, color));
     }
 
     /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
-    public void ApplyRetreat(GameplayColours cgram)
+    public void ApplyRetreat(GameplayColours colours)
     {
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.RetreatBgColorCount; color++)
-            new RidleyColours(cgram).CeresRetreatBackground.Write(color, ResolveRetreatBg(color));
-        for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatBgColorCount; color++)
+            new RidleyColours(colours).CeresRetreatBackground.Write(color, ResolveRetreatBg(color));
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatSharedColorCount; color++)
         {
             Bgr555 selected = ResolveRetreatShared(color);
-            new RidleyColours(cgram).CeresRetreatSharedBackground.Write(color, selected);
-            new RidleyColours(cgram).CeresRetreatSharedObject.Write(color, selected);
+            new RidleyColours(colours).CeresRetreatSharedBackground.Write(color, selected);
+            new RidleyColours(colours).CeresRetreatSharedObject.Write(color, selected);
         }
     }
 
     /// <summary>Copies one private Baby/container draw shade, index 0..3, from native $A6:E1F1 to OBJ palette-three entries 177..191; row selection and pose timing remain owned by the Baby draw callback.</summary>
-    public void ApplyBaby(GameplayColours cgram, int row)
+    public void ApplyBaby(GameplayColours colours, int row)
     {
         _ = baby.Resolve(row, 0);
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.BabyColorCount; color++)
-            new RidleyColours(cgram).CeresBaby.Write(color, baby.Resolve(row, color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
+            new RidleyColours(colours).CeresBaby.Write(color, baby.Resolve(row, color));
     }
 }

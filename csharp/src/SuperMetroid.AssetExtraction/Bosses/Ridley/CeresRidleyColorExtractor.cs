@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
@@ -21,27 +21,27 @@ public static class CeresRidleyColorExtractor
         return CeresRidleyColorFile.Write(new CeresRidleyColorDocument
         {
             Version = (int)CeresRidleyColorVersion.Current,
-            Start = ReadColors(CeresRidleyPaletteRomData.StartColors,
-                CeresRidleyPaletteRomData.StartColorCount),
+            Start = ReadColors(RidleySourceDefinitions.Ceres.StartColors,
+                CeresRidleyPaletteDefinitions.StartColorCount),
             EyeFade = ReadRows(EnemySourceDefinitions.CeresRidleyEyeFadeRows,
-                CeresRidleyPaletteRomData.EyeFadeRowCount,
-                CeresRidleyPaletteRomData.EyeFadeColorCount),
-            BodyFade = ReadRows(CeresRidleyPaletteRomData.BodyFadeColors,
-                CeresRidleyPaletteRomData.BodyFadeRowCount,
-                CeresRidleyPaletteRomData.BodyFadeColorCount),
-            Health = ReadRows(CeresRidleyPaletteRomData.HealthColors,
-                CeresRidleyPaletteRomData.HealthRowCount,
-                CeresRidleyPaletteRomData.HealthColorCount),
-            Alarm = ReadRows(CeresRidleyPaletteRomData.AlarmColors,
-                CeresRidleyPaletteRomData.AlarmRowCount,
-                CeresRidleyPaletteRomData.AlarmColorCount),
-            RetreatBg = ReadColors(CeresRidleyPaletteRomData.RetreatBgColors,
-                CeresRidleyPaletteRomData.RetreatBgColorCount),
-            RetreatShared = ReadColors(CeresRidleyPaletteRomData.RetreatSharedColors,
-                CeresRidleyPaletteRomData.RetreatSharedColorCount),
-            Baby = ReadRows(CeresRidleyPaletteRomData.BabyColors,
-                CeresRidleyPaletteRomData.BabyRowCount,
-                CeresRidleyPaletteRomData.BabyColorCount),
+                CeresRidleyPaletteDefinitions.EyeFadeRowCount,
+                CeresRidleyPaletteDefinitions.EyeFadeColorCount),
+            BodyFade = ReadRows(RidleySourceDefinitions.Ceres.BodyFadeColors,
+                CeresRidleyPaletteDefinitions.BodyFadeRowCount,
+                CeresRidleyPaletteDefinitions.BodyFadeColorCount),
+            Health = ReadRows(RidleySourceDefinitions.Ceres.HealthColors,
+                CeresRidleyPaletteDefinitions.HealthRowCount,
+                CeresRidleyPaletteDefinitions.HealthColorCount),
+            Alarm = ReadRows(RidleySourceDefinitions.Ceres.AlarmColors,
+                CeresRidleyPaletteDefinitions.AlarmRowCount,
+                CeresRidleyPaletteDefinitions.AlarmColorCount),
+            RetreatBg = ReadColors(RidleySourceDefinitions.Ceres.RetreatBgColors,
+                CeresRidleyPaletteDefinitions.RetreatBgColorCount),
+            RetreatShared = ReadColors(RidleySourceDefinitions.Ceres.RetreatSharedColors,
+                CeresRidleyPaletteDefinitions.RetreatSharedColorCount),
+            Baby = ReadRows(RidleySourceDefinitions.Ceres.BabyColors,
+                CeresRidleyPaletteDefinitions.BabyRowCount,
+                CeresRidleyPaletteDefinitions.BabyColorCount),
         });
 
         PaletteRgb5[][] ReadRows(int source, int rows, int colorsPerRow)

@@ -28,22 +28,22 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         if (stock.Bosses.NorfairRidleyColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Norfair Ridley colors.");
         var forbidden = new HashSet<int>();
-        for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
+        for (int color = 0; color < NorfairRidleyPaletteDefinitions.InitialColorCount; color++)
             CheckSource(EnemySourceDefinitions.NorfairRidleyInitialColors + color * sizeof(ushort),
                 stock.Bosses.NorfairRidleyColors.ResolveInitial(color).ToWord());
-        for (int row = 0; row < NorfairRidleyPaletteRomData.RevealRowCount; row++)
+        for (int row = 0; row < NorfairRidleyPaletteDefinitions.RevealRowCount; row++)
         {
             int pointerAddress = (int)EnemySourceDefinitions.RevealSourcePointers + row * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             AssertTrue(pointer >= 0x8000, $"Norfair Ridley reveal row {row} has a bank-$A6 source");
-            for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
+            for (int color = 0; color < NorfairRidleyPaletteDefinitions.RevealColorCount; color++)
                 CheckSource(0xa60000 + pointer + color * sizeof(ushort),
                     (stock.Bosses.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
         }
         int terminatorAddress = (int)EnemySourceDefinitions.RevealSourcePointers +
-            NorfairRidleyPaletteRomData.RevealRowCount * sizeof(ushort);
+            NorfairRidleyPaletteDefinitions.RevealRowCount * sizeof(ushort);
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), terminatorAddress),
             "Norfair Ridley reveal pointer table ends after fifteen color rows");
         forbidden.Add(terminatorAddress);
@@ -55,7 +55,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             RidleyEnemyState installedState) = Create(guard, stock);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "Norfair Ridley initial palette matches all native CGRAM entries");
-        for (int call = 0; call <= NorfairRidleyPaletteRomData.RevealRowCount * 3; call++)
+        for (int call = 0; call <= NorfairRidleyPaletteDefinitions.RevealRowCount * 3; call++)
         {
             TickReference(nativeCgram, nativeState);
             Tick(installed, installedSlot, installedState);
@@ -70,7 +70,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         }
         AssertEqual(RidleyAiFunction.ClearVelocity, installedState.Function,
             "Norfair Ridley reveal zero terminator enters the native movement handoff");
-        AssertEqual(RidleyLiquidRomData.BattleHeight, installedState.FxTargetYPosition,
+        AssertEqual(RidleyLiquidDefinitions.BattleHeight, installedState.FxTargetYPosition,
             "Norfair Ridley reveal terminator publishes the battle liquid height");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Installed Norfair Ridley reveal never rereads color or pointer ROM data");
@@ -154,9 +154,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 Bgr555 expected = controlCgram.Colors[color];
-                if (color == NorfairRidleyPaletteRomDataConstants.InitialCgramIndex + 1)
+                if (color == NorfairRidleyPaletteDefinitionsConstants.InitialCgramIndex + 1)
                     expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1)));
-                if (revealRowVisible && color == NorfairRidleyPaletteRomDataConstants.RevealCgramIndex + 3)
+                if (revealRowVisible && color == NorfairRidleyPaletteDefinitionsConstants.RevealCgramIndex + 3)
                     expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1 << 10)));
                 AssertEqual(expected, editedCgram.Colors[color], $"{context} CGRAM {color}");
             }

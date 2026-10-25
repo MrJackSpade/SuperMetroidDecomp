@@ -42,7 +42,7 @@ public static class KraidColorFile
     /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
     {
-        int expected = KraidPaletteRomData.ColorCount(kind);
+        int expected = KraidPalettes.ColorCount(kind);
         if (source is null || source.Length != expected)
             throw new InvalidDataException($"Kraid {kind} requires {expected} colors.");
         var result = new Bgr555[expected];

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// is this exact composition,
 /// not a visible-paint claim or exemption for pixels, motion or timing.
 /// </summary>
-internal sealed class CeresRidleyMode7PaintDefinitions
+internal sealed class CeresRidleyFloorPaintDefinitions
 {
     /// <summary>The reviewed body contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyBodyPaintDefinitions body;
@@ -22,7 +22,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Builds the shared contours from the first native row and retains only differences in later rows.</summary>
-    internal CeresRidleyMode7PaintDefinitions(Bgr555[][] rows)
+    internal CeresRidleyFloorPaintDefinitions(Bgr555[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
         eyes = CeresRidleyFadeColorDefinitions.EyePaint.From(rows[0].AsSpan(11, 3));

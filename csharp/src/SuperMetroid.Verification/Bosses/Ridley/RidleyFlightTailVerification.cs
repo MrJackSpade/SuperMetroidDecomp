@@ -63,7 +63,7 @@ internal static class RidleyFlightTailVerification
             Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = WrappingCountdown.Start(0),
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
-                Active = true, StaggerAngle = ushort.MaxValue, Clockwise = false,
+                Active = true, StaggerAngle = null, Clockwise = false,
                 Angle = 0x3ff0, Distance = RidleyTailDefinitions.RestDistance(index),
             }).ToArray(),
         };

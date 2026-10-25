@@ -194,7 +194,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
-    public CeresRidleyMode7ColorCatalog CeresRidleyFloorColors { get; }
+    public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
     /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>

@@ -34,14 +34,14 @@ internal static class EnemyColorPresentationContractChecks
             class EnemyColorConsumer {
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,
                     BabyMetroidCutsceneColorCatalog baby, NorfairRidleyColorCatalog ridley, ZebetiteColorCatalog zebetite,
-                    ShitroidColorCatalog shitroid, CeresRidleyMode7ColorCatalog mode7, DachoraColorCatalog dachora,
+                    ShitroidColorCatalog shitroid, CeresRidleyFloorColorCatalog mode7, DachoraColorCatalog dachora,
                     MotherBrainHealthPalettePresentation motherBrain, SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Assets.ColourRun pulse) {
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 3);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 4);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.DeadSidehopper, 7, 0);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 7, 15);
-                    kraid.Resolve(KraidPaletteSource.Health, KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors - 1);
-                    kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPaletteRomData.BandColors);
+                    kraid.Resolve(KraidPaletteSource.Health, KraidPalettes.HealthBandCount * KraidPalettes.BandColors - 1);
+                    kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPalettes.BandColors);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount - 1, BotwoonHealthPaletteDefinitions.ColorsPerPalette - 1);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount, 0);
                     baby.InitialColor(BabyMetroidCutsceneColorRomData.InitialColorCount - 1);
@@ -50,16 +50,16 @@ internal static class EnemyColorPresentationContractChecks
                     baby.FadeColor(0, 0);
                     baby.FadeColor(BabyMetroidCutsceneColorRomData.FadeFrameCount, BabyMetroidCutsceneColorRomData.FadeColorCount);
                     ridley.ApplyInitial(cgram);
-                    ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount - 1);
-                    ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount);
+                    ridley.ApplyReveal(cgram, NorfairRidleyPaletteDefinitions.RevealRowCount - 1);
+                    ridley.ApplyReveal(cgram, NorfairRidleyPaletteDefinitions.RevealRowCount);
                     zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount - 1);
                     zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount);
                     shitroid.NormalColor(ShitroidColorRomData.NormalFrameCount - 1, ShitroidColorRomData.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, ShitroidColorRomData.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorRomData.TargetColorCount - 1);
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
-                    mode7.Apply(cgram, CeresRidleyPaletteRomData.Mode7ZoomRowCount - 1);
-                    mode7.Apply(cgram, CeresRidleyPaletteRomData.Mode7ZoomRowCount);
+                    mode7.Apply(cgram, CeresRidleyPaletteDefinitions.GetawayZoomRowCount - 1);
+                    mode7.Apply(cgram, CeresRidleyPaletteDefinitions.GetawayZoomRowCount);
                     dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorDefinitions.ColorsPerFrame - 1);
                     dachora.Resolve(DachoraPalettePhase.Default, 1, 0);
                     motherBrain.Apply(cgram, MotherBrainHealthPaletteFormat.StateCount - 1);

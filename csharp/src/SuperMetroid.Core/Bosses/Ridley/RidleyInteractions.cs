@@ -78,7 +78,7 @@ internal sealed class RidleyInteractions
     }
 
     /// <summary>Requires the extended Ridley hitbox callback and suppresses generic death on shots.</summary>
-    internal static void RegisterRidleyShotReactions(EnemySharedReactions table)
+    internal static void AddRidleyShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Ridley &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RidleyShot)
@@ -99,7 +99,7 @@ internal sealed class RidleyInteractions
     }
 
     /// <summary>Routes bombs through Ridley's native shot callback without generic death.</summary>
-    internal static void RegisterRidleyBombReactions(EnemySharedReactions table)
+    internal static void AddRidleyBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Ridley &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.RidleyShot)
@@ -143,7 +143,7 @@ internal sealed class RidleyInteractions
     }
 
     /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
-    internal static void RegisterRidleyPowerBombReactions(EnemySharedReactions table) =>
+    internal static void AddRidleyPowerBombReactions(EnemySharedReactions table) =>
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RidleyPowerBomb)
         {

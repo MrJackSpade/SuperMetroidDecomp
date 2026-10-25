@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -39,12 +40,12 @@ internal static class EnemyTileArtworkKraidVerification
         KraidBackgroundArtwork art = stock.Bosses.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid maps.");
         AssertTrue(art.Upper.Bytes.Span.SequenceEqual(RomDataReader.Decompress(
-                rom, KraidBackgroundRomData.UpperTilemap,
-                KraidBackgroundRomData.DecompressedTilemapBytes)),
+                rom, KraidSourceDefinitions.UpperBodyTilemap,
+                KraidBackgroundDefinitions.SourceTilemapBytes)),
             "installed Kraid upper BG2 tile references preserve source words");
         AssertTrue(art.Lower.Bytes.Span.SequenceEqual(RomDataReader.Decompress(
-                rom, KraidBackgroundRomData.LowerTilemap,
-                KraidBackgroundRomData.DecompressedTilemapBytes)),
+                rom, KraidSourceDefinitions.LowerBodyTilemap,
+                KraidBackgroundDefinitions.SourceTilemapBytes)),
             "installed Kraid lower BG2 tile references preserve source words");
 
         ushort[] native = ReadImportedKraidWorkingMap(rom);
@@ -55,8 +56,8 @@ internal static class EnemyTileArtworkKraidVerification
             "Kraid BG2 initialization prepares the map and takes BG2");
         AssertTrue(initialized.WorkingTop == KraidBodyPage.Body && initialized.WorkingBottom == KraidBodyPage.Body,
             "Kraid BG2 initialization fills both working pages with the body");
-        ushort[] nativeShown = KraidBodyFixtures.Tilemap(native.AsSpan(0, KraidBackgroundRomData.VisiblePageWords), [],
-            native.AsSpan(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords));
+        ushort[] nativeShown = KraidBodyFixtures.Tilemap(native.AsSpan(0, KraidBackgroundDefinitions.PageCells), [],
+            native.AsSpan(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells));
         AssertTrue(ShowKraidVisiblePages(stock).SequenceEqual(nativeShown),
             "installed Kraid BG2 sources preserve both shown body pages");
 
@@ -74,7 +75,7 @@ internal static class EnemyTileArtworkKraidVerification
         string overridePath = Path.Combine(overrides, KraidBackgroundArtworkFormat.UpperFileName);
         using (var output = File.Create(overridePath))
             RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages },
-                KraidBackgroundRomData.DecompressedTilemapBytes);
+                KraidBackgroundDefinitions.SourceTilemapBytes);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort[] changed = BuildKraidWorkingMap(edited);
         AssertEqual((ushort)(native[0] ^ 1), changed[0],
@@ -106,8 +107,8 @@ internal static class EnemyTileArtworkKraidVerification
         foreach (ushort pointer in pointers)
         {
             byte[] native = RomDataReader.ReadFixedBank(rom,
-                KraidBackgroundRomData.NativeBank | pointer,
-                KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
+                KraidSourceDefinitions.CodeBank | pointer,
+                KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort));
             ReadOnlySpan<ushort> installed = (stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointer);
             for (int word = 0; word < installed.Length; word++)
                 AssertEqual(SnesLittleEndian.Word(native[word * 2], native[word * 2 + 1]),
@@ -172,13 +173,13 @@ internal static class EnemyTileArtworkKraidVerification
         MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
         AreaMapPresentationCatalog stock = MapPresentationFiles.Load(mapDirectory, null);
         byte[] native = RomDataReader.ReadFixedBank(rom,
-            KraidBackgroundRomDataConstants.StandardBg3TilesAddress,
+            KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress,
             HudTileAtlasFormat.CharacterByteCount);
         AssertTrue(stock.HudTiles.Bytes.Span[..native.Length].SequenceEqual(native),
             "shared installed HUD PNG preserves all Kraid BG3 restoration source bytes");
 
         var baselineQueued = new SnesVram();
-        baselineQueued.LoadBytes(KraidBackgroundRomData.StandardBg3VramWord * 2, native);
+        baselineQueued.LoadBytes(KraidBackgroundDefinitions.StandardBg3VramWord * 2, native);
         SnesVram installed = RunKraidBg3Restoration(enemyArtwork, stock.HudTiles);
         AssertTrue(installed.ImageEquals(baselineQueued),
             "installed Kraid BG3 restoration preserves native VRAM");
@@ -196,10 +197,10 @@ internal static class EnemyTileArtworkKraidVerification
         runtime.AreaArtwork.Artwork = enemyArtwork.Areas;
         AssertTrue(ReferenceEquals(stock.HudTiles, runtime.BossArtwork.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
+        for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount;
              quarter++)
         {
-            VramAssetId asset = KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter);
+            VramAssetId asset = KraidHudRestoration.AssetForQuarter(quarter);
             AssertTrue(((IVramAssetProvider)runtime.Artwork).Resolve(asset).Span
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
@@ -216,7 +217,7 @@ internal static class EnemyTileArtworkKraidVerification
                 image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(mapDirectory, overrides);
         SnesVram changed = RunKraidBg3Restoration(enemyArtwork, edited.HudTiles);
-        int destination = KraidBackgroundRomData.StandardBg3VramWord * sizeof(ushort);
+        int destination = KraidBackgroundDefinitions.StandardBg3VramWord * sizeof(ushort);
         AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
             changed.ReadByte(destination),
             "edited shared HUD pixel changes Kraid's first restored BG3 character");
@@ -242,7 +243,7 @@ internal static class EnemyTileArtworkKraidVerification
         Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction> restore = enemies.KraidBehavior.Death.RestoreKraidDeathBg3Quarter;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new KraidEnemyState();
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
+        for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount;
              quarter++)
         {
             restore(body, state, quarter, KraidAiFunction.DeathFadeInBackground);
@@ -260,12 +261,12 @@ internal static class EnemyTileArtworkKraidVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom,
-            KraidBackgroundRomData.RoomBackgroundTileAddress,
-            KraidBackgroundRomData.RoomBackgroundTileBytes);
+            KraidSourceDefinitions.RoomBackgroundTiles,
+            KraidSourceDefinitions.RoomBackgroundTileBytes);
         AssertTrue((stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).RoomBackgroundTiles.Characters.Span.SequenceEqual(native),
             "installed Kraid room-background PNG preserves native planar characters");
         var baseline = new SnesVram();
-        baseline.LoadBytes(KraidBackgroundRomData.RoomBackgroundTileVramWord * 2, native);
+        baseline.LoadBytes(KraidBackgroundDefinitions.RoomBackgroundTileVramWord * 2, native);
         SnesVram installed = UploadKraidRoomBackground(stock);
         AssertTrue(installed.ImageEquals(baseline),
             "installed Kraid room-background upload preserves full native VRAM");
@@ -284,7 +285,7 @@ internal static class EnemyTileArtworkKraidVerification
                 image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         SnesVram changed = UploadKraidRoomBackground(edited);
-        int destination = KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort);
+        int destination = KraidBackgroundDefinitions.RoomBackgroundTileVramWord * sizeof(ushort);
         AssertEqual((byte)(baseline.ReadByte(destination) ^ 0x80),
             changed.ReadByte(destination),
             "edited Kraid background pixel changes native VRAM destination");

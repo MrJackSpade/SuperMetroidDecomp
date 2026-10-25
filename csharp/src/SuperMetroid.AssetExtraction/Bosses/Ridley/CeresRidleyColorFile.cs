@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
@@ -24,26 +24,26 @@ public static class CeresRidleyColorFile
         if (!Enum.IsDefined(version) ||
             version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
-        Bgr555[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
-            CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade");
-        Bgr555[] start = Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start");
-        Bgr555[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
-            CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade");
-        Bgr555[][] health = CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
-            CeresRidleyPaletteRomData.HealthColorCount, "health");
+        Bgr555[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeRowCount,
+            CeresRidleyPaletteDefinitions.BodyFadeColorCount, "body fade");
+        Bgr555[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
+        Bgr555[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeRowCount,
+            CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
+        Bgr555[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthRowCount,
+            CeresRidleyPaletteDefinitions.HealthColorCount, "health");
         // A legacy override predates the alarm (and, before version two, the Baby) colours; the
         // version check above guarantees stock is supplied for the catalog to inherit them from.
         Bgr555[][]? alarm = version != CeresRidleyColorVersion.Current
             ? null
-            : CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
-                CeresRidleyPaletteRomData.AlarmColorCount, "alarm");
-        Bgr555[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG");
-        Bgr555[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
+            : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmRowCount,
+                CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
+        Bgr555[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
+        Bgr555[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             "retreat shared");
         Bgr555[][]? baby = version == CeresRidleyColorVersion.PreBaby
             ? null
-            : CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
-                CeresRidleyPaletteRomData.BabyColorCount, "Baby");
+            : CompileRows(document.Baby, CeresRidleyPaletteDefinitions.BabyRowCount,
+                CeresRidleyPaletteDefinitions.BabyColorCount, "Baby");
         return CeresRidleyColorCatalog.Create(new CeresRidleyColorRows
         {
             Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,

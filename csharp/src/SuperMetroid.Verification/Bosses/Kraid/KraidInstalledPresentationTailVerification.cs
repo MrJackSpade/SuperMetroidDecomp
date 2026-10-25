@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Artwork;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
@@ -22,22 +23,22 @@ internal static class KraidInstalledPresentationTailVerification
             }).ToArray();
             using var json = new MemoryStream();
             RoomBackgroundTilemapAtlas.Write(json, new RoomBackgroundTilemapDocument
-            { Version = RoomBackgroundTilemapFormat.Version, Pages = pages }, KraidBackgroundRomData.DecompressedTilemapBytes);
+            { Version = RoomBackgroundTilemapFormat.Version, Pages = pages }, KraidBackgroundDefinitions.SourceTilemapBytes);
             json.Position = 0;
-            return RoomBackgroundTilemapAtlas.Load(json, KraidBackgroundRomData.DecompressedTilemapBytes);
+            return RoomBackgroundTilemapAtlas.Load(json, KraidBackgroundDefinitions.SourceTilemapBytes);
         }
-        RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(KraidBackgroundRomData.PriorityBit);
+        RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(SnesBgTilemapWord.PriorityMask);
         var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<int, KraidHeadTilemapAtlas>(),
             (new EnemyIdentityFixture().Build().Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires new EnemyIdentityFixture().Build().KraidBackground.")).RoomBackgroundTiles);
         ushort[] working = KraidBodyFixtures.WorkingMap(new BossArtworkCatalog { KraidBackground = art });
-        for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)
+        for (int word = 0; word < KraidBackgroundDefinitions.WorkingMapCells; word++)
         {
-            ReadOnlySpan<byte> source = word < KraidBackgroundRomData.VisiblePageWords ? upper.Bytes.Span : lower.Bytes.Span;
-            int sourceWord = word < KraidBackgroundRomData.VisiblePageWords || word >= KraidBackgroundRomData.PreservedLowerTailFirstWord
-                ? word : word - KraidBackgroundRomData.WorkingLowerHalfWord;
+            ReadOnlySpan<byte> source = word < KraidBackgroundDefinitions.PageCells ? upper.Bytes.Span : lower.Bytes.Span;
+            int sourceWord = word < KraidBackgroundDefinitions.PageCells || word >= KraidBackgroundDefinitions.PreservedLowerTailFirstWord
+                ? word : word - KraidBackgroundDefinitions.LowerPageFirstCell;
             ushort expected = BinaryPrimitives.ReadUInt16LittleEndian(source[(sourceWord * 2)..]);
-            if (word < KraidBackgroundRomData.PreservedLowerTailFirstWord) expected &= unchecked((ushort)~KraidBackgroundRomData.PriorityBit);
-            if (word >= KraidBackgroundRomData.BlankRowWorkingWord) expected = KraidBackgroundRomData.BlankTile;
+            if (word < KraidBackgroundDefinitions.PreservedLowerTailFirstWord) expected &= unchecked((ushort)~SnesBgTilemapWord.PriorityMask);
+            if (word >= KraidBackgroundDefinitions.BlankRowFirstCell) expected = KraidBackgroundDefinitions.BlankTile;
             AssertEqual(expected, working[word], "Kraid native copied/untouched/blank boundary at word " + word);
         }
         Console.WriteLine("PASS Kraid working map: all 2,048 words, copied priority clear, 224 untouched tail words and 32-word blank row.");

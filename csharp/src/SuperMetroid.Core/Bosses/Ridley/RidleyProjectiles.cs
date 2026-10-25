@@ -191,7 +191,7 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Registers collision and motion callbacks for fireballs and both perpendicular afterburn paths.</summary>
-    internal void RegisterFireballPreInstructions(EnemyProjectileHandlerTable table)
+    internal void AddFireballPreInstructions(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -235,7 +235,7 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Carries out the cues of the fireball and afterburn programs: motion, the afterburn spawns and deletion.</summary>
-    internal void RegisterFireballCues(EnemyProjectileHandlerTable table)
+    internal void AddFireballCues(EnemyProjectileHandlerTable table)
     {
         table.AddCue<RidleyFireballCue>((context, cue) =>
         {

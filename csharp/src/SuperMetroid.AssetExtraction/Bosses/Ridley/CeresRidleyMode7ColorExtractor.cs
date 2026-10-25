@@ -1,8 +1,9 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
@@ -17,14 +18,14 @@ public static class CeresRidleyMode7ColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var rows = new PaletteRgb5[CeresRidleyPaletteRomData.Mode7ZoomRowCount][];
+        var rows = new PaletteRgb5[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];
         for (int row = 0; row < rows.Length; row++)
         {
             byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                CeresRidleyPaletteRomData.Mode7ZoomColors +
-                row * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride,
-                CeresRidleyPaletteRomData.Mode7ZoomColorCount * sizeof(ushort));
-            rows[row] = new PaletteRgb5[CeresRidleyPaletteRomData.Mode7ZoomColorCount];
+                RidleySourceDefinitions.Ceres.GetawayZoomColors +
+                row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes,
+                CeresRidleyPaletteDefinitions.GetawayZoomColorCount * sizeof(ushort));
+            rows[row] = new PaletteRgb5[CeresRidleyPaletteDefinitions.GetawayZoomColorCount];
             for (int color = 0; color < rows[row].Length; color++)
             {
                 ushort word = SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]);
@@ -38,7 +39,7 @@ public static class CeresRidleyMode7ColorExtractor
         }
         return CeresRidleyMode7ColorFile.Write(new CeresRidleyMode7ColorDocument
         {
-            Version = CeresRidleyMode7ColorFormat.Version,
+            Version = CeresRidleyFloorColorFormat.Version,
             ZoomRows = rows,
         });
     }

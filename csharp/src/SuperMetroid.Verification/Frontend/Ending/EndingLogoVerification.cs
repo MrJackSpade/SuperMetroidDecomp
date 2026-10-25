@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -47,7 +48,7 @@ internal static class EndingLogoVerification
                 for (int p = 0; p < 2; p++)
                 {
                     int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                        EndingLogoPalettePointerDefinitions.NativeTableAddress +
+                        EndingPaletteSources.NativeTableAddress +
                         (logo.PaletteStep - 1) * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
@@ -207,10 +208,10 @@ internal static class EndingLogoVerification
             () => EndingLogoDefinitions.Actor(4),
             "logo actor definition boundary");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingLogoPalettePointerDefinitions.Source(EndingLogoDefinitions.PaletteSteps, 0),
+            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.PaletteSteps, 0),
             "logo palette step boundary");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingLogoPalettePointerDefinitions.Source(0, 2),
+            () => EndingPaletteSources.LogoCrossfadeSource(0, 2),
             "logo palette selector boundary");
         Console.WriteLine(
             "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
@@ -221,7 +222,7 @@ internal static class EndingLogoVerification
         new CartridgeReadGuard(source)
             .Forbid(CinematicSpriteNativeListAddresses.InListRegion,
                 address => $"Ending logo reread a native cinematic sprite list byte ${address:X6}.")
-            .ForbidRange(EndingLogoPalettePointerDefinitions.NativeTableAddress,
+            .ForbidRange(EndingPaletteSources.NativeTableAddress,
                 EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort),
                 address => $"Ending logo reread palette pointer byte ${address:X6}.")
             .Forbid(address => Enumerable.Range(0, EndingLogoDefinitions.ActorCount).Any(index =>

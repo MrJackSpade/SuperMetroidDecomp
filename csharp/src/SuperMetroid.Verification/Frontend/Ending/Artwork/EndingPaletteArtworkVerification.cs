@@ -153,7 +153,7 @@ internal static class EndingPaletteArtworkVerification
         {
             AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadCartridgeByte(load.Load), "native palette indexed load opcode");
             int address = (int)new SnesAddress(load.Long ? rom.ReadCartridgeByte(load.Load + 3) : (byte)SnesAddressMath.BankNumber(load.Load), rom.ReadCartridgeWord(load.Load + 1));
-            AssertEqual(address, EndingPaletteDefinitions.SourceAddress(load.Role), "native palette source role");
+            AssertEqual(address, EndingPaletteSources.Source(load.Role), "native palette source role");
         }
         // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.
         foreach (var allocation in new[]
@@ -185,11 +185,11 @@ internal static class EndingPaletteArtworkVerification
         ];
         foreach (var file in published)
             AssertEqual(file.Name, EndingPaletteDefinitions.FileName(file.Role), "published palette filename compatibility");
-        AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.SourceAddress(EndingPaletteId.LogoCrossfade),
+        AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source(EndingPaletteId.LogoCrossfade),
             "crossfade has no contiguous source");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.SourceAddress((EndingPaletteId)invalid), "invalid palette source role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source((EndingPaletteId)invalid), "invalid palette source role");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.FileName((EndingPaletteId)invalid), "invalid palette file role");
         }
@@ -643,8 +643,8 @@ internal static class EndingPaletteArtworkVerification
     private static readonly EndingPaletteArtworkVerificationValue[] EndingPaletteSourceRanges =
         Enum.GetValues<EndingPaletteId>()
             .Where(id => id != EndingPaletteId.LogoCrossfade)
-            .Select(id => new EndingPaletteArtworkVerificationValue(id, EndingPaletteDefinitions.SourceAddress(id),
-                EndingPaletteDefinitions.SourceAddress(id) +
+            .Select(id => new EndingPaletteArtworkVerificationValue(id, EndingPaletteSources.Source(id),
+                EndingPaletteSources.Source(id) +
                 EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort)))
             .Append(new EndingPaletteArtworkVerificationValue(EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
             .ToArray();

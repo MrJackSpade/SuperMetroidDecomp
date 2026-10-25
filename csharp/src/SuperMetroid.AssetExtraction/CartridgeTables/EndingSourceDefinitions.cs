@@ -13,6 +13,34 @@ internal static class EndingSourceDefinitions
     internal static readonly CpuBusCell LogoPaletteBank = CpuBusCell.CartridgeBytes(nameof(LogoPaletteBank), 0x8c8000, 0x8000,
         "BGR555 palette rows (u16 little-endian)");
 
+    /// <summary>The ending's palette sources (#1416: moved from Core's ending catalogs).</summary>
+    internal static class Palettes
+    {
+        /// <summary>$8C:EDE9, Palettes_CloudSpritesInZebesExplosionScene: the escape scenes' full palette image.</summary>
+        internal const int Escape = 0x8cede9;
+
+        /// <summary>$8B:DE43, the final gunship palette restored before the operation text.</summary>
+        internal const int FinalGunship = 0x8bde43;
+
+        /// <summary>$8C:E7E9, kPalettes_Intro4, restored by the end-credits instruction $8B:F6FE.</summary>
+        internal const int PostCredits = 0x8ce7e9;
+
+        /// <summary>$8C:E9E9, Palettes_Credits: the credits palette image, whose background colours supply the scrolling text.</summary>
+        internal const int Credits = 0x8ce9e9;
+
+        /// <summary>$8C:EBE9, Palettes_ZebesExplosionScene: the planet-explosion palette image.</summary>
+        internal const int Explosion = 0x8cebe9;
+
+        /// <summary>$8C:EFE9: the sixteen colours $8B:E504 loads into sprite palette seven for the assembling logo.</summary>
+        internal const int LogoInitial = 0x8cefe9;
+
+        /// <summary>$8C:F3E7 ($8B:E5E7's first background pointer): the last colour of background palette $10.</summary>
+        internal static readonly SnesAddress LogoCrossfadeFirstBackgroundEnd = SnesAddress.FromBusAddress(0x8cf3e7);
+
+        /// <summary>$8C:F007 ($8B:E5E9's first sprite pointer): the last colour of sprite palette $1.</summary>
+        internal static readonly SnesAddress LogoCrossfadeFirstSpriteEnd = SnesAddress.FromBusAddress(0x8cf007);
+    }
+
     /// <summary>Bank containing every post-credit text resource in this catalog.</summary>
     internal const byte EndingBank = 0x8c;
 

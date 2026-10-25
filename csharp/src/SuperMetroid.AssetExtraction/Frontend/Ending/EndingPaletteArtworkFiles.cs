@@ -148,14 +148,14 @@ public static class EndingPaletteArtworkFiles
     {
         if (id != EndingPaletteId.LogoCrossfade)
             return RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                EndingPaletteDefinitions.SourceAddress(id), count * sizeof(ushort));
+                EndingPaletteSources.Source(id), count * sizeof(ushort));
 
         var native = new byte[count * sizeof(ushort)];
         for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
         for (int palette = 0; palette < 2; palette++)
         for (int color = 0; color < 16; color++)
         {
-            SnesAddress source = EndingLogoPalettePointerDefinitions.Source(step, palette)
+            SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, palette)
                 .AddWithinBank(-(15 - color) * sizeof(ushort));
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CartridgeBankWindow.At(EndingSourceDefinitions.LogoPaletteBank, source.Offset));

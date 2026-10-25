@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
@@ -17,12 +18,12 @@ internal static class EndingLogoTablesVerification
         {
             int address = 0x8be5e7 + step * 4 + palette * 2;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                EndingLogoPalettePointerDefinitions.Source(step, palette).Offset, "original ending palette source");
+                EndingPaletteSources.LogoCrossfadeSource(step, palette).Offset, "original ending palette source");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoPalettePointerDefinitions.Source(invalid, 0), "palette step bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.LogoCrossfadeSource(invalid, 0), "palette step bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoPalettePointerDefinitions.Source(0, invalid), "palette selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.LogoCrossfadeSource(0, invalid), "palette selector bounds");
     }
 
     /// <summary>Checks all six post-shot transfer lengths, sources, destinations, and out-of-range indexes.</summary>

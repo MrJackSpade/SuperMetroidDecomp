@@ -106,9 +106,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int seedDelay = (random & 3) + 2;
         state.WalkStepTimer = WrappingCountdown.FromRaw(seedDelay);
         state.SpitDecisionTimer = WrappingCountdown.FromRaw(seedDelay);
-        state.SpikeTimers[0] = (ushort)(seedDelay + 64);
-        state.SpikeTimers[1] = (ushort)(seedDelay + 96);
-        state.SpikeTimers[2] = (ushort)(seedDelay + 48);
+        state.SpikeTimers[0] = WrappingCountdown.Start(seedDelay + 64);
+        state.SpikeTimers[1] = WrappingCountdown.Start(seedDelay + 96);
+        state.SpikeTimers[2] = WrappingCountdown.Start(seedDelay + 48);
         state.SpikeTimerIndex = 0;
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
@@ -135,16 +135,16 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // into scratch RAM alias the three adjacent clocks above rather than three enemy slots.
         int timerIndex = state.SpikeTimerIndex;
         state.SpikeTimerIndex = timerIndex >= state.SpikeTimers.Length - 1 ? 0 : timerIndex + 1;
-        int timer = state.SpikeTimers[timerIndex];
-        if (timer != 0)
+        WrappingCountdown timer = state.SpikeTimers[timerIndex];
+        if (!timer.IsZero)
         {
-            state.SpikeTimers[timerIndex] = (ushort)(timer - 1);
+            state.SpikeTimers[timerIndex] = timer.DecrementToZero();
             return;
         }
 
         // The reload keeps the random word's low six bits: sixteen to seventy-nine frames.
-        state.SpikeTimers[timerIndex] = checked((ushort)(
-            ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames));
+        state.SpikeTimers[timerIndex] = WrappingCountdown.Start(
+            ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames);
         if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
@@ -214,8 +214,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : FakeKraidProgram.StepForwardsFacingRight;
         }
 
-        state.SpitDecisionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-            (ReadFakeKraidRandomNumber() & 3) + 3)));
+        state.SpitDecisionTimer = WrappingCountdown.Start((ReadFakeKraidRandomNumber() & 3) + 3);
         return state.FacingDelta < 0
             ? FakeKraidProgram.FireSpitFacingLeft
             : FakeKraidProgram.FireSpitFacingRight;

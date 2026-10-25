@@ -37,7 +37,7 @@ internal sealed class PhantoonOpening
             state.StartingFlamesSpawned++;
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlameQueueCapacity);
         state.Parts[body.SlotIndex].FunctionTimer = 30;
-        state.Parts[body.SlotIndex].StartingFlameIndex = unchecked((ushort)(state.Parts[body.SlotIndex].StartingFlameIndex + 1));
+        state.Parts[body.SlotIndex].StartingFlameIndex = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].StartingFlameIndex);
         if (unchecked((short)(state.Parts[body.SlotIndex].StartingFlameIndex - 8)) < 0)
             return;
 

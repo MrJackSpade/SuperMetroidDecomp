@@ -360,9 +360,8 @@ internal sealed class CrocomireCombat
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
                 // though this ROM revision stores identical delay values.
-                body.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-                    body.InstructionTimer.RawValue +
-                    (state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8))));
+                body.InstructionTimer = body.InstructionTimer.AddFrames(
+                    state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
             }
             state.HitCount = hitCount;
             state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
@@ -370,7 +369,7 @@ internal sealed class CrocomireCombat
             state.ReactionTimer = 10;
         }
 
-        body.FlashTimer = WrappingCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 14)));
+        body.FlashTimer = body.FlashTimer.AddFrames(14);
         body.AiStates |= EnemyAiStates.Hurt;
     }
 
@@ -400,7 +399,7 @@ internal sealed class CrocomireCombat
         state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;
-        body.FlashTimer = WrappingCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));
+        body.FlashTimer = body.FlashTimer.AddFrames(4);
         body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 

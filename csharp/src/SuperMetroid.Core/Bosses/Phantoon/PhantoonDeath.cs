@@ -72,7 +72,7 @@ internal sealed class PhantoonDeath
         if (!state.Parts[eye.SlotIndex].FadeComplete)
             return;
         state.Parts[eye.SlotIndex].FadeComplete = false;
-        state.Parts[eye.SlotIndex].DyingFadeCycles = unchecked((ushort)(state.Parts[eye.SlotIndex].DyingFadeCycles + 1));
+        state.Parts[eye.SlotIndex].DyingFadeCycles = WrappingCounter.IncrementWord(state.Parts[eye.SlotIndex].DyingFadeCycles);
         if (unchecked((short)(state.Parts[eye.SlotIndex].DyingFadeCycles - 10)) < 0)
             return;
 
@@ -104,12 +104,12 @@ internal sealed class PhantoonDeath
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound;
 
-        state.Parts[tentacles.SlotIndex].ExplosionIndex = unchecked((ushort)(state.Parts[tentacles.SlotIndex].ExplosionIndex + 1));
+        state.Parts[tentacles.SlotIndex].ExplosionIndex = WrappingCounter.IncrementWord(state.Parts[tentacles.SlotIndex].ExplosionIndex);
         if (state.Parts[tentacles.SlotIndex].ExplosionIndex < PhantoonDeathExplosionDefinitions.Count)
             return;
 
         state.Parts[tentacles.SlotIndex].ExplosionIndex = PhantoonDeathExplosionDefinitions.RepeatStart;
-        state.Parts[body.SlotIndex].ExplosionPass = unchecked((ushort)(state.Parts[body.SlotIndex].ExplosionPass + 1));
+        state.Parts[body.SlotIndex].ExplosionPass = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].ExplosionPass);
         if (state.Parts[body.SlotIndex].ExplosionPass >= PhantoonDeathExplosionDefinitions.PassCount)
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BeginFinalWavyDeath;
     }
@@ -244,7 +244,7 @@ internal sealed class PhantoonDeath
     {
         int denominator = eye.FadeDenominator;
         int numerator = eye.FadeNumerator;
-        if (unchecked((ushort)(denominator + 1)) < numerator)
+        if (denominator + 1 < numerator)
         {
             eye.FadeNumerator = 0;
             return true;
@@ -260,7 +260,7 @@ internal sealed class PhantoonDeath
                 color,
                 PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }
-        eye.FadeNumerator = unchecked((ushort)(numerator + 1));
+        eye.FadeNumerator = numerator + 1;
         return false;
     }
 }

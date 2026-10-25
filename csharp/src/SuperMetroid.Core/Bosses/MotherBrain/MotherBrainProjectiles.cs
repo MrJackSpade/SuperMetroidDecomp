@@ -239,7 +239,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         if (MoveMotherBrainBomb(bomb, acceleration))
-            bomb.Variable1 = unchecked((ushort)(bomb.Variable1 + 2));
+            bomb.Variable1 += 2;
     }
 
     /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>
@@ -747,8 +747,11 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(turret.Velocity.X.RawValue - 1))));
-        if (turret.Velocity.X.RawValue == 0)
+        // The turret keeps its rotation wait in its X velocity word and its firing wait in its Y velocity word; each is a
+        // DEC, BEQ countdown that is reloaded when it reaches zero.
+        CountdownStep rotationWait = WrappingCountdown.FromRaw(turret.Velocity.X.RawValue).Decrement();
+        turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight(rotationWait.Value));
+        if (rotationWait.IsZero)
         {
             ResetMotherBrainTurretRotationTimer(turret);
             SelectNextMotherBrainTurretDirection(turret);
@@ -757,8 +760,9 @@ internal sealed class MotherBrainProjectiles
             turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
         }
 
-        turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(turret.Velocity.Y.RawValue - 1))));
-        if (turret.Velocity.Y.RawValue == 0)
+        CountdownStep firingWait = WrappingCountdown.FromRaw(turret.Velocity.Y.RawValue).Decrement();
+        turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight(firingWait.Value));
+        if (firingWait.IsZero)
         {
             ResetMotherBrainTurretCooldown(turret);
             SpawnMotherBrainTurretBullet(turret);

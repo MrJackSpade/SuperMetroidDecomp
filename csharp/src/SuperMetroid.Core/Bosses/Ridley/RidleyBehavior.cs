@@ -247,7 +247,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.IdealInterSegmentTailAngle = 11;
                 state.TailExtensionSpeed = 384;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
-                state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 32 + 32)));
+                state.FunctionTimer = WrappingCountdown.Start(_room.Random.Read() % 32 + 32);
                 Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
                 return;
 

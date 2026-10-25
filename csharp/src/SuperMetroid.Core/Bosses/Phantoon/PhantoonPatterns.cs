@@ -104,12 +104,12 @@ internal sealed class PhantoonPatterns
             if (eyeWords.FigureEightReversed)
             {
                 body.Position -= pathStep;
-                bodyWords.PathCursor = bodyWords.PathCursor == 0 ? (ushort)(PhantoonPathDefinitions.Length - 1) : unchecked((ushort)(bodyWords.PathCursor - 1));
+                bodyWords.PathCursor = bodyWords.PathCursor == 0 ? PhantoonPathDefinitions.Length - 1 : bodyWords.PathCursor - 1;
             }
             else
             {
                 body.Position += pathStep;
-                bodyWords.PathCursor = bodyWords.PathCursor >= PhantoonPathDefinitions.Length - 1 ? (ushort)0 : unchecked((ushort)(bodyWords.PathCursor + 1));
+                bodyWords.PathCursor = bodyWords.PathCursor >= PhantoonPathDefinitions.Length - 1 ? 0 : bodyWords.PathCursor + 1;
             }
         }
     }
@@ -142,7 +142,7 @@ internal sealed class PhantoonPatterns
             {
                 body.SpeedWhole = PhantoonMotionDefinitions.ForwardFastCap;
                 body.SpeedFraction = 0;
-                body.SpeedPhase = unchecked((ushort)(body.SpeedPhase + 1));
+                body.SpeedPhase = WrappingCounter.IncrementWord(body.SpeedPhase);
             }
             return;
         }
@@ -192,7 +192,7 @@ internal sealed class PhantoonPatterns
             {
                 body.SpeedWhole = unchecked((ushort)(cap + 1));
                 body.SpeedFraction = 0;
-                body.SpeedPhase = unchecked((ushort)(body.SpeedPhase + 1));
+                body.SpeedPhase = WrappingCounter.IncrementWord(body.SpeedPhase);
             }
             return;
         }
@@ -542,7 +542,7 @@ internal sealed class PhantoonPatterns
         }
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundQueueCapacity);
-        state.Parts[state.Eye.SlotIndex].RageWaveCount = unchecked((ushort)(state.Parts[state.Eye.SlotIndex].RageWaveCount + 1));
+        state.Parts[state.Eye.SlotIndex].RageWaveCount = WrappingCounter.IncrementWord(state.Parts[state.Eye.SlotIndex].RageWaveCount);
         if (unchecked((short)(state.Parts[state.Eye.SlotIndex].RageWaveCount - PhantoonRageDefinitions.WaveCount)) < 0)
         {
             state.Parts[body.SlotIndex].FunctionTimer = PhantoonRageDefinitions.WaveInterval;
@@ -677,7 +677,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot eye = state.Eye;
         state.Parts[eye.SlotIndex].FadeDenominator = denominator;
         int numerator = state.Parts[eye.SlotIndex].FadeNumerator;
-        if (unchecked((ushort)(denominator + 1)) < numerator)
+        if (denominator + 1 < numerator)
         {
             state.Parts[eye.SlotIndex].FadeNumerator = 0;
             state.Parts[eye.SlotIndex].FadeComplete = true;
@@ -693,7 +693,7 @@ internal sealed class PhantoonPatterns
                 color,
                 PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }
-        state.Parts[eye.SlotIndex].FadeNumerator = unchecked((ushort)(numerator + 1));
+        state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns.</summary>
@@ -723,7 +723,7 @@ internal sealed class PhantoonPatterns
         if ((_frameContext.FrameCounter & 1) != 0)
         {
             if (!state.Parts[eye.SlotIndex].FigureEightReversed)
-                state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor == 0 ? (ushort)533 : unchecked((ushort)(state.Parts[body.SlotIndex].PathCursor - 1));
+                state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor == 0 ? 533 : state.Parts[body.SlotIndex].PathCursor - 1;
             state.Parts[body.SlotIndex].SpeedWhole = 0;
             state.Parts[body.SlotIndex].SpeedFraction = 0;
             state.Parts[body.SlotIndex].SpeedPhase = 0;
@@ -732,7 +732,7 @@ internal sealed class PhantoonPatterns
         else
         {
             if (state.Parts[eye.SlotIndex].FigureEightReversed)
-                state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor >= 533 ? (ushort)0 : unchecked((ushort)(state.Parts[body.SlotIndex].PathCursor + 1));
+                state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor >= 533 ? 0 : state.Parts[body.SlotIndex].PathCursor + 1;
             state.Parts[body.SlotIndex].SpeedWhole = 1;
             state.Parts[body.SlotIndex].SpeedFraction = 0;
             state.Parts[body.SlotIndex].SpeedPhase = 0;

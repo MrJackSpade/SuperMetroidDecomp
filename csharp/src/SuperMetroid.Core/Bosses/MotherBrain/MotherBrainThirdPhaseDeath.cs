@@ -418,7 +418,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // `$B12D` treats FunctionTimer as unsigned 8.8 velocity: add `$20`, use only
         // its high byte as this frame's whole-pixel displacement, and accumulate Y.
         // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
-        _state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_state.FunctionTimer.RawValue + 32)));
+        _state.FunctionTimer = _state.FunctionTimer.AddFrames(32);
         int fallingDisplacement = SnesLittleEndian.HighByte(_state.FunctionTimer.RawValue);
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, (short)fallingDisplacement);
         if (candidate.Y >= 196)

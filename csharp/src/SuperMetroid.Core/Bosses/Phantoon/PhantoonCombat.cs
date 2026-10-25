@@ -301,8 +301,9 @@ internal sealed class PhantoonCombat
                 return;
             }
 
-            state.Parts[state.Tentacles.SlotIndex].RoundDamage = unchecked((ushort)(
-                state.Parts[state.Tentacles.SlotIndex].RoundDamage + damage));
+            // The round's damage shares its word with other parts' state, so a sum past the word wraps as the cartridge's does.
+            state.Parts[state.Tentacles.SlotIndex].RoundDamage = WrappingCounter.AddWord(
+                state.Parts[state.Tentacles.SlotIndex].RoundDamage, damage);
             if (state.Parts[state.Tentacles.SlotIndex].RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
@@ -464,7 +465,7 @@ internal sealed class PhantoonCombat
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
         if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
         {
-            flame.Variable0 = unchecked((ushort)(flame.Variable0 + 1));
+            flame.Variable0 = WrappingCounter.IncrementWord(flame.Variable0);
             if (flame.Variable0 < 3)
             {
                 flame.Velocity = flame.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(flame.Variable0 == 1 ? (short)-512 : (short)-256));

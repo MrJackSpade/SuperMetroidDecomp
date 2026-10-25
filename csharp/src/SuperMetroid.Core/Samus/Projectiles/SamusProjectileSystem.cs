@@ -603,13 +603,13 @@ public sealed class SamusProjectileSystem
         SamusState samus,
         Position16<RoomPixels> layer1,
         ChargeFlareComponents components,
-        SamusMode7Transform? mode7Transform,
+        TurningFloorTransform? turningFloor,
         ChargeFlareArtwork artwork)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
         foreach (int component in components.DrawOrder)
-            Animation.DrawFlareComponent(sprites, samus, layer1, component, mode7Transform, artwork);
+            Animation.DrawFlareComponent(sprites, samus, layer1, component, turningFloor, artwork);
     }
 
     /// <summary>Draws `$93:8254`'s live ordinary-projectile subset after Samus.</summary>

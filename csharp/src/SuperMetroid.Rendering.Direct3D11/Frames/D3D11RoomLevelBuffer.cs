@@ -145,7 +145,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomOverlayPictures? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
         SkyPictures? sky = frame.Sky;
         Layer3Cells? bg3 = frame.Bg3;
-        AffineFloor? mode7 = frame.Mode7;
+        AffineFloor? mode7 = frame.Floor;
         BossBodyPictures? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;

@@ -26,9 +26,9 @@ internal static class SamusAnimationDelayNative
         internal static ushort PointerForPose(SamusPoseId pose) => Address(SamusAnimationDelayDefinitions.ListForPose(pose));
 
         /// <summary>Reads a delay byte from the program starting at bank-$91 <paramref name="pointer"/>.</summary>
-        internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
+        internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
             ushort pointer, int byteIndex) =>
-            SamusAnimationDelayDefinitions.ReadAnimationByte(mode7Residue, List(pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
+            SamusAnimationDelayDefinitions.ReadAnimationByte(floorUpdateResidue, List(pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
 
         /// <summary>Read the bounded native table image for byte-for-byte verification.</summary>
         internal static byte ReadCompiledByte(int address)

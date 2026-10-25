@@ -239,7 +239,7 @@ public static class GameplayDisplayCapture
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
-        var layer = new GameplayFloorRenderLayer(transform, Bg3(latched), (latched.Rooms?.Mode7
+        var layer = new GameplayFloorRenderLayer(transform, Bg3(latched), (latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new RenderLayer[] { layer }, FadeLevel.Full);
     }

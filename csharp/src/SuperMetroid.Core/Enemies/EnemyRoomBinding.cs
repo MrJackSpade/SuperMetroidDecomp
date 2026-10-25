@@ -49,7 +49,7 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
     internal EnemyStagingSurfaces Staging => Session.Staging;
 
-    /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes.</summary>
+    /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue => Session.FloorQueueResidue;
 
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>

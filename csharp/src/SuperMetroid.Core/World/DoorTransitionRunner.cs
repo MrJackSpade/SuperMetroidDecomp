@@ -88,7 +88,7 @@ internal sealed class DoorTransitionRunner
                 // values must exist before room graphics/actors initialize, so the shared
                 // loader installs them at construction time and this native-order dispatch
                 // point merely verifies that the recognized routine was not discarded.
-                if (!door.EntersCeresElevatorShaft || _display.ActiveSamusMode7Transform is null)
+                if (!door.EntersCeresElevatorShaft || _display.ActiveTurningFloor is null)
                 {
                     throw new InvalidDataException(
                         "Ceres elevator door setup reached dispatch without its Mode-7 transform.");
@@ -103,7 +103,7 @@ internal sealed class DoorTransitionRunner
                 // main-loop and NMI-published transforms. Do this explicitly here rather
                 // than relying on the destination loader's defensive state reset: this is
                 // the cartridge routine that owns the transition back to normal rendering.
-                _display.ActiveSamusMode7Transform = null;
+                _display.ActiveTurningFloor = null;
                 _display.PublishDoorElevatorFloor(null);
                 ceresElevatorShaft.Deactivate();
                 return;
@@ -289,7 +289,7 @@ internal sealed class DoorTransitionRunner
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
             _player.Samus.Presentation.Draw(_player.Samus, _sprites,
-                _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
+                _room.Camera.PixelPosition, turningFloor: _display.ActiveTurningFloor);
         _sprites.FinalizeFrame();
     }
     /// <summary>

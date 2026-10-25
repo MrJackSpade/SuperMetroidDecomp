@@ -12,7 +12,7 @@ internal static class CeresPerspectiveFloors
     /// </summary>
     /// <param name="shaft">The transform the shaft's room main last computed.</param>
     /// <param name="layer1Scroll">Layer 1's scroll in the frame that shows the floor.</param>
-    internal static PerspectiveFloor ElevatorShaft(SamusMode7Transform shaft, Position16<RoomPixels> layer1Scroll) => new(
+    internal static PerspectiveFloor ElevatorShaft(TurningFloorTransform shaft, Position16<RoomPixels> layer1Scroll) => new(
         new AffineTransform(shaft.MatrixA, shaft.MatrixB, shaft.MatrixC, shaft.MatrixA, shaft.Center.AsFloorWord(),
             new Offset16<FloorPixels>(unchecked((short)layer1Scroll.X), unchecked((short)layer1Scroll.Y))),
         BelowPerspectiveFloor.Nothing);

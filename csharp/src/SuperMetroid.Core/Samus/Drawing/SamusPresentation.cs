@@ -458,11 +458,11 @@ internal sealed class SamusPresentation
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
     /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
-    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex,
+    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
         SamusAnimationWindows? windows)
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
-            mode7Residue,
+            floorUpdateResidue,
             SamusRunningCadence.Ordinary,
             byteIndex,
             windows);
@@ -484,7 +484,7 @@ internal sealed class SamusPresentation
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         int frameCounter = 0,
-        SamusMode7Transform? mode7Transform = null)
+        TurningFloorTransform? turningFloor = null)
     {
         Ensure.NotNull(sprites);
 
@@ -512,7 +512,7 @@ internal sealed class SamusPresentation
         // high status bit is set. Every position selector below therefore consumes the
         // rotated point, but public physics coordinates remain completely untouched.
         Position16<RoomPixels> position = samus.Position.Whole;
-        Position16<RoomPixels> renderPoint = mode7Transform is { } transform
+        Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(position)
             : position;
         int renderX = renderPoint.X;

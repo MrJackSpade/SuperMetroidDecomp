@@ -342,7 +342,7 @@ internal static class RoomBlockPicturesVerification
         RoomHeaderDefinition room = RoomHeaderDefinitions.CeresElev;
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        AssertTrue(runtime.Display.Latched.Rooms?.Mode7 is not null, $"{room.Name} shows its Mode 7 map");
+        AssertTrue(runtime.Display.Latched.Rooms?.Floor is not null, $"{room.Name} shows its Mode 7 map");
         FloorMap map = runtime.Room.LoadedScope.FloorMap ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
         FloorTileSheet tiles = map.Tiles;
         AssertTrue(map.NamedTiles.All(tile => tiles.Shown[tile] is not null), $"{room.Name}'s Mode 7 map names only pictured tiles");

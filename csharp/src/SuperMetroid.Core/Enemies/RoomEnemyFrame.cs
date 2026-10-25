@@ -40,7 +40,7 @@ public sealed record RoomEnemyFrame
     public int? FrameCounterLowByte { get; init; } = null;
 
     /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating Ceres steam samples to derive draw offsets without changing its world collision coordinates.</summary>
-    public SamusMode7Transform? TurningFloor { get; init; } = null;
+    public TurningFloorTransform? TurningFloor { get; init; } = null;
 
     /// <summary>Shared bomb and power-bomb state used by native collision order and actor effects.</summary>
     public SamusBombProjectileSystem? SharedProjectiles { get; init; } = null;

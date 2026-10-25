@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// The Ceres elevator shaft's rotation: how far the shaft's turning floor has rotated Samus's surroundings about its
-/// centre, which <c>Samus_CalcPos_Mode7</c> at <c>$8B:8A52</c> applies to her drawing while Ceres status has its high
-/// bit set.
+/// The Ceres elevator shaft's turning floor: how far the floor has rotated Samus's surroundings about its centre, which
+/// her drawing (and every sprite drawn over the floor) applies to its origin while the shaft turns.
 /// </summary>
 /// <remarks>
 /// This is deliberately a presentation value, not part of Samus's kinematics. Retail
@@ -23,7 +22,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// nothing wraps afterwards, so they are stored as integers. The wraps the transform reproduces are its own: each
 /// distance and each product is truncated to sixteen bits where the cartridge truncates it.
 /// </remarks>
-public readonly record struct SamusMode7Transform(
+public readonly record struct TurningFloorTransform(
     int MatrixA,
     int MatrixB,
     int MatrixC,

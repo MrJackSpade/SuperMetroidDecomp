@@ -50,7 +50,7 @@ internal sealed class FrontendSession
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]
     public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
-    /// <summary>The session's Mode 7 transfer queue residue; like WRAM, it outlives each gameplay runtime.</summary>
+    /// <summary>The session's floor update residue; like WRAM, it outlives each gameplay runtime.</summary>
     internal readonly SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue = new();
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions { get; internal set; }

@@ -152,7 +152,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     private unsafe void RenderCore(DisplayPacket packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
-        if (packet.Mode7 is { } mode7)
+        if (packet.Floor is { } mode7)
         {
             var operations = new List<RenderLayer>();
             if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new FloorRenderLayer(background, shownFloor));

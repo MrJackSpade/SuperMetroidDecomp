@@ -189,7 +189,7 @@ internal sealed class AcceptedFrameBoundary
     /// <param name="layer1Scroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
     private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> layer1Scroll) =>
         CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
-        : _display.ActiveSamusMode7Transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, layer1Scroll)
+        : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, layer1Scroll)
         : null;
 
     /// <summary>
@@ -233,7 +233,7 @@ internal sealed class AcceptedFrameBoundary
             _room.DoorSourceBackground,
             // What actors wrote over BG1 and BG2 is drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
-            Mode7: scope.FloorMap?.Publish(),
+            Floor: scope.FloorMap?.Publish(),
             Characters: RoomScope.CharactersOf(_room.ActiveRoom));
     }
 

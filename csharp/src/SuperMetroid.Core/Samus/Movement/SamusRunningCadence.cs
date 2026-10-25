@@ -15,6 +15,6 @@ internal enum SamusRunningCadence
     BoostStage3,
     /// <summary>Speed Booster stage four: one tick a frame.</summary>
     BoostStage4,
-    /// <summary>The fifth selection a full sound queue returns: a stream read from the Mode 7 transfer queue residue.</summary>
+    /// <summary>The fifth selection a full sound queue returns: a stream read from the floor update residue.</summary>
     SoundQueueClobber,
 }

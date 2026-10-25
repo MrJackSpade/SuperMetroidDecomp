@@ -8,8 +8,8 @@ public sealed class DisplayPacket
     public RenderFrameIdentity Identity { get; }
     /// <summary>Immutable PPU memory and ordered layer composition when this is a layered packet; otherwise <see langword="null"/>.</summary>
     public LayeredScene? Layers { get; }
-    /// <summary>Immutable Mode 7/backdrop and OBJ composition when this is a Mode 7 packet; otherwise <see langword="null"/>.</summary>
-    public FloorScene? Mode7 { get; }
+    /// <summary>Immutable floor, backdrop and sprite composition when this is a floor packet; otherwise <see langword="null"/>.</summary>
+    public FloorScene? Floor { get; }
     /// <summary>RGBA color filling every output pixel when this is a solid-color packet; otherwise <see langword="null"/>. Outer brightness passes are still applied.</summary>
     public RgbaPixel? SolidColor { get; }
     /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
@@ -32,16 +32,16 @@ public sealed class DisplayPacket
         Layers = layers;
     }
 
-    /// <summary>Creates a Mode 7/OBJ display packet, retaining the immutable composition and taking an owned copy of its additional ordered brightness passes; the other payload choices remain absent.</summary>
+    /// <summary>Creates a floor and sprite display packet, retaining the immutable composition and taking an owned copy of its additional ordered brightness passes; the other payload choices remain absent.</summary>
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
-    /// <param name="mode7">Complete immutable Mode 7/backdrop and OBJ payload, including its scene brightness.</param>
+    /// <param name="floor">Complete immutable floor, backdrop and sprite payload, including its scene brightness.</param>
     /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
-    public DisplayPacket(RenderFrameIdentity identity, FloorScene mode7,
+    public DisplayPacket(RenderFrameIdentity identity, FloorScene floor,
         ImmutableArray<FadeLevel> fades = default)
         : this(identity, fades)
     {
-        Ensure.NotNull(mode7);
-        Mode7 = mode7;
+        Ensure.NotNull(floor);
+        Floor = floor;
     }
 
     /// <summary>Creates a full-frame solid-color display packet and takes an owned copy of its ordered brightness passes; no PPU composition payload is retained.</summary>

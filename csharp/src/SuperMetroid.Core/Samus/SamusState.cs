@@ -511,7 +511,7 @@ public sealed class SamusState
     public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
 
     /// <summary>
-    /// The session's Mode 7 transfer queue residue, which her bank-$91 low-half delay reads alias. The room loader, attract
+    /// The session's floor update residue, which her bank-$91 low-half delay reads alias. The room loader, attract
     /// driver and intro bind it when they create her; a detached Samus that reaches such a read fails loudly.
     /// </summary>
     public SuperMetroid.Core.Compatibility.IFloorUpdateResidue? FloorQueueResidue { get; set; }

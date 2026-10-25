@@ -31,7 +31,7 @@ internal interface IEnemyAiFrame
     SamusProjectileSystem? SamusProjectiles { get; }
 
     /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating actors follow, or null when none turns.</summary>
-    SamusMode7Transform? TurningFloor { get; }
+    TurningFloorTransform? TurningFloor { get; }
 
     /// <summary>Shared bomb and power-bomb state.</summary>
     SamusBombProjectileSystem? SharedProjectiles { get; }

@@ -5,24 +5,22 @@ public static class KiHunterMotionDefinitions
 {
     /// <summary>$A8:F180, XProximityToActivateSwoop, tested with native signed distance comparison.</summary>
     public const ushort SwoopTriggerDistance = 96;
-    /// <summary>$A8:F182, fractional acceleration added by both F55A falling and F5E4 hopping.</summary>
-    public const ushort GravityFraction = 0xe000;
-    /// <summary>$A8:F184, whole acceleration plus carry from the fractional addition.</summary>
-    public const ushort GravityWhole = 0;
+    /// <summary>One eighth, in the 16.16 units these accelerations are added in.</summary>
+    private const int OneEighth = 8192;
+
+    /// <summary>$A8:F182/$A8:F184: seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
+    public static SnesSignedSixteenSixteen Gravity { get; } = SnesSignedSixteenSixteen.FromRaw(7 * OneEighth);
     /// <summary>$A8:F186 low byte, fallingWingsArcRadius, used by detached-wing setup and both arcs.</summary>
     public const byte DetachedWingRadius = 48;
 
-    /// <summary>Parameter-one bit 15: the Ki-Hunter starts without wings; its wing record starts deleted.</summary>
-    public const ushort WinglessParameterBit = 0x8000;
+    /// <summary>The bit of parameter one that makes the Ki-Hunter start without wings; its wing record starts deleted.</summary>
+    public const int WinglessParameterBit = 15;
 
-    /// <summary>A leftward swoop's angular acceleration whole word ($FFFF.E000, -1/8).</summary>
-    public const ushort LeftSwoopAccelerationWhole = 0xffff;
+    /// <summary>A leftward swoop's angular acceleration: minus an eighth of a table step per frame.</summary>
+    public static SnesSignedSixteenSixteen LeftSwoopAcceleration { get; } = SnesSignedSixteenSixteen.FromRaw(-OneEighth);
 
-    /// <summary>A leftward swoop's angular acceleration fraction.</summary>
-    public const ushort LeftSwoopAccelerationFraction = 0xe000;
-
-    /// <summary>A rightward swoop's angular acceleration fraction ($0000.2000, +1/8).</summary>
-    public const ushort RightSwoopAccelerationFraction = 0x2000;
+    /// <summary>A rightward swoop's angular acceleration: an eighth of a table step per frame.</summary>
+    public static SnesSignedSixteenSixteen RightSwoopAcceleration { get; } = SnesSignedSixteenSixteen.FromRaw(OneEighth);
 
     /// <summary>The detached wing orbit's offset angle, seven-eighths of a byte-angle turn.</summary>
     public static SnesByteAngle DetachedOrbitOffsetAngle { get; } = new(0xe0);
@@ -31,10 +29,10 @@ public static class KiHunterMotionDefinitions
     public static SnesByteAngle FallingArcOffsetAngle { get; } = new(0xa0);
 
     /// <summary>The detached wing orbit's starting 16-bit angle, an eighth of a turn below zero.</summary>
-    public static SnesAngle DetachedOrbitStartAngle { get; } = SnesAngle.FromRaw(0xe000);
+    public static SnesAngle DetachedOrbitStartAngle { get; } = SnesAngle.NormalizeRaw(-0x2000);
 
     /// <summary>The detached wing's falling-arc starting 16-bit angle, three eighths of a turn below zero.</summary>
-    public static SnesAngle FallingArcStartAngle { get; } = SnesAngle.FromRaw(0xa000);
+    public static SnesAngle FallingArcStartAngle { get; } = SnesAngle.NormalizeRaw(-0x6000);
 
     /// <summary>The detached speed accumulator stops summing once it reaches this.</summary>
     public const ushort DetachedSpeedThreshold = 0x2000;

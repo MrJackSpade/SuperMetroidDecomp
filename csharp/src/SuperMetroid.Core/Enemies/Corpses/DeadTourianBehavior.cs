@@ -216,7 +216,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         int VariantCount);
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
-    internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)
+    internal static void AddDeadTourianBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => HasDeadTourianCorpseShotCallback(c.Enemy) &&
                                            c.SelectedShotAi == EnemyCollision.ShotAi(c.Enemy),
@@ -241,7 +241,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the power-bomb response, which ignores corpses already marked decomposed.</summary>
-    internal static void RegisterDeadTourianPowerBombReactions(EnemySharedReactions table)
+    internal static void AddDeadTourianPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(HasDeadTourianCorpsePowerBombCallback)
         {
@@ -250,7 +250,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    internal static void RegisterDeadTourianShotReactions(EnemySharedReactions table)
+    internal static void AddDeadTourianShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(HasDeadTourianCorpseShotCallback)
         {
@@ -266,7 +266,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
-    internal static void RegisterDeadTourianTouch(EnemySharedReactions table)
+    internal static void AddDeadTourianTouch(EnemySharedReactions table)
     {
         // Dead Zoomer/Ripper/Skree headers intentionally point touch and shot at the same private callback.
         // Physical contact begins decomposition; these already-dead actors never apply ordinary contact damage.

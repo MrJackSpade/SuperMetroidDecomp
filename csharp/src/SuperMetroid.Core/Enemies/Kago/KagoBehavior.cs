@@ -112,7 +112,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
-    internal void RegisterKagoBombReactions(EnemySharedReactions table)
+    internal void AddKagoBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Kago &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KagoShot)
@@ -122,7 +122,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects the bug's idle, rising, falling, jump, landing, and drop handlers to projectile dispatch.</summary>
-    internal void RegisterKagoProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddKagoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {
@@ -187,7 +187,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
-    internal void RegisterKagoShotReactions(EnemySharedReactions table)
+    internal void AddKagoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Kago &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KagoShot)

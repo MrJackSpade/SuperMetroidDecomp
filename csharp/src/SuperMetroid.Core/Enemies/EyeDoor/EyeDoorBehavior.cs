@@ -482,7 +482,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>
-    internal void RegisterEyeDoorProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));
         // A shot eye-door projectile runs its typed shot program, the list its definition names.

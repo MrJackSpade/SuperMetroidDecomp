@@ -137,10 +137,11 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         void VerifySwoopAngularMotion(bool swoopLeft)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) = CreatePair();
-            ushort accelerationWhole = swoopLeft ? KiHunterMotionDefinitions.LeftSwoopAccelerationWhole : (ushort)0;
-            ushort accelerationFraction = swoopLeft
-                ? KiHunterMotionDefinitions.LeftSwoopAccelerationFraction
-                : KiHunterMotionDefinitions.RightSwoopAccelerationFraction;
+            SnesSignedSixteenSixteen acceleration = swoopLeft
+                ? KiHunterMotionDefinitions.LeftSwoopAcceleration
+                : KiHunterMotionDefinitions.RightSwoopAcceleration;
+            ushort accelerationWhole = acceleration.WholeWord;
+            ushort accelerationFraction = acceleration.Fraction;
             ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
             ushort angle = swoopLeft ? (ushort)255 : (ushort)128;
             state.Function = KiHunterEnemyFunction.Swooping;

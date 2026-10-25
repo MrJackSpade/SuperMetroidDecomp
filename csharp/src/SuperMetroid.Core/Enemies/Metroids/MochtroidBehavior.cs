@@ -264,7 +264,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the named attachment and drain reaction for Samus overlap.</summary>
-    internal void RegisterMochtroidTouch(EnemySharedReactions table)
+    internal void AddMochtroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Mochtroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MochtroidTouch,
@@ -273,7 +273,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Registers the Mochtroid-specific shot callback when its definition selects one.</summary>
-    internal static void RegisterMochtroidShotReactions(EnemySharedReactions table)
+    internal static void AddMochtroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Mochtroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MochtroidShot));

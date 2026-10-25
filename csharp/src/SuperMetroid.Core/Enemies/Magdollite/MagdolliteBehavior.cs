@@ -675,7 +675,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Attaches the species tail after common bomb damage when the shot AI selects Magdollite's reaction.</summary>
-    internal void RegisterMagdolliteBombReactions(EnemySharedReactions table)
+    internal void AddMagdolliteBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MagdolliteShot)
@@ -685,7 +685,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects thrown-lava movement, its typed programs' cues and its shot program to the projectile engine.</summary>
-    internal void RegisterMagdolliteProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {
@@ -731,7 +731,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
 
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
-    internal void RegisterMagdollitePowerBombReactions(EnemySharedReactions table)
+    internal void AddMagdollitePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MagdollitePowerBomb)
@@ -741,7 +741,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Propagates common shot death and freezing effects to following composite records.</summary>
-    internal void RegisterMagdolliteShotReactions(EnemySharedReactions table)
+    internal void AddMagdolliteShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MagdolliteShot)
@@ -751,7 +751,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
-    internal void RegisterMagdolliteTouch(EnemySharedReactions table)
+    internal void AddMagdolliteTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Magdollite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MagdolliteTouch,

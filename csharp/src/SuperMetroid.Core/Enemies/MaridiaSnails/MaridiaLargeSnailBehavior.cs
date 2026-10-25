@@ -514,7 +514,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
 
     /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
-    internal void RegisterMaridiaLargeSnailBombReactions(EnemySharedReactions table)
+    internal void AddMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Oum &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MaridiaLargeSnailShot)
@@ -541,7 +541,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             (state, cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
-    internal void RegisterMaridiaLargeSnailShotReactions(EnemySharedReactions table)
+    internal void AddMaridiaLargeSnailShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Oum &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MaridiaLargeSnailShot)
@@ -571,7 +571,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
-    internal void RegisterMaridiaLargeSnailTouch(EnemySharedReactions table)
+    internal void AddMaridiaLargeSnailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Oum &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch,

@@ -452,7 +452,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
-    internal void RegisterMetroidBombReactions(EnemySharedReactions table)
+    internal void AddMetroidBombReactions(EnemySharedReactions table)
     {
         // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
         // peculiar slot-zero recoil otherwise.
@@ -481,7 +481,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyMetroidCue(cue));
 
     /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
-    internal static void RegisterMetroidPowerBombReactions(EnemySharedReactions table)
+    internal static void AddMetroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MetroidPowerBomb)
@@ -491,7 +491,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Metroid touch behavior, including attachment and suit-dependent draining.</summary>
-    internal void RegisterMetroidTouch(EnemySharedReactions table)
+    internal void AddMetroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Metroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MetroidTouch,
@@ -560,7 +560,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>
-    internal void RegisterMetroidShotReactions(EnemySharedReactions table)
+    internal void AddMetroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetroidShot)
@@ -571,10 +571,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers hurt AI ahead of frozen AI when both native handler bits are set; animation bytecode still advances.</summary>
-    internal static void RegisterMetroidHurtAi(EnemySharedReactions table) =>
+    internal static void AddMetroidHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 
     /// <summary>Registers the frozen Metroid handler that retains its outer-body state.</summary>
-    internal static void RegisterMetroidFrozenAi(EnemySharedReactions table) =>
+    internal static void AddMetroidFrozenAi(EnemySharedReactions table) =>
         table.AddFrozen(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, RunMetroidFrozen);
 }

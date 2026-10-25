@@ -44,7 +44,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // with a nonzero speed field selects the positive pair, even when bit eight is set.
         ushort packedSelector = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
-        bool selectsPositiveVelocity = (packedSelector & RipperMasks.VelocitySelectorBits) != 0;
+        bool selectsPositiveVelocity = (packedSelector & ~RipperMasks.IgnoredSelectorBit) != 0;
         LoadRipperVelocity(state, selectsPositiveVelocity);
         SetRipperProgram(
             slot,
@@ -226,7 +226,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
-    internal static void RegisterRipperBombReactions(EnemySharedReactions table)
+    internal static void AddRipperBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.GRipperRipper2Shot)
@@ -254,7 +254,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
-    internal static void RegisterRipperShotReactions(EnemySharedReactions table)
+    internal static void AddRipperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.GRipperRipper2Shot)

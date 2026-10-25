@@ -64,7 +64,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         var state = new WallSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        var flags = (WallSpacePirateParameterFlags)slot.Spawn.Population.Parameter1;
+        var flags = SpacePirateParameters.Wall(slot.Spawn.Population.Parameter1);
         bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != 0;
         bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0;
 
@@ -344,14 +344,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             (state, cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
 
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
-    internal static void RegisterWallSpacePiratePowerBombReactions(EnemySharedReactions table)
+    internal static void AddWallSpacePiratePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.SpacePiratePowerBomb));
     }
 
     /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
-    internal void RegisterWallSpacePirateShotReactions(EnemySharedReactions table)
+    internal void AddWallSpacePirateShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SpacePirateShot)
@@ -381,7 +381,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox callbacks before normal touch damage.</summary>
-    internal void RegisterWallSpacePirateTouch(EnemySharedReactions table)
+    internal void AddWallSpacePirateTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SpacePirateTouch,

@@ -578,7 +578,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
-    internal void RegisterShuttersBombReactions(EnemySharedReactions table)
+    internal void AddShuttersBombReactions(EnemySharedReactions table)
     {
         // `$A2:F0A2` never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // callback only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
@@ -588,7 +588,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs common bomb damage before reacting a destroyable vertical shutter.</summary>
-    internal void RegisterDestroyableShutterBombReactions(EnemySharedReactions table)
+    internal void AddDestroyableShutterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
@@ -661,7 +661,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
-    internal void RegisterShuttersPowerBombReactions(EnemySharedReactions table)
+    internal void AddShuttersPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.DefinitionId) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.VerticalShutterPowerBomb)
@@ -676,7 +676,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
-    internal void RegisterShuttersShotReactions(EnemySharedReactions table)
+    internal void AddShuttersShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShootableVerticalShutterShot)
@@ -693,7 +693,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs common shot damage for destroyable shutters and movement reactions for horizontal ones.</summary>
-    internal void RegisterDestroyableAndHorizontalShutterShotReactions(EnemySharedReactions table)
+    internal void AddDestroyableAndHorizontalShutterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DestroyableVerticalShutterShot)
@@ -710,7 +710,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses Samus contact to react vertical shutters or manually eject her from stopped horizontal ones.</summary>
-    internal void RegisterShuttersTouch(EnemySharedReactions table)
+    internal void AddShuttersTouch(EnemySharedReactions table)
     {
         // $F09D does not enter common contact damage. Body overlap is itself the trigger, and $F0B6 decides
         // whether this population mode may start moving.

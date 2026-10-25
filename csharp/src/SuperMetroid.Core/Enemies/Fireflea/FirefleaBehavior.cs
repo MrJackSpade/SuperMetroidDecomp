@@ -142,7 +142,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
-    internal void RegisterFirefleaBombReactions(EnemySharedReactions table)
+    internal void AddFirefleaBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.FirefleaShot)
@@ -167,7 +167,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
-    internal void RegisterFirefleaPowerBombReactions(EnemySharedReactions table)
+    internal void AddFirefleaPowerBombReactions(EnemySharedReactions table)
     {
         // Reactions around common power-bomb damage.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
@@ -178,7 +178,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
-    internal void RegisterFirefleaShotReactions(EnemySharedReactions table)
+    internal void AddFirefleaShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FirefleaShot)
@@ -188,7 +188,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Fireflea's touch callback, which runs the retail unconditional-death sequence.</summary>
-    internal void RegisterFirefleaTouch(EnemySharedReactions table)
+    internal void AddFirefleaTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Fireflea &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FirefleaTouch,

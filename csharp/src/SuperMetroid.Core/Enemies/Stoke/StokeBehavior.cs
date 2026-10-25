@@ -194,7 +194,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects the fireball's horizontal motion and viewport cull pre-instruction.</summary>
-    internal static void RegisterStokeProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddStokeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {

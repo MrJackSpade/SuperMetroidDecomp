@@ -30,9 +30,9 @@ public static class ShaktoolOrbitTables
         return 3072 * sum;
     }
     /// <summary>$AA:DC2A segment placement selects negative cosine for Y and
-    /// the 64-word-shifted sine for X. Both are promoted from 8.8 to 16.16 by
-    /// eight left shifts before addition to the preceding segment's position.</summary>
+    /// the 64-word-shifted sine for X. Both are 8.8 displacements promoted to 16.16
+    /// before addition to the preceding segment's position.</summary>
     public static FixedVector<RoomPixels> Displacement(SnesByteAngle angle) => new(
-        SnesSignedSixteenSixteen.FromRaw(Sample(angle.RawValue + 64) << 8),
-        SnesSignedSixteenSixteen.FromRaw(Sample(angle.RawValue) << 8));
+        SnesSignedEightEight.FromSignedRaw(Sample(angle.RawValue + 64)).ToSixteenSixteenDelta(),
+        SnesSignedEightEight.FromSignedRaw(Sample(angle.RawValue)).ToSixteenSixteenDelta());
 }

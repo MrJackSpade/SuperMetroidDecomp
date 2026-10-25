@@ -9,8 +9,8 @@ public static class DeadSidehopperLaunchDefinitions
     /// </summary>
     private static readonly EightEightVector<RoomPixels>[] Launches =
     [
-        new(new SnesSignedEightEight(0x01c0), new SnesSignedEightEight(0xfe00)), new(new SnesSignedEightEight(0x0120), new SnesSignedEightEight(0xfe00)),
-        new(new SnesSignedEightEight(0x0120), new SnesSignedEightEight(0xfe00)), new(new SnesSignedEightEight(0x0300), new SnesSignedEightEight(0xfc00)),
+        new(SnesSignedEightEight.FromSignedRaw(0x01c0), SnesSignedEightEight.FromSignedRaw(-0x0200)), new(SnesSignedEightEight.FromSignedRaw(0x0120), SnesSignedEightEight.FromSignedRaw(-0x0200)),
+        new(SnesSignedEightEight.FromSignedRaw(0x0120), SnesSignedEightEight.FromSignedRaw(-0x0200)), new(SnesSignedEightEight.FromSignedRaw(0x0300), SnesSignedEightEight.FromSignedRaw(-0x0400)),
     ];
 
     /// <summary>The number of launches in the cycle; the jump phase advances modulo this count.</summary>

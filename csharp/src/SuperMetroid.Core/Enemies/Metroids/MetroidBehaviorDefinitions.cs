@@ -26,12 +26,15 @@ internal static class MetroidBehaviorDefinitions
         _ => ThirdCry,
     };
 
-    /// <summary>Gravity Suit Samus loses one health each time this fraction underflows the drain accumulator.</summary>
-    internal const ushort GravityDrainFraction = 0x3000;
+    /// <summary>A sixteenth of a health point, in the units of the drain accumulator.</summary>
+    private const ushort SixteenthHealth = 0x1000;
 
-    /// <summary>Varia Suit Samus's drain fraction.</summary>
-    internal const ushort VariaDrainFraction = 0x6000;
+    /// <summary>Gravity Suit Samus loses one health each time this fraction underflows the drain accumulator: three sixteenths.</summary>
+    internal const ushort GravityDrainFraction = 3 * SixteenthHealth;
 
-    /// <summary>Suitless Samus's drain fraction.</summary>
-    internal const ushort PowerSuitDrainFraction = 0xc000;
+    /// <summary>Varia Suit Samus's drain fraction: six sixteenths.</summary>
+    internal const ushort VariaDrainFraction = 6 * SixteenthHealth;
+
+    /// <summary>Suitless Samus's drain fraction: twelve sixteenths.</summary>
+    internal const ushort PowerSuitDrainFraction = 12 * SixteenthHealth;
 }

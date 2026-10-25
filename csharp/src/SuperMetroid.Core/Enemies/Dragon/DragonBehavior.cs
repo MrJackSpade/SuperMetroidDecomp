@@ -306,7 +306,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot callback.</summary>
-    internal void RegisterDragonBombReactions(EnemySharedReactions table)
+    internal void AddDragonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Dragon &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DragonShot)
@@ -316,7 +316,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary pre-instruction.</summary>
-    internal static void RegisterDragonProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddDragonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {
@@ -337,7 +337,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyDragonCue(slot, cue));
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
-    internal void RegisterDragonPowerBombReactions(EnemySharedReactions table)
+    internal void AddDragonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DragonPowerBomb)
@@ -347,7 +347,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Synchronizes wing and body state after common projectile damage resolution.</summary>
-    internal void RegisterDragonShotReactions(EnemySharedReactions table)
+    internal void AddDragonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DragonShot)
@@ -357,7 +357,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs ordinary enemy touch damage before mirroring Dragon's hurt and freeze state into its wing.</summary>
-    internal void RegisterDragonTouch(EnemySharedReactions table)
+    internal void AddDragonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Dragon &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DragonTouch,

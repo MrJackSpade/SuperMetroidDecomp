@@ -23,6 +23,9 @@ internal static class DeadSidehopperCorpseDefinitions
         EntryCount: 0x0028,
         WrapOffset: 0x0094);
 
-    /// <summary>The palette stage of a corpse that has not started its palette sequence.</summary>
-    internal const ushort NoPaletteStage = 0xffff;
+    /// <summary>
+    /// The palette stage of a corpse placed already dead: the largest stage, so every "stage of 8 or more" test reads it as
+    /// finished, exactly as the cartridge's all-ones word does.
+    /// </summary>
+    internal const ushort NoPaletteStage = ushort.MaxValue;
 }

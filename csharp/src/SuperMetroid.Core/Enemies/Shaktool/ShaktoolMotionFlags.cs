@@ -1,13 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>Bits in Shaktool's motion state controlling reversal, straightening, and orbital direction.</summary>
+/// <summary>
+/// Shaktool's motion state: reversal, straightening and orbital direction. The values are arbitrary bits; the population's
+/// first parameter carries the initial state in its top three bits (<c>ShaktoolBehavior.InitialMotionFlags</c>).
+/// </summary>
 [Flags]
 internal enum ShaktoolMotionFlags : ushort
 {
     /// <summary>The seven-piece chain has already reversed at a wall once.</summary>
-    ReversedOnce = 0x2000,
+    ReversedOnce = 1,
     /// <summary>The chain is returning its angular offsets toward the straight configuration.</summary>
-    Straightening = 0x4000,
+    Straightening = 2,
     /// <summary>Orbital angle increments turn clockwise while this bit is set.</summary>
-    Clockwise = 0x8000,
+    Clockwise = 4,
 }

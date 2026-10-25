@@ -97,7 +97,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => definition.OwnerNativeOffset, "owner offset"));
+            definition => checked((ushort)(definition.OwnerSlotDistance * EnemySlotTable.NativeSlotSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>

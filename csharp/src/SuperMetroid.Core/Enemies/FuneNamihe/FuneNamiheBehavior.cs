@@ -182,7 +182,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>
-    internal static void RegisterFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {

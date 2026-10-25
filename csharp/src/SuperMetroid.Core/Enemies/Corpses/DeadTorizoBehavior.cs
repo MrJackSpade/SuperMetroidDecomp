@@ -127,7 +127,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
-        MoveBankA9EnemyWithVelocity(slot, state.Velocity);
+        MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
             state.RotTable,
@@ -229,7 +229,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// both call the same cartridge helper; retaining one implementation also makes its
     /// unusual use of the high byte of the subposition explicit.
     /// </summary>
-    internal static void MoveBankA9EnemyWithVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
+    internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
     {
         SnesFixedPosition x = new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction)
             .AddEightEightToHighFraction(velocity.X.RawValue);
@@ -298,7 +298,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes corpse bomb contact to rotting after the common no-op gate.</summary>
-    internal void RegisterDeadTorizoBombReactions(EnemySharedReactions table)
+    internal void AddDeadTorizoBombReactions(EnemySharedReactions table)
     {
         // Specials consulted after the selected literal no-op gate.
         // Corpse shot callbacks run directly after the bank-$A0 collision mark. They do not consult bomb
@@ -323,7 +323,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
-    internal void RegisterDeadTorizoPowerBombReactions(EnemySharedReactions table)
+    internal void AddDeadTorizoPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DeadTorizoPowerBomb)
@@ -333,7 +333,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
-    internal void RegisterDeadTorizoShotReactions(EnemySharedReactions table)
+    internal void AddDeadTorizoShotReactions(EnemySharedReactions table)
     {
         // The dead corpses and Shitroid receive the bank-$A0 projectile prelude but never an impact or vulnerability.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
@@ -351,7 +351,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the same rotting tail on direct Samus contact.</summary>
-    internal void RegisterDeadTorizoTouch(EnemySharedReactions table)
+    internal void AddDeadTorizoTouch(EnemySharedReactions table)
     {
         // `$A9:D433` is shared by touch and shot. Contact does not enter common damage; it makes the corpse solid
         // and starts the exact rotting table immediately.

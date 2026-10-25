@@ -499,7 +499,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
-    internal static void RegisterDeadSidehopperBombReactions(EnemySharedReactions table)
+    internal static void AddDeadSidehopperBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                            c.SelectedShotAi == EnemyInteractionCallback.DeadSidehopperShot,
@@ -524,7 +524,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>
-    internal void RegisterDeadSidehopperPowerBombReactions(EnemySharedReactions table)
+    internal void AddDeadSidehopperPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DeadSidehopperPowerBomb)
@@ -534,7 +534,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
-    internal static void RegisterDeadSidehopperShotReactions(EnemySharedReactions table)
+    internal static void AddDeadSidehopperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DeadSidehopperShot)
@@ -551,7 +551,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
-    internal void RegisterDeadSidehopperTouch(EnemySharedReactions table)
+    internal void AddDeadSidehopperTouch(EnemySharedReactions table)
     {
         // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage without a death animation. At
         // palette stage eight it instead starts the corpse decomposition and never enters common touch damage.

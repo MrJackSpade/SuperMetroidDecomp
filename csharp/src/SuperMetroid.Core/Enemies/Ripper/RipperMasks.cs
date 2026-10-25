@@ -3,6 +3,6 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <summary>The Ripper's packed velocity selector.</summary>
 internal static class RipperMasks
 {
-    /// <summary>Every selector bit but bit 8: any set selects the positive velocity.</summary>
-    internal const ushort VelocitySelectorBits = 0xfeff;
+    /// <summary>The one selector bit the direction test ignores: any other set bit selects the positive velocity.</summary>
+    internal const int IgnoredSelectorBit = 1 << 8;
 }

@@ -100,7 +100,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
         // independent projectile-flinch option and must not accidentally select right art.
-        var parameterFlags = (WalkingSpacePirateParameterFlags)slot.Spawn.Population.Parameter1;
+        var parameterFlags = SpacePirateParameters.Walking(slot.Spawn.Population.Parameter1);
         state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(
             (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != 0
             ? WalkingSpacePirateProgram.WalkingRight
@@ -142,7 +142,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Parameter-one bit fifteen enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace a list selected just above.
-        if ((((WalkingSpacePirateParameterFlags)slot.Spawn.Population.Parameter1 &
+        if (((SpacePirateParameters.Walking(slot.Spawn.Population.Parameter1) &
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != 0) &&
             samus is not null)
             TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
@@ -418,7 +418,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int pixels = (((WalkingSpacePirateParameterFlags)projectile.Variable0 &
+        int pixels = ((SpacePirateParameters.Walking(projectile.Variable0) &
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == 0)
             ? WalkingPirateFastLaserPixelsPerFrame
             : WalkingPirateSlowLaserPixelsPerFrame;
@@ -558,7 +558,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
     /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
-    internal static void RegisterWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {

@@ -458,8 +458,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.EchoLifetime.IsZero)
         {
             state.EchoLifetime = state.EchoLifetime.DecrementToZero();
-            bool oddNativeSlot = (slot.SlotIndex & 1) != 0;
-            bool visible = oddNativeSlot
+            bool oddSlot = (slot.SlotIndex & 1) != 0;
+            bool visible = oddSlot
                 ? (frameCounterByte & 1) != 0
                 : (frameCounterByte & 1) == 0;
             slot.Properties = visible

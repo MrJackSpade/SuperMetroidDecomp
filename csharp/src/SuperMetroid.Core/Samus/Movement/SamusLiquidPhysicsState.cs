@@ -534,7 +534,7 @@ public sealed class SamusLiquidPhysicsState
         // The cartridge duplicates this room policy for running footsteps and landing
         // effects. Preserve its BIT priority even though retail rows contain one bit each.
         CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity.RoomIndex);
+            SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
@@ -762,7 +762,7 @@ public sealed class SamusLiquidPhysicsState
             else if (RoomIdentity.RoomIndex < 16)
             {
                 CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity.RoomIndex);
+                    SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity);
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)

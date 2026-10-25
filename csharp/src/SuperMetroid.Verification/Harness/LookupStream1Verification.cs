@@ -2076,7 +2076,7 @@ internal static class LookupStream1Verification
         foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.IsRunningFootContact(invalid), "foot-contact exact frame domain");
         foreach (byte invalid in new byte[] { 16, byte.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(invalid), "atmospheric room exact domain");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new SuperMetroid.Core.Rooms.RoomIdentity(SuperMetroid.Core.Progression.AreaId.Crateria, invalid)), "atmospheric room exact domain");
         foreach (var (header, room) in new[] { new VerifyLookupStream1SamusPolicyDomainsCase(0x91f8, 0), new VerifyLookupStream1SamusPolicyDomainsCase(0x93fe, 5), new VerifyLookupStream1SamusPolicyDomainsCase(0x948c, 7), new VerifyLookupStream1SamusPolicyDomainsCase(0x94fd, 9), new VerifyLookupStream1SamusPolicyDomainsCase(0x9552, 10), new VerifyLookupStream1SamusPolicyDomainsCase(0x957d, 11), new VerifyLookupStream1SamusPolicyDomainsCase(0x95a8, 12), new VerifyLookupStream1SamusPolicyDomainsCase(0x95ff, 14) })
             AssertEqual((byte)room, LookupStream1SamusPolicyDomainsRomByte(rom, 0x8f0000 | header), "native atmospheric room header identity");
     }

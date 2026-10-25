@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>NTSC cartridge charge-flare cadence and loop commands, independent of sprite composition.</summary>
@@ -69,21 +71,8 @@ internal static class ChargeFlareAnimationDefinitions
         return frame == 6 ? RestartByte : (byte)Math.Max(minimum, minimum + 2 - frame);
     }
     /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
-    internal static bool TryDecodeCommand(byte streamByte, out ChargeFlareDelayCommand command)
-    {
-        switch (streamByte)
-        {
-            case RewindByte:
-                command = ChargeFlareDelayCommand.Rewind;
-                return true;
-            case RestartByte:
-                command = ChargeFlareDelayCommand.Restart;
-                return true;
-            default:
-                command = default;
-                return false;
-        }
-    }
+    internal static bool TryDecodeCommand(byte streamByte, out ChargeFlareDelayCommand command) =>
+        CommandBytes.TryGetValue(streamByte, out command);
 
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
     private const byte RewindByte = 0xfe;
@@ -91,4 +80,11 @@ internal static class ChargeFlareAnimationDefinitions
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Restart"/>.</summary>
     private const byte RestartByte = 0xff;
 
+    /// <summary>The command each command byte of a delay stream encodes; every other stream byte is a delay.</summary>
+    private static readonly FrozenDictionary<byte, ChargeFlareDelayCommand> CommandBytes =
+        new Dictionary<byte, ChargeFlareDelayCommand>
+        {
+            [RewindByte] = ChargeFlareDelayCommand.Rewind,
+            [RestartByte] = ChargeFlareDelayCommand.Restart,
+        }.ToFrozenDictionary();
 }

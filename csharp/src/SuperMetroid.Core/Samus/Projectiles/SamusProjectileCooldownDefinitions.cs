@@ -6,16 +6,12 @@ internal static class SamusProjectileCooldownDefinitions
     /// <summary>Cooldown $0CCC that Handle_Samus_Cooldown ($90:AC32) holds while time is frozen.</summary>
     internal const ushort FrozenTime = 0x20;
 
-    // The $90:C27A rows of the non-beam kinds with a nonzero cooldown; the other kinds' rows are zero.
-
-    /// <summary>The ordinary missile's non-beam cooldown row.</summary>
-    private const int MissileRow = 1;
-    /// <summary>The super missile's non-beam cooldown row.</summary>
-    private const int SuperMissileRow = 2;
-    /// <summary>The power bomb's non-beam cooldown row.</summary>
-    private const int PowerBombRow = 3;
-    /// <summary>The morph-ball bomb's non-beam cooldown row.</summary>
-    private const int BombRow = 5;
+    /// <summary>
+    /// $90:C27A: the non-beam cooldowns, one row per non-beam projectile kind. The missile (row one) waits 10 frames,
+    /// the super missile (row two) 20, the power bomb (row three) 40 and the morph-ball bomb (row five) 16; every
+    /// other kind's row is zero.
+    /// </summary>
+    private static readonly byte[] NonBeamCooldownRows = [0, 10, 20, 40, 0, 16, 0, 0, 0];
     /// <summary>Native low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
     private const int PlasmaIce = 0x0a;
 
@@ -39,17 +35,7 @@ internal static class SamusProjectileCooldownDefinitions
         if (offset is >= (SamusFiringTableDefinitions.UnchargedCooldowns + 32) and < SamusFiringTableDefinitions.NonBeamCooldowns)
             return 0;
         if (offset is >= SamusFiringTableDefinitions.NonBeamCooldowns and < SamusFiringTableDefinitions.AutoFireCooldowns)
-        {
-            // The row is the non-beam projectile kind; kinds without a cooldown are zero.
-            return (offset - SamusFiringTableDefinitions.NonBeamCooldowns) switch
-            {
-                MissileRow => 10,
-                SuperMissileRow => 20,
-                PowerBombRow => 40,
-                BombRow => 16,
-                _ => 0,
-            };
-        }
+            return NonBeamCooldownRows[offset - SamusFiringTableDefinitions.NonBeamCooldowns];
         if ((uint)(offset - SamusFiringTableDefinitions.AutoFireCooldowns) < SamusFiringTableDefinitions.CombinationCount)
             return 25;
         if (offset == SamusFiringTableDefinitions.SpacetimeBeamCooldown)

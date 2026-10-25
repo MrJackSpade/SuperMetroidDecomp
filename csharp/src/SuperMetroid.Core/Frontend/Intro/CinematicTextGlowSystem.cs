@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class CinematicTextGlowSystem
 {
     /// <summary>Eight native glow records age independently and are allocated from the highest free slot.</summary>
-    private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowRomData.SlotCount];
+    private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowDefinitions.SlotCount];
 
     /// <summary>Starts a glow over the text-tilemap rectangle at <paramref name="cell"/>; an occupied eight-slot pool silently drops the request.</summary>
     public void Spawn(Position16<TilemapCells> cell, Extent16<TilemapCells> size)
@@ -27,16 +27,16 @@ internal sealed class CinematicTextGlowSystem
             for (int row = 0; row < slot.Size.Y; row++)
             for (int column = 0; column < slot.Size.X; column++)
             {
-                int index = (slot.Cell.Y + row) * CinematicTextGlowRomData.RowWidth + slot.Cell.X + column;
+                int index = (slot.Cell.Y + row) * CinematicTextGlowDefinitions.RowWidth + slot.Cell.X + column;
                 // Only the palette changes: the glyph's character, priority and flips are kept.
                 tilemap[index] = new SnesBgTilemapWord(tilemap[index]).WithPaletteIndex(slot.Palette).Raw;
             }
-            if (slot.Palette == CinematicTextGlowRomData.FinalPalette)
+            if (slot.Palette == CinematicTextGlowDefinitions.FinalPalette)
                 slot.Active = false;
             else
             {
                 slot.Palette++;
-                slot.Timer = WrappingCountdown.Start(CinematicTextGlowRomData.PaletteDuration);
+                slot.Timer = WrappingCountdown.Start(CinematicTextGlowDefinitions.PaletteDuration);
             }
         }
     }
@@ -54,7 +54,7 @@ internal sealed class CinematicTextGlowSystem
         public WrappingCountdown Timer;
         /// <summary>
         /// Current palette written to the rectangle's tilemap cells: zero when the glow starts, raised by one each
-        /// phase up to <see cref="CinematicTextGlowRomData.FinalPalette"/>, where the glow ends.
+        /// phase up to <see cref="CinematicTextGlowDefinitions.FinalPalette"/>, where the glow ends.
         /// </summary>
         public int Palette;
     }

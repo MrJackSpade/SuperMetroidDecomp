@@ -652,7 +652,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.QuakePauseFrames = EtecoonQuakeDefinitions.QuakePauseFrames;
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 128)));
+        slot.InstructionTimer = slot.InstructionTimer.AddFrames(128);
     }
 
     /// <summary>Ports <c>Etecoon_Func_2</c>'s signed 16.16 horizontal mover.</summary>

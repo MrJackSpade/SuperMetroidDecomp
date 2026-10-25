@@ -15,7 +15,7 @@ internal abstract class EnemyProjectileAnimation
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
         int oldTimer = projectile.InstructionTimer.RawValue;
-        projectile.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
         if (oldTimer != 1)
             return;
         bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFrameId frame);

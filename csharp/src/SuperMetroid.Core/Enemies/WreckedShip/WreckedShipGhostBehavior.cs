@@ -358,7 +358,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 return;
             }
 
-            state.PhaseTimer = WrappingCountdown.FromRaw(unchecked((ushort)duration));
+            state.PhaseTimer = WrappingCountdown.Start(duration);
             int oldOffset = state.FlickerTableOffset;
             state.FlickerTableOffset = oldOffset + 2;
             if ((oldOffset & 2) != 0)

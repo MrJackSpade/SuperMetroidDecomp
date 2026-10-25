@@ -153,7 +153,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Enemy instruction processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 1)));
+        slot.InstructionTimer = slot.InstructionTimer.AddFrames(1);
         // The fraction carries into the whole pixels, which wrap, as the cartridge's paired additions do.
         state.FallVelocity += WorkRobotGravity;
     }
@@ -244,7 +244,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 SnesSixteenSixteen.FromWhole(step.HorizontalPixels)))
         {
-            state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
+            state.LaserCooldown = state.LaserCooldown.AddFrames(8);
             return step.WallProgram;
         }
 
@@ -266,7 +266,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (floorFound)
             return null;
 
-        state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
+        state.LaserCooldown = state.LaserCooldown.AddFrames(8);
         state.LaserVelocity = step.FallLaserVelocity;
         return step.FallProgram ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall animation.");
     }
@@ -295,7 +295,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         Func<int> readRandomNumber = _room.Random.Read;
-        state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 31) + 16)));
+        state.LaserCooldown = WrappingCountdown.Start((readRandomNumber() & 31) + 16);
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingProgram;
     }
@@ -345,7 +345,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 : WorkRobotProgram.FacingRightShotSamusBehind);
         }
         robot.InstructionTimer = WrappingCountdown.Start(1);
-        state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 64)));
+        state.LaserCooldown = state.LaserCooldown.AddFrames(64);
     }
 
     /// <summary>Ports the global graphics-drawn palette hook at $A8:CC67.</summary>

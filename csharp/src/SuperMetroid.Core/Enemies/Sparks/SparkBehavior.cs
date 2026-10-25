@@ -149,7 +149,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             baseTime = (nextRandom() & 63) + 4;
         }
 
-        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(baseTime + additionalTime)));
+        state.FunctionTimer = WrappingCountdown.FromRaw(baseTime).AddFrames(additionalTime);
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

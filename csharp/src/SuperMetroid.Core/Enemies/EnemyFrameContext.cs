@@ -73,5 +73,5 @@ internal sealed class EnemyFrameContext
     }
 
     /// <summary>The end-of-pass advance of the random counter, wrapping from 65535 to zero.</summary>
-    internal void AdvanceRandomEnemyCounter() => RandomEnemyCounter = unchecked((ushort)(RandomEnemyCounter + 1));
+    internal void AdvanceRandomEnemyCounter() => RandomEnemyCounter = WrappingCounter.IncrementWord(RandomEnemyCounter);
 }

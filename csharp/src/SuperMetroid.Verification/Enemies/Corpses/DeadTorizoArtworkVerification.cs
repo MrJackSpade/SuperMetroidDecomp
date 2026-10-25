@@ -62,7 +62,7 @@ internal static class DeadTorizoArtworkVerification
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
-        string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseTorizo);
+        string fileName = EnemyTileArtworkFiles.FileName(EnemyDefinitionId.CorpseTorizo);
         using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x1800);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);

@@ -94,7 +94,7 @@ internal sealed class CeresRidleyHits
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} entered Ceres Ridley's shot branch as " +
-                $"definition ${(int)slot.DefinitionId:X4}.");
+                $"definition {slot.DefinitionId}.");
         }
 
         // `$DF99-$DFA9` starts with Y=13, shifts the old nonzero timer once, and selects

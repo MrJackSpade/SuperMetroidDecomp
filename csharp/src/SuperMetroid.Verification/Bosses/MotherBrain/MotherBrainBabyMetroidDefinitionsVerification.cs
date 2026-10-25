@@ -24,7 +24,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
         ushort[] actual =
         [
-            (ushort)population.DefinitionId,
+            SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
             population.Position.X,
             population.Position.Y,
             checked((ushort)population.InitializationParameter),

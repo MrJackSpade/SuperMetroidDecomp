@@ -76,7 +76,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 "Mother Brain Baby spawn record " +
-                $"names enemy ${(int)population.DefinitionId:X4}, not $ECBF.");
+                $"names enemy {population.DefinitionId}, not BabyMetroidCutscene.");
         }
 
         RoomEnemySlot babySlot = _slotTable.Slots[slotIndex];

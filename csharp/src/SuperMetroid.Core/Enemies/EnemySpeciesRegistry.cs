@@ -33,7 +33,7 @@ internal sealed class EnemySpeciesRegistry
         {
             if (!_factories.TryAdd(definition, factory))
                 throw new InvalidOperationException(
-                    $"Enemy definition ${(int)definition:X4} has two factories: {_factories[definition].GetType().Name} and {factory.GetType().Name}.");
+                    $"Enemy definition {definition} has two factories: {_factories[definition].GetType().Name} and {factory.GetType().Name}.");
         }
     }
 
@@ -52,7 +52,7 @@ internal sealed class EnemySpeciesRegistry
             .ToList();
         if (unowned.Count != 0)
             throw new InvalidOperationException(
-                $"Bindable enemy definitions have no factory: {string.Join(", ", unowned.Select(definition => $"{definition} (${(int)definition:X4})"))}.");
+                $"Bindable enemy definitions have no factory: {string.Join(", ", unowned)}.");
         return registry;
     }
 

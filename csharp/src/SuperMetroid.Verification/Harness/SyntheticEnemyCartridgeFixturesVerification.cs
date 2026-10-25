@@ -23,7 +23,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         foreach (RoomEnemyPopulationRecord record in records)
         {
             WriteTestWords(bus, address,
-                (ushort)record.DefinitionId, record.Position.X, record.Position.Y,
+                TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), record.Position.X, record.Position.Y,
                 checked((ushort)record.InitializationParameter), record.Properties.ToNativeWord(), record.ExtraProperties.ToNativeWord(),
                 checked((ushort)record.Parameter1), checked((ushort)record.Parameter2));
             address += 16;
@@ -43,7 +43,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xb40000 | tileset;
         foreach (RoomEnemyGraphicsSetHeader record in records)
         {
-            WriteTestWords(bus, address, (ushort)record.DefinitionId, record.NativePlacement);
+            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), record.NativePlacement);
             address += 4;
         }
         WriteTestWord(bus, address, 0xffff);
@@ -52,7 +52,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
     /// <summary>Overwrites one little-endian word field of the synthetic bank-$A0 enemy definition.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$A0 enemy definition word field")]
     internal static void SeedEnemyDefinitionWord(TestAddressSpace bus, EnemyDefinitionId definition, int fieldOffset, ushort value) =>
-        WriteTestWord(bus, 0xa00000 | ((ushort)definition + fieldOffset), value);
+        WriteTestWord(bus, 0xa00000 | (TestAddressSpace.FixtureHeaderPointer(definition) + fieldOffset), value);
 
     /// <summary>Overwrites one little-endian word field of the synthetic bank-$86 enemy-projectile definition.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$86 enemy-projectile definition word field")]
@@ -63,5 +63,5 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
     /// <summary>Overwrites one byte field of the synthetic bank-$A0 enemy definition.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$A0 enemy definition byte field")]
     internal static void SeedEnemyDefinitionByte(TestAddressSpace bus, EnemyDefinitionId definition, int fieldOffset, byte value) =>
-        WriteTestByte(bus, 0xa00000 | ((ushort)definition + fieldOffset), value);
+        WriteTestByte(bus, 0xa00000 | (TestAddressSpace.FixtureHeaderPointer(definition) + fieldOffset), value);
 }

@@ -63,14 +63,28 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 
     /// <summary>Imports a ROM-shaped enemy header from the fixture's seeded bytes.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(this, pointer);
+        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.LoadAt(this, FixtureHeaderPointer(pointer));
+
+    /// <summary>
+    /// The bank-$A0 header pointer a fixture seeds <paramref name="definition"/>'s header at: a member's retail pointer, as
+    /// the import translates it, or for a fixture-only identity (a value no member has) the value itself (#1412).
+    /// </summary>
+    internal static ushort FixtureHeaderPointer(EnemyDefinitionId definition) => Enum.IsDefined(definition)
+        ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(definition)
+        : (ushort)definition;
+
+    /// <summary>The identity a fixture's seeded header pointer names: the inverse of <see cref="FixtureHeaderPointer"/>.</summary>
+    internal static EnemyDefinitionId FixtureDefinitionId(ushort pointer) =>
+        SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.TryFromHeaderPointer(pointer, out EnemyDefinitionId id)
+            ? id
+            : (EnemyDefinitionId)pointer;
 
     /// <summary>Decodes the bank-$A9 falling-tube population record of <paramref name="piece"/> from seeded words.</summary>
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece)
     {
         int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
         ushort Word(int offset) => SnesLittleEndian.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
-        return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), EnemyPropertyWord.FromNativeWord(Word(8)), EnemyExtraPropertyWord.FromNativeWord(Word(10)), Word(12), Word(14));
+        return new RoomEnemyPopulationRecord(FixtureDefinitionId(Word(0)), new(Word(2), Word(4)), Word(6), EnemyPropertyWord.FromNativeWord(Word(8)), EnemyExtraPropertyWord.FromNativeWord(Word(10)), Word(12), Word(14));
     }
 
     /// <summary>Reads up to 32 native-sized enemy population records through the terminating sentinel.</summary>
@@ -84,7 +98,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
                     $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
-            EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
+            EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
             if (slot == EnemySlotTable.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
             records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), EnemyPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 8)), EnemyExtraPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 10)), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
@@ -106,7 +120,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
-            EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
+            EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
             records.Add(RoomEnemyGraphicsSetHeader.FromNative(

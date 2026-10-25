@@ -779,8 +779,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings.SpeciesState<KiHunterEnemyState>() is null)
         {
             throw new InvalidDataException(
-                $"Ki-Hunter body slot {body.SlotIndex} is followed by ${(int)wings.DefinitionId:X4}, " +
-                $"not expected wing ${(int)expected:X4}.");
+                $"Ki-Hunter body slot {body.SlotIndex} is followed by {wings.DefinitionId}, " +
+                $"not expected wing {expected}.");
         }
         return wings;
     }

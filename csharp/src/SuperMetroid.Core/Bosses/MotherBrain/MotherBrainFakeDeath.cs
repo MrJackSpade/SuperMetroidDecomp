@@ -288,7 +288,7 @@ internal sealed class MotherBrainFakeDeath
         {
             throw new InvalidDataException(
                 $"Mother Brain tube record for {piece} names enemy " +
-                $"${(int)population.DefinitionId:X4}, not the falling tube.");
+                $"{population.DefinitionId}, not the falling tube.");
         }
 
         // SpawnEnemy silently fails when all 32 native records are occupied.

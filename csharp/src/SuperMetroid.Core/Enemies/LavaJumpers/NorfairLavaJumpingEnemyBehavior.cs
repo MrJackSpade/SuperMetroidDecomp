@@ -199,7 +199,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +
                 "a parent record of the same definition. " +
-                $"Preceding slot: definition=${(int)parent.DefinitionId:X4}, " +
+                $"Preceding slot: definition={parent.DefinitionId}, " +
                 $"health=${parent.Health:X4}, parameter=${parent.Spawn.Population.Parameter1:X4}, properties={parent.Properties}.");
         }
     }

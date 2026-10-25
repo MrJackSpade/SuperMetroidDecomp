@@ -231,16 +231,16 @@ internal static class EnemyTileArtworkVerification
                 byte[] native = ReadNativeEnemyTiles(bus, definition, byteCount);
                 AssertTrue(stock.Enemies.TryResolve(definition.TileDataAddress, byteCount,
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
-                    $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
+                    $"enemy {pointer} queued VRAM DMA resolves its installed PNG");
                 var vram = new SnesVram();
                 stock.Enemies.LoadTo(pointer, byteCount, new VramRegion(vram, PpuMemoryLayout.Vram), 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
-                    $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
+                    $"enemy {pointer} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
                 var installedCgram = new GameplayColours(new SpriteColourSets());
                 stock.Enemies.LoadPaletteTo(pointer, installedCgram.SpriteSets.Set(0));
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
-                    $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
+                    $"enemy {pointer} RGB5 JSON preserves all native palette slots");
             }
 
             string editedFile = files[0];
@@ -343,14 +343,14 @@ internal static class EnemyTileArtworkVerification
                 "enemy override survives content reload without modifying stock PNG");
 
             string stockPalettePath = Path.Combine(directory,
-                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+                EnemyTileArtworkFiles.PaletteFileName(editedPointer));
             EnemyPaletteSheetDocument paletteDocument = RequiredJson.Deserialize<EnemyPaletteSheetDocument>(
                 File.ReadAllBytes(stockPalettePath),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             PaletteRgb5[] editedColors = (PaletteRgb5[])paletteDocument.Colors.Clone();
             editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
             string paletteOverridePath = Path.Combine(overrideDirectory,
-                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+                EnemyTileArtworkFiles.PaletteFileName(editedPointer));
             File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheetFile.Write(
                 new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
             InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);

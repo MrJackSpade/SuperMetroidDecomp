@@ -4,7 +4,6 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -52,7 +51,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
 
         string overrideDirectory = Path.Combine(stockDirectory, "ninja-palette-overrides");
         Directory.CreateDirectory(overrideDirectory);
-        string fileName = EnemyTileArtworkFormat.PaletteFileName(
+        string fileName = EnemyTileArtworkFiles.PaletteFileName(
             EnemyDefinitionId.PirateGoldWall);
         string overridePath = Path.Combine(overrideDirectory, fileName);
         JsonNode edit = RequiredJson.Parse(File.ReadAllText(Path.Combine(stockDirectory, fileName)));

@@ -18,7 +18,7 @@ public sealed class EnemyTileArtworkCatalog
         {
             foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet) in sheets.OrderBy(pair => pair.Key))
             {
-                content.Append("definition", (ushort)definition);
+                content.Append("definition", System.Text.Encoding.UTF8.GetBytes(definition.ToString()));
                 content.Append("tiles", sheet.Characters.Span);
                 content.AppendIdentity("palette", palettes[definition].ContentIdentity);
             }
@@ -94,7 +94,7 @@ public sealed class EnemyTileArtworkCatalog
     public void LoadPaletteTo(EnemyDefinitionId definitionId, ColourRun destination)
     {
         if (!palettes.TryGetValue(definitionId, out EnemyPaletteSheet? palette))
-            throw new InvalidDataException($"Enemy ${(int)definitionId:X4} has no installed palette.");
+            throw new InvalidDataException($"Enemy {definitionId} has no installed palette.");
         palette.LoadTo(destination);
     }
 
@@ -168,7 +168,7 @@ public sealed class EnemyTileArtworkCatalog
                 sheet.Characters.Length != definition.ByteCount ||
                 !palettes.TryGetValue(definition.DefinitionId, out EnemyPaletteSheet? palette) || palette is null)
                 throw new InvalidDataException(
-                    $"Installed enemy ${(int)definition.DefinitionId:X4} lacks its complete tile sheet or palette.");
+                    $"Installed enemy {definition.DefinitionId} lacks its complete tile sheet or palette.");
     }
 
     /// <summary>Checks supplied DMA aliases against compiled graphics sources and returns the complete mapping.</summary>

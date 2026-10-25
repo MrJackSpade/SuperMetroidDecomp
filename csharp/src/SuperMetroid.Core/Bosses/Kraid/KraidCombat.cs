@@ -48,7 +48,7 @@ internal sealed class KraidCombat
                         c.SelectedShotAi != EnemyInteractionCallback.KraidNoOpShot)
                 {
                     throw new InvalidDataException(
-                        $"Kraid part ${(int)c.Enemy.DefinitionId:X4} selected " +
+                        $"Kraid part {c.Enemy.DefinitionId} selected " +
                         $"normal-bomb shot AI {c.SelectedShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
@@ -76,7 +76,7 @@ internal sealed class KraidCombat
                         c.HitboxShotAi != EnemyInteractionCallback.KraidNoOpShot)
                 {
                     throw new InvalidDataException(
-                        $"Kraid part ${(int)c.Enemy.DefinitionId:X4} selected " +
+                        $"Kraid part {c.Enemy.DefinitionId} selected " +
                         $"shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 

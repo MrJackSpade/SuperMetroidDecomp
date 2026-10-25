@@ -75,7 +75,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed Lower Norfair Ridley code as " +
-                $"definition ${(int)slot.DefinitionId:X4}.");
+                $"definition {slot.DefinitionId}.");
         }
         return RequireRidley(slot);
     }

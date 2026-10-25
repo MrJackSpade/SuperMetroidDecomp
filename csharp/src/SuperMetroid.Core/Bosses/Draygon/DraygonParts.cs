@@ -123,7 +123,7 @@ internal sealed class DraygonParts
             case DraygonPart.Body:
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${(int)part.DefinitionId:X4} is not a Draygon part.");
+                    $"Enemy {part.DefinitionId} is not a Draygon part.");
         }
     }
 

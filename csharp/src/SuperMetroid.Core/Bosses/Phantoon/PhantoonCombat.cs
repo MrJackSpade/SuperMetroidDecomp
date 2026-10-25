@@ -614,7 +614,7 @@ internal sealed class PhantoonCombat
             _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.PhantoonBody)
         {
             throw new InvalidOperationException(
-                $"Enemy ${(int)slot.DefinitionId:X4} requires Phantoon's retail body in slot zero.");
+                $"Enemy {slot.DefinitionId} requires Phantoon's retail body in slot zero.");
         }
         return Phantoon;
     }

@@ -255,7 +255,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Zebetite {half} spawn record names enemy " +
-                $"${(int)population.DefinitionId:X4}.");
+                $"{population.DefinitionId}.");
         }
 
         RoomEnemySlot spawned = _slotTable.Slots[slotIndex];

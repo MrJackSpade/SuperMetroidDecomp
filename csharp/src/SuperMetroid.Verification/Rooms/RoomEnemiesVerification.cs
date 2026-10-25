@@ -1489,7 +1489,7 @@ static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAdd
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one complete bank-$A0 enemy definition header")]
 internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
-    int address = 0xa00000 | (ushort)definitionPointer;
+    int address = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(definitionPointer);
     for (int offset = 0; offset < 64; offset += 2)
         WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
     WriteTestWord(bus, address + 14, fields.HurtSound);
@@ -1564,7 +1564,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
     // need not depict retail art here; the regression concerns loader and AI addresses, and
     // the real-ROM audit covers the actual encoded graphics immediately afterward.
-    WriteTestWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
+    WriteTestWord(bus, 0xb40000 | tilesetPointer, TestAddressSpace.FixtureHeaderPointer(definitionPointer));
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
     for (int color = 0; color < 16; color++)
@@ -1573,7 +1573,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The Ceres population record is deliberately the retail one: ($BA,$AB), init zero,
     // properties $2800, no extra bits, and two zero speed/parameter words.
     int population = 0xa10000 | populationPointer;
-    WriteTestWord(bus, population, (ushort)definitionPointer);
+    WriteTestWord(bus, population, TestAddressSpace.FixtureHeaderPointer(definitionPointer));
     WriteTestWord(bus, population + 2, 0x00ba);
     WriteTestWord(bus, population + 4, 0x00ab);
     WriteTestWord(bus, population + 6, 0);

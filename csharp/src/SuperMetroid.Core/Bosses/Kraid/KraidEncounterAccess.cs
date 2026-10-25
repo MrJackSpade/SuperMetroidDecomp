@@ -83,7 +83,7 @@ internal sealed class KraidEncounterAccess
         if (Kraid is null)
         {
             throw new InvalidOperationException(
-                $"Enemy ${(int)slot.DefinitionId:X4} requires Kraid's body to have initialized this room.");
+                $"Enemy {slot.DefinitionId} requires Kraid's body to have initialized this room.");
         }
         return Kraid;
     }

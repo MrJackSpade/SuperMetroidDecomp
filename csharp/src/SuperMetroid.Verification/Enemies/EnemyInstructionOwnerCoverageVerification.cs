@@ -123,7 +123,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not null)
                     definitionHasOwner = true;
                 else
-                    unresolved.Add($"${(int)definitionPointer:X4} has no typed animation");
+                    unresolved.Add($"{definitionPointer} has no typed animation");
             }
 
             if (definitionTranslated)
@@ -172,7 +172,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         EnemyDefinitionId definitionPointer) =>
         exception is InvalidDataException invalid &&
         invalid.Message.StartsWith(
-            $"Enemy ${(int)definitionPointer:X4} initialization AI $",
+            $"Enemy {definitionPointer} initialization AI $",
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 

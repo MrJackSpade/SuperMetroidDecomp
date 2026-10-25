@@ -426,8 +426,8 @@ internal static class EnemyDropsVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] placeholder = new byte[64];
         for (int i = 0; i < placeholder.Length; i++)
-            placeholder[i] = retail.ReadCartridgeByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);
-        bus.WriteBytes(0xa00000 + (ushort)EnemyDefinitionId.Respawn, placeholder);
+            placeholder[i] = retail.ReadCartridgeByte(0xa00000 + SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Respawn) + i);
+        bus.WriteBytes(0xa00000 + SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Respawn), placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         SeedEmptyRoomEnemyPopulation(bus, 0x9000);
 

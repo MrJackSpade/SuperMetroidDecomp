@@ -18,6 +18,6 @@ internal static class RoomEnemyDefinitionImporterTooling
     {
         Ensure.NotNull(bus);
         return CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + BankOffset)));
+            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)(EnemyDefinitionIds.HeaderPointer(pointer) + BankOffset)));
     }
 }

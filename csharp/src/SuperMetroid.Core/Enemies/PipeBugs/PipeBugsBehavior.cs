@@ -446,7 +446,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Norfair Pipe Bug formation slot {leader.SlotIndex + index} is " +
                     $"owned by initialized enemy ${(int)(state?.DefinitionAtInitialization ?? 0):X4}, " +
-                    $"expected ${(int)EnemyDefinitionId.Gamet:X4}.");
+                    $"expected {EnemyDefinitionId.Gamet}.");
             }
             // `$B3:8BCD/$8BFF/$8C52` never re-check the live definition. They read and
             // write five consecutive 64-byte records even after generic death has changed

@@ -1208,7 +1208,7 @@ internal static class EnemySpritemapArtworkVerification
                 FlyAnimationsConstants.Spritemaps(FlyProgram.Flight).First(), definition);
             AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
                 editedFly.LowTable[0],
-                $"fly ${(int)definition:X4} uses edited shared presentation");
+                $"fly {definition} uses edited shared presentation");
         }
         OamBuffer stockKago = DrawEnemy(stock, NewFrameReadGuard(rom),
             KagoAnimationsConstants.Spritemaps(KagoProgram.Slow).First(),
@@ -1247,9 +1247,9 @@ internal static class EnemySpritemapArtworkVerification
                 shutterPointer, definition);
             AssertEqual(unchecked((byte)(stockShutter.LowTable[0] + 1)),
                 editedShutter.LowTable[0],
-                $"shutter ${(int)definition:X4} uses edited shared forty-pixel art");
+                $"shutter {definition} uses edited shared forty-pixel art");
             AssertEqual(stockShutter.LowTable[1], editedShutter.LowTable[1],
-                $"shutter ${(int)definition:X4} visual edit leaves physical Y unchanged");
+                $"shutter {definition} visual edit leaves physical Y unchanged");
         }
         ushort metroidPointer = MetroidAnimationsConstants.Spritemaps(MetroidProgram.ChasingSamus).First();
         OamBuffer stockMetroid = DrawEnemy(stock, NewFrameReadGuard(rom),
@@ -1657,9 +1657,9 @@ internal static class EnemySpritemapArtworkVerification
                 sbugPointer, definition);
             AssertEqual(unchecked((byte)(stockSbug.LowTable[1] + 1)),
                 editedSbug.LowTable[1],
-                $"authored Sbug Y offset changes installed enemy ${(int)definition:X4}");
+                $"authored Sbug Y offset changes installed enemy {definition}");
             AssertEqual(stockSbug.LowTable[0], editedSbug.LowTable[0],
-                $"Sbug visual edit leaves enemy ${(int)definition:X4} physical X unchanged");
+                $"Sbug visual edit leaves enemy {definition} physical X unchanged");
         }
         Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(edited));
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
@@ -1676,9 +1676,9 @@ internal static class EnemySpritemapArtworkVerification
                 hzoomerPointer, definition);
             AssertEqual(unchecked((byte)(stockCrawler.LowTable[1] + 1)),
                 editedCrawler.LowTable[1],
-                $"shared crawler ${(int)definition:X4} uses the edited visual Y offset");
+                $"shared crawler {definition} uses the edited visual Y offset");
             AssertEqual(stockCrawler.LowTable[0], editedCrawler.LowTable[0],
-                $"shared crawler ${(int)definition:X4} retains physical X");
+                $"shared crawler {definition} retains physical X");
         }
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .Spritemaps.")).TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),

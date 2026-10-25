@@ -113,7 +113,7 @@ internal sealed class EnemyGraphicsSet
             if (vramByteOffset < 0 || stagingOffset + byteCount > EnemyTileAreaByteCount)
             {
                 throw new InvalidDataException(
-                    $"Enemy ${(int)definitionPointer:X4} tile DMA would leave VRAM: " +
+                    $"Enemy {definitionPointer} tile DMA would leave VRAM: " +
                     $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
             }
 

@@ -14,7 +14,6 @@ using static SuperMetroid.Verification.Enemies.EnemyVulnerabilityDefinitionsVeri
 using static SuperMetroid.Verification.Enemies.EnemyVulnerabilityDispatchVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -119,13 +118,13 @@ internal static class EnemyGameplayAcceptanceVerification
         {
             int tiles = (editedDefinition.TileDataSize & 0x7fff) / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
-            using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(alias)));
+            using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(alias)));
             IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
             image.Pixels[0] ^= 1;
-            using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFormat.FileName(alias)));
+            using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFiles.FileName(alias)));
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }
-        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
+        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, byte[] afterCharacters, SamusColourRig afterColors) = Load(edited);
@@ -152,7 +151,7 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stockPath, overridePath).ContentIdentity,
             "enemy replacement persists through a fresh catalog load");
         AssertEqual(stockHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
-            Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
+            Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
         foreach (PropertyInfo property in MetadataShape.Properties(typeof(RoomEnemySlot), BindingFlags.Instance | BindingFlags.Public))
         for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
             AssertEqual(property.GetValue(baseline.SlotTable.Slots[index]), property.GetValue(changed.SlotTable.Slots[index]),

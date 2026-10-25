@@ -736,7 +736,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!IsVerticalShutterDefinition(slot.DefinitionId))
         {
             throw new InvalidDataException(
-                $"Definition ${(int)slot.DefinitionId:X4} does not use vertical-shutter initialization.");
+                $"Definition {slot.DefinitionId} does not use vertical-shutter initialization.");
         }
 
         var state = new VerticalShutterEnemyState();

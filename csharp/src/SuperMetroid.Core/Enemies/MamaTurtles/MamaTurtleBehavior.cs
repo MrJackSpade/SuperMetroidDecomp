@@ -218,7 +218,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 throw new InvalidDataException(
                     $"Mama Turtle slot {mama.SlotIndex} expected Baby Turtle in following " +
-                    $"slot {child.SlotIndex}, found ${(int)child.DefinitionId:X4}.");
+                    $"slot {child.SlotIndex}, found {child.DefinitionId}.");
             }
 
             BabyTurtleEnemyState childState = child.RequireSpeciesState<BabyTurtleEnemyState>();
@@ -812,7 +812,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Baby Turtle parent slot {child.ParentSlotIndex} names enemy " +
-                $"${(int)parent.DefinitionId:X4}, not Mama Turtle.");
+                $"{parent.DefinitionId}, not Mama Turtle.");
         }
         return parent.RequireSpeciesState<MamaTurtleEnemyState>();
     }

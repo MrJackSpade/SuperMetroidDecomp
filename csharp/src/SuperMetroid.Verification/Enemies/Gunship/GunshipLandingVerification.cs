@@ -232,7 +232,7 @@ internal static class GunshipLandingVerification
         Position16<RoomPixels> position,
         ushort parameter2)
     {
-        WriteTestWord(bus, address, (ushort)definition);
+        WriteTestWord(bus, address, TestAddressSpace.FixtureHeaderPointer(definition));
         WriteTestWord(bus, address + 2, position.X);
         WriteTestWord(bus, address + 4, position.Y);
         WriteTestWord(bus, address + 6, 0);

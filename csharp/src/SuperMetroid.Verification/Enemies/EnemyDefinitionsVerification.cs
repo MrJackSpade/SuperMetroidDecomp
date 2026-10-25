@@ -58,7 +58,7 @@ internal static class EnemyDefinitionsVerification
         {
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer),
                 RoomEnemyDefinitionCatalog.Get(pointer),
-                $"compiled enemy header $A0:{(int)pointer:X4} retains all 33 native fields");
+                $"compiled enemy header {pointer} retains all 33 native fields");
         }
         EnemyDefinitionId[] auxiliaryPointers =
             RoomEnemyAuxiliaryDefinitionCatalog.Pointers.Order().ToArray();
@@ -76,7 +76,7 @@ internal static class EnemyDefinitionsVerification
             "auxiliary headers do not duplicate a room-selected definition");
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
             AssertEqual(ReadNativeHeaderWords(bus, pointer), RoomEnemyDefinitionNative.Of(pointer),
-                $"verification's native words for $A0:{(int)pointer:X4} match the cartridge header");
+                $"verification's native words for {pointer} match the cartridge header");
         AssertEqual(RoomEnemyDefinitionNative.Of(EnemyDefinitionId.Kraid).VulnerabilityPointer,
             SuperMetroid.Core.Bosses.Kraid.KraidContactDefinitions.ShotVulnerabilityResidue,
             "Kraid's shot residue is the native location of its vulnerability table");
@@ -84,9 +84,9 @@ internal static class EnemyDefinitionsVerification
         {
             AssertTrue(RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer,
                     out RoomEnemyDefinition compiled),
-                $"auxiliary enemy header $A0:{(int)pointer:X4} resolves");
+                $"auxiliary enemy header {pointer} resolves");
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer), compiled,
-                $"auxiliary enemy header $A0:{(int)pointer:X4} retains all 33 native fields");
+                $"auxiliary enemy header {pointer} retains all 33 native fields");
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomEnemyDefinitionCatalog.Get(0),
@@ -140,9 +140,9 @@ internal static class EnemyDefinitionsVerification
         var fixture = new TestAddressSpace();
         byte[] header = Enumerable.Range(0, 64)
             .Select(offset => rom.ReadCartridgeByte(0xa00000 |
-                ((ushort)EnemyDefinitionId.MotherBrainTubes + offset)))
+                (SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.MotherBrainTubes) + offset)))
             .ToArray();
-        fixture.WriteBytes(0xa00000 | (ushort)EnemyDefinitionId.MotherBrainTubes, header);
+        fixture.WriteBytes(0xa00000 | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.MotherBrainTubes), header);
         int fixtureAddress = MotherBrainNativeListAddresses.TubePopulationRecord(MotherBrainTubePiece.BottomLeft);
         byte[] authoredRecord = Enumerable.Range(0, 16)
             .Select(offset => rom.ReadCartridgeByte(fixtureAddress + offset))
@@ -165,7 +165,7 @@ internal static class EnemyDefinitionsVerification
     internal static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
-        int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
+        int address = RoomEnemyRomLayout.DefinitionBank | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(pointer);
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         byte bank = Byte(12);
@@ -189,7 +189,7 @@ internal static class EnemyDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy header words")]
     internal static RoomEnemyNativeWords ReadNativeHeaderWords(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
-        int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
+        int address = RoomEnemyRomLayout.DefinitionBank | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(pointer);
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         return new RoomEnemyNativeWords(bus.ReadCartridgeByte(address + 12), Word(2), Word(18), Word(24), Word(28), Word(30),
             Word(32), Word(40), Word(48), Word(50), Word(52), Word(62), Word(58), Word(60));

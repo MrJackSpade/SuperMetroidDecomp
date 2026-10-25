@@ -1,377 +1,364 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy species: the bank-$A0 enemy header a room population entry or spawn names.
-/// Values are the native header pointers; every labelled header in the pinned
-/// disassembly is a member, generated from its EnemyHeaders_* labels.
+/// Enemy species: the enemy definition a room population entry or spawn names. Every labelled enemy definition of
+/// the pinned disassembly is a member. The values are arbitrary and nothing reads them; the import pipeline translates
+/// the cartridge's header pointers to these members (#1412).
 /// </summary>
 public enum EnemyDefinitionId : ushort
 {
-    /// <summary>Enemy.ID zero: a cleared or inactive slot.</summary>
-    None = 0,
-    /// <summary><c>EnemyHeaders_Boyon</c> at $A0:CEBF.</summary>
-    Boyon = 0xcebf,
-    /// <summary><c>EnemyHeaders_Stoke</c> at $A0:CEFF.</summary>
-    Stoke = 0xceff,
-    /// <summary><c>EnemyHeaders_MamaTurtle</c> at $A0:CF3F.</summary>
-    /// <remarks><c>EnemyHeaders_MamaTurtle</c> at <c>$A0:CF3F</c>.</remarks>
-    MamaTurtle = 0xcf3f,
-    /// <summary><c>EnemyHeaders_BabyTurtle</c> at $A0:CF7F.</summary>
-    /// <remarks><c>EnemyHeaders_BabyTurtle</c> at <c>$A0:CF7F</c>.</remarks>
-    BabyTurtle = 0xcf7f,
-    /// <summary><c>EnemyHeaders_Puyo</c> at $A0:CFBF.</summary>
-    Puyo = 0xcfbf,
-    /// <summary><c>EnemyHeaders_Cacatac</c> at $A0:CFFF.</summary>
-    Cacatac = 0xcfff,
-    /// <summary><c>EnemyHeaders_Owtch</c> at $A0:D03F.</summary>
-    Owtch = 0xd03f,
-    /// <summary><c>EnemyHeaders_ShipTop</c> at $A0:D07F.</summary>
-    /// <remarks>Enemy definition <c>EnemyDefs_ShipTop</c> at $A0:D07F.</remarks>
-    ShipTop = 0xd07f,
-    /// <summary><c>EnemyHeaders_ShipBottomEntrance</c> at $A0:D0BF.</summary>
-    /// <remarks>Enemy definition <c>EnemyDefs_ShipBottomEntrance</c> at $A0:D0BF.</remarks>
-    ShipBottomEntrance = 0xd0bf,
-    /// <summary><c>EnemyHeaders_Mellow</c> at $A0:D0FF.</summary>
-    Mellow = 0xd0ff,
-    /// <summary><c>EnemyHeaders_Mella</c> at $A0:D13F.</summary>
-    Mella = 0xd13f,
-    /// <summary><c>EnemyHeaders_Menu</c> at $A0:D17F.</summary>
-    Menu = 0xd17f,
-    /// <summary><c>EnemyHeaders_Multiviola</c> at $A0:D1BF.</summary>
-    Multiviola = 0xd1bf,
-    /// <summary><c>EnemyHeaders_LavaRocks</c> at $A0:D1FF.</summary>
-    LavaRocks = 0xd1ff,
-    /// <summary><c>EnemyHeaders_Rinka</c> at $A0:D23F.</summary>
-    Rinka = 0xd23f,
-    /// <summary><c>EnemyHeaders_Rio</c> at $A0:D27F.</summary>
-    Rio = 0xd27f,
-    /// <summary><c>EnemyHeaders_Squeept</c> at $A0:D2BF.</summary>
-    Squeept = 0xd2bf,
-    /// <summary><c>EnemyHeaders_Geruta</c> at $A0:D2FF.</summary>
-    Geruta = 0xd2ff,
-    /// <summary><c>EnemyHeaders_Holtz</c> at $A0:D33F.</summary>
-    Holtz = 0xd33f,
-    /// <summary><c>EnemyHeaders_Oum</c> at $A0:D37F.</summary>
-    Oum = 0xd37f,
-    /// <summary><c>EnemyHeaders_Choot</c> at $A0:D3BF.</summary>
-    Choot = 0xd3bf,
-    /// <summary><c>EnemyHeaders_GRipper</c> at $A0:D3FF.</summary>
-    GRipper = 0xd3ff,
-    /// <summary><c>EnemyHeaders_Ripper2</c> at $A0:D43F.</summary>
-    Ripper2 = 0xd43f,
-    /// <summary><c>EnemyHeaders_Ripper</c> at $A0:D47F.</summary>
-    Ripper = 0xd47f,
-    /// <summary><c>EnemyHeaders_Dragon</c> at $A0:D4BF.</summary>
-    Dragon = 0xd4bf,
-    /// <summary><c>EnemyHeaders_ShutterGrowing</c> at $A0:D4FF.</summary>
-    ShutterGrowing = 0xd4ff,
-    /// <summary><c>EnemyHeaders_ShutterShootable</c> at $A0:D53F.</summary>
-    ShutterShootable = 0xd53f,
-    /// <summary><c>EnemyHeaders_ShutterHorizShootable</c> at $A0:D57F.</summary>
-    ShutterHorizShootable = 0xd57f,
-    /// <summary><c>EnemyHeaders_ShutterDestroyable</c> at $A0:D5BF.</summary>
-    ShutterDestroyable = 0xd5bf,
-    /// <summary><c>EnemyHeaders_Kamer</c> at $A0:D5FF.</summary>
-    Kamer = 0xd5ff,
-    /// <summary><c>EnemyHeaders_Waver</c> at $A0:D63F.</summary>
-    Waver = 0xd63f,
-    /// <summary><c>EnemyHeaders_Metaree</c> at $A0:D67F.</summary>
-    Metaree = 0xd67f,
-    /// <summary><c>EnemyHeaders_Fireflea</c> at $A0:D6BF.</summary>
-    Fireflea = 0xd6bf,
-    /// <summary><c>EnemyHeaders_Skultera</c> at $A0:D6FF.</summary>
-    Skultera = 0xd6ff,
-    /// <summary><c>EnemyHeaders_Elevator</c> at $A0:D73F.</summary>
-    Elevator = 0xd73f,
-    /// <summary><c>EnemyHeaders_Sciser</c> at $A0:D77F.</summary>
-    Sciser = 0xd77f,
-    /// <summary><c>EnemyHeaders_Zero</c> at $A0:D7BF.</summary>
-    Zero = 0xd7bf,
-    /// <summary><c>EnemyHeaders_Tripper</c> at $A0:D7FF.</summary>
-    Tripper = 0xd7ff,
-    /// <summary><c>EnemyHeaders_Kamer2</c> at $A0:D83F.</summary>
-    Kamer2 = 0xd83f,
-    /// <summary><c>EnemyHeaders_Sbug</c> at $A0:D87F.</summary>
-    Sbug = 0xd87f,
-    /// <summary><c>EnemyHeaders_Sbug2</c> at $A0:D8BF.</summary>
-    Sbug2 = 0xd8bf,
-    /// <summary><c>EnemyHeaders_Mochtroid</c> at $A0:D8FF.</summary>
-    /// <remarks>EnemyHeader_Mochtroid at $A3:D8FF.</remarks>
-    Mochtroid = 0xd8ff,
-    /// <summary><c>EnemyHeaders_Sidehopper</c> at $A0:D93F.</summary>
-    Sidehopper = 0xd93f,
-    /// <summary><c>EnemyHeaders_Dessgeega</c> at $A0:D97F.</summary>
-    Dessgeega = 0xd97f,
-    /// <summary><c>EnemyHeaders_SidehopperLarge</c> at $A0:D9BF.</summary>
-    SidehopperLarge = 0xd9bf,
-    /// <summary><c>EnemyHeaders_SidehopperTourian</c> at $A0:D9FF.</summary>
-    SidehopperTourian = 0xd9ff,
-    /// <summary><c>EnemyHeaders_DessgeegaLarge</c> at $A0:DA3F.</summary>
-    DessgeegaLarge = 0xda3f,
-    /// <summary><c>EnemyHeaders_Zoa</c> at $A0:DA7F.</summary>
-    Zoa = 0xda7f,
-    /// <summary><c>EnemyHeaders_Viola</c> at $A0:DABF.</summary>
-    Viola = 0xdabf,
-    /// <summary><c>EnemyHeaders_Respawn</c> at $A0:DAFF.</summary>
-    /// <remarks>$A0:DAFF, EnemyHeaders_Respawn: reserves a killed actor's slot until respawn; its AI is inert.</remarks>
-    Respawn = 0xdaff,
-    /// <summary><c>EnemyHeaders_Bang</c> at $A0:DB3F.</summary>
-    Bang = 0xdb3f,
-    /// <summary><c>EnemyHeaders_Skree</c> at $A0:DB7F.</summary>
-    Skree = 0xdb7f,
-    /// <summary><c>EnemyHeaders_Yard</c> at $A0:DBBF.</summary>
-    Yard = 0xdbbf,
-    /// <summary><c>EnemyHeaders_Reflec</c> at $A0:DBFF.</summary>
-    Reflec = 0xdbff,
-    /// <summary><c>EnemyHeaders_HZoomer</c> at $A0:DC3F.</summary>
-    HZoomer = 0xdc3f,
-    /// <summary><c>EnemyHeaders_Zeela</c> at $A0:DC7F.</summary>
-    Zeela = 0xdc7f,
-    /// <summary><c>EnemyHeaders_Sova</c> at $A0:DCBF.</summary>
-    Sova = 0xdcbf,
-    /// <summary><c>EnemyHeaders_Zoomer</c> at $A0:DCFF.</summary>
-    Zoomer = 0xdcff,
-    /// <summary><c>EnemyHeaders_MZoomer</c> at $A0:DD3F.</summary>
-    MZoomer = 0xdd3f,
-    /// <summary><c>EnemyHeaders_Metroid</c> at $A0:DD7F.</summary>
-    Metroid = 0xdd7f,
-    /// <summary><c>EnemyHeaders_Crocomire</c> at $A0:DDBF.</summary>
-    Crocomire = 0xddbf,
-    /// <summary><c>EnemyHeaders_CrocomireTongue</c> at $A0:DDFF.</summary>
-    CrocomireTongue = 0xddff,
-    /// <summary><c>EnemyHeaders_DraygonBody</c> at $A0:DE3F.</summary>
-    /// <remarks>$A0:DE3F, the Draygon body and encounter owner.</remarks>
-    DraygonBody = 0xde3f,
-    /// <summary><c>EnemyHeaders_DraygonEye</c> at $A0:DE7F.</summary>
-    /// <remarks>$A0:DE7F, Draygon's eye actor.</remarks>
-    DraygonEye = 0xde7f,
-    /// <summary><c>EnemyHeaders_DraygonTail</c> at $A0:DEBF.</summary>
-    /// <remarks>$A0:DEBF, Draygon's tail actor.</remarks>
-    DraygonTail = 0xdebf,
-    /// <summary><c>EnemyHeaders_DraygonArms</c> at $A0:DEFF.</summary>
-    /// <remarks>$A0:DEFF, Draygon's arms actor.</remarks>
-    DraygonArms = 0xdeff,
-    /// <summary><c>EnemyHeaders_SporeSpawn</c> at $A0:DF3F.</summary>
-    /// <remarks><c>EnemyHeaders_SporeSpawn</c> at <c>$A0:DF3F</c>; bank-relative body definition identity, distinct from stalk header $DF7F.</remarks>
-    SporeSpawn = 0xdf3f,
-    /// <summary><c>EnemyHeaders_SporeSpawnStalk</c> at $A0:DF7F.</summary>
-    /// <remarks>EnemyHeaders_SporeSpawnStalk at $A0:DF7F. Spore impacts ($86:DC6D) roll their drops from this header's table, not from the Spore Spawn body header at $A0:DF3F.</remarks>
-    SporeSpawnStalk = 0xdf7f,
-    /// <summary><c>EnemyHeaders_Boulder</c> at $A0:DFBF.</summary>
-    Boulder = 0xdfbf,
-    /// <summary><c>EnemyHeaders_KzanTop</c> at $A0:DFFF.</summary>
-    KzanTop = 0xdfff,
-    /// <summary><c>EnemyHeaders_KzanBottom</c> at $A0:E03F.</summary>
-    KzanBottom = 0xe03f,
-    /// <summary><c>EnemyHeaders_Hibashi</c> at $A0:E07F.</summary>
-    /// <remarks>Enemy definition $E07F (Hibashi) in bank $A6.</remarks>
-    Hibashi = 0xe07f,
-    /// <summary><c>EnemyHeaders_Puromi</c> at $A0:E0BF.</summary>
-    /// <remarks>Enemy definition $E0BF (Puromi) in bank $A6.</remarks>
-    Puromi = 0xe0bf,
-    /// <summary><c>EnemyHeaders_MiniKraid</c> at $A0:E0FF.</summary>
-    MiniKraid = 0xe0ff,
-    /// <summary><c>EnemyHeaders_RidleyCeres</c> at $A0:E13F.</summary>
-    /// <remarks>Ceres Ridley's shared bank-$A6 enemy header at $A0:E13F.</remarks>
-    RidleyCeres = 0xe13f,
-    /// <summary><c>EnemyHeaders_Ridley</c> at $A0:E17F.</summary>
-    /// <remarks>Enemy header $A0:E17F, selecting the Lower Norfair boss branches of Ridley's shared bank-$A6 implementation.</remarks>
-    Ridley = 0xe17f,
-    /// <summary><c>EnemyHeaders_RidleyExplosion</c> at $A0:E1BF.</summary>
-    /// <remarks><c>EnemyHeaders_RidleyExplosion</c> at <c>$A0:E1BF</c>.</remarks>
-    RidleyExplosion = 0xe1bf,
-    /// <summary><c>EnemyHeaders_Steam</c> at $A0:E1FF.</summary>
-    /// <remarks>The Ceres steam enemy header at <c>$A0:E1FF</c>.</remarks>
-    Steam = 0xe1ff,
-    /// <summary><c>EnemyHeaders_CeresDoor</c> at $A0:E23F.</summary>
-    /// <remarks><c>Enemy_CeresDoor</c>, the bank-$A6 enemy definition at $A6:E23F.</remarks>
-    CeresDoor = 0xe23f,
-    /// <summary><c>EnemyHeaders_Zebetite</c> at $A0:E27F.</summary>
-    Zebetite = 0xe27f,
-    /// <summary><c>EnemyHeaders_Kraid</c> at $A0:E2BF.</summary>
-    Kraid = 0xe2bf,
-    /// <summary><c>EnemyHeaders_KraidArm</c> at $A0:E2FF.</summary>
-    KraidArm = 0xe2ff,
-    /// <summary><c>EnemyHeaders_KraidLintTop</c> at $A0:E33F.</summary>
-    KraidLintTop = 0xe33f,
-    /// <summary><c>EnemyHeaders_KraidLintMiddle</c> at $A0:E37F.</summary>
-    KraidLintMiddle = 0xe37f,
-    /// <summary><c>EnemyHeaders_KraidLintBottom</c> at $A0:E3BF.</summary>
-    KraidLintBottom = 0xe3bf,
-    /// <summary><c>EnemyHeaders_KraidFoot</c> at $A0:E3FF.</summary>
-    KraidFoot = 0xe3ff,
-    /// <summary><c>EnemyHeaders_KraidNail</c> at $A0:E43F.</summary>
-    KraidNail = 0xe43f,
-    /// <summary><c>EnemyHeaders_KraidNailBad</c> at $A0:E47F.</summary>
-    KraidNailBad = 0xe47f,
-    /// <summary><c>EnemyHeaders_PhantoonBody</c> at $A0:E4BF.</summary>
-    PhantoonBody = 0xe4bf,
-    /// <summary><c>EnemyHeaders_PhantoonEye</c> at $A0:E4FF.</summary>
-    PhantoonEye = 0xe4ff,
-    /// <summary><c>EnemyHeaders_PhantoonTentacles</c> at $A0:E53F.</summary>
-    PhantoonTentacles = 0xe53f,
-    /// <summary><c>EnemyHeaders_PhantoonMouth</c> at $A0:E57F.</summary>
-    PhantoonMouth = 0xe57f,
-    /// <summary><c>EnemyHeaders_Etecoon</c> at $A0:E5BF.</summary>
-    Etecoon = 0xe5bf,
-    /// <summary><c>EnemyHeaders_Dachora</c> at $A0:E5FF.</summary>
-    Dachora = 0xe5ff,
-    /// <summary><c>EnemyHeaders_Evir</c> at $A0:E63F.</summary>
-    Evir = 0xe63f,
-    /// <summary><c>EnemyHeaders_EvirProjectile</c> at $A0:E67F.</summary>
-    EvirProjectile = 0xe67f,
-    /// <summary><c>EnemyHeaders_Eye</c> at $A0:E6BF.</summary>
-    Eye = 0xe6bf,
-    /// <summary><c>EnemyHeaders_Fune</c> at $A0:E6FF.</summary>
-    /// <remarks>Enemy definition $E6FF (Fune) in bank $A0.</remarks>
-    Fune = 0xe6ff,
-    /// <summary><c>EnemyHeaders_Namihe</c> at $A0:E73F.</summary>
-    /// <remarks>Enemy definition $E73F (Namihe) in bank $A0.</remarks>
-    Namihe = 0xe73f,
-    /// <summary><c>EnemyHeaders_Coven</c> at $A0:E77F.</summary>
-    Coven = 0xe77f,
-    /// <summary><c>EnemyHeaders_YappingMaw</c> at $A0:E7BF.</summary>
-    YappingMaw = 0xe7bf,
-    /// <summary><c>EnemyHeaders_Kago</c> at $A0:E7FF.</summary>
-    Kago = 0xe7ff,
-    /// <summary><c>EnemyHeaders_Magdollite</c> at $A0:E83F.</summary>
-    Magdollite = 0xe83f,
-    /// <summary><c>EnemyHeaders_Beetom</c> at $A0:E87F.</summary>
-    Beetom = 0xe87f,
-    /// <summary><c>EnemyHeaders_Powamp</c> at $A0:E8BF.</summary>
-    Powamp = 0xe8bf,
-    /// <summary><c>EnemyHeaders_Robot</c> at $A0:E8FF.</summary>
-    Robot = 0xe8ff,
-    /// <summary><c>EnemyHeaders_RobotNoPower</c> at $A0:E93F.</summary>
-    RobotNoPower = 0xe93f,
-    /// <summary><c>EnemyHeaders_Bull</c> at $A0:E97F.</summary>
-    Bull = 0xe97f,
-    /// <summary><c>EnemyHeaders_Alcoon</c> at $A0:E9BF.</summary>
-    Alcoon = 0xe9bf,
-    /// <summary><c>EnemyHeaders_Atomic</c> at $A0:E9FF.</summary>
-    Atomic = 0xe9ff,
-    /// <summary><c>EnemyHeaders_Spark</c> at $A0:EA3F.</summary>
-    Spark = 0xea3f,
-    /// <summary><c>EnemyHeaders_FaceBlock</c> at $A0:EA7F.</summary>
-    FaceBlock = 0xea7f,
-    /// <summary><c>EnemyHeaders_KihunterGreen</c> at $A0:EABF.</summary>
-    KihunterGreen = 0xeabf,
-    /// <summary><c>EnemyHeaders_KihunterGreenWings</c> at $A0:EAFF.</summary>
-    KihunterGreenWings = 0xeaff,
-    /// <summary><c>EnemyHeaders_KihunterYellow</c> at $A0:EB3F.</summary>
-    KihunterYellow = 0xeb3f,
-    /// <summary><c>EnemyHeaders_KihunterYellowWings</c> at $A0:EB7F.</summary>
-    KihunterYellowWings = 0xeb7f,
-    /// <summary><c>EnemyHeaders_KihunterRed</c> at $A0:EBBF.</summary>
-    KihunterRed = 0xebbf,
-    /// <summary><c>EnemyHeaders_KihunterRedWings</c> at $A0:EBFF.</summary>
-    KihunterRedWings = 0xebff,
-    /// <summary><c>EnemyHeaders_MotherBrainHead</c> at $A0:EC3F.</summary>
-    MotherBrainHead = 0xec3f,
-    /// <summary><c>EnemyHeaders_MotherBrainBody</c> at $A0:EC7F.</summary>
-    MotherBrainBody = 0xec7f,
-    /// <summary><c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
-    /// <remarks>The cutscene Baby Metroid enemy header at <c>$A0:ECBF</c>.</remarks>
-    BabyMetroidCutscene = 0xecbf,
-    /// <summary><c>EnemyHeaders_MotherBrainTubes</c> at $A0:ECFF.</summary>
-    /// <remarks>Mother Brain's falling tube actor header at $A0:ECFF.</remarks>
-    MotherBrainTubes = 0xecff,
-    /// <summary><c>EnemyHeaders_CorpseTorizo</c> at $A0:ED3F.</summary>
-    /// <remarks>Bank-$A0 enemy definition $ED3F for the Tourian Torizo corpse, initialized by $A9:D308 and required to own native enemy slot zero.</remarks>
-    CorpseTorizo = 0xed3f,
-    /// <summary><c>EnemyHeaders_CorpseSidehopper</c> at $A0:ED7F.</summary>
-    /// <remarks>Bank-$A0 enemy definition $ED7F for the dead-sidehopper family, initialized by $A9:D7B6 as an initially alive victim or an already dead Tourian corpse.</remarks>
-    CorpseSidehopper = 0xed7f,
-    /// <summary><c>EnemyHeaders_CorpseSidehopper2</c> at $A0:EDBF.</summary>
-    CorpseSidehopper2 = 0xedbf,
-    /// <summary><c>EnemyHeaders_CorpseZoomer</c> at $A0:EDFF.</summary>
-    /// <remarks>$A0:EDFF, EnemyHeaders_CorpseZoomer: dead Zoomer header initialized by $A9:D849, with parameter-1 variants 0, 2, and 4 sharing the corpse-rotting engine.</remarks>
-    CorpseZoomer = 0xedff,
-    /// <summary><c>EnemyHeaders_CorpseRipper</c> at $A0:EE3F.</summary>
-    /// <remarks>$A0:EE3F, EnemyHeaders_CorpseRipper: dead Ripper header initialized by $A9:D876, with parameter-1 variants 0 and 2 sharing the corpse-rotting engine.</remarks>
-    CorpseRipper = 0xee3f,
-    /// <summary><c>EnemyHeaders_CorpseSkree</c> at $A0:EE7F.</summary>
-    /// <remarks>$A0:EE7F, EnemyHeaders_CorpseSkree: dead Skree header initialized by $A9:D89F, with parameter-1 variants 0, 2, and 4 sharing the corpse-rotting engine.</remarks>
-    CorpseSkree = 0xee7f,
-    /// <summary><c>EnemyHeaders_BabyMetroid</c> at $A0:EEBF.</summary>
-    /// <remarks>Bank-$A9 enemy-definition pointer identifying the retail Shitroid actor.</remarks>
-    BabyMetroid = 0xeebf,
-    /// <summary><c>EnemyHeaders_BombTorizo</c> at $A0:EEFF.</summary>
-    BombTorizo = 0xeeff,
-    /// <summary><c>EnemyHeaders_BombTorizoOrb</c> at $A0:EF3F.</summary>
-    /// <remarks><c>EnemyHeaders_BombTorizoOrb</c> at $A0:EF3F.</remarks>
-    BombTorizoOrb = 0xef3f,
-    /// <summary><c>EnemyHeaders_GoldenTorizo</c> at $A0:EF7F.</summary>
-    GoldenTorizo = 0xef7f,
-    /// <summary><c>EnemyHeaders_GoldenTorizoOrb</c> at $A0:EFBF.</summary>
-    /// <remarks><c>EnemyHeaders_GoldenTorizoOrb</c> at $A0:EFBF.</remarks>
-    GoldenTorizoOrb = 0xefbf,
-    /// <summary><c>EnemyHeaders_TourianStatue</c> at $A0:EFFF.</summary>
-    TourianStatue = 0xefff,
-    /// <summary><c>EnemyHeaders_TourianStatueGhost</c> at $A0:F03F.</summary>
-    TourianStatueGhost = 0xf03f,
-    /// <summary><c>EnemyHeaders_Shaktool</c> at $A0:F07F.</summary>
-    Shaktool = 0xf07f,
-    /// <summary><c>EnemyHeaders_NoobTubeCrack</c> at $A0:F0BF.</summary>
-    NoobTubeCrack = 0xf0bf,
-    /// <summary><c>EnemyHeaders_Chozo</c> at $A0:F0FF.</summary>
-    /// <remarks><c>$A0:F0FF</c>, the shared Chozo statue enemy definition.</remarks>
-    Chozo = 0xf0ff,
-    /// <summary><c>UNUSED_EnemyHeaders_SpinningTurtleEye_A0F153</c> at $A0:F153.</summary>
-    UnusedSpinningTurtleEye = 0xf153,
-    /// <summary><c>EnemyHeaders_Zeb</c> at $A0:F193.</summary>
-    /// <remarks>Normal Brinstar Pipe Bug enemy header at <c>$A0:F193</c>.</remarks>
-    Zeb = 0xf193,
-    /// <summary><c>EnemyHeaders_Zebbo</c> at $A0:F1D3.</summary>
-    /// <remarks>Strong Brinstar Pipe Bug enemy header at <c>$A0:F1D3</c>.</remarks>
-    Zebbo = 0xf1d3,
-    /// <summary><c>EnemyHeaders_Gamet</c> at $A0:F213.</summary>
-    /// <remarks>Norfair Pipe Bug enemy header at <c>$A0:F213</c>.</remarks>
-    Gamet = 0xf213,
-    /// <summary><c>EnemyHeaders_Geega</c> at $A0:F253.</summary>
-    /// <remarks>Yellow Brinstar Pipe Bug enemy header at <c>$A0:F253</c>.</remarks>
-    Geega = 0xf253,
-    /// <summary><c>EnemyHeaders_Botwoon</c> at $A0:F293.</summary>
-    Botwoon = 0xf293,
-    /// <summary><c>EnemyHeaders_EtecoonEscape</c> at $A0:F2D3.</summary>
-    EtecoonEscape = 0xf2d3,
-    /// <summary><c>EnemyHeaders_DachoraEscape</c> at $A0:F313.</summary>
-    DachoraEscape = 0xf313,
-    /// <summary><c>EnemyHeaders_PirateGreyWall</c> at $A0:F353.</summary>
-    PirateGreyWall = 0xf353,
-    /// <summary><c>EnemyHeaders_PirateGreenWall</c> at $A0:F393.</summary>
-    PirateGreenWall = 0xf393,
-    /// <summary><c>EnemyHeaders_PirateRedWall</c> at $A0:F3D3.</summary>
-    PirateRedWall = 0xf3d3,
-    /// <summary><c>EnemyHeaders_PirateGoldWall</c> at $A0:F413.</summary>
-    /// <remarks>Enemy $F413's palette header resolves to $B2:8727. Ninja Pirate initialization copies this same 16-color source to its target OBJ palette, irrespective of the ninja actor's own definition or starting color.</remarks>
-    PirateGoldWall = 0xf413,
-    /// <summary><c>EnemyHeaders_PirateMagentaWall</c> at $A0:F453.</summary>
-    PirateMagentaWall = 0xf453,
-    /// <summary><c>EnemyHeaders_PirateSilverWall</c> at $A0:F493.</summary>
-    PirateSilverWall = 0xf493,
-    /// <summary><c>EnemyHeaders_PirateGreyNinja</c> at $A0:F4D3.</summary>
-    PirateGreyNinja = 0xf4d3,
-    /// <summary><c>EnemyHeaders_PirateGreenNinja</c> at $A0:F513.</summary>
-    PirateGreenNinja = 0xf513,
-    /// <summary><c>EnemyHeaders_PirateRedNinja</c> at $A0:F553.</summary>
-    PirateRedNinja = 0xf553,
-    /// <summary><c>EnemyHeaders_PirateGoldNinja</c> at $A0:F593.</summary>
-    PirateGoldNinja = 0xf593,
-    /// <summary><c>EnemyHeaders_PirateMagentaNinja</c> at $A0:F5D3.</summary>
-    PirateMagentaNinja = 0xf5d3,
-    /// <summary><c>EnemyHeaders_PirateSilverNinja</c> at $A0:F613.</summary>
-    PirateSilverNinja = 0xf613,
-    /// <summary><c>EnemyHeaders_PirateGreyWalking</c> at $A0:F653.</summary>
-    PirateGreyWalking = 0xf653,
-    /// <summary><c>EnemyHeaders_PirateGreenWalking</c> at $A0:F693.</summary>
-    PirateGreenWalking = 0xf693,
-    /// <summary><c>EnemyHeaders_PirateRedWalking</c> at $A0:F6D3.</summary>
-    PirateRedWalking = 0xf6d3,
-    /// <summary><c>EnemyHeaders_PirateGoldWalking</c> at $A0:F713.</summary>
-    PirateGoldWalking = 0xf713,
-    /// <summary><c>EnemyHeaders_PirateMagentaWalking</c> at $A0:F753.</summary>
-    PirateMagentaWalking = 0xf753,
-    /// <summary><c>EnemyHeaders_PirateSilverWalking</c> at $A0:F793.</summary>
-    PirateSilverWalking = 0xf793,
+    /// <summary>A cleared or inactive slot.</summary>
+    None,
+    /// <summary>The <c>Boyon</c> enemy definition.</summary>
+    Boyon,
+    /// <summary>The <c>Stoke</c> enemy definition.</summary>
+    Stoke,
+    /// <summary>The <c>MamaTurtle</c> enemy definition.</summary>
+    MamaTurtle,
+    /// <summary>The <c>BabyTurtle</c> enemy definition.</summary>
+    BabyTurtle,
+    /// <summary>The <c>Puyo</c> enemy definition.</summary>
+    Puyo,
+    /// <summary>The <c>Cacatac</c> enemy definition.</summary>
+    Cacatac,
+    /// <summary>The <c>Owtch</c> enemy definition.</summary>
+    Owtch,
+    /// <summary>The <c>ShipTop</c> enemy definition.</summary>
+    ShipTop,
+    /// <summary>The <c>ShipBottomEntrance</c> enemy definition.</summary>
+    ShipBottomEntrance,
+    /// <summary>The <c>Mellow</c> enemy definition.</summary>
+    Mellow,
+    /// <summary>The <c>Mella</c> enemy definition.</summary>
+    Mella,
+    /// <summary>The <c>Menu</c> enemy definition.</summary>
+    Menu,
+    /// <summary>The <c>Multiviola</c> enemy definition.</summary>
+    Multiviola,
+    /// <summary>The <c>LavaRocks</c> enemy definition.</summary>
+    LavaRocks,
+    /// <summary>The <c>Rinka</c> enemy definition.</summary>
+    Rinka,
+    /// <summary>The <c>Rio</c> enemy definition.</summary>
+    Rio,
+    /// <summary>The <c>Squeept</c> enemy definition.</summary>
+    Squeept,
+    /// <summary>The <c>Geruta</c> enemy definition.</summary>
+    Geruta,
+    /// <summary>The <c>Holtz</c> enemy definition.</summary>
+    Holtz,
+    /// <summary>The <c>Oum</c> enemy definition.</summary>
+    Oum,
+    /// <summary>The <c>Choot</c> enemy definition.</summary>
+    Choot,
+    /// <summary>The <c>GRipper</c> enemy definition.</summary>
+    GRipper,
+    /// <summary>The <c>Ripper2</c> enemy definition.</summary>
+    Ripper2,
+    /// <summary>The <c>Ripper</c> enemy definition.</summary>
+    Ripper,
+    /// <summary>The <c>Dragon</c> enemy definition.</summary>
+    Dragon,
+    /// <summary>The <c>ShutterGrowing</c> enemy definition.</summary>
+    ShutterGrowing,
+    /// <summary>The <c>ShutterShootable</c> enemy definition.</summary>
+    ShutterShootable,
+    /// <summary>The <c>ShutterHorizShootable</c> enemy definition.</summary>
+    ShutterHorizShootable,
+    /// <summary>The <c>ShutterDestroyable</c> enemy definition.</summary>
+    ShutterDestroyable,
+    /// <summary>The <c>Kamer</c> enemy definition.</summary>
+    Kamer,
+    /// <summary>The <c>Waver</c> enemy definition.</summary>
+    Waver,
+    /// <summary>The <c>Metaree</c> enemy definition.</summary>
+    Metaree,
+    /// <summary>The <c>Fireflea</c> enemy definition.</summary>
+    Fireflea,
+    /// <summary>The <c>Skultera</c> enemy definition.</summary>
+    Skultera,
+    /// <summary>The <c>Elevator</c> enemy definition.</summary>
+    Elevator,
+    /// <summary>The <c>Sciser</c> enemy definition.</summary>
+    Sciser,
+    /// <summary>The <c>Zero</c> enemy definition.</summary>
+    Zero,
+    /// <summary>The <c>Tripper</c> enemy definition.</summary>
+    Tripper,
+    /// <summary>The <c>Kamer2</c> enemy definition.</summary>
+    Kamer2,
+    /// <summary>The <c>Sbug</c> enemy definition.</summary>
+    Sbug,
+    /// <summary>The <c>Sbug2</c> enemy definition.</summary>
+    Sbug2,
+    /// <summary>The <c>Mochtroid</c> enemy definition.</summary>
+    Mochtroid,
+    /// <summary>The <c>Sidehopper</c> enemy definition.</summary>
+    Sidehopper,
+    /// <summary>The <c>Dessgeega</c> enemy definition.</summary>
+    Dessgeega,
+    /// <summary>The <c>SidehopperLarge</c> enemy definition.</summary>
+    SidehopperLarge,
+    /// <summary>The <c>SidehopperTourian</c> enemy definition.</summary>
+    SidehopperTourian,
+    /// <summary>The <c>DessgeegaLarge</c> enemy definition.</summary>
+    DessgeegaLarge,
+    /// <summary>The <c>Zoa</c> enemy definition.</summary>
+    Zoa,
+    /// <summary>The <c>Viola</c> enemy definition.</summary>
+    Viola,
+    /// <summary>The <c>Respawn</c> enemy definition.</summary>
+    /// <remarks>Reserves a killed actor's slot until it respawns; its AI is inert.</remarks>
+    Respawn,
+    /// <summary>The <c>Bang</c> enemy definition.</summary>
+    Bang,
+    /// <summary>The <c>Skree</c> enemy definition.</summary>
+    Skree,
+    /// <summary>The <c>Yard</c> enemy definition.</summary>
+    Yard,
+    /// <summary>The <c>Reflec</c> enemy definition.</summary>
+    Reflec,
+    /// <summary>The <c>HZoomer</c> enemy definition.</summary>
+    HZoomer,
+    /// <summary>The <c>Zeela</c> enemy definition.</summary>
+    Zeela,
+    /// <summary>The <c>Sova</c> enemy definition.</summary>
+    Sova,
+    /// <summary>The <c>Zoomer</c> enemy definition.</summary>
+    Zoomer,
+    /// <summary>The <c>MZoomer</c> enemy definition.</summary>
+    MZoomer,
+    /// <summary>The <c>Metroid</c> enemy definition.</summary>
+    Metroid,
+    /// <summary>The <c>Crocomire</c> enemy definition.</summary>
+    Crocomire,
+    /// <summary>The <c>CrocomireTongue</c> enemy definition.</summary>
+    CrocomireTongue,
+    /// <summary>The <c>DraygonBody</c> enemy definition.</summary>
+    /// <remarks>The Draygon body and encounter owner.</remarks>
+    DraygonBody,
+    /// <summary>The <c>DraygonEye</c> enemy definition.</summary>
+    /// <remarks>Draygon's eye actor.</remarks>
+    DraygonEye,
+    /// <summary>The <c>DraygonTail</c> enemy definition.</summary>
+    /// <remarks>Draygon's tail actor.</remarks>
+    DraygonTail,
+    /// <summary>The <c>DraygonArms</c> enemy definition.</summary>
+    /// <remarks>Draygon's arms actor.</remarks>
+    DraygonArms,
+    /// <summary>The <c>SporeSpawn</c> enemy definition.</summary>
+    /// <remarks>Spore Spawn's body, distinct from its stalk.</remarks>
+    SporeSpawn,
+    /// <summary>The <c>SporeSpawnStalk</c> enemy definition.</summary>
+    /// <remarks>Spore impacts roll their drops from this definition's table, not from the Spore Spawn body's.</remarks>
+    SporeSpawnStalk,
+    /// <summary>The <c>Boulder</c> enemy definition.</summary>
+    Boulder,
+    /// <summary>The <c>KzanTop</c> enemy definition.</summary>
+    KzanTop,
+    /// <summary>The <c>KzanBottom</c> enemy definition.</summary>
+    KzanBottom,
+    /// <summary>The <c>Hibashi</c> enemy definition.</summary>
+    Hibashi,
+    /// <summary>The <c>Puromi</c> enemy definition.</summary>
+    Puromi,
+    /// <summary>The <c>MiniKraid</c> enemy definition.</summary>
+    MiniKraid,
+    /// <summary>The <c>RidleyCeres</c> enemy definition.</summary>
+    /// <remarks>Ceres Ridley, which shares Ridley's implementation.</remarks>
+    RidleyCeres,
+    /// <summary>The <c>Ridley</c> enemy definition.</summary>
+    /// <remarks>Selects the Lower Norfair boss branches of Ridley's shared implementation.</remarks>
+    Ridley,
+    /// <summary>The <c>RidleyExplosion</c> enemy definition.</summary>
+    RidleyExplosion,
+    /// <summary>The <c>Steam</c> enemy definition.</summary>
+    /// <remarks>The Ceres steam.</remarks>
+    Steam,
+    /// <summary>The <c>CeresDoor</c> enemy definition.</summary>
+    CeresDoor,
+    /// <summary>The <c>Zebetite</c> enemy definition.</summary>
+    Zebetite,
+    /// <summary>The <c>Kraid</c> enemy definition.</summary>
+    Kraid,
+    /// <summary>The <c>KraidArm</c> enemy definition.</summary>
+    KraidArm,
+    /// <summary>The <c>KraidLintTop</c> enemy definition.</summary>
+    KraidLintTop,
+    /// <summary>The <c>KraidLintMiddle</c> enemy definition.</summary>
+    KraidLintMiddle,
+    /// <summary>The <c>KraidLintBottom</c> enemy definition.</summary>
+    KraidLintBottom,
+    /// <summary>The <c>KraidFoot</c> enemy definition.</summary>
+    KraidFoot,
+    /// <summary>The <c>KraidNail</c> enemy definition.</summary>
+    KraidNail,
+    /// <summary>The <c>KraidNailBad</c> enemy definition.</summary>
+    KraidNailBad,
+    /// <summary>The <c>PhantoonBody</c> enemy definition.</summary>
+    PhantoonBody,
+    /// <summary>The <c>PhantoonEye</c> enemy definition.</summary>
+    PhantoonEye,
+    /// <summary>The <c>PhantoonTentacles</c> enemy definition.</summary>
+    PhantoonTentacles,
+    /// <summary>The <c>PhantoonMouth</c> enemy definition.</summary>
+    PhantoonMouth,
+    /// <summary>The <c>Etecoon</c> enemy definition.</summary>
+    Etecoon,
+    /// <summary>The <c>Dachora</c> enemy definition.</summary>
+    Dachora,
+    /// <summary>The <c>Evir</c> enemy definition.</summary>
+    Evir,
+    /// <summary>The <c>EvirProjectile</c> enemy definition.</summary>
+    EvirProjectile,
+    /// <summary>The <c>Eye</c> enemy definition.</summary>
+    Eye,
+    /// <summary>The <c>Fune</c> enemy definition.</summary>
+    Fune,
+    /// <summary>The <c>Namihe</c> enemy definition.</summary>
+    Namihe,
+    /// <summary>The <c>Coven</c> enemy definition.</summary>
+    Coven,
+    /// <summary>The <c>YappingMaw</c> enemy definition.</summary>
+    YappingMaw,
+    /// <summary>The <c>Kago</c> enemy definition.</summary>
+    Kago,
+    /// <summary>The <c>Magdollite</c> enemy definition.</summary>
+    Magdollite,
+    /// <summary>The <c>Beetom</c> enemy definition.</summary>
+    Beetom,
+    /// <summary>The <c>Powamp</c> enemy definition.</summary>
+    Powamp,
+    /// <summary>The <c>Robot</c> enemy definition.</summary>
+    Robot,
+    /// <summary>The <c>RobotNoPower</c> enemy definition.</summary>
+    RobotNoPower,
+    /// <summary>The <c>Bull</c> enemy definition.</summary>
+    Bull,
+    /// <summary>The <c>Alcoon</c> enemy definition.</summary>
+    Alcoon,
+    /// <summary>The <c>Atomic</c> enemy definition.</summary>
+    Atomic,
+    /// <summary>The <c>Spark</c> enemy definition.</summary>
+    Spark,
+    /// <summary>The <c>FaceBlock</c> enemy definition.</summary>
+    FaceBlock,
+    /// <summary>The <c>KihunterGreen</c> enemy definition.</summary>
+    KihunterGreen,
+    /// <summary>The <c>KihunterGreenWings</c> enemy definition.</summary>
+    KihunterGreenWings,
+    /// <summary>The <c>KihunterYellow</c> enemy definition.</summary>
+    KihunterYellow,
+    /// <summary>The <c>KihunterYellowWings</c> enemy definition.</summary>
+    KihunterYellowWings,
+    /// <summary>The <c>KihunterRed</c> enemy definition.</summary>
+    KihunterRed,
+    /// <summary>The <c>KihunterRedWings</c> enemy definition.</summary>
+    KihunterRedWings,
+    /// <summary>The <c>MotherBrainHead</c> enemy definition.</summary>
+    MotherBrainHead,
+    /// <summary>The <c>MotherBrainBody</c> enemy definition.</summary>
+    MotherBrainBody,
+    /// <summary>The <c>BabyMetroidCutscene</c> enemy definition.</summary>
+    /// <remarks>The cutscene Baby Metroid.</remarks>
+    BabyMetroidCutscene,
+    /// <summary>The <c>MotherBrainTubes</c> enemy definition.</summary>
+    /// <remarks>Mother Brain's falling tube actor.</remarks>
+    MotherBrainTubes,
+    /// <summary>The <c>CorpseTorizo</c> enemy definition.</summary>
+    /// <remarks>The Tourian Torizo corpse, which must own enemy slot zero.</remarks>
+    CorpseTorizo,
+    /// <summary>The <c>CorpseSidehopper</c> enemy definition.</summary>
+    /// <remarks>The dead-sidehopper family: an initially alive victim or an already dead Tourian corpse.</remarks>
+    CorpseSidehopper,
+    /// <summary>The <c>CorpseSidehopper2</c> enemy definition.</summary>
+    CorpseSidehopper2,
+    /// <summary>The <c>CorpseZoomer</c> enemy definition.</summary>
+    /// <remarks>The dead Zoomer, with parameter-1 variants 0, 2 and 4 sharing the corpse-rotting engine.</remarks>
+    CorpseZoomer,
+    /// <summary>The <c>CorpseRipper</c> enemy definition.</summary>
+    /// <remarks>The dead Ripper, with parameter-1 variants 0 and 2 sharing the corpse-rotting engine.</remarks>
+    CorpseRipper,
+    /// <summary>The <c>CorpseSkree</c> enemy definition.</summary>
+    /// <remarks>The dead Skree, with parameter-1 variants 0, 2 and 4 sharing the corpse-rotting engine.</remarks>
+    CorpseSkree,
+    /// <summary>The <c>BabyMetroid</c> enemy definition.</summary>
+    /// <remarks>The retail Shitroid actor.</remarks>
+    BabyMetroid,
+    /// <summary>The <c>BombTorizo</c> enemy definition.</summary>
+    BombTorizo,
+    /// <summary>The <c>BombTorizoOrb</c> enemy definition.</summary>
+    BombTorizoOrb,
+    /// <summary>The <c>GoldenTorizo</c> enemy definition.</summary>
+    GoldenTorizo,
+    /// <summary>The <c>GoldenTorizoOrb</c> enemy definition.</summary>
+    GoldenTorizoOrb,
+    /// <summary>The <c>TourianStatue</c> enemy definition.</summary>
+    TourianStatue,
+    /// <summary>The <c>TourianStatueGhost</c> enemy definition.</summary>
+    TourianStatueGhost,
+    /// <summary>The <c>Shaktool</c> enemy definition.</summary>
+    Shaktool,
+    /// <summary>The <c>NoobTubeCrack</c> enemy definition.</summary>
+    NoobTubeCrack,
+    /// <summary>The <c>Chozo</c> enemy definition.</summary>
+    /// <remarks>The shared Chozo statue definition.</remarks>
+    Chozo,
+    /// <summary>The unused spinning turtle eye.</summary>
+    UnusedSpinningTurtleEye,
+    /// <summary>The <c>Zeb</c> enemy definition.</summary>
+    /// <remarks>The normal Brinstar Pipe Bug.</remarks>
+    Zeb,
+    /// <summary>The <c>Zebbo</c> enemy definition.</summary>
+    /// <remarks>The strong Brinstar Pipe Bug.</remarks>
+    Zebbo,
+    /// <summary>The <c>Gamet</c> enemy definition.</summary>
+    /// <remarks>The Norfair Pipe Bug.</remarks>
+    Gamet,
+    /// <summary>The <c>Geega</c> enemy definition.</summary>
+    /// <remarks>The yellow Brinstar Pipe Bug.</remarks>
+    Geega,
+    /// <summary>The <c>Botwoon</c> enemy definition.</summary>
+    Botwoon,
+    /// <summary>The <c>EtecoonEscape</c> enemy definition.</summary>
+    EtecoonEscape,
+    /// <summary>The <c>DachoraEscape</c> enemy definition.</summary>
+    DachoraEscape,
+    /// <summary>The <c>PirateGreyWall</c> enemy definition.</summary>
+    PirateGreyWall,
+    /// <summary>The <c>PirateGreenWall</c> enemy definition.</summary>
+    PirateGreenWall,
+    /// <summary>The <c>PirateRedWall</c> enemy definition.</summary>
+    PirateRedWall,
+    /// <summary>The <c>PirateGoldWall</c> enemy definition.</summary>
+    /// <remarks>Ninja Pirate initialization copies this definition's sixteen colours to its target palette, irrespective of the ninja actor's own definition or starting colour.</remarks>
+    PirateGoldWall,
+    /// <summary>The <c>PirateMagentaWall</c> enemy definition.</summary>
+    PirateMagentaWall,
+    /// <summary>The <c>PirateSilverWall</c> enemy definition.</summary>
+    PirateSilverWall,
+    /// <summary>The <c>PirateGreyNinja</c> enemy definition.</summary>
+    PirateGreyNinja,
+    /// <summary>The <c>PirateGreenNinja</c> enemy definition.</summary>
+    PirateGreenNinja,
+    /// <summary>The <c>PirateRedNinja</c> enemy definition.</summary>
+    PirateRedNinja,
+    /// <summary>The <c>PirateGoldNinja</c> enemy definition.</summary>
+    PirateGoldNinja,
+    /// <summary>The <c>PirateMagentaNinja</c> enemy definition.</summary>
+    PirateMagentaNinja,
+    /// <summary>The <c>PirateSilverNinja</c> enemy definition.</summary>
+    PirateSilverNinja,
+    /// <summary>The <c>PirateGreyWalking</c> enemy definition.</summary>
+    PirateGreyWalking,
+    /// <summary>The <c>PirateGreenWalking</c> enemy definition.</summary>
+    PirateGreenWalking,
+    /// <summary>The <c>PirateRedWalking</c> enemy definition.</summary>
+    PirateRedWalking,
+    /// <summary>The <c>PirateGoldWalking</c> enemy definition.</summary>
+    PirateGoldWalking,
+    /// <summary>The <c>PirateMagentaWalking</c> enemy definition.</summary>
+    PirateMagentaWalking,
+    /// <summary>The <c>PirateSilverWalking</c> enemy definition.</summary>
+    PirateSilverWalking,
 }

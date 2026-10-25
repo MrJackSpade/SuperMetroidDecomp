@@ -52,10 +52,10 @@ internal static class ShutterBehaviorVerification
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, definition);
             initialize(enemies, slot);
-            AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(program), cursor(enemies), $"shutter ${(int)definition:X4} initial animation");
+            AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(program), cursor(enemies), $"shutter {definition} initial animation");
             ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(slot, 3), $"shutter ${(int)definition:X4} shows and holds its pose");
+                EnemyInstructionRunner.ShownFrames(slot, 3), $"shutter {definition} shows and holds its pose");
         }
 
         RoomEnemySystem NewSystem()

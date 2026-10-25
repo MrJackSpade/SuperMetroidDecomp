@@ -471,7 +471,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 (initializing || _slotTable.Slots[targetIndex].SpeciesState<EvirEnemyState>() is null)))
         {
             throw new InvalidDataException(
-                $"Evir {relationship} expected definition ${(int)expectedDefinition:X4} " +
+                $"Evir {relationship} expected definition {expectedDefinition} " +
                 $"at relative slot {relativeSlot:+#;-#;0} from {owner.SlotIndex}.");
         }
         return _slotTable.Slots[targetIndex];

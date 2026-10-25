@@ -243,8 +243,8 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual(new Extent16<RoomPixels>(OperandByte(cartridge, address + 2), OperandByte(cartridge, address + 3)), setRadius.Radius, $"{at}: radius");
                 return 2;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                AssertEqual((ushort)EnemyDefinitionId.BombTorizoOrb, first, $"{at}: Bomb Torizo orb header");
-                AssertEqual((ushort)EnemyDefinitionId.GoldenTorizoOrb, cartridge.ReadCartridgeWord(address + 4), $"{at}: Golden Torizo orb header");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizoOrb), first, $"{at}: Bomb Torizo orb header");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.GoldenTorizoOrb), cartridge.ReadCartridgeWord(address + 4), $"{at}: Golden Torizo orb header");
                 return 4;
             case TorizoProjectileCue.Scatter scatter:
                 AssertEqual(new EnemyProjectileScatter(

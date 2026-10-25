@@ -108,7 +108,7 @@ internal sealed class EnemyDrawList
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
-                        $"Enemy ${(int)slot.DefinitionId:X4} draws before showing a frame.");
+                        $"Enemy {slot.DefinitionId} draws before showing a frame.");
                     prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null, null));
                     continue;
                 }
@@ -126,7 +126,7 @@ internal sealed class EnemyDrawList
                 }
 
                 throw new InvalidDataException(
-                    $"Enemy ${(int)slot.DefinitionId:X4} extended frame " +
+                    $"Enemy {slot.DefinitionId} extended frame " +
                     $"{slot.Frame} has no installed presentation.");
             }
         }

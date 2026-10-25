@@ -7,7 +7,7 @@ internal readonly record struct CeresDestructionActorDefinition(
     CinematicSpritePreInstruction ActivePreInstruction,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
-    int Attributes,
+    int Palette,
     int HorizontalDelta,
     bool WrapX,
     int SlideAcceleration,

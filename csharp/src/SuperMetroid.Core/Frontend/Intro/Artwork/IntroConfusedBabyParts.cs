@@ -20,6 +20,6 @@ internal static class IntroConfusedBabyParts
     {
         int tile = frame == 0 ? IntroConfusedBabyCellDefinitions.FirstPose
             : IntroConfusedBabyCellDefinitions.LowerPair + 2 * (frame - 1);
-        return [new(SnesSpritemapXWord.Create(-8, true), SnesSpritemapYByte.Create(-8), SnesObjAttributeWord.Create(tile, 0, 3, 0), true)];
+        return [new(SpritePart.Create(-8, -8, true, tile, 0, 3, 0), true)];
     }
 }

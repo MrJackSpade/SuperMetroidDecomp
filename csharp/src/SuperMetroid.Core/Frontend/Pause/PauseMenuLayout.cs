@@ -40,6 +40,6 @@ internal static class PauseMenuLayout
     }
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
     public const byte ObjectSelection = 0x01;
-    /// <summary>$82:B9C8 selects OBJ palette 7 for the Samus position indicator, independently overridable by authored sprite parts.</summary>
-    public const ushort MapMarkerPaletteBits = 0x0e00;
+    /// <summary>The sprite palette row the Samus position indicator draws in, independently overridable by authored sprite parts.</summary>
+    public const int MapMarkerPalette = 7;
 }

@@ -115,7 +115,7 @@ internal sealed class EndingStage
     internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
-            definition.Attributes.Raw,
+            definition.Palette,
             definition.Program,
             role);
 

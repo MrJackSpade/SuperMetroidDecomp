@@ -10,15 +10,15 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingActorDefinitions
 {
     /// <summary>OBJ palette two used by the operation-success text actors.</summary>
-    public static readonly SnesObjAttributeWord TextPalette = SnesObjPalettes.Palette(2);
+    public const int TextPalette = 2;
     /// <summary>OBJ palette one used by the clear-time label, separate from digit actors' zero palette override.</summary>
-    public static readonly SnesObjAttributeWord TimeLabelPalette = SnesObjPalettes.Palette(1);
+    public const int TimeLabelPalette = 1;
     /// <summary>OBJ palette five used by atmospheric clouds, explosion overlays, and suitless reward actors.</summary>
-    public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Palette(5);
+    public const int ScenePalette = 5;
     /// <summary>OBJ palette six used by explosion afterglow and armored Samus reward actors.</summary>
-    public static readonly SnesObjAttributeWord AlternatePalette = SnesObjPalettes.Palette(6);
+    public const int AlternatePalette = 6;
     /// <summary>OBJ palette seven used by the exploding planet, glow, and star actors.</summary>
-    public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Palette(7);
+    public const int PlanetPalette = 7;
     /// <summary>Yellow-cloud right actor: origin (320,192) pixels, OBJ palette five.</summary>
     internal static readonly EndingSpriteDefinition EscapeACloudRightTop =
         EndingSpriteDefinition.At(new(320, 192), ScenePalette, CinematicSpriteProgram.EndingCloud4);
@@ -78,7 +78,7 @@ internal static class EndingActorDefinitions
         EndingSpriteDefinition.At(new(128, 160), TimeLabelPalette, CinematicSpriteProgram.ClearTimeText);
     /// <summary>Clear-time colon actor at (172,160) pixels with no palette override, separate from the numeric digits.</summary>
     internal static readonly EndingSpriteDefinition ClearTimeColon =
-        EndingSpriteDefinition.At(new(172, 160), new SnesObjAttributeWord(0), CinematicSpriteProgram.ClearTimeColon);
+        EndingSpriteDefinition.At(new(172, 160), 0, CinematicSpriteProgram.ClearTimeColon);
     /// <summary>Shared clear-time digit origin Y=160 screen pixels, aligned with the label and colon.</summary>
     public const ushort ClearTimeDigitY = 160;
     /// <summary>Suitless idle-body actor: origin (120,136) pixels, palette five.</summary>

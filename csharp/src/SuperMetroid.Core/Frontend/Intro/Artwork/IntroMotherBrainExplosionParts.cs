@@ -47,8 +47,8 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                         : IntroMotherBrainExplosionCellDefinitions.BigQuadrantStart + 2 * (frame - 2)
                     : IntroMotherBrainExplosionCellDefinitions.SmallQuadrantStart + frame - 2;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3, flips), true);
         }
     }
     /// <summary>Yields the selected explosion's parts in native OAM order.</summary>

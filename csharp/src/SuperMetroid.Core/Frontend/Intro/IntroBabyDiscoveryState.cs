@@ -472,7 +472,7 @@ internal sealed class IntroBabyDiscoveryState
     {
         var actor = new IntroDiscoverySprite(
             definition.Position,
-            definition.PaletteBits,
+            definition.Palette,
             definition.Program);
         actor.InstallPreInstruction(definition.PreInstruction);
         return actor;

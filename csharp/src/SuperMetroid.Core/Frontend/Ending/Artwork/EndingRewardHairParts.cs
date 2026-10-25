@@ -27,7 +27,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             for (int index = 0; index < 2; index++)
             {
                 CompiledSpritePart part = supplied.Part(index + 2);
-                positions[index] = new Offset16<SpritePixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
+                positions[index] = new Offset16<SpritePixels>(checked((short)part.Part.Offset.X), checked((short)part.Part.Offset.Y));
             }
             forearmAnchor = positions[0];
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
@@ -152,8 +152,8 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 x = forearm.X;
                 y = forearm.Y;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3, 0), true);
         }
     }
     /// <summary>Yields the calculated sprite pieces in native composition order.</summary>

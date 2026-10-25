@@ -19,7 +19,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<SpritePixels> anchor, 
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchorPart = supplied.Part(core + 10);
-        var anchor = new Offset16<SpritePixels>(checked((short)anchorPart.X.SignedOffset), (short)anchorPart.Y.SignedOffset);
+        var anchor = new Offset16<SpritePixels>(checked((short)anchorPart.Part.Offset.X), (short)anchorPart.Part.Offset.Y);
         if (anchor.X > 215) return supplied;
         var stars = new CompiledSpritePart[supplied.PartCount - 13];
         int next = 0;
@@ -56,8 +56,8 @@ internal sealed class CeresVortexParts(bool odd, Offset16<SpritePixels> anchor, 
             }
             else return stars[index - (index >= tip + 2 ? 2 : 0) - (index >= core + 11 ? 11 : 0)];
             Offset16<SpritePixels> position = anchor + offset;
-            return new(SnesSpritemapXWord.Create(position.X, large), SnesSpritemapYByte.Create(position.Y),
-                SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
+            return new(SpritePart.Create(position.X, position.Y, large,
+                tile, 0, 0, 0), true);
         }
     }
     /// <summary>Enumerates the alternating frame's vortex and star parts in OAM order.</summary>

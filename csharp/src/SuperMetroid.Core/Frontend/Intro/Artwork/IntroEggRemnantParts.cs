@@ -34,9 +34,8 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 int patch = IntroEggRemnantCellDefinitions.LatePatches + 3 * (frame - 3);
                 tile = patch + (index == 2 ? 0 : index == 1 ? 2 : 18);
             }
-            return new(SnesSpritemapXWord.Create(index == 2 ? -12 : 4, index == 2),
-                SnesSpritemapYByte.Create(index == 0 ? 4 : -4),
-                SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(index == 2 ? -12 : 4, index == 0 ? 4 : -4, index == 2,
+                tile, 0, 3, 0), true);
         }
     }
     /// <summary>Enumerates the three shell pieces in source order.</summary>

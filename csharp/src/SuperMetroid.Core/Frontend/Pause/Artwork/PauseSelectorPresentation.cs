@@ -16,13 +16,13 @@ public sealed class PauseSelectorPresentation
     internal readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
     public int InitialDurationTicks { get; }
-    /// <summary>Object attributes selecting the authored OBJ palette, with no tile, priority or flip.</summary>
-    public SnesObjAttributeWord ObjectPalette { get; }
+    /// <summary>The authored sprite palette row the selector draws in.</summary>
+    public int ObjectPalette { get; }
     /// <summary>Number of phases used to wrap the live selector counter.</summary>
     public int PhaseCount { get; }
     /// <summary>Retains only authored anchor, composition, and timing differences.</summary>
     private PauseSelectorPresentation(PauseSelectorParts parts)
-    { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = SnesObjAttributeWord.Create(0, parts.Palette, 0); }
+    { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, parts.Palette); }
     /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
     public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
     {

@@ -14,11 +14,11 @@ internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose.Index}";
 
     /// <inheritdoc/>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, int paletteBits, bool originIsOnScreen) =>
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, int palette, bool originIsOnScreen) =>
         Ensure.NotNull(objects).AddImage(Ensure.NotNull(sheet).Frame(FrameName(family, pose)), origin,
-            FrontendSheetPalette.Override(checked((ushort)paletteBits)), originIsOnScreen ? SpriteOrigin.OnScreen : SpriteOrigin.OffScreen);
+            FrontendSheetPalette.Override(palette), originIsOnScreen ? SpriteOrigin.OnScreen : SpriteOrigin.OffScreen);
 
     /// <summary>Draws <paramref name="pose"/>'s frame through the on-screen loader.</summary>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, int paletteBits) =>
-        Draw(pose, objects, origin, paletteBits, originIsOnScreen: true);
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, int palette) =>
+        Draw(pose, objects, origin, palette, originIsOnScreen: true);
 }

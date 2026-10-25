@@ -13,8 +13,8 @@ internal sealed class EndingAnimalEscapeDefinitions : ICinematicSpriteFrames
     internal const int ForcedSlot = 2;
     /// <summary>$8B:EF99-EFA2 initializes both pod coordinates to $0080.</summary>
     internal const ushort Origin = 0x0080;
-    /// <summary>$8B:EFA5 selects OBJ palette seven.</summary>
-    internal const ushort Palette = 0x0e00;
+    /// <summary>$8B:EFA5 selects sprite palette seven.</summary>
+    internal const int Palette = 7;
     /// <summary>$8B:EFAB initializes the actor's general-purpose timer (not a spawn delay).</summary>
     internal const ushort GeneralTimer = 0x0104;
     /// <summary>$8B:EFB6 adds $0080 to the 16-bit Y fraction each actor call.</summary>
@@ -27,21 +27,21 @@ internal sealed class EndingAnimalEscapeDefinitions : ICinematicSpriteFrames
     private const int SpriteOffset = 4;
     /// <summary>
     /// $8C:BC43: the pod's four single-small-OBJ frames in cycle order, centred on the actor, showing the priority-three,
-    /// palette-seven characters $1E0-$1E3 with the whole attribute word authored.
+    /// palette-seven characters $1E0-$1E3.
     /// </summary>
     private static readonly Dictionary<CinematicSpritePose, SpriteComposition> frames = new()
     {
-        [new(155)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 0), 7, 3)),
-        [new(156)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 1), 7, 3)),
-        [new(157)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 2), 7, 3)),
-        [new(158)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 3), 7, 3)),
+        [new(155)] = Pod(SnesCharacterGrid.Cell(30, 0)),
+        [new(156)] = Pod(SnesCharacterGrid.Cell(30, 1)),
+        [new(157)] = Pod(SnesCharacterGrid.Cell(30, 2)),
+        [new(158)] = Pod(SnesCharacterGrid.Cell(30, 3)),
     };
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingAnimalEscape;
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
-    /// <summary>A pod frame: its one small object, centred on the actor.</summary>
-    private static SpriteComposition Pod(SnesObjAttributeWord attributes) => new(
-        [new CompiledSpritePart(SnesSpritemapXWord.Create(-SpriteOffset, large: false), SnesSpritemapYByte.Create(-SpriteOffset), attributes,
+    /// <summary>A pod frame: its one small piece of <paramref name="character"/> in palette seven, priority three, centred on the actor.</summary>
+    private static SpriteComposition Pod(int character) => new(
+        [new CompiledSpritePart(SpritePart.Create(-SpriteOffset, -SpriteOffset, large: false, character, palette: 7, priority: 3),
             InheritPalette: false)]);
 }

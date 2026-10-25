@@ -105,9 +105,8 @@ internal sealed class WorldMapLabelComposition
         return new(name, [.. Enumerable.Range(0, text.Length).Select(index =>
         {
             int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
-            return SpritePartFrames.Part(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
-                SnesSpritemapYByte.Create(VerticalOffset(identity, index)), SnesObjAttributeWord.Create(tile, 0, 3), 0,
-                SpritePartFrames.StandardSizes, inheritPalette: true);
+            return SpritePart.Create(HorizontalOffset(index, text.Length), VerticalOffset(identity, index), false, tile, 0, 3)
+                .ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true);
         })]);
     }
 

@@ -1226,7 +1226,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-                IntroMotherBrainSpriteState.PaletteBits);
+                IntroMotherBrainSpriteState.Palette);
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
@@ -1296,7 +1296,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // initial $9A:D200 -> VMADD $6000 DMA.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
                 caretPose, objectSprites, Objects.Caret.ToSpritePosition(),
-                IntroCinematicDefinitions.Objects.ScientistPalette.Raw);
+                IntroCinematicDefinitions.Objects.ScientistPalette);
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)

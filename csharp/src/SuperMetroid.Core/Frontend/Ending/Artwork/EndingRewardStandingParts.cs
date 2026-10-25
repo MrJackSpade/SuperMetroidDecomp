@@ -58,8 +58,8 @@ internal sealed class EndingRewardStandingParts(int armParts) : IReadOnlyList<Co
                 y = 8 * (tile / 16) - 56;
                 large = piece is 2 or >= 10;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3, 0), true);
         }
     }
     /// <summary>Enumerates standing parts in the OAM composition order.</summary>

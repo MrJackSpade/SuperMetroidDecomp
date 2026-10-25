@@ -38,9 +38,9 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
             for (int index = offset; index < offset + count; index++)
             {
                 CompiledSpritePart part = source.Part(index);
-                int size = part.X.IsLarge ? 16 : 8;
-                if (-part.X.SignedOffset - size is < -256 or > 255 ||
-                    -part.Y.SignedOffset - size is < -128 or > 127) return supplied;
+                int size = part.Part.Large ? 16 : 8;
+                if (-part.Part.Offset.X - size is < -256 or > 255 ||
+                    -part.Part.Offset.Y - size is < -128 or > 127) return supplied;
             }
         return supplied.CalculateIfMatching(new EndingLogoRelatedParts(source, offset, count, rotate));
     }
@@ -55,11 +55,9 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             CompiledSpritePart part = source.Part(offset + index);
             if (!rotate) return part;
-            int size = part.X.IsLarge ? 16 : 8;
-            return new(SnesSpritemapXWord.Create(-part.X.SignedOffset - size, part.X.IsLarge),
-                SnesSpritemapYByte.Create(-part.Y.SignedOffset - size),
-                SnesObjAttributeWord.Create(part.Attributes.TileNumber, part.Attributes.PaletteIndex,
-                    part.Attributes.Priority, part.Attributes.FlipFlags ^
+            int size = part.Part.Large ? 16 : 8;
+            return new(SpritePart.Create(-part.Part.Offset.X - size, -part.Part.Offset.Y - size, part.Part.Large,
+                part.Part.Character, part.Part.Palette, part.Part.Priority, part.Part.Flip ^
                     (TileFlip.Horizontal | TileFlip.Vertical)), part.InheritPalette);
         }
     }

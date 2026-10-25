@@ -105,8 +105,8 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
                 x = -12 + 8 * column; y = large ? -6 : -14;
                 tile = (large ? SnesCharacterGrid.Cell(5, 6) : SnesCharacterGrid.Cell(4, 6)) + column;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3, 0), true);
         }
     }
     /// <summary>Enumerates reward head pieces in native sprite draw order.</summary>

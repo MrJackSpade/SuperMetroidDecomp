@@ -70,10 +70,10 @@ public class TitleGraphicsPresentation
     internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)
         ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
 
-    /// <summary>Places one title frame of the title sheet, its parts in the row <paramref name="paletteBits"/> select.</summary>
-    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin, int paletteBits) =>
+    /// <summary>Places one title frame of the title sheet, its parts in palette row <paramref name="palette"/>.</summary>
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin, int palette) =>
         Ensure.NotNull(sprites).AddImage(Ensure.NotNull(sheet).Frame(TitleSpriteDefinitions.FrameName(sprite)), origin,
-            FrontendSheetPalette.Override(checked((ushort)paletteBits)));
+            FrontendSheetPalette.Override(palette));
 
     /// <summary>Validates and writes an editable title Mode 7 map document as UTF-8 JSON.</summary>
     /// <param name="json">The destination stream.</param>
@@ -125,11 +125,9 @@ public class TitleGraphicsPresentation
                     part.TileRow > TitleGraphicsFormat.ObjectTileRows - part.Size / 8)
                     throw new InvalidDataException($"Title frame {frame.Sprite} part {index} is invalid.");
                 int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
-                var attributes = SnesObjAttributeWord.Create(tile, 0, part.Priority,
+                parts[index] = new(SpritePart.Create(part.OffsetX, part.OffsetY, part.Size == 16, tile, 0, part.Priority,
                     (part.FlipX ? TileFlip.Horizontal : 0) |
-                    (part.FlipY ? TileFlip.Vertical : 0));
-                parts[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
-                    new SnesSpritemapYByte(unchecked((byte)part.OffsetY)), attributes, InheritPalette: true);
+                    (part.FlipY ? TileFlip.Vertical : 0)), InheritPalette: true);
             }
             if (!result.TryAdd(frame.Sprite, new SpriteComposition(parts)))
                 throw new InvalidDataException($"Duplicate title frame {frame.Sprite}.");

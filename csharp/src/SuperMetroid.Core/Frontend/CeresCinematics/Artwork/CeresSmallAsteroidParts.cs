@@ -25,7 +25,7 @@ internal sealed class CeresSmallAsteroidParts(Offset16<SpritePixels>[] anchors) 
         Offset16<SpritePixels> Anchor(int index)
         {
             var part = supplied.Part(index);
-            return new Offset16<SpritePixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
+            return new Offset16<SpritePixels>(checked((short)part.Part.Offset.X), checked((short)part.Part.Offset.Y));
         }
         Offset16<SpritePixels>[] anchors = [Anchor(1), Anchor(3), Anchor(5), Anchor(6), Anchor(10), Anchor(12), Anchor(13)];
         // Horizontal and corner shapes extend eight pixels beyond their anchor.
@@ -70,8 +70,8 @@ internal sealed class CeresSmallAsteroidParts(Offset16<SpritePixels>[] anchors) 
                 // need an additional eight-pixel displacement.
                 if (flip) y = -y - (large ? 8 : 0);
             }
-            return new(SnesSpritemapXWord.Create(anchors[group].X + x, large), SnesSpritemapYByte.Create(anchors[group].Y + y),
-                SnesObjAttributeWord.Create(tile, 0, 0, flip ? TileFlip.Vertical : 0), true);
+            return new(SpritePart.Create(anchors[group].X + x, anchors[group].Y + y, large,
+                tile, 0, 0, flip ? TileFlip.Vertical : 0), true);
         }
     }
     /// <summary>Enumerates asteroid parts in their original OAM order.</summary>

@@ -24,11 +24,10 @@ internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadO
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var part = source.Part(index + 2);
-            int size = part.X.IsLarge ? 16 : 8;
-            int x = ((-part.X.SignedOffset - size + 256) & 511) - 256;
-            return new(SnesSpritemapXWord.Create(x, part.X.IsLarge), part.Y,
-                SnesObjAttributeWord.Create(part.Attributes.TileNumber, part.Attributes.PaletteIndex,
-                    part.Attributes.Priority, part.Attributes.FlipFlags ^ TileFlip.Horizontal), part.InheritPalette);
+            int size = part.Part.Large ? 16 : 8;
+            int x = SpritePart.WrapX(-part.Part.Offset.X - size);
+            return new(part.Part.At(x, part.Part.Offset.Y) with { Flip = part.Part.Flip ^ TileFlip.Horizontal },
+                part.InheritPalette);
         }
     }
     /// <summary>Yields reflected source parts 2..24 in their original order.</summary>

@@ -19,8 +19,8 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < placements.Length; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            placements[index] = new(new Offset16<TilemapCells>((short)(part.X.SignedOffset / 8), (short)(part.Y.SignedOffset / 8)),
-                part.Attributes.TileNumber);
+            placements[index] = new(new Offset16<TilemapCells>((short)(part.Part.Offset.X / 8), (short)(part.Part.Offset.Y / 8)),
+                part.Part.Character);
         }
     }
     /// <summary>Uses a calculated star grid only when every reconstructed OAM field matches the edited composition.</summary>
@@ -41,8 +41,8 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         get
         {
             var point = placements[index];
-            return new(SnesSpritemapXWord.Create(point.Cell.X * 8, false), SnesSpritemapYByte.Create(point.Cell.Y * 8),
-                SnesObjAttributeWord.Create(point.Tile, 0, 0), true);
+            return new(SpritePart.Create(point.Cell.X * 8, point.Cell.Y * 8, false,
+                point.Tile, 0, 0), true);
         }
     }
     /// <summary>Enumerates the star parts in their original drawing order.</summary>

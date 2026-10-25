@@ -13,11 +13,11 @@ public sealed class PauseReserveTankPresentation
     internal readonly Dictionary<int, AnchorOverride> anchorOverrides;
     /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     internal readonly FrameSet frames;
-    /// <summary>Object attributes selecting the OBJ palette applied to every reserve-strip part, with no tile, priority or flip.</summary>
-    private readonly SnesObjAttributeWord objectPalette;
+    /// <summary>The palette row every reserve-strip part draws in.</summary>
+    private readonly int palette;
     /// <summary>Stores independent anchor edits, frame art, and selected reserve palette.</summary>
     private PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides, FrameSet frames, int palette)
-    { this.anchorOverrides = anchorOverrides; this.frames = frames; objectPalette = SnesObjAttributeWord.Create(0, palette, 0); }
+    { this.anchorOverrides = anchorOverrides; this.frames = frames; this.palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette); }
 
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
@@ -27,8 +27,8 @@ public sealed class PauseReserveTankPresentation
         var basis = PauseReserveTankDefinitions.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
-    /// <summary>The OBJ palette row the strip draws in.</summary>
-    internal int Palette => objectPalette.PaletteIndex;
+    /// <summary>The palette row the strip draws in.</summary>
+    internal int Palette => palette;
 
     /// <summary>Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position.</summary>
     /// <param name="entries">The screen's sprite entries.</param>
@@ -51,9 +51,8 @@ public sealed class PauseReserveTankPresentation
     /// </summary>
     internal SpriteFrame ToFrame(PauseReserveTankVisual visual, string frameName) =>
         Composition(visual) is { } composition ? composition.ToFrame(frameName, 0)
-            : new(frameName, [SpritePartFrames.Part(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
-                SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(visual), 0, 3), 0, SpritePartFrames.StandardSizes,
-                inheritPalette: true)]);
+            : new(frameName, [SpritePart.Single(PauseReserveTankDefinitions.StockTile(visual), 0, 3)
+                .ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true)]);
 
     /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>
     private SpriteComposition? Composition(PauseReserveTankVisual visual) => visual switch

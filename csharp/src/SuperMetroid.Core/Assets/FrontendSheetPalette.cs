@@ -10,12 +10,10 @@ internal static class FrontendSheetPalette
     internal const int FramePalette = 0;
 
     /// <summary>
-    /// The override that places a frame's palette-inheriting parts in the row <paramref name="paletteBits"/> select, or
-    /// null where that is the row the sheet coloured them in.
+    /// The override that places a frame's palette-inheriting parts in palette row <paramref name="palette"/>, or null
+    /// where that is the row the sheet coloured them in.
     /// </summary>
-    internal static int? Override(int paletteBits)
-    {
-        int row = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
-        return row == FramePalette ? null : row;
-    }
+    /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
+    internal static int? Override(int palette) =>
+        Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette) == FramePalette ? null : palette;
 }

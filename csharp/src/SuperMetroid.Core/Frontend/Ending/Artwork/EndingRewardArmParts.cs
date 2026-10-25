@@ -35,8 +35,8 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < count; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            positions[index] = new(checked((short)part.X.SignedOffset), (short)part.Y.SignedOffset);
-            tiles[index] = part.Attributes.TileNumber;
+            positions[index] = new(checked((short)part.Part.Offset.X), (short)part.Part.Offset.Y);
+            tiles[index] = part.Part.Character;
             stock &= tiles[index] == StockTile(pose, index);
         }
         bool grid = splitArm;
@@ -51,7 +51,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         arm = grid ? null : positions;
         editedTiles = stock ? null : tiles;
         CompiledSpritePart shoulderPart = supplied.Part(count);
-        shoulder = new(checked((short)shoulderPart.X.SignedOffset), (short)shoulderPart.Y.SignedOffset);
+        shoulder = new(checked((short)shoulderPart.Part.Offset.X), (short)shoulderPart.Part.Offset.Y);
     }
 
     /// <summary>Places the split pose's two small column pieces and adjacent large piece.</summary>
@@ -86,7 +86,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
             int armCount = split ? 3 : 2;
             if (supplied.PartCount != armCount + 3) return supplied;
             CompiledSpritePart anchor = supplied.Part(armCount);
-            if (anchor.X.SignedOffset > 247 || anchor.Y.SignedOffset < -120) return supplied;
+            if (anchor.Part.Offset.X > 247 || anchor.Part.Offset.Y < -120) return supplied;
             return supplied.CalculateIfMatching(new EndingRewardArmParts(supplied, pose));
         }
         return supplied;
@@ -118,8 +118,8 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 tile = EndingRewardArmCellDefinitions.ShoulderCap + (large ? 16 : column);
                 position = shoulder + new Offset16<SpritePixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
             }
-            return new(SnesSpritemapXWord.Create(position.X, large), SnesSpritemapYByte.Create(position.Y),
-                SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(position.X, position.Y, large,
+                tile, 0, 3, 0), true);
         }
     }
     /// <summary>Enumerates the arm pieces followed by the large shoulder and two caps.</summary>

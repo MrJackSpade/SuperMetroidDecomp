@@ -12,8 +12,8 @@ public interface IIntroCinematicSpritePresentation
     /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">This frame's destination sprite entries.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Packed OBJ palette bits inherited by parts that do not specify their own palette.</param>
+    /// <param name="palette">The sprite palette row inherited by parts that do not specify their own palette.</param>
     /// <param name="originIsOnScreen">Selects the caller's ordinary origin-clipping path when true, or native off-screen Y-wrap path when false.</param>
     void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin,
-        int paletteBits, bool originIsOnScreen);
+        int palette, bool originIsOnScreen);
 }

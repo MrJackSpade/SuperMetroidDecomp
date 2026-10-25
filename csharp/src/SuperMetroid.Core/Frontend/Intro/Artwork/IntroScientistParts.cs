@@ -66,8 +66,8 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                 y = -1;
                 tile = IntroScientistCellDefinitions.Caret;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3, flips), true);
         }
     }
     /// <summary>Enumerates scene parts in the native OAM drawing order.</summary>

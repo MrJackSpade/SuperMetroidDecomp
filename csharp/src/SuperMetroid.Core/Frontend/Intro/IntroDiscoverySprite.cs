@@ -17,14 +17,14 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
     private WrappingCountdown instructionTimer = WrappingCountdown.Start(1);
 
-    /// <summary>Creates an actor at a whole-pixel origin with its starting OBJ attributes and program.</summary>
+    /// <summary>Creates an actor at a whole-pixel origin with its starting sprite palette row and program.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
-        int paletteBits,
+        int palette,
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
-        Attributes = new(checked((ushort)paletteBits));
+        Palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette);
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
@@ -41,11 +41,12 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>The OBJ palette, priority and flips applied to the current pose's tiles where a part does not set its own.</summary>
-    public SnesObjAttributeWord Attributes { get; private set; }
+    /// <summary>The sprite palette row the current pose's palette-inheriting parts draw in.</summary>
+    public int Palette { get; private set; }
 
-    /// <summary>Applies a cinematic callback's OBJ palette/attribute write.</summary>
-    public void SetAttributes(SnesObjAttributeWord attributes) => Attributes = attributes;
+    /// <summary>Applies a cinematic callback's palette change.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
+    public void SetPalette(int palette) => Palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette);
 
     /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
     internal CinematicSpritePose? Pose { get; private set; }
@@ -193,6 +194,6 @@ internal sealed class IntroDiscoverySprite
             y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, origin.ToSpritePosition(), Attributes.Raw, originIsOnScreen);
+            .Draw(pose, objects, origin.ToSpritePosition(), Palette, originIsOnScreen);
     }
 }

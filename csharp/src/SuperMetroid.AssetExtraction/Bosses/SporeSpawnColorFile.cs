@@ -22,12 +22,12 @@ public static class SporeSpawnColorFile
             throw new InvalidDataException("Spore Spawn colors require the supported version.");
         return new(
             Compile(document.Spores, "spores"),
-            CompileFrames(document.Health, SporeSpawnColorRomData.HealthFrameCount, "health"),
-            CompileFrames(document.DeathSprite, SporeSpawnColorRomData.DeathSpriteFrameCount,
+            CompileFrames(document.Health, SporeSpawnColorDefinitions.HealthFrameCount, "health"),
+            CompileFrames(document.DeathSprite, SporeSpawnColorDefinitions.DeathSpriteFrameCount,
                 "death sprite"),
-            CompileFrames(document.DeathLevel, SporeSpawnColorRomData.DeathSceneFrameCount,
+            CompileFrames(document.DeathLevel, SporeSpawnColorDefinitions.DeathSceneFrameCount,
                 "death level"),
-            CompileFrames(document.DeathBackground, SporeSpawnColorRomData.DeathSceneFrameCount,
+            CompileFrames(document.DeathBackground, SporeSpawnColorDefinitions.DeathSceneFrameCount,
                 "death background"));
     }
 
@@ -47,9 +47,9 @@ public static class SporeSpawnColorFile
     /// <summary>Validates one complete sixteen-ink row and packs each bounded RGB5 color.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
-        if (source is null || source.Length != SporeSpawnColorRomData.ColorsPerFrame)
+        if (source is null || source.Length != SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new InvalidDataException(
-                $"Spore Spawn {name} requires {SporeSpawnColorRomData.ColorsPerFrame} RGB5 colors.");
+                $"Spore Spawn {name} requires {SporeSpawnColorDefinitions.ColorsPerFrame} RGB5 colors.");
         var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {

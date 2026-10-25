@@ -217,7 +217,7 @@ internal sealed class ClosedPresentationAudit
                 (SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
                     SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level or
                     SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Background)
-                range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorRomData.DeathSceneFrameCount);
+                range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorDefinitions.DeathSceneFrameCount);
             if (!range.Value.Contains(number))
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }

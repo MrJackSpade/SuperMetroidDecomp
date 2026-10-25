@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
@@ -123,10 +124,10 @@ internal static class SporeSpawnAnimationsVerification
                             AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operand), queueSound.Sound, $"{at}: library-two sound");
                             break;
                         case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
-                            AssertEqual(operand, checked((ushort)(loadDeathPalette.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
+                            AssertEqual(operand, checked((ushort)(loadDeathPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
                             break;
                         case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
-                            AssertEqual(operand, checked((ushort)(loadDeathTargetPalette.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
+                            AssertEqual(operand, checked((ushort)(loadDeathTargetPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
                             break;
                         case SporeSpawnCue.Command:
                             break;

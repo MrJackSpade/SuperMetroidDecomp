@@ -35,7 +35,7 @@ internal static class BossColorClosedContractDefinitions
             ["ResolveSpore", "ResolveHealth", "ResolveDeath"],
             [new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnDeathColorDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColorRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColorDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonColorCatalog", "draygon-v1-complete-health-palettes",
             ["ApplyIntro", "ApplyHurt", "ApplyHealthBand"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Draygon/Artwork/DraygonColorCatalog.cs"),

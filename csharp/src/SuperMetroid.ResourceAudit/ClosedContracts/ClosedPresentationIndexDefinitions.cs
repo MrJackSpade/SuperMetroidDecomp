@@ -64,12 +64,12 @@ internal static class ClosedPresentationIndexDefinitions
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorRomData.FadeOutCount),
         ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, PhantoonColorRomData.PowerOnCount),
         ("TourianStatueColorCatalog", "ApplyEye", "doubledBossParameter") => new(0, TourianStatuePaletteRomData.EyeRowCount, sizeof(ushort)),
-        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth" or "ResolveDeath", "color") => new(0, SporeSpawnColorRomData.ColorsPerFrame),
-        ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorRomData.HealthFrameCount),
+        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth" or "ResolveDeath", "color") => new(0, SporeSpawnColorDefinitions.ColorsPerFrame),
+        ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorDefinitions.HealthFrameCount),
         ("SporeSpawnColorCatalog", "ResolveDeath", "layer") => new(0, 3),
         // The union is eight rows; the selected non-sprite layer still enforces
         // its narrower seven-row domain inside the reviewed provider.
-        ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorRomData.DeathSpriteFrameCount),
+        ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount),
         ("MotherBrainRainbowPalettePresentation", "TryReadBeamColor", "byteCursor") => new(0,
             MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 1, MotherBrainBeamRomData.ColorStride),
         ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),

@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Cartridge values and helpers of <see cref="SporeSpawnColorRomData"/> that only verification reads.</summary>
-internal static class SporeSpawnColorRomDataConstants
+/// <summary>Where the cartridge writes Spore Spawn's colour images in its colour memory: verification's native view of the colour sets.</summary>
+internal static class SporeSpawnColorDestinations
 {
     /// <summary>First CGRAM color index for the independent spore palette.</summary>
     public const int SporeDestination = 240;

@@ -18,6 +18,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBeamLoadoutWord.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileTypeWord.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionWord.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionCodec.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleFiringDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleBeamDefinitions.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog", "flare-complete-private-composition-set", ["Frame"],

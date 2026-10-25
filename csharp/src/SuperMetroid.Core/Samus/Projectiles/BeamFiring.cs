@@ -241,7 +241,7 @@ internal sealed class BeamFiring
         // `$90:AC39` writes one before allocating storage. A corrupt counter/free-slot
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
 
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
@@ -344,7 +344,7 @@ internal sealed class BeamFiring
         }
 
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
@@ -448,7 +448,7 @@ internal sealed class BeamFiring
         slot.Direction = direction;
 
         InitializePosition(samus, slot);
-        _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
         ProjectileInvincibilityTimer = WrappingCountdown.Start(20);
         if (isSuperMissile)
             samus.SuperMissiles = SamusQuantity.DecrementWord(samus.SuperMissiles);

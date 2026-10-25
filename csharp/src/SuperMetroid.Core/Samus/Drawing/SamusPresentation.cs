@@ -203,7 +203,7 @@ internal sealed class SamusPresentation
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
 
-        samus.AnimationFrame = unchecked((ushort)(samus.AnimationFrame + 1));
+        samus.AnimationFrame++;
         HandleAnimationDelay(samus, step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput, step.QueueEchoSound);
     }
 
@@ -218,7 +218,7 @@ internal sealed class SamusPresentation
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
-        samus.AnimationFrame = unchecked((ushort)(samus.AnimationFrame + 1));
+        samus.AnimationFrame++;
         HandleAnimationDelay(samus, controllerInput: 0);
     }
 
@@ -329,7 +329,7 @@ internal sealed class SamusPresentation
                 // past the command byte. The outer animation routine already performed its
                 // ordinary pre-dispatch increment, so this second increment is essential.
                 samus.Drained.InstallFallingMovementHandler(samus);
-                samus.AnimationFrame = unchecked((ushort)(samus.AnimationFrame + 1));
+                samus.AnimationFrame++;
                 break;
 
             case 8:
@@ -385,11 +385,11 @@ internal sealed class SamusPresentation
                 // submerged non-Gravity body is forced to the ordinary one-byte sequence;
                 // otherwise Screw Attack has priority over Space Jump. This top-edge test
                 // deliberately differs from jump launch/gravity's bottom-edge test.
-                samus.AnimationFrame = unchecked((ushort)(samus.AnimationFrame + (
+                samus.AnimationFrame += (
                     !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
                     samus.LiquidPhysics.IsTopBoundarySubmerged(samus) ? 1 :
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? 21 :
-                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? 11 : 1)));
+                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? 11 : 1);
                 break;
 
             case 12:
@@ -414,8 +414,8 @@ internal sealed class SamusPresentation
             case 14:
                 // $90:84C7, command $FE nn: move backward nn byte positions. The operand
                 // remains in the same delay stream and is not itself an animation frame.
-                int backwardCount = ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1)));
-                samus.AnimationFrame = unchecked((ushort)(samus.AnimationFrame - backwardCount));
+                int backwardCount = ReadAnimationByte(samus, samus.AnimationFrame + 1);
+                samus.AnimationFrame -= backwardCount;
                 break;
 
             case 15:

@@ -135,7 +135,7 @@ internal sealed class BeamCombos
             return outward ? null : Library1Sound.IceSpecialAttackEnd;
         }
         int oldTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (oldTimer == 1)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);
@@ -261,7 +261,7 @@ internal sealed class BeamCombos
             return null;
         }
         int previousTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(previousTimer - 1)));
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (previousTimer == 1)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);
@@ -367,7 +367,7 @@ internal sealed class BeamCombos
         }
         int oldXSpeed = slot.Velocity.X.SignedRawValue;
         int oldTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (oldTimer == 1)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);

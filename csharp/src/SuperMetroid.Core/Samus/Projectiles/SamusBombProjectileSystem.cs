@@ -527,8 +527,8 @@ public sealed class SamusBombProjectileSystem
 
         // Helper two increments both values before the caller searches for storage. The
         // caller immediately replaces cooldown with table entry five ($10) after init.
-        CooldownTimer = WrappingCountdown.FromRaw(unchecked((ushort)(CooldownTimer.RawValue + 1)));
-        BombCounter = unchecked((ushort)(BombCounter + 1));
+        CooldownTimer = CooldownTimer.AddFrames(1);
+        BombCounter = WrappingCounter.IncrementWord(BombCounter);
 
         return true;
     }

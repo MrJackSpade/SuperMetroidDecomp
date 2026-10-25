@@ -808,8 +808,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // sheet five is the native completion owner at C8F2. Identify the actors
                 // by ownership, not their mutable list index: native actors delete as they
                 // cross -$80, so indexes necessarily shift during this loop.
-                actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + definition.SlideAcceleration));
-                SubtractEightEightY(actor, checked((ushort)actor.GeneralTimer));
+                // The slide speed grows by at most $40 a frame and the actor is deleted within a few dozen frames, once
+                // it crosses -$80, so the speed never nears the word's wrap.
+                actor.GeneralTimer += definition.SlideAcceleration;
+                SubtractEightEightY(actor, actor.GeneralTimer);
                 if (unchecked((short)actor.WholePosition.Y) < -128)
                 {
                     // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit

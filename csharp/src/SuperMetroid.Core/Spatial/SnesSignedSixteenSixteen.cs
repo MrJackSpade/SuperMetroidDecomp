@@ -18,7 +18,7 @@ public readonly record struct SnesSignedSixteenSixteen
         new(unchecked((wholePixels << 16) | Ensure.BetweenInclusive(0, ushort.MaxValue, fraction)));
 
     /// <summary>A displacement of <paramref name="sixteenths"/> sixteenths of a pixel.</summary>
-    public static SnesSignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => new(checked(sixteenths << 12));
+    public static SnesSignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => new(checked(sixteenths * 4096));
 
     /// <summary>The zero displacement.</summary>
     public static SnesSignedSixteenSixteen Zero => default;

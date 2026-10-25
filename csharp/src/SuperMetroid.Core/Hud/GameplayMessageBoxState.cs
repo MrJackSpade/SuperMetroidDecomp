@@ -159,13 +159,12 @@ public sealed class GameplayMessageBoxState
         ControllerButton runBinding = ControllerButton.B,
         string sourceContext = nameof(GameplayMessageBoxState))
     {
-        byte rawMessageId = (byte)messageId;
         if (!IsOrdinary(messageId))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
                 messageId,
-                $"Gameplay message ${rawMessageId:X2} from {sourceContext} is not translated by the ordinary coroutine.");
+                $"Gameplay message {messageId} from {sourceContext} is not translated by the ordinary coroutine.");
         }
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
@@ -318,12 +317,12 @@ public sealed class GameplayMessageBoxState
                     // $85:84D8: A confirms the highlighted choice, then B cancels; only a
                     // press with neither moves the two-choice cursor.
                     ControllerButton newlyPressed = _controller.NewlyPressed;
-                    if ((newlyPressed & ControllerButton.A) != 0)
+                    if ((newlyPressed & ControllerButton.A) != ControllerButton.None)
                     {
                         BeginClosing(ConfirmationSelectionYes);
                         return;
                     }
-                    if ((newlyPressed & ControllerButton.B) != 0)
+                    if ((newlyPressed & ControllerButton.B) != ControllerButton.None)
                     {
                         BeginClosing(false);
                         return;
@@ -340,7 +339,7 @@ public sealed class GameplayMessageBoxState
                 // $85:84A3 polls the joypad registers for any held key, not a new edge.
                 // This is observable when a player begins holding a button during the
                 // mandatory 360-frame item fanfare.
-                if (controllerInput != 0)
+                if (controllerInput != ControllerButton.None)
                     BeginClosing(null);
                 return;
 

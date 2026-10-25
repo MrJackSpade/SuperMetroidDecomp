@@ -10,6 +10,14 @@ public static class GameplayMessageTitleDefinitions
     public const int Version = 1;
     /// <summary>Native tile character index of A; B through Z follow contiguously.</summary>
     public const ushort FirstLetterTile = 0x0e0;
+    /// <summary>Native tile character index for a space.</summary>
+    public const ushort SpaceTile = 0x04e;
+    /// <summary>Native tile character index for a hyphen.</summary>
+    public const ushort HyphenTile = 0x0cf;
+    /// <summary>Native tile character index for a period.</summary>
+    public const ushort PeriodTile = 0x0fa;
+    /// <summary>Native tile character index for a question mark.</summary>
+    public const ushort QuestionMarkTile = 0x0fe;
     /// <summary>Letters in the contiguous A-Z tile range.</summary>
     public const int LetterCount = 26;
 

@@ -1994,15 +1994,11 @@ internal static class LookupStream4Verification
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var id = (GameplayMessageId)raw;
-            if (raw is < 1 or > 27)
+            // The native table lists messages one through twenty-seven; its last entry is a dummy no message selects.
+            // No message, the gunship's save prompt beyond the table and every undefined identity are rejected.
+            if (raw is < 1 or > 27 || !Enum.IsDefined(id))
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
-                continue;
-            }
-            if (!Enum.IsDefined(id))
-            {
-                // The table's last entry is a native dummy no message selects; it is rejected as an undefined message.
-                AssertThrows<InvalidOperationException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "The dummy table entry is no message");
                 continue;
             }
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));

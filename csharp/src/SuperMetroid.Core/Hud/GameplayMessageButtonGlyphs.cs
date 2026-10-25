@@ -10,13 +10,13 @@ public static class GameplayMessageButtonGlyphs
     /// <summary>The glyph for <paramref name="binding"/>, testing A, B, X, Y, Select, L, R in that order; the first matching button wins even for a malformed multibit binding.</summary>
     public static ushort ResolveGlyphWord(ControllerButton binding) => binding switch
     {
-        var bits when (bits & ControllerButton.A) != 0 => Buttons.A,
-        var bits when (bits & ControllerButton.B) != 0 => Buttons.B,
-        var bits when (bits & ControllerButton.X) != 0 => Buttons.X,
-        var bits when (bits & ControllerButton.Y) != 0 => Buttons.Y,
-        var bits when (bits & ControllerButton.Select) != 0 => Buttons.Select,
-        var bits when (bits & ControllerButton.L) != 0 => Buttons.L,
-        var bits when (bits & ControllerButton.R) != 0 => Buttons.R,
+        var bits when (bits & ControllerButton.A) != ControllerButton.None => Buttons.A,
+        var bits when (bits & ControllerButton.B) != ControllerButton.None => Buttons.B,
+        var bits when (bits & ControllerButton.X) != ControllerButton.None => Buttons.X,
+        var bits when (bits & ControllerButton.Y) != ControllerButton.None => Buttons.Y,
+        var bits when (bits & ControllerButton.Select) != ControllerButton.None => Buttons.Select,
+        var bits when (bits & ControllerButton.L) != ControllerButton.None => Buttons.L,
+        var bits when (bits & ControllerButton.R) != ControllerButton.None => Buttons.R,
         ControllerButton.None or
             ControllerButton.R or
             ControllerButton.L or
@@ -34,11 +34,11 @@ public static class GameplayMessageButtonGlyphs
     };
 
     /// <summary>The byte offset in <paramref name="messageId"/>'s panel where the button glyph goes; zero for a message without one.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> has no glyph-table entry.</exception>
-    /// <exception cref="InvalidOperationException"><paramref name="messageId"/> is the table's dummy boundary.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is no message, or a message the glyph table does not list.</exception>
     public static ushort SpecialGlyphByteOffset(GameplayMessageId messageId)
     {
-        if ((uint)((byte)messageId - 1) >= Buttons.GlyphTableEntries) throw new ArgumentOutOfRangeException(nameof(messageId));
+        if (!Enum.IsDefined(messageId) || messageId is GameplayMessageId.None or GameplayMessageId.GunshipSaveConfirmation)
+            throw new ArgumentOutOfRangeException(nameof(messageId));
         return messageId switch
         {
             GameplayMessageId.MissileTank or GameplayMessageId.SuperMissileTank or GameplayMessageId.Bombs => Buttons.AmmunitionPanelGlyphOffset,

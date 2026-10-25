@@ -181,7 +181,7 @@ internal sealed class PlmFramePhase
                         continue;
                     }
                     throw new InvalidDataException(
-                        $"Save station published unexpected message ${(int)station.MessageBoxIndex:X2}.");
+                        $"Save station published unexpected message {station.MessageBoxIndex}.");
                 }
                 if (_messageBox.IsActive)
                 {

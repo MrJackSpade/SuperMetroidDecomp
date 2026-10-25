@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.DebugRunner.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -25,9 +25,9 @@ internal static class AreaMapAssetsVerification
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int index = AreaIds.ToIndex(area);
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
+            ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             AssertEqual(AreaMapAssetVerificationDefinitions.TilemapAddresses[index],
-                map.TilemapAddress,
+                map.TilemapSource,
                 $"{area} tilemap address");
 
             string stem = Path.Combine(root, "areas", MapAssetExtractor.FileStem(area));
@@ -61,7 +61,7 @@ internal static class AreaMapAssetsVerification
                 $"{area} secret-only cell count");
         }
 
-        AreaMapCartridgeData brinstar = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Brinstar);
+        ImportedAreaMap brinstar = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Brinstar);
         AssertTrue(brinstar.IsRevealedByMapStation(new(9, 1)),
             "representative Brinstar public map cell");
         AssertTrue(brinstar.IsDiscoverable(new(23, 2)) &&

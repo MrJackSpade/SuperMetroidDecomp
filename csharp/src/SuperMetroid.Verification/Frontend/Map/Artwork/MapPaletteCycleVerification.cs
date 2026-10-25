@@ -17,7 +17,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -30,7 +29,7 @@ internal static class MapPaletteCycleVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
+        AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);
         var arrows = new FileSelectMapAnimations(original.Arrows);

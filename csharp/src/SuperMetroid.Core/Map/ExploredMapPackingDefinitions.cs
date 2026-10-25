@@ -53,12 +53,12 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
-        /// <summary>Checks the eight horizontal map cells represented by a native byte, including the page offset.</summary>
-        private bool Contains(int nativeByte)
+        /// <summary>Checks the eight horizontal map cells one stored exploration byte represents, including the page offset.</summary>
+        private bool Contains(int storedByte)
         {
             int pageBytes = AreaMapLayout.HeightInTiles * AreaMapLayout.PageWidthInTiles / 8;
-            int local = nativeByte % pageBytes;
-            int x = nativeByte / pageBytes * AreaMapLayout.PageWidthInTiles + local % 4 * 8;
+            int local = storedByte % pageBytes;
+            int x = storedByte / pageBytes * AreaMapLayout.PageWidthInTiles + local % 4 * 8;
             int y = local / 4;
             for (int bit = 0; bit < 8; bit++)
                 if (stockRules.IsDiscoverable(new Position16<MapTiles>(unchecked((ushort)(x + bit)), unchecked((ushort)y)))) return true;

@@ -36,7 +36,7 @@ internal static class HudAtlasVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules,
+        AreaMapPresentationCatalog original, ImportedAreaMap[] rules,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
@@ -124,7 +124,7 @@ internal static class HudAtlasVerification
             // observable, rather than accepting parity between two black HUDs.
             for (int i = 0; i < 32; i++) runtime.Cgram.AsPaletteColors().SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
+            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
         // The HUD band the display renderer draws: the BG3 plane the frame latches, its characters as their bound artwork
         // composes them.

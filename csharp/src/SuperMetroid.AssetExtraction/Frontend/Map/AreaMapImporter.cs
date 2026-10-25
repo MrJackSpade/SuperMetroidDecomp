@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -15,21 +16,21 @@ public static class AreaMapImporter
     /// <param name="bus">Supported-cartridge address space containing the area pointer tables and map data.</param>
     /// <param name="area">Defined area whose complete map and reveal mask are imported.</param>
     /// <returns>Owned native bytes, source addresses, and decoded tile words for the selected area.</returns>
-    public static AreaMapCartridgeData Load(ISnesAddressSpace bus, AreaId area)
+    public static ImportedAreaMap Load(ISnesAddressSpace bus, AreaId area)
     {
         Ensure.NotNull(bus);
         int areaIndex = AreaIds.ToIndex(area);
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
             CartridgeImportSource.Require(bus),
-            AreaMapRomData.TilemapPointerTable + areaIndex * 3);
+            MapSourceDefinitions.AreaMaps.TilemapPointers + areaIndex * MapSourceDefinitions.AreaMaps.TilemapPointerBytes);
         ushort revealPointer = RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
-            AreaMapRomData.StationRevealMaskPointerTable + areaIndex * sizeof(ushort));
-        int revealAddress = AreaMapRomData.StationRevealMaskBank | revealPointer;
+            MapSourceDefinitions.AreaMaps.StationRevealMaskPointers + areaIndex * sizeof(ushort));
+        int revealAddress = MapSourceDefinitions.AreaMaps.StationRevealMaskBank | revealPointer;
         byte[] tilemapBytes = RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus), tilemapAddress, AreaMapRomData.TilemapByteCount);
+            CartridgeImportSource.Require(bus), tilemapAddress, MapSourceDefinitions.AreaMaps.TilemapBytes);
         byte[] revealBytes = RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus), revealAddress, AreaMapRomData.StationRevealMaskByteCount);
+            CartridgeImportSource.Require(bus), revealAddress, MapSourceDefinitions.AreaMaps.StationRevealMaskBytes);
         var tilemap = new MapTileWord[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         {
@@ -42,7 +43,7 @@ public static class AreaMapImporter
             }
         }
 
-        return new AreaMapCartridgeData(
+        return new ImportedAreaMap(
             area, tilemapAddress, revealAddress, tilemapBytes, revealBytes, tilemap);
     }
 }

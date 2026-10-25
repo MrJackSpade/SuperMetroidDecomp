@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Map.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Stock content provenance, separate from a catalog's selected replacement identity.</summary>
 public sealed record AreaMapCatalogManifest

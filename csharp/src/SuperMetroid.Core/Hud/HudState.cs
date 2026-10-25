@@ -293,7 +293,7 @@ public sealed class HudState
         // Every eight NMI frames the native code ORs palette bits $1C00 into the center
         // tile. The other half-cycle leaves its explored palette intact, producing the
         // familiar blinking Samus location without a separate sprite.
-        if ((frame.NmiFrameCounter & 8) == 0)
+        if ((frame.FrameCounter & 8) == 0)
         {
             var centerCell = new Position16<TilemapCells>(2, 1);
             int center = presentation?.MinimapCellIndex(centerCell) ?? NativeMinimapCellIndex(centerCell);

@@ -876,7 +876,7 @@ internal sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, NmiFrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
         }
     }
 

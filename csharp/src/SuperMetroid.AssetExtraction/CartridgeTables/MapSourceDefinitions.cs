@@ -99,6 +99,28 @@ internal static class MapSourceDefinitions
         internal const int ScrollArrowRecordBytes = 10;
     }
 
+    /// <summary>The seven area maps' tilemaps and map-station reveal planes.</summary>
+    internal static class AreaMaps
+    {
+        /// <summary>$82:964A, kPauseMenuMapTilemaps: one long pointer per area to its packed tilemap.</summary>
+        internal const int TilemapPointers = 0x82964a;
+
+        /// <summary>The bytes of one tilemap pointer.</summary>
+        internal const int TilemapPointerBytes = 3;
+
+        /// <summary>$82:9717, kPauseMenuMapData: one bank-$82 pointer per area to its map-station reveal plane.</summary>
+        internal const int StationRevealMaskPointers = 0x829717;
+
+        /// <summary>Bank $82, holding the map-station reveal planes.</summary>
+        internal const int StationRevealMaskBank = 0x820000;
+
+        /// <summary>The bytes of one packed 64-by-32 area tilemap: 2,048 words.</summary>
+        internal const int TilemapBytes = 0x1000;
+
+        /// <summary>The bytes of one 64-by-32 one-bit map-station reveal plane.</summary>
+        internal const int StationRevealMaskBytes = 0x0100;
+    }
+
     /// <summary>The map landmarks' per-area coordinate lists, bank-$82 pointers indexed by area.</summary>
     internal static class Landmarks
     {

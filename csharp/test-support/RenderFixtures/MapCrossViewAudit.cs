@@ -63,7 +63,7 @@ internal static class MapCrossViewAudit
 
         var hud = new HudState();
         hud.Initialize(HudSnapshot.CeresDebug);
-        hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = room.AreaIndex, RoomMap = room.MapPosition, RoomSize = room.Size.ToRoomBlocks(), Samus = samus.Position.Whole, NmiFrameCounter = 8 });
+        hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = room.AreaIndex, RoomMap = room.MapPosition, RoomSize = room.Size.ToRoomBlocks(), Samus = samus.Position.Whole, FrameCounter = 8 });
 
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition });
         _ = pause.Render();

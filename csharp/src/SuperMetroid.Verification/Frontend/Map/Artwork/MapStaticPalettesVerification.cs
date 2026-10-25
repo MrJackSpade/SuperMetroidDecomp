@@ -10,7 +10,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -27,7 +26,7 @@ internal static class MapStaticPalettesVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
+        AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();

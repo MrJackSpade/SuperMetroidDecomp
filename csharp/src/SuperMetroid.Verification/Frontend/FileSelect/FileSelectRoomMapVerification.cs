@@ -47,7 +47,7 @@ internal static class FileSelectRoomMapVerification
         {
             AreaId area = (AreaId)areaIndex;
             var system = new Bank80SystemState();
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
+            ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
             // Deliberately cross both native pages and explore cells outside the map
             // station's mask: explored cells win, even for secret rooms.
@@ -442,7 +442,7 @@ internal static class FileSelectRoomMapVerification
     private static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
+        ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));

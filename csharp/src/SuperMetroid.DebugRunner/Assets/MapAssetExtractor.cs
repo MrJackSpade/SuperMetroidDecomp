@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.DebugRunner.Assets;
 
@@ -23,7 +23,7 @@ internal static class MapAssetExtractor
         int areas = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
+            ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             string stem = Path.Combine(areasDirectory, FileStem(area));
             File.WriteAllBytes(stem + ".tilemap.bin", map.RawTilemapBytes);
             File.WriteAllBytes(stem + ".station-reveal-mask.bin", map.StationRevealMaskBytes);

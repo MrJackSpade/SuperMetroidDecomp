@@ -15,7 +15,7 @@ public static class AreaMapTilemapBuilder
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
-        var bytes = new byte[AreaMapRomData.TilemapByteCount];
+        var bytes = new byte[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles * sizeof(ushort)];
         bool downloaded = system.HasAreaMap(map.Area);
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)

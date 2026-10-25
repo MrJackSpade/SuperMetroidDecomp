@@ -494,7 +494,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Detached Ki-Hunter wing function $A8:{(ushort)state.WingFunction:X4} is not translated.");
+                    $"Detached Ki-Hunter wing function {state.WingFunction} is not translated.");
         }
     }
 

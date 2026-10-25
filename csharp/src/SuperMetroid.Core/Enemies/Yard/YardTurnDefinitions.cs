@@ -41,8 +41,8 @@ internal static class YardTurnDefinitions
         YardMovementFunction.InstructionPending or
             YardMovementFunction.Hiding or
             YardMovementFunction.Airborne => throw new InvalidDataException(
-            $"Yard crawl function $A3:{(ushort)movement:X4} has no turn definition."),
+            $"Yard crawl function {movement} has no turn definition."),
         _ => throw new InvalidDataException(
-            $"Yard crawl function $A3:{(ushort)movement:X4} has no turn definition."),
+            $"Yard crawl function {movement} has no turn definition."),
     };
 }

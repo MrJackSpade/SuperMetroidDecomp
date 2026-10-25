@@ -208,13 +208,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             Part(bottom).EngineSoundTimer = 70;
         }
 
-        // The native address-range test admits functions $A942-$AC1A (two signed sums, an exact range). Idle function $A9BD
-        // is inside that interval, so the landed ship continuously performs its four-phase
-        // bob before dispatching the function itself.
-        if (Part(top).FunctionWord is >= GunshipMotionDefinitions.BobbingFunctionsFirst and <= GunshipMotionDefinitions.BobbingFunctionsLast)
+        // The landed ship continuously performs its four-phase bob before dispatching the function itself, in every
+        // function from waiting for the landing entrance through loading the liftoff dust.
+        GunshipFunction function = ClosedNativeWords.Decode<GunshipFunction>(checked((ushort)Part(top).FunctionWord), "gunship function");
+        if (BobsWhileLanded(function))
             StepGunshipBob(top);
 
-        GunshipFunction function = ClosedNativeWords.Decode<GunshipFunction>(checked((ushort)Part(top).FunctionWord), "gunship function");
         switch (function)
         {
             case GunshipFunction.DescendAfterCeres:
@@ -388,6 +387,18 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
         }
     }
+
+    /// <summary>
+    /// Whether the landed ship bobs before running <paramref name="function"/>: every function from waiting for the
+    /// landing entrance through loading the liftoff dust. The cartridge tests its function word against the range of
+    /// those routines' addresses ($A942-$AC1A, which also contains Idle); firing up the engines is the first routine past it.
+    /// </summary>
+    private static bool BobsWhileLanded(GunshipFunction function) => function is
+        GunshipFunction.WaitForLandingEntranceToOpen or GunshipFunction.EjectSamus or GunshipFunction.FinishLanding or
+        GunshipFunction.Idle or GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus or
+        GunshipFunction.WaitForEntranceToClose or GunshipFunction.BeginLiftoffOrRestoreSamus or
+        GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen or GunshipFunction.RaiseSamus or
+        GunshipFunction.FinishSamusExit or GunshipFunction.LoadLiftoffDustTiles;
 
     /// <summary>Cycles the four native idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)

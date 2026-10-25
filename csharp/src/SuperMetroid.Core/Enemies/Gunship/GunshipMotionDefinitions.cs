@@ -36,12 +36,6 @@ internal static class GunshipMotionDefinitions
         return new(16, phase is 0 or 3 ? (sbyte)1 : (sbyte)-1);
     }
 
-    /// <summary>The first function the landed ship bobs through: the native range test admits $A942-$AC1A.</summary>
-    internal const ushort BobbingFunctionsFirst = 0xa942;
-
-    /// <summary>The last function the landed ship bobs through.</summary>
-    internal const ushort BobbingFunctionsLast = 0xac1a;
-
     /// <summary>Above this Y the descending ship moves $4.8000 pixels per call; below it, $2.8000.</summary>
     internal const ushort SlowDescentY = 0x0300;
 

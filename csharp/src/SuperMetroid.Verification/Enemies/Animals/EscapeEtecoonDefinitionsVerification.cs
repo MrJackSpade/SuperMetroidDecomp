@@ -33,7 +33,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"escape Etecoon role {role} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
-            AssertEqual((EscapeEtecoonPreInstruction)CartridgeImportSource.Require(rom).ReadCartridgeWord((preInstructionTable + parameter)),
+            AssertEqual(AnimalsNativeWords.EscapeEtecoonPreInstructions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((preInstructionTable + parameter)), "escape Etecoon pre-instruction"),
                 initialization.PreInstruction,
                 $"escape Etecoon role {role} pre-instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),

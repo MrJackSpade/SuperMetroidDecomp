@@ -88,7 +88,7 @@ internal static class ShutterBehaviorVerification
         {
             state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
-            AssertEqual(native, (ushort)select(state), "vertical shutter native initial function pointer");
+            AssertEqual(native, ShuttersNativeWords.VerticalShutterFunctions.Word(select(state)), "vertical shutter native initial function pointer");
             AssertEqual(VerticalShutterFunction.Initial, state.Function,
                 "vertical initial dispatch selects a function without installing it");
         }
@@ -107,7 +107,7 @@ internal static class ShutterBehaviorVerification
             state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.HorizontalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
             select(state);
-            AssertEqual(native, (ushort)state.Function, "horizontal shutter installs native initial function pointer");
+            AssertEqual(native, ShuttersNativeWords.HorizontalShutterFunctions.Word(state.Function ?? throw new InvalidOperationException("The shutter installed no function.")), "horizontal shutter installs native initial function pointer");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
             AssertThrows<InvalidDataException>(() => ShuttersBehavior.DecodeTriggerMode(mode, "Horizontal"), "horizontal shutter invalid trigger mode");

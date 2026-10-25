@@ -263,7 +263,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Fune/Namihe fireball function $86:{projectile.Variable0:X4} is not translated.");
+                    $"Fune/Namihe fireball function {projectile.Variable0} is not translated.");
         }
 
         // The shared native cull treats both camera edges as inclusive: an origin exactly

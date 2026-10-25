@@ -172,7 +172,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Yapping Maw function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Yapping Maw function {state.Function} is not translated.");
         }
 
         // The mouth actor owns the final point. The four eprojs own root, quarter, half,

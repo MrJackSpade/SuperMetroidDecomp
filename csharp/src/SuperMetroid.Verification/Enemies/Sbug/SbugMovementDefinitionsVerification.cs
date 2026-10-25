@@ -37,7 +37,7 @@ internal static class SbugMovementDefinitionsVerification
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
         {
             int address = activationTable + behavior * 2;
-            var native = (SbugEnemyFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            var native = SbugNativeWords.SbugEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
             AssertEqual(native, SbugMovementDefinitions.ActivationFunction((SbugActivationBehavior)behavior),
                 $"compiled Sbug activation selector {behavior}");
         }
@@ -76,7 +76,7 @@ internal static class SbugMovementDefinitionsVerification
             runMain(slot, samus, null);
 
             int address = activationTable + behavior * 2;
-            var native = (SbugEnemyFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            var native = SbugNativeWords.SbugEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
             AssertEqual(native, state.Function, $"Sbug production activation {behavior}");
         }
 

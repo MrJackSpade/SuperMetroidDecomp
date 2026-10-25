@@ -1311,7 +1311,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)PipeBugDefinitions.NorfairPostRiseFunction(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugDefinitions.NorfairPostRiseFunction(member)),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -1333,7 +1333,7 @@ internal static class LookupStream2Verification
                 var state = enemies.PipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)state.NorfairPostRiseFunction,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(state.NorfairPostRiseFunction),
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
                 AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight),

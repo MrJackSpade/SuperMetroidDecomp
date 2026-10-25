@@ -1156,12 +1156,12 @@ internal static class LookupStream3Verification
         {
             int offset = 2 * (parameter & 3);
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
-            var function = (SparkEnemyFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset);
+            var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
             SparkMovementDefinition definition = SparkMovementDefinitions.InitialState((ushort)parameter);
             // Selector three's list word is the following main-AI function pointer, which starts no animation.
             AssertEqual(list, definition.Program is { } program
                     ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
-                    : (ushort)SparkEnemyFunction.AlwaysActive,
+                    : SparksNativeWords.SparkEnemyFunctions.Word(SparkEnemyFunction.AlwaysActive),
                 "stream 3 native Spark list selector including adjacent-word case");
             AssertEqual(function, definition.Function, "stream 3 native Spark function selector including adjacent-word case");
         }
@@ -2124,7 +2124,7 @@ internal static class LookupStream3Verification
         {
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
-            AssertEqual(new ChootPatternDefinition((ChootFallingPath)pointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
+            AssertEqual(new ChootPatternDefinition(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
                 ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
         }
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })

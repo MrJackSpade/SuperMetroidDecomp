@@ -112,7 +112,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the initial per-segment pre-instruction callback selection.</summary>
     private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
-            definition => (ushort)definition.PreInstruction, "callback selection"));
+            definition => ShaktoolNativeWords.ShaktoolPreInstructions.Word(definition.PreInstruction), "callback selection"));
 
     /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool definition field")]

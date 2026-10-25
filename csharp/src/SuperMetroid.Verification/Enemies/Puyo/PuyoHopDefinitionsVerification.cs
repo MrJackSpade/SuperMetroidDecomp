@@ -19,7 +19,7 @@ internal static class PuyoHopDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.Height, "Puyo native hop height");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.XSpeed, "Puyo native horizontal speed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0b + index)), hop.YIndexDelta, "Puyo native gravity/drop delta");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0d + index)), (ushort)hop.Function, "Puyo native airborne callback");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0d + index)), PuyoNativeWords.PuyoAirborneFunctions.Word(hop.Function), "Puyo native airborne callback");
             if (hop.Function == PuyoAirborneFunction.Dropping)
                 continue; // Dropping bypasses hop initialization and uses constant speed.
             ushort time = 0, distance = 0;

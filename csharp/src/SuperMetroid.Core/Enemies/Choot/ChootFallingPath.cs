@@ -1,14 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>The five bank-$A2 Choot falling-path streams, valued by native address.</summary>
+/// <summary>
+/// The five Choot falling paths.
+/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// </summary>
 internal enum ChootFallingPath : ushort
 {
     /// <summary>$A2:D84C, normal falling motion.</summary>
-    Normal = 0xd84c,
+    Normal = 1,
     /// <summary>$A2:D976, wide falling motion.</summary>
-    Wide = 0xd976,
+    Wide,
     /// <summary>$A2:DAA0, very wide falling motion.</summary>
-    VeryWide = 0xdaa0,
+    VeryWide,
 
     /// <summary>
     /// <c>$A2:DBCA-$A2:DD41</c>: the normal path with ten extra copies of
@@ -19,7 +22,7 @@ internal enum ChootFallingPath : ushort
     /// mapping is applied by <see cref="ChootFallingPathDefinitions"/>.
     /// Investigation: #625 / #658.
     /// </summary>
-    Slow = 0xdbca,
+    Slow,
 
     /// <summary>
     /// <c>$A2:DD44-$A2:DF5B</c>: the normal path with thirty extra copies of
@@ -30,5 +33,5 @@ internal enum ChootFallingPath : ushort
     /// mapping is applied by <see cref="ChootFallingPathDefinitions"/>.
     /// Investigation: #625 / #659.
     /// </summary>
-    VerySlow = 0xdd44,
+    VerySlow,
 }

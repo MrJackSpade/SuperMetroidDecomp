@@ -121,7 +121,7 @@ internal sealed class SamusFramePhases
         }
         else if (!_freeze.TimeIsFrozen &&
                  (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.Overreads)) &&
-                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != 0)
+                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != ControllerButton.None)
         {
             // Normal HUD item four now reaches the same bank-$9B actor as the
             // diagnostic entry point, after bank-$90's movement-type admission.
@@ -239,8 +239,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusMovementType.DraygonHeld:
             default:
                 throw new NotSupportedException(
-                    $"Cached movement type ${(byte)SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus):X2} under " +
-                    $"uninitialized pose ${(int)_player.IntroducedSamus.Pose:X2} has no translated $90:A337 mover.");
+                    $"Cached movement type {SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus)} under " +
+                    $"uninitialized pose {_player.IntroducedSamus.Pose} has no translated $90:A337 mover.");
         }
     }
 
@@ -355,7 +355,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                (_controller1.Current & ControllerButton.B) != 0 &&
+                (_controller1.Current & ControllerButton.B) != ControllerButton.None &&
                 TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
                 frame.MarkXrayActivated();
@@ -1063,7 +1063,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 // the pose byte no longer agrees with the cartridge-backed producer
                 // set; it is corrupt state, not a recoverable movement family.
                 throw new InvalidDataException(
-                    $"Runtime movement dispatcher received invalid pose ${(int)samus.Pose:X2}.");
+                    $"Runtime movement dispatcher received invalid pose {samus.Pose}.");
         }
     }
 
@@ -1128,8 +1128,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         else
         {
             throw new InvalidDataException(
-                $"Turn pose ${(int)samus.Pose:X2} has unsupported movement type " +
-                $"${(byte)turnMovementType:X2}.");
+                $"Turn pose {samus.Pose} has unsupported movement type " +
+                $"{turnMovementType}.");
         }
     }
 

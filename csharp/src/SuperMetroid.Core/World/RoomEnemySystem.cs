@@ -919,12 +919,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 // them before this actor's touch and AI, so escape starts now.
                 if (frame.SharedProjectiles is not null && frame.SamusProjectiles is not null)
                     Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, enemyIndex);
-                if (slot.DefinitionId == 0)
+                if (slot.DefinitionId == EnemyDefinitionId.None)
                     continue;
                 Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, enemyIndex);
                 if (slot.Entity is IEnemyContactHooks contact)
                     contact.ResolveAfterSamusContact(frame.Samus);
-                if (slot.DefinitionId == 0)
+                if (slot.DefinitionId == EnemyDefinitionId.None)
                     continue;
             }
             if (!frame.TimeIsFrozen)
@@ -935,7 +935,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 // RTL. Hurt therefore delays frozen AI until flash housekeeping
                 // clears bit two; falling through here prematurely clears flash.
                 if (!ranActorAi &&
-                    (slot.AiStates & EnemyAiStates.Hurt) != 0 &&
+                    (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
                     (slot.Entity as IEnemyHurtAi)?.FindHurt() is { } hurt)
                 {
                     hurt(slot, frame);
@@ -944,7 +944,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 // $A0:9044 selects the handler from the lowest set AI bit alone. A frozen
                 // clock without bit four (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
-                if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != 0)
+                if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
                 {
                     // Rinka's termination tail clears/replaces the current actor record.
                     // The active-index array was frozen before AI, so skip the remainder
@@ -961,7 +961,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     slot.FlashTimer = WrappingCountdown.Start(0);
                     bool thaw = slot.FrozenTimer.IsZero ||
                         (frame.Samus is not null &&
-                            (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == 0);
+                            (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None);
                     if (!thaw)
                         slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
                     else
@@ -989,7 +989,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.
-                    if ((slot.AiStates & EnemyAiStates.Frozen) == 0 &&
+                    if ((slot.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
                         slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
                         EnemyInstructionInterpreter.ProcessInstructions(
                             slot,

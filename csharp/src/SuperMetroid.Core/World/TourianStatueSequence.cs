@@ -224,7 +224,7 @@ public sealed class TourianStatueSequence
                     statue.AnimationState &= ~definition.AnimatingFlag;
                     return null;
                 case TourianStatueTileCueKind.GoToIfReleaseInProgress:
-                    return (statue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != 0 ? branch : null;
+                    return (statue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != TourianStatueAnimationState.None ? branch : null;
                 case TourianStatueTileCueKind.ClaimRelease:
                     statue.AnimationState |= TourianStatueAnimationState.ReleaseInProgress;
                     return null;
@@ -268,7 +268,7 @@ public sealed class TourianStatueSequence
             if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)
                 || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
             _enemies.TourianStatue.AnimationState |= TourianStatueAnimationState.AllReleased;
-            if ((_enemies.TourianStatue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != 0) return;
+            if ((_enemies.TourianStatue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != TourianStatueAnimationState.None) return;
             delay = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }

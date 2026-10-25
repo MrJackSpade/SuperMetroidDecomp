@@ -45,7 +45,7 @@ public static class FileSelectPresentationExtractor
         ushort[] CopyPage(ushort prompt, int promptDestination,
             bool confirmation = false, ushort? completion = null)
         {
-            ushort[] page = DataBase(FileSelectTilemapDefinitions.DataCopyMode,
+            ushort[] page = DataBase(FileSelectTilemapSourceDefinitions.DataCopyMode,
                 FileSelectNativeLayout.DataModeCopyDestination, prompt, promptDestination);
             if (confirmation)
                 AddConfirmation(page);
@@ -58,12 +58,12 @@ public static class FileSelectPresentationExtractor
         ushort[] ClearPage(ushort prompt, int promptDestination,
             bool confirmation = false, bool completed = false)
         {
-            ushort[] page = DataBase(FileSelectTilemapDefinitions.DataClearMode,
+            ushort[] page = DataBase(FileSelectTilemapSourceDefinitions.DataClearMode,
                 FileSelectNativeLayout.DataModeClearDestination, prompt, promptDestination);
             if (confirmation)
                 AddConfirmation(page);
             if (completed)
-                Apply(page, Patch(FileSelectTilemapDefinitions.DataCleared),
+                Apply(page, Patch(FileSelectTilemapSourceDefinitions.DataCleared),
                     FileSelectNativeLayout.DataClearedDestination);
             return page;
         }
@@ -76,31 +76,31 @@ public static class FileSelectPresentationExtractor
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)] = Cells(mainWithData),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainEmpty)] = Cells(mainEmpty),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopySource)] = Cells(CopyPage(
-                FileSelectTilemapDefinitions.CopyWhichData, FileSelectNativeLayout.CopySourcePromptDestination)),
+                FileSelectTilemapSourceDefinitions.CopyWhichData, FileSelectNativeLayout.CopySourcePromptDestination)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyDestination)] = Cells(CopyPage(
-                FileSelectTilemapDefinitions.CopySamusToWhere, FileSelectNativeLayout.CopyDestinationPromptDestination)),
+                FileSelectTilemapSourceDefinitions.CopySamusToWhere, FileSelectNativeLayout.CopyDestinationPromptDestination)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyConfirm)] = Cells(CopyPage(
-                FileSelectTilemapDefinitions.CopySamusToSamus,
+                FileSelectTilemapSourceDefinitions.CopySamusToSamus,
                 FileSelectNativeLayout.CopyConfirmationPromptDestination, confirmation: true)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyCompleted)] = Cells(CopyPage(
-                FileSelectTilemapDefinitions.CopySamusToSamus,
+                FileSelectTilemapSourceDefinitions.CopySamusToSamus,
                 FileSelectNativeLayout.CopyConfirmationPromptDestination, confirmation: true,
-                completion: FileSelectTilemapDefinitions.CopyCompleted)),
+                completion: FileSelectTilemapSourceDefinitions.CopyCompleted)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearSelection)] = Cells(ClearPage(
-                FileSelectTilemapDefinitions.ClearWhichData, FileSelectNativeLayout.ClearPromptDestination)),
+                FileSelectTilemapSourceDefinitions.ClearWhichData, FileSelectNativeLayout.ClearPromptDestination)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearConfirm)] = Cells(ClearPage(
-                FileSelectTilemapDefinitions.ClearSamus, FileSelectNativeLayout.ClearPromptDestination,
+                FileSelectTilemapSourceDefinitions.ClearSamus, FileSelectNativeLayout.ClearPromptDestination,
                 confirmation: true)),
             [FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearCompleted)] = Cells(ClearPage(
-                FileSelectTilemapDefinitions.ClearSamus, FileSelectNativeLayout.ClearPromptDestination,
+                FileSelectTilemapSourceDefinitions.ClearSamus, FileSelectNativeLayout.ClearPromptDestination,
                 confirmation: true, completed: true)),
         };
 
         var patches = new Dictionary<string, FileSelectPatchDocument>(StringComparer.Ordinal)
         {
-            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)] = Document(Patch(FileSelectTilemapDefinitions.Energy)),
-            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapDefinitions.NoData)),
-            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapDefinitions.TimeColon)),
+            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)] = Document(Patch(FileSelectTilemapSourceDefinitions.Energy)),
+            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapSourceDefinitions.NoData)),
+            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
         };
         var digits = Enumerable.Range(0, 10)
             .Select(value => Cell(unchecked((ushort)(FileSelectLayout.DigitTileBase + value))))
@@ -189,19 +189,19 @@ public static class FileSelectPresentationExtractor
         // Overlay the title, three slot labels/time fields, Exit, and copy/clear commands only for occupied menus.
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
-            Apply(page, Patch(FileSelectTilemapDefinitions.SamusData), FileSelectNativeLayout.SamusDataDestination);
-            Apply(page, Patch(FileSelectTilemapDefinitions.SlotLabel(0)), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapDefinitions.SlotLabel(1)), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapDefinitions.SlotLabel(2)), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.SamusData), FileSelectNativeLayout.SamusDataDestination);
+            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(0)), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(1)), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(2)), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel));
             if (includeDataCommands)
             {
-                Apply(page, Patch(FileSelectTilemapDefinitions.DataCopy), FileSelectNativeLayout.DataCopyDestination);
-                Apply(page, Patch(FileSelectTilemapDefinitions.DataClear), FileSelectNativeLayout.DataClearDestination);
+                Apply(page, Patch(FileSelectTilemapSourceDefinitions.DataCopy), FileSelectNativeLayout.DataCopyDestination);
+                Apply(page, Patch(FileSelectTilemapSourceDefinitions.DataClear), FileSelectNativeLayout.DataClearDestination);
             }
-            Apply(page, Patch(FileSelectTilemapDefinitions.Exit), FileSelectNativeLayout.ExitDestination);
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Exit), FileSelectNativeLayout.ExitDestination);
         }
 
         // Start a copy/clear page with its mode title, prompt, Exit, and three data-slot label/time fields.
@@ -211,23 +211,23 @@ public static class FileSelectPresentationExtractor
             ushort[] page = BlankPage();
             Apply(page, Patch(mode), modeDestination);
             Apply(page, Patch(prompt), promptDestination);
-            Apply(page, Patch(FileSelectTilemapDefinitions.Exit), FileSelectNativeLayout.ExitDestination);
-            Apply(page, Patch(FileSelectTilemapDefinitions.SlotLabel(0)), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapDefinitions.SlotLabel(1)), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapDefinitions.SlotLabel(2)), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Exit), FileSelectNativeLayout.ExitDestination);
+            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(0)), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(1)), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(2)), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel));
             return page;
         }
 
         // Overlay the shared question and YES/NO choices on a copy or clear page.
         void AddConfirmation(ushort[] page)
         {
-            Apply(page, Patch(FileSelectTilemapDefinitions.IsThisOkay),
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.IsThisOkay),
                 FileSelectNativeLayout.ConfirmationQuestionDestination);
-            Apply(page, Patch(FileSelectTilemapDefinitions.Yes), FileSelectNativeLayout.ConfirmationYesDestination);
-            Apply(page, Patch(FileSelectTilemapDefinitions.No), FileSelectNativeLayout.ConfirmationNoDestination);
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Yes), FileSelectNativeLayout.ConfirmationYesDestination);
+            Apply(page, Patch(FileSelectTilemapSourceDefinitions.No), FileSelectNativeLayout.ConfirmationNoDestination);
         }
     }
 

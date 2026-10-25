@@ -133,6 +133,12 @@ public sealed class BotwoonEnemyState
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
+    /// <summary>
+    /// Each body segment's phase, by segment index (#1413). The cartridge kept it in the segment projectile's X-velocity
+    /// word, which no body motion reads; the phase is the segment's own state here.
+    /// </summary>
+    internal BotwoonBodyFunction[] SegmentFunctions { get; } = new BotwoonBodyFunction[13];
+
     /// <summary>One kilobyte of native position history, represented as 256 whole-pixel positions.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[256];
 

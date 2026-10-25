@@ -383,7 +383,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.CeresRetrieveBaby:
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Ridley function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Lower Norfair Ridley function {state.Function} is not translated.");
         }
     }
 

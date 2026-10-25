@@ -1310,7 +1310,11 @@ internal static class RidleyFullMovieVerification
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
                 if (runtime.Enemies.SlotTable.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
-                Check("Ridley AI function", (ushort)ridleyState.Function, NativeSnapshotMemory.RidleyFunction);
+                // Ridley's AI function is an identity (#1413): the native routine word is translated and the identities compared.
+                ushort nativeFunctionWord = W(NativeSnapshotMemory.RidleyFunction);
+                if (!RidleyNativeWords.AiFunctions.TryDecode(nativeFunctionWord, out RidleyAiFunction nativeFunction) ||
+                    nativeFunction != ridleyState.Function)
+                    mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.Function}");
                 Check("Ridley AI timer", ridleyState.FunctionTimer.RawValue, NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", (ushort)ridleyState.TailFunctionIndex, NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);

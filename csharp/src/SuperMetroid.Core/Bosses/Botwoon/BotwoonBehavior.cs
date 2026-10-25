@@ -953,10 +953,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort orientation = spawnArgument != 0 ? (ushort)16 : (ushort)48;
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(orientation)));
         segment.DirectionParameter = orientation;
-        segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Main));
 
         int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
+        state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Main;
         state.SegmentInsideHole[segmentIndex] = true;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         segment.CanDamageSamus = false;
@@ -969,12 +969,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BotwoonEnemyState state = BotwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
-        BotwoonBodyFunction function =
-            ClosedNativeWords.Decode<BotwoonBodyFunction>(segment.Velocity.X.RawValue, "Botwoon body function");
+        int segmentIndex = Array.IndexOf(state.BodySegments, segment);
+        if (segmentIndex < 0)
+            throw new InvalidOperationException($"Projectile slot {segment.SlotIndex} is not one of Botwoon's body segments.");
+        BotwoonBodyFunction function = state.SegmentFunctions[segmentIndex];
         if (state.BodyDeathStarted && function == BotwoonBodyFunction.Main)
         {
             function = BotwoonBodyFunction.BeginDying;
-            segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)function));
+            state.SegmentFunctions[segmentIndex] = function;
         }
 
         switch (function)
@@ -988,19 +990,19 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 // normally owns indexes $0A..$22 because allocation descended from $22.
                 segment.DirectionParameter = unchecked((ushort)(
                     4 * (segment.SlotIndex * 2) + 96));
-                segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.DyingDelay));
+                state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.DyingDelay;
                 goto case BotwoonBodyFunction.DyingDelay;
 
             case BotwoonBodyFunction.DyingDelay:
                 segment.DirectionParameter = unchecked((ushort)(segment.DirectionParameter + 1));
                 if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
-                    segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));
+                    state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Falling;
                 segment.InstructionTimer = WrappingCountdown.Start(0);
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
 
             case BotwoonBodyFunction.Falling:
-                RunBotwoonBodyFall(segment, state, randomEnemyCounter);
+                RunBotwoonBodyFall(segment, segmentIndex, state, randomEnemyCounter);
                 return;
 
             case BotwoonBodyFunction.Landed:
@@ -1039,6 +1041,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates a dying segment to Y=200 and marks the tail cap's final landing.</summary>
     private void RunBotwoonBodyFall(
         RoomEnemyProjectileSlot segment,
+        int segmentIndex,
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
@@ -1055,7 +1058,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         segment.Position = segment.Position.WithWholeY(200);
-        segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Landed));
+        state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;

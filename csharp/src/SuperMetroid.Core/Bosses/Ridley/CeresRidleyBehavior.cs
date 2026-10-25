@@ -316,7 +316,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.NorfairDeathComplete:
             default:
                 throw new InvalidDataException(
-                    $"Ceres Ridley function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Ceres Ridley function {state.Function} is not translated.");
         }
 
         // Once the eye fade enables composite animation, CeresRidley_Main performs the

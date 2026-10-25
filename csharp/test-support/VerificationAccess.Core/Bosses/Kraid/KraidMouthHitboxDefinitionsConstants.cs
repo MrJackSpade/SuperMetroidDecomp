@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -7,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidMouthHitboxDefinitionsConstants
 {
     /// <summary>Aligned fixed records at $A7:9788..97C7.</summary>
-    public static bool IsDefined(ushort pointer) => Enum.IsDefined((KraidMouthHitbox)pointer);
+    public static bool IsDefined(ushort pointer) => KraidNativeWords.MouthHitboxes.TryDecode(pointer, out _);
     /// <summary>
     /// $A7:9788..97C7, Hitbox_KraidMouth_0..7. The native projectile test uses
     /// left/top/bottom only; the authored right edge is retained as definition data.
@@ -21,7 +20,7 @@ internal static class KraidMouthHitboxDefinitionsConstants
     /// zero shape. Live low-half geometry remains a separate caller-owned path.
     /// </remarks>
     public static EnemyHitboxRectangle Resolve(ushort pointer) =>
-        KraidMouthHitboxDefinitions.Resolve(ClosedNativeWords.Decode<KraidMouthHitbox>(pointer, "Kraid mouth hitbox"));
+        KraidMouthHitboxDefinitions.Resolve(KraidNativeWords.MouthHitboxes.Decode(pointer, "Kraid mouth hitbox"));
     /// <summary>
     /// Resolves compiled cartridge geometry or a genuine bank-$A7 low-half live-memory,
     /// hardware, or open-bus alias. The seven upper-window bytes reachable when a low-half
@@ -30,8 +29,8 @@ internal static class KraidMouthHitboxDefinitionsConstants
     /// </summary>
     public static KraidMouthCollisionEdges ResolveCollision(ushort pointer)
     {
-        if (IsDefined(pointer))
-            return KraidMouthHitboxDefinitions.ResolveCollision((KraidMouthHitbox)pointer);
+        if (KraidNativeWords.MouthHitboxes.TryDecode(pointer, out KraidMouthHitbox shape))
+            return KraidMouthHitboxDefinitions.ResolveCollision(shape);
         throw new InvalidDataException(
             $"Kraid mouth hitbox $A7:{pointer:X4} is outside the compiled geometry catalog.");
     }

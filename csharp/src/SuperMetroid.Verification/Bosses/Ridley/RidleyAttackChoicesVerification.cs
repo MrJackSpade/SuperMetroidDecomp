@@ -31,7 +31,8 @@ internal static class RidleyAttackChoicesVerification
         for (int choice = 0; choice < 8; choice++)
         {
             int address = 0xa6b38c + row * 16 + choice * 2;
-            native[row, choice] = (RidleyAiFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            native[row, choice] = RidleyNativeWords.AiFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+                "Ridley action");
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 

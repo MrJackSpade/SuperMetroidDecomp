@@ -21,7 +21,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorWarmTargetPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyFadeColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyHealthPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyMode7PaintDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyFloorPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyBodyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyAlarmColorDefinitions.cs"),

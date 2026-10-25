@@ -1327,8 +1327,8 @@ internal static class LookupStream4Verification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
-        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
-        var state = new RidleyEnemyState { Mode7TableIndex = 1 };
+        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
+        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
         int expectedPhase = 0;
@@ -1340,7 +1340,7 @@ internal static class LookupStream4Verification
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(state, null, nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published Mode 7 map");
-            AssertEqual((ushort)expectedPhase, state.Mode7BabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
             int pointer = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + expectedPhase * 2));
             for (int row = 0; row < 2; row++, pointer += 9)
             {
@@ -3434,7 +3434,7 @@ internal static class LookupStream4Verification
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
             enemies.Presentation.BindColours(cgram.Gameplay);
-            Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
+            Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette;
             for (int row = 0; row < 9; row++)
             {
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));

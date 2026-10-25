@@ -25,7 +25,7 @@ public readonly struct RidleyColours(GameplayColours colours)
     /// <summary>Ceres Baby shade.</summary>
     public ColourRun CeresBaby => RidleyColourDefinitions.CeresBaby.In(colours.SpriteSets);
     /// <summary>Ceres Mode 7 zoom shade.</summary>
-    public ColourRun CeresMode7Zoom => RidleyColourDefinitions.CeresMode7Zoom.In(colours.BackgroundSets);
+    public ColourRun CeresFloorZoom => RidleyColourDefinitions.CeresFloorZoom.In(colours.BackgroundSets);
     /// <summary>Norfair initial palettes.</summary>
     public ColourRun NorfairInitial => RidleyColourDefinitions.NorfairInitial.In(colours.SpriteSets);
     /// <summary>Norfair reveal fade.</summary>

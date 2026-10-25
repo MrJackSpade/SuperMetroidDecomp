@@ -39,7 +39,7 @@ public static class CeresRidleyMode7ColorExtractor
         }
         return CeresRidleyMode7ColorFile.Write(new CeresRidleyMode7ColorDocument
         {
-            Version = CeresRidleyMode7ColorFormat.Version,
+            Version = CeresRidleyFloorColorFormat.Version,
             ZoomRows = rows,
         });
     }

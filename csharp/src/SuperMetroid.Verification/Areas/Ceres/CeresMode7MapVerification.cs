@@ -44,7 +44,7 @@ internal static class CeresMode7MapVerification
             "the earlier published map keeps its tiles");
 
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room has a getaway state.");
-        getaway.Mode7Active = true;
+        getaway.GetawayActive = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var mode7 = (Mode7GameplayRenderLayer)captured.Layers[0];

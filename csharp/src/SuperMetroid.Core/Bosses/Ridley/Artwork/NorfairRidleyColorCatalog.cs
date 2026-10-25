@@ -33,22 +33,22 @@ public sealed class NorfairRidleyColorCatalog
     }
 
     /// <summary>Installs the 32 initial RGB5 colors in CGRAM entries 160..191 (OBJ palettes 2 and 3), matching the native copy from <c>$A6:E1CF</c>; subsequent palette clearing is the caller's responsibility.</summary>
-    /// <param name="cgram">Destination color memory to update.</param>
-    public void ApplyInitial(GameplayColours cgram)
+    /// <param name="colours">The colours to update.</param>
+    public void ApplyInitial(GameplayColours colours)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         for (int color = 0; color < NorfairRidleyPaletteDefinitions.InitialColorCount; color++)
-            new RidleyColours(cgram).NorfairInitial.Write(color, initial.ColorAt(color));
+            new RidleyColours(colours).NorfairInitial.Write(color, initial.ColorAt(color));
     }
 
     /// <summary>Copies one arena-reveal row to CGRAM entries 113..126 (BG palette 7, colors 1..14), matching <c>FadeInRidleyRoomBackground</c> at <c>$A6:A4D6</c>; does not advance the reveal timer or process its terminator.</summary>
-    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="colours">The colours to update.</param>
     /// <param name="row">Zero-based reveal row, from 0 through 14; row 15 is the runtime terminator, not a color row.</param>
-    public void ApplyReveal(GameplayColours cgram, int row)
+    public void ApplyReveal(GameplayColours colours, int row)
     {
         NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         for (int color = 0; color < NorfairRidleyPaletteDefinitions.RevealColorCount; color++)
-            new RidleyColours(cgram).NorfairReveal.Write(color, reveal.ColorAt(row, color));
+            new RidleyColours(colours).NorfairReveal.Write(color, reveal.ColorAt(row, color));
     }
 }

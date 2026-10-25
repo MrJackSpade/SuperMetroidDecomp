@@ -860,7 +860,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Enemy slot {head.SlotIndex} has no initialized Botwoon state.");
 
     /// <summary>Routes bomb hits through the shared shot callback without generic death animation.</summary>
-    internal void RegisterBotwoonBombReactions(EnemySharedReactions table)
+    internal void AddBotwoonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.BotwoonShot)
@@ -872,7 +872,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers body-segment and spit pre-instruction handlers.</summary>
-    internal void RegisterBotwoonProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddBotwoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -892,7 +892,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
-    internal void RegisterBotwoonPowerBombReactions(EnemySharedReactions table)
+    internal void AddBotwoonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.BotwoonPowerBomb)
@@ -903,7 +903,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Records pre-hit health for palette phases and skips generic death on shot hits.</summary>
-    internal void RegisterBotwoonShotReactions(EnemySharedReactions table)
+    internal void AddBotwoonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BotwoonShot)
@@ -918,7 +918,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Resolves Samus contact while preserving Botwoon's special zero-health tail.</summary>
-    internal void RegisterBotwoonTouch(EnemySharedReactions table)
+    internal void AddBotwoonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Botwoon &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BotwoonTouch,

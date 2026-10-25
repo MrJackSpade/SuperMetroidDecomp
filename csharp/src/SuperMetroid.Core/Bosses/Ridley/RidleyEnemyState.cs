@@ -174,34 +174,34 @@ public sealed class RidleyEnemyState
     /// </summary>
     public int BabyVerticalVelocity { get; internal set; }
     /// <summary>Gets whether Ceres's getaway transform currently owns the Ridley/Baby presentation.</summary>
-    public bool Mode7Active { get; internal set; }
+    public bool GetawayActive { get; internal set; }
     /// <summary>Gets whether the Ceres getaway table reached its terminator and released the active transform.</summary>
-    public bool Mode7Finished { get; internal set; }
+    public bool GetawayFinished { get; internal set; }
     /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (native byte offset twice this).</summary>
-    public int Mode7TableIndex { get; internal set; }
+    public int GetawayFrameIndex { get; internal set; }
     /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
     public SnesAngle FloorAngle { get; internal set; }
     /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
-    public Offset16<Mode7Pixels> Mode7Offset { get; internal set; }
+    public Offset16<Mode7Pixels> FloorOffset { get; internal set; }
     /// <summary>
     /// Gets the getaway's zoom in 1/256 of unit scale, which scales its sine/cosine matrix: 2048 when the getaway
     /// starts, then each table frame's zoom, which the table keeps from zero through 65535.
     /// </summary>
     public int FloorZoom { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 A coefficient, computed from zoom-scaled cosine.</summary>
-    public SnesSignedEightEight Mode7MatrixA { get; internal set; }
+    public SnesSignedEightEight FloorMatrixA { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 B coefficient, computed from zoom-scaled sine.</summary>
-    public SnesSignedEightEight Mode7MatrixB { get; internal set; }
+    public SnesSignedEightEight FloorMatrixB { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 C coefficient, the negated B coefficient.</summary>
-    public SnesSignedEightEight Mode7MatrixC { get; internal set; }
+    public SnesSignedEightEight FloorMatrixC { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 D coefficient, equal to its A coefficient.</summary>
-    public SnesSignedEightEight Mode7MatrixD { get; internal set; }
+    public SnesSignedEightEight FloorMatrixD { get; internal set; }
     /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 center, initialized to ($40,$40) and cleared on completion.</summary>
-    public Position16<Mode7Pixels> Mode7Center { get; internal set; }
+    public Position16<Mode7Pixels> FloorCenter { get; internal set; }
     /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the Mode-7 getaway.</summary>
-    public int Mode7BabyFrame { get; internal set; }
+    public int GetawayBabyFrame { get; internal set; }
     /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the Mode-7 getaway.</summary>
-    public int Mode7WingFrame { get; internal set; }
+    public int GetawayWingFrame { get; internal set; }
 
     /// <summary>Where the Ceres self-destruct stands in its current page list, advanced as each page is shown (#1406).</summary>
     internal CeresEscapePageCursor CeresEscapePages { get; set; }

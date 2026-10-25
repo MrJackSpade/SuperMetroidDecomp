@@ -50,17 +50,17 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
-        (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).Mode7Active = true;
-        getaway.Mode7MatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(33);
-        getaway.Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.Mode7MatrixD = SnesSignedEightEight.FromSignedRaw(240);
-        getaway.Mode7Center = new Position16<Mode7Pixels>(128, 120);
-        getaway.Mode7Offset = new Offset16<Mode7Pixels>(7, 19);
+        (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
+        getaway.FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33);
+        getaway.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SnesSignedEightEight.FromSignedRaw(240);
+        getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
+        getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = new DisplayPacket(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
-        getaway.Mode7Active = false; getaway.Mode7MatrixA = default;
+        getaway.GetawayActive = false; getaway.FloorMatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.AsPaletteColors().SetColor(i, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");

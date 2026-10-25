@@ -46,7 +46,7 @@ internal sealed class KraidProjectiles
             return;
         }
         KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
-        KraidEncounterAccess.RegisterKraidPart(lint, state);
+        KraidEncounterAccess.AttachKraidPart(lint, state);
         lint.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
         lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
@@ -64,7 +64,7 @@ internal sealed class KraidProjectiles
     {
         KraidEnemyState state = _access.RequireKraidState(nail);
         KraidEncounterAccess.EnsureKraidSlot(nail, expectedSlot, "fingernail");
-        KraidEncounterAccess.RegisterKraidPart(nail, state);
+        KraidEncounterAccess.AttachKraidPart(nail, state);
         nail.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
         KraidPartState nailPart = state.Parts[nail.SlotIndex];
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
@@ -78,7 +78,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
-    internal static void RegisterKraidProjectiles(EnemyProjectileHandlerTable table)
+    internal static void AddKraidProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -122,7 +122,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Registers the spat rock's typed burst and the rock programs' cues.</summary>
-    internal static void RegisterKraidRockAnimations(EnemyProjectileHandlerTable table)
+    internal static void AddKraidRockAnimations(EnemyProjectileHandlerTable table)
     {
         table.AddShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
             () => new KraidRockAnimation(KraidRockProgram.SpitRockShot));
@@ -515,7 +515,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>
-    internal void RegisterKraidNailTouch(EnemySharedReactions table)
+    internal void AddKraidNailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidNail &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidNailTouch ||
@@ -532,7 +532,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Registers the shared pre-instruction used by spit rocks.</summary>
-    internal static void RegisterKraidRockSpitPreInstruction(EnemyProjectileHandlerTable table)
+    internal static void AddKraidRockSpitPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {

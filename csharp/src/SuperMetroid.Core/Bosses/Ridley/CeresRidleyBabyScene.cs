@@ -140,9 +140,9 @@ internal sealed class CeresRidleyBabyScene
 
         if (state.FacingDirection == RidleyFacing.Turning)
             return;
-        int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
+        int wingFrameIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
-            wingPointerIndex);
+            wingFrameIndex);
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
             new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), state.SpritemapPaletteIndex.PaletteBits);
     }

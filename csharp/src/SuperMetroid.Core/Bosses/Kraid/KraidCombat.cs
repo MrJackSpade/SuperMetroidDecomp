@@ -38,7 +38,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Binds Kraid's body and mouth reactions to Samus bomb contacts.</summary>
-    internal void RegisterKraidBombReactions(EnemySharedReactions table)
+    internal void AddKraidBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
             c =>
@@ -61,7 +61,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Binds shot callbacks for Kraid's mouth, body, arm, and nail surfaces.</summary>
-    internal void RegisterKraidShotReactions(EnemySharedReactions table)
+    internal void AddKraidShotReactions(EnemySharedReactions table)
     {
         // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
         // select the arm's private callback.
@@ -89,7 +89,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Binds Samus contact handling for Kraid's body and parts.</summary>
-    internal void RegisterKraidTouch(EnemySharedReactions table)
+    internal void AddKraidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidArm &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidArmTouch,

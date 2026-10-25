@@ -14,14 +14,14 @@ public static class CeresRidleyMode7ColorFile
     /// <param name="json">Caller-owned stream containing the editable Ceres getaway color document.</param>
     /// <returns>Installed zoom-dependent inks; the native sixteen-word row stride and unused padding are not editable content.</returns>
     /// <exception cref="InvalidDataException">The document schema, row dimensions, or RGB5 colors are invalid.</exception>
-    public static CeresRidleyMode7ColorCatalog Read(Stream json)
+    public static CeresRidleyFloorColorCatalog Read(Stream json)
     {
         FixedGridShape zoomShape = new(CeresRidleyPaletteDefinitions.GetawayZoomRowCount,
             CeresRidleyPaletteDefinitions.GetawayZoomColorCount);
         Ensure.NotNull(json);
         CeresRidleyMode7ColorDocument document;
         document = JsonAssetDocument.Read<CeresRidleyMode7ColorDocument>(json, ArtworkJson.Options, "Ceres Ridley Mode-7 color");
-        if (document.Version != CeresRidleyMode7ColorFormat.Version ||
+        if (document.Version != CeresRidleyFloorColorFormat.Version ||
             !zoomShape.HasRows(document.ZoomRows))
             throw new InvalidDataException("Ceres Ridley Mode-7 colors require version one and nine zoom rows.");
         var rows = new Bgr555[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];

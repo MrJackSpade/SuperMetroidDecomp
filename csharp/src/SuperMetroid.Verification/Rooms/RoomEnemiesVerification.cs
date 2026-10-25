@@ -1216,12 +1216,12 @@ internal static void VerifyCeresRidleyRoomEntry()
         expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
         expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
         AssertEqual(curve.Zoom, state.FloorZoom, "Ceres real getaway zoom publication");
-        AssertEqual(unchecked((short)expectedX), state.Mode7Offset.X, "Ceres real getaway horizontal integration");
-        AssertEqual(unchecked((short)expectedY), state.Mode7Offset.Y, "Ceres real getaway vertical integration");
-        AssertTrue(!state.Mode7Finished, "Ceres getaway retains all 112 authored motion frames");
+        AssertEqual(unchecked((short)expectedX), state.FloorOffset.X, "Ceres real getaway horizontal integration");
+        AssertEqual(unchecked((short)expectedY), state.FloorOffset.Y, "Ceres real getaway vertical integration");
+        AssertTrue(!state.GetawayFinished, "Ceres getaway retains all 112 authored motion frames");
     }
     GetawayFrame();
-    AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
+    AssertTrue(state.GetawayFinished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");
     AssertEqual(CeresEscapePageList.None, state.CeresEscapePages.List,

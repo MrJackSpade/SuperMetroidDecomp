@@ -16,20 +16,20 @@ internal static class CeresRidleyMode7CoefficientVerification
         {
             ushort word = unchecked((ushort)raw);
             ushort nativeNegation = unchecked((ushort)-(short)word);
-            AssertEqual(nativeNegation, CeresRidleyGetaway.NegateMode7Coefficient(new SnesSignedEightEight(word)).RawValue,
+            AssertEqual(nativeNegation, CeresRidleyGetaway.NegateFloorCoefficient(new SnesSignedEightEight(word)).RawValue,
                 $"Mode 7 coefficient {raw} negates as the native word does");
         }
         AssertEqual(short.MinValue,
-            CeresRidleyGetaway.NegateMode7Coefficient(SnesSignedEightEight.FromSignedRaw(short.MinValue)).SignedRawValue,
+            CeresRidleyGetaway.NegateFloorCoefficient(SnesSignedEightEight.FromSignedRaw(short.MinValue)).SignedRawValue,
             "the most negative coefficient negates to itself");
 
         var getaway = new RidleyEnemyState
         {
-            Mode7Active = true,
-            Mode7MatrixA = SnesSignedEightEight.FromSignedRaw(240),
-            Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(33),
-            Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(-33),
-            Mode7MatrixD = SnesSignedEightEight.FromSignedRaw(short.MinValue),
+            GetawayActive = true,
+            FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240),
+            FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33),
+            FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33),
+            FloorMatrixD = SnesSignedEightEight.FromSignedRaw(short.MinValue),
         };
         var floor = CeresRidleyGetaway.FloorTransform(getaway)
             ?? throw new InvalidOperationException("An active getaway publishes the floor's transform.");

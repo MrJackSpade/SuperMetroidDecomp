@@ -92,7 +92,7 @@ internal sealed class KraidEncounterAccess
     internal KraidPartState Part(RoomEnemySlot slot) => RequireKraidState(slot).Parts[slot.SlotIndex];
 
     /// <summary>Installs a part's state with its slot, so a kill empties its record words.</summary>
-    internal static void RegisterKraidPart(RoomEnemySlot slot, KraidEnemyState state)
+    internal static void AttachKraidPart(RoomEnemySlot slot, KraidEnemyState state)
     {
         KraidPartState part = state.Parts[slot.SlotIndex];
         slot.SetSpeciesState(part, part.ClearWithRecord);

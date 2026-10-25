@@ -34,12 +34,12 @@ internal static class RetailRidleyCaptureTests
         foreach (short tilt in new short[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
-            (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = true;
-            ridley.Mode7MatrixA = new SnesSignedEightEight(scale); ridley.Mode7MatrixD = new SnesSignedEightEight(scale);
-            ridley.Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(tilt);
-            ridley.Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(unchecked((short)-tilt));
-            ridley.Mode7Center = new Position16<Mode7Pixels>(128, 120);
-            ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked(scroll));
+            (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
+            ridley.FloorMatrixA = new SnesSignedEightEight(scale); ridley.FloorMatrixD = new SnesSignedEightEight(scale);
+            ridley.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(tilt);
+            ridley.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(unchecked((short)-tilt));
+            ridley.FloorCenter = new Position16<Mode7Pixels>(128, 120);
+            ridley.FloorOffset = new Offset16<Mode7Pixels>(7, unchecked(scroll));
             // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
@@ -52,7 +52,7 @@ internal static class RetailRidleyCaptureTests
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add(new RetainedFrame(packet, expected));
         }
-        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = false;
+        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.AsPaletteColors().SetColor(color, new Bgr555(0, 0, 0));
         foreach (var sample in retained.AsEnumerable().Reverse())

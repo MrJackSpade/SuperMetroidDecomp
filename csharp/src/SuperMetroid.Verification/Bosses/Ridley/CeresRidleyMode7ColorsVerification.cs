@@ -28,7 +28,7 @@ internal static class CeresRidleyMode7ColorsVerification
         GameplayBasePaletteCatalog initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
-        CeresRidleyMode7ColorCatalog native = CeresRidleyMode7ColorFile.Read(
+        CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         for (int row = 0; row < CeresRidleyPaletteDefinitions.GetawayZoomRowCount; row++)
@@ -51,7 +51,7 @@ internal static class CeresRidleyMode7ColorsVerification
 
         CeresRidleyMode7ColorDocument document =
             JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(
-                File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyMode7ColorFormat.FileName)),
+                File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)),
                 ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
         for (int row = 0; row < document.ZoomRows.Length; row++)
@@ -62,7 +62,7 @@ internal static class CeresRidleyMode7ColorsVerification
                 Blue = previous.Blue == 31 ? 30 : previous.Blue + 1,
             };
         }
-        string replacement = Path.Combine(overrideDirectory, CeresRidleyMode7ColorFormat.FileName);
+        string replacement = Path.Combine(overrideDirectory, CeresRidleyFloorColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyMode7ColorFile.Write(document));
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
@@ -81,7 +81,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
-        Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
+        Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette;
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {

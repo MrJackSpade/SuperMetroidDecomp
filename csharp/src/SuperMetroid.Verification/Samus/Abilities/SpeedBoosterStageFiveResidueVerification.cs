@@ -52,21 +52,21 @@ internal static class SpeedBoosterStageFiveResidueVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.Room.Session.FloorQueueResidue = residue;
-        var state = new RidleyEnemyState { Mode7TableIndex = 1 };
+        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
 
         // The first NMI advances both: capsule phase one, then wing frame one.
-        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway(state, null, 0);
+        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 0);
         byte[] expected = NativeQueueImage(bus, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.WingFrame1);
         AssertTrue(SamusAnimationDelayDefinitions.IsCommand(expected[stageFiveQueueOffset]),
             "the wing's fourth descriptor leaves a command byte, not a delay, at $0303");
         AssertStageFive(residue, stageFive, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
-        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway(state, null, 4);
+        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 4);
         AssertStageFive(residue, stageFive, stageFiveQueueOffset, expected, "after a capsule-only frame");
 
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
-        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway(state, null, 8);
+        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 8);
         AssertStageFive(residue, stageFive, stageFiveQueueOffset,
             NativeQueueImage(bus, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.WingFrame0),
             "after the getaway queues wing frame zero");

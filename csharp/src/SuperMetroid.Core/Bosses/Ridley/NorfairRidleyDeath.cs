@@ -191,7 +191,7 @@ internal sealed class NorfairRidleyDeath
             return;
         state.DeathBreakupSpawned = true;
 
-        RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
+        RidleyExplosionDefinitions.SpawnInBreakupOrder(SpawnPart);
 
         void SpawnPart(ushort parameter)
         {

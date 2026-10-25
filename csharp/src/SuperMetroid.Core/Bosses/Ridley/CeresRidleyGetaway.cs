@@ -56,21 +56,21 @@ internal sealed class CeresRidleyGetaway
     /// setup routine; in particular B and C intentionally begin at $0100 before the first
     /// getaway-table entry replaces the matrix.
     /// </summary>
-    internal static void SetupCeresRidleyMode7(RidleyEnemyState state)
+    internal static void SetupCeresRidleyGetawayFloor(RidleyEnemyState state)
     {
-        state.Mode7Active = true;
-        state.Mode7Finished = false;
-        state.Mode7TableIndex = 0;
+        state.GetawayActive = true;
+        state.GetawayFinished = false;
+        state.GetawayFrameIndex = 0;
         state.FloorAngle = SnesAngle.FromRaw(1);
-        state.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
+        state.FloorOffset = new Offset16<Mode7Pixels>(-128, 32);
         state.FloorZoom = 2048;
-        state.Mode7MatrixA = CeresRidleyBehavior.Mode7UnitCoefficient;
-        state.Mode7MatrixB = CeresRidleyBehavior.Mode7UnitCoefficient;
-        state.Mode7MatrixC = CeresRidleyBehavior.Mode7UnitCoefficient;
-        state.Mode7MatrixD = CeresRidleyBehavior.Mode7UnitCoefficient;
-        state.Mode7Center = new Position16<Mode7Pixels>(64, 64);
-        state.Mode7BabyFrame = 0;
-        state.Mode7WingFrame = 0;
+        state.FloorMatrixA = CeresRidleyBehavior.FloorUnitCoefficient;
+        state.FloorMatrixB = CeresRidleyBehavior.FloorUnitCoefficient;
+        state.FloorMatrixC = CeresRidleyBehavior.FloorUnitCoefficient;
+        state.FloorMatrixD = CeresRidleyBehavior.FloorUnitCoefficient;
+        state.FloorCenter = new Position16<Mode7Pixels>(64, 64);
+        state.GetawayBabyFrame = 0;
+        state.GetawayWingFrame = 0;
     }
 
     /// <summary>
@@ -79,15 +79,15 @@ internal sealed class CeresRidleyGetaway
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
     /// in which Ridley's escape handoff publishes Ceres status one.
     /// </summary>
-    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter)
+    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int frameCounter)
     {
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyEscaped)
             return;
         RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
             "Ceres status one requires the Ceres Ridley getaway state.");
-        if (state.Mode7Finished)
+        if (state.GetawayFinished)
             return;
-        TickCeresRidleyMode7Getaway(state, samus, nmiFrameCounter);
+        TickCeresRidleyGetawayFloor(state, samus, frameCounter);
     }
 
     /// <summary>
@@ -95,13 +95,13 @@ internal sealed class CeresRidleyGetaway
     /// owns presentation only: ordinary Ridley has already been hidden, while Samus remains
     /// in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
-    internal void TickCeresRidleyMode7Getaway(
+    internal void TickCeresRidleyGetawayFloor(
         RidleyEnemyState state,
         SamusState? samus,
-        int nmiFrameCounter)
+        int frameCounter)
     {
-        int tableIndex = state.Mode7TableIndex;
-        state.Mode7TableIndex = tableIndex + 1;
+        int tableIndex = state.GetawayFrameIndex;
+        state.GetawayFrameIndex = tableIndex + 1;
 
         // HandleCeresRidleyGetawayCutscene queues the departure sound on the first table
         // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
@@ -121,14 +121,14 @@ internal sealed class CeresRidleyGetaway
             // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.
             // Preserve that clean handoff explicitly so the renderer cannot accidentally
             // keep sampling Mode 7 VRAM for the self-destruct text scene.
-            state.Mode7Finished = true;
-            state.Mode7Active = false;
-            state.Mode7Offset = Offset16<Mode7Pixels>.Zero;
-            state.Mode7MatrixA = default;
-            state.Mode7MatrixB = default;
-            state.Mode7MatrixC = default;
-            state.Mode7MatrixD = default;
-            state.Mode7Center = Position16<Mode7Pixels>.Zero;
+            state.GetawayFinished = true;
+            state.GetawayActive = false;
+            state.FloorOffset = Offset16<Mode7Pixels>.Zero;
+            state.FloorMatrixA = default;
+            state.FloorMatrixB = default;
+            state.FloorMatrixC = default;
+            state.FloorMatrixD = default;
+            state.FloorCenter = Position16<Mode7Pixels>.Zero;
             // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
             // special push/fall handler remains responsible for restoring normal input;
             // ending Mode 7 itself does not unlock her in the cartridge.
@@ -140,13 +140,13 @@ internal sealed class CeresRidleyGetaway
         state.FloorZoom = zoom;
         // The getaway frame's velocity is added to the vertical word and subtracted from the
         // horizontal word.
-        state.Mode7Offset = new Offset16<Mode7Pixels>(
-            unchecked((short)(state.Mode7Offset.X - frame.Velocity.X)),
-            unchecked((short)(state.Mode7Offset.Y + frame.Velocity.Y)));
+        state.FloorOffset = new Offset16<Mode7Pixels>(
+            unchecked((short)(state.FloorOffset.X - frame.Velocity.X)),
+            unchecked((short)(state.FloorOffset.Y + frame.Velocity.Y)));
 
-        UpdateCeresRidleyMode7Palette(zoom);
+        UpdateCeresRidleyFloorPalette(zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);
-        UpdateCeresRidleyMode7Matrix(state);
+        UpdateCeresRidleyFloorMatrix(state);
 
         // Both animations' floor updates leave their descriptors behind, the capsule's first, so the wing's follow it.
         FloorUpdateResidue residue = _room.FloorQueueResidue ?? throw new InvalidOperationException(
@@ -155,17 +155,17 @@ internal sealed class CeresRidleyGetaway
 
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
-        if ((nmiFrameCounter & 3) == 0)
+        if ((frameCounter & 3) == 0)
         {
-            state.Mode7BabyFrame = (state.Mode7BabyFrame + 1) % 4;
-            ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame), updates);
+            state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
+            ApplyFloorTransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.GetawayBabyFrame), updates);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
-        if ((nmiFrameCounter & 7) == 0)
+        if ((frameCounter & 7) == 0)
         {
-            state.Mode7WingFrame = (state.Mode7WingFrame + 1) % 2;
-            ApplyMode7TransferList(state.Mode7WingFrame == 0
+            state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
+            ApplyFloorTransferList(state.GetawayWingFrame == 0
                 ? CeresMode7TransferList.WingFrame0
                 : CeresMode7TransferList.WingFrame1, updates);
         }
@@ -176,7 +176,7 @@ internal sealed class CeresRidleyGetaway
     /// Negates a signed 8.8 coefficient the way the getaway's two's-complement negate does: the most negative value,
     /// which has no positive counterpart, negates to itself.
     /// </summary>
-    internal static SnesSignedEightEight NegateMode7Coefficient(SnesSignedEightEight coefficient) =>
+    internal static SnesSignedEightEight NegateFloorCoefficient(SnesSignedEightEight coefficient) =>
         SnesSignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
 
     /// <summary>
@@ -184,27 +184,27 @@ internal sealed class CeresRidleyGetaway
     /// getaway does not show the floor: the zoom-scaled rotation, the floor point it turns about, and the getaway's
     /// scroll across the floor.
     /// </summary>
-    internal static AffineTransform? FloorTransform(RidleyEnemyState? ridley) => ridley is { Mode7Active: true } getaway
-        ? new AffineTransform(getaway.Mode7MatrixA.SignedRawValue, getaway.Mode7MatrixB.SignedRawValue,
-            getaway.Mode7MatrixC.SignedRawValue, getaway.Mode7MatrixD.SignedRawValue,
-            getaway.Mode7Center.AsSignedRegister(), getaway.Mode7Offset)
+    internal static AffineTransform? FloorTransform(RidleyEnemyState? ridley) => ridley is { GetawayActive: true } getaway
+        ? new AffineTransform(getaway.FloorMatrixA.SignedRawValue, getaway.FloorMatrixB.SignedRawValue,
+            getaway.FloorMatrixC.SignedRawValue, getaway.FloorMatrixD.SignedRawValue,
+            getaway.FloorCenter.AsSignedRegister(), getaway.FloorOffset)
         : null;
 
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
-    private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
+    private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
     {
         byte angle = state.FloorAngle.TableIndex;
         ushort zoom = checked((ushort)state.FloorZoom);
         var diagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(zoom, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
         var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(zoom, new SnesByteAngle(angle)));
-        state.Mode7MatrixA = diagonal;
-        state.Mode7MatrixB = offDiagonal;
-        state.Mode7MatrixC = NegateMode7Coefficient(offDiagonal);
-        state.Mode7MatrixD = diagonal;
+        state.FloorMatrixA = diagonal;
+        state.FloorMatrixB = offDiagonal;
+        state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);
+        state.FloorMatrixD = diagonal;
     }
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
-    internal void UpdateCeresRidleyMode7Palette(ushort zoom)
+    internal void UpdateCeresRidleyFloorPalette(ushort zoom)
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
@@ -224,7 +224,7 @@ internal sealed class CeresRidleyGetaway
     /// <paramref name="updates"/>, whose descriptors outlive the update. Its tile numbers are immutable definitions, so
     /// gameplay needs no bank-$A6 read.
     /// </summary>
-    private void ApplyMode7TransferList(CeresMode7TransferList transferList, List<FloorUpdate> updates)
+    private void ApplyFloorTransferList(CeresMode7TransferList transferList, List<FloorUpdate> updates)
     {
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
             _room.Services.DrawFloorMap(transfer.MapCell, [.. transfer.TileNumbers]);

@@ -34,7 +34,7 @@ internal static class EnemyColorPresentationContractChecks
             class EnemyColorConsumer {
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,
                     BabyMetroidCutsceneColorCatalog baby, NorfairRidleyColorCatalog ridley, ZebetiteColorCatalog zebetite,
-                    ShitroidColorCatalog shitroid, CeresRidleyMode7ColorCatalog mode7, DachoraColorCatalog dachora,
+                    ShitroidColorCatalog shitroid, CeresRidleyFloorColorCatalog mode7, DachoraColorCatalog dachora,
                     MotherBrainHealthPalettePresentation motherBrain, SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Assets.ColourRun pulse) {
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 3);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 4);

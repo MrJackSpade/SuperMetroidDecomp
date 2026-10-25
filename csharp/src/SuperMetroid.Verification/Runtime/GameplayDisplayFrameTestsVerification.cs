@@ -227,11 +227,11 @@ internal static class GameplayDisplayFrameTestsVerification
 
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
-        getaway.Mode7Active = true;
-        getaway.Mode7MatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(33);
-        getaway.Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.Mode7MatrixD = SnesSignedEightEight.FromSignedRaw(240);
-        getaway.Mode7Center = new Position16<Mode7Pixels>(128, 120);
-        getaway.Mode7Offset = new Offset16<Mode7Pixels>(7, 19);
+        getaway.GetawayActive = true;
+        getaway.FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33);
+        getaway.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SnesSignedEightEight.FromSignedRaw(240);
+        getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
+        getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -239,7 +239,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual((short)240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
         AssertEqual((short)33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
-        getaway.Mode7Active = false;
+        getaway.GetawayActive = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

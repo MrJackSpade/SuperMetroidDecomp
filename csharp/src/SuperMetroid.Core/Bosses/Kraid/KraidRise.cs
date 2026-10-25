@@ -71,7 +71,7 @@ internal sealed class KraidRise
 
         _access.Kraid = new KraidEnemyState();
         KraidEnemyState state = _access.Kraid;
-        KraidEncounterAccess.RegisterKraidPart(body, state);
+        KraidEncounterAccess.AttachKraidPart(body, state);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {
             // `$A7:A959` installs the dead-room BG palette before the shared part initializer

@@ -44,16 +44,16 @@ internal static class RetailRidleyEscapeTests
                 }
                 runtime.StepFrame(0);
                 bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function);
-                if (ridley.Mode7Active)
+                if (ridley.GetawayActive)
                 {
                     mixedFrames++;
-                    matrices.Add(new Mode7Matrix(ridley.Mode7MatrixA, ridley.Mode7MatrixB, ridley.Mode7MatrixC, ridley.Mode7MatrixD));
+                    matrices.Add(new Mode7Matrix(ridley.FloorMatrixA, ridley.FloorMatrixB, ridley.FloorMatrixC, ridley.FloorMatrixD));
                 }
-                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.Mode7Finished &&
-                    !ridley.Mode7Active && !samus.CeresRidleyEjection.IsActive;
+                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.GetawayFinished &&
+                    !ridley.GetawayActive && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.
-                if (tick % 8 == 0 || newPhase || ridley.Mode7Active || finished)
+                if (tick % 8 == 0 || newPhase || ridley.GetawayActive || finished)
                 {
                     GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
                     var expected = FrontendScenePixelsAccess.Pixels(frame);

@@ -10,6 +10,9 @@ using SuperMetroid.Core.Frontend.Intro;
 /// <summary>Checks the three Ceres destruction startup actors against their spawn operands and native definitions.</summary>
 internal static class CeresInitialActorMetadataVerification
 {
+    /// <summary>The bank of the destruction's actor definitions, which these checks read.</summary>
+    private const int ActorBank = 0x8b0000;
+
     /// <summary>Compares asteroid motion and vortex stationary metadata, including callback selection and invalid actor indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres initial actor metadata")]
     internal static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
@@ -54,7 +57,7 @@ internal static class CeresInitialActorMetadataVerification
             bool preservesDefinitionCallback,
             string name)
         {
-            int address = CeresDestructionActorDefinitions.NativeBank | definitionPointer;
+            int address = ActorBank | definitionPointer;
             // The asteroid initializers keep the definition's pre-instruction; only the
             // vortex's parameter-zero initializer replaces it with the no-op override.
             if (preservesDefinitionCallback)

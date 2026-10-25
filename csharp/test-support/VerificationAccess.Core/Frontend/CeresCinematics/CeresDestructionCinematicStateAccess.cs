@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -23,7 +24,7 @@ internal static class CeresDestructionCinematicStateAccess
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal byte ReadMode7MapByte(int mapByteIndex)
         {
-            if ((uint)mapByteIndex >= CeresDestructionRomData.Transfers.FloorMapCapacityBytes)
+            if ((uint)mapByteIndex >= AffineFloor.CellCount)
                 throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
             return CeresDestructionScreenMemory.Compose(self)[mapByteIndex * 2];
         }

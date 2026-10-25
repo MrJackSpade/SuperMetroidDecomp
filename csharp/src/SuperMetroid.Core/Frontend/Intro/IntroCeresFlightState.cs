@@ -81,11 +81,11 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        RequireMinimum(content.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightRomData.Transfers.FloorCharacterByteCount,
+        RequireMinimum(content.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightArtworkFormat.FloorByteCount,
             "gunship/Ceres Mode 7 characters");
-        RequireMinimum(content.FloorMaps.Length, CeresFlightRomData.Transfers.FloorMapByteCount,
+        RequireMinimum(content.FloorMaps.Length, CeresFlightArtworkFormat.MapCellCount,
             "gunship front/rear Mode 7 tilemaps");
-        RequireMinimum(content.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightRomData.Transfers.ObjectCharacterByteCount,
+        RequireMinimum(content.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightArtworkFormat.ObjectByteCount,
             "space/Ceres OBJ characters");
         Artwork = content;
 
@@ -137,8 +137,8 @@ internal sealed class IntroCeresFlightState
                 // $8B:BDD2-$BDDF: the flight's music data, then its track, on the shared queue.
                 audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
                 audio.QueueMusicDelayed(
-                    MusicRequest.SelectTrack(CeresFlightRomData.Music.Track),
-                    MusicQueueDelay.AtLeastShortest(CeresFlightRomData.Music.TrackDelayArgument));
+                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.MusicTrack),
+                    MusicQueueDelay.AtLeastShortest(CeresFlightSceneDefinitions.MusicDelay));
                 Phase = IntroCeresFlightPhase.WaitForMusicQueue;
                 break;
 
@@ -256,9 +256,9 @@ internal sealed class IntroCeresFlightState
         if (floorMap is null || floorMapIsRear != rear)
         {
             var cells = new byte[AffineFloor.CellCount];
-            cells.AsSpan(0, CeresFlightRomData.Transfers.FloorMapFillWordCount).Fill(CeresFlightRomData.Transfers.FloorBlankMapTile);
-            int slice = rear ? CeresFlightRomData.Transfers.FloorMapSliceByteCount : 0;
-            content.FloorMaps.Span.Slice(slice, CeresFlightRomData.Transfers.FloorMapSliceByteCount).CopyTo(cells);
+            cells.AsSpan(0, AffineFloor.CellCount).Fill(CeresFlightSceneDefinitions.BlankFloorCharacter);
+            int slice = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
+            content.FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView).CopyTo(cells);
             floorMap = cells;
             floorMapIsRear = rear;
         }

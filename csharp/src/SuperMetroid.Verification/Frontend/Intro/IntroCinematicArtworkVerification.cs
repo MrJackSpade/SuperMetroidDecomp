@@ -1011,19 +1011,18 @@ internal static class IntroCinematicArtworkVerification
             IntroCinematicRomData.Assets.BackgroundPageTilemaps or
             IntroCinematicRomData.Assets.SamusHeadTilemap or
             IntroCinematicRomData.Assets.FirstNarrationTilemap or
-            IntroCinematicRomData.Assets.IntroObjectCharacters or
             IntroCinematicRomData.Assets.ObjectCharacters or
-            CeresFlightRomData.Assets.FloorCharacters or
-            CeresFlightRomData.Assets.FloorMaps or
-            CeresFlightRomData.Assets.ObjectCharacters or
-            CeresDestructionRomData.Assets.ZebesTilemap or
-            CeresDestructionRomData.Assets.ZebesCharacters or
-            CeresDestructionRomDataAssetsConstants.SharedObjectCharacters)
+            CeresCinematicSourceDefinitions.FlightFloorCharacters or
+            CeresCinematicSourceDefinitions.CeresTilemaps or
+            CeresCinematicSourceDefinitions.FlightObjectCharacters or
+            CeresCinematicSourceDefinitions.ZebesTilemap or
+            CeresCinematicSourceDefinitions.ZebesCharacters or
+            IntroCinematicRomData.Assets.IntroObjectCharacters)
         {
             return $"Cinematic reread character source ${address:X6}.";
         }
-        if (address is >= CeresFlightRomData.Assets.Palette and
-            < (CeresFlightRomData.Assets.Palette + CgramPalettes.ByteCount))
+        if (address is >= CeresCinematicSourceDefinitions.FlightPalette and
+            < (CeresCinematicSourceDefinitions.FlightPalette + CgramPalettes.ByteCount))
         {
             return $"Cinematic reread Ceres flight palette ${address:X6}.";
         }

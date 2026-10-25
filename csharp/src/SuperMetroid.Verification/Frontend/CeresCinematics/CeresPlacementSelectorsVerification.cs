@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
@@ -23,14 +24,14 @@ internal static class CeresPlacementSelectorsVerification
         AssertEqual(original.Length, CeresFlightActorDefinitions.RearViewActorCount, "rear placement count");
         for (int i = 0; i < original.Length; i++)
         {
-            var actual = CeresFlightActorDefinitions.RearViewPlacementSource(i);
-            AssertEqual(original[i], actual, "original rear placement selector");
+            var actual = CeresCinematicSourceDefinitions.RearViewPlacements[i];
+            AssertEqual(original[i], actual, "the import reads the original rear placement operands under the Core actor id");
             var actor = CeresFlightActorDefinitions.RearViewActor(i);
             VerifyPlacementOperand(rom, actual.XAddress, actor.Position.X);
             VerifyPlacementOperand(rom, actual.YAddress, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementSource(i), "rear selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementId(i), "rear selector bounds");
     }
 
     /// <summary>Checks six Zebes reveal actors and their X and Y native placement words.</summary>
@@ -48,14 +49,14 @@ internal static class CeresPlacementSelectorsVerification
         AssertEqual(original.Length, CeresDestructionActorDefinitions.ZebesActorCount, "reveal placement count");
         for (int i = 0; i < original.Length; i++)
         {
-            var actual = CeresDestructionActorDefinitions.ZebesPlacementSource(i);
-            AssertEqual(original[i], actual, "original reveal placement selector");
+            var actual = CeresCinematicSourceDefinitions.ZebesPlacements[i];
+            AssertEqual(original[i], actual, "the import reads the original reveal placement operands under the Core actor id");
             var actor = CeresDestructionActorDefinitions.ZebesActor(i);
             VerifyPlacementOperand(rom, actual.XAddress, actor.Position.X);
             VerifyPlacementOperand(rom, actual.YAddress, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementSource(i), "reveal selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementId(i), "reveal selector bounds");
     }
 
     /// <summary>Checks the three initial destruction actors before the reveal phase.</summary>

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -15,18 +16,18 @@ internal static class CeresDestructionObjectPage
     /// <summary>The page's characters once <paramref name="uploads"/> have been made, in order.</summary>
     internal static byte[] Characters(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads)
     {
-        var page = new byte[CeresDestructionRomData.Transfers.FloorCharacterBytes];
+        var page = new byte[CeresFlightArtworkFormat.ObjectByteCount];
         foreach (CeresDestructionUpload upload in uploads)
         {
             switch (upload)
             {
                 case CeresDestructionUpload.CeresScene:
-                    CeresFlightCharacters.Of(artwork.CeresFlight).ObjectCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
+                    CeresFlightCharacters.Of(artwork.CeresFlight).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount].CopyTo(page);
                     // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard cinematic sheet at $9A:D200.
-                    artwork.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes].CopyTo(page);
+                    artwork.IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes].CopyTo(page);
                     break;
                 case CeresDestructionUpload.ZebesReveal:
-                    artwork.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
+                    artwork.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount].CopyTo(page);
                     break;
                 case CeresDestructionUpload.FinalExplosionMaps:
                     break;

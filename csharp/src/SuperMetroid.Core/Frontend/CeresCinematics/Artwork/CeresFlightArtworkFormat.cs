@@ -34,4 +34,6 @@ public static class CeresFlightArtworkFormat
     public const int MapHeight = 24;
     /// <summary>Number of one-byte tile indices in each front or rear upload slice: 768 ($0300).</summary>
     public const int MapCellsPerView = MapWidth * MapHeight;
+    /// <summary>The cells of the front and rear views together, front first.</summary>
+    public const int MapCellCount = 2 * MapCellsPerView;
 }

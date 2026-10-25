@@ -44,9 +44,9 @@ internal static class ScreenTileSheetComposer
                 BgBitDepth.FourBpp, IntroColours(sources.Intro)),
             SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
-            SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes],
+            SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes],
+            SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.EndingCreditsFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Credits)),
@@ -204,7 +204,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The Ceres flight's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>
-        ComposeMode7Pixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount], FlightColours(flight));
+        ComposeMode7Pixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount], FlightColours(flight));
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
@@ -264,7 +264,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
     internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtworkCatalog flight) =>
-        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount], BgBitDepth.FourBpp, FlightColours(flight));
+        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
     private static ReadOnlySpan<Bgr555> IntroColours(IntroCinematicArtworkCatalog intro)

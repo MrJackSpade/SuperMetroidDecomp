@@ -40,7 +40,7 @@ public sealed class CeresRevealActorLayout
     private static CeresRevealActorPlacement DefaultPlacement(int index)
     {
         var actor = CeresDestructionActorDefinitions.ZebesActor(index);
-        return new() { Id = CeresDestructionActorDefinitions.ZebesPlacementSource(index).Id, X = actor.Position.X, Y = actor.Position.Y };
+        return new() { Id = CeresDestructionActorDefinitions.ZebesPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresRevealActorLayout), content =>
@@ -82,7 +82,7 @@ public sealed class CeresRevealActorLayout
         {
             CeresRevealActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresDestructionActorDefinitions.ZebesPlacementSource(index).Id ||
+                placement.Id != CeresDestructionActorDefinitions.ZebesPlacementId(index) ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(

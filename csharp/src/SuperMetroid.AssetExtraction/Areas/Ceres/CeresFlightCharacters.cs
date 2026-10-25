@@ -38,7 +38,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtworkCatalog
 
     /// <summary>The flight OBJ page the space, gunship and station compositions draw from: the OBJ sheet as $BCCD uploads it (#1358).</summary>
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.CeresFlightObjects),
-        ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount]);
+        ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
 
     /// <inheritdoc/>
     public override string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>

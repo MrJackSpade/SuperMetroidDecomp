@@ -159,7 +159,7 @@ internal static class IntroContentIdentityVerification
         var flightActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount).Select(index =>
             new CeresFlightActorPlacement
             {
-                Id = CeresFlightActorDefinitions.RearViewPlacementSource(index).Id, X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
+                Id = CeresFlightActorDefinitions.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         // Build a Mode 7 flight view with an optional final-cell edit.
@@ -185,7 +185,7 @@ internal static class IntroContentIdentityVerification
         var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount).Select(index =>
             new CeresRevealActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.ZebesPlacementSource(index).Id, X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActorDefinitions.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"reveal-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         var destructionActors = Enumerable.Range(0, CeresDestructionActorDefinitions.InitialActorCount).Select(index =>

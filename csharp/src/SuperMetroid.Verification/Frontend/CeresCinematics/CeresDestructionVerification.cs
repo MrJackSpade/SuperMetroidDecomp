@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 
@@ -23,11 +24,11 @@ internal static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
 
-    AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
+    AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionSceneDefinitions.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");
     AssertTrue(
         (CeresVramLayout.ObjectCharacters.Offset * 2) +
-            CeresDestructionRomData.Transfers.FloorCharacterBytes <= SnesVram.ByteCount,
+            CeresFlightArtworkFormat.ObjectByteCount <= SnesVram.ByteCount,
         "Ceres destruction OBJ transfer fits VRAM");
 
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
@@ -51,7 +52,7 @@ internal static void VerifyCeresDestructionCinematic()
 
     // Preserve the distinctive native map slices through the installed-artwork
     // boundary. Scene programs and all other art retain their retail definitions.
-    WriteRepeatedCompressedChunks(rom, CeresDestructionRomData.Assets.CeresTilemaps,
+    WriteRepeatedCompressedChunks(rom, CeresCinematicSourceDefinitions.CeresTilemaps,
         [0x11, 0x22, 0x33, 0x44]);
     byte[] maps = DecompressSyntheticCeresTilemaps(rom);
     using var overrideRootScratch = new TestScratchDirectory("ceres-timeline");
@@ -81,7 +82,7 @@ internal static void VerifyCeresDestructionCinematic()
     var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         paletteFxColors: presentation.RoomPaletteFx, spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
-    for (int wait = 0; wait < CeresDestructionRomData.InitialFrameWaits; wait++)
+    for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)
     {
         state.Step();
         AssertTrue(state.ResumesAfterFrameWait, "Ceres initializer resumes after each of its NMI waits");
@@ -198,7 +199,7 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 [CpuBusBoundary("exact bus test: decompresses the synthetic cartridge's Ceres tilemap stream as the oracle for installed map slices")]
 static byte[] DecompressSyntheticCeresTilemaps(byte[] rom) =>
     RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
-        CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
+        CeresCinematicSourceDefinitions.CeresTilemaps, maximumOutputBytes: 0x1000);
 
     /// <summary>Runs the Ceres destruction cinematic check from the verification host.</summary>
     [VerificationCommand("--ceres-destruction")]

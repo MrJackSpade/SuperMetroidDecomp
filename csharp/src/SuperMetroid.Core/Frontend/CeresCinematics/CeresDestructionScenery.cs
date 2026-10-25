@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -17,18 +18,18 @@ internal static class CeresDestructionScenery
             {
                 case CeresDestructionUpload.CeresScene:
                     // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair, over the initial fill.
-                    cells.AsSpan(0, CeresDestructionRomData.Transfers.FloorMapCapacityBytes).Fill(CeresDestructionRomData.Transfers.InitialFloorMapCharacter);
-                    maps.AsSpan(CeresDestructionRomData.Transfers.CeresSceneTilemapOffset, CeresDestructionRomData.Transfers.CeresSceneTilemapBytes).CopyTo(cells);
+                    cells.AsSpan(0, AffineFloor.CellCount).Fill(CeresDestructionSceneDefinitions.Floor.BlankCharacter);
+                    maps.AsSpan(CeresDestructionSceneDefinitions.Floor.CeresSceneStart, CeresDestructionSceneDefinitions.Floor.CeresSceneCells).CopyTo(cells);
                     break;
                 case CeresDestructionUpload.FinalExplosionMaps:
                     // State $22 shows the front gunship in the upper rows; state $25 has no gunship and clears them too.
-                    int upperSource = withSamus ? CeresDestructionRomData.Transfers.ClearMapSourceOffset : 0;
-                    maps.AsSpan(upperSource, CeresDestructionRomData.Transfers.MapHalfBytes).CopyTo(cells);
-                    maps.AsSpan(CeresDestructionRomData.Transfers.ClearMapSourceOffset, CeresDestructionRomData.Transfers.MapHalfBytes)
-                        .CopyTo(cells.AsSpan(CeresDestructionRomData.Transfers.ClearMapFirstCell));
+                    int upperSource = withSamus ? CeresDestructionSceneDefinitions.Floor.BlankViewStart : 0;
+                    maps.AsSpan(upperSource, CeresDestructionSceneDefinitions.Floor.ViewCells).CopyTo(cells);
+                    maps.AsSpan(CeresDestructionSceneDefinitions.Floor.BlankViewStart, CeresDestructionSceneDefinitions.Floor.ViewCells)
+                        .CopyTo(cells.AsSpan(CeresDestructionSceneDefinitions.Floor.LowerViewFirstCell));
                     break;
                 case CeresDestructionUpload.ZebesReveal:
-                    maps.AsSpan(CeresDestructionRomData.Transfers.MapHalfBytes, CeresDestructionRomData.Transfers.MapHalfBytes).CopyTo(cells);
+                    maps.AsSpan(CeresDestructionSceneDefinitions.Floor.ViewCells, CeresDestructionSceneDefinitions.Floor.ViewCells).CopyTo(cells);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(uploads), upload, "Undefined Ceres destruction upload.");
@@ -40,10 +41,10 @@ internal static class CeresDestructionScenery
     /// <summary>The Zebes reveal's tilemap once <paramref name="uploads"/> include it; an empty plane before.</summary>
     internal static ushort[] ZebesTilemap(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads)
     {
-        var words = new ushort[CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes / sizeof(ushort)];
+        var words = new ushort[CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort)];
         if (!uploads.Contains(CeresDestructionUpload.ZebesReveal))
             return words;
-        ReadOnlySpan<byte> bytes = artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes];
+        ReadOnlySpan<byte> bytes = artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionArtworkFormat.ZebesMapByteCount];
         for (int word = 0; word < words.Length; word++)
             words[word] = SnesLittleEndian.Word(bytes[word * 2], bytes[word * 2 + 1]);
         return words;
@@ -52,7 +53,7 @@ internal static class CeresDestructionScenery
     /// <summary>The installed Ceres flight and destruction maps joined into the native contiguous transfer source.</summary>
     internal static byte[] Tilemaps(IntroCinematicArtworkCatalog artwork)
     {
-        var maps = new byte[CeresDestructionRomData.Transfers.CeresMinimumTilemapBytes];
+        var maps = new byte[CeresDestructionSceneDefinitions.Floor.MapCells];
         artwork.CeresFlight.FloorMaps.Span.CopyTo(maps);
         artwork.CeresDestruction.CeresMaps.Span.CopyTo(maps.AsSpan(artwork.CeresFlight.FloorMaps.Length));
         return maps;

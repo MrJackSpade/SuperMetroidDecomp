@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -24,8 +25,8 @@ internal static class CeresDestructionArtworkExtractor
     {
         Ensure.NotNull(bus);
         byte[] allCeresMaps = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            CeresDestructionRomData.Assets.CeresTilemaps,
-            maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
+            CeresCinematicSourceDefinitions.CeresTilemaps,
+            maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         int firstDestructionByte = 2 * CeresFlightArtworkFormat.MapCellsPerView;
         if (allCeresMaps.Length < firstDestructionByte + CeresDestructionArtworkFormat.MapByteCount)
             throw new InvalidDataException("Ceres destruction lacks its three native map slices.");
@@ -45,15 +46,15 @@ internal static class CeresDestructionArtworkExtractor
         });
 
         byte[] zebesMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            CeresDestructionRomData.Assets.ZebesTilemap,
-            maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
+            CeresCinematicSourceDefinitions.ZebesTilemap,
+            maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         if (zebesMap.Length < CeresDestructionArtworkFormat.ZebesMapByteCount)
             throw new InvalidDataException("Zebes reveal tilemap is shorter than its native transfer.");
         byte[] zebesMapJson = RoomBackgroundTilemapExtractor.Encode(
             zebesMap.AsSpan(0, CeresDestructionArtworkFormat.ZebesMapByteCount));
 
         byte[] zebesCharacters = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            CeresDestructionRomData.Assets.ZebesCharacters,
+            CeresCinematicSourceDefinitions.ZebesCharacters,
             maximumOutputBytes: CeresDestructionArtworkFormat.ZebesCharacterByteCount);
         if (zebesCharacters.Length != CeresDestructionArtworkFormat.ZebesCharacterByteCount)
             throw new InvalidDataException("Zebes reveal character stream has the wrong transfer length.");
@@ -84,11 +85,11 @@ internal static class CeresDestructionArtworkExtractor
             CeresDestructionActorDefinitions.ZebesActorCount];
         for (int index = 0; index < placements.Length; index++)
         {
-            var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
+            var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresDestructionActorDefinitions.NativeBank | source.XAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.XAddress);
             ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresDestructionActorDefinitions.NativeBank | source.YAddress);
+                CeresCinematicSourceDefinitions.PlacementBank | source.YAddress);
             CeresDestructionActorDefinition translatedActor =
                 CeresDestructionActorDefinitions.ZebesActor(index);
             if (x != translatedActor.Position.X || y != translatedActor.Position.Y)

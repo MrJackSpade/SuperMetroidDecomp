@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -19,11 +20,11 @@ internal static class CeresFlightScreenMemory
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
         // byte with tile $8C, then overwrites only one view's $300-byte map.
         var mode7 = new Mode7Vram(vram);
-        mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount]);
-        mode7.FillMap(CeresFlightRomData.Transfers.FloorBlankMapTile, CeresFlightRomData.Transfers.FloorMapFillWordCount);
-        int slice = rear ? CeresFlightRomData.Transfers.FloorMapSliceByteCount : 0;
-        mode7.LoadMap(artwork.FloorMaps.Span.Slice(slice, CeresFlightRomData.Transfers.FloorMapSliceByteCount));
-        new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount]);
+        mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);
+        mode7.FillMap(CeresFlightSceneDefinitions.BlankFloorCharacter, AffineFloor.CellCount);
+        int slice = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
+        mode7.LoadMap(artwork.FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView));
+        new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
         return vram.CaptureImage();
     }
 

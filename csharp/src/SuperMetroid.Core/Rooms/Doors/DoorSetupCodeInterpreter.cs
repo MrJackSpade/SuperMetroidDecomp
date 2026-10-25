@@ -112,7 +112,7 @@ internal static class DoorSetupCodeInterpreter
                 if (DoorScrollPrograms.TryApply(setupCode, scrolls))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)setupCode:X4} in door {doorName}.");
+                    $"Undefined {nameof(DoorSetupCode)} {setupCode} in door {doorName}.");
         }
     }
 }

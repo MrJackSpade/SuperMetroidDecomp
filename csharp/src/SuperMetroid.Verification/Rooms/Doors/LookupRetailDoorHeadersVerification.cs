@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
@@ -57,7 +58,7 @@ internal static class LookupRetailDoorHeadersVerification
     /// <summary>Matches the two-byte Samus transition distance at offset eight.</summary>
     private static void VerifyDoorHeaderSamusDistance(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 8, 2, header => header.SamusDistance);
     /// <summary>Matches the setup-code word and the Ceres Mode 7 selection predicate at offset ten.</summary>
-    private static void VerifyDoorHeaderSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 10, 2, header => (ushort)header.SetupCode);
+    private static void VerifyDoorHeaderSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 10, 2, header => DoorIdentityWords.SetupRoutines.Word(header.SetupCode));
 
     /// <summary>Reads one physical field for every door and compares the compiled typed projection.</summary>
     private static void VerifyDoorHeaderField(SuperMetroidAddressSpace rom, int offset, int width,
@@ -71,7 +72,7 @@ internal static class LookupRetailDoorHeadersVerification
             DoorDefinition actual = DoorDefinitions.Get(pointer);
             AssertEqual(expected, field(actual), $"Door {pointer:X4} native field at {offset}");
             if (offset == 10)
-                AssertEqual(expected == 0xe4e0, actual.EntersCeresElevatorShaft,
+                AssertEqual(DoorIdentityWords.SetupRoutines.Decode((ushort)expected, "door setup routine") == DoorSetupCode.DoorASM_ToCeresElevatorShaft, actual.EntersCeresElevatorShaft,
                     "Door setup selection preserves the Ceres Mode7 consumer predicate");
         }
     }

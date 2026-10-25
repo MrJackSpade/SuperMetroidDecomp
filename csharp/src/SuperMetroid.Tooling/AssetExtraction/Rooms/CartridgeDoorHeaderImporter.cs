@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -23,6 +23,6 @@ public static class CartridgeDoorHeaderImporter
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge, address + offset);
         return new DoorDefinition(DoorHeaderSources.Door(pointer).Name, RoomHeaderSources.Room(Word(0)), DoorOrientation.Decode(Byte(3)),
             new(Byte(4), Byte(5)), new(Byte(6), Byte(7)), Word(8),
-            ClosedNativeWords.Decode<DoorSetupCode>(Word(10), "door setup routine"));
+            DoorIdentityWords.SetupRoutines.Decode(Word(10), "door setup routine"));
     }
 }

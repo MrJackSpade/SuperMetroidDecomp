@@ -208,7 +208,7 @@ internal sealed class DoorTransitionRunner
                 if (DoorScrollPrograms.Contains(door.SetupCode))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCode:X4} in door {door.Name}.");
+                    $"Undefined {nameof(DoorSetupCode)} {door.SetupCode} in door {door.Name}.");
         }
     }
 

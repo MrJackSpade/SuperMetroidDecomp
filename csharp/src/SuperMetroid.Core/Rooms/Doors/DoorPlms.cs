@@ -291,7 +291,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
-        PlmHeaderId headerPointer = orientation switch
+        PlmHeaderId blueDoorHeader = orientation switch
         {
             ColoredDoorOrientation.Left => PlmHeaderId.BlueDoorFacingLeft,
             ColoredDoorOrientation.Right => PlmHeaderId.BlueDoorFacingRight,
@@ -304,7 +304,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.Header = headerPointer;
+        slot.Header = blueDoorHeader;
         slot.BlockIndex = blockIndex;
         slot.RestoreLevelWord = 0;
         slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));

@@ -11,6 +11,6 @@ internal static class MamaTurtleResourceChecks
     public static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Mama/Baby Turtle",
         MamaTurtleVisualDefinitions.Bank,
         MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<MamaTurtleProgram>()),
-        MamaTurtleVisualDefinitions.FrameCount, EnemySpritemapSchema.PreMamaTurtle,
+        MamaTurtleVisualDefinitions.FrameCount, EnemySpritemapSchema.PreMamaTurtle.Revision,
         EnemySpritemapDefinitions.PreMamaTurtleFrameCount);
 }

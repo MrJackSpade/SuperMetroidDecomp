@@ -17,7 +17,7 @@ internal static class CrocomireSkeletonResourceChecks
     {
         ExtendedEnemyCompositionResourceChecks.Run("Crocomire skeleton",
             [.. CrocomireSkeletonVisualDefinitions.Frames.Select(EnemyCompositionSchemaTooling.CompositionOf)],
-            EnemyExtendedFrameSchema.PreCrocomireSkeleton,
+            EnemyExtendedFrameSchema.PreCrocomireSkeleton.Revision,
             EnemyExtendedFrameDefinitions.PreCrocomireSkeletonFrameCount);
         ConfirmFragmentationCapacity();
     }

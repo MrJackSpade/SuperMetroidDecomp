@@ -30,17 +30,13 @@ public static class EnemySpritemapDocuments
         Ensure.NotNull(json);
         EnemySpritemapDocument document;
         document = JsonAssetDocument.Read<EnemySpritemapDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, "enemy composition");
-        int schema = document.Version;
-        int expectedCount = !EnemySpritemapSchema.IsSupported(schema) ||
-            (schema != EnemySpritemapSchema.Current && stockForLegacyOverride is null)
-            ? -1
-            : EnemySpritemapFrameCounts.FrameCount(schema);
-        bool legacyOverride = expectedCount >= 0 && schema != EnemySpritemapSchema.Current;
-        ReadOnlySpan<EnemySpritemapDefinition> expected = expectedCount >= 0
-            ? EnemySpritemapDefinitions.Frames[..expectedCount]
-            : [];
-        if (expectedCount < 0 ||
-            document.Frames is null || document.Frames.Count != expected.Length ||
+        EnemySpritemapSchema schema = EnemySpritemapSchema.FromRevision(document.Version) ??
+            throw new InvalidDataException("Enemy compositions require the current version and every named frame.");
+        bool legacyOverride = schema != EnemySpritemapSchema.Current;
+        if (legacyOverride && stockForLegacyOverride is null)
+            throw new InvalidDataException("Enemy compositions require the current version and every named frame.");
+        ReadOnlySpan<EnemySpritemapDefinition> expected = EnemySpritemapDefinitions.Frames[..schema.FrameCount];
+        if (document.Frames is null || document.Frames.Count != expected.Length ||
             (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames.Count !=
                 EnemySpritemapDefinitions.Frames.Length))
             throw new InvalidDataException(
@@ -64,13 +60,9 @@ public static class EnemySpritemapDocuments
             identities.Add(frame.Name, frame.Frame);
         }
         var displayFrames = new Dictionary<EnemyFrameId, EnemyFrameId>();
-        // Schema/count validation above has already rejected unknown versions.
         // Every accepted schema after the binding boundary owns its authored
         // selection; only earlier art-only schemas inherit stock bindings.
-        // Do not maintain a second version list that can silently lose new edits.
-        bool hasAuthoredBindings =
-            document.Version > EnemySpritemapSchema.PreDisplayBindings;
-        if (hasAuthoredBindings)
+        if (schema.OwnsDisplayBindings)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)

@@ -481,11 +481,9 @@ internal sealed class TorizoAttacks
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
         // The native initializer draws the X jitter before the Y jitter.
-        short xVelocity = unchecked((short)(
-            definition.BaseVelocity.X.SignedRawValue + unchecked((byte)_room.Random.Generate()) - 128));
-        short yVelocity = unchecked((short)(
-            definition.BaseVelocity.Y.SignedRawValue + unchecked((byte)_room.Random.Generate()) - 128));
-        projectile.Velocity = new EightEightVector<RoomPixels>(xVelocity, yVelocity);
+        projectile.Velocity = new EightEightVector<RoomPixels>(
+            unchecked((short)(definition.BaseVelocity.X.SignedRawValue + unchecked((byte)_room.Random.Generate()) - 128)),
+            unchecked((short)(definition.BaseVelocity.Y.SignedRawValue + unchecked((byte)_room.Random.Generate()) - 128)));
     }
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
@@ -564,7 +562,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
+        int xVelocity = projectile.Velocity.X.SignedRawValue;
         if (xVelocity < 0)
         {
             int dragged = xVelocity + 4;
@@ -600,7 +598,7 @@ internal sealed class TorizoAttacks
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (verticalCollision && unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
-            short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
+            int xVelocity = projectile.Velocity.X.SignedRawValue;
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xVelocity >= 0
                 ? xVelocity - 64
                 : xVelocity + 64))));
@@ -646,7 +644,7 @@ internal sealed class TorizoAttacks
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&
             unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
-            short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
+            int xVelocity = projectile.Velocity.X.SignedRawValue;
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xVelocity + (xVelocity < 0 ? 32 : -32)))));
             projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.Y.RawValue))));
         }
@@ -731,11 +729,11 @@ internal sealed class TorizoAttacks
         SamusState samus,
         bool awayFromSamus)
     {
-        byte angle = EnemyMath.CalculateBearing(
+        int angle = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
         angle = awayFromSamus
-            ? unchecked((byte)(angle | TorizoMotionDefinitions.AwayHalfTurn))
-            : unchecked((byte)(angle & TorizoMotionDefinitions.TowardHalfTurn));
+            ? angle | TorizoMotionDefinitions.AwayHalfTurn
+            : angle & TorizoMotionDefinitions.TowardHalfTurn;
 
         // Preserve the native up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.

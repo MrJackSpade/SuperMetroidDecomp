@@ -408,7 +408,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         int blockIndex,
         DraygonCannonTerrain terrain)
     {
-        RoomLevelWord original = new(level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw);
+        RoomLevelWord original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
         level.SetPlmForegroundEntry(
             blockIndex,
             original.WithCollisionType(terrain.Type).Raw);

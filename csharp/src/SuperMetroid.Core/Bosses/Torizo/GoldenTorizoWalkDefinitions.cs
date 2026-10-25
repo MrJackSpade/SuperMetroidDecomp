@@ -13,7 +13,7 @@ public static class GoldenTorizoWalkDefinitions
     public static ushort Velocity(int byteOffset)
     {
         if (byteOffset is < 0 or > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
-        ushort value = unchecked((ushort)Displacement(byteOffset >> 1));
-        return (byteOffset & 1) == 0 ? value : SnesLittleEndian.Word(SnesLittleEndian.HighByte(value), unchecked((byte)Displacement((byteOffset >> 1) + 1)));
+        int value = unchecked((ushort)Displacement(byteOffset >> 1));
+        return (byteOffset & 1) == 0 ? (ushort)value : SnesLittleEndian.Word(SnesLittleEndian.HighByte(value), unchecked((byte)Displacement((byteOffset >> 1) + 1)));
     }
 }

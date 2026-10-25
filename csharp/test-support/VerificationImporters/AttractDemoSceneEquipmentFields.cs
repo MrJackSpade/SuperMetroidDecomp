@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Runtime.Attract;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Word offsets in a DemoSetDef record at bank $91.</summary>
-internal static class AttractDemoRomDataEquipmentFields
+internal static class AttractDemoSceneEquipmentFields
 {
     /// <summary>Collected item-bit word at the start of an equipment record.</summary>
     public const int Items = 0;

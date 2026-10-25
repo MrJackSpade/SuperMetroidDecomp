@@ -144,7 +144,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 samus.Pose = SamusPoseId.FacingRightNormalPose;
                 break;
             case AttractDemoSamusSetup.LowHealthLeft:
-                samus.Health = AttractDemoRomData.SetupValues.LowHealth;
+                samus.Health = AttractDemoDefinitions.LowHealthEnergy;
                 goto case AttractDemoSamusSetup.StandingLeft;
             case AttractDemoSamusSetup.StandingLeft:
                 samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -174,7 +174,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             case AttractDemoRoomSetup.NoOp:
                 break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
-                _room.LoadedCamera.Scrolls.SetStorage(AttractDemoRomData.SetupValues.ChargeBeamScrollIndex, RoomScrollState.RedBoundary);
+                _room.LoadedCamera.Scrolls.SetStorage(AttractDemoDefinitions.ChargeBeamRedScrollScreen, RoomScrollState.RedBoundary);
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical
@@ -183,7 +183,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                     throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
-                enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoRomData.SetupValues.KraidFunctionTimer);
+                enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoDefinitions.KraidFunctionTimer);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
                 _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);

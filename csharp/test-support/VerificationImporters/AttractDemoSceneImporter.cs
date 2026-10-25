@@ -22,30 +22,30 @@ internal static class AttractDemoSceneImporter
         if ((uint)set >= DemoSetUnlockRomData.SetCount)
             throw new ArgumentOutOfRangeException(nameof(set));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.RoomSetPointers + set * 2);
-        int roomAddress = RecordAddress(AttractDemoRomData.RoomBank, roomList, scene, AttractDemoRomData.RoomRecordBytes);
+        int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoSceneSources.RoomSetPointers + set * 2);
+        int roomAddress = RecordAddress(AttractDemoSceneSources.RoomBank, roomList, scene, AttractDemoSceneSources.RoomRecordBytes);
         ushort Room(int offset) => RomDataReader.ReadWordFixedBank(cartridge, roomAddress + offset);
-        if (Room(AttractDemoRomDataRoomFields.Room) == AttractDemoRomData.EndOfSet)
+        if (Room(AttractDemoSceneRoomFields.Room) == AttractDemoSceneSources.EndOfSet)
             return null;
-        int equipmentList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.EquipmentSetPointers + set * 2);
-        int equipmentAddress = RecordAddress(AttractDemoRomData.EquipmentBank, equipmentList, scene, AttractDemoRomData.EquipmentRecordBytes);
+        int equipmentList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoSceneSources.EquipmentSetPointers + set * 2);
+        int equipmentAddress = RecordAddress(AttractDemoSceneSources.EquipmentBank, equipmentList, scene, AttractDemoSceneSources.EquipmentRecordBytes);
         ushort Equipment(int offset) => RomDataReader.ReadWordFixedBank(cartridge, equipmentAddress + offset);
-        int setupList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.SamusSetupSetPointers + set * 2);
+        int setupList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoSceneSources.SamusSetupSetPointers + set * 2);
         ushort setup = RomDataReader.ReadWordFixedBank(cartridge,
-            RecordAddress(AttractDemoRomData.EquipmentBank, setupList, scene, sizeof(ushort)));
+            RecordAddress(AttractDemoSceneSources.EquipmentBank, setupList, scene, sizeof(ushort)));
         return new(
-            RoomHeaderSources.Room(Room(AttractDemoRomDataRoomFields.Room)), DoorHeaderSources.Door(Room(AttractDemoRomDataRoomFields.Door)),
-            new(Room(AttractDemoRomDataRoomFields.CameraX), Room(AttractDemoRomDataRoomFields.CameraY)),
-            new(unchecked((short)Room(AttractDemoRomDataRoomFields.SamusXFromCenter)),
-                unchecked((short)Room(AttractDemoRomDataRoomFields.SamusYFromTop))),
-            Room(AttractDemoRomDataRoomFields.Duration),
-            ClosedNativeWords.Decode<AttractDemoRoomSetup>(Room(AttractDemoRomDataRoomFields.Setup), "demo room setup"),
+            RoomHeaderSources.Room(Room(AttractDemoSceneRoomFields.Room)), DoorHeaderSources.Door(Room(AttractDemoSceneRoomFields.Door)),
+            new(Room(AttractDemoSceneRoomFields.CameraX), Room(AttractDemoSceneRoomFields.CameraY)),
+            new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)),
+                unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop))),
+            Room(AttractDemoSceneRoomFields.Duration),
+            ClosedNativeWords.Decode<AttractDemoRoomSetup>(Room(AttractDemoSceneRoomFields.Setup), "demo room setup"),
             ClosedNativeWords.Decode<AttractDemoSamusSetup>(setup, "demo Samus setup"),
-            (SamusEquipmentFlags)(Equipment(AttractDemoRomDataEquipmentFields.Items)), Equipment(AttractDemoRomDataEquipmentFields.Missiles),
-            Equipment(AttractDemoRomDataEquipmentFields.SuperMissiles), Equipment(AttractDemoRomDataEquipmentFields.PowerBombs),
-            Equipment(AttractDemoRomDataEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoRomDataEquipmentFields.CollectedBeams)),
-            (SamusBeamFlags)(Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams)),
-            DemoInputObjectDefinitions.FromNativeHeader(Equipment(AttractDemoRomDataEquipmentFields.InputObject)));
+            (SamusEquipmentFlags)(Equipment(AttractDemoSceneEquipmentFields.Items)), Equipment(AttractDemoSceneEquipmentFields.Missiles),
+            Equipment(AttractDemoSceneEquipmentFields.SuperMissiles), Equipment(AttractDemoSceneEquipmentFields.PowerBombs),
+            Equipment(AttractDemoSceneEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),
+            (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.EquippedBeams)),
+            DemoInputObjectDefinitions.FromNativeHeader(Equipment(AttractDemoSceneEquipmentFields.InputObject)));
     }
 
     /// <summary>Bounds a fixed-stride scene record within its native cartridge data bank.</summary>

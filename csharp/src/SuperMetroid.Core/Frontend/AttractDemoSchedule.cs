@@ -61,7 +61,7 @@ internal sealed class AttractDemoSchedule
         Scene++;
         HoldFramesRemaining = 0;
         Cancelled = false;
-        loadFramesRemaining = AttractDemoRomData.EnemyGraphicsLoadFrames;
+        loadFramesRemaining = AttractDemoDefinitions.EnemyGraphicsLoadFrames;
     }
 
     /// <summary>Counts one enemy-transfer wait; returns whether it was the last.</summary>
@@ -74,7 +74,7 @@ internal sealed class AttractDemoSchedule
     internal void CountPlaybackFrame()
     {
         if (--FramesRemaining <= 0)
-            HoldFramesRemaining = AttractDemoRomData.FinalImageHoldFrames;
+            HoldFramesRemaining = AttractDemoDefinitions.FinalImageHoldFrames;
     }
 
     /// <summary>Records how the scene ended.</summary>

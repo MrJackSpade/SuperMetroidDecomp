@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Runtime.Attract;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Word offsets in a DemoRoomData record at bank $82.</summary>
-internal static class AttractDemoRomDataRoomFields
+internal static class AttractDemoSceneRoomFields
 {
     /// <summary>Room identity word in a demo room record.</summary>
     public const int Room = 0;

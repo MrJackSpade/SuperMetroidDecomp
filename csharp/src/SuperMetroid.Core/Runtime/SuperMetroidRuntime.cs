@@ -472,7 +472,7 @@ internal sealed class SuperMetroidRuntime
         var context = new GameplayFrameContext(SampleSamusCameraPoint());
         PrepareEnemyProcessingList();
         RunPaletteFx();
-        BeginOamFrame();
+        BeginSpriteFrame();
         PrepareEnemiesAndHoistedEnemyMain(context);
         if (Player.Samus is not null && Room.Camera is not null)
         {
@@ -508,7 +508,7 @@ internal sealed class SuperMetroidRuntime
     {
         Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
         FrameBoundary.BeginAcceptedFrame(controller1Input);
-        frameRequest.AfterAcceptedNmi();
+        frameRequest.AfterFrameBoundary();
         ScreenLayers.Choose(Room.LoadedScope);
     }
 
@@ -520,14 +520,14 @@ internal sealed class SuperMetroidRuntime
         if (Room.Camera is not null && !MessageBox.IsActive)
             PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
 
-        // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
+        // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
         // Its cleanup runs Samus command $1E, which can queue sounds before the Samus
         // handler; the frame's Samus sound window therefore opens here.
-        if (Player.Samus is { } hdmaSamus && !MessageBox.IsActive)
+        if (Player.Samus is { } samus && !MessageBox.IsActive)
         {
-            hdmaSamus.LiquidPhysics.BeginFrameSoundRequests(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
-            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(hdmaSamus, Controller1.Current, DispatchGameState);
+            samus.LiquidPhysics.BeginFrameSoundRequests(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
+            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
         }
     }
 
@@ -646,12 +646,12 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Clears high OAM for the frame's draw pass.</summary>
-    private void BeginOamFrame()
+    /// <summary>Starts the frame's sprite list for its draw pass.</summary>
+    private void BeginSpriteFrame()
     {
-        // The bank-$82 main loop clears high OAM and resets its stack before dispatching
-        // game state, then finalizes unused entries afterward. Samus is emitted before the
-        // escape timer so lower OAM indices retain their normal overlap precedence.
+        // The main loop starts the sprite list before dispatching the game state and closes it
+        // afterward. Samus is drawn before the escape timer so she keeps her normal overlap
+        // precedence.
         Sprites.BeginFrame();
     }
 
@@ -1104,8 +1104,8 @@ internal sealed class SuperMetroidRuntime
             // The message box's restoring frames ($88:84B9 in Restore_PPU) run the per-line effects too.
             if (Room.Camera is not null)
                 PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
-            if (Player.Samus is { } hdmaSamus)
-                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(hdmaSamus, Controller1.Current, DispatchGameState);
+            if (Player.Samus is { } samus)
+                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;

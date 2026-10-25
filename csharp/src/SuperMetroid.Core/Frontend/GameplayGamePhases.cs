@@ -43,7 +43,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     internal void DispatchReserveTanksAuto(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         SamusReserveAutoRecoveryStep reserveStep = default;
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime), AfterAcceptedNmi = () =>
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime), AfterFrameBoundary = () =>
             {
                 SamusState samus = session.GameplayRuntime.Player.Samus
                     ?? throw new InvalidOperationException(

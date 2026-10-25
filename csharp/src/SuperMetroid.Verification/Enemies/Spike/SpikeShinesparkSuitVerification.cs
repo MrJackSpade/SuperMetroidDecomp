@@ -72,7 +72,7 @@ internal static class SpikeShinesparkSuitVerification
         int frozenShineTimer = SamusInputSnapshot.SharedShineTimer(frozenSamus);
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
-        frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
+        frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Clock.Counter) });
         AssertEqual(new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenX, frozenY),
             new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
@@ -138,7 +138,7 @@ internal static class SpikeShinesparkSuitVerification
             SnesButton input = samus.ReserveEnergy == 1 && launchAfter == 0
                 ? SnesButton.A
                 : 0;
-            runtime.StepFrame(input, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
+            runtime.StepFrame(input, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             {
                 if (recovery.StepAfterNmi(samus, runtime.Clock.Counter).Completed)
                     runtime.Freeze.GameplayTimeFrozen = false;

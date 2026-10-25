@@ -42,7 +42,7 @@ internal sealed class ActiveRoomState
 
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
-    internal RoomScopeConstruction BeginConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
+    internal RoomScopeConstruction BeginConstruction(DoorDefinition door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
         LoadStationEntry? loadStation)
     {
         if (_construction is not null)
@@ -69,7 +69,7 @@ internal sealed class ActiveRoomState
         throw new InvalidOperationException("No room is loaded.");
 
     /// <summary>The load-station door whose setup code established the current room.</summary>
-    public CartridgeDoorHeader? ActiveDoor => View(c => c.Door, s => s.Door);
+    public DoorDefinition? ActiveDoor => View(c => c.Door, s => s.Door);
 
 
     /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>

@@ -71,7 +71,7 @@ internal static class RoomFxDefinitionsAccess
             : throw new ArgumentOutOfRangeException(nameof(root), root, "Pointer is not a compiled room-FX record.");
 
         /// <summary>The pointer of the record <paramref name="fx"/> selects for <paramref name="door"/>, or zero for none.</summary>
-        internal static ushort SelectedRecordPointer(RoomFxDefinition? fx, CartridgeDoorHeader? door) =>
+        internal static ushort SelectedRecordPointer(RoomFxDefinition? fx, DoorDefinition? door) =>
             fx?.Select(door) is { } record ? PointersByRecord[record] : (ushort)0;
     }
 

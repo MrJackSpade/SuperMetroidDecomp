@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class DoorHeaderSourcesConstants
 {
     /// <summary>The record pointer of the door named like <paramref name="door"/>.</summary>
-    public static ushort PointerOf(CartridgeDoorHeader door)
+    public static ushort PointerOf(DoorDefinition door)
     {
         Ensure.NotNull(door);
         return DoorHeaderSourceDefinitions.ByPointer.Single(pair => pair.Value.Name == door.Name).Key;

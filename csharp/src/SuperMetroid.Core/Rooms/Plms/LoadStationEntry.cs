@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </param>
 public sealed record LoadStationEntry(
     RoomHeaderDefinition? Room,
-    CartridgeDoorHeader? Door,
+    DoorDefinition? Door,
     Position16<RoomPixels> CameraPosition,
     Offset16<RoomPixels> SamusOffset)
 {

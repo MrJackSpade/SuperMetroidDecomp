@@ -112,7 +112,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             }
             else
             {
-                var enteringDoor = new CartridgeDoorHeader(
+                var enteringDoor = new DoorDefinition(
                     Name: "fixture door",
                     DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
@@ -193,7 +193,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     /// <summary>Advances the Bomb-gated door through collection, defeat, hit, opening and persisted blue-cap reload.</summary>
     private static void VerifyBombTorizoGreyDoorLifecycle(CartridgeReadGuard guarded, TorizoGreyDoorRoom room, ushort population, int origin, byte[] blockDefinitions)
     {
-        var enteringDoor = new CartridgeDoorHeader(
+        var enteringDoor = new DoorDefinition(
             Name: "fixture door",
             DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),

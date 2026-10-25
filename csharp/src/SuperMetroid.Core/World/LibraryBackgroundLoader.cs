@@ -22,7 +22,7 @@ public static class LibraryBackgroundLoader
     /// </summary>
     /// <exception cref="InvalidDataException">The program holds a command the cartridge's interpreter does not accept.</exception>
     /// <exception cref="InvalidOperationException">The program brings characters whose installed artwork is not bound.</exception>
-    public static LibraryBackgroundExecutionResult BindCharacters(LibraryBackgroundProgram program, CartridgeDoorHeader activeDoor,
+    public static LibraryBackgroundExecutionResult BindCharacters(LibraryBackgroundProgram program, DoorDefinition activeDoor,
         LibraryBackgroundCharacterArtwork artwork)
     {
         Ensure.NotNull(program);

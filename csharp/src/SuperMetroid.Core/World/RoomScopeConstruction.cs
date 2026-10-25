@@ -20,11 +20,11 @@ namespace SuperMetroid.Core.World;
 /// every required part. The load runs within one host call, so no frame observes a partial construction.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
+internal sealed class RoomScopeConstruction(DoorDefinition door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
     LoadStationEntry? loadStation)
 {
     /// <summary>The destination door.</summary>
-    public CartridgeDoorHeader Door { get; } = Ensure.NotNull(door);
+    public DoorDefinition Door { get; } = Ensure.NotNull(door);
 
     /// <summary>The destination room and state header.</summary>
     public CartridgeRoomHeader Room { get; } = Ensure.NotNull(room);

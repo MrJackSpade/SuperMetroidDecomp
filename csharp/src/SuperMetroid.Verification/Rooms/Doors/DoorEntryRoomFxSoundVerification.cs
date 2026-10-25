@@ -29,7 +29,7 @@ internal static class DoorEntryRoomFxSoundVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Rising Tide's lava rises only under the FX record of a door that requests it.
-        CartridgeDoorHeader entry = RetailDoorHeaderCatalog.EnumeratePointers()
+        DoorDefinition entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .Where(door => door.DestinationRoom == RoomHeaderDefinitions.RisingTide)
             .First(door =>
@@ -47,7 +47,7 @@ internal static class DoorEntryRoomFxSoundVerification
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
-        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door, CartridgeRandom random)
+        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, CartridgeRandom random)
         {
             var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
             loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

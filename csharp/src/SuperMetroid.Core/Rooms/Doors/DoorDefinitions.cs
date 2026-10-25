@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public static class DoorDefinitions
 {
     /// <summary>Retail doors in the cartridge's record order.</summary>
-    internal static readonly CartridgeDoorHeader[] Definitions =
+    internal static readonly DoorDefinition[] Definitions =
     [
         Door(nameof(CrateriaDoorDefinitions.LandingSiteLandingCutscene), RoomHeaderDefinitions.LandingSite, 0x03, new(0x00, 0x00), new(0x04, 0x00), 0x8000, 0x0000),
         Door(nameof(DemoSet3024), RoomHeaderDefinitions.LandingSite, 0x03, new(0x00, 0x00), new(0x04, 0x02), 0x8000, 0x0000),
@@ -612,20 +612,20 @@ public static class DoorDefinitions
     ];
 
     /// <summary>The compiled door named <paramref name="name"/>.</summary>
-    internal static CartridgeDoorHeader Find(string name) => Definitions.Single(door => door.Name == name);
+    internal static DoorDefinition Find(string name) => Definitions.Single(door => door.Name == name);
 
     /// <summary>Decodes a catalog entry's orientation and setup routine into a physical door header.</summary>
-    private static CartridgeDoorHeader Door(string name, RoomHeaderDefinition destination, byte orientation,
+    private static DoorDefinition Door(string name, RoomHeaderDefinition destination, byte orientation,
         Position16<RoomBlocks> plmBlock, Position16<RoomScreens> destinationScreen, ushort samusDistance, ushort setupCode) =>
-        new(name, destination, CartridgeDoorOrientation.Decode(orientation),
+        new(name, destination, DoorOrientation.Decode(orientation),
             plmBlock, destinationScreen, samusDistance,
             ClosedNativeWords.Decode<DoorSetupCode>(setupCode, "door setup routine"));
     /// <summary>The <c>Door_DemoSet3_0_2_4</c> door.</summary>
-    public static CartridgeDoorHeader DemoSet3024 { get; } = Find(nameof(DemoSet3024));
+    public static DoorDefinition DemoSet3024 { get; } = Find(nameof(DemoSet3024));
     /// <summary>The <c>UNUSED_Door_83991E</c> door.</summary>
-    public static CartridgeDoorHeader UnusedRoom83991E { get; } = Find(nameof(UnusedRoom83991E));
+    public static DoorDefinition UnusedRoom83991E { get; } = Find(nameof(UnusedRoom83991E));
     /// <summary>The <c>UNUSED_Door_WestSandHall_2_83A654</c> door.</summary>
-    public static CartridgeDoorHeader UnusedWestSandHall283A654 { get; } = Find(nameof(UnusedWestSandHall283A654));
+    public static DoorDefinition UnusedWestSandHall283A654 { get; } = Find(nameof(UnusedWestSandHall283A654));
     /// <summary>The <c>UNUSED_Door_EastSandHall_2_83A69C</c> door.</summary>
-    public static CartridgeDoorHeader UnusedEastSandHall283A69C { get; } = Find(nameof(UnusedEastSandHall283A69C));
+    public static DoorDefinition UnusedEastSandHall283A69C { get; } = Find(nameof(UnusedEastSandHall283A69C));
 }

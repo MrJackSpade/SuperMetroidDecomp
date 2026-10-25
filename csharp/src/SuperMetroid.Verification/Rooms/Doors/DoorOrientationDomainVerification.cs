@@ -21,19 +21,19 @@ internal static class DoorOrientationDomainVerification
             byte value = (byte)raw;
             if (raw > 0x0b)
             {
-                AssertThrows<InvalidDataException>(() => CartridgeDoorOrientation.Decode(value),
+                AssertThrows<InvalidDataException>(() => DoorOrientation.Decode(value),
                     $"orientation ${raw:X2} beyond Door_Closing_PLMs is rejected");
                 continue;
             }
-            CartridgeDoorOrientation orientation = CartridgeDoorOrientation.Decode(value);
+            DoorOrientation orientation = DoorOrientation.Decode(value);
             AssertEqual((DoorDirection)(raw & 3), orientation.Direction, $"orientation ${raw:X2} direction");
             AssertEqual((DoorClosingBehavior)(raw >> 2), orientation.Closing, $"orientation ${raw:X2} closing behavior");
             AssertEqual(value, orientation.Encode(), $"orientation ${raw:X2} round-trips");
             AssertEqual((raw & 2) != 0, orientation.IsVertical, $"orientation ${raw:X2} axis matches native bit 1");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => new CartridgeDoorOrientation((DoorDirection)4, DoorClosingBehavior.None),
+        AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation((DoorDirection)4, DoorClosingBehavior.None),
             "undefined direction is rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new CartridgeDoorOrientation(DoorDirection.Up, (DoorClosingBehavior)3),
+        AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation(DoorDirection.Up, (DoorClosingBehavior)3),
             "undefined closing behavior is rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)4).IsVertical(), "undefined direction has no axis");
 

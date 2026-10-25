@@ -168,7 +168,7 @@ internal static class RoomArtworkRenderParityVerification
                 ushort doorPointer = useRealLandingDoor
                     ? LandingSiteRomData.LandingCutsceneDoorPointer
                     : DoorPointers.ToCeresElevatorShaft;
-                CartridgeDoorHeader door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
+                DoorDefinition door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
                 AssertEqual(expectedRoom, door.DestinationRoom,
                     $"{name} parity uses its real entry door");
                 // The Landing Site opens on its sky, which its sky image draws; its bottom-left screen shows the ground's

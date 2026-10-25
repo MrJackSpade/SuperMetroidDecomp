@@ -5,32 +5,32 @@
 public static class CeresDoorDefinitions
 {
     /// <summary>The <c>Door_CeresElev_0</c> door.</summary>
-    public static CartridgeDoorHeader CeresElev0 { get; } = DoorDefinitions.Find(nameof(CeresElev0));
+    public static DoorDefinition CeresElev0 { get; } = DoorDefinitions.Find(nameof(CeresElev0));
 
     /// <summary>The <c>Door_FallingTile_0</c> door.</summary>
-    public static CartridgeDoorHeader FallingTile0 { get; } = DoorDefinitions.Find(nameof(FallingTile0));
+    public static DoorDefinition FallingTile0 { get; } = DoorDefinitions.Find(nameof(FallingTile0));
 
     /// <summary>The <c>Door_FallingTile_1</c> door.</summary>
-    public static CartridgeDoorHeader FallingTile1 { get; } = DoorDefinitions.Find(nameof(FallingTile1));
+    public static DoorDefinition FallingTile1 { get; } = DoorDefinitions.Find(nameof(FallingTile1));
 
     /// <summary>The <c>Door_MagnetStairs_0</c> door.</summary>
-    public static CartridgeDoorHeader MagnetStairs0 { get; } = DoorDefinitions.Find(nameof(MagnetStairs0));
+    public static DoorDefinition MagnetStairs0 { get; } = DoorDefinitions.Find(nameof(MagnetStairs0));
 
     /// <summary>The <c>Door_MagnetStairs_1</c> door.</summary>
-    public static CartridgeDoorHeader MagnetStairs1 { get; } = DoorDefinitions.Find(nameof(MagnetStairs1));
+    public static DoorDefinition MagnetStairs1 { get; } = DoorDefinitions.Find(nameof(MagnetStairs1));
 
     /// <summary>The <c>Door_DeadScientist_0</c> door.</summary>
-    public static CartridgeDoorHeader DeadScientist0 { get; } = DoorDefinitions.Find(nameof(DeadScientist0));
+    public static DoorDefinition DeadScientist0 { get; } = DoorDefinitions.Find(nameof(DeadScientist0));
 
     /// <summary>The <c>Door_DeadScientist_1</c> door.</summary>
-    public static CartridgeDoorHeader DeadScientist1 { get; } = DoorDefinitions.Find(nameof(DeadScientist1));
+    public static DoorDefinition DeadScientist1 { get; } = DoorDefinitions.Find(nameof(DeadScientist1));
 
     /// <summary>The <c>Door_58Escape_0</c> door.</summary>
-    public static CartridgeDoorHeader Room58Escape0 { get; } = DoorDefinitions.Find(nameof(Room58Escape0));
+    public static DoorDefinition Room58Escape0 { get; } = DoorDefinitions.Find(nameof(Room58Escape0));
 
     /// <summary>The <c>Door_58Escape_1</c> door.</summary>
-    public static CartridgeDoorHeader Room58Escape1 { get; } = DoorDefinitions.Find(nameof(Room58Escape1));
+    public static DoorDefinition Room58Escape1 { get; } = DoorDefinitions.Find(nameof(Room58Escape1));
 
     /// <summary>The <c>Door_CeresRidley</c> door.</summary>
-    public static CartridgeDoorHeader CeresRidley { get; } = DoorDefinitions.Find(nameof(CeresRidley));
+    public static DoorDefinition CeresRidley { get; } = DoorDefinitions.Find(nameof(CeresRidley));
 }

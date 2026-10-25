@@ -72,7 +72,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);
-            if (packets.RuntimeForVerification?.Room.ActiveDoor?.UsesCeresElevatorMode7 == true)
+            if (packets.RuntimeForVerification?.Room.ActiveDoor?.EntersCeresElevatorShaft == true)
             {
                 sawMode7Packet = true;
             }

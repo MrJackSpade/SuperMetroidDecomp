@@ -61,17 +61,17 @@ internal static class LookupRetailDoorHeadersVerification
 
     /// <summary>Reads one physical field for every door and compares the compiled typed projection.</summary>
     private static void VerifyDoorHeaderField(SuperMetroidAddressSpace rom, int offset, int width,
-        Func<CartridgeDoorHeader, int> field)
+        Func<DoorDefinition, int> field)
     {
         foreach (ushort pointer in EnumerateRetailDoorPointers())
         {
             int address = (0x830000 | pointer) + offset;
             int expected = DoorHeaderFieldRomByte(rom, address);
             if (width == 2) expected |= SnesLittleEndian.Word(0, DoorHeaderFieldRomByte(rom, address + 1));
-            CartridgeDoorHeader actual = DoorDefinitions.Get(pointer);
+            DoorDefinition actual = DoorDefinitions.Get(pointer);
             AssertEqual(expected, field(actual), $"Door {pointer:X4} native field at {offset}");
             if (offset == 10)
-                AssertEqual(expected == 0xe4e0, actual.UsesCeresElevatorMode7,
+                AssertEqual(expected == 0xe4e0, actual.EntersCeresElevatorShaft,
                     "Door setup selection preserves the Ceres Mode7 consumer predicate");
         }
     }

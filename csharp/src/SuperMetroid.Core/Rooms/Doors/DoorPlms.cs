@@ -46,7 +46,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     /// </returns>
     public bool TrySpawnDoorClosingPlm(
         RoomLevelData level,
-        CartridgeDoorHeader door,
+        DoorDefinition door,
         Bank80SystemState system)
     {
         Ensure.NotNull(level);

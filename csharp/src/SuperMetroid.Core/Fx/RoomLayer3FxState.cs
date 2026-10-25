@@ -187,7 +187,7 @@ public sealed class RoomLayer3FxState
         RoomFxSession session,
         BackgroundColourSets colours,
         RoomFxDefinition? fx,
-        CartridgeDoorHeader? door,
+        DoorDefinition? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
         ForRecord(session, colours, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });

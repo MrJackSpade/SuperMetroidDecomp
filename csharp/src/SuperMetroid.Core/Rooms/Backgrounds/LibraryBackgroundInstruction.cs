@@ -18,7 +18,7 @@ public readonly record struct LibraryBackgroundInstruction(
     int FirstWord,
     int StagingOffset,
     int ByteCount,
-    CartridgeDoorHeader? Door)
+    DoorDefinition? Door)
 {
     /// <summary>The first word a transfer's words are placed at, 0 through 65535.</summary>
     public int FirstWord { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, FirstWord);

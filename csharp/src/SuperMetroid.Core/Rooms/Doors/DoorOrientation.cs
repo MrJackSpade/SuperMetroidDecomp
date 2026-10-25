@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// fields. <c>Door_Closing_PLMs</c> defines exactly twelve values, $00-$0B; any other byte
 /// would index past that table and is rejected where the header is loaded.
 /// </summary>
-public readonly record struct CartridgeDoorOrientation
+public readonly record struct DoorOrientation
 {
     /// <summary>Creates an orientation from its decoded fields.</summary>
-    public CartridgeDoorOrientation(DoorDirection direction, DoorClosingBehavior closing)
+    public DoorOrientation(DoorDirection direction, DoorClosingBehavior closing)
     {
         if (!Enum.IsDefined(direction))
             throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined door direction.");
@@ -37,10 +37,10 @@ public readonly record struct CartridgeDoorOrientation
     };
 
     /// <summary>Decodes the cartridge byte, rejecting values outside <c>Door_Closing_PLMs</c>.</summary>
-    public static CartridgeDoorOrientation Decode(byte raw)
+    public static DoorOrientation Decode(byte raw)
     {
         if (raw > 11)
             throw new InvalidDataException($"Door orientation byte ${raw:X2} is outside Door_Closing_PLMs ($00-$0B).");
-        return new CartridgeDoorOrientation((DoorDirection)(raw & 3), ClosingRow(raw >> 2));
+        return new DoorOrientation((DoorDirection)(raw & 3), ClosingRow(raw >> 2));
     }
 }

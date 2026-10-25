@@ -117,7 +117,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     "edited colored cap survives later camera streaming");
             }
 
-            var enteringDoor = new CartridgeDoorHeader(
+            var enteringDoor = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),

@@ -60,7 +60,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>Builds the native setup position and IRQ trajectory from a door header and destination coordinates.</summary>
     public static DoorOpeningScrollState Create(
-        CartridgeDoorHeader door,
+        DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
         Position16<RoomPixels> finalCamera,
         Position16<Bg2Pixels> finalLayer2,
@@ -97,11 +97,11 @@ internal sealed class DoorOpeningScrollState
     };
 
     /// <summary>The room-pixel origin of the door's destination screen.</summary>
-    internal static Position16<RoomPixels> GetDestination(CartridgeDoorHeader door) =>
+    internal static Position16<RoomPixels> GetDestination(DoorDefinition door) =>
         door.DestinationScreen.ToRoomPixels();
 
     /// <summary>Layer-one origin after the directional setup's initial call.</summary>
-    internal static Position16<RoomPixels> GetSetupCamera(CartridgeDoorHeader door) =>
+    internal static Position16<RoomPixels> GetSetupCamera(DoorDefinition door) =>
         GetDestination(door) + door.Orientation.Direction switch
         {
             DoorDirection.Right => new Offset16<RoomPixels>(-252, 0),
@@ -115,14 +115,14 @@ internal sealed class DoorOpeningScrollState
     /// <c>$82:E3C0</c> replaces both whole coordinates with layer one plus the
     /// low position byte, preserving the fractions and deferring final nudges.
     /// </summary>
-    internal static FixedPosition<RoomPixels> RebaseSamus(CartridgeDoorHeader door, FixedPosition<RoomPixels> setup)
+    internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
     {
         var withinScreen = new Offset16<RoomPixels>((byte)setup.X.Whole, (byte)setup.Y.Whole);
         return setup.WithWhole(GetSetupCamera(door) + withinScreen);
     }
 
     /// <summary>One moving IRQ call; downward setup alone omits this displacement.</summary>
-    internal static FixedPosition<RoomPixels> AdvanceSamus(CartridgeDoorHeader door, FixedPosition<RoomPixels> samus) =>
+    internal static FixedPosition<RoomPixels> AdvanceSamus(DoorDefinition door, FixedPosition<RoomPixels> samus) =>
         samus.Advance(GetSamusStep(door));
 
     /// <summary>
@@ -130,7 +130,7 @@ internal sealed class DoorOpeningScrollState
     /// (or the native default) times $100 subpixels, added along right/down and subtracted
     /// along left/up with the native 32-bit wrap.
     /// </summary>
-    internal static FixedVector<RoomPixels> GetSamusStep(CartridgeDoorHeader door)
+    internal static FixedVector<RoomPixels> GetSamusStep(DoorDefinition door)
     {
         int distance = unchecked((short)door.SamusDistance);
         if (distance < 0)
@@ -153,7 +153,7 @@ internal sealed class DoorOpeningScrollState
     /// whole position words. Downward setup stages a row without moving Samus.
     /// </summary>
     internal static FixedPosition<RoomPixels> ApplySetupMovement(
-        CartridgeDoorHeader door, FixedPosition<RoomPixels> source) =>
+        DoorDefinition door, FixedPosition<RoomPixels> source) =>
         door.Orientation.Direction == DoorDirection.Down ? source : AdvanceSamus(door, source);
 
     /// <summary>The signed four-pixel layer step of one IRQ call along the travel axis.</summary>

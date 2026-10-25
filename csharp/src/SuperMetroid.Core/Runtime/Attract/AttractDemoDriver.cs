@@ -114,7 +114,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             _player.Samus.Missiles, _player.Samus.MaxMissiles, _player.Samus.SuperMissiles, _player.Samus.MaxSuperMissiles,
             _player.Samus.PowerBombs, _player.Samus.MaxPowerBombs, _player.Samus.EquippedItems, 0, 0, 0));
         _frameBoundary.BeginAcceptedFrame(0);
-        CartridgeDoorHeader door = scene.Door;
+        DoorDefinition door = scene.Door;
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
         var room = _roomLoader.LoadCartridgeRoomHeader(scene.Room);

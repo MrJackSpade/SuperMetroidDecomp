@@ -83,7 +83,7 @@ internal static class RoomFxRetailInventoryVerification
             .Select(state => state.RoomPointer)
             .Distinct()
             .ToArray();
-        CartridgeDoorHeader[] doors = RetailDoorHeaderCatalog.EnumeratePointers()
+        DoorDefinition[] doors = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, pointer))
             .ToArray();
 
@@ -97,7 +97,7 @@ internal static class RoomFxRetailInventoryVerification
         Suite(nameof(VerifyRetailLavaSurface), () => VerifyRetailLavaSurface(bus, states));
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
-        ILookup<ushort, CartridgeDoorHeader> incomingDoors = doors
+        ILookup<ushort, DoorDefinition> incomingDoors = doors
             .ToLookup(door => RoomHeaderDefinitions.PointerOf(door.DestinationRoom));
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
@@ -127,7 +127,7 @@ internal static class RoomFxRetailInventoryVerification
                          room.State.FxPointer))
             {
                 doorSpecificRecords++;
-                AssertTrue(doorByPointer.TryGetValue(recordDoor, out CartridgeDoorHeader? fxDoor),
+                AssertTrue(doorByPointer.TryGetValue(recordDoor, out DoorDefinition? fxDoor),
                     $"room {room.Identity} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
                 AssertEqual(room.Definition, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom,
@@ -221,7 +221,7 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>The door an entry path names, or none for path zero, which matches only default records.</summary>
-    private static CartridgeDoorHeader? EntryDoor(ushort doorPointer) =>
+    private static DoorDefinition? EntryDoor(ushort doorPointer) =>
         doorPointer == 0 ? null : DoorDefinitions.Get(doorPointer);
 
     /// <summary>Compares independent ROM FX selection and liquid fields with the production owner for one room and entry door.</summary>
@@ -604,7 +604,7 @@ internal static class RoomFxRetailInventoryVerification
     private static void VerifyRetailLiquidRise(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
-        IReadOnlyList<CartridgeDoorHeader> doors,
+        IReadOnlyList<DoorDefinition> doors,
         RisingLiquidAuditDefinition definition)
     {
         RetailFxRoomState namedState = states.Single(state =>
@@ -616,7 +616,7 @@ internal static class RoomFxRetailInventoryVerification
         {
             State = SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.Load(bus, namedState.StatePointer),
         };
-        CartridgeDoorHeader door = doors.Single(candidate =>
+        DoorDefinition door = doors.Single(candidate =>
             candidate.Pointer == definition.EntryDoor);
         AssertEqual(room.Definition, door.DestinationRoom,
             $"rising-lava door $83:{door.Pointer:X4} destination");
@@ -677,9 +677,9 @@ internal static class RoomFxRetailInventoryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the room $02/$28 earthquake displacement row")]
     private static void VerifyRetailRisingLavaFeedback(
         SuperMetroidAddressSpace bus,
-        IReadOnlyList<CartridgeDoorHeader> doors)
+        IReadOnlyList<DoorDefinition> doors)
     {
-        CartridgeDoorHeader door = doors.Single(candidate =>
+        DoorDefinition door = doors.Single(candidate =>
             candidate.Pointer == RetailRoomFxDefinitions.RisingLavaRoom28.EntryDoor);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

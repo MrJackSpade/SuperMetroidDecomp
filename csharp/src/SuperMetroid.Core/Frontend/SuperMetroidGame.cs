@@ -159,7 +159,7 @@ public sealed class SuperMetroidGame
     public RoomIdentity? GameplayActiveRoomIdentity => Session.Runtime?.Room.ActiveRoom?.Identity;
 
     /// <summary>The door the active room was entered through, exposed for door-transition watches.</summary>
-    public CartridgeDoorHeader? GameplayActiveDoor => Session.Runtime?.Room.ActiveDoor;
+    public DoorDefinition? GameplayActiveDoor => Session.Runtime?.Room.ActiveDoor;
 
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>

@@ -48,7 +48,7 @@ internal static class RoomScopeVerification
 
         CartridgeRoomHeader parlor = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.Parlor);
         var camera = new Position16<RoomPixels>(0, 0);
-        var door = new CartridgeDoorHeader(
+        var door = new DoorDefinition(
             Name: "room scope verification door",
             DestinationRoom: RoomHeaderDefinitions.Parlor,
             Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),

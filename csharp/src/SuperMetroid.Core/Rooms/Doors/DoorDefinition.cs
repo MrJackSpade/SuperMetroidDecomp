@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// can change PPU mode before gameplay. Treating the station's room pointer as sufficient
 /// discarded exactly the Mode-7 switch used by the opening Ceres elevator.
 /// </remarks>
-public sealed record CartridgeDoorHeader(
+public sealed record DoorDefinition(
     string Name,
     RoomHeaderDefinition DestinationRoom,
-    CartridgeDoorOrientation Orientation,
+    DoorOrientation Orientation,
     Position16<RoomBlocks> PlmBlock,
     Position16<RoomScreens> DestinationScreen,
     int SamusDistance,
@@ -23,6 +23,6 @@ public sealed record CartridgeDoorHeader(
     /// True only for the door into the Ceres elevator shaft, whose verified setup routine at $8F:E4E0 shows the room as a
     /// turning floor, unrotated, about room point (128, 1008).
     /// </summary>
-    public bool UsesCeresElevatorMode7 =>
+    public bool EntersCeresElevatorShaft =>
         SetupCode == DoorSetupCode.DoorASM_ToCeresElevatorShaft;
 }

@@ -103,6 +103,6 @@ public static class LoadStationDefinitions
 
     /// <summary>Compiled room, door, camera, and Samus offsets before projection into a load entry.</summary>
     private readonly record struct LoadStationDefinition(
-        RoomHeaderDefinition? Room, CartridgeDoorHeader? Door, Position16<RoomPixels> CameraPosition,
+        RoomHeaderDefinition? Room, DoorDefinition? Door, Position16<RoomPixels> CameraPosition,
         Offset16<RoomPixels> SamusOffset);
 }

@@ -88,7 +88,7 @@ public sealed class RoomPaletteFxSystem
     public static RoomPaletteFxSystem ForRoom(
         PaletteFxSessionState session,
         RoomFxDefinition? fx,
-        CartridgeDoorHeader? door,
+        DoorDefinition? door,
         AreaId area,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
@@ -102,7 +102,7 @@ public sealed class RoomPaletteFxSystem
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
-    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxDefinition? fx, CartridgeDoorHeader? door,
+    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxDefinition? fx, DoorDefinition? door,
         AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
@@ -112,7 +112,7 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>Spawns the selected or supplied FX record's area-specific palette bits.</summary>
-    private void SpawnRecordObjects(RoomFxDefinition? fx, CartridgeDoorHeader? door,
+    private void SpawnRecordObjects(RoomFxDefinition? fx, DoorDefinition? door,
         AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {

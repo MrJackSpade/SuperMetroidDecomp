@@ -41,7 +41,7 @@ internal static class RetailDoorHeaderCatalog
     /// </summary>
     private static IEnumerable<ushort> EnumerateRange(ushort start, ushort end)
     {
-        for (int pointer = start; pointer <= end; pointer += CartridgeDoorHeader.SizeInBytes)
+        for (int pointer = start; pointer <= end; pointer += DoorDefinition.SizeInBytes)
             yield return unchecked((ushort)pointer);
     }
 }

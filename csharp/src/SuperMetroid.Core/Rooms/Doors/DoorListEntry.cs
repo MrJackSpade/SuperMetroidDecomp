@@ -14,14 +14,14 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public readonly record struct DoorListEntry
 {
     /// <summary>Pairs a physical header, or a pseudo-door kind for an elevator entry.</summary>
-    private DoorListEntry(CartridgeDoorHeader? door, ElevatorPseudoDoor? pseudoDoor)
+    private DoorListEntry(DoorDefinition? door, ElevatorPseudoDoor? pseudoDoor)
     {
         Door = door;
         PseudoDoor = pseudoDoor;
     }
 
     /// <summary>The physical door header, or null for an elevator pseudo-door.</summary>
-    public CartridgeDoorHeader? Door { get; }
+    public DoorDefinition? Door { get; }
 
     /// <summary>The elevator pseudo-door, or null for a physical door.</summary>
     public ElevatorPseudoDoor? PseudoDoor { get; }
@@ -30,7 +30,7 @@ public readonly record struct DoorListEntry
     public bool IsElevatorPseudoDoor => Door is null;
 
     /// <summary>A physical door header.</summary>
-    public static DoorListEntry Physical(CartridgeDoorHeader door) => new(Ensure.NotNull(door), null);
+    public static DoorListEntry Physical(DoorDefinition door) => new(Ensure.NotNull(door), null);
 
     /// <summary>An elevator pseudo-door entry.</summary>
     public static DoorListEntry ElevatorPseudoDoor(ElevatorPseudoDoor pseudoDoor)

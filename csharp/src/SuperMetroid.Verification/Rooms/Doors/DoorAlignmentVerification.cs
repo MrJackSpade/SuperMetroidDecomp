@@ -60,7 +60,7 @@ internal static class DoorAlignmentVerification
         var final = FixedPosition<RoomPixels>.FromWords(0x0318, 0xabcd, 0x0218, 0x2468);
         for (int direction = 0; direction < 4; direction++)
         {
-            var door = new CartridgeDoorHeader(
+            var door = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
@@ -114,7 +114,7 @@ internal static class DoorAlignmentVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
+            DoorDefinition? candidate = level.ResolveDoorCollision(
                 block.Bts.Value,
                 SamusPoseId.MovingRightNormalPose.ForRoomCollision(),
                 publishDoorSideEffects: false).Door;

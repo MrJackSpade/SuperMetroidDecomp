@@ -495,7 +495,7 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionRomData.RageRadiusStep))));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.RageRadiusStep))));
         flame.Variable0 = unchecked((byte)(flame.Variable0 + (byte)flame.Velocity.X.RawValue));
         PositionPhantoonFlameAroundBody(
             flame,
@@ -517,7 +517,7 @@ internal sealed class PhantoonCombat
                 return;
             // Expiry falls through to movement on this call, including signed
             // underflow. Keep each actor's native queue call rather than a last-SFX latch.
-            _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
+            _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundQueueCapacity);
         }
 
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
@@ -527,7 +527,7 @@ internal sealed class PhantoonCombat
         flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
         flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
-        _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
+        _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundQueueCapacity);
     }
 
     /// <summary>Moves a spiral flame around Phantoon's body.</summary>
@@ -539,8 +539,8 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionRomData.SpiralRadiusStep))));
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionRomData.SpiralAngleStep));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.SpiralRadiusStep))));
+        flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionDefinitions.SpiralAngleStep));
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,

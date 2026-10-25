@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>NTSC Japan/USA operands for bank-$86 Phantoon flame motion; PAL values differ.</summary>
-internal static class PhantoonFlameMotionRomData
+/// <summary>How Phantoon's enraged and spiral flames move and sound (the NTSC Japan/USA values; PAL values differ).</summary>
+internal static class PhantoonFlameMotionDefinitions
 {
     /// <summary>$86:9885/$988D, enraged initializer: signed clockwise/counterclockwise angle step magnitude.</summary>
     internal const int RageAngleStep = 2;

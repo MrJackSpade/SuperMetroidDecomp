@@ -28,7 +28,7 @@ public sealed class PhantoonPartState
     /// <summary>The word holding a part's function, the eye's fade-complete flag or rage wave count, the tentacles' explosion index or the mouth's wavy phase delta.</summary>
     private int _wordF;
 
-    /// <summary>The first spawn-parameter word: the eye's wave mode, the tentacles' requested wave mode or the mouth's blending control.</summary>
+    /// <summary>The first spawn-parameter word: the eye's wave mode or the tentacles' requested wave mode.</summary>
     private int _parameterOne;
 
     /// <summary>The second spawn-parameter word: the body's flame-rain request, the tentacles' hit reaction or the mouth's shot pattern.</summary>
@@ -141,10 +141,12 @@ public sealed class PhantoonPartState
     public int RequestedWaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
 
     /// <summary>
-    /// The mouth's blending control: its low byte zero or the delete control hides Phantoon's layer, and the delete
-    /// control also removes the blending owner.
+    /// The mouth's control of Phantoon's layer while Phantoon is not semi-transparent. The cartridge keeps it in the
+    /// mouth's first parameter word and tests only its low byte; every part initialization overwrites the mouth's with
+    /// <see cref="PhantoonLayerControl.Hidden"/> (a zero low byte) before the blending owner reads it, so the spawn
+    /// parameter it replaces is never observed.
     /// </summary>
-    public int BlendingControl { get => _parameterOne; internal set => _parameterOne = Word(value); }
+    public PhantoonLayerControl LayerControl { get; internal set; } = PhantoonLayerControl.Hidden;
 
     /// <summary>Whether the body takes the flame-rain branch when the eye-close program picks the next pattern.</summary>
     public bool FlameRainRequested { get => _parameterTwo != 0; internal set => _parameterTwo = value ? 1 : 0; }
@@ -190,6 +192,7 @@ public sealed class PhantoonPartState
         _wordF = 0;
         _parameterOne = 0;
         _parameterTwo = 0;
+        LayerControl = PhantoonLayerControl.Hidden;
         HurtFlashShown = false;
     }
 

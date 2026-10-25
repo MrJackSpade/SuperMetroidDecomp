@@ -530,22 +530,22 @@ internal sealed class PhantoonPatterns
 
         if ((state.Parts[state.Eye.SlotIndex].RageWaveCount & 1) == 0)
         {
-            for (int direction = PhantoonRageRomData.EvenWaveFirstDirection; direction >= 0; direction--)
+            for (int direction = PhantoonRageDefinitions.EvenWaveFirstDirection; direction >= 0; direction--)
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
         }
         else
         {
             // Native DEY/CPY/BPL includes direction eight: alternating waves
             // intentionally contain seven and eight flames, not seven each.
-            for (int direction = PhantoonRageRomData.OddWaveFirstDirection; direction >= PhantoonRageRomData.OddWaveLastDirection; direction--)
+            for (int direction = PhantoonRageDefinitions.OddWaveFirstDirection; direction >= PhantoonRageDefinitions.OddWaveLastDirection; direction--)
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
         }
 
-        _audio.QueueEnemySound(PhantoonRageRomData.WaveSound, PhantoonRageRomData.WaveSoundQueueCapacity);
+        _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundQueueCapacity);
         state.Parts[state.Eye.SlotIndex].RageWaveCount = unchecked((ushort)(state.Parts[state.Eye.SlotIndex].RageWaveCount + 1));
-        if (unchecked((short)(state.Parts[state.Eye.SlotIndex].RageWaveCount - PhantoonRageRomData.WaveCount)) < 0)
+        if (unchecked((short)(state.Parts[state.Eye.SlotIndex].RageWaveCount - PhantoonRageDefinitions.WaveCount)) < 0)
         {
-            state.Parts[body.SlotIndex].FunctionTimer = PhantoonRageRomData.WaveInterval;
+            state.Parts[body.SlotIndex].FunctionTimer = PhantoonRageDefinitions.WaveInterval;
             return;
         }
 
@@ -781,7 +781,7 @@ internal sealed class PhantoonPatterns
 
             case PhantoonFlameSpawnType.Enraged:
                 flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(index >= 8
-                    ? -PhantoonFlameMotionRomData.RageAngleStep : PhantoonFlameMotionRomData.RageAngleStep))));
+                    ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep))));
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.RageAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.PreInstruction =

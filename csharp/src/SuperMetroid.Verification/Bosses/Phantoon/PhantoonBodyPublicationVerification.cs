@@ -47,13 +47,13 @@ internal static class PhantoonBodyPublicationVerification
         state.Bg2Scroll = new Position16<Bg2Pixels>(40, 0);
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = 3072;
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = 8;
-        state.Wave.Begin(PhantoonWaveRomData.IntroMode);
+        state.Wave.Begin(PhantoonWaveDefinitions.IntroMode);
         state.Wave.Step(state);
         state.Wave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingIn = runtime.Display.Latched.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
-        AssertEqual(new PhantoonWave(PhantoonWaveRomData.IntroMode, state.Wave.Phase, 3072, 40), fadingIn.Wave,
+        AssertEqual(new PhantoonWave(PhantoonWaveDefinitions.IntroMode, state.Wave.Phase, 3072, 40), fadingIn.Wave,
             "the wavy fade-in publishes the wave's mode, phase, amplitude and base scroll");
         EnemyBg2ImageSnapshot image = runtime.Display.Latched.Bosses.EnemyBg2
             ?? throw new InvalidOperationException("Phantoon publishes his enemy BG2 image.");

@@ -39,7 +39,7 @@ public static class EnemyTrigonometryTables
     /// with positive sign for a &lt; 128, reproduces the native words. Treat the
     /// quarter-turn magnitude as exactly 256; the byte table saturates it to 255.
     /// The #1165 research also checked the entire 320-word negative-cosine prefix/full
-    /// sine view. Any later replacement must preserve PhantoonWaveRomData's
+    /// sine view. Any later replacement must preserve PhantoonWaveTable's
     /// separate odd-byte composition and final $8B instruction-byte overread;
     /// these are byte-addressing behavior, not additional sine samples.
     /// Individual investigation: #625 / #910.</remarks>

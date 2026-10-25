@@ -148,7 +148,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // owns the casual-flame pattern index/control words used much later in the fight.
         if (_slotTable.Slots.Count > 3)
         {
-            state.Parts[3].BlendingControl = 0;
+            state.Parts[3].LayerControl = PhantoonLayerControl.Hidden;
             state.Parts[3].CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
         }
     }

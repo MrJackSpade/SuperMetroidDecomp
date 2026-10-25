@@ -34,7 +34,7 @@ internal static class PhantoonWaveMathVerification
         }
 
         for (int phase = 0; phase <= ushort.MaxValue; phase++)
-            AssertEqual(samples[phase & 511], PhantoonWaveRomData.ReadSineAtBytePhase((ushort)phase),
+            AssertEqual(samples[phase & 511], PhantoonWaveTable.ReadSineAtBytePhase((ushort)phase),
                 "Phantoon byte-phase read and wrapping");
         if (definitionsOnly) return;
         var displacementReader = new Func<ushort, ushort, int>(PhantoonWaveTable.CalculateDisplacement);

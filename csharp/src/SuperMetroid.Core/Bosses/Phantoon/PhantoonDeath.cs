@@ -124,8 +124,8 @@ internal sealed class PhantoonDeath
         state.Parts[mouth.SlotIndex].WaveAmplitude = 0;
         state.Parts[mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
-        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveRomData.DeathMode;
-        state.Wave.Begin(PhantoonWaveRomData.DeathMode);
+        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveDefinitions.DeathMode;
+        state.Wave.Begin(PhantoonWaveDefinitions.DeathMode);
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeOut;
         state.Parts[state.Eye.SlotIndex].MosaicRegister = PhantoonDeathDefinitions.InitialMosaic;
         state.MosaicBlockSize = MosaicBlockSizeOf(PhantoonDeathDefinitions.InitialMosaic);
@@ -191,7 +191,7 @@ internal sealed class PhantoonDeath
         state.MosaicBlockSize = 1;
         state.Parts[state.Eye.SlotIndex].WaveMode = 0;
         state.SemiTransparent = false;
-        state.Parts[state.Mouth.SlotIndex].BlendingControl = PhantoonBlendingRomData.DeleteControlWord;
+        state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Dead;
         state.Parts[body.SlotIndex].FunctionTimer = 60;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;

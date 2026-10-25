@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
+/// <summary>Editable starting colour image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
-    /// <summary>Owned 256-color CGRAM image loaded at gameplay startup.</summary>
+    /// <summary>Owned 256-color starting image loaded at gameplay startup.</summary>
     internal readonly RgbColor[] initial;
     /// <summary>Owned sixteen-color palette reused by common room sprites.</summary>
     internal readonly RgbColor[] commonSprites;

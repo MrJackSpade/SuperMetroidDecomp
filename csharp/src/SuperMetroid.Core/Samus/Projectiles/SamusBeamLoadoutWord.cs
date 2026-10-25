@@ -45,7 +45,7 @@ public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
     public SamusBeamFlags KnownFlags => Beams & VerifiedBeams;
 
     /// <summary>Tests whether any requested verified beam-equipment bits are set.</summary>
-    public bool HasAny(SamusBeamFlags flags) => (KnownFlags & flags) != 0;
+    public bool HasAny(SamusBeamFlags flags) => (KnownFlags & flags) != SamusBeamFlags.None;
 
     /// <summary>Views a beam set through its loadout word.</summary>
     public static implicit operator SamusBeamLoadoutWord(SamusBeamFlags beams) => new(beams);

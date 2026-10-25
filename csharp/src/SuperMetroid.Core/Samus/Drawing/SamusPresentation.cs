@@ -261,7 +261,7 @@ internal sealed class SamusPresentation
 
         bool activeDashAnimation = samus.HorizontalSpeed.HasRunningMomentum &&
             SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running &&
-            (controllerInput & ControllerButton.B) != 0;
+            (controllerInput & ControllerButton.B) != ControllerButton.None;
         if (activeDashAnimation)
         {
             // `$90:852C-$8543` intercepts a command byte before the generic command table.

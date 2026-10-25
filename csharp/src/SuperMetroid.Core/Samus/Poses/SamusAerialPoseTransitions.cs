@@ -107,7 +107,7 @@ internal static class SamusAerialPoseTransitions
 
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
-        if ((controllerNewInput & ControllerButton.X) != 0)
+        if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
             samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -905,7 +905,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         SamusAerialMovement.InitializeJump(samus);
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & ControllerButton.X) != 0)
+            (controllerNewInput & ControllerButton.X) != ControllerButton.None)
         {
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
@@ -946,7 +946,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     internal static void PublishNormalJumpPoseShotDirection(SamusState samus, ControllerButton controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & ControllerButton.X) != 0)
+            (controllerNewInput & ControllerButton.X) != ControllerButton.None)
             samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
     }
 

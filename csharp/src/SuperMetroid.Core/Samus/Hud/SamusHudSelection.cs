@@ -34,14 +34,14 @@ internal sealed class SamusHudSelection
         HudItem previousSelection = samus.SelectedHudItem;
         ControllerButton switchMask = itemSwitchButton;
         ControllerButton cancelMask = itemCancelButton;
-        bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != 0;
+        bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != ControllerButton.None;
 
-        if ((controllerNewInput & cancelMask) != 0)
+        if ((controllerNewInput & cancelMask) != ControllerButton.None)
         {
             samus.AutoCancelHudItemIndex = HudItem.Beam;
             samus.SelectedHudItem = HudItem.Beam;
         }
-        else if ((controllerNewInput & switchMask) != 0)
+        else if ((controllerNewInput & switchMask) != ControllerButton.None)
         {
             // `$90:C51D-$C53A` wraps after X-ray and repeatedly invokes the selected
             // handler while it returns carry set. The loop always terminates because
@@ -52,7 +52,7 @@ internal sealed class SamusHudSelection
             }
             while (!IsHudItemAvailable(samus, samus.SelectedHudItem));
 
-            samus.AutoCancelHudItemIndex = (controllerInput & cancelMask) != 0
+            samus.AutoCancelHudItemIndex = (controllerInput & cancelMask) != ControllerButton.None
                 ? samus.SelectedHudItem
                 : HudItem.Beam;
         }

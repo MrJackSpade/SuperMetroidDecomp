@@ -21,16 +21,16 @@ public static class SamusBeamCombinations
         public SamusBeamFlags Components => (SamusBeamFlags)(byte)combination;
 
         /// <summary>Whether Wave is a component.</summary>
-        public bool HasWave => (combination.Components & SamusBeamFlags.Wave) != 0;
+        public bool HasWave => (combination.Components & SamusBeamFlags.Wave) != SamusBeamFlags.None;
 
         /// <summary>Whether Ice is a component.</summary>
-        public bool HasIce => (combination.Components & SamusBeamFlags.Ice) != 0;
+        public bool HasIce => (combination.Components & SamusBeamFlags.Ice) != SamusBeamFlags.None;
 
         /// <summary>Whether Spazer is a component.</summary>
-        public bool HasSpazer => (combination.Components & SamusBeamFlags.Spazer) != 0;
+        public bool HasSpazer => (combination.Components & SamusBeamFlags.Spazer) != SamusBeamFlags.None;
 
         /// <summary>Whether Plasma is a component.</summary>
-        public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != 0;
+        public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != SamusBeamFlags.None;
 
         /// <summary>Whether retail equipment can produce this combination: every row the twelve-entry native tables define.</summary>
         public bool IsRetail => combination switch

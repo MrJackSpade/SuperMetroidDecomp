@@ -511,7 +511,7 @@ internal static class SamusGroundedPoseTransitions
         // F8F9 checks held Jump, not a fresh press. Releasing Shoot from a buffered
         // Moonwalk selects a generic turn in the input table, then reaches this same
         // turn/jump initializer without a new Jump edge.
-        if (wasMoonwalking && (controllerInput & ControllerButton.A) != 0)
+        if (wasMoonwalking && (controllerInput & ControllerButton.A) != ControllerButton.None)
         {
             ApplyMoonwalkTurnJump(samus, turnsLeft
                 ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose);

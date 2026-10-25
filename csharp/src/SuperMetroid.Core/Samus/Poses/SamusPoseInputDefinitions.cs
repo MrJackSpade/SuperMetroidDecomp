@@ -238,8 +238,8 @@ internal static class SamusPoseInputDefinitions
     /// </summary>
     internal static ControllerButton MirrorButtons(ControllerButton input) =>
         (input & ~(ControllerButton.Left | ControllerButton.Right)) |
-        ((input & ControllerButton.Left) != 0 ? ControllerButton.Right : 0) |
-        ((input & ControllerButton.Right) != 0 ? ControllerButton.Left : 0);
+        ((input & ControllerButton.Left) != ControllerButton.None ? ControllerButton.Right : 0) |
+        ((input & ControllerButton.Right) != ControllerButton.None ? ControllerButton.Left : 0);
 
     /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
     internal static bool Has(ControllerButton input, CanonicalPoseButtons required) =>

@@ -123,7 +123,7 @@ public static class SamusGroundedMovement
     private static void ResetStandingShotAnimation(SamusState samus, ControllerButton controllerInput)
     {
         if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&
-            (controllerInput & ControllerButton.X) != 0)
+            (controllerInput & ControllerButton.X) != ControllerButton.None)
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, SamusMovementDefinitions.StandingShotAnimationTimer);
     }
 

@@ -374,7 +374,7 @@ public sealed class SamusBombProjectileSystem
         // The outer $90:BF9D test uses held Shoot. Both item branches eventually call
         // helper two, which separately insists on the newly-pressed bit.
         const ControllerButton shoot = ControllerButton.X;
-        if ((controllerInput & shoot) == 0)
+        if ((controllerInput & shoot) == ControllerButton.None)
             return null;
 
         bool placingPowerBomb = samus.SelectedHudItem == HudItem.PowerBomb;
@@ -444,7 +444,7 @@ public sealed class SamusBombProjectileSystem
         SamusState samus,
         ControllerButton controllerInput)
     {
-        bool shootHeld = (controllerInput & ControllerButton.X) != 0;
+        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         if (!shootHeld)
         {
             // The outer Morph-Ball handler cancels charge before testing HUD selection
@@ -466,7 +466,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
         }
 
-        if ((controllerInput & ControllerButton.Down) != 0 &&
+        if ((controllerInput & ControllerButton.Down) != ControllerButton.None &&
             (samus.BombSpreadChargeTimeoutCounter &
                 MorphBallBombDefinitions.DownChargeTimeoutMask) <
                 MorphBallBombDefinitions.DownChargeTimeoutMask)
@@ -513,7 +513,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing only the cooldown's low byte after the first bomb.</summary>
     private bool TryReserveBombSlot(ControllerButton controllerNewInput, ControllerButton shoot)
     {
-        if ((controllerNewInput & shoot) == 0)
+        if ((controllerNewInput & shoot) == ControllerButton.None)
             return false;
 
         // $90:C0E7 allows the first bomb regardless of cooldown. With any active bomb,

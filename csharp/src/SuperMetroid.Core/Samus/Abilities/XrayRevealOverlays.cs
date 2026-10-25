@@ -53,7 +53,7 @@ public static class XrayRevealOverlays
         int destination = y * XrayTilemapLayout.MetatileRowStride + x * 2;
         // $91:D0A6 swaps the two tile rows for vertical flip. It neither toggles each
         // tile's flip bits nor implements horizontal flip; preserve that native behavior.
-        bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != 0;
+        bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None;
         for (int row = 0; row < 2; row++)
         for (int col = 0; col < 2; col++)
         {

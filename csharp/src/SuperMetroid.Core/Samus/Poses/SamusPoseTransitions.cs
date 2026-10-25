@@ -204,7 +204,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
         // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
         // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
-        bool shotHeld = (controllerInput & ControllerButton.X) != 0;
+        bool shotHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         return SamusPoseMetadata.ReadShotDirection(samus) switch
         {
             0 => SamusPoseId.LandingAimUpRightPose,

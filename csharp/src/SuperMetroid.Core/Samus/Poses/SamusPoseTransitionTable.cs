@@ -37,7 +37,7 @@ public static class SamusPoseTransitionTable
 
         // $91:81A9 branches directly to lookup-failure handling when the raw controller
         // word is zero, before it reads this table at all.
-        if (canonicalHeldInput == 0)
+        if (canonicalHeldInput == ControllerButton.None)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
 
         // Start and Select never participate in pose chords. $91:81F4 initializes its two

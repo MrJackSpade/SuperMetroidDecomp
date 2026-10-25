@@ -529,7 +529,7 @@ public static class SamusAerialMovement
         uint baseSpeed = speed.CalculateBaseSpeed(speedRecord);
 
         bool horizontalInput = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         BlockMoveResult horizontal;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !horizontalInput)
         {
@@ -582,7 +582,7 @@ public static class SamusAerialMovement
             speed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
@@ -696,7 +696,7 @@ public static class SamusAerialMovement
         if (state.YDirection != SamusVerticalDirection.Up)
             return;
 
-        bool jumpHeld = (controllerInput & ControllerButton.A) != 0;
+        bool jumpHeld = (controllerInput & ControllerButton.A) != ControllerButton.None;
         bool speedUnderflowed = unchecked((short)state.YSpeed.Whole) < 0;
         if (!jumpHeld || speedUnderflowed)
         {
@@ -710,8 +710,8 @@ public static class SamusAerialMovement
         SamusState samus,
         ControllerButton controllerInput) =>
         SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
-            ? (controllerInput & ControllerButton.Left) != 0
-            : (controllerInput & ControllerButton.Right) != 0;
+            ? (controllerInput & ControllerButton.Left) != ControllerButton.None
+            : (controllerInput & ControllerButton.Right) != ControllerButton.None;
 
     /// <summary>
     /// Ports `$90:9D35`'s block and solid-enemy wall probes, including enemy-shake publication.
@@ -729,8 +729,8 @@ public static class SamusAerialMovement
         if (!samus.PoseHistory.AllowsWallJumpProbe)
             return default;
 
-        bool heldLeft = (controllerInput & ControllerButton.Left) != 0;
-        bool heldRight = (controllerInput & ControllerButton.Right) != 0;
+        bool heldLeft = (controllerInput & ControllerButton.Left) != ControllerButton.None;
+        bool heldRight = (controllerInput & ControllerButton.Right) != ControllerButton.None;
         if (!heldLeft && !heldRight)
             return default;
 
@@ -759,7 +759,7 @@ public static class SamusAerialMovement
             return new WallJumpCheckResult(Triggered: false, Contact: true, Distance: distance);
         }
 
-        bool jumpNew = (controllerNewInput & ControllerButton.A) != 0;
+        bool jumpNew = (controllerNewInput & ControllerButton.A) != ControllerButton.None;
         bool triggered = jumpNew && distance < 8;
         if (triggered)
         {
@@ -810,7 +810,7 @@ public static class SamusAerialMovement
         bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - minimumVelocity)) >= 0;
         bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 1280)) < 0;
         if (!atOrAboveMinimum || !belowMaximum ||
-            (controllerNewInput & ControllerButton.A) == 0)
+            (controllerNewInput & ControllerButton.A) == ControllerButton.None)
         {
             return false;
         }

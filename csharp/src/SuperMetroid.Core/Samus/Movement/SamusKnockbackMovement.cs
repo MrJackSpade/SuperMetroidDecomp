@@ -173,8 +173,8 @@ level, targetPose, nmiFrameCounter, plms))
         else
         {
             bool forwardHeld = facingLeft
-                ? (controllerInput & ControllerButton.Left) != 0
-                : (controllerInput & ControllerButton.Right) != 0;
+                ? (controllerInput & ControllerButton.Left) != ControllerButton.None
+                : (controllerInput & ControllerButton.Right) != ControllerButton.None;
             samus.KnockbackDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
                 ? forwardHeld ? SamusKnockbackDirection.DownLeft : SamusKnockbackDirection.UpLeft
                 : forwardHeld ? SamusKnockbackDirection.DownRight : SamusKnockbackDirection.UpRight;

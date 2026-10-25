@@ -578,7 +578,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         if (!SamusPoseMetadata.IsAirborneSpringBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not {samus.Pose}.");
 
-        if ((controllerInput & ControllerButton.A) != 0)
+        if ((controllerInput & ControllerButton.A) != ControllerButton.None)
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
             SamusAerialMovement.InitializeJump(samus);

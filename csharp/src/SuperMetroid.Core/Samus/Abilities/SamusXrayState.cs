@@ -51,19 +51,19 @@ public sealed class SamusXrayState
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != 0;
+        (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent PLM disable remains set, suppressing room-object instruction processing separately from shared time freeze.</summary>
     public bool ArePlmsSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.Plms) != 0;
+        (SuspendedSubsystems & XraySuspendedSubsystems.Plms) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent animated-tile disable remains set, preventing animated-tile object advancement even after shared time resumes.</summary>
     public bool AreAnimatedTilesSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != 0;
+        (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent palette-FX disable remains set; this suspends room palette effects, not Samus's separate visor palette handler.</summary>
     public bool ArePaletteFxSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != 0;
+        (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != XraySuspendedSubsystems.None;
 
     /// <summary>Interrupted pose published by alpha, awaiting bank-$91 pose commit in beta.</summary>
     public SamusPoseId? PendingActivationPose { get; private set; }
@@ -354,7 +354,7 @@ public sealed class SamusXrayState
             ControllerButton turnBinding = facingLeft
                 ? ControllerButton.Right
                 : ControllerButton.Left;
-            if ((controllerInput & turnBinding) == 0)
+            if ((controllerInput & turnBinding) == ControllerButton.None)
                 return default;
 
             // Mirroring through `$0100 - angle` turns right-space `$00-$7F` into its exact
@@ -435,7 +435,7 @@ public sealed class SamusXrayState
             return SnapshotBeamStep(phaseAtStart, completed: false);
         }
 
-        bool holdingDash = (controllerInput & dashBinding) != 0;
+        bool holdingDash = (controllerInput & dashBinding) != ControllerButton.None;
         switch (BeamPhase)
         {
             case XrayBeamPhase.NoBeam:
@@ -470,9 +470,9 @@ public sealed class SamusXrayState
                 }
 
                 // `$88:87C8` gives Up priority when opposite directions are both held.
-                if ((controllerInput & ControllerButton.Up) != 0)
+                if ((controllerInput & ControllerButton.Up) != ControllerButton.None)
                     MoveAngleUp();
-                else if ((controllerInput & ControllerButton.Down) != 0)
+                else if ((controllerInput & ControllerButton.Down) != ControllerButton.None)
                     MoveAngleDown();
                 break;
 

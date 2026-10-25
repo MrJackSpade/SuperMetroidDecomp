@@ -69,7 +69,7 @@ internal sealed class SamusInputSnapshot
     internal void SnapshotDrawInput(ControllerButton held, ControllerButton newlyPressed)
     {
         ControllerButton jump = ControllerButton.A;
-        AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != 0
+        AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != ControllerButton.None
             ? unchecked((ushort)(AutoJumpTimer + 1)) : 0;
         PreviousDrawHeldInput = held;
         PreviousDrawNewInput = newlyPressed;

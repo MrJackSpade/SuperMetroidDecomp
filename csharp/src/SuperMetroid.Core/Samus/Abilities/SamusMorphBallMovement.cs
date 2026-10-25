@@ -130,7 +130,7 @@ public static class SamusMorphBallMovement
         }
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
@@ -161,7 +161,7 @@ public static class SamusMorphBallMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
@@ -246,7 +246,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         // while rising cancels the remaining magnitude; signed underflow at the apex takes
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            (((controllerInput & ControllerButton.A) == 0) ||
+            (((controllerInput & ControllerButton.A) == ControllerButton.None) ||
              unchecked((short)samus.Kinematics.YSpeed.Whole) < 0))
         {
             samus.Kinematics.YSpeed = default;
@@ -257,7 +257,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
             speed.CalculateBaseSpeedDecelerationDisallowed(
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         int requestedHorizontal;
         // Null when native skips MoveSamus_Horizontally entirely ($90:902B): no probe runs.
         SamusCollisionDirection? collisionDirection = null;

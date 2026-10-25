@@ -95,7 +95,11 @@ internal static class NativeSnapshotImportVerification
             paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
             paletteSlot.Target = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(
                 RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id));
-            paletteSlot.PreInstruction = (SuperMetroid.Core.Fx.PaletteFx.PaletteFxPreInstruction)W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
+            // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native view.
+            paletteSlot.PreInstruction = paletteSlot.Id == 0
+                ? default
+                : SuperMetroid.Core.Fx.FxNativeWords.PaletteFxPreInstructions.Decode(
+                    W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2), "palette-FX pre-instruction");
             // A live object resumes its typed program where the recorded native pointer stands.
             paletteSlot.Cursor = paletteSlot.Id == 0
                 ? default

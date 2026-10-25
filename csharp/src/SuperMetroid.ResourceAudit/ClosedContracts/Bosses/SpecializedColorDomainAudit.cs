@@ -41,7 +41,7 @@ internal static class SpecializedColorDomainAudit
         {
             var selected = (DachoraPalettePhase)phase;
             if (!Enum.IsDefined(selected)) return null;
-            return Outside("frame", selected == DachoraPalettePhase.Default ? 1 : DachoraColorRomData.AnimatedFrameCount,
+            return Outside("frame", selected == DachoraPalettePhase.Default ? 1 : DachoraColorDefinitions.AnimatedFrameCount,
                 selected.ToString());
         }
         return null;

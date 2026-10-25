@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -29,19 +30,19 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         DachoraColorCatalog native = stock.DachoraColors ??
             throw new InvalidDataException("Installed enemy art has no Dachora colors.");
         Suite(nameof(VerifyFrame), () => VerifyFrame(DachoraPalettePhase.Default, 0));
-        for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
+        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             VerifyFrame(DachoraPalettePhase.Speed, frame);
             VerifyFrame(DachoraPalettePhase.Shine, frame);
-            AssertEqual(unchecked((ushort)DachoraColorRomData.Source(
+            AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraPalettePhase.Speed, frame)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    DachoraColorRomData.SpeedPointerTable + frame * sizeof(ushort)),
+                    DachoraColorSources.SpeedPointerTable + frame * sizeof(ushort)),
                 $"native Dachora speed selector {frame}");
-            AssertEqual(unchecked((ushort)DachoraColorRomData.Source(
+            AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraPalettePhase.Shine, frame)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    DachoraColorRomData.ShinePointerTable + frame * sizeof(ushort)),
+                    DachoraColorSources.ShinePointerTable + frame * sizeof(ushort)),
                 $"native Dachora shine selector {frame}");
         }
 
@@ -63,7 +64,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         DachoraColorCatalog colors = edited.Enemies.DachoraColors ??
             throw new InvalidDataException("Edited enemy art has no Dachora colors.");
         CheckEditedFrame(DachoraPalettePhase.Default, 0);
-        for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
+        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             CheckEditedFrame(DachoraPalettePhase.Speed, frame);
             CheckEditedFrame(DachoraPalettePhase.Shine, frame);
@@ -74,15 +75,15 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             "Dachora color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= DachoraColorRomData.DefaultSource and
-                    < (DachoraColorRomData.ShineSource +
-                        DachoraColorRomData.AnimatedFrameCount * DachoraColorRomData.FrameByteCount) ||
-                address >= DachoraColorRomData.SpeedPointerTable &&
-                address < DachoraColorRomData.SpeedPointerTable +
-                    DachoraColorRomData.AnimatedFrameCount * sizeof(ushort) ||
-                address >= DachoraColorRomData.ShinePointerTable &&
-                address < DachoraColorRomData.ShinePointerTable +
-                    DachoraColorRomData.AnimatedFrameCount * sizeof(ushort),
+            address => address is >= EnemySpeciesSourceDefinitions.Dachora.DefaultColors and
+                    < (EnemySpeciesSourceDefinitions.Dachora.ShineColors +
+                        DachoraColorDefinitions.AnimatedFrameCount * EnemySpeciesSourceDefinitions.Dachora.ImageBytes) ||
+                address >= DachoraColorSources.SpeedPointerTable &&
+                address < DachoraColorSources.SpeedPointerTable +
+                    DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort) ||
+                address >= DachoraColorSources.ShinePointerTable &&
+                address < DachoraColorSources.ShinePointerTable +
+                    DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort),
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
@@ -97,7 +98,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         CheckLive(DachoraPalettePhase.Default, 0);
 
         var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
-        for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
+        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.Speed = SnesSignedSixteenSixteen.FromParts(8, 0);
             state.SetPaletteCycle(frame, ticks: 1);
@@ -105,7 +106,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             CheckLive(DachoraPalettePhase.Speed, frame);
         }
 
-        for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
+        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.SetPaletteCycle(frame, ticks: 0);
             enemies.DachoraBehavior.StepDachoraShinePalette(slot, state);
@@ -139,8 +140,8 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         void VerifyFrame(DachoraPalettePhase phase, int frame)
         {
-            int source = DachoraColorRomData.Source(phase, frame);
-            for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
+            int source = DachoraColorSources.Source(phase, frame);
+            for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),
@@ -158,7 +159,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         void CheckLive(DachoraPalettePhase phase, int frame)
         {
             int destination = 128 + ((slot.PaletteIndex >> 9) & 7) * 16;
-            for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
+            for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(colors.Resolve(phase, frame, color),
                     cgram.Colors[destination + color],
                     $"live Dachora {phase} frame {frame} color {color}");

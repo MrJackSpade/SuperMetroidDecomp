@@ -60,7 +60,7 @@ internal static class EnemyColorPresentationContractChecks
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
                     mode7.Apply(cgram, CeresRidleyPaletteRomData.Mode7ZoomRowCount - 1);
                     mode7.Apply(cgram, CeresRidleyPaletteRomData.Mode7ZoomRowCount);
-                    dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorRomData.AnimatedFrameCount - 1, DachoraColorRomData.ColorsPerFrame - 1);
+                    dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorDefinitions.ColorsPerFrame - 1);
                     dachora.Resolve(DachoraPalettePhase.Default, 1, 0);
                     motherBrain.Apply(cgram, MotherBrainHealthPaletteFormat.StateCount - 1);
                     motherBrain.Apply(cgram, MotherBrainHealthPaletteFormat.StateCount);

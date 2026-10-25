@@ -33,7 +33,7 @@ internal static class SequenceColorClosedContractDefinitions
         new("SuperMetroid.Core.Enemies.Artwork.ChozoAndTubeColorCatalog", "chozo-tube-v1-complete-fixed-palettes",
             ["ApplyTubeCracks", "ApplyWreckedShip", "ApplyLowerNorfair"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoAndTubeColorCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoAndTubeColorRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoAndTubeColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStatuePaintDefinitions.cs")]),
         new("SuperMetroid.Core.Assets.GameplayBasePaletteCatalog", "gameplay-base-v1-complete-cgram-image",
             ["LoadInitial", "LoadCommonSprites", "LoadEnemyProjectileSprites"],

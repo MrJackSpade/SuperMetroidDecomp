@@ -23,7 +23,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         WorkRobotPaletteCycle native = stock.WorkRobotPaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Work Robot palette cycle.");
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
-        for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
         {
             int address = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
                 .Enemies.WorkRobotPaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .WorkRobotPaletteCycle.")).Resolve(2, 1),
             "Work Robot color override persists across reload");
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
-        for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
             if (record != 2 || color != 1)
                 AssertEqual(native.Resolve(record, color), cycle.Resolve(record, color),
                     $"Work Robot edit leaves record {record} color {color} unchanged");

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -20,17 +21,17 @@ public static class ChozoAndTubeColorExtractor
         return ChozoAndTubeColorFile.Write(new ChozoAndTubeColorDocument
         {
             Version = ChozoAndTubeColorFormat.Version,
-            TubeCracks = Read(ChozoAndTubeColorRomData.TubeCracksSource),
-            WreckedShip = Read(ChozoAndTubeColorRomData.WreckedShipSource),
-            LowerNorfair = Read(ChozoAndTubeColorRomData.LowerNorfairSource),
+            TubeCracks = Read(EnemySpeciesSourceDefinitions.ChozoAndTube.TubeCracksColors),
+            WreckedShip = Read(EnemySpeciesSourceDefinitions.ChozoAndTube.WreckedShipColors),
+            LowerNorfair = Read(EnemySpeciesSourceDefinitions.ChozoAndTube.LowerNorfairColors),
         });
 
         PaletteRgb5[] Read(int source)
         {
-            var colors = new PaletteRgb5[ChozoAndTubeColorRomData.ColorCount];
+            var colors = new PaletteRgb5[ChozoAndTubeColorDefinitions.ColorCount];
             for (int color = 0; color < colors.Length; color++)
             {
-                int address = source + color * sizeof(ushort);
+                int address = source + color * EnemySpeciesSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(

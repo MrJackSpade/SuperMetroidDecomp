@@ -33,9 +33,9 @@ public static class ChozoAndTubeColorFile
     /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
-        if (source is null || source.Length != ChozoAndTubeColorRomData.ColorCount)
+        if (source is null || source.Length != ChozoAndTubeColorDefinitions.ColorCount)
             throw new InvalidDataException(
-                $"Chozo/tube {name} requires {ChozoAndTubeColorRomData.ColorCount} RGB5 colors.");
+                $"Chozo/tube {name} requires {ChozoAndTubeColorDefinitions.ColorCount} RGB5 colors.");
         var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {

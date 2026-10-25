@@ -12,9 +12,9 @@ public sealed class MagdollitePaletteCycle
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
         {
-            content.Append("frames", MagdollitePaletteRomData.FrameCount);
-            Span<Bgr555> row = stackalloc Bgr555[MagdollitePaletteRomData.AnimatedColorCount];
-            for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
+            content.Append("frames", MagdollitePaletteDefinitions.FrameCount);
+            Span<Bgr555> row = stackalloc Bgr555[MagdollitePaletteDefinitions.AnimatedColorCount];
+            for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
                 content.AppendColors("row", row);
@@ -47,7 +47,7 @@ public sealed class MagdollitePaletteCycle
     /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside 0..3.</exception>
     public Bgr555 Resolve(int frame, int color)
     {
-        if ((uint)frame >= MagdollitePaletteRomData.FrameCount)
+        if ((uint)frame >= MagdollitePaletteDefinitions.FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));
@@ -62,8 +62,8 @@ public sealed class MagdollitePaletteCycle
     /// <exception cref="ArgumentException">The run is not four colours.</exception>
     public void ApplyFrame(ColourRun animated, int frame)
     {
-        Ensure.LengthEqual(animated.Colors, MagdollitePaletteRomData.AnimatedColorCount);
-        for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
+        Ensure.LengthEqual(animated.Colors, MagdollitePaletteDefinitions.AnimatedColorCount);
+        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
             animated.Write(color, Resolve(frame, color));
     }
 }

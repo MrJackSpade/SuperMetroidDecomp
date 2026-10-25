@@ -37,9 +37,9 @@ public static class DachoraColorFile
     /// <summary>Requires four animated frames and validates each sixteen-color row.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, string name)
     {
-        if (source is null || source.Length != DachoraColorRomData.AnimatedFrameCount)
+        if (source is null || source.Length != DachoraColorDefinitions.AnimatedFrameCount)
             throw new InvalidDataException(
-                $"Dachora {name} requires {DachoraColorRomData.AnimatedFrameCount} frames.");
+                $"Dachora {name} requires {DachoraColorDefinitions.AnimatedFrameCount} frames.");
         return source.Select((frame, index) => Compile(frame, $"{name} frame {index}"))
             .ToArray();
     }
@@ -47,9 +47,9 @@ public static class DachoraColorFile
     /// <summary>Checks a full Dachora palette row and converts five-bit channels to hardware color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
-        if (source is null || source.Length != DachoraColorRomData.ColorsPerFrame)
+        if (source is null || source.Length != DachoraColorDefinitions.ColorsPerFrame)
             throw new InvalidDataException(
-                $"Dachora {name} requires {DachoraColorRomData.ColorsPerFrame} RGB5 colors.");
+                $"Dachora {name} requires {DachoraColorDefinitions.ColorsPerFrame} RGB5 colors.");
         var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {

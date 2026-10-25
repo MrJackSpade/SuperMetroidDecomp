@@ -364,7 +364,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
 
         ColourRun animated = _presentation.ColourSet(WorkRobotPaletteAnimationPaletteRow)
-            .Slice(WorkRobotPaletteRomData.FirstAnimatedColor, WorkRobotPaletteRomData.ColorCount);
+            .Slice(WorkRobotPaletteDefinitions.FirstAnimatedColor, WorkRobotPaletteDefinitions.ColorCount);
         (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
             "Work Robot palette animation requires installed artwork."))
             .ApplyFrame(animated, record);

@@ -491,7 +491,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         ColourRun destination = _presentation.ColourSetOf(slot);
         if (_room.Artwork?.DachoraColors is { } colors)
         {
-            for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
+            for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
                 destination.Write(color, colors.Resolve(phase, frame, color));
             return;
         }

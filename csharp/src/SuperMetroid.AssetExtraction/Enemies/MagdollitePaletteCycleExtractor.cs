@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -21,15 +22,15 @@ public static class MagdollitePaletteCycleExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var frames = new PaletteRgb5[MagdollitePaletteRomData.FrameCount][];
+        var frames = new PaletteRgb5[MagdollitePaletteDefinitions.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
-            frames[frame] = new PaletteRgb5[MagdollitePaletteRomData.AnimatedColorCount];
+            frames[frame] = new PaletteRgb5[MagdollitePaletteDefinitions.AnimatedColorCount];
             for (int color = 0; color < frames[frame].Length; color++)
             {
-                int source = MagdollitePaletteRomData.Source +
-                    (frame * MagdollitePaletteRomData.SourceColorsPerFrame +
-                     MagdollitePaletteRomData.FirstAnimatedColor + color) * sizeof(ushort);
+                int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
+                    (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
+                     MagdollitePaletteDefinitions.FirstAnimatedColor + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(

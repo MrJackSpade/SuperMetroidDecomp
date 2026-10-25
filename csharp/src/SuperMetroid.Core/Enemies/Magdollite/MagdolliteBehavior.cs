@@ -43,7 +43,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
     internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
-    /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteRomData.FrameCount"/> minus one; each step advances it around the cycle.</summary>
+    /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
     /// <summary>The sprite colour set the final initialized Magdollite record selects, whose colours the cycle animates.</summary>
     internal int MagdolliteColourSet { get; set; }
@@ -523,10 +523,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
-        MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteRomData.FrameCount;
+        MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteDefinitions.FrameCount;
         int paletteFrame = MagdollitePaletteFrame;
         ColourRun animated = _presentation.ColourSet(MagdolliteColourSet)
-            .Slice(MagdollitePaletteRomData.FirstAnimatedColor, MagdollitePaletteRomData.AnimatedColorCount);
+            .Slice(MagdollitePaletteDefinitions.FirstAnimatedColor, MagdollitePaletteDefinitions.AnimatedColorCount);
         (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
             "Magdollite palette animation requires installed artwork."))
             .ApplyFrame(animated, paletteFrame);

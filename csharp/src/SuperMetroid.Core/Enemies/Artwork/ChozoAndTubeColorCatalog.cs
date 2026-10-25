@@ -12,7 +12,7 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
         {
-            Span<Bgr555> tube = stackalloc Bgr555[ChozoAndTubeColorRomData.ColorCount];
+            Span<Bgr555> tube = stackalloc Bgr555[ChozoAndTubeColorDefinitions.ColorCount];
             for (int color = 0; color < tube.Length; color++) tube[color] = ResolveTubeCracks(color);
             content.AppendColors("tubeCracks", tube);
             content.AppendColors("wreckedShip", Statue(ChozoStatuePalette.WreckedShip));
@@ -38,7 +38,7 @@ public sealed class ChozoAndTubeColorCatalog
         for (int color = 8; color < tubeCracks.Length; color++)
             if (tubeCracks[color] != CalculateTubeColor(color))
                 tubeColorEdits.Add(new ColourCell(0, color), tubeCracks[color]);
-        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+        for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
         {
             if (wreckedShip[color] != ChozoStatuePaintDefinitions.Color(ChozoStatuePalette.WreckedShip, color))
                 wreckedShipEdits.Add(new ColourCell(0, color), wreckedShip[color]);
@@ -50,7 +50,7 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public Bgr555 ResolveTubeCracks(int color)
     {
-        if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
+        if ((uint)color >= ChozoAndTubeColorDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return tubeColorEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : CalculateTubeColor(color);
     }
@@ -70,7 +70,7 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Resolves a statue ink from an authored edit or the selected variant's calculated paint.</summary>
     internal Bgr555 ResolveStatue(ChozoStatuePalette palette, int color)
     {
-        if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
+        if ((uint)color >= ChozoAndTubeColorDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         Dictionary<ColourCell, Bgr555> edits = palette == ChozoStatuePalette.WreckedShip ? wreckedShipEdits : lowerNorfairEdits;
         return edits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
@@ -78,12 +78,12 @@ public sealed class ChozoAndTubeColorCatalog
 
     /// <summary>Expands a statue variant into its ordered 32-color CGRAM image for identity hashing.</summary>
     private Bgr555[] Statue(ChozoStatuePalette palette) =>
-        Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
+        Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
     /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
     public void ApplyTubeCracks(ColourRun destination)
     {
-        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+        for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
             destination.Write(color, ResolveTubeCracks(color));
     }
     /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
@@ -94,7 +94,7 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
     private void Apply(ColourRun destination, ChozoStatuePalette palette)
     {
-        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+        for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
             destination.Write(color, ResolveStatue(palette, color));
     }
 }

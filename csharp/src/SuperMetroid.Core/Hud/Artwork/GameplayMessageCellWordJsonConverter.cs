@@ -13,9 +13,9 @@ internal sealed class GameplayMessageCellWordJsonConverter : JsonConverter<SnesB
     [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesBgTilemapWord Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt16(out ushort entry))
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int entry) || entry is < 0 or > ushort.MaxValue)
             throw new JsonException("A gameplay message tilemap cell must be a number from 0 through 65535.");
-        return new SnesBgTilemapWord(entry);
+        return new SnesBgTilemapWord(checked((ushort)entry));
     }
 
     /// <summary>Writes the complete tilemap entry as the document's numeric cell value.</summary>

@@ -72,7 +72,7 @@ public static class GameplayMessageNoticeDefinitions
                     int start = column++;
                     while (column < width)
                     {
-                        ushort word = template[row * width + column].Word.Raw;
+                        int word = template[row * width + column].Word.Raw;
                         if (IsText(word)) { column++; continue; }
                         if ((word & 0x03ff) == GameplayMessageTitleDefinitions.SpaceTile &&
                             column + 1 < width && IsText(template[row * width + column + 1].Word.Raw))
@@ -87,7 +87,7 @@ public static class GameplayMessageNoticeDefinitions
             }
         }
 
-        static bool IsText(ushort word) =>
+        static bool IsText(int word) =>
             GameplayMessageTitleDefinitions.IsLetterTile((ushort)(word & 0x03ff)) ||
             (word & 0x03ff) is GameplayMessageTitleDefinitions.HyphenTile or
                 GameplayMessageTitleDefinitions.PeriodTile or GameplayMessageTitleDefinitions.QuestionMarkTile;

@@ -297,7 +297,7 @@ internal static void VerifyEscapeTimerBcd()
         byte packed = PackBcd(decimalValue);
         for (byte decrement = 1; decrement <= 2; decrement++)
         {
-            byte actual = new PackedBcd(packed).Subtract(new PackedBcd(decrement), out bool actualBorrow).Raw;
+            byte actual = new PackedDecimal(packed).Subtract(new PackedDecimal(decrement), out bool actualBorrow).Raw;
             int decimalResult = decimalValue - decrement;
             bool expectedBorrow = decimalResult < 0;
             if (expectedBorrow)
@@ -385,7 +385,7 @@ static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseco
     timer.Process(0);
     for (ushort frame = 1; timer.State != EscapeTimerState.RunningInPlace; frame++)
         timer.Process(frame);
-    timer.SetTime(new PackedBcd(minutes), new PackedBcd(seconds), new PackedBcd(centiseconds));
+    timer.SetTime(new PackedDecimal(minutes), new PackedDecimal(seconds), new PackedDecimal(centiseconds));
     return timer;
 }
 

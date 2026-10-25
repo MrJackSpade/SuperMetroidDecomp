@@ -51,6 +51,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Enemies;
@@ -425,7 +426,7 @@ internal static class LookupStream1Verification
         {
             var timer = new EscapeTimer();
             timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
-            timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
+            timer.SetTime(PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(50));
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
             bool expired = timer.Process(frame);
@@ -444,7 +445,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
             timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
-            timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
+            timer.SetTime(PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(50));
             AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
             AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.Centiseconds.Raw, "Actual Process consumes each native correction");
         }
@@ -453,7 +454,7 @@ internal static class LookupStream1Verification
         {
             var timer = new EscapeTimer();
             timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
-            timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(2));
+            timer.SetTime(PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(2));
             bool expired = timer.Process(frame);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");
             AssertEqual(frame == 124 ? (byte)0 : (byte)1, timer.Centiseconds.Raw, "Exact corrected expiration centisecond");
@@ -1511,7 +1512,7 @@ internal static class LookupStream1Verification
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
-            timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
+            timer.SetTime(PackedDecimal.FromDecimal(digit * 11), PackedDecimal.Zero, PackedDecimal.FromDecimal(digit * 11));
             var native = new OamBuffer();
             DrawImportedEscapeTimer(rom, timer, native);
             EscapeTimerDrawChecks.AssertSamePixels(native, EscapeTimerDrawChecks.Draw(timer, stock, sheet), characters, palettes,
@@ -1523,7 +1524,7 @@ internal static class LookupStream1Verification
             edited = edited with { DigitSpacing = 10 };
             var compiled = Load(edited);
             AssertEqual(1, compiled.anchors.Count, "One timer anchor edit stores exactly one independent anchor");
-            timer.SetTime(PackedBcd.FromDecimal(12), PackedBcd.FromDecimal(34), PackedBcd.FromDecimal(56));
+            timer.SetTime(PackedDecimal.FromDecimal(12), PackedDecimal.FromDecimal(34), PackedDecimal.FromDecimal(56));
             EscapeTimerDrawChecks.AssertSamePixels(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled, sheet), characters, palettes,
                 "Independent anchor and digit spacing edits move the native sprites");
         }

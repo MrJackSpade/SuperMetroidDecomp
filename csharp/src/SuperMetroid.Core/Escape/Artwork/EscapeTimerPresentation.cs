@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Escape.Artwork;
 
@@ -36,7 +37,7 @@ public sealed class EscapeTimerPresentation
         DrawPair(timer.Seconds, Anchor(EscapeTimerAnchor.Seconds));
         DrawPair(timer.Centiseconds, Anchor(EscapeTimerAnchor.Centiseconds));
 
-        void DrawPair(PackedBcd pair, Offset16<OamPixels> anchor)
+        void DrawPair(PackedDecimal pair, Offset16<OamPixels> anchor)
         {
             if (!pair.IsValid)
                 throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${pair.Raw:X2}.");

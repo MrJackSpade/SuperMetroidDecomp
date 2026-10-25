@@ -46,7 +46,7 @@ internal static class GunshipEscapeTimerVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Presentation.PrimeGraphics(samus);
         runtime.EscapeTimer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
-        runtime.EscapeTimer.SetTime(PackedBcd.FromDecimal(2), PackedBcd.FromDecimal(59), PackedBcd.FromDecimal(50));
+        runtime.EscapeTimer.SetTime(PackedDecimal.FromDecimal(2), PackedDecimal.FromDecimal(59), PackedDecimal.FromDecimal(50));
         runtime.ShowEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
         var timerTilesBefore = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteCharacters, runtime.Artwork)

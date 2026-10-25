@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>
@@ -23,13 +25,13 @@ public sealed class EscapeTimer
     public bool IsActive { get; private set; }
 
     /// <summary>Packed-BCD centiseconds at WRAM <c>$0945</c>.</summary>
-    public PackedBcd Centiseconds { get; private set; }
+    public PackedDecimal Centiseconds { get; private set; }
 
     /// <summary>Packed-BCD seconds at WRAM <c>$0946</c>.</summary>
-    public PackedBcd Seconds { get; private set; }
+    public PackedDecimal Seconds { get; private set; }
 
     /// <summary>Packed-BCD minutes at WRAM <c>$0947</c>.</summary>
-    public PackedBcd Minutes { get; private set; }
+    public PackedDecimal Minutes { get; private set; }
 
     /// <summary>
     /// Raw unsigned 8.8 on-screen position words at WRAM <c>$0948</c> (X) and <c>$094A</c> (Y).
@@ -77,8 +79,8 @@ public sealed class EscapeTimer
         bool expired = State switch
         {
             EscapeTimerState.Inactive => false,
-            EscapeTimerState.CeresStart => Start(PackedBcd.FromDecimal(1)),
-            EscapeTimerState.MotherBrainStart => Start(PackedBcd.FromDecimal(3)),
+            EscapeTimerState.CeresStart => Start(PackedDecimal.FromDecimal(1)),
+            EscapeTimerState.MotherBrainStart => Start(PackedDecimal.FromDecimal(3)),
             EscapeTimerState.InitialDelay => ProcessInitialDelay(),
             EscapeTimerState.RunningMovementDelayed => ProcessMovementDelay(frameCounter),
             EscapeTimerState.RunningMovingIntoPlace => ProcessMovement(frameCounter),
@@ -88,9 +90,9 @@ public sealed class EscapeTimer
 
         // Apply the testing floor before publishing expiration to the gameplay dispatcher.
         // Startup delays and timer movement still run; inactive timers remain cleared.
-        if (preventEscapeTimeout && IsActive && Minutes == PackedBcd.Zero && Seconds == PackedBcd.Zero)
+        if (preventEscapeTimeout && IsActive && Minutes == PackedDecimal.Zero && Seconds == PackedDecimal.Zero)
         {
-            SetTime(PackedBcd.Zero, PackedBcd.FromDecimal(1), PackedBcd.Zero);
+            SetTime(PackedDecimal.Zero, PackedDecimal.FromDecimal(1), PackedDecimal.Zero);
             return false;
         }
         CountdownExpired |= expired;
@@ -105,7 +107,7 @@ public sealed class EscapeTimer
     /// The ROM's <c>$80:9E8C</c> entry point only sets whole minutes, but explicit fields
     /// make boundary cases inspectable without advancing thousands of frames.
     /// </summary>
-    public void SetTime(PackedBcd minutes, PackedBcd seconds, PackedBcd centiseconds)
+    public void SetTime(PackedDecimal minutes, PackedDecimal seconds, PackedDecimal centiseconds)
     {
         ValidateBcd(minutes, nameof(minutes));
         ValidateBcd(seconds, nameof(seconds));
@@ -126,20 +128,20 @@ public sealed class EscapeTimer
         // Pixel $80 with zero subpixel fraction. During startup that low fraction byte is
         // immediately repurposed as a delay counter.
         Position = new(EscapeTimerStatusDefinitions.ClearedOrigin, EscapeTimerStatusDefinitions.ClearedOrigin);
-        Centiseconds = PackedBcd.Zero;
-        Seconds = PackedBcd.Zero;
-        Minutes = PackedBcd.Zero;
+        Centiseconds = PackedDecimal.Zero;
+        Seconds = PackedDecimal.Zero;
+        Minutes = PackedDecimal.Zero;
         SelectStatus(EscapeTimerState.Inactive);
         CountdownExpired = false;
     }
 
     /// <summary>Clears timer RAM, installs the selected whole-minute duration, and enters the initial delay.</summary>
-    private bool Start(PackedBcd minutes)
+    private bool Start(PackedDecimal minutes)
     {
         // Both start functions clear all timer RAM, set a whole-minute value through the
         // seconds/minutes adjacent word, then select the active initial delay ($8003).
         Clear();
-        SetTime(minutes, PackedBcd.Zero, PackedBcd.Zero);
+        SetTime(minutes, PackedDecimal.Zero, PackedDecimal.Zero);
         SelectRunningStatus(EscapeTimerState.InitialDelay);
         return false;
     }
@@ -207,8 +209,8 @@ public sealed class EscapeTimer
     /// <summary>Subtracts this NMI's BCD correction and reports expiration at exactly zero.</summary>
     private bool Decrement(int frameCounter)
     {
-        PackedBcd correction = PackedBcd.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(frameCounter));
-        PackedBcd one = PackedBcd.FromDecimal(1);
+        PackedDecimal correction = PackedDecimal.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(frameCounter));
+        PackedDecimal one = PackedDecimal.FromDecimal(1);
         Centiseconds = Centiseconds.Subtract(correction, out bool borrowedCentiseconds);
 
         if (borrowedCentiseconds)
@@ -221,22 +223,22 @@ public sealed class EscapeTimer
                 {
                     // Underflow below 00:00.00 saturates at zero rather than wrapping to
                     // 99:99.99. This is the .clearTimer branch at $80:9ED7.
-                    Centiseconds = PackedBcd.Zero;
-                    Seconds = PackedBcd.Zero;
-                    Minutes = PackedBcd.Zero;
+                    Centiseconds = PackedDecimal.Zero;
+                    Seconds = PackedDecimal.Zero;
+                    Minutes = PackedDecimal.Zero;
                 }
                 else
                 {
                     // A successful minute decrement wraps seconds to 59. Centiseconds
                     // already wrapped to 98 or 99 according to this frame's correction.
-                    Seconds = PackedBcd.FromDecimal(59);
+                    Seconds = PackedDecimal.FromDecimal(59);
                 }
             }
         }
 
         // The assembly ORs centiseconds with the adjacent seconds/minutes word and returns
         // carry set only when all three are zero.
-        return Centiseconds == PackedBcd.Zero && Seconds == PackedBcd.Zero && Minutes == PackedBcd.Zero;
+        return Centiseconds == PackedDecimal.Zero && Seconds == PackedDecimal.Zero && Minutes == PackedDecimal.Zero;
     }
 
     /// <summary>Increments the X fraction used as a startup counter while preserving visible X.</summary>
@@ -274,7 +276,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Rejects a timer byte whose high or low nibble is not a decimal digit.</summary>
-    private static void ValidateBcd(PackedBcd value, string parameterName)
+    private static void ValidateBcd(PackedDecimal value, string parameterName)
     {
         if (!value.IsValid)
             throw new ArgumentOutOfRangeException(parameterName, value.Raw, "Value must contain two valid packed-BCD digits.");

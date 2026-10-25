@@ -79,11 +79,8 @@ internal static class IntroCinematicRomDataVerification
         ushort[] bank8BCodePointers = GetUshortConstants(typeof(CinematicCodePointers))
             .Where(field => field.Name != nameof(CinematicCodePointers.InstructionCommandBit))
             .Select(field => field.RequiredConstant<ushort>())
-            .Concat(new[]
-            {
-                typeof(CinematicSpriteInstruction),
-                typeof(CinematicIndirectInstructionFunction),
-            }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
+            .Concat(Enum.GetValues<CinematicSpriteInstruction>().Cast<object>().Select(Convert.ToUInt16))
+            .Concat(new[] { IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction })
             .Concat(Enum.GetValues<TitleSequenceInstruction>().Select(TitleNativeWords.Instructions.Word))
             .Concat(CinematicSpritePreInstruction.NativeAddresses)
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.

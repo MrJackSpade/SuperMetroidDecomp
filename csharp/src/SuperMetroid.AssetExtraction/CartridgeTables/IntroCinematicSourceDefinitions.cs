@@ -38,4 +38,10 @@ internal static class IntroCinematicSourceDefinitions
 
     /// <summary>$8B:A72B, the final text line's tilemap cells.</summary>
     internal const int FinalTextLine = 0x8ba72b;
+
+    /// <summary>
+    /// $8B:88FD, IndirectInstructionFunction_DrawToBG2Tilemap: the function word every portrait-eye draw record must
+    /// name, which draws its rectangle into the portrait tilemap.
+    /// </summary>
+    internal const ushort PortraitTilemapDrawFunction = 0x88fd;
 }

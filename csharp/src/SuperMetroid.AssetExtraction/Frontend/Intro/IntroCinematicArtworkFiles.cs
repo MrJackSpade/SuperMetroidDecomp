@@ -209,7 +209,7 @@ public static class IntroCinematicArtworkFiles
                     frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride);
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-                if ((CinematicIndirectInstructionFunction)function != CinematicIndirectInstructionFunction.DrawToPortraitTilemap ||
+                if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
                     throw new InvalidDataException($"Opening eye frame {frame} changed its native draw shape.");

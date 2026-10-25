@@ -184,16 +184,16 @@ internal static class SamusPoseInputDefinitions
     /// Each canonical chord button and the controller button that stands for it: the transition tables name the
     /// default action buttons (R and L aim, X shoots, A jumps) for their bindings.
     /// </summary>
-    private static readonly (CanonicalPoseButtons Chord, ControllerButton Button)[] ChordButtons =
+    private static readonly SamusPoseChordButton[] ChordButtons =
     [
-        (CanonicalPoseButtons.AimUp, ControllerButton.R),
-        (CanonicalPoseButtons.AimDown, ControllerButton.L),
-        (CanonicalPoseButtons.Shoot, ControllerButton.X),
-        (CanonicalPoseButtons.Jump, ControllerButton.A),
-        (CanonicalPoseButtons.Right, ControllerButton.Right),
-        (CanonicalPoseButtons.Left, ControllerButton.Left),
-        (CanonicalPoseButtons.Down, ControllerButton.Down),
-        (CanonicalPoseButtons.Up, ControllerButton.Up),
+        new(CanonicalPoseButtons.AimUp, ControllerButton.R),
+        new(CanonicalPoseButtons.AimDown, ControllerButton.L),
+        new(CanonicalPoseButtons.Shoot, ControllerButton.X),
+        new(CanonicalPoseButtons.Jump, ControllerButton.A),
+        new(CanonicalPoseButtons.Right, ControllerButton.Right),
+        new(CanonicalPoseButtons.Left, ControllerButton.Left),
+        new(CanonicalPoseButtons.Down, ControllerButton.Down),
+        new(CanonicalPoseButtons.Up, ControllerButton.Up),
     ];
 
     /// <summary>The controller buttons an authored chord names.</summary>

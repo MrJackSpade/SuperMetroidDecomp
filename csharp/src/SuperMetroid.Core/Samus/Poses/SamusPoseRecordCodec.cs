@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -18,29 +19,48 @@ namespace SuperMetroid.Core.Samus.Poses;
 [SnesEncodingOwner]
 internal static class SamusPoseRecordCodec
 {
-    /// <summary>Record byte zero, the pose's facing as the cartridge stores it.</summary>
-    internal static byte FacingByte(SamusPoseId pose) => pose switch
+    /// <summary>
+    /// The poses whose record facing byte is neither forward, left nor right: the unused glitch-ball poses and the
+    /// adjacent-code poses, whose bytes are the neighbouring data and code.
+    /// </summary>
+    private static readonly FrozenDictionary<SamusPoseId, byte> IrregularFacingBytes = new Dictionary<SamusPoseId, byte>
     {
-        SamusPoseId.UnusedPose21 => 0x01,
-        SamusPoseId.UnusedPose22 => 0x02,
-        SamusPoseId.AdjacentCodePoseFE => 0x29,
-        SamusPoseId.AdjacentCodePoseFF => 0x12,
-        _ => SamusPoseDispatchDefinitions.ReadFacing(pose) switch
-        {
-            SamusFacingDirection.ForwardOrSpecial => 0x00,
-            SamusFacingDirection.Left => 0x04,
-            SamusFacingDirection.Right => 0x08,
-            var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusFacingDirection)} {undefined}."),
-        },
+        [SamusPoseId.UnusedPose21] = 0x01,
+        [SamusPoseId.UnusedPose22] = 0x02,
+        [SamusPoseId.AdjacentCodePoseFE] = 0x29,
+        [SamusPoseId.AdjacentCodePoseFF] = 0x12,
+    }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The adjacent-code poses whose record movement byte lies beyond the retail movement dispatcher: the opcodes of
+    /// the $91:BE11 X-ray HDMA routine.
+    /// </summary>
+    private static readonly FrozenDictionary<SamusPoseId, byte> IrregularMovementBytes = new Dictionary<SamusPoseId, byte>
+    {
+        [SamusPoseId.AdjacentCodePoseFD] = 0x8b,
+        [SamusPoseId.AdjacentCodePoseFF] = 0x38,
+    }.ToFrozenDictionary();
+
+    /// <summary>Record byte zero, the pose's facing as the cartridge stores it.</summary>
+    internal static byte FacingByte(SamusPoseId pose) =>
+        IrregularFacingBytes.TryGetValue(pose, out byte irregular)
+            ? irregular
+            : FacingByte(SamusPoseDispatchDefinitions.ReadFacing(pose));
+
+    /// <summary>The record facing byte that stores a typed facing.</summary>
+    private static byte FacingByte(SamusFacingDirection facing) => facing switch
+    {
+        SamusFacingDirection.ForwardOrSpecial => 0x00,
+        SamusFacingDirection.Left => 0x04,
+        SamusFacingDirection.Right => 0x08,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusFacingDirection)} {facing}."),
     };
 
     /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it.</summary>
-    internal static byte MovementByte(SamusPoseId pose) => pose switch
-    {
-        SamusPoseId.AdjacentCodePoseFD => 0x8b,
-        SamusPoseId.AdjacentCodePoseFF => 0x38,
-        _ => MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose)),
-    };
+    internal static byte MovementByte(SamusPoseId pose) =>
+        IrregularMovementBytes.TryGetValue(pose, out byte irregular)
+            ? irregular
+            : MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose));
 
     /// <summary>
     /// The packed direction/movement word a committed transition records in the pose history: the facing byte, then

@@ -35,7 +35,7 @@ public static class SamusBeamCombinations
 
     /// <summary>Each combination's position in <see cref="TableOrder"/>.</summary>
     private static readonly FrozenDictionary<SamusBeamCombination, int> TablePosition =
-        TableOrder.Select((combination, index) => (combination, index)).ToFrozenDictionary(entry => entry.combination, entry => entry.index);
+        Enumerable.Range(0, TableOrder.Length).ToFrozenDictionary(index => TableOrder[index]);
 
     /// <summary>The combination at a four-bit table index.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside $0-$F.</exception>

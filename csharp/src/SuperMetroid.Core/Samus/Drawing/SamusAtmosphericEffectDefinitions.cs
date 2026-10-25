@@ -1,4 +1,7 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Drawing;
@@ -15,25 +18,25 @@ internal static class SamusAtmosphericEffectDefinitions
     /// </summary>
     internal const SamusAtmosphericEffectType ScratchListType = SamusAtmosphericEffectType.AlternateFootstepSplash;
 
-    // The Crateria rooms whose $90:EDC9/$91:F0F3 entries are nonzero, by their room index within the area; the
-    // other rooms have none.
+    /// <summary>The number of Crateria rooms the $90:EDC9/$91:F0F3 atmospheric policy covers.</summary>
+    private const int CrateriaPolicyRooms = 16;
 
-    /// <summary>The Landing Site's room index ($8F:91F8).</summary>
-    private const int LandingSiteRoom = 0;
-    /// <summary>The West Ocean's room index ($8F:93FE).</summary>
-    private const int WestOceanRoom = 5;
-    /// <summary>The Crateria Kihunter room's room index ($8F:948C).</summary>
-    private const int CrateriaKihunterRoom = 7;
-    /// <summary>The East Ocean's room index ($8F:94FD).</summary>
-    private const int EastOceanRoom = 9;
-    /// <summary>The Forgotten Highway Kago room's room index ($8F:9552).</summary>
-    private const int ForgottenHighwayKagosRoom = 10;
-    /// <summary>The Crab Maze's room index ($8F:957D).</summary>
-    private const int CrabMazeRoom = 11;
-    /// <summary>The Forgotten Highway elbow's room index ($8F:95A8).</summary>
-    private const int ForgottenHighwayElbowRoom = 12;
-    /// <summary>The Moat's room index ($8F:95FF).</summary>
-    private const int MoatRoom = 14;
+    /// <summary>
+    /// The Crateria rooms whose $90:EDC9/$91:F0F3 atmospheric policy is nonzero, and that policy; every other room the
+    /// policy covers has none.
+    /// </summary>
+    private static readonly FrozenDictionary<RoomIdentity, CrateriaAtmosphericEffectFlags> CrateriaRoomEffects =
+        new Dictionary<RoomIdentity, CrateriaAtmosphericEffectFlags>
+        {
+            [RoomIdentities.CrateriaLandingSite] = CrateriaAtmosphericEffectFlags.LandingSite,
+            [RoomIdentities.CrateriaWestOcean] = CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
+            [RoomIdentities.CrateriaKihunterRoom] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+            [RoomIdentities.CrateriaEastOcean] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+            [RoomIdentities.CrateriaForgottenHighwayKagoRoom] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+            [RoomIdentities.CrateriaCrabMaze] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+            [RoomIdentities.CrateriaForgottenHighwayElbow] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+            [RoomIdentities.CrateriaMoat] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+        }.ToFrozenDictionary();
 
     /// <summary>$90:81A4: grounded postures produce the paired surface splash; other movement dives.</summary>
     internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType)
@@ -63,18 +66,12 @@ internal static class SamusAtmosphericEffectDefinitions
         return animationFrame % 5 == 2;
     }
     /// <summary>$90:EDC9 and $91:F0F3: room-specific landing/rain and wet-floor policies.</summary>
-    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(int roomIndex)
+    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(RoomIdentity room)
     {
-        if ((uint)roomIndex >= 16)
-            throw new InvalidDataException($"Crateria atmospheric room index ${roomIndex:X2} is outside 16 selectors.");
-        return roomIndex switch
-        {
-            LandingSiteRoom => CrateriaAtmosphericEffectFlags.LandingSite,
-            WestOceanRoom => CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
-            CrateriaKihunterRoom or EastOceanRoom or ForgottenHighwayKagosRoom or
-            CrabMazeRoom or ForgottenHighwayElbowRoom or MoatRoom =>
-                CrateriaAtmosphericEffectFlags.WetFootsteps,
-            _ => CrateriaAtmosphericEffectFlags.None,
-        };
+        if (room.Area != AreaId.Crateria || room.RoomIndex >= CrateriaPolicyRooms)
+            throw new InvalidDataException($"Room {room} is outside the {CrateriaPolicyRooms} Crateria atmospheric selectors.");
+        return CrateriaRoomEffects.TryGetValue(room, out CrateriaAtmosphericEffectFlags effects)
+            ? effects
+            : CrateriaAtmosphericEffectFlags.None;
     }
 }

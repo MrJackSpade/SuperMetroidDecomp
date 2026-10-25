@@ -50,7 +50,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AssertEqual(footstep, landing,
                 $"duplicated Crateria atmospheric policy ${room:X2}");
             AssertEqual(footstep,
-                (byte)SamusAtmosphericEffectDefinitions.ForCrateriaRoom(room),
+                (byte)SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room)),
                 $"compiled Crateria atmospheric policy ${room:X2}");
         }
 
@@ -69,7 +69,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             () => SamusAtmosphericEffectDefinitions.IsRunningFootContact(10),
             "running foot-contact frame past table");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(16),
+            () => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, 16)),
             "Crateria atmospheric room past table");
 
         Console.WriteLine(
@@ -132,7 +132,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         for (byte room = 0; room < 16; room++)
         {
             CrateriaAtmosphericEffectFlags policy =
-                SamusAtmosphericEffectDefinitions.ForCrateriaRoom(room);
+                SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room));
             bool wet = policy != CrateriaAtmosphericEffectFlags.None;
 
             var runner = new SamusState

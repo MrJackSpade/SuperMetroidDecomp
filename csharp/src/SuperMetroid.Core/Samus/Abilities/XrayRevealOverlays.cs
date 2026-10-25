@@ -31,7 +31,15 @@ public static class XrayRevealOverlays
                 InWorldCollectibleKind.MissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 1,
                 InWorldCollectibleKind.SuperMissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 2,
                 InWorldCollectibleKind.PowerBombTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 3,
-                _ => item.GraphicsSlot,
+                InWorldCollectibleKind.Bombs or InWorldCollectibleKind.ChargeBeam or InWorldCollectibleKind.IceBeam or
+                    InWorldCollectibleKind.HiJumpBoots or InWorldCollectibleKind.SpeedBooster or
+                    InWorldCollectibleKind.WaveBeam or InWorldCollectibleKind.SpazerBeam or
+                    InWorldCollectibleKind.SpringBall or InWorldCollectibleKind.VariaSuit or
+                    InWorldCollectibleKind.GravitySuit or InWorldCollectibleKind.XrayScope or
+                    InWorldCollectibleKind.PlasmaBeam or InWorldCollectibleKind.GrappleBeam or
+                    InWorldCollectibleKind.SpaceJump or InWorldCollectibleKind.ScrewAttack or
+                    InWorldCollectibleKind.MorphBall or InWorldCollectibleKind.ReserveTank => item.GraphicsSlot,
+                _ => throw new InvalidDataException($"Item {item.Header} has undefined collectible kind {item.Kind}."),
             };
             if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");

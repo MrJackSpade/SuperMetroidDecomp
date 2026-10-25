@@ -13,6 +13,38 @@ public static class RoomIdentities
     public static readonly RoomIdentity CrateriaSpacePirateShaft =
         new(AreaId.Crateria, 28);
 
+    /// <summary>Crateria's Landing Site, where Samus's ship sets down.</summary>
+    public static readonly RoomIdentity CrateriaLandingSite =
+        new(AreaId.Crateria, 0);
+
+    /// <summary>Crateria's West Ocean, the entrance to the Wrecked Ship.</summary>
+    public static readonly RoomIdentity CrateriaWestOcean =
+        new(AreaId.Crateria, 5);
+
+    /// <summary>Crateria's Kihunter room.</summary>
+    public static readonly RoomIdentity CrateriaKihunterRoom =
+        new(AreaId.Crateria, 7);
+
+    /// <summary>Crateria's East Ocean.</summary>
+    public static readonly RoomIdentity CrateriaEastOcean =
+        new(AreaId.Crateria, 9);
+
+    /// <summary>Crateria's Forgotten Highway Kago room.</summary>
+    public static readonly RoomIdentity CrateriaForgottenHighwayKagoRoom =
+        new(AreaId.Crateria, 10);
+
+    /// <summary>Crateria's Crab Maze.</summary>
+    public static readonly RoomIdentity CrateriaCrabMaze =
+        new(AreaId.Crateria, 11);
+
+    /// <summary>Crateria's Forgotten Highway elbow.</summary>
+    public static readonly RoomIdentity CrateriaForgottenHighwayElbow =
+        new(AreaId.Crateria, 12);
+
+    /// <summary>Crateria's Moat.</summary>
+    public static readonly RoomIdentity CrateriaMoat =
+        new(AreaId.Crateria, 14);
+
     /// <summary>
     /// The Brinstar room whose direct dust branch joins the same room-index cases reached
     /// through Tourian's landing-graphics handler.

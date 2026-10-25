@@ -32,7 +32,7 @@ internal static class SamusHorizontalMotionDefinitions
 
     /// <summary>Each movement type's position in <see cref="RecordOrder"/>.</summary>
     private static readonly FrozenDictionary<SamusMovementType, int> RecordPosition =
-        RecordOrder.Select((movement, position) => (movement, position)).ToFrozenDictionary(entry => entry.movement, entry => entry.position);
+        Enumerable.Range(0, RecordOrder.Length).ToFrozenDictionary(position => RecordOrder[position]);
 
     /// <summary>
     /// The row <c>Samus_DetermineSpeedTableEntryPtr_X</c> selects for a movement type in a medium's table: the

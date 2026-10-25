@@ -8,18 +8,25 @@ public static class ProjectileTrailDefinitions
     /// <summary>The thirty-nine selections each side's table holds.</summary>
     private const int TableSelections = 39;
 
-    // The non-beam trail selections with a trail program; every other selection from the first special one draws none.
+    /// <summary>The first special (non-beam) selection; beam selections precede it.</summary>
+    private const int FirstSpecialSelection = 32;
 
-    /// <summary>$90:B5FB/B5FD: the missile trail selection, the first special selection.</summary>
-    private const int MissileSelection = 32;
-    /// <summary>$90:B5FD: the super-missile selection after the native family-to-index conversion.</summary>
-    private const int SuperMissileSelection = 33;
-    /// <summary>$90:B603/$B651: the first of the three Spazer SBA trail selections.</summary>
-    private const int SpazerSbaFirstSelection = 36;
-    /// <summary>$90:B605/$B653: the middle Spazer SBA selection, with distinct left and right ice trails.</summary>
-    private const int SpazerSbaMiddleSelection = 37;
-    /// <summary>$90:B607/$B655: the final Spazer SBA selection, sharing the left ice trail on both sides.</summary>
-    private const int SpazerSbaLastSelection = 38;
+    /// <summary>
+    /// $90:B5FB..B607 and $90:B649..B655: the left and right programs of the special selections, from the first special
+    /// selection to the table's end. Missile and Super Missile (the first two, after the native family-to-index
+    /// conversion) trail on the left only; the next two draw none; the three Spazer SBA selections draw the left ice
+    /// trail, except that the middle one draws the right ice trail on the right.
+    /// </summary>
+    private static readonly ProjectileTrailPrograms[] SpecialSelectionPrograms =
+    [
+        new(ProjectileTrailProgram.Missile, ProjectileTrailProgram.Empty),
+        new(ProjectileTrailProgram.Missile, ProjectileTrailProgram.Empty),
+        new(ProjectileTrailProgram.Empty, ProjectileTrailProgram.Empty),
+        new(ProjectileTrailProgram.Empty, ProjectileTrailProgram.Empty),
+        new(ProjectileTrailProgram.LeftIce, ProjectileTrailProgram.LeftIce),
+        new(ProjectileTrailProgram.LeftIce, ProjectileTrailProgram.RightIce),
+        new(ProjectileTrailProgram.LeftIce, ProjectileTrailProgram.LeftIce),
+    ];
 
     /// <summary>
     /// The program <paramref name="side"/> runs for low-six-bit selection <paramref name="selection"/>. Native indexes each
@@ -39,15 +46,10 @@ public static class ProjectileTrailDefinitions
     /// <summary>Chooses a left or right trail program from beam effects and special projectile selectors.</summary>
     private static ProjectileTrailProgram Select(int selection, bool right)
     {
-        if (selection >= MissileSelection)
+        if (selection >= FirstSpecialSelection)
         {
-            return selection switch
-            {
-                MissileSelection or SuperMissileSelection => right ? ProjectileTrailProgram.Empty : ProjectileTrailProgram.Missile,
-                SpazerSbaFirstSelection or SpazerSbaLastSelection => ProjectileTrailProgram.LeftIce,
-                SpazerSbaMiddleSelection => right ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.LeftIce,
-                _ => ProjectileTrailProgram.Empty,
-            };
+            ProjectileTrailPrograms programs = SpecialSelectionPrograms[selection - FirstSpecialSelection];
+            return right ? programs.Right : programs.Left;
         }
         var type = new SamusProjectileTypeWord((ushort)selection);
         bool charged = type.IsChargedBeam;

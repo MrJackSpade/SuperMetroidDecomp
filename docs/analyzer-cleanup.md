@@ -27,7 +27,7 @@ ticket that is driving them down, not here.
 
 - Fix the code to the destination shape (`manifesto.md`, section 7: "Fix versus satisfy").
 - Otherwise justify that one site: a same-line `// cartridge-encoding: allow(Class) - reason`, the rule's boundary
-  attribute with its reason (`[ButtonWordEncoding("...")]`, `[CpuBusBoundary("...")]`), `[EncodingOwner("format")]`
+  attribute with its reason (`[ButtonWordEncoding("...")]`), `[EncodingOwner("format")]`
   on a type that is by construction the single owner of an encoding, or `[ArchitectureReview(finding, reason)]` on
   a type the architecture audit flags. The reason names the thing, not the rule, and would not be equally true of a
   thousand other sites.
@@ -36,4 +36,4 @@ ticket that is driving them down, not here.
 - Core first: every other project references it, and it must build before `EnsureVerification` can run the
   analyzer tests.
 
-`docs/cartridge-encoding.md` describes each cartridge-encoding rule; `docs/cpu-bus-boundary.md` covers SME6292.
+`docs/cartridge-encoding.md` describes each cartridge-encoding rule.

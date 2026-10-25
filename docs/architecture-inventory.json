@@ -9216,6 +9216,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomLevelSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles",
       "kind": "static class",
       "scope": "product",
@@ -10273,6 +10286,19 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.LayoutFileManifest",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.LegacyRoomVisualLayoutDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -80295,7 +80321,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomState)",
+      "type": "SuperMetroid.Core.Fx.RoomFxDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -88303,7 +88329,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomState)",
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -91044,6 +91070,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelId",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelId.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelMemoryLayout",
@@ -95027,7 +95066,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomState)",
+      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97154,7 +97193,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomHeaderDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomHeader)",
+      "type": "SuperMetroid.Core.Rooms.RoomHeaderDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.SelectedRoom)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97415,22 +97454,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomStateDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomState)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomStateDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomStateDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateDefinitions)",
       "kind": "class",
       "scope": "test",
@@ -97448,6 +97471,22 @@
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomStateDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSelectionDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomStateDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomStateDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97866,7 +97905,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomState)",
+      "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98414,7 +98453,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.CartridgeRoomState)",
+      "type": "SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -111600,19 +111639,6 @@
       "justified": true
     },
     {
-      "type": "SuperMetroid.Core.World.RoomLoadingRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/RoomLoadingRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.World.RoomMainRoutines",
       "kind": "class",
       "scope": "product",
@@ -111730,45 +111756,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.World.RoomStates.CartridgeRoomAssets",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomAssets.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.World.RoomStates.CartridgeRoomHeader",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomHeader.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.World.RoomStates.CartridgeRoomState",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomState.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -111793,6 +111780,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.World.RoomStates.LoadedRoomAssets",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/LoadedRoomAssets.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.World.RoomStates.MaridiaRoomStateDefinitions",
@@ -111834,6 +111834,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomLevelDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomLevelDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.World.RoomStates.RoomStateDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -111873,6 +111886,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomStateSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.World.RoomStates.RoomTilesetArtwork",
       "kind": "record",
       "scope": "product",
@@ -111897,6 +111923,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.World.RoomStates.SelectedRoom",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/SelectedRoom.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.World.RoomStates.TourianRoomStateDefinitions",
@@ -112046,6 +112085,19 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.World.SavedGameAppearanceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/SavedGameAppearanceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.World.TourianStatueSequence",

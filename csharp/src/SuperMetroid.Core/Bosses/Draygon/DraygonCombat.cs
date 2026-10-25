@@ -52,7 +52,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
-    internal void RegisterDraygonBombReactions(EnemySharedReactions table)
+    internal void AddDraygonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DraygonShot)
@@ -64,7 +64,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
-    internal void RegisterDraygonPowerBombReactions(EnemySharedReactions table)
+    internal void AddDraygonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DraygonPowerBomb)
@@ -75,7 +75,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Registers the body and linked-part contact behavior against Samus.</summary>
-    internal void RegisterDraygonTouch(EnemySharedReactions table)
+    internal void AddDraygonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DraygonTouch,
@@ -202,7 +202,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>
-    internal void RegisterDraygonShotReactions(EnemySharedReactions table)
+    internal void AddDraygonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DraygonShot)

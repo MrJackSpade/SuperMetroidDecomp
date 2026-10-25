@@ -317,7 +317,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Registers $A5:954D hurt AI: flashes body, eye, and tail together, while connected
     /// grapple electrocution may drain another 256 health every eighth frame.
     /// </summary>
-    internal void RegisterDraygonHurtAi(EnemySharedReactions table) =>
+    internal void AddDraygonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.DraygonBody,
             (slot, frame) => Combat.ApplyDraygonHurt(slot, Combat.RequireCompleteDraygonState(slot), frame.Samus));
 }

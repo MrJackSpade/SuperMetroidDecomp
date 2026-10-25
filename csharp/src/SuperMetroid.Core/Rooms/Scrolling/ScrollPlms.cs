@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal sealed class ScrollPlms : IPlmFamilySource
 {
     /// <summary>Registers the Scroll family's step.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.Scroll, static (slot, context) =>

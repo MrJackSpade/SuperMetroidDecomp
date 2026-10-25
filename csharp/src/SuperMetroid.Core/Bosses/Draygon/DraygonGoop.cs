@@ -188,7 +188,7 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Registers goop flight and attachment instructions with the projectile interpreter.</summary>
-    internal void RegisterDraygonProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddDraygonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {

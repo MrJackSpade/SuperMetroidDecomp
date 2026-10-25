@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonCannonPlms : IPlmFamilySource
 {
     /// <summary>Registers the DraygonCannon family, which has no step of its own: its slots take the shared path.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);

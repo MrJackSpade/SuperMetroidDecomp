@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal interface IPlmFamilySource
 {
     /// <summary>Registers the owner's family step in <paramref name="table"/>.</summary>
-    void RegisterPlmFamilies(PlmFamilyTable table);
+    void AddPlmFamilies(PlmFamilyTable table);
 }

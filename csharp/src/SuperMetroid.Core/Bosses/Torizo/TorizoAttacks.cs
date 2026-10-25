@@ -38,7 +38,7 @@ internal sealed class TorizoAttacks
         _access.TorizoState is { IsGolden: true } ? _access.TorizoState : null;
 
     /// <summary>Installs movement handlers and typed program cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
-    internal void RegisterBombTorizoProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddBombTorizoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {

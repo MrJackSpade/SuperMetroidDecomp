@@ -159,7 +159,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
         BlockReactions = new BlockReactionPlms(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
         foreach (IPlmFamilySource source in (IPlmFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectiblePlms, DoorPlms, GreyDoors, Gates, EyeDoors, DraygonCannons])
-            source.RegisterPlmFamilies(_families);
+            source.AddPlmFamilies(_families);
         _families.RequireEveryFamily();
     }
 

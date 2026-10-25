@@ -43,7 +43,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Binds bomb hit responses for vulnerable Phantoon phases.</summary>
-    internal void RegisterPhantoonBombReactions(EnemySharedReactions table)
+    internal void AddPhantoonBombReactions(EnemySharedReactions table)
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
         // AI; their private callbacks own slot cleanup or a staged death. Bank-$A8 callbacks reuse the same
@@ -69,7 +69,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Registers Phantoon flame initializers, pre-instructions, and instructions.</summary>
-    internal void RegisterPhantoonProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -625,7 +625,7 @@ internal sealed class PhantoonCombat
         EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
 
     /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
-    internal void RegisterPhantoonBodyTouch(EnemySharedReactions table)
+    internal void AddPhantoonBodyTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PhantoonTouch,

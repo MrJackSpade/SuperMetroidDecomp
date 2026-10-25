@@ -55,7 +55,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>
-    internal void RegisterCrocomireBombReactions(EnemySharedReactions table)
+    internal void AddCrocomireBombReactions(EnemySharedReactions table)
     {
         // Specials consulted before the selected literal no-op gate, in the original order.
         // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
@@ -67,7 +67,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
-    internal void RegisterCrocomireProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddCrocomireProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -91,7 +91,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
-    internal void RegisterCrocomirePowerBombReactions(EnemySharedReactions table)
+    internal void AddCrocomirePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.CrocomirePowerBomb)
@@ -101,7 +101,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
-    internal void RegisterCrocomireShotReactions(EnemySharedReactions table)
+    internal void AddCrocomireShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                                      enemy.Definition.ShotBody == EnemyCallbackBody.None ||
@@ -122,7 +122,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Registers Crocomire component contact, including normal enemy touch damage.</summary>
-    internal void RegisterCrocomireTouch(EnemySharedReactions table)
+    internal void AddCrocomireTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Crocomire &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CrocomireHeaderTouch ||
@@ -537,7 +537,7 @@ internal sealed class CrocomireCombat
     /// Registers the mouth projectile's typed shot program and its cues: the drop is allocated with Crocomire's
     /// chances before the deletion frees the exploding actor.
     /// </summary>
-    internal void RegisterCrocomireDropProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddCrocomireDropProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));

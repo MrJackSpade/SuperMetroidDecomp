@@ -451,7 +451,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the native hurt callback used after a vulnerable-eye hit.</summary>
     /// <remarks>$A7:DD3F owns every Phantoon hurt frame. It alternates palette seven between white and the new health
     /// band; body movement/main AI resumes only after common flash timing clears handler bit two.</remarks>
-    internal void RegisterPhantoonHurtAi(EnemySharedReactions table) =>
+    internal void AddPhantoonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));
 }

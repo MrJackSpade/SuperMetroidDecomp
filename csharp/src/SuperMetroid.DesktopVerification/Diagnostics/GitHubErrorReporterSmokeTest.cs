@@ -50,11 +50,11 @@ public static class GitHubErrorReporterSmokeTest
             repeatedFingerprint = reporter.Report(repeated, context);
             duplicateFingerprint = reporter.Report(repeated, context);
             _ = reporter.Report(existing, context);
-            var firstDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
+            var firstDispatch = new SuperMetroid.Core.UnmodeledBehaviorException(
                 "grapple/type-C/bts-45", "block 12 (2,3)");
-            var movedDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
+            var movedDispatch = new SuperMetroid.Core.UnmodeledBehaviorException(
                 "grapple/type-C/bts-45", "block 99 (4,5)");
-            var otherDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
+            var otherDispatch = new SuperMetroid.Core.UnmodeledBehaviorException(
                 "grapple/type-C/bts-4F", "block 12 (2,3)");
             var otherRoom = context with { Room = "Draygon", InputRecordingPath = "new-run.smrec" };
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) == GitHubErrorReporter.CreateFingerprint(movedDispatch, otherRoom),

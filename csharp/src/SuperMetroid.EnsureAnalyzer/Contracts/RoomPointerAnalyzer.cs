@@ -7,7 +7,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// Keeps rooms, room states and doors identified by their definitions (#1333). Runtime code names a room by its
-/// <c>RoomHeaderDefinition</c>, a state by its <c>CartridgeRoomState</c> and a door by its <c>DoorDefinition</c>;
+/// <c>RoomHeaderDefinition</c>, a state by its <c>RoomStateSettings</c> and a door by its <c>DoorDefinition</c>;
 /// the native bank-$8F and bank-$83 pointers are the import pipeline's knowledge. A field, property, parameter or
 /// method named as a room, room-state or door pointer with a number type is reported.
 /// </summary>
@@ -23,7 +23,7 @@ public sealed class RoomPointerAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor RoomPointerRule = new(
         RoomPointerId,
         "Room, room-state or door pointer held as a number",
-        "'{0}' carries a room, room-state or door pointer as a number; identify it by its definition (RoomHeaderDefinition, CartridgeRoomState or DoorDefinition)",
+        "'{0}' carries a room, room-state or door pointer as a number; identify it by its definition (RoomHeaderDefinition, RoomStateSettings or DoorDefinition)",
         "Architecture",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,

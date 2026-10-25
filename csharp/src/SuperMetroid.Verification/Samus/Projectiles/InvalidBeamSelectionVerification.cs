@@ -23,7 +23,7 @@ internal static class InvalidBeamSelectionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
         {
-            var navigationSamus = new SamusState { CollectedItems = (SamusEquipmentFlags)ushort.MaxValue, CollectedBeams = (SamusBeamFlags)0x100f,
+            var navigationSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.UnassignedItem | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), CollectedBeams = (SamusBeamFlags)0x100f,
                 EquippedBeams = (SamusBeamFlags)4, EquippedItems = SamusEquipmentFlags.HiJumpBoots };
             var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(navigation);
@@ -37,7 +37,7 @@ internal static class InvalidBeamSelectionVerification
         {
         // Entry selects the first beam ($82:AB47, #1266), so reach Boots with real input
         // before the tested press; this isolates the Boots-handler Left+A ordering.
-        var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300,
+        var samus = new SamusState { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster),
             CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);

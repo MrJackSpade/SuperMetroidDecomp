@@ -35,9 +35,9 @@ internal static class PauseEquipmentLabelsVerification
         [
             new(),
             new() { CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)0x1005,
-                CollectedItems = (SamusEquipmentFlags)0xf32f, EquippedItems = (SamusEquipmentFlags)0x3205, MaxReserveEnergy = 100 },
+                CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), MaxReserveEnergy = 100 },
             new() { HyperBeamEnabled = true, CollectedBeams = (SamusBeamFlags)ushort.MaxValue, EquippedBeams = (SamusBeamFlags)ushort.MaxValue,
-                CollectedItems = (SamusEquipmentFlags)ushort.MaxValue, EquippedItems = (SamusEquipmentFlags)ushort.MaxValue },
+                CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.UnassignedItem | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.UnassignedItem | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope) },
         ];
         foreach (SamusState inventory in inventories)
         {
@@ -73,7 +73,7 @@ internal static class PauseEquipmentLabelsVerification
 
         // Exercise the retail nine-word Boots-to-Plasma copy after an asset-identity
         // change. The first four Varia words must remain the contiguous source tail.
-        var glitchSamus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300,
+        var glitchSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster),
             CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
         var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EquipmentPage(glitch);

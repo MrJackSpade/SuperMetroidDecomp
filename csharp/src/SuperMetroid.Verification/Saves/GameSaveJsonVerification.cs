@@ -40,10 +40,7 @@ internal static class GameSaveJsonVerification
             MaxReserveEnergy = 100,
             ReserveTankMode = ReserveTankMode.Auto,
             SelectedHudItem = HudItem.SuperMissile,
-            CollectedItems = (SamusEquipmentFlags)((ushort)(
-                SamusEquipmentFlags.MorphBall |
-                SamusEquipmentFlags.Bombs |
-                SamusEquipmentFlags.VariaSuit)),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.VariaSuit),
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),

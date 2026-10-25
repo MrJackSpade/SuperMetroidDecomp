@@ -37,7 +37,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
             (enemies, slot, state) = Create(parameter2);
             var samus = new SamusState
             {
-                CollectedItems = (SamusEquipmentFlags)BlueBrinstarFaceBlockNativeValues.MorphBallItem,
+                CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(BlueBrinstarFaceBlockNativeValues.MorphBallItem),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(slot.Position.X.Whole + samusX)), slot.Position.Y.Whole)),
             };
             enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(slot, state, samus);

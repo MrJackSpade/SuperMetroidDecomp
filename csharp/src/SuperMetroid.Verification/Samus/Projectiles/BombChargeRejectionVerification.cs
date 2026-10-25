@@ -25,8 +25,7 @@ internal static class BombChargeRejectionVerification
             var samus = new SamusState
             {
                 Pose = SamusPoseId.MorphBallGroundRightPose,
-                EquippedItems = (SamusEquipmentFlags)((ushort)(SamusEquipmentFlags.MorphBall |
-                    (bombsEquipped ? SamusEquipmentFlags.Bombs : 0))),
+                EquippedItems = (SamusEquipmentFlags.MorphBall | (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
                 SelectedHudItem = powerBombSelected ? HudItem.PowerBomb : HudItem.Beam,
                 PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),

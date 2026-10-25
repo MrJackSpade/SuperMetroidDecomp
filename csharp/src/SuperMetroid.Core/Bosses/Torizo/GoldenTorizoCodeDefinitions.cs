@@ -24,9 +24,7 @@ internal static class GoldenTorizoCodeDefinitions
     internal const SamusEquipmentFlags Items = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall |
         SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
         SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster |
-        SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope | UnnamedItemBit;
-    /// <summary>The bit the code's item word sets that names no item.</summary>
-    private const SamusEquipmentFlags UnnamedItemBit = (SamusEquipmentFlags)0x0010;
+        SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.UnassignedItem;
     /// <summary>$AA:C954 immediate: every beam, collected and equipped, including simultaneous Spazer and Plasma.</summary>
     internal const SamusBeamFlags Beams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer |
         SamusBeamFlags.Plasma | SamusBeamFlags.Charge;

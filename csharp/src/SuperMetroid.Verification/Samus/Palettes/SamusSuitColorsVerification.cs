@@ -89,7 +89,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             var cgram = new SamusColourRig();
-            SamusNormalSuitPalette.Load(cgram.Samus.Suit, (SamusEquipmentFlags)equipment[suit], colors);
+            SamusNormalSuitPalette.Load(cgram.Samus.Suit, SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]), colors);
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
                     (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),
@@ -163,7 +163,7 @@ internal static class SamusSuitColorsVerification
         ];
         for (int suit = 0; suit < equipment.Length; suit++)
         {
-            samus.EquippedItems = (SamusEquipmentFlags)equipment[suit];
+            samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
             samus.Presentation.LoadSuitPalette(samus, cgram.Samus);
             AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
                 cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + 1],
@@ -173,7 +173,7 @@ internal static class SamusSuitColorsVerification
                 $"edited suit {suit} differs from stock");
         }
 
-        samus.EquippedItems = (SamusEquipmentFlags)equipment[1];
+        samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[1]);
         samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
                 cgram.Samus, samus.EquippedItems, edited.SamusSuitColors),

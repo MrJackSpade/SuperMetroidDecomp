@@ -163,7 +163,7 @@ internal static class NativeSnapshotImportVerification
             NativeSnapshotMemory.SamusNormalInputHandler or NativeSnapshotMemory.SamusAutoJumpInputHandler,
             "initial movie input handler has a verified semantic mapping");
         samus.InputSnapshot.AutoJumpInputPending = W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler;
-        samus.EquippedItems = (SamusEquipmentFlags)(W(NativeSnapshotMemory.Items));
+        samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.Items));
         samus.EquippedBeams = (SamusBeamFlags)(W(NativeSnapshotMemory.Beams));
         samus.Health = SamusQuantity.Decode(W(NativeSnapshotMemory.Health));
         samus.MaxHealth = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxHealth));
@@ -314,7 +314,7 @@ internal static class NativeSnapshotImportVerification
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)
             ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         runtime.Clock.Import(memory[NativeSnapshotMemory.NmiCounterByte], W(NativeSnapshotMemory.NmiCounter));
-        samus.CollectedItems = (SamusEquipmentFlags)(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = (SamusBeamFlags)(W(NativeSnapshotMemory.CollectedBeams));
+        samus.CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = (SamusBeamFlags)(W(NativeSnapshotMemory.CollectedBeams));
         samus.Missiles = SamusQuantity.Decode(W(NativeSnapshotMemory.Missiles)); samus.MaxMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxMissiles));
         samus.SuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
         samus.PowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxPowerBombs));

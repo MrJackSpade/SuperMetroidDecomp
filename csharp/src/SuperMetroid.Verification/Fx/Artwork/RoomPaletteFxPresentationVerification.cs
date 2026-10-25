@@ -705,16 +705,16 @@ internal static class RoomPaletteFxPresentationVerification
                 PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
                 _ => throw new InvalidOperationException(),
             };
-            native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
-            installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
+            native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
+            installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
             var nativeCgram = new SamusColourRig();
             var installedCgram = new SamusColourRig();
             int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = (SamusEquipmentFlags)equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = (SamusEquipmentFlags)equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
             }

@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Samus's independent items, one bit each, in the bit order of the equipment word
-/// (<see cref="SamusEquipmentWordCodec"/>). The missing bit values are unused by the retail
-/// data and are deliberately not assigned speculative names.
+/// Samus's independent items, one flag each. The values are arbitrary and nothing reads them: the equipment word that
+/// save slots, Samus's animation item masks and the projectile type record store is produced and read only by
+/// <see cref="SamusEquipmentWordCodec"/>. Members keep the word's bit order, so enumerating them lists the items in
+/// that order.
 /// </summary>
 [Flags]
 public enum SamusEquipmentFlags : ushort
@@ -23,24 +24,30 @@ public enum SamusEquipmentFlags : ushort
     /// <summary>Turns spin-jump contact into the Screw Attack's damaging collision.</summary>
     ScrewAttack = 1 << 3,
 
+    /// <summary>
+    /// The item slot no item occupies. The Golden Torizo item code and one attract demonstration set it, so it is
+    /// carried with the other items; nothing in play grants an ability for it.
+    /// </summary>
+    UnassignedItem = 1 << 4,
+
     /// <summary>Enables Gravity Suit movement protection and the cartridge's strongest damage reduction.</summary>
     GravitySuit = 1 << 5,
 
     /// <summary>Applies the Hi-Jump Boots' increased jump acceleration.</summary>
-    HiJumpBoots = 1 << 8,
+    HiJumpBoots = 1 << 6,
 
     /// <summary>Allows repeated aerial jumps while Samus remains in a spin-jump state.</summary>
-    SpaceJump = 1 << 9,
+    SpaceJump = 1 << 7,
 
     /// <summary>Allows morph-ball bomb placement.</summary>
-    Bombs = 1 << 12,
+    Bombs = 1 << 8,
 
     /// <summary>Enables speed-boost charge accumulation while running.</summary>
-    SpeedBooster = 1 << 13,
+    SpeedBooster = 1 << 9,
 
     /// <summary>Makes the Grapple Beam selectable in the HUD.</summary>
-    GrappleBeam = 1 << 14,
+    GrappleBeam = 1 << 10,
 
     /// <summary>Makes the X-ray Scope selectable in the HUD.</summary>
-    XrayScope = 1 << 15,
+    XrayScope = 1 << 11,
 }

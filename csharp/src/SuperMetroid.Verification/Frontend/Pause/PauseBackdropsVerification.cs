@@ -114,7 +114,7 @@ internal static class PauseBackdropsVerification
         }
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
-        var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300, CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
+        var samus = new SamusState { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
         var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);

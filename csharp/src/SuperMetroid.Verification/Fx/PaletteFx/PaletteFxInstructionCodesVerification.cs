@@ -880,15 +880,20 @@ internal static class PaletteFxInstructionCodesVerification
                 () => PaletteFxHeatInstructionListDefinitions.Resolve((PaletteFxHeatSuit)invalid, 0), "Reject unknown suit");
         ushort gravityMask = ReadVerificationWord(bus, 0x8de3c2);
         ushort variaMask = ReadVerificationWord(bus, 0x8de3cc);
-        for (int equipment = 0; equipment <= ushort.MaxValue; equipment++)
+        // Every equipment word Samus's items can record: each word whose set bits are all item bits.
+        ushort itemBits = Enum.GetValues<SamusEquipmentFlags>().Aggregate((all, item) => all | item).ToEquipmentWord();
+        for (int word = 0; word <= ushort.MaxValue; word++)
         {
+            if ((word & ~itemBits) != 0)
+                continue;
+            ushort equipment = (ushort)word;
             int operand = (equipment & gravityMask) != 0 ? 0x8de3c7 :
                 (equipment & variaMask) != 0 ? 0x8de3d1 : 0x8de3d6;
             int table = 0x8d0000 | ReadVerificationWord(bus, operand);
             for (ushort phase = 0; phase < 16; phase++)
                 AssertEqual(ReadVerificationWord(bus, table + 2 * phase),
-                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems((SamusEquipmentFlags)equipment, phase),
-                    "All equipment words preserve native Gravity-before-Varia selection at every phase");
+                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems(SamusEquipmentWordCodec.FromEquipmentWord(equipment), phase),
+                    "Every recordable equipment word preserves native Gravity-before-Varia selection at every phase");
         }
     }
 

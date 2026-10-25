@@ -123,7 +123,7 @@ internal static void VerifySamusRenderingSlice()
     SamusPresentation.AnimateDeathFrame(unusedInstructionSamus);
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
-    unusedInstructionSamus.EquippedItems = (SamusEquipmentFlags)0x0002;
+    unusedInstructionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
     SamusPresentation.InitializeAnimation(unusedInstructionSamus);
     SamusPresentation.AnimateDeathFrame(unusedInstructionSamus);
     AssertEqual(SamusPoseId.UnusedPose42, unusedInstructionSamus.PendingTransitionalPose,
@@ -242,7 +242,7 @@ internal static void VerifySamusRenderingSlice()
     AssertTrue(!chestCover.IsLarge, "forward chest-cover is one small OBJ");
 
     // `$9B` uses dedicated suited art and therefore must not inherit `$00`'s chest patch.
-    samus.EquippedItems = (SamusEquipmentFlags)0x0001;
+    samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     int? bottomBeforeSuited = samus.Presentation.BodyFrames.Shown.Bottom;
@@ -754,7 +754,7 @@ internal static void VerifySamusHurtFlashPalette()
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        EquippedItems = (SamusEquipmentFlags)0x0021, // Both suit bits prove Gravity's native precedence.
+        EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit), // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
         Presentation = { SuitColors = SamusSuitColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
     };
@@ -824,7 +824,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     // Cinematic call two suppresses impact audio and uses the dedicated intro palette in
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
-    var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = (SamusEquipmentFlags)0x0020 };
+    var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = SamusEquipmentFlags.GravitySuit };
     cinematic.LiquidPhysics.CinematicFunctionActive = true;
     SamusHurtFlashPalette.Update(
         cgram.Samus.Suit, cinematic, controllerInput: 0, presentationColors: hurtColors);

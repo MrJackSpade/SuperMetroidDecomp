@@ -108,7 +108,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "rejected morph retains crouch");
     AssertEqual(48, samus.Position.Y.Whole, "rejected morph retains center Y");
 
-    samus.EquippedItems = (SamusEquipmentFlags)0x0004;
+    samus.EquippedItems = SamusEquipmentFlags.MorphBall;
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
 floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
@@ -124,7 +124,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     var fallingMorph = new SamusState
     {
         Pose = SamusPoseId.FallingAimDownLeftPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
         BombSpreadChargeTimeoutCounter = 0x1234,
         ProjectileFlareCounter = 0x003c,
@@ -138,7 +138,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
         "compact falling morph uses command-seven table displacement, not radius difference");
     var clippedMorph = new SamusState
     {
-        Pose = SamusPoseId.FallingAimDownLeftPose, EquippedItems = (SamusEquipmentFlags)0x0004,
+        Pose = SamusPoseId.FallingAimDownLeftPose, EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 54)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(clippedMorph);
@@ -156,7 +156,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
     var spinMorph = new SamusState
     {
         Pose = SamusPoseId.SpinJumpLeftPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(spinMorph);
@@ -426,7 +426,7 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
     var boxedBall = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(boxedBall);
@@ -485,7 +485,7 @@ empty, targetPose, nmiFrameCounter: 3),
     var airborneEntry = new SamusState
     {
         Pose = SamusPoseId.CrouchingRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(airborneEntry);
@@ -505,7 +505,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
     var spring = new SamusState
     {
         Pose = SamusPoseId.CrouchingRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0006,
+        EquippedItems = (SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(spring);
@@ -562,8 +562,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         var impact = new SamusState
         {
             Pose = springEquipped ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose,
-            EquippedItems = (SamusEquipmentFlags)((ushort)(SamusEquipmentFlags.MorphBall |
-                (springEquipped ? SamusEquipmentFlags.SpringBall : 0))),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | (springEquipped ? SamusEquipmentFlags.SpringBall : 0)),
         };
         SamusPoseMetadata.RefreshCollisionRadii(impact);
         SamusPresentation.InitializeAnimation(impact);
@@ -593,7 +592,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var noBombItemSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(noBombItemSamus);
@@ -605,7 +604,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var bombProjectileSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x1004,
+        EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(bombProjectileSamus);
@@ -644,7 +643,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         var fixtureSamus = new SamusState
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
-            EquippedItems = (SamusEquipmentFlags)0x1004,
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
         };
         SamusPoseMetadata.RefreshCollisionRadii(fixtureSamus);
@@ -760,9 +759,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var selectedPowerBombSpreadSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)((ushort)(
-            SamusEquipmentFlags.MorphBall |
-            SamusEquipmentFlags.Bombs)),
+        EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
@@ -861,7 +858,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var powerBombSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -1035,7 +1032,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var reactionSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x1004,
+        EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(reactionSamus);
@@ -1106,7 +1103,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var integratedRevealSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x1004,
+        EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(integratedRevealSamus);
@@ -1146,7 +1143,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var bombDoorSamus = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x1004,
+        EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(bombDoorSamus);
@@ -1528,7 +1525,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var bombJump = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(bombJump);
@@ -1583,7 +1580,7 @@ empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
     var straightBombJump = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundLeftPose,
-        EquippedItems = (SamusEquipmentFlags)0x0004,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 56)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(straightBombJump);

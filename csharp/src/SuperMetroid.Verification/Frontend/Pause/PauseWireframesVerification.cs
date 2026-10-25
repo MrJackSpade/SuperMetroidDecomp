@@ -55,7 +55,7 @@ internal static class PauseWireframesVerification
             ushort items = (ushort)(((int)kind & 1) * 0x100 | ((int)kind >> 1));
             foreach (bool gravity in new[] { false, true })
             {
-                SamusEquipmentFlags equipped = (SamusEquipmentFlags)items | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
+                SamusEquipmentFlags equipped = SamusEquipmentWordCodec.FromEquipmentWord(items) | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
                 var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
                 var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

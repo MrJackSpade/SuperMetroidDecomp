@@ -41,7 +41,7 @@ internal static class WallJumpSpinExitVerification
             }
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
-            samus.EquippedItems = (SamusEquipmentFlags)((ushort)items);
+            samus.EquippedItems = items;
             samus.Pose = SamusPoseId.WallJumpRightPose;
             samus.Position = samus.Position.WithWhole(new(512, 400));
             SamusPoseMetadata.RefreshCollisionRadii(samus);

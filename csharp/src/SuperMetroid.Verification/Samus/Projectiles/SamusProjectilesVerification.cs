@@ -433,7 +433,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         chargeSamus.HorizontalSpeed.ContactDamageIndex = pseudoScrew ? SamusContactDamageIndex.PseudoScrew : SamusContactDamageIndex.None;
         for (int suit = 0; suit < suitEquipment.Length; suit++)
         {
-            chargeSamus.EquippedItems = (SamusEquipmentFlags)suitEquipment[suit];
+            chargeSamus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suitEquipment[suit]);
             for (int palette = 0; palette < 6; palette++)
             {
                 // `$0B62` holds the byte offset of the palette this call installs.
@@ -505,7 +505,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // colors 1-15 white; call four takes carry-set back to `$91:D717` and restores the
     // complete suit palette. Seed transparent color zero with a sentinel to catch a broad
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
-    chargeSamus.EquippedItems = (SamusEquipmentFlags)0x0021;
+    chargeSamus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
     var chargedGlowCgram = new SamusColourRig();
     chargedGlowCgram.SetColor(192, Bgr555.FromWord(0x4321));
     for (int call = 0; call < 4; call++)

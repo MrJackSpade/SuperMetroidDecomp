@@ -80,7 +80,7 @@ internal static class SamusChargeColorsVerification
         for (int family = 0; family < 2; family++)
         for (int suit = 0; suit < suits.Length; suit++)
         {
-            samus.EquippedItems = (SamusEquipmentFlags)suits[suit];
+            samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suits[suit]);
             samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
             for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
             {
@@ -572,7 +572,7 @@ internal static class SamusChargeColorsVerification
         for (int family = 0; family < 2; family++)
         for (int suit = 0; suit < 3; suit++)
         {
-            samus.EquippedItems = (SamusEquipmentFlags)suits[suit];
+            samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suits[suit]);
             samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
             for (int phase = 0; phase < 6; phase++)
             {

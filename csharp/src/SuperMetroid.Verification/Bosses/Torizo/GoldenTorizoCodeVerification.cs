@@ -41,7 +41,7 @@ internal static class GoldenTorizoCodeVerification
             {
                 Health = 1500, MaxHealth = 1599, ReserveEnergy = 400, MaxReserveEnergy = 400,
                 Missiles = 200, MaxMissiles = 230, SuperMissiles = 40, MaxSuperMissiles = 50,
-                PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = (SamusEquipmentFlags)8, CollectedItems = (SamusEquipmentFlags)8,
+                PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = SamusEquipmentFlags.ScrewAttack, CollectedItems = SamusEquipmentFlags.ScrewAttack,
                 EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = ReserveTankMode.Manual, ReserveMissiles = 7,
             };
             ushort[] before = Snapshot(samus);

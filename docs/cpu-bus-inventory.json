@@ -1,7 +1,7 @@
 {
   "cells": [
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EndingCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions",
       "name": "LogoPaletteBank",
       "region": "Cartridge",
       "address": "$8C:8000",
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions",
       "name": "ProjectileInstructionBank",
       "region": "Cartridge",
       "address": "$86:8000",
@@ -25,7 +25,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions",
       "name": "RidleyBank",
       "region": "Cartridge",
       "address": "$A6:8000",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.PauseMenuCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.PauseMenuSourceDefinitions",
       "name": "MenuBank",
       "region": "Cartridge",
       "address": "$82:8000",
@@ -50,7 +50,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.RoomPlmCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.RoomPlmSourceDefinitions",
       "name": "ItemGraphicsBank",
       "region": "Cartridge",
       "address": "$89:8000",
@@ -62,7 +62,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.RoomPlmCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.RoomPlmSourceDefinitions",
       "name": "PlmBank",
       "region": "Cartridge",
       "address": "$84:8000",
@@ -80,7 +80,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.SamusSourceDefinitions",
       "name": "AnimationBank",
       "region": "Cartridge",
       "address": "$92:8000",
@@ -92,7 +92,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.SamusSourceDefinitions",
       "name": "ProjectileBank",
       "region": "Cartridge",
       "address": "$93:8000",

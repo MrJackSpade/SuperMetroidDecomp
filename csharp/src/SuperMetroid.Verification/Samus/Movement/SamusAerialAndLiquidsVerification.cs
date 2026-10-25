@@ -406,7 +406,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var spaceLaunch = new SamusState
     {
         Pose = SamusPoseId.MovingRightNormalPose,
-        EquippedItems = (SamusEquipmentFlags)0x0200,
+        EquippedItems = SamusEquipmentFlags.SpaceJump,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
     };
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(spaceLaunch, SamusPoseId.SpinJumpRightPose);
@@ -422,7 +422,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var screwLaunch = new SamusState
     {
         Pose = SamusPoseId.MovingLeftNormalPose,
-        EquippedItems = (SamusEquipmentFlags)0x0208,
+        EquippedItems = (SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpaceJump),
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
     };
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(screwLaunch, SamusPoseId.SpinJumpLeftPose);
@@ -561,7 +561,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     static SamusState CreateFallingSpin(SamusPoseId pose, ushort items, ushort speed, ushort subspeed) => new()
     {
         Pose = pose,
-        EquippedItems = (SamusEquipmentFlags)items,
+        EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items),
         Position = new(new(128, 0), new(128, 0)),
         Kinematics =
         {
@@ -698,12 +698,12 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SamusColourRig();
-    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = (SamusEquipmentFlags)0x0008 }, suitColors: suitColors, cycleColors: cycleColors),
+    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }, suitColors: suitColors, cycleColors: cycleColors),
         "ending Screw frame copies normal suit palette");
     AssertEqual(0x0111, cgram.Colors[192], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (SamusEquipmentFlags)0x0008 }, suitColors: suitColors, cycleColors: cycleColors),
+        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, suitColors: suitColors, cycleColors: cycleColors),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");
@@ -802,7 +802,7 @@ internal static void VerifySamusLiquidPhysics()
     AssertEqual(0xc000, sample.Kinematics.YSpeed.Fraction, "water normal-jump fraction");
     AssertEqual(0x0800, sample.Kinematics.YAcceleration.Fraction, "water gravity fraction");
 
-    sample.EquippedItems = (SamusEquipmentFlags)0x0100;
+    sample.EquippedItems = SamusEquipmentFlags.HiJumpBoots;
     SamusAerialMovement.InitializeJump(sample);
     AssertEqual(2, sample.Kinematics.YSpeed.Whole, "water Hi-Jump whole speed");
     AssertEqual(0x8000, sample.Kinematics.YSpeed.Fraction, "water Hi-Jump fraction");
@@ -984,7 +984,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounte
     var partialWaterSpaceJump = new SamusState
     {
         Pose = SamusPoseId.SpaceJumpRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0200,
+        EquippedItems = SamusEquipmentFlags.SpaceJump,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         Kinematics =
         {
@@ -1011,7 +1011,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounte
     var fullySubmergedScrew = new SamusState
     {
         Pose = SamusPoseId.ScrewAttackRightPose,
-        EquippedItems = (SamusEquipmentFlags)0x0208,
+        EquippedItems = (SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpaceJump),
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         Kinematics =
         {

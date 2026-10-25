@@ -82,7 +82,7 @@ internal static class PauseEquipmentRulesVerification
         {
             int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
             AssertTrue(expected >= 0, "native masked input has a table match");
-            AssertEqual(expected, PauseEquipmentRules.WireframeIndex((SamusEquipmentFlags)((ushort)word)), "complete native wireframe selection domain");
+            AssertEqual(expected, PauseEquipmentRules.WireframeIndex(SamusEquipmentWordCodec.FromEquipmentWord((ushort)word)), "complete native wireframe selection domain");
         }
     }
 
@@ -136,7 +136,7 @@ internal static class PauseEquipmentRulesVerification
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToEquipmentWord()) }))
         {
-            var pause = Create(new SamusState { EquippedItems = (SamusEquipmentFlags)items, CollectedItems = (SamusEquipmentFlags)items }); EnterPauseEquipment(pause);
+            var pause = Create(new SamusState { EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items), CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(items) }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)PauseMenuSourceDefinitions.PauseWireframePointers + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Paint;

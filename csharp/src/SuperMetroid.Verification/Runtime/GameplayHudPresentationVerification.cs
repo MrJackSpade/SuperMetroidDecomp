@@ -53,7 +53,7 @@ internal static class GameplayHudPresentationVerification
             Missiles: 123, MaxMissiles: 230,
             SuperMissiles: 45, MaxSuperMissiles: 50,
             PowerBombs: 6, MaxPowerBombs: 10,
-            EquippedItems: (SamusEquipmentFlags)equipment, SelectedItem: HudItem.SuperMissile,
+            EquippedItems: SamusEquipmentWordCodec.FromEquipmentWord(equipment), SelectedItem: HudItem.SuperMissile,
             ReserveHealth: 50, ReserveMode: ReserveTankMode.Auto);
         var native = new HudState();
         var installed = new HudState();
@@ -74,7 +74,7 @@ internal static class GameplayHudPresentationVerification
             MaxSuperMissiles = 50,
             PowerBombs = 4,
             MaxPowerBombs = 10,
-            EquippedItems = (SamusEquipmentFlags)equipment,
+            EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
             SelectedHudItem = HudItem.PowerBomb,
             ReserveEnergy = 25,
             ReserveTankMode = ReserveTankMode.Auto,

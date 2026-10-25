@@ -881,9 +881,9 @@ internal static class CollectiblesVerification
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
         {
-            var samus = new SamusState { EquippedItems = (SamusEquipmentFlags)(otherSuit
-                ? (ushort)(kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
-                : (ushort)0) };
+            var samus = new SamusState { EquippedItems = otherSuit
+                ? (kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
+                : SamusEquipmentFlags.None };
             samus.Presentation.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseId.SpinJumpRightPose;

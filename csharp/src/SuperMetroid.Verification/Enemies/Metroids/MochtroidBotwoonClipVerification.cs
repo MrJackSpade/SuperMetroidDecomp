@@ -88,9 +88,7 @@ internal static class MochtroidBotwoonClipVerification
         samus.HorizontalSpeed.HasRunningMomentum = false;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Pose = SamusPoseId.CrouchingAimUpRightPose;
-        samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags)((ushort)(
-            SamusEquipmentFlags.MorphBall |
-            SamusEquipmentFlags.HiJumpBoots));
+        samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
         samus.EquippedBeams = samus.CollectedBeams = SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
         samus.InvincibilityTimer = WrappingCountdown.Start(120);

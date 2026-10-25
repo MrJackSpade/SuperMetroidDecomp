@@ -17,9 +17,10 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
 
     /// <summary>
     /// Where the half of an animation window that aliases the residue ends: a delay over-read at a window position below
-    /// this reads the residue, and one at or past it reads the installed animation data.
+    /// this reads the residue, and one at or past it reads the installed animation data: the upper half of a
+    /// sixteen-bit window position.
     /// </summary>
-    public const int ResidueWindowEnd = 0x8000;
+    public const int ResidueWindowEnd = 32768;
 
     /// <summary>The bytes one update's descriptor takes.</summary>
     private const int UpdateBytes = 9;

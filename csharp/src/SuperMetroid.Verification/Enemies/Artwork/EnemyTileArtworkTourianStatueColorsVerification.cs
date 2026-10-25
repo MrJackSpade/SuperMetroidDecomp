@@ -133,7 +133,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // only the native grey instruction writes read from the four retail programs.
         var nativeGreyCgram = new SamusColourRig();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            nativeGreyCgram.SetColor(color, installedRoom.Cgram.Colors[color]);
+            nativeGreyCgram.SetColor(color, installedRoom.Colours.Colors[color]);
         var greyDestinations = new List<int>();
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {
@@ -145,11 +145,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
         installedRoom.TourianStatues.StepTiles();
         editedRoom.TourianStatues.StepTiles();
-        AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Cgram.AsPaletteColors())),
+        AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Colours.AsPaletteColors())),
             "Tourian grey room instruction preserves full native CGRAM");
         var differences = greyDestinations
             .Select(destination => new Difference(Index:destination + 1, Mask:1 << 10)).ToArray();
-        CheckOnlyDifferences(nativeGreyCgram, editedRoom.Cgram.AsPaletteColors(), differences,
+        CheckOnlyDifferences(nativeGreyCgram, editedRoom.Colours.AsPaletteColors(), differences,
             "Tourian grey room instruction edit");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");

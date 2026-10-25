@@ -27,14 +27,22 @@ internal static class TypedWordsVerification
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
 internal static void VerifyTypedNativeWords()
 {
-    // Equipment helpers must mutate only the requested independent bits. Bit $0080 is not
-    // named by the enum and deliberately survives both operations unchanged.
-    SamusEquipmentFlags equipment = (SamusEquipmentFlags)0x0080;
+    // Equipment helpers must mutate only the requested independent bits. The unassigned item
+    // slot is set by no ability and deliberately survives both operations unchanged.
+    SamusEquipmentFlags equipment = SamusEquipmentFlags.UnassignedItem;
     equipment |= SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs;
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
     equipment &= ~SamusEquipmentFlags.GravitySuit;
-    AssertEqual(0x1080, equipment.ToEquipmentWord(), "equipment flags preserve unnamed bits");
+    AssertEqual(0x1010, equipment.ToEquipmentWord(), "equipment flags keep the unassigned item slot");
+
+    // The codec is the one place that knows each item's word bit: the word round-trips, and a word
+    // setting a bit that records no item is rejected rather than dropped.
+    AssertEqual(equipment, SamusEquipmentWordCodec.FromEquipmentWord(0x1010), "equipment word decodes to its items");
+    AssertEqual((ushort)0xf32f, SamusEquipmentWordCodec.FromEquipmentWord(0xf32f).ToEquipmentWord(),
+        "every recorded item bit round-trips through the codec");
+    AssertThrows<InvalidDataException>(() => SamusEquipmentWordCodec.FromEquipmentWord(0x0080),
+        "an equipment word bit that records no item is rejected");
 
     // The snapshot boundary decodes $0A76 and $0DC0 into typed state and rejects undefined words.
     AssertEqual(true, SamusSnapshotWords.DecodeHyperBeam(SamusSnapshotWords.HyperBeamEnabledWord), "hyper beam $8000 imports as enabled");

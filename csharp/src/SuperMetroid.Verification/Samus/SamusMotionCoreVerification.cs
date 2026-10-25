@@ -264,17 +264,17 @@ internal static void VerifySamusHorizontalSpeed()
         bus, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(0), 0x0321);
 
     var boostCgram = new SamusColourRig();
-    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
     AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
     AssertEqual(4, booster.SpecialPaletteTimer.RawValue, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
-        AssertTrue(!booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000 }),
+        AssertTrue(!booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
             "Speed Booster palette waits during positive timer");
     }
-    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual(0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
@@ -288,9 +288,9 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401) };
     var submergedBoostCgram = new SamusColourRig();
     submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Speed Booster palette copy");
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2001, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
         "submerged Varia Suit suppresses active Speed Booster palette copy");
     AssertEqual(0x7777, submergedBoostCgram.Colors[192],
         "submerged Speed Booster leaves live Samus palette untouched");
@@ -311,7 +311,7 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SamusColourRig();
     submergedScrewCgram.SetColor(192, Bgr555.FromWord(0x2222));
-    AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = (SamusEquipmentFlags)0x0008, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Screw Attack palette copy");
     AssertEqual(0x2222, submergedScrewCgram.Colors[192],
         "submerged Screw Attack retains the current suit colors");
@@ -419,12 +419,12 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0, leftDeparture.SpeedEchoIndex,
         "left departure clears shared index after both slots cross");
 
-    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Standing, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000 }, suitColors: SuitColors()),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Standing, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }, suitColors: SuitColors()),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
 
-    var boostedJump = new SamusState { EquippedItems = (SamusEquipmentFlags)0x2000 };
+    var boostedJump = new SamusState { EquippedItems = SamusEquipmentFlags.SpeedBooster };
     boostedJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0xe000);
     boostedJump.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);

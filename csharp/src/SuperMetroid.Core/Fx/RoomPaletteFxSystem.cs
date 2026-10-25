@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;

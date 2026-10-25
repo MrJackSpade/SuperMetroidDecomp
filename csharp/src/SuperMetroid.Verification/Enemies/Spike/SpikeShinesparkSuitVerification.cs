@@ -173,9 +173,7 @@ internal static class SpikeShinesparkSuitVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-        samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags)((ushort)(
-            SamusEquipmentFlags.MorphBall |
-            SamusEquipmentFlags.SpeedBooster));
+        samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpeedBooster);
         samus.Health = samus.MaxHealth = 199;
         samus.ReserveEnergy = 0;
         if (underwater)

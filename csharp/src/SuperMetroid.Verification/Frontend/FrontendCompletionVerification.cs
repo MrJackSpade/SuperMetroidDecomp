@@ -431,7 +431,7 @@ internal static void VerifyEndingCreditsState()
             MaxMissiles: 230,
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
-            CollectedItems: (SamusEquipmentFlags)0xf32f,
+            CollectedItems: (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope),
             CollectedBeams: (SamusBeamFlags)0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
     var percentageScreen = new EndingScreen();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)

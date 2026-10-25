@@ -2,7 +2,6 @@ using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 

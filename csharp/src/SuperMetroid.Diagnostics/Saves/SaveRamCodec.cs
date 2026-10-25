@@ -92,8 +92,8 @@ public static class SaveRamCodec
         Ensure.LengthEqual(payload, SaveRamLayout.SlotByteCount);
         return new SuperMetroidSaveSlot(
             Slot: slot,
-            EquippedItems: (SamusEquipmentFlags)ReadWord(payload, SaveRamLayout.EquippedItemsOffset),
-            CollectedItems: (SamusEquipmentFlags)ReadWord(payload, SaveRamLayout.CollectedItemsOffset),
+            EquippedItems: SamusEquipmentWordCodec.FromEquipmentWord(ReadWord(payload, SaveRamLayout.EquippedItemsOffset)),
+            CollectedItems: SamusEquipmentWordCodec.FromEquipmentWord(ReadWord(payload, SaveRamLayout.CollectedItemsOffset)),
             EquippedBeams: (SamusBeamFlags)ReadWord(payload, SaveRamLayout.EquippedBeamsOffset),
             CollectedBeams: (SamusBeamFlags)ReadWord(payload, SaveRamLayout.CollectedBeamsOffset),
             ReserveMode: ReserveTankModes.Decode(ReadWord(payload, SaveRamLayout.ReserveModeOffset)),

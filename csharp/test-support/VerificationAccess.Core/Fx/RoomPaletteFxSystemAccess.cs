@@ -13,7 +13,7 @@ internal static class RoomPaletteFxSystemAccess
             AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            return RoomPaletteFxSystem.ForRecord(session, null, definition.Door, area, (SamusEquipmentFlags)equippedItems, areaMiniBossDefeated, (RoomFxRecordDefinition?)(definition));
+            return RoomPaletteFxSystem.ForRecord(session, null, definition.Door, area, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomFxRecordDefinition?)(definition));
         }
     }
 }

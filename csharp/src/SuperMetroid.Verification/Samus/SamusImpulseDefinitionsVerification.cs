@@ -28,8 +28,7 @@ internal static class SamusImpulseDefinitionsVerification
         for (int gravity = 0; gravity <= 1; gravity++)
         for (int direction = 1; direction <= 3; direction++)
         {
-            bomb.EquippedItems = (SamusEquipmentFlags)((ushort)(SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster |
-                (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0)));
+            bomb.EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster | (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0));
             bomb.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             bomb.LiquidPhysics.FxYPosition = liquid == 1 ? (ushort)raw : ushort.MaxValue;
             bomb.LiquidPhysics.LavaAcidYPosition = liquid == 2 ? (ushort)raw : ushort.MaxValue;
@@ -60,9 +59,7 @@ internal static class SamusImpulseDefinitionsVerification
         {
             var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
-            hurt.EquippedItems = (SamusEquipmentFlags)((ushort)(((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) |
-                ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) |
-                ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0)));
+            hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
             hurt.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             hurt.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
             hurt.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;

@@ -3428,6 +3428,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.CpuBusCell",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CpuBusCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.CpuBusRegion",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CpuBusRegion.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource",
       "kind": "interface",
       "scope": "product",
@@ -3439,6 +3465,45 @@
       ],
       "partial": "none",
       "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/ISnesAddressSpace.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.ISnesMutableMemory",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/ISnesMutableMemory.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.LoRomMemoryBankLayout",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/LoRomMemoryBankLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Cartridge.NativeWordIdentities\u003CTIdentity\u003E",
@@ -3480,6 +3545,45 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SnesAddress",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SnesAddress.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SnesAddressMath",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SnesAddressMath.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SnesBusLayout",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SnesBusLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions",
       "kind": "static class",
       "scope": "product",
@@ -3491,6 +3595,58 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SnesCpuAddressLayout",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SnesCpuAddressLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SnesDmaSourceKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SnesDmaSourceKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SnesDmaSourceMap",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SnesDmaSourceMap.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/SuperMetroidAddressSpace.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge",
@@ -81714,19 +81870,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.CartridgeDispatchException",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/CartridgeDispatchException.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.CgramPalette",
       "kind": "struct",
       "scope": "product",
@@ -81895,19 +82038,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.CpuBusCell",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/CpuBusCell.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.CpuBusCellAccess",
       "kind": "static class",
       "scope": "test",
@@ -81924,7 +82054,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.CpuBusCellAccess.extension(SuperMetroid.Core.Hardware.CpuBusCell)",
+      "type": "SuperMetroid.Core.Hardware.CpuBusCellAccess.extension(SuperMetroid.AssetExtraction.Cartridge.CpuBusCell)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -81954,19 +82084,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.CpuBusRegion",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/CpuBusRegion.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Hardware.EnemySpritemapParts",
@@ -82105,19 +82222,6 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.ISnesAddressSpace",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/ISnesAddressSpace.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.ISnesCpuPeripheralSource",
       "kind": "interface",
       "scope": "test",
@@ -82150,19 +82254,6 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.ISnesMutableMemory",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/ISnesMutableMemory.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.ISnesWritableAddressSpace",
       "kind": "interface",
       "scope": "test",
@@ -82190,19 +82281,6 @@
       ],
       "partial": "none",
       "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.LoRomMemoryBankLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/LoRomMemoryBankLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Hardware.Mode7VramAccess",
@@ -82592,19 +82670,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesAddress",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesAddress.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.SnesAddressAccess",
       "kind": "static class",
       "scope": "test",
@@ -82621,7 +82686,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesAddressAccess.extension(SuperMetroid.Core.Hardware.SnesAddress)",
+      "type": "SuperMetroid.Core.Hardware.SnesAddressAccess.extension(SuperMetroid.AssetExtraction.Cartridge.SnesAddress)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -82635,19 +82700,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesAddressMath",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesAddressMath.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Hardware.SnesAddressSpaceWrites",
@@ -82666,7 +82718,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesAddressSpaceWrites.extension(SuperMetroid.Core.Hardware.ISnesAddressSpace)",
+      "type": "SuperMetroid.Core.Hardware.SnesAddressSpaceWrites.extension(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -82785,19 +82837,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesBusLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesBusLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.SnesBusLayoutConstants",
       "kind": "static class",
       "scope": "test",
@@ -82893,45 +82932,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Hardware/SnesCharacterGrid.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesCpuAddressLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesCpuAddressLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesDmaSourceKind",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesDmaSourceKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.SnesDmaSourceMap",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SnesDmaSourceMap.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -83253,7 +83253,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesWordReads.extension(SuperMetroid.Core.Hardware.ISnesMutableMemory)",
+      "type": "SuperMetroid.Core.Hardware.SnesWordReads.extension(SuperMetroid.AssetExtraction.Cartridge.ISnesMutableMemory)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -83285,7 +83285,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SnesWordReadsAccess.extension(SuperMetroid.Core.Hardware.ISnesMutableMemory)",
+      "type": "SuperMetroid.Core.Hardware.SnesWordReadsAccess.extension(SuperMetroid.AssetExtraction.Cartridge.ISnesMutableMemory)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -83465,19 +83465,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SuperMetroidAddressSpace",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/SuperMetroidAddressSpace.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.SuperMetroidAddressSpaceAccess",
       "kind": "static class",
       "scope": "test",
@@ -83494,7 +83481,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.SuperMetroidAddressSpaceAccess.extension(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace)",
+      "type": "SuperMetroid.Core.Hardware.SuperMetroidAddressSpaceAccess.extension(SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -84499,6 +84486,48 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Input.ControllerButton",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/ControllerButton.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.ControllerButtons",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/ControllerButtons.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.ControllerButtonsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Input/ControllerButtonsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Input.ControllerInputState",
       "kind": "class",
       "scope": "product",
@@ -84816,48 +84845,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.SnesButton",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/SnesButton.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.SnesButtons",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/SnesButtons.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.SnesButtonsAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Input/SnesButtonsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.IntegerQuantityAttribute",
@@ -85950,51 +85937,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Progression.Bank80SystemState",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/Bank80SystemState.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.Bank80SystemStateAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Progression/Bank80SystemStateAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.Bank80SystemStateAccess.extension(SuperMetroid.Core.Progression.Bank80SystemState)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Progression/Bank80SystemStateAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Progression.BossBitMasks",
       "kind": "static class",
       "scope": "product",
@@ -86048,32 +85990,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.CartridgeRandom",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/CartridgeRandom.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.CartridgeRandomRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/CartridgeRandomRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Progression.EventNumber",
@@ -86245,6 +86161,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Progression.SamusEquipmentWordCodec.ItemBit",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/SamusEquipmentWordCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Progression.SamusProjectileFamily",
       "kind": "enum",
       "scope": "product",
@@ -86308,6 +86237,77 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.SharedGameState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/SharedGameState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.SharedGameStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/SharedGameStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.SharedGameStateAccess.extension(SuperMetroid.Core.Progression.SharedGameState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/SharedGameStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.SharedRandom",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/SharedRandom.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.SharedRandomDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/SharedRandomDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Progression.SharedRandomState",
@@ -98443,6 +98443,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoDriver",
       "kind": "class",
       "scope": "product",
@@ -98482,33 +98495,7 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoRomData.SetupValues",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoRomDataConstants",
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoNativeWords",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -98518,55 +98505,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoRomDataConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoRomDataConstants.extension(SuperMetroid.Core.Runtime.Attract.AttractDemoRomData)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoRomDataConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoRomDataEquipmentFields",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoRomDataEquipmentFields.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoRomDataRoomFields",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoRomDataRoomFields.cs"
+        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoNativeWords.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -109753,14 +109692,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Saves.DemoSetUnlockRomData",
+      "type": "SuperMetroid.Core.Saves.DemoSetUnlockDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Saves/DemoSetUnlockRomData.cs"
+        "csharp/src/SuperMetroid.Core/Saves/DemoSetUnlockDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -110784,6 +110723,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.UnmodeledBehaviorException",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/UnmodeledBehaviorException.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.World.AcceptedFrameBoundary",
@@ -121735,6 +121687,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneEquipmentFields",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationImporters/AttractDemoSceneEquipmentFields.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter",
       "kind": "static class",
       "scope": "test",
@@ -121746,6 +121711,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneRoomFields",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationImporters/AttractDemoSceneRoomFields.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneSources",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationImporters/AttractDemoSceneSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.TestSupport.VerificationImporters.CartridgeLongReads",

@@ -62,12 +62,6 @@ public static class StockAttractDemoScenes
         CrystalFlash,
     }
 
-    /// <summary>
-    /// The diagonal-shinespark staging sets one equipment bit that names no item alongside the named item abilities.
-    /// Preserve the exact staged word without assigning this bit an invented ability;
-    /// this chosen copied metadata is part of the exact demonstration staging, not an additional named ability.
-    /// </summary>
-    private const SamusEquipmentFlags ChosenShinesparkUnassignedItemBit = (SamusEquipmentFlags)(1 << 4);
     /// <summary>Returns a staged demonstration or its exact native end-of-set sentinel.</summary>
     public static AttractDemoScene? Get(int set, int scene)
     {
@@ -556,7 +550,7 @@ public static class StockAttractDemoScenes
             Demonstration.LowerNorfairEntrance => spaceJump,
             Demonstration.ScrewAttack => screwAttack,
             Demonstration.DiagonalShinespark => bombAbilities | SamusEquipmentFlags.SpringBall |
-                ChosenShinesparkUnassignedItemBit,
+                SamusEquipmentFlags.UnassignedItem,
             Demonstration.EyeDoor or Demonstration.Kraid => (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
             Demonstration.GauntletEntrance or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump or
             Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => bombAbilities,

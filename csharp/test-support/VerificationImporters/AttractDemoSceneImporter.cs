@@ -40,7 +40,7 @@ internal static class AttractDemoSceneImporter
             Room(AttractDemoSceneRoomFields.Duration),
             AttractDemoNativeWords.RoomSetups.Decode(Room(AttractDemoSceneRoomFields.Setup), "demo room setup"),
             AttractDemoNativeWords.SamusSetups.Decode(setup, "demo Samus setup"),
-            (SamusEquipmentFlags)(Equipment(AttractDemoSceneEquipmentFields.Items)), Equipment(AttractDemoSceneEquipmentFields.Missiles),
+            SamusEquipmentWordCodec.FromEquipmentWord(Equipment(AttractDemoSceneEquipmentFields.Items)), Equipment(AttractDemoSceneEquipmentFields.Missiles),
             Equipment(AttractDemoSceneEquipmentFields.SuperMissiles), Equipment(AttractDemoSceneEquipmentFields.PowerBombs),
             Equipment(AttractDemoSceneEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),
             (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.EquippedBeams)),

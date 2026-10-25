@@ -359,8 +359,8 @@ internal sealed class SamusPresentation
                 // according to BOTH halves of Y speed. `$37/$38` test Spring Ball bit $0002
                 // and use this command to finish ordinary morph entry without guessing
                 // whether the transition walked off a ledge.
-                SamusEquipmentFlags itemMask = (SamusEquipmentFlags)SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
-                bool itemEquipped = (samus.EquippedItems & itemMask) != 0;
+                ushort itemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
+                bool itemEquipped = (samus.EquippedItems.ToEquipmentWord() & itemMask) != 0;
                 bool movingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
                 ushort targetOffset = itemEquipped
                     ? movingVertically ? (ushort)6 : (ushort)5
@@ -397,8 +397,8 @@ internal sealed class SamusPresentation
                 // mask is followed by unequipped/equipped pose bytes. Poses `$3F/$40` are
                 // the only retail users (Spring Ball-aware Morph Ball selection), but the
                 // command still publishes through the ordinary transitional-pose seam.
-                SamusEquipmentFlags fcItemMask = (SamusEquipmentFlags)SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
-                bool fcItemEquipped = (samus.EquippedItems & fcItemMask) != 0;
+                ushort fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
+                bool fcItemEquipped = (samus.EquippedItems.ToEquipmentWord() & fcItemMask) != 0;
                 samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(samus, 
                     unchecked((ushort)(samus.AnimationFrame + (fcItemEquipped ? 4 : 3))));
                 return;

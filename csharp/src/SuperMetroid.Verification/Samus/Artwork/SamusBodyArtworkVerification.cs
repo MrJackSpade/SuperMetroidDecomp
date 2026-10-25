@@ -263,11 +263,11 @@ internal static class SamusBodyArtworkVerification
             };
             var nativeSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = (SamusEquipmentFlags)equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
             };
             var installedSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = (SamusEquipmentFlags)equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
             };
             nativeSamus.DeathSequence.Begin(nativeSamus, Position16<RoomPixels>.Zero);
             installedSamus.DeathSequence.Begin(installedSamus, Position16<RoomPixels>.Zero);

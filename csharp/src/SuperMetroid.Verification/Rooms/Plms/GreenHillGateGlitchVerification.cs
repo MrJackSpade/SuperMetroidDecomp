@@ -100,9 +100,7 @@ internal static class GreenHillGateGlitchVerification
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MovingLeftGunExtendedPose;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        samus.EquippedItems = (SamusEquipmentFlags)((ushort)(
-            SamusEquipmentFlags.GrappleBeam |
-            SamusEquipmentFlags.SpeedBooster));
+        samus.EquippedItems = (SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.SpeedBooster);
         samus.SelectedHudItem = HudItem.Grapple;
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(checked((ushort)baseSpeed), 0);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(4, 0);

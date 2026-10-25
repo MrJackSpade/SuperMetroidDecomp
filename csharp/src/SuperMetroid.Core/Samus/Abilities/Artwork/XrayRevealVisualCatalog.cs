@@ -25,7 +25,7 @@ public sealed class XrayRevealVisualCatalog
 
     /// <summary>Each collision type's position in <see cref="TypeOrder"/>.</summary>
     private static readonly FrozenDictionary<RoomCollisionType, int> TypePosition =
-        TypeOrder.Select((type, position) => (type, position)).ToFrozenDictionary(entry => entry.type, entry => entry.position);
+        Enumerable.Range(0, TypeOrder.Length).ToFrozenDictionary(position => TypeOrder[position]);
 
     /// <summary>Installed visual operands indexed by collision type and BTS byte.</summary>
     /// <remarks>

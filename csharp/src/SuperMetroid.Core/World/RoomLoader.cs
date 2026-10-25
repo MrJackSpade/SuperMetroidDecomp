@@ -12,6 +12,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -430,7 +431,7 @@ internal sealed class RoomLoader
         bool suppressBg1 = sourceIsolated || destinationIsolated;
         _room.DoorTransitionMainScreenLayers = suppressBg1
             ? ScreenLayers.Sprites
-            : ScreenLayers.Bg1 | ScreenLayers.Sprites;
+            : ScreenLayers.Foreground | ScreenLayers.Sprites;
     }
 
     /// <summary>Returns main-screen ownership to the room's ordinary gameplay IRQ.</summary>

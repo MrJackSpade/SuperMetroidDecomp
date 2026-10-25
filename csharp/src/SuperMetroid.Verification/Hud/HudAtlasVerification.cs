@@ -133,7 +133,7 @@ internal static class HudAtlasVerification
             Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().Words, runtime.ComposedVram(),
                 runtime.Colours.Colors);
             var layer = new OrdinaryGameplayRenderLayer(new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
-                new Extent16<TilemapCells>(32, 32), ScreenLayers.Bg3), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
+                new Extent16<TilemapCells>(32, 32), ScreenLayers.Overlay), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Colours.Colors, []),
                 new RenderLayer[] { layer }, FadeLevel.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];

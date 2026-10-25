@@ -39,7 +39,7 @@ internal static class GameplaySnapshotTestsVerification
             AssertTrue(scrolls.At(line, default) == new Position16<Bg2Pixels>((ushort)(65535 - line * 7), (ushort)(line * 19)),
                 $"gameplay line {line} keeps its captured BG2 scroll");
         var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-            new Extent16<TilemapCells>(64, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
+            new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         var layer = new OrdinaryGameplayRenderLayer(registers, rooms, scrolls);
         AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
             "reject partial gameplay HDMA");

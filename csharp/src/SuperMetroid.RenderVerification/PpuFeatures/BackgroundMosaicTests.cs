@@ -43,8 +43,8 @@ internal static class BackgroundMosaicTests
         foreach (int mode in Enumerable.Range(0, 4))
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Bg2) |
-                    (mode == 3 ? ScreenLayers.Bg1 : ScreenLayers.None),
+                ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Background) |
+                    (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
                 Bg2Mosaic: new(size));
             var ordinary = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2LineScrolls(horizontal, vertical));
             RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithSubscreen = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);

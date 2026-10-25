@@ -32,7 +32,7 @@ internal static class MotherBrainAscentMaskTests
         oam[0] = 16; oam[1] = 212; oam[2] = 3; oam[3] = 0x30;
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-            ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
+            ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         ScreenLayers[] masks = Enumerable.Range(32, 192).Select(y => (ScreenLayers)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();
         foreach (bool active in new[] { true, false })
         {

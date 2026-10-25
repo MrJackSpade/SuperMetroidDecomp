@@ -14,10 +14,10 @@ internal static class MotherBrainAscentDisplayDefinitions
         var layers = new ScreenLayers[SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels];
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
             layers[y - SnesPpuLayout.GameplayHudHeightPixels] = y < UpperBandEnd
-                ? ScreenLayers.Bg1 | ScreenLayers.Bg3 | ScreenLayers.Sprites
+                ? ScreenLayers.Foreground | ScreenLayers.Overlay | ScreenLayers.Sprites
                 : y < FloorBandStart
-                    ? ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites
-                    : ScreenLayers.Bg1 | ScreenLayers.Bg3;
+                    ? ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites
+                    : ScreenLayers.Foreground | ScreenLayers.Overlay;
         return layers;
     }
 }

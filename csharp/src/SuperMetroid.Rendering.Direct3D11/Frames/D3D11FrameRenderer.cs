@@ -331,7 +331,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
                 ? r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line];
             // Draygon's room hides layer 2 outside its band even while the X-ray blends.
-            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~ScreenLayers.Bg2;
+            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~ScreenLayers.Background;
             data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
             if (layer.Subscreen is { } bg3)
                 data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
@@ -410,12 +410,12 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         void Background1(bool high)
         {
-            if ((activeLayers & ScreenLayers.Bg1) != 0)
+            if ((activeLayers & ScreenLayers.Foreground) != 0)
                 DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, D3D11Screen.LayerLineOffset), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
-            if ((activeLayers & ScreenLayers.Bg2) != 0) DispatchRoomLayer2(layer, high, first, end);
+            if ((activeLayers & ScreenLayers.Background) != 0) DispatchRoomLayer2(layer, high, first, end);
         }
     }
 

@@ -54,8 +54,7 @@ public sealed class EndingObjectArtworkCatalog
                 !HasRequiredLength(fragment, EndingObjectTransfer.ExplosionFragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         this.fragments = parts.Fragments.ToArray();
-        fragmentsById = Enum.GetValues<EndingObjectFragmentId>().Zip(fragments)
-            .ToDictionary(pair => pair.First, pair => pair.Second);
+        fragmentsById = Enum.GetValues<EndingObjectFragmentId>().Zip(fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
     }
 
     /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>

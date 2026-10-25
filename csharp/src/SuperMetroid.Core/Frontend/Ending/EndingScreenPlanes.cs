@@ -36,7 +36,7 @@ internal static class EndingScreenPlanes
                     break;
                 case EndingPlane.Logo:
                     if (upload.Kind == EndingUploadKind.PostShotTransfer &&
-                        EndingPostShotUploadDefinitions.Get(upload.Key) is { Source: EndingPostShotUploadSource.LogoMap } logoMap)
+                        EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk) is { Source: EndingPostShotUploadSource.LogoMap } logoMap)
                         Load(Objects(objects).PostShotLogoMap.Bytes.Span[..logoMap.Length], words);
                     break;
                 case EndingPlane.WavySamus:
@@ -52,7 +52,7 @@ internal static class EndingScreenPlanes
 
     /// <summary>Whether <paramref name="upload"/> writes the text tilemap <paramref name="tilemap"/>.</summary>
     private static bool IsText(EndingUpload upload, EndingTextTilemap tilemap) =>
-        upload.Kind == EndingUploadKind.TextTilemap && upload.Subject is EndingTextTilemap written && written == tilemap;
+        upload is EndingTextTilemapUpload written && written.Tilemap == tilemap;
 
     /// <summary>The words the explosion's <paramref name="fragment"/> map holds once <paramref name="uploads"/> have been made.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
@@ -61,15 +61,19 @@ internal static class EndingScreenPlanes
         var words = new ushort[Cells];
         foreach (EndingUpload upload in uploads)
         {
-            if (upload.Kind == EndingUploadKind.ObjectFragment && upload.Subject is EndingObjectFragmentId loaded && loaded == fragment)
+            if (upload is EndingObjectFragmentUpload loaded && loaded.Fragment == fragment)
                 Load(Objects(objects).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes], words);
         }
         return words;
     }
 
     /// <summary>The tilemap words a tilemap upload recorded.</summary>
-    private static ReadOnlySpan<ushort> Words(EndingUpload upload) =>
-        upload.Words ?? throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words.");
+    private static ReadOnlySpan<ushort> Words(EndingUpload upload) => upload switch
+    {
+        EndingTilemapUpload tilemap => tilemap.Words,
+        EndingTextTilemapUpload text => text.Words,
+        _ => throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words."),
+    };
 
     /// <summary>Loads little-endian words over the start of <paramref name="words"/>.</summary>
     private static void Load(ReadOnlySpan<byte> littleEndianWords, Span<ushort> words)

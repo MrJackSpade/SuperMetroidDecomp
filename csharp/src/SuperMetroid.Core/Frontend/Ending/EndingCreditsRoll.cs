@@ -165,7 +165,7 @@ internal sealed class EndingCreditsRoll
     {
         // E504 copies the same staging map into the lower screen before the logo
         // actors enter. Subsequent percentage writes target the upper screen again.
-        screen.Record(EndingUploadKind.PostShotLowerTilemap, 0, postCreditsTilemap);
+        screen.Record(EndingUploadKind.PostShotLowerTilemap, postCreditsTilemap);
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(screen.Palette,

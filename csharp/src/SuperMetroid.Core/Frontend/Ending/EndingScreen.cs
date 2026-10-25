@@ -79,25 +79,28 @@ internal sealed class EndingScreen
         return shown;
     }
 
-    /// <summary>Records a transfer of installed artwork.</summary>
-    public void Record(EndingUploadKind kind, int key) => Record(new EndingUpload(kind, key, null));
+    /// <summary>Records a transfer of the whole installed sheet <paramref name="sheet"/>.</summary>
+    public void Record(EndingUploadKind sheet) => Record(new EndingSheetUpload(sheet));
+
+    /// <summary>Records a transfer of chunk <paramref name="chunk"/> of installed artwork.</summary>
+    public void Record(EndingUploadKind kind, int chunk) => Record(new EndingChunkUpload(kind, chunk));
 
     /// <summary>Records a tilemap transfer of <paramref name="words"/>, copying them as they are now.</summary>
-    public void Record(EndingUploadKind kind, int key, ReadOnlySpan<ushort> words) => Record(new EndingUpload(kind, key, words.ToArray()));
+    public void Record(EndingUploadKind kind, ReadOnlySpan<ushort> words) => Record(new EndingTilemapUpload(kind, words.ToArray()));
 
     /// <summary>Records the transfer of the installed floor scene <paramref name="scene"/>.</summary>
-    public void Record(EndingFloorSceneId scene) => Record(new EndingUpload(EndingUploadKind.FloorSceneTiles, 0, null, scene));
+    public void Record(EndingFloorSceneId scene) => Record(new EndingFloorSceneUpload(scene));
 
     /// <summary>Records the transfer of the installed explosion map <paramref name="fragment"/>.</summary>
-    public void Record(EndingObjectFragmentId fragment) => Record(new EndingUpload(EndingUploadKind.ObjectFragment, 0, null, fragment));
+    public void Record(EndingObjectFragmentId fragment) => Record(new EndingObjectFragmentUpload(fragment));
 
     /// <summary>Records a transfer of <paramref name="words"/> to the text tilemap <paramref name="tilemap"/>, copying them as they are now.</summary>
     internal void Record(EndingTextTilemap tilemap, ReadOnlySpan<ushort> words) =>
-        Record(new EndingUpload(EndingUploadKind.TextTilemap, 0, words.ToArray(), tilemap));
+        Record(new EndingTextTilemapUpload(tilemap, words.ToArray()));
 
     /// <summary>How many of the logo's character chunks the post-shot has shown.</summary>
-    internal int LogoChunksShown => uploads.Count(upload => upload.Kind == EndingUploadKind.PostShotTransfer &&
-        EndingPostShotUploadDefinitions.Get(upload.Key).Source == EndingPostShotUploadSource.LogoTiles);
+    internal int LogoChunksShown => uploads.Count(upload => upload is EndingChunkUpload { Kind: EndingUploadKind.PostShotTransfer } transfer &&
+        EndingPostShotUploadDefinitions.Get(transfer.Chunk).Source == EndingPostShotUploadSource.LogoTiles);
 
     /// <summary>Forgets what the screen shows after the bound artwork changes.</summary>
     public void Invalidate()

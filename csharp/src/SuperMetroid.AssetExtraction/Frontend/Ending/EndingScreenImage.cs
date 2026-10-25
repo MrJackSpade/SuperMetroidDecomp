@@ -29,14 +29,14 @@ internal static class EndingScreenImage
         switch (upload.Kind)
         {
             case EndingUploadKind.FloorSceneTiles:
-                EndingFloorSceneArtwork scene = Mode7(artwork)[(EndingFloorSceneId)upload.Key];
+                EndingFloorSceneArtwork scene = Mode7(artwork)[upload.As<EndingFloorSceneUpload>().Scene];
                 var floor = new Mode7Vram(vram);
                 floor.LoadMap(scene.Map.Span);
                 floor.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
                 floor.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
                 break;
             case EndingUploadKind.FlyawayChunk:
-                ReplayFlyawayChunk(vram, upload.Key, artwork);
+                ReplayFlyawayChunk(vram, upload.As<EndingChunkUpload>().Chunk, artwork);
                 break;
             case EndingUploadKind.EscapeClouds:
                 ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Characters.Span[..EndingArtworkExtentDefinitions.FloorBytes]);
@@ -45,7 +45,7 @@ internal static class EndingScreenImage
                 ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingArtworkExtentDefinitions.ExplosionObjectBytes]);
                 break;
             case EndingUploadKind.ObjectFragment:
-                var fragment = (EndingObjectFragmentId)upload.Key;
+                EndingObjectFragmentId fragment = upload.As<EndingObjectFragmentUpload>().Fragment;
                 ending.ObjectFragment(fragment).Load(Objects(artwork).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes]);
                 break;
             case EndingUploadKind.EndingFont:
@@ -61,20 +61,20 @@ internal static class EndingScreenImage
                 ending.CreditsTilemap.Write(Words(upload));
                 break;
             case EndingUploadKind.TextTilemap:
-                vram.ExecuteWordTransfer(Words(upload), EndingVram.TextTilemapWord((EndingTextTilemap)upload.Key), wordIncrement: 1);
+                vram.ExecuteWordTransfer(Words(upload), EndingVram.TextTilemapWord(upload.As<EndingTextTilemapUpload>().Tilemap), wordIncrement: 1);
                 break;
             case EndingUploadKind.PostShotLowerTilemap:
                 ending.PostShotLowerTilemap.Write(Words(upload));
                 break;
             case EndingUploadKind.RewardChunk:
                 // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
-                int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.Key);
-                vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.Key) * sizeof(ushort),
+                int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.As<EndingChunkUpload>().Chunk);
+                vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.As<EndingChunkUpload>().Chunk) * sizeof(ushort),
                     EndingRewardIconCharacters.Of(Mode7(artwork).RewardIcon).Bytes.Span.Slice(source,
                         EndingRewardGraphicsUploadDefinitions.ChunkBytes));
                 break;
             case EndingUploadKind.PostShotTransfer:
-                ReplayPostShotTransfer(vram, upload.Key, artwork);
+                ReplayPostShotTransfer(vram, upload.As<EndingChunkUpload>().Chunk, artwork);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(upload), upload.Kind, "Undefined ending upload.");
@@ -134,8 +134,12 @@ internal static class EndingScreenImage
     }
 
     /// <summary>The tilemap words a tilemap transfer recorded.</summary>
-    private static ReadOnlySpan<ushort> Words(EndingUpload upload) =>
-        upload.Words ?? throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words.");
+    private static ReadOnlySpan<ushort> Words(EndingUpload upload) => upload switch
+    {
+        EndingTilemapUpload tilemap => tilemap.Words,
+        EndingTextTilemapUpload text => text.Words,
+        _ => throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words."),
+    };
 
     /// <summary>The bound Mode 7 artwork.</summary>
     private static EndingFloorArtworkCatalog Mode7(EndingScreenArtwork artwork) =>

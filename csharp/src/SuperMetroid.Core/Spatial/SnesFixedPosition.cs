@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Spatial;
 [SnesEncodingOwner]
 public readonly record struct SnesFixedPosition([property: IntegerQuantity("whole-pixel coordinate")] ushort Whole, ushort Fraction)
 {
+    /// <summary>The position with a whole word and a fraction word that must each be 0 through 65535.</summary>
+    public static SnesFixedPosition Of(int whole, int fraction) => new(checked((ushort)whole), checked((ushort)fraction));
+
     /// <summary>The whole-pixel word of a native 16.16 value: its upper sixteen bits, whatever its sign.</summary>
     public static ushort WholeOf(int rawValue) => unchecked((ushort)(rawValue >> 16));
 

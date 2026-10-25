@@ -15,6 +15,9 @@ public readonly record struct Position16<TSpace>([property: IntegerQuantity("hor
     /// <summary>The origin.</summary>
     public static Position16<TSpace> Zero => default;
 
+    /// <summary>The position at two coordinates that must already be sixteen-bit words, 0 through 65535.</summary>
+    public static Position16<TSpace> Of(int x, int y) => new(checked((ushort)x), checked((ushort)y));
+
     /// <summary>Replaces the X axis with a coordinate that must already be a sixteen-bit word.</summary>
     public Position16<TSpace> WithX(int x) => this with { X = checked((ushort)x) };
 

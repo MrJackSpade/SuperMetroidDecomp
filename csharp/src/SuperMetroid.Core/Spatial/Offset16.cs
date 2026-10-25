@@ -17,6 +17,9 @@ public readonly record struct Offset16<TSpace>(short X, short Y)
     /// <summary>No displacement.</summary>
     public static Offset16<TSpace> Zero => default;
 
+    /// <summary>The displacement by two amounts that must fit the signed sixteen-bit range, -32768 through 32767.</summary>
+    public static Offset16<TSpace> Of(int x, int y) => new(checked((short)x), checked((short)y));
+
     /// <summary>Replaces the X axis with a displacement that must fit the signed sixteen-bit range.</summary>
     public Offset16<TSpace> WithX(int x) => this with { X = checked((short)x) };
 

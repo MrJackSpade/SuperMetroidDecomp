@@ -288,8 +288,8 @@ public static class EnemyTileArtworkFiles
             motherBrainSpecialHashes.Add(sheet.SourceAddress,
                 Convert.ToHexString(SHA256.HashData(png)));
         }
-        byte[] upperKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.UpperTilemap);
-        byte[] lowerKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.LowerTilemap);
+        byte[] upperKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.UpperBodyTilemap);
+        byte[] lowerKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.LowerBodyTilemap);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
             upperKraid);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
@@ -298,8 +298,8 @@ public static class EnemyTileArtworkFiles
         foreach (KraidHeadFrame head in KraidHeadFrame.ByMouthStage)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                KraidBackgroundRomData.NativeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
-                KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
+                KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
+                KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort));
             byte[] json = KraidHeadTilemapAtlas.Encode(native);
             File.WriteAllBytes(Path.Combine(directory,
                 KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
@@ -870,7 +870,7 @@ public static class EnemyTileArtworkFiles
         {
             roomBackground = RoomCharacterAtlasPng.Read(
                 new MemoryStream(roomBackgroundPng, writable: false),
-                KraidBackgroundRomData.RoomBackgroundTileBytes);
+                KraidSourceDefinitions.RoomBackgroundTileBytes);
         }
         catch (InvalidDataException error)
         {
@@ -1151,7 +1151,7 @@ public static class EnemyTileArtworkFiles
             {
                 return RoomBackgroundTilemapAtlas.Load(
                     new MemoryStream(selected, writable: false),
-                    KraidBackgroundRomData.DecompressedTilemapBytes);
+                    KraidBackgroundDefinitions.SourceTilemapBytes);
             }
             catch (InvalidDataException error)
             {
@@ -1253,7 +1253,7 @@ public static class EnemyTileArtworkFiles
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
         byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
-            KraidBackgroundRomData.DecompressedTilemapBytes);
+            KraidBackgroundDefinitions.SourceTilemapBytes);
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 
@@ -1261,10 +1261,10 @@ public static class EnemyTileArtworkFiles
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            KraidBackgroundRomData.RoomBackgroundTileAddress,
-            KraidBackgroundRomData.RoomBackgroundTileBytes);
+            KraidSourceDefinitions.RoomBackgroundTiles,
+            KraidSourceDefinitions.RoomBackgroundTileBytes);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-            KraidBackgroundRomData.RoomBackgroundTileBytes /
+            KraidSourceDefinitions.RoomBackgroundTileBytes /
                 RoomCharacterAtlasFormat.BytesPerTile,
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
@@ -1272,7 +1272,7 @@ public static class EnemyTileArtworkFiles
         byte[] encoded = png.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(encoded, writable: false),
-            KraidBackgroundRomData.RoomBackgroundTileBytes);
+            KraidSourceDefinitions.RoomBackgroundTileBytes);
         if (!roundtrip.Characters.Span.SequenceEqual(planar))
             throw new InvalidDataException("Kraid room-background PNG changed native tile bytes.");
         return encoded;

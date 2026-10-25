@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Hardware;
@@ -43,9 +44,9 @@ internal static class DmaArtworkBoundaryVerification
         upload();
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteQueued(expected, reference,
-            KraidBackgroundRomData.RoomBackgroundTileAddress,
-            KraidBackgroundRomData.RoomBackgroundTileBytes,
-            KraidBackgroundRomData.RoomBackgroundTileVramWord);
+            KraidSourceDefinitions.RoomBackgroundTiles,
+            KraidSourceDefinitions.RoomBackgroundTileBytes,
+            KraidBackgroundDefinitions.RoomBackgroundTileVramWord);
         AssertTrue(BgArtworkFixtures.ComposedVram(background).ImageEquals(expected),
             "Kraid background characters use installed art with exact native VRAM placement");
         enemies.BossArtwork = null;
@@ -60,13 +61,13 @@ internal static class DmaArtworkBoundaryVerification
             var state = new KraidEnemyState();
             enemies.KraidBehavior.Access.Kraid = state;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
-            for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount; quarter++)
+            for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount; quarter++)
             {
                 restore(body, state, quarter, KraidAiFunction.DeathFadeInBackground);
                 ImportedVramOracle.ExecuteQueued(expected, reference,
-                    KraidBackgroundRomDataConstants.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3QuarterBytes,
-                    KraidBackgroundRomData.StandardBg3QuarterBytes,
-                    (ushort)(KraidBackgroundRomData.StandardBg3VramWord + quarter * KraidBackgroundRomData.StandardBg3QuarterBytes / 2));
+                    KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress + quarter * KraidHudRestoration.QuarterBytes,
+                    KraidHudRestoration.QuarterBytes,
+                    (ushort)(KraidBackgroundDefinitions.StandardBg3VramWord + quarter * KraidHudRestoration.QuarterBytes / 2));
                 AssertTrue(BgArtworkFixtures.ComposedVram(actual).ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference");
                 AssertEqual(quarter + 1, state.RestoredBg3Quarters, "Kraid retains the four-frame restoration cadence");

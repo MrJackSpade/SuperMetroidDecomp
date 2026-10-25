@@ -30,7 +30,7 @@ public sealed class KraidHeadTilemapAtlas
             document.Width != KraidHeadTilemapFormat.Width ||
             document.Height != KraidHeadTilemapFormat.Height ||
             document.Cells is null ||
-            document.Cells.Length != KraidBackgroundRomData.HeadTilemapWords)
+            document.Cells.Length != KraidBackgroundDefinitions.HeadImageCells)
             throw new InvalidDataException("Kraid head tilemap must have 32 by 11 ordered cells.");
 
         var words = new ushort[document.Cells.Length];
@@ -58,9 +58,9 @@ public sealed class KraidHeadTilemapAtlas
     /// <exception cref="InvalidDataException">The source length is incorrect or the JSON round-trip changes a native tile word.</exception>
     public static byte[] Encode(ReadOnlySpan<byte> native)
     {
-        if (native.Length != KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort))
+        if (native.Length != KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort))
             throw new InvalidDataException("Kraid head tilemap source has wrong length.");
-        var cells = new RoomBackgroundTilemapCell[KraidBackgroundRomData.HeadTilemapWords];
+        var cells = new RoomBackgroundTilemapCell[KraidBackgroundDefinitions.HeadImageCells];
         for (int index = 0; index < cells.Length; index++)
         {
             var word = new SnesBgTilemapWord(

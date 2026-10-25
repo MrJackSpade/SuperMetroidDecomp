@@ -142,7 +142,7 @@ internal sealed class KraidRise
     {
         KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter,
+        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
             art.RoomBackgroundTiles.Characters.Span);
     }
 

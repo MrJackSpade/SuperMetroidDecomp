@@ -244,15 +244,15 @@ internal static class TileWordSheetComposer
     private static IEnumerable<NamedPart> KraidParts(KraidBackgroundArtwork art)
     {
         ushort[] working = KraidBodyTilemap.ComposeWorkingMap(art);
-        ushort[] upper = working[..KraidBackgroundRomData.VisiblePageWords];
-        ushort[] lower = working.AsSpan(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords).ToArray();
+        ushort[] upper = working[..KraidBackgroundDefinitions.PageCells];
+        ushort[] lower = working.AsSpan(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells).ToArray();
         yield return new NamedPart("Upper", Rows(upper));
         yield return new NamedPart("UpperPriority", Rows(WithPriority(upper)));
         yield return new NamedPart("Lower", Rows(lower));
         yield return new NamedPart("LowerPriority", Rows(WithPriority(lower)));
         foreach ((int mouthStage, KraidHeadTilemapAtlas head) in art.Heads.OrderBy(entry => entry.Key))
             yield return new NamedPart($"Head{mouthStage}", Rows(head.Words.ToArray()));
-        yield return Fill(KraidBackgroundRomData.BlankTile);
+        yield return Fill(KraidBackgroundDefinitions.BlankTile);
     }
 
     /// <summary>
@@ -404,7 +404,7 @@ internal static class TileWordSheetComposer
     }
 
     /// <summary><paramref name="words"/> with BG2 priority set, as Kraid shows his body once grown.</summary>
-    private static ushort[] WithPriority(ushort[] words) => [.. words.Select(word => (ushort)(word | KraidBackgroundRomData.PriorityBit))];
+    private static ushort[] WithPriority(ushort[] words) => [.. words.Select(word => (ushort)(word | SnesBgTilemapWord.PriorityMask))];
 
     /// <summary>The failure for a writer whose installed artwork is missing.</summary>
     private static InvalidDataException Missing(TileWordWriter writer) => new($"The installed enemy artwork has no {writer} body.");

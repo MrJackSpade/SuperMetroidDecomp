@@ -30,7 +30,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             var words = new byte[replacement.Length * sizeof(ushort)];
             for (int word = 0; word < replacement.Length; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(word * 2),
-                    (ushort)(replacement[word] ^ KraidBackgroundRomData.PriorityBit));
+                    (ushort)(replacement[word] ^ SnesBgTilemapWord.PriorityMask));
             File.WriteAllBytes(Path.Combine(overrides, KraidBackgroundArtworkFormat.HeadFileNameAt(pointers[index])),
                 KraidHeadTilemapAtlas.Encode(words));
         }

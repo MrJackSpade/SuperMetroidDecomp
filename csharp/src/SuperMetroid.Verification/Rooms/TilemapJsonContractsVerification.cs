@@ -54,7 +54,7 @@ internal static class TilemapJsonContractsVerification
             }
         }
 
-        byte[] headWords = TilemapContractWords(KraidBackgroundRomData.HeadTilemapWords);
+        byte[] headWords = TilemapContractWords(KraidBackgroundDefinitions.HeadImageCells);
         string headJson = Encoding.UTF8.GetString(KraidHeadTilemapAtlas.Encode(headWords));
         void LoadHead(string text)
         {

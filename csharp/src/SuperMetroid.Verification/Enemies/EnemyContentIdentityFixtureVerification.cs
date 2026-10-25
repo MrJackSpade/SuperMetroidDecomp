@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.World.Artwork;
@@ -174,12 +175,12 @@ internal static class EnemyContentIdentityFixtureVerification
                 KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
-                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidBackgroundRomData.HeadTilemapWords),
+                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidBackgroundDefinitions.HeadImageCells),
                 }))),
                 KeyValuePair.Create(1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
-                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidBackgroundRomData.HeadTilemapWords),
+                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidBackgroundDefinitions.HeadImageCells),
                 }))),
             });
             var meltFirstMap = MeltMap("melt-first-map");
@@ -222,9 +223,9 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("speed", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
                 new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount), CrocomireMeltingArtworkFormat.FirstByteCount),
-                    RoomCharacterAtlasPng.Read(Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
-                    Map("kraid-lower", KraidBackgroundRomData.DecompressedTilemapBytes), heads,
-                    Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
+                    RoomCharacterAtlasPng.Read(Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundDefinitions.SourceTilemapBytes),
+                    Map("kraid-lower", KraidBackgroundDefinitions.SourceTilemapBytes), heads,
+                    Characters("kraid-background", KraidSourceDefinitions.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
                     new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPalettes.ColorCount(KraidPaletteSource.RoomBackdrop)),
                     new EnemyContentIdentityFixtureField("initialTarget", 0, KraidPalettes.ColorCount(KraidPaletteSource.InitialTarget)),
                     new EnemyContentIdentityFixtureField("health", 0, KraidPalettes.ColorCount(KraidPaletteSource.Health)),

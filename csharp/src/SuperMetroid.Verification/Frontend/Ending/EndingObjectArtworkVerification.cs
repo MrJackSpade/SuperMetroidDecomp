@@ -49,13 +49,13 @@ internal static class EndingObjectArtworkVerification
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load), "native fragment bank LDA");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
             int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
-            AssertEqual(source, EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), "native fragment compressed source");
+            AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName(invalid), "fragment filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)invalid), "fragment source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)invalid), "fragment source bounds");
         }
     }
 
@@ -126,35 +126,35 @@ internal static class EndingObjectArtworkVerification
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingObjectFragmentMetadata), () => VerifyEndingObjectFragmentMetadata(bus));
-        AssertSheet(stock.Clouds, EndingCreditsRomData.Assets.EscapeCloudCharacters,
+        AssertSheet(stock.Clouds, EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount, "clouds");
-        AssertSheet(stock.Explosion, EndingCreditsRomData.Assets.EndingObjectCharacters,
+        AssertSheet(stock.Explosion, EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount, "explosion");
         for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
             AssertSheet(stock.Fragment((EndingObjectFragmentId)index),
-                EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount,
+                EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount,
                 $"explosion fragment {index}");
         AssertSheet(stock.WaitingSamus,
-            EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
+            EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,
             EndingObjectArtworkFormat.RewardByteCount, "waiting Samus");
         AssertSheet(stock.ShootingScreen,
-            EndingCreditsRomData.Assets.ShootingScreenCharacters,
+            EndingSourceDefinitions.Artwork.ShootingScreenCharacters,
             EndingObjectArtworkFormat.RewardByteCount, "shooting screen");
         AssertSheet(stock.SuitlessSamus,
-            EndingCreditsRomData.Assets.SuitlessSamusCharacters,
+            EndingSourceDefinitions.Artwork.SuitlessSamusCharacters,
             EndingObjectArtworkFormat.RewardByteCount, "suitless Samus");
         byte[] nativeWaitingMap = RomDataReader.Decompress(bus,
-            EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
-            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+            EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap,
+            EndingArtworkExtentDefinitions.ObjectFragmentLimit);
         AssertTrue(stock.WaitingTilemap.Bytes.Span.SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");
         AssertSheet(stock.PostCreditsFragmentA,
-            EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
+            EndingSourceDefinitions.Artwork.TransformationCharacters,
             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
             "post-credits fragment A");
         AssertSheet(stock.PostCreditsFragmentB,
-            EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
+            EndingSourceDefinitions.Artwork.TransformationTilemap,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
             "post-credits fragment B");
         AssertSheet(stock.PostShotLogoTiles, EndingSourceDefinitions.Artwork.PostShotLogoTiles,
@@ -162,7 +162,7 @@ internal static class EndingObjectArtworkVerification
             "post-shot logo tiles");
         byte[] nativeLogoMap = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostShotLogoMap,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
+            EndingSourceDefinitions.Artwork.DecompressionLimit);
         AssertTrue(stock.PostShotLogoMap.Bytes.Span.SequenceEqual(
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
             "installed post-shot logo map preserves all native BG2 tile words");
@@ -441,7 +441,7 @@ internal static class EndingObjectArtworkVerification
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
             byte[] native = RomDataReader.Decompress(bus, source,
-                EndingCreditsRomData.Rendering.DecompressionLimit);
+                EndingSourceDefinitions.Artwork.DecompressionLimit);
             AssertTrue(sheet.Characters.Span.SequenceEqual(native.AsSpan(0, bytes)),
                 $"installed ending {name} PNG preserves every native OBJ byte");
         }
@@ -488,19 +488,19 @@ internal static class EndingObjectArtworkVerification
                     return address >= start && address < start + 2 + frame.StockPartCount * 5;
                 }),
             address => $"Ending logo reread installed spritemap ${address:X6}.");
-        guard.Forbid(address => address is EndingCreditsRomData.Assets.EscapeCloudCharacters or
-                EndingCreditsRomData.Assets.EndingObjectCharacters or
-                EndingCreditsRomData.Assets.EndingObjectCharacters70 or
-                EndingCreditsRomData.Assets.EndingObjectCharacters74 or
-                EndingCreditsRomData.Assets.EndingObjectCharacters78 or
-                EndingCreditsRomData.Assets.EndingObjectCharacters7C or
-                EndingCreditsRomData.Assets.WaitingForCreditsCharacters or
-                EndingCreditsRomData.Assets.ShootingScreenCharacters or
-                EndingCreditsRomData.Assets.SuitlessSamusCharacters or
-                EndingCreditsRomData.Assets.WaitingForCreditsTilemap or
-                EndingCreditsRomData.Assets.PostCreditsTileFragmentA or
-                EndingCreditsRomData.Assets.PostCreditsTileFragmentB or
-                EndingCreditsRomData.Assets.PostCreditsFloorCharacters or
+        guard.Forbid(address => address is EndingSourceDefinitions.Artwork.EscapeCloudCharacters or
+                EndingSourceDefinitions.Artwork.ExplosionObjectCharacters or
+                EndingSourceDefinitions.Artwork.WideExplosionTilemap or
+                EndingSourceDefinitions.Artwork.ConcentricExplosionTilemap or
+                EndingSourceDefinitions.Artwork.EclipseTilemap or
+                EndingSourceDefinitions.Artwork.BlankTilemap or
+                EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters or
+                EndingSourceDefinitions.Artwork.ShootingScreenCharacters or
+                EndingSourceDefinitions.Artwork.SuitlessSamusCharacters or
+                EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap or
+                EndingSourceDefinitions.Artwork.TransformationCharacters or
+                EndingSourceDefinitions.Artwork.TransformationTilemap or
+                EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters or
                 EndingSourceDefinitions.Artwork.PostShotLogoTiles or
                 EndingSourceDefinitions.Artwork.PostShotLogoMap,
             address => $"Ending OBJ reread cartridge source ${address:X6}.");

@@ -36,12 +36,12 @@ internal sealed class EndingZebesExplosion
         _artwork.LoadEndingObjectCharacters();
         _stage.LoadStaticPalette(EndingPaletteId.Explosion, screen.Palette.Sprites);
         sprites.Clear();
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionLava, EndingSpriteRole.ExplosionLava);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
+        _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
+        _stage.SpawnSprite(EndingActorDefinitions.ExplosionLava, EndingSpriteRole.ExplosionLava);
+        _stage.SpawnSprite(EndingActorDefinitions.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
+        _stage.SpawnSprite(EndingActorDefinitions.ExplosionStars, EndingSpriteRole.ExplosionStars);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
-        _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
         _stage.FloorAngle = SnesAngle.Zero;
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();

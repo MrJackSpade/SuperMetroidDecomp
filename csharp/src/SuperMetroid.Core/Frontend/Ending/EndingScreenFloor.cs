@@ -15,8 +15,8 @@ internal static class EndingScreenFloor
     internal static byte[] Cells(IReadOnlyList<EndingUpload> uploads, EndingFloorArtworkCatalog? floor, CeresFlightArtworkCatalog? flight)
     {
         var cells = new byte[AffineFloor.CellCount];
-        int chunkBytes = EndingCreditsRomData.Rendering.FlyawayChunkBytes;
-        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / chunkBytes;
+        int chunkBytes = EndingArtworkExtentDefinitions.FlyawayChunkBytes;
+        int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / chunkBytes;
         foreach (EndingUpload upload in uploads)
         {
             switch (upload.Kind)
@@ -62,9 +62,9 @@ internal static class EndingScreenFloor
     private static byte[] FlyawayMap(CeresFlightArtworkCatalog? flight)
     {
         CeresFlightArtworkCatalog content = flight ?? throw new InvalidOperationException("Ending flyaway requires installed flight artwork.");
-        var map = new byte[EndingCreditsRomData.Rendering.FloorBytes];
-        content.FloorMaps.Span[..EndingCreditsRomData.Rendering.FlyawayMapDataBytes].CopyTo(map);
-        map.AsSpan(EndingCreditsRomData.Rendering.FlyawayMapDataBytes).Fill(EndingCreditsRomData.Rendering.FlyawayBlankTile);
+        var map = new byte[EndingArtworkExtentDefinitions.FloorBytes];
+        content.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
+        map.AsSpan(EndingArtworkExtentDefinitions.FlyawayMapDataBytes).Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
         return map;
     }
 

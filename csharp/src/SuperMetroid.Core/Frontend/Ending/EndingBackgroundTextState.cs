@@ -48,7 +48,7 @@ internal sealed class EndingBackgroundTextState
     public EndingBackgroundTextState(EndingBackgroundTextSetup setup)
     {
         this.tilemap = Ensure.NotNull(setup.Tilemap);
-        Ensure.LengthEqual(setup.Tilemap, EndingCreditsRomData.Rendering.TilemapWords);
+        Ensure.LengthEqual(setup.Tilemap, EndingScreenDefinitions.TilemapWords);
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
         this.destinationTilemap = setup.DestinationTilemap;
@@ -114,8 +114,8 @@ internal sealed class EndingBackgroundTextState
             DrawItemPercentage();
             if (japaneseText)
                 Presentation.JapaneseSubtitle.CopyTo(tilemap.AsSpan(
-                    EndingCreditsRomData.Text.JapaneseSubtitleFirstCell,
-                    EndingCreditsRomData.Text.JapaneseSubtitleWords));
+                    EndingResultTextLayout.JapaneseSubtitleFirstCell,
+                    EndingResultTextLayout.JapaneseSubtitleWords));
             installedHoldStarted = true;
             InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
             Upload(screen);
@@ -123,9 +123,9 @@ internal sealed class EndingBackgroundTextState
         }
         if (installedSequence == EndingTextSequence.ItemPercentage)
         {
-            Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile,
-                EndingCreditsRomData.Text.JapaneseSubtitleFirstCell,
-                EndingCreditsRomData.Text.JapaneseSubtitleWords);
+            Array.Fill(tilemap, EndingScreenDefinitions.BlankTile,
+                EndingResultTextLayout.JapaneseSubtitleFirstCell,
+                EndingResultTextLayout.JapaneseSubtitleWords);
             RequestedItemPercentageScroll = true;
         }
         Completed = true;
@@ -141,33 +141,33 @@ internal sealed class EndingBackgroundTextState
                   + inventory.MaxSuperMissiles / 5
                   + inventory.MaxPowerBombs / 5;
         count += BitOperations.PopCount(
-            (inventory.CollectedItems & EndingCreditsRomData.Text.CollectibleItemMask).ToNativeWord());
+            (inventory.CollectedItems & EndingResultTextLayout.CollectibleItemMask).ToNativeWord());
         count += BitOperations.PopCount(
-            (inventory.CollectedBeams & EndingCreditsRomData.Text.CollectibleBeamMask).ToNativeWord());
+            (inventory.CollectedBeams & EndingResultTextLayout.CollectibleBeamMask).ToNativeWord());
         count = Math.Clamp(count, 0, 100);
 
         int hundreds = count / 100;
         int tens = count / 10 % 10;
         int units = count % 10;
         if (hundreds != 0)
-            WriteDigit(EndingCreditsRomData.Text.PercentageHundredsTopIndex, hundreds);
+            WriteDigit(EndingResultTextLayout.PercentageHundredsTopIndex, hundreds);
         if (tens != 0 || hundreds != 0)
-            WriteDigit(EndingCreditsRomData.Text.PercentageHundredsTopIndex + 1, tens);
-        WriteDigit(EndingCreditsRomData.Text.PercentageHundredsTopIndex + 2, units);
-        tilemap[EndingCreditsRomData.Text.PercentageHundredsTopIndex + 3] =
-            EndingCreditsRomData.Text.PercentTopTile;
+            WriteDigit(EndingResultTextLayout.PercentageHundredsTopIndex + 1, tens);
+        WriteDigit(EndingResultTextLayout.PercentageHundredsTopIndex + 2, units);
+        tilemap[EndingResultTextLayout.PercentageHundredsTopIndex + 3] =
+            EndingResultTextLayout.PercentTopTile;
         tilemap[
-            EndingCreditsRomData.Text.PercentageHundredsTopIndex + 3 +
-            EndingCreditsRomData.Rendering.TilemapWidth] =
-            EndingCreditsRomData.Text.PercentBottomTile;
+            EndingResultTextLayout.PercentageHundredsTopIndex + 3 +
+            EndingScreenDefinitions.TilemapWidth] =
+            EndingResultTextLayout.PercentBottomTile;
     }
 
     /// <summary>Writes one decimal digit's top and bottom native BG words.</summary>
     private void WriteDigit(int topIndex, int digit)
     {
-        tilemap[topIndex] = unchecked((ushort)(EndingCreditsRomData.Text.DigitTopTile + digit));
-        tilemap[topIndex + EndingCreditsRomData.Rendering.TilemapWidth] =
-            unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
+        tilemap[topIndex] = unchecked((ushort)(EndingResultTextLayout.DigitTopTile + digit));
+        tilemap[topIndex + EndingScreenDefinitions.TilemapWidth] =
+            unchecked((ushort)(EndingResultTextLayout.DigitBottomTile + digit));
     }
 
     /// <summary>Transfers the current staging tilemap to the selected background map.</summary>

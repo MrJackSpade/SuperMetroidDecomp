@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 
@@ -27,8 +28,8 @@ internal static class EndingRewardIconArtworkVerification
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         byte[] native = RomDataReader.Decompress(source,
-            EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
+            EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
+            EndingSourceDefinitions.Artwork.DecompressionLimit);
         AssertTrue(stock.RewardIcon.Bytes.Span.SequenceEqual(native.AsSpan(0,
                 EndingRewardIconArtworkFormat.ByteCount)),
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -22,8 +23,8 @@ public static class EndingFontAtlasExtractor
         Ensure.NotNull(bus);
         byte[] decoded = RomDataReader.Decompress(
             CartridgeImportSource.Require(bus),
-            EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.FloorBytes);
+            EndingSourceDefinitions.Artwork.FontCharacters,
+            EndingArtworkExtentDefinitions.FloorBytes);
         if (decoded.Length < EndingFontAtlasFormat.ByteCount)
             throw new InvalidDataException(
                 $"Ending font expanded to {decoded.Length} bytes; expected at least {EndingFontAtlasFormat.ByteCount}.");

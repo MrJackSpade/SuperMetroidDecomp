@@ -7,7 +7,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -36,31 +35,31 @@ public static class EndingObjectArtworkFiles
         Directory.CreateDirectory(directory);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         Export(EndingObjectArtworkFormat.CloudFileName,
-            EndingCreditsRomData.Assets.EscapeCloudCharacters,
+            EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount);
         Export(EndingObjectArtworkFormat.ExplosionFileName,
-            EndingCreditsRomData.Assets.EndingObjectCharacters,
+            EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount);
         for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
             Export(EndingObjectArtworkFormat.FragmentFileName(index),
-                EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount);
+                EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount);
         Export(EndingObjectArtworkFormat.WaitingSamusFileName,
-            EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
+            EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,
             EndingObjectArtworkFormat.RewardByteCount);
         Export(EndingObjectArtworkFormat.ShootingScreenFileName,
-            EndingCreditsRomData.Assets.ShootingScreenCharacters,
+            EndingSourceDefinitions.Artwork.ShootingScreenCharacters,
             EndingObjectArtworkFormat.RewardByteCount);
         Export(EndingObjectArtworkFormat.SuitlessSamusFileName,
-            EndingCreditsRomData.Assets.SuitlessSamusCharacters,
+            EndingSourceDefinitions.Artwork.SuitlessSamusCharacters,
             EndingObjectArtworkFormat.RewardByteCount);
         ExportMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
-            EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
+            EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap,
             EndingObjectArtworkFormat.WaitingTilemapByteCount);
         Export(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
-            EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
+            EndingSourceDefinitions.Artwork.TransformationCharacters,
             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount);
         Export(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
-            EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
+            EndingSourceDefinitions.Artwork.TransformationTilemap,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount);
         Export(EndingObjectArtworkFormat.PostShotLogoTileFileName,
             EndingSourceDefinitions.Artwork.PostShotLogoTiles,
@@ -176,7 +175,7 @@ public static class EndingObjectArtworkFiles
         void Export(string name, int source, int count)
         {
             byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source,
-                EndingCreditsRomData.Rendering.DecompressionLimit);
+                EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (decompressed.Length < count)
                 throw new InvalidDataException($"Ending OBJ source ${source:X6} is shorter than {name}'s native DMA.");
             byte[] native = decompressed.AsSpan(0, count).ToArray();
@@ -198,7 +197,7 @@ public static class EndingObjectArtworkFiles
         void ExportMap(string name, int source, int count)
         {
             byte[] decoded = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source,
-                EndingCreditsRomData.Rendering.DecompressionLimit);
+                EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (decoded.Length < count)
                 throw new InvalidDataException($"Ending map source ${source:X6} is shorter than {name}'s native DMA.");
             byte[] native = decoded.AsSpan(0, count).ToArray();

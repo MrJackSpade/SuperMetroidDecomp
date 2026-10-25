@@ -21,8 +21,8 @@ internal static class EndingScreenTiles
     {
         Ensure.NotNull(sheets);
         var tiles = new FloorCharacters();
-        int chunkTiles = EndingCreditsRomData.Rendering.FlyawayChunkBytes / Mode7CharacterSheet.TileBytes;
-        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / EndingCreditsRomData.Rendering.FlyawayChunkBytes;
+        int chunkTiles = EndingArtworkExtentDefinitions.FlyawayChunkBytes / Mode7CharacterSheet.TileBytes;
+        int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / EndingArtworkExtentDefinitions.FlyawayChunkBytes;
         int rewardTiles = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes;
         foreach (EndingUpload upload in Ensure.NotNull(uploads))
         {
@@ -38,7 +38,7 @@ internal static class EndingScreenTiles
             else if (upload.Kind == EndingUploadKind.RewardChunk)
                 tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles), upload.Key * rewardTiles, upload.Key * rewardTiles, rewardTiles);
             else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                tiles.Clear(0, EndingCreditsRomData.Rendering.FloorBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
+                tiles.Clear(0, EndingArtworkExtentDefinitions.FloorBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
         }
         return tiles.Pictures();
     }
@@ -54,19 +54,19 @@ internal static class EndingScreenTiles
             {
                 case EndingTileLayer.Credits:
                     if (upload.Kind == EndingUploadKind.CreditsFont)
-                        Place(SpriteSheetId.EndingCreditsFontTiles, EndingTileSetDefinitions.FontFirstTile, 0, EndingCreditsRomData.Rendering.FontCharacterBytes);
+                        Place(SpriteSheetId.EndingCreditsFontTiles, EndingTileSetDefinitions.FontFirstTile, 0, EndingArtworkExtentDefinitions.FontCharacterBytes);
                     break;
                 case EndingTileLayer.PostCreditsText:
                     if (upload.Kind == EndingUploadKind.CreditsFont)
-                        Place(SpriteSheetId.EndingTextFontTiles, EndingTileSetDefinitions.FontFirstTile, 0, EndingCreditsRomData.Rendering.FontCharacterBytes);
+                        Place(SpriteSheetId.EndingTextFontTiles, EndingTileSetDefinitions.FontFirstTile, 0, EndingArtworkExtentDefinitions.FontCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.TextWaitingFirstTile, 0, EndingCreditsRomData.Rendering.WaitingCharacterBytes);
+                        Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.TextWaitingFirstTile, 0, EndingArtworkExtentDefinitions.WaitingCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.PostShotTransfer)
                         PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.TextLogoFirstTile);
                     break;
                 case EndingTileLayer.Waiting:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.WaitingFirstTile, 0, EndingCreditsRomData.Rendering.WaitingCharacterBytes);
+                        Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.WaitingFirstTile, 0, EndingArtworkExtentDefinitions.WaitingCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.PostShotTransfer)
                         PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.WaitingLogoFirstTile);
                     break;
@@ -76,11 +76,11 @@ internal static class EndingScreenTiles
                     break;
                 case EndingTileLayer.WavySamus:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Place(SpriteSheetId.EndingWavySamusTiles, EndingTileSetDefinitions.WavySamusFirstTile, 0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes);
+                        Place(SpriteSheetId.EndingWavySamusTiles, EndingTileSetDefinitions.WavySamusFirstTile, 0, EndingArtworkExtentDefinitions.PostCreditsFragmentABytes);
                     break;
                 case EndingTileLayer.Explosion:
                     if (upload.Kind == EndingUploadKind.ExplosionObjects)
-                        Place(SpriteSheetId.EndingExplosionTiles, EndingTileSetDefinitions.ExplosionFirstTile, 0, EndingCreditsRomData.Rendering.ExplosionObjectBytes);
+                        Place(SpriteSheetId.EndingExplosionTiles, EndingTileSetDefinitions.ExplosionFirstTile, 0, EndingArtworkExtentDefinitions.ExplosionObjectBytes);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined ending tile layer.");

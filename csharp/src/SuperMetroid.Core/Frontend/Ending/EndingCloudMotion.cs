@@ -20,8 +20,8 @@ internal static class EndingCloudMotion
         {
             // Changing a pre-instruction does not execute the new callback immediately.
             // Once activated, movement no longer tests the zoom threshold.
-            wrapper.CloudMoving = side ? scale >= EndingCreditsRomData.Motion.CloudMotionStartScale
-                : scale < EndingCreditsRomData.Motion.CloudSceneBScaleLimit;
+            wrapper.CloudMoving = side ? scale >= EndingMotionDefinitions.CloudMotionStartScale
+                : scale < EndingMotionDefinitions.CloudSceneBScaleLimit;
             return;
         }
         var sprite = wrapper.Sprite;

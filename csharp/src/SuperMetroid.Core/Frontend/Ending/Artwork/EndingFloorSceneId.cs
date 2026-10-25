@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>The three mutually exclusive native Mode-7 ending backdrops.</summary>
+/// <summary>The three mutually exclusive Mode-7 ending backdrops.</summary>
 public enum EndingFloorSceneId
 {
-    /// <summary>Zebes zooming out during the first escape backdrop, using native characters at $98:BCD6 and packed map at $99:D17E.</summary>
+    /// <summary>Zebes zooming out during the first escape backdrop.</summary>
     EscapeA,
-    /// <summary>Grey clouds during the second escape backdrop, using native characters at $98:ED4F and packed map at $99:D65B.</summary>
+    /// <summary>Grey clouds during the second escape backdrop.</summary>
     EscapeB,
-    /// <summary>The large Zebes backdrop for the planet explosion, using native characters at $99:9101 and packed map at $99:D932.</summary>
+    /// <summary>The large Zebes backdrop for the planet explosion.</summary>
     PlanetExplosion,
 }

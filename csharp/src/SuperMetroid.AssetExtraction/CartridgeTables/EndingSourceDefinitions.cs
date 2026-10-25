@@ -16,6 +16,69 @@ internal static class EndingSourceDefinitions
     /// <summary>The ending's compressed artwork sources (#1416: moved from Core's ending catalogs).</summary>
     internal static class Artwork
     {
+        /// <summary>The largest decompressed length permitted when importing the ending's compressed artwork.</summary>
+        internal const int DecompressionLimit = 0x8000;
+
+        /// <summary>$98:BCD6, Tiles_Zebes_Being_Zoomed_Out_during_Zebes_Explosion_Mode7: escape scene A's compressed high-byte Mode 7 character lane.</summary>
+        internal const int EscapeACharacters = 0x98bcd6;
+
+        /// <summary>$99:D17E, InterleavedTilesTilemap_ZebesBeingZoomedOutExplosion_Mode7: escape scene A's packed low-byte map source.</summary>
+        internal const int EscapeAPackedMap = 0x99d17e;
+
+        /// <summary>$98:ED4F, Tiles_Grey_Clouds_during_Zebes_Explosion_Mode7: escape scene B's compressed high-byte character lane.</summary>
+        internal const int EscapeBCharacters = 0x98ed4f;
+
+        /// <summary>$99:D65B, InterleavedTilesTilemap_GreyCloudsDuringZebesExplosion_Mode7: escape scene B's packed low-byte map source.</summary>
+        internal const int EscapeBPackedMap = 0x99d65b;
+
+        /// <summary>$99:9101, Tiles_Big_Zebes_during_Zebes_Explosion: the planet explosion's compressed high-byte Mode 7 character lane.</summary>
+        internal const int ExplosionCharacters = 0x999101;
+
+        /// <summary>$99:D932, InterleavedTilesTilemap_BigZebesDuringZebesExplosion_Mode7: the planet explosion's packed low-byte map source.</summary>
+        internal const int ExplosionPackedMap = 0x99d932;
+
+        /// <summary>$98:8304: the explosion sprite sheet $8B:D56C decompresses.</summary>
+        internal const int ExplosionObjectCharacters = 0x988304;
+
+        /// <summary>$99:A56F: the atmospheric cloud sprite sheet $8B:D4D1 decompresses.</summary>
+        internal const int EscapeCloudCharacters = 0x99a56f;
+
+        /// <summary>$98:B5C1, Wide_Part_of_Zebes_Explosion_Tilemap: the wide explosion fragment.</summary>
+        internal const int WideExplosionTilemap = 0x98b5c1;
+
+        /// <summary>$98:B857, Concentric_Wide_Part_of_Zebes_Explosion_Tilemap: the concentric wide explosion fragment.</summary>
+        internal const int ConcentricExplosionTilemap = 0x98b857;
+
+        /// <summary>$98:BAED, Eclipse_of_Zebes_during_Explosion_Tilemap: the eclipse fragment.</summary>
+        internal const int EclipseTilemap = 0x98baed;
+
+        /// <summary>$98:BCCD, Blank_BG2_Tilemap: the blank fragment.</summary>
+        internal const int BlankTilemap = 0x98bccd;
+
+        /// <summary>$97:E7DE, Tiles_Font3_Background: the font characters the credits and post-credits text reuse.</summary>
+        internal const int FontCharacters = 0x97e7de;
+
+        /// <summary>$97:9803, Tiles_Samus_Waiting_for_Credits_to_End: the two-frame waiting-Samus sheet, also reused for suited rewards.</summary>
+        internal const int WaitingForCreditsCharacters = 0x979803;
+
+        /// <summary>$97:B957, Tiles_PostCredits_SuitlessSamus: the under-three-hour reward's sprite sheet.</summary>
+        internal const int SuitlessSamusCharacters = 0x97b957;
+
+        /// <summary>$97:D7FC, Tiles_PostCredits_Samus_Shooting_the_Screen: the sprite sheet of Samus shooting the screen.</summary>
+        internal const int ShootingScreenCharacters = 0x97d7fc;
+
+        /// <summary>$97:96F4, Samus_Waiting_for_Credits_to_End_Tilemap: the background map accompanying the waiting-Samus sheet.</summary>
+        internal const int WaitingForCreditsTilemap = 0x9796f4;
+
+        /// <summary>$97:F987, InterleavedTilesTilemapPostCreditsSamusBeamMode7: the interleaved Mode 7 beam artwork, separate from the suited reward sheet.</summary>
+        internal const int PostCreditsFloorCharacters = 0x97f987;
+
+        /// <summary>$99:DA9F, Tiles_PostCredits_Samus_Transformation_Effect: the transformation effect's characters.</summary>
+        internal const int TransformationCharacters = 0x99da9f;
+
+        /// <summary>$99:DAB1, PostCredits_Samus_Transformation_Effect_Tilemap: the transformation effect's tilemap.</summary>
+        internal const int TransformationTilemap = 0x99dab1;
+
         /// <summary>$99:E089: the compressed Super Metroid logo tiles the post-shot transition shows.</summary>
         internal const int PostShotLogoTiles = 0x99e089;
 

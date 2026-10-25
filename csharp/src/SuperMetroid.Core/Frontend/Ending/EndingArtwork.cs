@@ -74,7 +74,7 @@ internal sealed class EndingArtwork
     {
         byte[] clouds = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Escape clouds require installed object artwork.")).Clouds.Characters.ToArray();
-        EndingStage.RequireMinimum(clouds, EndingCreditsRomData.Rendering.FloorBytes, "escape cloud characters");
+        EndingStage.RequireMinimum(clouds, EndingArtworkExtentDefinitions.FloorBytes, "escape cloud characters");
         screen.Record(EndingUploadKind.EscapeClouds, 0);
     }
 
@@ -84,14 +84,14 @@ internal sealed class EndingArtwork
         byte[] main = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Ending objects require installed artwork.")).Explosion.Characters.ToArray();
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
-        EndingStage.RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
+        EndingStage.RequireMinimum(main, EndingArtworkExtentDefinitions.ExplosionObjectBytes,
             "ending OBJ characters");
         screen.Record(EndingUploadKind.ExplosionObjects, 0);
         LoadObjectFragment(EndingObjectFragmentId.Segment70);
         LoadObjectFragment(EndingObjectFragmentId.Segment74);
         LoadObjectFragment(EndingObjectFragmentId.Segment78);
         LoadObjectFragment(EndingObjectFragmentId.Segment7C);
-        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingCreditsRomData.Rendering.ObjectFragmentLimit,
+        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingArtworkExtentDefinitions.ObjectFragmentLimit,
             "ending font characters");
         screen.Record(EndingUploadKind.EndingFont, 0);
     }
@@ -101,7 +101,7 @@ internal sealed class EndingArtwork
     {
         byte[] fragment = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Ending object fragments require installed artwork.")).Fragment(fragmentId).Characters.ToArray();
-        EndingStage.RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
+        EndingStage.RequireMinimum(fragment, EndingArtworkExtentDefinitions.ObjectFragmentBytes,
             "ending OBJ fragment");
         screen.Record(EndingUploadKind.ObjectFragment, (int)fragmentId);
     }
@@ -113,7 +113,7 @@ internal sealed class EndingArtwork
             return;
 
         _stage.LoadStaticPalette(EndingPaletteId.Credits, screen.Palette.Background);
-        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingCreditsRomData.Rendering.FontCharacterBytes,
+        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingArtworkExtentDefinitions.FontCharacterBytes,
             "credits font");
 
         screen.Clear();
@@ -146,17 +146,17 @@ internal sealed class EndingArtwork
         byte[] result = _stage.EndingReward == EndingReward.Suitless
             ? artwork.SuitlessSamus.Characters.ToArray()
             : waiting;
-        EndingStage.RequireMinimum(waiting, EndingCreditsRomData.Rendering.FloorBytes,
+        EndingStage.RequireMinimum(waiting, EndingArtworkExtentDefinitions.FloorBytes,
             "waiting-Samus characters");
-        EndingStage.RequireMinimum(shooting, EndingCreditsRomData.Rendering.ShootingCharacterBytes,
+        EndingStage.RequireMinimum(shooting, EndingArtworkExtentDefinitions.ShootingCharacterBytes,
             "post-credits OBJ characters");
-        EndingStage.RequireMinimum(waitingMap, EndingCreditsRomData.Rendering.WaitingTilemapBytes,
+        EndingStage.RequireMinimum(waitingMap, EndingArtworkExtentDefinitions.WaitingTilemapBytes,
             "waiting-Samus tilemap");
-        EndingStage.RequireMinimum(fragmentA, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes,
+        EndingStage.RequireMinimum(fragmentA, EndingArtworkExtentDefinitions.PostCreditsFragmentABytes,
             "post-credits tile fragment A");
-        EndingStage.RequireMinimum(fragmentB, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
+        EndingStage.RequireMinimum(fragmentB, EndingArtworkExtentDefinitions.ObjectFragmentBytes,
             "post-credits tile fragment B");
-        EndingStage.RequireMinimum(result, EndingCreditsRomData.Rendering.FloorBytes,
+        EndingStage.RequireMinimum(result, EndingArtworkExtentDefinitions.FloorBytes,
             "post-credits reward characters");
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
         // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.

@@ -24,6 +24,9 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks ending palette identity, native fade colors, installed artwork, and visible overrides.</summary>
 internal static class EndingPaletteArtworkVerification
 {
+    /// <summary>$95:A82F: the flyaway's compressed character lane, a valid non-palette cartridge source the guard must reject (#1416: moved from the deleted test-support constants).</summary>
+    private const int FlyawayCharactersSource = 0x95a82f;
+
     /// <summary>Checks the logo's reverse-copy palette fade against native pointers and actual CGRAM writes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
@@ -263,7 +266,7 @@ internal static class EndingPaletteArtworkVerification
         // production-shaped scene must complete without *any* cartridge read.
         rejectAllCartridgeReads = true;
         AssertThrows<InvalidOperationException>(
-            () => guardedBus.ReadByte(EndingCreditsRomData.Assets.FlyawayCharacters),
+            () => guardedBus.ReadByte(FlyawayCharactersSource),
             "ending ROM guard rejects an otherwise valid non-palette cartridge source");
         var reached = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 60_000 &&

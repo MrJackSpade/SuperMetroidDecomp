@@ -42,7 +42,7 @@ internal sealed class EndingStage
     /// Mode-7 scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored
     /// scale and moves it by a few units per call toward a bound it stops at, so it stays positive and small.
     /// </summary>
-    internal int FloorZoom { get; set; } = EndingCreditsRomData.Motion.IdentityScale;
+    internal int FloorZoom { get; set; } = EndingMotionDefinitions.IdentityScale;
 
     /// <summary>Mode-7 byte-angle shared by the escape and planet scenes.</summary>
     internal SnesAngle FloorAngle { get; set; }
@@ -57,9 +57,9 @@ internal sealed class EndingStage
 
     /// <summary>Selects suitless, helmetless or armored presentation from native clear-time hour thresholds.</summary>
     public EndingReward EndingReward =>
-        gameTimeHours < EndingCreditsRomData.Rewards.SuitlessMaximumHoursExclusive
+        gameTimeHours < EndingSequenceDefinitions.Rewards.SuitlessMaximumHoursExclusive
         ? EndingReward.Suitless
-        : gameTimeHours < EndingCreditsRomData.Rewards.HelmetlessMaximumHoursExclusive
+        : gameTimeHours < EndingSequenceDefinitions.Rewards.HelmetlessMaximumHoursExclusive
             ? EndingReward.Helmetless
             : EndingReward.Armored;
 

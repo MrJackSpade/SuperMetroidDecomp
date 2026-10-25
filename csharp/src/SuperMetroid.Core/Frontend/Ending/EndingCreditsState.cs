@@ -56,7 +56,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal readonly List<EndingSprite> sprites = [];
     /// <summary>Staging copy of the two-screen post-credits result tilemap.</summary>
     private readonly ushort[] postCreditsTilemap =
-        new ushort[EndingCreditsRomData.Rendering.TilemapWords];
+        new ushort[EndingScreenDefinitions.TilemapWords];
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
     internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
@@ -125,7 +125,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.SetupEscapeFromZebes:
                 // Each wait ends the call inside the setup function, before the dispatcher's
                 // manual-return tail; the call after the last wait runs the scene setup.
-                if (setupFrameWaits < EndingCreditsRomData.SetupFrameWaits)
+                if (setupFrameWaits < EndingSequenceDefinitions.SetupFrameWaits)
                 {
                     setupFrameWaits++;
                     return;
@@ -154,7 +154,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.EscapeSceneA:
                 StepAtmosphericTransform(2);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.FloorZoom >= EndingCreditsRomData.Motion.EscapeEndScale)
+                if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndScale)
                 {
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
@@ -178,7 +178,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.EscapeSceneB:
                 StepAtmosphericTransform(3);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.FloorZoom >= EndingCreditsRomData.Motion.EscapeEndScale)
+                if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndScale)
                 {
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
@@ -224,9 +224,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     audio.QueueMusicDelayed8(MusicRequest.Stop);
                     audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Credits));
                     audio.QueueMusicDelayed(
-                        MusicRequest.SelectTrack(EndingCreditsRomData.Music.Track),
+                        MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.Track),
                         MusicQueueDelay.AtLeastShortest(
-                            EndingCreditsRomData.Music.DelayArgument));
+                            EndingSequenceDefinitions.Music.DelayArgument));
                     Stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
                 }
                 break;
@@ -281,19 +281,19 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsFadeIn:
                 if (Stage.StepSlowFadeIn())
                 {
-                    Stage.PhaseTimer = EndingCreditsRomData.Timing.WaitingPaletteFadeFrames;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames;
                     CreditsRoll.ApplyWaitingBackdropPalette(0);
                     Stage.Phase = EndingCreditsPhase.PostCreditsShootingStars;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsShootingStars:
-                CreditsRoll.ApplyWaitingBackdropPalette(EndingCreditsRomData.Timing.WaitingPaletteFadeFrames - Stage.PhaseTimer + 1);
+                CreditsRoll.ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - Stage.PhaseTimer + 1);
                 if (--Stage.PhaseTimer <= 0)
                 {
                     // Func131 finishes its palette fade, then Func132 holds the waiting
                     // backdrop for three seconds before displaying the producer panel.
-                    Stage.PhaseTimer = EndingCreditsRomData.Timing.WaitingBackdropFrames;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingBackdropFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
                 }
                 break;
@@ -305,7 +305,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     // nine through seventeen before the following 180-frame hold.
                     (InstalledArtwork.EndingText ?? throw new InvalidOperationException(
                         "Post-credits text requires installed ending text.")).BuildResultPanel().CopyTo(
-                        postCreditsTilemap, EndingCreditsRomData.Text.ResultPanelFirstCell);
+                        postCreditsTilemap, EndingResultTextLayout.ResultPanelFirstCell);
                     CreditsRoll.UploadPostCreditsTilemap();
                     Stage.PhaseTimer = 180;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
@@ -318,7 +318,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     EscapeScenes.SpawnEndingRewardActors();
                     CreditsRoll.ResetRewardPalette();
                     CreditsRoll.ApplyRewardPalette();
-                    Stage.PhaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.RewardRevealHalfFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
@@ -394,7 +394,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    Stage.PhaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.RewardRevealHalfFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
@@ -517,7 +517,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal ScreenTileMap Cells(EndingPlane plane, Extent16<TilemapCells> size, EndingTileLayer layer, BgBitDepth depth)
     {
         ReadOnlySpan<ushort> upper = screen.Plane(plane, Stage.ObjectArtwork);
-        if (size.Y <= EndingCreditsRomData.Rendering.TilemapHeight)
+        if (size.Y <= EndingScreenDefinitions.TilemapHeight)
             return ScreenTileMap.Of(upper[..(size.X * size.Y)], size, LayerTiles(layer, depth));
         if (plane != EndingPlane.Text)
             throw new ArgumentException($"The {plane} plane has one screen.", nameof(plane));

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Intro;
@@ -33,8 +34,8 @@ internal static class EndingRewardGestureVerification
         var rewardArtwork = new EndingScreenArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art(), null, null, null, EndingReward.Armored);
         var graphicsScreen = new EndingScreen();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
-            EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
+            EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
+            EndingSourceDefinitions.Artwork.DecompressionLimit);
         for (int chunk = 0; chunk < 16; chunk++)
         {
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

@@ -36,9 +36,9 @@ internal static class EndingCloudPlacementVerification
         short[] nativeY = [-96, -32, 288, 352];
         EndingSpriteRole[] roles = [EndingSpriteRole.CloudTopA, EndingSpriteRole.CloudTopB,
             EndingSpriteRole.CloudBottomA, EndingSpriteRole.CloudBottomB];
-        EndingSpriteDefinition[] definitions = [EndingCreditsRomData.Sprites.EscapeBCloudTopA,
-            EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingCreditsRomData.Sprites.EscapeBCloudBottomA,
-            EndingCreditsRomData.Sprites.EscapeBCloudBottomB];
+        EndingSpriteDefinition[] definitions = [EndingActorDefinitions.EscapeBCloudTopA,
+            EndingActorDefinitions.EscapeBCloudTopB, EndingActorDefinitions.EscapeBCloudBottomA,
+            EndingActorDefinitions.EscapeBCloudBottomB];
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), definition.Attributes.Raw,
                 definition.Program), roles[index])).ToArray();

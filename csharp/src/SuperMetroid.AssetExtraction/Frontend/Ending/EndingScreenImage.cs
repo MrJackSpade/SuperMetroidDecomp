@@ -39,20 +39,20 @@ internal static class EndingScreenImage
                 ReplayFlyawayChunk(vram, upload.Key, artwork);
                 break;
             case EndingUploadKind.EscapeClouds:
-                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Characters.Span[..EndingCreditsRomData.Rendering.FloorBytes]);
+                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Characters.Span[..EndingArtworkExtentDefinitions.FloorBytes]);
                 break;
             case EndingUploadKind.ExplosionObjects:
-                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes]);
+                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingArtworkExtentDefinitions.ExplosionObjectBytes]);
                 break;
             case EndingUploadKind.ObjectFragment:
                 var fragment = (EndingObjectFragmentId)upload.Key;
-                ending.ObjectFragment(fragment).Load(Objects(artwork).Fragment(fragment).Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
+                ending.ObjectFragment(fragment).Load(Objects(artwork).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes]);
                 break;
             case EndingUploadKind.EndingFont:
-                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
+                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentLimit]);
                 break;
             case EndingUploadKind.CreditsFont:
-                ending.CreditsFont.Load(Font(artwork).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
+                ending.CreditsFont.Load(Font(artwork).Characters.Span[..EndingArtworkExtentDefinitions.FontCharacterBytes]);
                 break;
             case EndingUploadKind.CreditsCharacterArt:
                 ReplayCreditsCharacterArt(ending, artwork);
@@ -86,8 +86,8 @@ internal static class EndingScreenImage
     {
         SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtworkCatalog flight = artwork.Flight ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
-        int chunkBytes = EndingCreditsRomData.Rendering.FlyawayChunkBytes;
-        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / chunkBytes;
+        int chunkBytes = EndingArtworkExtentDefinitions.FlyawayChunkBytes;
+        int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / chunkBytes;
         int offset = index % chunksPerLane * chunkBytes;
         var floor = new Mode7Vram(vram);
         if (index < chunksPerLane)
@@ -96,9 +96,9 @@ internal static class EndingScreenImage
             return;
         }
         // The map lane is the flight's map data padded with the blank tile to the full lane.
-        var map = new byte[EndingCreditsRomData.Rendering.FloorBytes];
-        flight.FloorMaps.Span[..EndingCreditsRomData.Rendering.FlyawayMapDataBytes].CopyTo(map);
-        map.AsSpan(EndingCreditsRomData.Rendering.FlyawayMapDataBytes).Fill(EndingCreditsRomData.Rendering.FlyawayBlankTile);
+        var map = new byte[EndingArtworkExtentDefinitions.FloorBytes];
+        flight.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
+        map.AsSpan(EndingArtworkExtentDefinitions.FlyawayMapDataBytes).Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
         floor.LoadMap(map.AsSpan(offset, chunkBytes), offset);
     }
 
@@ -107,14 +107,14 @@ internal static class EndingScreenImage
     {
         EndingObjectArtworkCatalog objects = Objects(artwork);
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
-        ending.WaitingCharacters.Load(waiting[..EndingCreditsRomData.Rendering.WaitingCharacterBytes]);
-        ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingCreditsRomData.Rendering.ShootingCharacterBytes]);
-        ending.WaitingTilemap.Load(objects.WaitingTilemap.Bytes.Span[..EndingCreditsRomData.Rendering.WaitingTilemapBytes]);
+        ending.WaitingCharacters.Load(waiting[..EndingArtworkExtentDefinitions.WaitingCharacterBytes]);
+        ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingArtworkExtentDefinitions.ShootingCharacterBytes]);
+        ending.WaitingTilemap.Load(objects.WaitingTilemap.Bytes.Span[..EndingArtworkExtentDefinitions.WaitingTilemapBytes]);
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
         ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
-        ending.RewardCharacters.Load(reward[..EndingCreditsRomData.Rendering.FloorBytes]);
-        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes]);
-        ending.PostCreditsFragmentB.Load(objects.PostCreditsFragmentB.Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
+        ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
+        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingArtworkExtentDefinitions.PostCreditsFragmentABytes]);
+        ending.PostCreditsFragmentB.Load(objects.PostCreditsFragmentB.Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes]);
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map transfer at its native word.</summary>

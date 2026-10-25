@@ -55,7 +55,7 @@ internal sealed class EndingCreditsRoll
         _artwork.CurrentCredits = new CreditsObjectState(_artwork.StaffCredits ?? throw new InvalidOperationException(
             "Ending credits require installed ending-credits.json content."));
         _artwork.CurrentCredits.UploadTilemap(screen);
-        Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile);
+        Array.Fill(postCreditsTilemap, EndingScreenDefinitions.BlankTile);
         sprites.Clear();
         _stage.Brightness = 15;
         _stage.Phase = EndingCreditsPhase.Credits;
@@ -83,14 +83,14 @@ internal sealed class EndingCreditsRoll
     {
         // Func135 removes the producer panel and replaces rows twelve/thirteen with
         // the literal DEDB copyright tilemap. BG1 alone is visible until Func137 ends.
-        Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile,
-            EndingCreditsRomData.Text.ResultPanelFirstCell, EndingCreditsRomData.Text.ResultPanelWords);
+        Array.Fill(postCreditsTilemap, EndingScreenDefinitions.BlankTile,
+            EndingResultTextLayout.ResultPanelFirstCell, EndingResultTextLayout.ResultPanelWords);
         (_artwork.EndingText ?? throw new InvalidOperationException(
             "Ending copyright requires installed text assets.")).BuildCopyrightPanel().CopyTo(
-            postCreditsTilemap, EndingCreditsRomData.Text.CopyrightPanelFirstCell);
+            postCreditsTilemap, EndingResultTextLayout.CopyrightPanelFirstCell);
         UploadPostCreditsTilemap();
         RewardCopyrightShown = true;
-        _stage.PhaseTimer = EndingCreditsRomData.Timing.CopyrightHoldFrames;
+        _stage.PhaseTimer = EndingSequenceDefinitions.Timing.CopyrightHoldFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsCopyright;
     }
 
@@ -110,7 +110,7 @@ internal sealed class EndingCreditsRoll
     internal void ApplyRewardPalette()
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
-        ApplyWaitingBackdropPalette(EndingCreditsRomData.Timing.WaitingPaletteFadeFrames - rewardPaletteStep);
+        ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - rewardPaletteStep);
         ApplyPostCreditsPaletteRange(screen.Palette.SpriteRow(EndingColourRowDefinitions.SuitlessRewardSpriteRow), rewardPaletteStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
             ApplyPostCreditsPaletteRange(screen.Palette.SpriteRow(EndingColourRowDefinitions.SuitedRewardSpriteRow), rewardPaletteStep);
@@ -152,7 +152,7 @@ internal sealed class EndingCreditsRoll
         PostCreditsTextTilemap = EndingTextTilemap.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         _stage.PostCreditsScroll = Position16<BgPlanePixels>.Zero;
-        Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile,
+        Array.Fill(postCreditsTilemap, EndingScreenDefinitions.BlankTile,
             EndingPostShotDefinitions.ClearedCopyrightStart, EndingPostShotDefinitions.ClearedCopyrightWords);
         UploadPostCreditsTilemap();
         WhiteFlashColor = EndingPostShotDefinitions.WhiteComponent;

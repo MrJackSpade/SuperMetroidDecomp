@@ -206,10 +206,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             foreach (EnemyHitboxRectangle hitbox in
                      component.Hitboxes)
             {
-                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                int left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                int top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                int right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                int bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = CeresSteamHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);

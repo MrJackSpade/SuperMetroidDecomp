@@ -24,7 +24,7 @@ internal static class TourianPreInstructions
     [
         .. Enumerable.Range(0, MetroidsClearedEntryCount).Select(entry =>
         {
-            var roomArgument = (ushort)(entry * 2);
+            int roomArgument = (ushort)(entry * 2);
             return MetroidsClearedEvents.ResolveEvent(roomArgument) is { } eventNumber
                 ? new PlmPreInstruction($"Metroids cleared: {eventNumber}", (slot, context) =>
                     context.Plms.Areas().Tourian.RunMetroidsClearedObserver(eventNumber, context.Frame.EnemyDeaths, context.Frame.EnemyDeathQuota))

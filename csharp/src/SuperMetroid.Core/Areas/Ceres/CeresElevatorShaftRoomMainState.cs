@@ -119,11 +119,11 @@ public sealed class CeresElevatorShaftRoomMainState
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
         // mapping back into the tail of this very table during the reverse sweep.
-        ushort rotationIndex = checked((ushort)scratch.Var1);
+        int rotationIndex = checked((ushort)scratch.Var1);
         var record = CeresShaftRotationDefinitions.Read(rotationIndex);
         RotationTimer = WrappingCountdown.FromRaw(record.Timer);
-        ushort sine = record.Sine;
-        ushort cosine = record.Cosine;
+        int sine = record.Sine;
+        int cosine = record.Cosine;
         Transform = new SamusMode7Transform(
             MatrixA: unchecked((short)cosine),
             MatrixB: unchecked((short)sine),

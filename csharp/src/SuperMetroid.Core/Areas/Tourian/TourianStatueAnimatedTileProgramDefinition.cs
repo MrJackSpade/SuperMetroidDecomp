@@ -44,7 +44,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     public required IColourSetRun ClearedColours { get; init; }
 
     /// <summary>The even statue selector passed to the eye-glow and soul spawners.</summary>
-    public required ushort UnlockEffectParameter { get; init; }
+    public required int UnlockEffectParameter { get; init; }
 
     /// <summary>The palette-FX object spawned during release.</summary>
     public required PaletteFxObject PaletteFx { get; init; }

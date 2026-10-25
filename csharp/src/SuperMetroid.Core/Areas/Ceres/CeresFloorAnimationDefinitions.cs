@@ -110,9 +110,9 @@ public static class CeresFloorAnimationDefinitions
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)column >= CeresDoorVisualDefinitions.PlatformCellCount)
             throw new ArgumentOutOfRangeException(nameof(column));
-        byte left = frame == 0 ? LightPlatformLeftCap : DarkPlatformLeftCap;
-        return column == 0 ? left : column == CeresDoorVisualDefinitions.PlatformCellCount - 1
-            ? (byte)(PlatformRightCapPair + frame) : (byte)(left + 1);
+        int left = frame == 0 ? LightPlatformLeftCap : DarkPlatformLeftCap;
+        return checked((byte)(column == 0 ? left : column == CeresDoorVisualDefinitions.PlatformCellCount - 1
+            ? PlatformRightCapPair + frame : left + 1));
     }
 
     /// <summary>Six baby row origins remain REQUIRED; adjacent right tiles calculate. Platform glyphs use their shared canonical owner.</summary>
@@ -133,28 +133,30 @@ public static class CeresFloorAnimationDefinitions
         }
         return WingTile(frame == CeresFloorAnimationFrame.WingFrame1, row, column);
     }
+    /// <summary>The wing cell that draws nothing.</summary>
+    private const byte TransparentWingTile = 0xff;
+
     /// <summary>Contiguous atlas runs and shared cells derive. Every selected run origin/extent and isolated glyph below remains REQUIRED artwork placement; no artwork exemption is claimed.</summary>
     private static byte WingTile(bool secondFrame, int row, int column)
     {
-        const byte transparent = 0xff;
         if (!secondFrame)
         {
             return row switch
             {
                 0 => (byte)column,
-                1 => column is 6 or 7 ? transparent : (byte)(column < 6 ? 4 + column : 0x0a + column - 8),
+                1 => column is 6 or 7 ? TransparentWingTile : (byte)(column < 6 ? 4 + column : 0x0a + column - 8),
                 2 => (byte)(column == 13 ? 0xa8 : 0x10 + column),
                 3 => (byte)(0x21 + column),
                 4 => column is >= 2 and <= 4 ? (byte)(0x1d + column - 2)
-                    : column is >= 5 and <= 9 ? (byte)(0x30 + column - 5) : transparent,
+                    : column is >= 5 and <= 9 ? (byte)(0x30 + column - 5) : TransparentWingTile,
                 5 => column is 4 or 5 ? (byte)(0x2e + column - 4)
-                    : column is >= 6 and <= 10 ? (byte)(0x40 + column - 6) : transparent,
+                    : column is >= 6 and <= 10 ? (byte)(0x40 + column - 6) : TransparentWingTile,
                 _ => throw new InvalidOperationException("Unknown wing row."),
             };
         }
-        if (row < 2) return transparent;
-        if (row == 2) return column switch { 6 => 0x20, 7 => WingTile(false,row,column), 8 => 0xaa, _ => transparent };
-        if (row == 3) return column is >= 5 and <= 7 ? WingTile(false,row,column) : transparent;
+        if (row < 2) return TransparentWingTile;
+        if (row == 2) return column switch { 6 => 0x20, 7 => WingTile(false,row,column), 8 => 0xaa, _ => TransparentWingTile };
+        if (row == 3) return column is >= 5 and <= 7 ? WingTile(false,row,column) : TransparentWingTile;
         if (row == 4)
             return column < 5 ? (byte)(0x91 + column)
                 : column < 8 ? WingTile(false,row,column)

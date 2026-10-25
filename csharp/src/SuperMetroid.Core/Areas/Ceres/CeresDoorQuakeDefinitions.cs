@@ -18,7 +18,7 @@ internal static class CeresDoorQuakeDefinitions
     private const short Impulse = -4;
 
     /// <summary>Returns the signed offset selected by the earthquake timer's low two bits.</summary>
-    internal static sbyte XOffset(ushort earthquakeTimer)
+    internal static sbyte XOffset(int earthquakeTimer)
     {
         int phase = earthquakeTimer & 3;
         int word = phase < sizeof(ushort) ? 0 : Impulse;

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="Timer">How many frames the record lasts.</param>
 /// <param name="Sine">The rotation matrix's sine word.</param>
 /// <param name="Cosine">The rotation matrix's cosine word.</param>
-public readonly record struct CeresShaftRotationDefinition(ushort Timer, ushort Sine, ushort Cosine);
+public readonly record struct CeresShaftRotationDefinition(int Timer, int Sine, int Cosine);

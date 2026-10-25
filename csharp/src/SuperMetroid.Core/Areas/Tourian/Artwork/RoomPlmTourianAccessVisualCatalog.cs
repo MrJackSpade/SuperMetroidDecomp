@@ -50,11 +50,11 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Tourian access draw.</exception>
     internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        TourianAccessPlmDrawDefinitions.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out ushort stockWord);
+        TourianAccessPlmDrawDefinitions.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out int stockWord);
         if ((uint)runIndex >= (uint)rows ||
             (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         return customWords.TryGet(draw, out var words)
-            ? words[runIndex * 4 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
+            ? words[runIndex * 4 + blockIndex] : new RoomLevelWord(checked((ushort)stockWord)).VisualWord;
     }
 }

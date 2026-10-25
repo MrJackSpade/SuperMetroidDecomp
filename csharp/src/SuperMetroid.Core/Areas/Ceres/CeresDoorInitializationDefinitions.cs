@@ -32,7 +32,7 @@ internal static class CeresDoorInitializationDefinitions
     /// and 6. Those aliases classify authored behavior, rather than a
     /// numeric progression of code addresses.
     /// </summary>
-    internal static CeresDoorInitializationDefinition For(ushort variant) =>
+    internal static CeresDoorInitializationDefinition For(int variant) =>
         Variants.Decode(variant) switch
         {
             CeresDoorVariant.NormalFacingRight => new(

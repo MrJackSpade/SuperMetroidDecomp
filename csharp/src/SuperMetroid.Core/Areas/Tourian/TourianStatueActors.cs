@@ -13,7 +13,7 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     }
 
     /// <inheritdoc/>
-    public short VerticalOffset
+    public int VerticalOffset
     {
         get => statue.TourianEntranceStatueVerticalOffset;
         set => statue.TourianEntranceStatueVerticalOffset = value;
@@ -30,10 +30,10 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     public Position16<RoomPixels> WaterSurface { get => unlock.TourianStatueWaterSurface; set => unlock.TourianStatueWaterSurface = value; }
 
     /// <inheritdoc/>
-    public void SpawnEyeGlow(ushort parameter) => unlock.SpawnTourianEyeGlow(parameter);
+    public void SpawnEyeGlow(int parameter) => unlock.SpawnTourianEyeGlow(parameter);
 
     /// <inheritdoc/>
-    public void SpawnSoul(ushort parameter) => unlock.SpawnTourianSoul(parameter);
+    public void SpawnSoul(int parameter) => unlock.SpawnTourianSoul(parameter);
 
     /// <inheritdoc/>
     public void SpawnDescentDust() => unlock.SpawnTourianDescentDust();

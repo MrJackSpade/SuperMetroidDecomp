@@ -128,7 +128,7 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
-        ushort oldTimer = projectile.InstructionTimer.RawValue;
+        int oldTimer = projectile.InstructionTimer.RawValue;
         projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
         if (oldTimer != 1)
             return;
@@ -171,7 +171,7 @@ public sealed class CeresElevatorArrivalState
             return;
         }
 
-        ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
+        int paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
             EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalDefinitions.Frame(pose)), screen,
             unchecked((byte)projectile.GraphicsIndex), paletteBits);

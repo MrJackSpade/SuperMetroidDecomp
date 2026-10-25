@@ -7,7 +7,7 @@ internal interface ITourianStatueActors
     TourianStatueAnimationState AnimationState { get; set; }
 
     /// <summary>The statue's vertical offset as it sinks.</summary>
-    short VerticalOffset { get; set; }
+    int VerticalOffset { get; set; }
 
     /// <summary>Whether the sequence has finished.</summary>
     bool Finished { get; set; }
@@ -16,10 +16,10 @@ internal interface ITourianStatueActors
     Position16<RoomPixels> WaterSurface { get; set; }
 
     /// <summary>Spawns a statue eye's glow.</summary>
-    void SpawnEyeGlow(ushort parameter);
+    void SpawnEyeGlow(int parameter);
 
     /// <summary>Spawns a statue's released soul.</summary>
-    void SpawnSoul(ushort parameter);
+    void SpawnSoul(int parameter);
 
     /// <summary>Spawns the descent's dust.</summary>
     void SpawnDescentDust();

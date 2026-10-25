@@ -37,8 +37,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// projectile pre-instruction publishes the same completion latch for debugger hosts.
     /// </summary>
     public bool TourianEntranceStatueFinished { get; internal set; }
-    /// <summary>Signed BG2 displacement owned by $88:DC69; OBJ follows the same sinking statue.</summary>
-    public short TourianEntranceStatueVerticalOffset { get; internal set; }
+    /// <summary>
+    /// Signed BG2 displacement owned by $88:DC69; OBJ follows the same sinking statue. The statue sequence only writes
+    /// its descent offset, between minus the descent distance and zero.
+    /// </summary>
+    public int TourianEntranceStatueVerticalOffset { get; internal set; }
 
     /// <summary>
     /// The statues' shared animation state, set and cleared by the statue tile programs and the descent;

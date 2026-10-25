@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Polyp.Artwork;
 
@@ -22,7 +23,7 @@ internal static class PolypRockFrameToolingDefinitions
         for (int pose = 0; pose < PoseCount; pose++)
         {
             frame = new(pose);
-            if (EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[frame]) == key)
+            if (EnemyProjectileProgramFrameSources.Operand(PolypRockFrameDefinitions.ShownProjectileFrames[frame]) == key)
                 return true;
         }
         frame = default;

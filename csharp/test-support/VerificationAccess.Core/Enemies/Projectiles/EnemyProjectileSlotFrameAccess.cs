@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
@@ -8,16 +9,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal static class EnemyProjectileSlotFrameAccess
 {
-    /// <summary>Each installed program frame's identity, by its bank-$86 operand.</summary>
-    private static readonly Lazy<Dictionary<ushort, EnemyProjectileFrameId>> ProgramFrames = new(() =>
-        EnemyProjectilePresentationFrameSets.All.ToArray().ToDictionary(frame => frame.OperandAddress, frame => EnemyProjectileFrames.Identity(frame.Name)));
-
-    /// <summary>The program frame whose installed artwork key is bank-$86 operand <paramref name="operandAddress"/>.</summary>
-    internal static EnemyProjectileFrameId ProgramFrameAt(ushort operandAddress) =>
-        ProgramFrames.Value.TryGetValue(operandAddress, out EnemyProjectileFrameId frame)
-            ? frame
-            : throw new ArgumentOutOfRangeException(nameof(operandAddress), operandAddress, $"No installed program frame at $86:{operandAddress:X4}.");
-
     /// <summary>The composition frame that draws bank-$8D spritemap <paramref name="spritemap"/>.</summary>
     internal static EnemyProjectileFrameId CompositionAt(ushort spritemap)
     {
@@ -1160,9 +1151,9 @@ internal static class EnemyProjectileSlotFrameAccess
             _ => EnemyProjectileSpritemapDefinitions.BlankSpritemap,
         };
 
-        /// <summary>The installed program-frame key the slot shows, zero when it shows a composition or nothing.</summary>
+        /// <summary>The bank-$86 operand storing the program frame the slot shows, zero when it shows a composition or nothing.</summary>
         internal ushort PresentationOperandAddress => self.Frame is { } frame && !EnemyProjectileFrames.IsComposition(frame)
-            ? EnemyProjectileFrames.ProgramFrameKey(frame)
+            ? EnemyProjectileProgramFrameSources.Operand(frame)
             : (ushort)0;
     }
 }

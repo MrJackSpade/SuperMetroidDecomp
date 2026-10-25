@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -47,7 +48,7 @@ internal static class FuneNamiheFireballBehaviorVerification
         for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]), out ushort selected),
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]), out ushort selected),
                 $"pose {pose} has a calculated selector");
             AssertEqual(FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }

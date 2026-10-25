@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>One presentation-only spritemap operand in a compiled bank-$86 program.</summary>
-internal readonly record struct EnemyProjectilePresentationFrameDefinition(
-    ushort OperandAddress,
-    string Name);
+/// <summary>One installed program frame of the enemy-projectile artwork file, by the name the file keys it under.</summary>
+internal readonly record struct EnemyProjectilePresentationFrameDefinition(string Name)
+{
+    /// <summary>The projectile frame the installed program frame shows.</summary>
+    internal EnemyProjectileFrameId Frame => EnemyProjectileFrames.Identity(Name);
+}

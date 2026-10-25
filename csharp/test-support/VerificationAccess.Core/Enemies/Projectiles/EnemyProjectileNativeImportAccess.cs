@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 
@@ -11,8 +12,8 @@ internal static class EnemyProjectileNativeImportAccess
     /// the operand names one, otherwise the composition frame drawing the bank-$8D spritemap the cartridge selects there.
     /// </summary>
     internal static void ShowNativeOperand(RoomEnemyProjectileSlot projectile, ushort operandAddress) =>
-        projectile.Frame = EnemyProjectilePresentationFrameSetsTooling.Contains(operandAddress)
-            ? EnemyProjectileSlotFrameAccess.ProgramFrameAt(operandAddress)
+        projectile.Frame = EnemyProjectileProgramFrameSources.Contains(operandAddress)
+            ? EnemyProjectileProgramFrameSources.Frame(operandAddress)
             : EnemyProjectileSlotFrameAccess.CompositionAt(
                 CompiledEnemyVisualSelectors.TryGet(SnesLittleEndianConstants.BankByte(EnemyProjectileCodePointers.BankBase), operandAddress, out ushort selector)
                     ? selector

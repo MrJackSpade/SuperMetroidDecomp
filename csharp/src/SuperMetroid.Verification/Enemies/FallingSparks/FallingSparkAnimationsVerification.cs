@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.FallingSparks.FallingSparkNativeListAddresses;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.FallingSparks;
 internal static class FallingSparkAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FallingSparkAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(FallingSparkFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FallingSparkAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(FallingSparkFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyFallingSparkAnimations(SuperMetroidAddressSpace rom)

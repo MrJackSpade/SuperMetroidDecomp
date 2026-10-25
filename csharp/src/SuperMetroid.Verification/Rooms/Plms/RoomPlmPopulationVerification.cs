@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
@@ -1250,14 +1251,14 @@ internal static class RoomPlmPopulationVerification
             OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
-        HashSet<ushort> electricityOperands = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
-            .Select(index => EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])).ToHashSet();
+        HashSet<EnemyProjectileFrameId> electricityFrames = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
+            .Select(index => SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)]).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
-                frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
+                frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             // The save room's sprite objects compose with the installed enemy compositions.
@@ -1272,7 +1273,7 @@ internal static class RoomPlmPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(0)]),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(0)]),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");

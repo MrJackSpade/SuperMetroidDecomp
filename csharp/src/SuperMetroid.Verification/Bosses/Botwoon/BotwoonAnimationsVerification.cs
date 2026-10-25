@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -178,7 +179,7 @@ internal static class BotwoonAnimationsVerification
         animate(segment, 0);
         AssertEqual((ushort)1, segment.InstructionTimer.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
-        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)]),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)]),
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.

@@ -5,7 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Verification's native view of the enemy-projectile compositions: the bank-$8D spritemap each is stored at.</summary>
+/// <summary>
+/// Verification's native view of the enemy-projectile artwork: the bank-$8D spritemap each composition is stored at and
+/// the bank-$86 operand each program frame is stored at, both read through the import's tables.
+/// </summary>
 internal static class EnemyProjectileSpritemapNative
 {
     /// <summary>The compositions' native locations, read as members of <see cref="EnemyProjectileSpritemapDefinitions"/>.</summary>
@@ -30,5 +33,16 @@ internal static class EnemyProjectileSpritemapNative
     {
         /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
         internal ReadOnlyMemory<SpritemapPart> Get(ushort spritemap) => catalog.Get(FrameAt(spritemap));
+
+        /// <summary>The parts of the program frame stored at bank-$86 operand <paramref name="operand"/>.</summary>
+        internal ReadOnlyMemory<SpritemapPart> GetProgramFrame(ushort operand) =>
+            catalog.GetProgramFrame(EnemyProjectileProgramFrameSources.Frame(operand));
+    }
+
+    /// <summary>Native locations of an installed program frame.</summary>
+    extension(EnemyProjectilePresentationFrameDefinition frame)
+    {
+        /// <summary>The bank-$86 operand the program frame is stored at.</summary>
+        internal ushort OperandAddress => EnemyProjectileProgramFrameSources.Operand(frame.Frame);
     }
 }

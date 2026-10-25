@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonFireballNativeListAddresses;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 internal static class AlcoonFireballAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, AlcoonFireballAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, AlcoonFireballAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyAlcoonFireballAnimations(SuperMetroidAddressSpace rom)
@@ -20,10 +21,10 @@ internal static class AlcoonFireballAnimationsVerification
         for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);
-            ushort key = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), AlcoonFireballFrameToolingDefinitions.Spritemap(frame),
                 $"Alcoon fireball pose {pose} spritemap");
-            AssertTrue(AlcoonFireballFrameDefinitions.TryFrame(key, out AlcoonFireballFrame found) && found == frame, $"Alcoon fireball pose {pose} is found by its key");
+            AssertTrue(AlcoonFireballFrameToolingDefinitions.TryFrame(key, out AlcoonFireballFrame found) && found == frame, $"Alcoon fireball pose {pose} is found by its key");
         }
         Console.WriteLine($"  Alcoon fireball programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }

@@ -42,7 +42,7 @@ internal static class DefinitionAudit
         }
         CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
-            exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, frame.OperandAddress));
+            exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(frame.Frame)));
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
             exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx,
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
@@ -89,7 +89,7 @@ internal static class DefinitionAudit
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
         const string calculatedMethod = "Spritemap";
         string relative = calculated
-            ? AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _)
+            ? AlcoonFireballFrameToolingDefinitions.TryFrame((ushort)address, out _)
                 ? "csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameToolingDefinitions.cs"
                 : "csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameToolingDefinitions.cs"
             : $"csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";

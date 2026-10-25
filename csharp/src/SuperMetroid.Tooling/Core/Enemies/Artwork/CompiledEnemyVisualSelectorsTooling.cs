@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
@@ -44,13 +45,13 @@ internal static class CompiledEnemyVisualSelectorsTooling
         if (index < AlcoonFireballFrameDefinitions.PoseCount)
         {
             AlcoonFireballFrame fireball = new(index);
-            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameToolingDefinitions.Spritemap(fireball));
+            return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameToolingDefinitions.Spritemap(fireball));
         }
         index -= AlcoonFireballFrameDefinitions.PoseCount;
         if (index < FuneNamiheFireballFrameToolingDefinitions.PoseCount)
         {
             FuneNamiheFireballFrame fune = new(index);
-            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune));
+            return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune));
         }
         throw new ArgumentOutOfRangeException(nameof(index));
     }

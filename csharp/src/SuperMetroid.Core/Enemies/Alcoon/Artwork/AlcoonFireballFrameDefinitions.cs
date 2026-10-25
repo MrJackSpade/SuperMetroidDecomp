@@ -11,19 +11,6 @@ internal static class AlcoonFireballFrameDefinitions
     /// <summary>The poses, in installed artwork order.</summary>
     internal const int PoseCount = 4;
 
-    /// <summary>The pose whose installed artwork key is <paramref name="key"/>, if one is.</summary>
-    internal static bool TryFrame(ushort key, out AlcoonFireballFrame frame)
-    {
-        for (int pose = 0; pose < PoseCount; pose++)
-        {
-            frame = new(pose);
-            if (EnemyProjectileFrames.ProgramFrameKey(ShownProjectileFrames[frame]) == key)
-                return true;
-        }
-        frame = default;
-        return false;
-    }
-
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<AlcoonFireballFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<AlcoonFireballFrame, EnemyProjectileFrameId>

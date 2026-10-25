@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGateProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 internal static class DownwardGateProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(DownwardGateProjectileFrameDefinitions.ShownProjectileFrames[frame])), DownwardGateProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(DownwardGateProjectileFrameDefinitions.ShownProjectileFrames[frame])), DownwardGateProjectileCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyDownwardGateProjectileAnimations(SuperMetroidAddressSpace rom)

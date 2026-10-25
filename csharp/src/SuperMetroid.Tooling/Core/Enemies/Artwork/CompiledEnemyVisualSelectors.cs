@@ -42,7 +42,7 @@ internal static partial class CompiledEnemyVisualSelectors
         Enum.IsDefined((EnemyInstructionBank)SnesAddressMath.BankNumber(address)) &&
         (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
-        EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _) || FuneNamiheFireballFrameToolingDefinitions.TryFrame((ushort)address, out _),
+        EnemyInstructionBank.Bank86 => AlcoonFireballFrameToolingDefinitions.TryFrame((ushort)address, out _) || FuneNamiheFireballFrameToolingDefinitions.TryFrame((ushort)address, out _),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
@@ -58,7 +58,7 @@ internal static partial class CompiledEnemyVisualSelectors
         {
             pointer = (EnemyInstructionBank)bank switch
             {
-                EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame(operandAddress, out AlcoonFireballFrame fireball)
+                EnemyInstructionBank.Bank86 => AlcoonFireballFrameToolingDefinitions.TryFrame(operandAddress, out AlcoonFireballFrame fireball)
                     ? AlcoonFireballFrameToolingDefinitions.Spritemap(fireball)
                     : FuneNamiheFireballFrameToolingDefinitions.TryFrame(operandAddress, out FuneNamiheFireballFrame fune)
                         ? FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune)

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserNativeListAddresses;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.WorkRobots;
 internal static class WorkRobotLaserAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, WorkRobotLaserAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(WorkRobotLaserFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, WorkRobotLaserAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(WorkRobotLaserFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyWorkRobotLaserAnimations(SuperMetroidAddressSpace rom)

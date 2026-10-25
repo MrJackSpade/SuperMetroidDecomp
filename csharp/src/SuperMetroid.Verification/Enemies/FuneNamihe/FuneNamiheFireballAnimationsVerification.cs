@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballNativeListAddresses;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 internal static class FuneNamiheFireballAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FuneNamiheFireballAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FuneNamiheFireballAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyFuneNamiheFireballAnimations(SuperMetroidAddressSpace rom)
@@ -20,7 +21,7 @@ internal static class FuneNamiheFireballAnimationsVerification
         for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);
-            ushort key = EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame),
                 $"Fune/Namihe fireball pose {pose} spritemap");
             AssertTrue(FuneNamiheFireballFrameToolingDefinitions.TryFrame(key, out FuneNamiheFireballFrame found) && found == frame, $"Fune/Namihe fireball pose {pose} is found by its key");

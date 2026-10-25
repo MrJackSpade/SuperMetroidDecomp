@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Tourian;
@@ -74,7 +75,7 @@ internal static class TourianStatueProjectileAnimationsVerification
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, TourianStatueProjectileAnimations.Programs,
-        frame => EnemyProjectileFrames.ProgramFrameKey(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames[frame]), Rules);
+        frame => EnemyProjectileProgramFrameSources.Operand(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames[frame]), Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyTourianStatueProjectileAnimations(SuperMetroidAddressSpace rom)

@@ -47,7 +47,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
             foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             {
                 SpriteVisualPart[] expected = document.ProgramFrames?.GetValueOrDefault(frame.Name) ?? (stockDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires stockDocument.ProgramFrames."))[frame.Name];
-                AssertParts(expected, merged.GetProgramFrame(frame.OperandAddress).Span, prefix + frame.Name);
+                AssertParts(expected, merged.GetProgramFrame(frame.Frame).Span, prefix + frame.Name);
             }
             AssertTrue(stockIdentity != merged.ContentIdentity, prefix + "edits change identity");
             AssertEqual(merged.ContentIdentity, Load(document, stock).ContentIdentity, prefix + "reload preserves identity");
@@ -105,7 +105,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
         EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],
         EnemyProjectileSpritemapVersion.FirstProgramFrame => [.. EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames],
         EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameSets.PreGoldenTorizo
-            .WhereToArray(frame => !AlcoonFireballFrameDefinitions.TryFrame(frame.OperandAddress, out _)),
+            .WhereToArray(frame => !AlcoonFireballFrameDefinitions.ShownProjectileFrames.Values.Contains(frame.Frame)),
         EnemyProjectileSpritemapVersion.PreGoldenTorizo => EnemyProjectilePresentationFrameSets.PreGoldenTorizo.ToArray(),
         EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg => EnemyProjectilePresentationFrameSets.PreGoldenTorizoEgg.ToArray(),
         EnemyProjectileSpritemapVersion.PreTorizoEffects => EnemyProjectilePresentationFrameSets.PreTorizoEffects.ToArray(),

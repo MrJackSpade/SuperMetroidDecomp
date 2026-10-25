@@ -277,9 +277,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             "Options cursor requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, bg1VerticalScroll);
-        (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
-        GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame,
-            new(authoredCursorX, authoredCursorY));
+        GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame, CursorPosition());
         sprites.FinishFrame();
     }
 

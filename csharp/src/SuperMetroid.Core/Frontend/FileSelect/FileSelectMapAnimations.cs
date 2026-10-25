@@ -120,7 +120,7 @@ public sealed class FileSelectMapAnimations
             if (--Timer > 0)
                 return;
             Frame++;
-            byte delay = Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(Frame);
+            int delay = Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(Frame);
             if (delay == byte.MaxValue)
             {
                 Frame = 0;

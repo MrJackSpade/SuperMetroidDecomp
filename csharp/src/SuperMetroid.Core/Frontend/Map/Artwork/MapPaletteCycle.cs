@@ -53,7 +53,7 @@ public sealed class MapPaletteCycle
     public byte Duration(int frame)
     {
         CheckFrame(frame);
-        return durationEdits.TryGetValue(frame, out byte duration) ? duration : StockDuration(frame);
+        return durationEdits.ContainsKey(frame) ? durationEdits[frame] : StockDuration(frame);
     }
 
     /// <summary>Copies the selected frame's sixteen colours over <paramref name="row"/> without advancing time or requesting audio.</summary>

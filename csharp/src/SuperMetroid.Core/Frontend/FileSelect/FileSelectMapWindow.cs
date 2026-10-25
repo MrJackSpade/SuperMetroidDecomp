@@ -29,10 +29,9 @@ public sealed class FileSelectMapWindow
             throw new ArgumentOutOfRangeException(nameof(area));
         var installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
-        ushort x = installedLabels.Get(area).X;
-        ushort y = installedLabels.Get(area).Y;
-        edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)x);
-        edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)y);
+        var label = installedLabels.Get(area);
+        edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)label.X);
+        edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)label.Y);
         timer = WrappingCountdown.Start(motion.Timer);
         if (timer.IsNegative)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
@@ -97,14 +96,14 @@ public sealed class FileSelectMapWindow
     }
 
     /// <summary>Raises one edge's signed whole-pixel word to <paramref name="minimum"/>, retaining its fractional position.</summary>
-    private void RaiseWholeWord(int edge, ushort minimum)
+    private void RaiseWholeWord(int edge, int minimum)
     {
         if (WholeWord(edge) < minimum)
             SetWholeWord(edge, minimum);
     }
 
     /// <summary>Lowers one edge's signed whole-pixel word to <paramref name="maximum"/>, retaining its fractional position.</summary>
-    private void LowerWholeWord(int edge, ushort maximum)
+    private void LowerWholeWord(int edge, int maximum)
     {
         if (WholeWord(edge) > maximum)
             SetWholeWord(edge, maximum);
@@ -114,6 +113,6 @@ public sealed class FileSelectMapWindow
     private short WholeWord(int edge) => unchecked((short)SnesSixteenSixteen.WholeOf(edges[edge]));
 
     /// <summary>Replaces one edge's whole-pixel word, keeping its fraction.</summary>
-    private void SetWholeWord(int edge, ushort whole) =>
+    private void SetWholeWord(int edge, int whole) =>
         edges[edge] = SnesSixteenSixteen.Compose(whole, (ushort)SnesSixteenSixteen.FractionOf(edges[edge]));
 }

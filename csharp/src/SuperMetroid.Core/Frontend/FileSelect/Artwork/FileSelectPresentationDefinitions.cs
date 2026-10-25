@@ -31,7 +31,7 @@ public static class FileSelectPresentationDefinitions
     internal static FileSelectCompiledPatchCell PatchCell(FileSelectPatch patch, int index)
     {
         if ((uint)index >= PatchCellCount(patch)) throw new ArgumentOutOfRangeException(nameof(index));
-        ushort word = patch switch
+        return new(new Offset16<TilemapCells>(checked((short)index), 0), patch switch
         {
             FileSelectPatch.Energy => index < 3 ? (ushort)(EnergyLabelFirst + index) : EnergyLabelFinal,
             FileSelectPatch.TimeColon => TimeColonGlyph,
@@ -39,8 +39,7 @@ public static class FileSelectPresentationDefinitions
                 : NoDataLabel[index] == ' ' ? SmallSpace
                 : (ushort)(SmallLetterA + NoDataLabel[index] - 'A'),
             _ => throw new ArgumentOutOfRangeException(nameof(patch)),
-        };
-        return new(new Offset16<TilemapCells>(checked((short)index), 0), word);
+        });
     }
 
     /// <summary>Supported file-select presentation JSON schema version.</summary>

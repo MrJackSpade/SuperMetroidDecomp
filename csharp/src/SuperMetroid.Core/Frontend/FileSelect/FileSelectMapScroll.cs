@@ -47,29 +47,31 @@ public sealed class FileSelectMapScroll
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { top = y; break; }
         for (int y = 31; y > 0; y--)
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
-        ushort minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
-        ushort maximumX = Wrap(right * 8);
-        ushort minimumY = Wrap(top * 8);
-        ushort maximumY = Wrap(bottom * 8);
-        ushort horizontal = Wrap(minimumX + Wrap(maximumX - minimumX) / 2 - 128);
-        ushort screenX = Wrap(player.X - horizontal);
+        // Every map word below holds its wrapped sixteen-bit value; the signed tests read those
+        // words as the cartridge's branches do.
+        int minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
+        int maximumX = Wrap(right * 8);
+        int minimumY = Wrap(top * 8);
+        int maximumY = Wrap(bottom * 8);
+        int horizontal = Wrap(minimumX + Wrap(maximumX - minimumX) / 2 - 128);
+        int screenX = Wrap(player.X - horizontal);
         if (Signed(224 - screenX) < 0)
             horizontal = Wrap(horizontal - Signed(224 - screenX));
         else if (Signed(32 - screenX) >= 0)
             horizontal = Wrap(horizontal - Wrap(32 - screenX));
-        ushort middle = Wrap(minimumY + Wrap(maximumY - minimumY) / 2 + 16);
-        ushort offset = Wrap((112 - middle) & ~7);
-        ushort vertical = Wrap(-offset);
-        short distance = Signed(64 - Wrap(player.Y + offset));
+        int middle = Wrap(minimumY + Wrap(maximumY - minimumY) / 2 + 16);
+        int offset = Wrap((112 - middle) & ~7);
+        int vertical = Wrap(-offset);
+        int distance = Signed(64 - Wrap(player.Y + offset));
         if (distance >= 0)
         {
             vertical = Wrap(vertical - distance);
             if (Signed(vertical + 40) < 0) vertical = Wrap(-40);
         }
-        Scroll = new(horizontal, vertical);
-        Maximum = new(maximumX, maximumY);
+        Scroll = new(Wrap(horizontal), Wrap(vertical));
+        Maximum = new(Wrap(maximumX), Wrap(maximumY));
         // $81:AD17 adjusts the upper arrow boundary only after positioning.
-        Minimum = new(minimumX, Wrap(minimumY + 24));
+        Minimum = new(Wrap(minimumX), Wrap(minimumY + 24));
     }
 
     /// <summary>Determines whether another eight-pixel step fits within the native boundary for a direction.</summary>

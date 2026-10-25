@@ -66,7 +66,7 @@ public static class MapSaveMarkerDefinitions
     /// <param name="area">One of the six Zebes area identities.</param>
     /// <param name="usedMask">Sixteen native used-station bits, with bit positions matching station slots.</param>
     /// <returns>True when at least one set bit names a usable marker; bits for unused slots do not reveal an area label.</returns>
-    public static bool HasUsedMarker(AreaId area, ushort usedMask)
+    public static bool HasUsedMarker(AreaId area, int usedMask)
     {
         foreach (int index in Indices(area))
             if ((usedMask & (1 << index)) != 0) return true;

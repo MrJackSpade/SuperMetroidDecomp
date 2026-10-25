@@ -171,7 +171,7 @@ public sealed class FileSelectAreaMapGraphics
                 shownIndex == SelectedArea ? (ushort)0 : SnesObjPalettes.Palette(1).PaletteBits);
         }
 
-        void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)
+        void Draw(MapSpriteId id, Position16<OamPixels> origin, int palette)
         {
             MapSpriteSheet.Draw(mapSheet, id, entries, origin, palette);
         }

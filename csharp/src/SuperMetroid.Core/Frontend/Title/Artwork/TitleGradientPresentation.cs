@@ -19,7 +19,7 @@ public sealed class TitleGradientPresentation
     /// <summary>Returns the authored scanlines selected by native zoom bits four through seven.</summary>
     /// <param name="zoom">Native Mode-7 zoom word; only bits 4..7 select a variant, with all other bits ignored.</param>
     /// <returns>A borrowed read-only view of the selected presentation's 224 compiled scanlines in top-to-bottom screen order.</returns>
-    public ReadOnlySpan<TitleGradientLine> Resolve(ushort zoom) =>
+    public ReadOnlySpan<TitleGradientLine> Resolve(int zoom) =>
         variants[(zoom >> 4) % 16];
 
     /// <summary>Validates all sixteen authored zoom variants and compiles their independent per-scanline colours and blends.</summary>

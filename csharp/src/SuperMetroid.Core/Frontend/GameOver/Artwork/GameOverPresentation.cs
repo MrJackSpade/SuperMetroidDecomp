@@ -195,13 +195,12 @@ public sealed class GameOverPresentation
                 (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"Game-over tilemap cell {index} has an invalid atlas coordinate or palette.");
-            ushort word = checked((ushort)(
+            BinaryPrimitives.WriteUInt16LittleEndian(tilemap.AsSpan(index * sizeof(ushort)), checked((ushort)(
                 cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn |
                 cell.Palette << MapPresentationFormat.PaletteShift |
                 (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
                 (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) |
-                (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
-            BinaryPrimitives.WriteUInt16LittleEndian(tilemap.AsSpan(index * sizeof(ushort)), word);
+                (cell.FlipY ? MapPresentationFormat.FlipYBit : 0))));
         }
 
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,

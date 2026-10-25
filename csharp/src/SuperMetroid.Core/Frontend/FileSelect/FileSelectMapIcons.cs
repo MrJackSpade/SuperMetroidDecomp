@@ -52,7 +52,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
             }
             remainingBits >>= 1;
         }
-        void Draw(MapSpriteId id, Position16<MapPixels> position, ushort palette) =>
+        void Draw(MapSpriteId id, Position16<MapPixels> position, int palette) =>
             Add(entries, id, position, scroll, palette);
     }
 
@@ -72,7 +72,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                 if (system.IsMapTileExplored(area, rule.Cell))
                     Draw(id, layout.Get(rule.Id), FileSelectMapDefinitions.StationMarkerPalette);
         }
-        void Draw(MapSpriteId id, Position16<MapPixels> position, ushort palette) =>
+        void Draw(MapSpriteId id, Position16<MapPixels> position, int palette) =>
             Add(entries, id, position, scroll, palette);
     }
 
@@ -102,7 +102,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         }
     }
     /// <summary>Converts a map-space landmark to OAM and draws it with installed sprite art.</summary>
-    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, ushort palette)
+    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, int palette)
     {
         MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),
             id, entries, position.ToScreen(scroll).ToOam(), palette);

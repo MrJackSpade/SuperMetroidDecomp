@@ -780,8 +780,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             FileSelectPresentationDefinitions.Width + layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset;
         int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;
         int filledTanks = slot.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
-        ushort palette = (ushort)(bg1Tilemap[layout.HealthAnchor.Y * FileSelectPresentationDefinitions.Width +
-            layout.HealthAnchor.X] & FileSelectEnergyTankDefinitions.PaletteMask);
+        int palette = bg1Tilemap[layout.HealthAnchor.Y * FileSelectPresentationDefinitions.Width +
+            layout.HealthAnchor.X] & FileSelectEnergyTankDefinitions.PaletteMask;
         for (int tank = 0; tank < slot.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank; tank++)
         {
             if ((uint)tankCell >= bg1Tilemap.Length)

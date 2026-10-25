@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal static class MenuRenderSnapshotCapture
 {
     /// <summary>Captures the menu screen's artwork, tilemaps, palette and sprite entries with the established BG2, BG1, OBJ layer order and current brightness.</summary>
-    internal static LayeredScene Capture(MenuScreen screen, ushort bg1VerticalScroll, byte brightness)
+    /// <param name="screen">The menu screen captured.</param>
+    /// <param name="bg1VerticalScroll">BG1's vertical scroll; only its low sixteen bits position the plane.</param>
+    /// <param name="brightness">The screen brightness.</param>
+    internal static LayeredScene Capture(MenuScreen screen, int bg1VerticalScroll, int brightness)
     {
         // These menus currently compose entire BG2, BG1 and OBJ planes in that order.
         // Preserve that established path here; do not silently replace it with the
@@ -16,7 +19,7 @@ internal static class MenuRenderSnapshotCapture
         RenderLayer[] layers =
         [
             new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, 0), null),
-            new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, bg1VerticalScroll), null),
+            new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)), null),
             new ObjRenderLayer(),
         ];
         return new(screen.Paint(), layers, brightness);

@@ -14,14 +14,20 @@ public sealed class CrocomireEnemyState
     /// <summary>Creates the state for Crocomire's body slot.</summary>
     internal CrocomireEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>The death-sequence phase word.</summary>
-    private int _deathPhaseWord;
+    /// <summary>The death-sequence phase.</summary>
+    private CrocomireDeathPhase _deathPhase;
 
     /// <summary>The saturating count of mouth hits (<see cref="HitCount"/>).</summary>
     private int _hitCount;
 
-    /// <summary>The fight-function word.</summary>
-    private int _fightFunctionWord;
+    /// <summary>The fight function.</summary>
+    private CrocomireFightFunction _fightFunction;
+
+    /// <summary>
+    /// The fight function the unused claw attack restores. The cartridge parks it in the projectile counter's word; only
+    /// that unused attack writes or reads it, so the retail fight never observes the overlap and it is kept apart.
+    /// </summary>
+    private CrocomireFightFunction _savedFightFunction;
 
     /// <summary>The word holding the queued steps, a death-phase delay, the rumble cursor or the vertical acceleration.</summary>
     private int _stepsDelayRumbleOrAccelerationWord;
@@ -64,8 +70,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The main/death dispatcher phase; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathSequenceIndex
     {
-        get => ClosedNativeWords.Decode<CrocomireDeathPhase>(checked((ushort)_deathPhaseWord), "Crocomire death-sequence index");
-        internal set => _deathPhaseWord = (ushort)value;
+        get => _deathPhase;
+        internal set => _deathPhase = value;
     }
 
     /// <summary>The fight latches. The cartridge keeps them in one word with <see cref="HitCount"/> in its low four bits; nothing reads that word another way.</summary>
@@ -81,8 +87,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>
     public CrocomireFightFunction FightFunction
     {
-        get => (CrocomireFightFunction)checked((ushort)_fightFunctionWord);
-        internal set => _fightFunctionWord = (ushort)value;
+        get => _fightFunction;
+        internal set => _fightFunction = value;
     }
 
     /// <summary>
@@ -163,8 +169,8 @@ public sealed class CrocomireEnemyState
     /// <summary>In the unused claw attack: the fight function restored when the claws stop.</summary>
     internal CrocomireFightFunction SavedFightFunction
     {
-        get => (CrocomireFightFunction)checked((ushort)_projectileSubpixelOrSkeletonWholeWord);
-        set => _projectileSubpixelOrSkeletonWholeWord = (ushort)value;
+        get => _savedFightFunction;
+        set => _savedFightFunction = value;
     }
 
     /// <summary>
@@ -205,10 +211,11 @@ public sealed class CrocomireEnemyState
     [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
-        _deathPhaseWord = 0;
-        FightFlags = 0;
+        _deathPhase = CrocomireDeathPhase.Fighting;
+        FightFlags = CrocomireFightFlags.None;
         _hitCount = 0;
-        _fightFunctionWord = 0;
+        _fightFunction = CrocomireFightFunction.ResetAnimation;
+        _savedFightFunction = CrocomireFightFunction.ResetAnimation;
         _stepsDelayRumbleOrAccelerationWord = 0;
         _reactionSpeedOrSkeletonFractionWord = 0;
         _projectileSubpixelOrSkeletonWholeWord = 0;

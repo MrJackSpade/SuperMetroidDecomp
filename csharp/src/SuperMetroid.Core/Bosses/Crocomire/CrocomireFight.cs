@@ -278,13 +278,13 @@ internal sealed class CrocomireFight
 
             case CrocomireBodyCueKind.MoveLeft:
                 RequireCrocomireLevel(level);
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
+                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
                     MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftWithDust:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
+                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
                     MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftTowardSpikeWall:
@@ -358,7 +358,7 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomireFightFunction.SteppingForward:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
+                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
                 {
                     state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
                     if (state.StepCounter != 0)
@@ -378,7 +378,7 @@ internal sealed class CrocomireFight
                     : null;
 
             case CrocomireFightFunction.ProjectileAttack:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
+                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
                 {
                     state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
@@ -395,7 +395,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.StepForwardAfterDelay;
 
             case CrocomireFightFunction.NearSpikeWallCharge:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
+                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
                 {
                     state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
@@ -453,7 +453,7 @@ internal sealed class CrocomireFight
             }
 
             case CrocomireFightFunction.NearSpikeWallChargeUnused:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
+                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
                 {
                     state.FightFlags = (state.FightFlags & (CrocomireFightFlags.UnusedPreferClawAttack | CrocomireFightFlags.UnusedAttackSequenceStarted |
                         CrocomireFightFlags.UnusedClawsMoving | CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.UnusedKeptByChargeReset)) |
@@ -475,7 +475,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.Initial;
 
             case CrocomireFightFunction.ChooseAttackUnused:
-                if ((state.FightFlags & CrocomireFightFlags.UnusedPreferClawAttack) != 0)
+                if ((state.FightFlags & CrocomireFightFlags.UnusedPreferClawAttack) != CrocomireFightFlags.None)
                 {
                     state.Body.InstructionTimer = WrappingCountdown.Start(1);
                     state.StepCounter = 16;
@@ -502,7 +502,7 @@ internal sealed class CrocomireFight
                     state.StepCounter = 3;
                     return CrocomireBodyProgram.StepForward;
                 }
-                if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) == 0)
+                if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) == CrocomireFightFlags.None)
                 {
                     state.FightFunction = CrocomireFightFunction.StepForwardVariantUnused;
                     state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
@@ -525,7 +525,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.MovingClaws;
 
             case CrocomireFightFunction.StepForwardVariantUnused:
-                if ((state.FightFlags & CrocomireFightFlags.UnusedForwardStepsDone) == 0)
+                if ((state.FightFlags & CrocomireFightFlags.UnusedForwardStepsDone) == CrocomireFightFlags.None)
                     state.FightFlags &= ~(CrocomireFightFlags.UnusedPreferClawAttack | CrocomireFightFlags.UnusedAttackSequenceStarted);
                 state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
                 return CrocomireBodyProgram.StepForward;
@@ -538,7 +538,7 @@ internal sealed class CrocomireFight
                     state.FightFunction = state.SavedFightFunction;
                     return CrocomireBodyProgram.MovingClaws;
                 }
-                if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != 0)
+                if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != CrocomireFightFlags.None)
                 {
                     state.StepCounter--;
                     _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.ClawStrike;
@@ -561,7 +561,7 @@ internal sealed class CrocomireFight
         CrocomireBodyProgram continuation,
         CrocomireFightFunction damagedDestination)
     {
-        if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
+        if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
         {
             state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
             state.FightFunction = damagedDestination;

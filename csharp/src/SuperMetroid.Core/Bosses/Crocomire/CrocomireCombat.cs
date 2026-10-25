@@ -331,7 +331,7 @@ internal sealed class CrocomireCombat
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
-            if (family == 0)
+            if (family == SamusProjectileFamily.Beam)
             {
                 if (!projectileType.IsChargedBeam)
                 {
@@ -355,7 +355,7 @@ internal sealed class CrocomireCombat
         {
             state.StepCounter += stepCount;
             int hitCount = CrocomireMouthHits.Next(state.HitCount);
-            if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
+            if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
             {
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even

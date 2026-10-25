@@ -1099,7 +1099,7 @@ internal sealed class SuperMetroidRuntime
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
         // The joypad registers are the routine's only input: the NMI reads no controller.
         MessageBox.Step(controller1Input);
-        if (MessageBox.LastFrameAudio.RunsHdmaObjects)
+        if (MessageBox.LastFrameAudio.AdvancesPerLineEffects)
         {
             // The message box's restoring frames ($88:84B9 in Restore_PPU) run the per-line effects too.
             if (Room.Camera is not null)

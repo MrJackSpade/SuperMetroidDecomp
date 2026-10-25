@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
@@ -24,7 +25,7 @@ internal static class GameplayMessageTitlesVerification
             new MemoryStream(extracted, writable: false));
 
         int comparedWords = 0;
-        int width = GameplayMessageRomData.Layout.TilemapWidth;
+        int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
             var installed = new GameplayMessageBoxState();
@@ -32,9 +33,9 @@ internal static class GameplayMessageTitlesVerification
             installed.Begin(id, 0);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
-            int definition = GameplayMessageRomData.Assets.DefinitionTable +
-                ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
-            int content = GameplayMessageRomData.Assets.BankBase |
+            int definition = HudSourceDefinitions.Messages.DefinitionTable +
+                ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
+            int content = HudSourceDefinitions.Messages.BankBase |
                 (SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
             ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
             for (int column = 0; column < width; column++)

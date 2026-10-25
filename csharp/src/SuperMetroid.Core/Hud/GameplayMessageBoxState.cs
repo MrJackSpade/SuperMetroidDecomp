@@ -189,7 +189,7 @@ public sealed class GameplayMessageBoxState
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
         _nextOpeningRadiusPixels = 0;
-        _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
+        _nextClosingRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
         _closingConfirmationResult = null;
         _gunshipCompletion = false;
         CompletedConfirmationResult = null;
@@ -198,7 +198,7 @@ public sealed class GameplayMessageBoxState
         DrawSaveConfirmationSelection();
         _controller.Latch(controllerRead);
         // The routine's first lag wait belongs to the dispatch that opened the box.
-        BeginPreparing(GameplayMessageRomData.Timing.PreOpenLagFrames - 1);
+        BeginPreparing(GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames - 1);
     }
 
     /// <summary>Enters the PPU preparation stretch with the number of waits left at this dispatch boundary.</summary>
@@ -234,7 +234,7 @@ public sealed class GameplayMessageBoxState
 
             case GameplayMessageBoxPhase.Preparing:
                 // Initialise_PPU_for_MessageBoxes waits twice before its audio calls.
-                if (_lagFramesRemaining == GameplayMessageRomData.Timing.PreOpenLagFrames - 1)
+                if (_lagFramesRemaining == GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames - 1)
                     LastFrameAudio = default;
                 if (--_lagFramesRemaining == 0)
                     Phase = GameplayMessageBoxPhase.Opening;
@@ -246,7 +246,7 @@ public sealed class GameplayMessageBoxState
                     // Restore_PPU's first wait; its second ends in $88:84B9 (HDMA objects
                     // and music), then HandleSounds.
                     3 => default,
-                    2 => MessageBoxFrameAudio.MusicAndSounds with { RunsHdmaObjects = true },
+                    2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesPerLineEffects = true },
                     // The routine returns into the dispatch, whose own HandleSounds follows.
                     0 => MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 },
                     _ => MessageBoxFrameAudio.MusicAndSounds,
@@ -260,12 +260,12 @@ public sealed class GameplayMessageBoxState
                 // radius before the for-loop increment. Radius zero is consequently a
                 // real accepted frame, even though it exposes no pixels.
                 RadiusPixels = _nextOpeningRadiusPixels;
-                if (RadiusPixels == GameplayMessageRomData.Timing.MaximumRadiusPixels)
+                if (RadiusPixels == GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
                 {
                     if (IsSaveConfirmation)
                     {
                         MinimumDisplayFramesRemaining = 0;
-                        _lagFramesRemaining = GameplayMessageRomData.Timing.SaveSelectionReadLagFrames;
+                        _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames;
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
                     }
                     else
@@ -279,13 +279,13 @@ public sealed class GameplayMessageBoxState
                             GameplayMessageIds.EnergyRechargeCompleted or
                             GameplayMessageIds.MissileRechargeCompleted or
                             GameplayMessageIds.SaveCompleted
-                            ? GameplayMessageRomData.Timing.StationMinimumDisplayFrames
-                            : GameplayMessageRomData.Timing.ItemMinimumDisplayFrames;
+                            ? GameplayMessageBoxDefinitions.Timing.StationMinimumDisplayFrames
+                            : GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames;
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
                 else
-                    _nextOpeningRadiusPixels += GameplayMessageRomData.Timing.RadiusStepPixels;
+                    _nextOpeningRadiusPixels += GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
                 return;
 
             case GameplayMessageBoxPhase.MinimumDisplay:
@@ -314,7 +314,7 @@ public sealed class GameplayMessageBoxState
                         return;
                     }
                     _controller.Latch(controllerInput);
-                    _lagFramesRemaining = GameplayMessageRomData.Timing.SaveSelectionReadLagFrames - 1;
+                    _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames - 1;
                     // $85:84D8: A confirms the highlighted choice, then B cancels; only a
                     // press with neither moves the two-choice cursor.
                     SnesButton newlyPressed = _controller.NewlyPressed;
@@ -353,7 +353,7 @@ public sealed class GameplayMessageBoxState
                     Begin(GameplayMessageIds.SaveCompleted, _controller.Current);
                     // The second box skips Initialise_PPU_for_MessageBoxes and the clear,
                     // which preceded the saving sound.
-                    BeginPreparing(GameplayMessageRomData.Timing.ReopenLagFrames);
+                    BeginPreparing(GameplayMessageBoxDefinitions.Timing.ReopenLagFrames);
                     _gunshipCompletion = true;
                 }
                 return;
@@ -371,7 +371,7 @@ public sealed class GameplayMessageBoxState
     private void BeginClosing(bool? confirmationResult)
     {
         _closingConfirmationResult = confirmationResult;
-        _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
+        _nextClosingRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
         Phase = GameplayMessageBoxPhase.Closing;
         StepClosing();
     }
@@ -380,20 +380,20 @@ public sealed class GameplayMessageBoxState
     private void StepClosing()
     {
         RadiusPixels = _nextClosingRadiusPixels;
-        _nextClosingRadiusPixels -= GameplayMessageRomData.Timing.RadiusStepPixels;
+        _nextClosingRadiusPixels -= GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
         if (_nextClosingRadiusPixels >= 0)
             return;
         if (MessageId == GameplayMessageIds.GunshipSaveConfirmation && _closingConfirmationResult == true)
         {
             // $85:80D3 clears the tilemap, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;
-            _savingFramesRemaining = GameplayMessageRomData.Timing.ClearTilemapLagFrames +
-                GameplayMessageRomData.Timing.GunshipSavingSoundFrames;
+            _savingFramesRemaining = GameplayMessageBoxDefinitions.Timing.ClearTilemapLagFrames +
+                GameplayMessageBoxDefinitions.Timing.GunshipSavingSoundFrames;
             _savingSoundRequested = true;
             return;
         }
         // $85:80AA-$80B4: clear the tilemap, restore the PPU, two music/sound frames.
-        _lagFramesRemaining = GameplayMessageRomData.Timing.RestoreLagFrames;
+        _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.RestoreLagFrames;
         Phase = GameplayMessageBoxPhase.Restoring;
     }
 
@@ -431,7 +431,7 @@ public sealed class GameplayMessageBoxState
     /// <summary>Replaces a panel's cartridge-defined glyph cell with the player's configured button.</summary>
     internal void PatchConfiguredButton(GameplayMessageId messageId, SnesButton binding)
     {
-        int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
+        int byteOffset = GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(messageId);
         if ((byteOffset & 1) != 0 || byteOffset + 1 >= TilemapWords.Length * 2)
         {
             throw new InvalidDataException(
@@ -490,6 +490,6 @@ public sealed class GameplayMessageBoxState
 
     /// <summary>Maps a controller binding to the cartridge's message tilemap glyph word.</summary>
     internal static ushort ResolveButtonTilemapWord(SnesButton binding) =>
-        GameplayMessageRomData.Buttons.ResolveGlyphWord(binding);
+        GameplayMessageButtonGlyphs.ResolveGlyphWord(binding);
 
 }

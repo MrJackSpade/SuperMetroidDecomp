@@ -38,7 +38,7 @@ internal static class GameplayMessageNoticesVerification
                 installed.Step(0);
             ushort[] yesSelected = installed.Tilemap.ToArray();
             // $85:84BA's two lag waits precede each ReadControllerInput; press on the read frame.
-            for (int lag = 0; lag < GameplayMessageRomData.Timing.SaveSelectionReadLagFrames; lag++)
+            for (int lag = 0; lag < GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames; lag++)
                 installed.Step(0);
             installed.Step(SnesButton.Right);
             AssertTrue(!yesSelected.SequenceEqual(installed.Tilemap),

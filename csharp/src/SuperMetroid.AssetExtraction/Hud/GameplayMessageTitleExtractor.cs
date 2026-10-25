@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
@@ -24,27 +24,27 @@ public static class GameplayMessageTitleExtractor
         var titles = new Dictionary<string, GameplayMessageTitle>(StringComparer.Ordinal);
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
-            int definition = GameplayMessageRomData.Assets.DefinitionTable +
-                ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
+            int definition = HudSourceDefinitions.Messages.DefinitionTable +
+                ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
             ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
-            if (ClosedNativeWords.Decode<GameplayMessageRoutine>(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
-                ClosedNativeWords.Decode<GameplayMessageRoutine>(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
-                next - pointer != GameplayMessageRomData.Layout.TilemapWidth * sizeof(ushort))
+            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
+            if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
+                GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
+                next - pointer != GameplayMessageBoxDefinitions.Layout.TilemapWidth * sizeof(ushort))
             {
                 throw new InvalidDataException(
                     $"Gameplay message {id} is not the expected one-row cartridge definition.");
             }
 
             var visible = new ushort[GameplayMessageTitleDefinitions.VisibleColumns];
-            int content = GameplayMessageRomData.Assets.BankBase | pointer;
-            for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
+            int content = HudSourceDefinitions.Messages.BankBase | pointer;
+            for (int column = 0; column < GameplayMessageBoxDefinitions.Layout.TilemapWidth; column++)
             {
                 ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort)));
                 if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
-                    >= (GameplayMessageRomData.Layout.TilemapWidth -
+                    >= (GameplayMessageBoxDefinitions.Layout.TilemapWidth -
                         GameplayMessageTitleDefinitions.OuterRightColumns))
                 {
                     if (word != GameplayMessageTitleDefinitions.TransparentWord)
@@ -67,9 +67,9 @@ public static class GameplayMessageTitleExtractor
             titles.Add(id.ToString(), new() { Text = text.Trim(), Palette = palette });
         }
 
-        var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
+        var border = new GameplayMessageTitleCell[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
+            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessageTitlePresentation.Write(output, new()

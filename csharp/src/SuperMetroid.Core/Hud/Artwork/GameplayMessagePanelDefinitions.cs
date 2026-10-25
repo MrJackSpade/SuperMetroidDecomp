@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hud;
 
 
 namespace SuperMetroid.Core.Hud.Artwork;
@@ -13,17 +14,17 @@ public static class GameplayMessagePanelDefinitions
     /// <summary>Number of content rows between the shared top and bottom borders.</summary>
     public const int ContentRows = 4;
     /// <summary>Number of tilemap words in the four-row panel body.</summary>
-    public const int ContentWords = ContentRows * GameplayMessageRomData.Layout.TilemapWidth;
+    public const int ContentWords = ContentRows * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
     /// <summary>Total tilemap words in the bordered six-row message panel.</summary>
     public const int TilemapWords =
-        (ContentRows + GameplayMessageRomData.Layout.BorderRows) *
-        GameplayMessageRomData.Layout.TilemapWidth;
+        (ContentRows + GameplayMessageBoxDefinitions.Layout.BorderRows) *
+        GameplayMessageBoxDefinitions.Layout.TilemapWidth;
     /// <summary>Transparent columns retained at the left edge of the title row.</summary>
     public const int OuterLeftColumns = 3;
     /// <summary>Transparent columns retained at the right edge of the title row.</summary>
     public const int OuterRightColumns = 3;
     /// <summary>Columns available to the title and panel body between the outer margins.</summary>
-    public const int VisibleColumns = GameplayMessageRomData.Layout.TilemapWidth -
+    public const int VisibleColumns = GameplayMessageBoxDefinitions.Layout.TilemapWidth -
         OuterLeftColumns - OuterRightColumns;
 
     /// <summary>The closed set of item messages with editable four-row instruction bodies.</summary>

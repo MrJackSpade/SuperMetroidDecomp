@@ -1326,12 +1326,12 @@ internal static class RoomPlmPopulationVerification
         var notices = new GameplayMessageNoticeDocument
         {
             Version = GameplayMessageNoticeDefinitions.Version,
-            Border = Cells(GameplayMessageRomData.Layout.TilemapWidth, 0x3801),
+            Border = Cells(GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x3801),
             Notices = GameplayMessageNoticeDefinitions.MessageIds.ToDictionary(id => id.ToString(), id =>
                 new GameplayMessageNotice
                 {
                     RowCount = GameplayMessageNoticeDefinitions.ContentRows(id),
-                    Template = Cells(GameplayMessageNoticeDefinitions.ContentRows(id) * GameplayMessageRomData.Layout.TilemapWidth, 0x2800),
+                    Template = Cells(GameplayMessageNoticeDefinitions.ContentRows(id) * GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x2800),
                     Text = [new GameplayMessageTextRegion { Row = 0, Column = 0, Width = 4,
                         Alignment = GameplayMessageTextAlignment.Left, Text = "TEST", Palette = 0 }],
                     YesSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,

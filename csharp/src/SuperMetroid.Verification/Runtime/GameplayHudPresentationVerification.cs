@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
@@ -29,17 +30,17 @@ internal static class GameplayHudPresentationVerification
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
         ushort[] stockTopRow = presentation.TopRow();
         for (int column = 0; column < GameplayHudDefinitions.TopRowCellCount; column++)
-            AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, GameplayHudDefinitions.TopRowAddress + column * 2)
-                    | GameplayHudPresentationAssetsRomByte(bus, GameplayHudDefinitions.TopRowAddress + column * 2 + 1) << 8),
+            AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2)
+                    | GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2 + 1) << 8),
                 stockTopRow[column], $"stock immutable HUD row word {column}");
         var guard = new MutableCartridgeReadGuard(bus);
         guard.Forbid(address =>
-                InHudRange(address, GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowCellCount * 2) ||
-                InHudRange(address, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount * 2) ||
-                InHudRange(address, GameplayHudDefinitions.IconTableAddress, 44) ||
-                InHudRange(address, GameplayHudDefinitions.HealthDigitsAddress, 20) ||
-                InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
-                InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
+                InHudRange(address, HudSourceDefinitions.TopRow, GameplayHudDefinitions.TopRowCellCount * 2) ||
+                InHudRange(address, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount * 2) ||
+                InHudRange(address, HudSourceDefinitions.Icons, 44) ||
+                InHudRange(address, HudSourceDefinitions.HealthDigits, 20) ||
+                InHudRange(address, HudSourceDefinitions.AmmoDigits, 20) ||
+                InHudRange(address, HudSourceDefinitions.AutoReserve, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
         var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         topRowRuntime.Artwork.MapPresentation = original;

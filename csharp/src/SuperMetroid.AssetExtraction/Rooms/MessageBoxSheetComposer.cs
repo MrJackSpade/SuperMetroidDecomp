@@ -54,9 +54,9 @@ internal static class MessageBoxSheetComposer
     {
         Ensure.NotNull(inputs);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
-        colours[GameplayMessageRomData.Palette.TemporaryLightIndex] = GameplayMessageRomData.Palette.TemporaryLightColor;
-        colours[GameplayMessageRomData.Palette.TemporaryDarkIndex] = GameplayMessageRomData.Palette.TemporaryDarkColor;
-        int width = GameplayMessageRomData.Layout.TilemapWidth;
+        colours[GameplayMessageBoxDefinitions.Palette.TemporaryLightIndex] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
+        colours[GameplayMessageBoxDefinitions.Palette.TemporaryDarkIndex] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
+        int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
         int rows = messages.Values.Sum(words => words.Length / width);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(width * RoomTileCanvas.CharacterPixels)), checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));
         ReadOnlySpan<byte> characters = inputs.Hud.Bytes.Span;

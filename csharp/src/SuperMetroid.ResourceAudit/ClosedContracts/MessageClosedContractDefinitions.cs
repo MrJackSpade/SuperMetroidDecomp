@@ -10,7 +10,8 @@ internal static class MessageClosedContractDefinitions
     [
         new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageTitlePresentation.cs"),
         new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageTitleDefinitions.cs"),
-        new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageRomData.cs"),
+        new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageBoxDefinitions.cs"),
+        new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageButtonGlyphs.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/GameplayMessageIds.cs"),
     ];
 

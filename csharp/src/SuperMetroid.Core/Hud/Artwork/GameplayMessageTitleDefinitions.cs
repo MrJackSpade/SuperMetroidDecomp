@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hud;
 
 
 namespace SuperMetroid.Core.Hud.Artwork;
@@ -24,7 +25,7 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>Width in tilemap cells of the centered visible title region.</summary>
     public const int VisibleColumns = 19;
     /// <summary>Total words in the native three-row, 32-column message tilemap.</summary>
-    public const int TilemapWords = GameplayMessageRomData.Layout.TilemapWidth * 3;
+    public const int TilemapWords = GameplayMessageBoxDefinitions.Layout.TilemapWidth * 3;
     /// <summary>Transparent character word used outside the visible title region.</summary>
     public const ushort TransparentWord = 0x000e;
     /// <summary>BG priority bit applied to compiled title glyph words.</summary>

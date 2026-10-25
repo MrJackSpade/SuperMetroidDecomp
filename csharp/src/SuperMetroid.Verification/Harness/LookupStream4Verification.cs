@@ -1987,7 +1987,7 @@ internal static class LookupStream4Verification
             int winner = 0;
             while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
-            AssertEqual(expected, GameplayMessageRomData.Buttons.ResolveGlyphWord((SnesButton)bits), "Native BIT order and all button glyph attributes");
+            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyphWord((SnesButton)bits), "Native BIT order and all button glyph attributes");
             AssertEqual(expected, resolve((SnesButton)bits), "Actual message button resolver retains first-match precedence");
         }
         Action<GameplayMessageBoxState, GameplayMessageId, SnesButton> patch = (state, message, raw) => state.PatchConfiguredButton(message, raw);
@@ -1996,17 +1996,17 @@ internal static class LookupStream4Verification
             var id = (GameplayMessageId)raw;
             if (raw is < 1 or > 27)
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
+                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
                 continue;
             }
             if (!Enum.IsDefined(id))
             {
                 // The table's last entry is a native dummy no message selects; it is rejected as an undefined message.
-                AssertThrows<InvalidOperationException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "The dummy table entry is no message");
+                AssertThrows<InvalidOperationException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "The dummy table entry is no message");
                 continue;
             }
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
-            AssertEqual(expected, GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Native message button placement case");
+            AssertEqual(expected, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Native message button placement case");
             var state = new GameplayMessageBoxState();
             var cells = Enumerable.Range(0, 192).Select(index => (ushort)(0x4000 + index)).ToArray();
             state.TilemapWords = cells;

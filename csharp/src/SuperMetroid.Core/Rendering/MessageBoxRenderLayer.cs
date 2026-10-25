@@ -18,12 +18,12 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     public MessageBoxRenderLayer(SpriteSheetFrame picture, int radiusPixels)
     {
         Ensure.NotNull(picture);
-        int rows = picture.Size.Y / GameplayMessageRomData.Layout.TilePixels;
-        if (picture.Size.X != GameplayMessageRomData.Layout.TilemapWidth * GameplayMessageRomData.Layout.TilePixels
-            || picture.Size.Y % GameplayMessageRomData.Layout.TilePixels != 0
-            || rows < GameplayMessageRomData.Layout.MinimumRows || rows > GameplayMessageRomData.Layout.MaximumRows)
+        int rows = picture.Size.Y / GameplayMessageBoxDefinitions.Layout.TilePixels;
+        if (picture.Size.X != GameplayMessageBoxDefinitions.Layout.TilemapWidth * GameplayMessageBoxDefinitions.Layout.TilePixels
+            || picture.Size.Y % GameplayMessageBoxDefinitions.Layout.TilePixels != 0
+            || rows < GameplayMessageBoxDefinitions.Layout.MinimumRows || rows > GameplayMessageBoxDefinitions.Layout.MaximumRows)
             throw new ArgumentException("A message's image must be three through six complete rows.", nameof(picture));
-        if (radiusPixels is < 0 or > GameplayMessageRomData.Timing.MaximumRadiusPixels)
+        if (radiusPixels is < 0 or > GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
             throw new ArgumentOutOfRangeException(nameof(radiusPixels));
         Picture = picture;
         RadiusPixels = radiusPixels;
@@ -36,21 +36,21 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     public int RadiusPixels { get; }
 
     /// <summary>The scanline the image's top row is drawn on: the rows centered on the window.</summary>
-    public int Top => GameplayMessageRomData.Layout.WindowCenterY - Picture.Size.Y / 2;
+    public int Top => GameplayMessageBoxDefinitions.Layout.WindowCenterY - Picture.Size.Y / 2;
 
     /// <summary>The first scanline the reveal window shows.</summary>
-    public int FirstScanline => GameplayMessageRomData.Layout.WindowCenterY - RadiusPixels;
+    public int FirstScanline => GameplayMessageBoxDefinitions.Layout.WindowCenterY - RadiusPixels;
 
     /// <summary>The scanline after the last one the reveal window shows.</summary>
-    public int EndScanline => GameplayMessageRomData.Layout.WindowCenterY + RadiusPixels;
+    public int EndScanline => GameplayMessageBoxDefinitions.Layout.WindowCenterY + RadiusPixels;
 
     /// <summary>
     /// The colours the message's text shows in over <paramref name="room"/>, the frame's: the room's, with the box's light
     /// and dark text colours in place of the two inks they replace while the box is open.
     /// </summary>
     public static BackgroundColours ShownIn(BackgroundColours room) => Ensure.NotNull(room)
-        .With(GameplayMessageRomData.Palette.TemporaryLightIndex, GameplayMessageRomData.Palette.TemporaryLightColor)
-        .With(GameplayMessageRomData.Palette.TemporaryDarkIndex, GameplayMessageRomData.Palette.TemporaryDarkColor);
+        .With(GameplayMessageBoxDefinitions.Palette.TemporaryLightIndex, GameplayMessageBoxDefinitions.Palette.TemporaryLightColor)
+        .With(GameplayMessageBoxDefinitions.Palette.TemporaryDarkIndex, GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor);
 
     /// <summary>Publishes the image of the currently exposed message (#1392); inactive or zero-radius messages emit none.</summary>
     /// <param name="messageBox">The message box state.</param>

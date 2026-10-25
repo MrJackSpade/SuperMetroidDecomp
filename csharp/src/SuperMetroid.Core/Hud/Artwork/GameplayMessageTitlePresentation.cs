@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -49,10 +50,10 @@ public sealed class GameplayMessageTitlePresentation
 
         var result = new ushort[GameplayMessageTitleDefinitions.TilemapWords];
         Border.CopyTo(result, 0);
-        Border.CopyTo(result, GameplayMessageRomData.Layout.TilemapWidth * 2);
+        Border.CopyTo(result, GameplayMessageBoxDefinitions.Layout.TilemapWidth * 2);
         Span<ushort> content = result.AsSpan(
-            GameplayMessageRomData.Layout.TilemapWidth,
-            GameplayMessageRomData.Layout.TilemapWidth);
+            GameplayMessageBoxDefinitions.Layout.TilemapWidth,
+            GameplayMessageBoxDefinitions.Layout.TilemapWidth);
         content[..GameplayMessageTitleDefinitions.OuterLeftColumns].Fill(
             GameplayMessageTitleDefinitions.TransparentWord);
         content[^GameplayMessageTitleDefinitions.OuterRightColumns..].Fill(
@@ -94,7 +95,7 @@ public sealed class GameplayMessageTitlePresentation
 
         if (document.Version != GameplayMessageTitleDefinitions.Version ||
             document.Border is null ||
-            document.Border.Length != GameplayMessageRomData.Layout.TilemapWidth ||
+            document.Border.Length != GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
             document.Titles is null)
         {
             throw new InvalidDataException(

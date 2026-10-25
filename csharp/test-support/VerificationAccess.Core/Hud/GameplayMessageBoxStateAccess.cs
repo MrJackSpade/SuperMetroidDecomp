@@ -7,6 +7,6 @@ internal static class GameplayMessageBoxStateAccess
     extension(GameplayMessageBoxState self)
     {
         /// <summary>Number of consecutive 32-tile rows in the ROM-built box.</summary>
-        public int TilemapRowCount => self.Tilemap.Length / GameplayMessageRomData.Layout.TilemapWidth;
+        public int TilemapRowCount => self.Tilemap.Length / GameplayMessageBoxDefinitions.Layout.TilemapWidth;
     }
 }

@@ -579,7 +579,7 @@ internal static class CollectiblesVerification
             MessageBoxFrameAudio.MusicAndSounds,
             MessageBoxFrameAudio.MusicAndSounds,
             default,
-            MessageBoxFrameAudio.MusicAndSounds with { RunsHdmaObjects = true },
+            MessageBoxFrameAudio.MusicAndSounds with { AdvancesPerLineEffects = true },
             MessageBoxFrameAudio.MusicAndSounds,
         ];
         foreach (MessageBoxFrameAudio expected in restoringAudio)
@@ -661,8 +661,8 @@ internal static class CollectiblesVerification
                     controllerRead: 0);
                 AssertTrue(
                     retailMessage.TilemapRowCount is >=
-                        GameplayMessageRomData.Layout.MinimumRows and <=
-                        GameplayMessageRomData.Layout.MaximumRows,
+                        GameplayMessageBoxDefinitions.Layout.MinimumRows and <=
+                        GameplayMessageBoxDefinitions.Layout.MaximumRows,
                     $"retail gameplay message {messageId} has a supported layout");
             }
         }

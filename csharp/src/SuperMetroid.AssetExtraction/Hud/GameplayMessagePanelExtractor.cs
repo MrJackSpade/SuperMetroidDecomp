@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
@@ -24,12 +24,12 @@ public static class GameplayMessagePanelExtractor
         var panels = new Dictionary<string, GameplayMessagePanel>(StringComparer.Ordinal);
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {
-            int definition = GameplayMessageRomData.Assets.DefinitionTable +
-                ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
+            int definition = HudSourceDefinitions.Messages.DefinitionTable +
+                ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
             ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
+            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             GameplayMessageRoutine expectedSetup = GameplayMessagePanelDefinitions.ButtonBinding(id) switch
             {
                 GameplayMessagePanelButtonBinding.Shoot => GameplayMessageRoutine.PatchShootButton,
@@ -39,8 +39,8 @@ public static class GameplayMessagePanelExtractor
                 _ => throw new InvalidDataException(
                     $"Gameplay-message panel {id} lacks a compiled button binding."),
             };
-            if (ClosedNativeWords.Decode<GameplayMessageRoutine>(setup, "message setup routine") != expectedSetup ||
-                ClosedNativeWords.Decode<GameplayMessageRoutine>(draw, "message draw routine") != GameplayMessageRoutine.DrawLargeTilemap ||
+            if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != expectedSetup ||
+                GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawLargeTilemap ||
                 next - pointer != GameplayMessagePanelDefinitions.ContentWords * sizeof(ushort))
             {
                 throw new InvalidDataException(
@@ -49,7 +49,7 @@ public static class GameplayMessagePanelExtractor
 
             var template = new GameplayMessageTitleCell[
                 GameplayMessagePanelDefinitions.ContentWords];
-            int content = GameplayMessageRomData.Assets.BankBase | pointer;
+            int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
                 template[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
 
@@ -75,9 +75,9 @@ public static class GameplayMessagePanelExtractor
             });
         }
 
-        var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
+        var border = new GameplayMessageTitleCell[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.LargeBorder + column * sizeof(ushort))) };
+            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.LargeBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessagePanelPresentation.Write(output, new()

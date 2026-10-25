@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
@@ -27,7 +28,7 @@ public static class GameplayHudPresentationExtractor
             icons.Add(GameplayHudDefinitions.IconName(item), new()
             {
                 Anchor = Point(GameplayHudDefinitions.ItemCell(item)),
-                Cells = ReadCells(bus, GameplayHudDefinitions.IconTableAddress + sourceWord * sizeof(ushort), count),
+                Cells = ReadCells(bus, HudSourceDefinitions.Icons + sourceWord * sizeof(ushort), count),
             });
             sourceWord += count;
         }
@@ -36,9 +37,9 @@ public static class GameplayHudPresentationExtractor
         GameplayHudPresentation.Write(output, new()
         {
             Version = GameplayHudDefinitions.Version,
-            TopRow = ReadCells(bus, GameplayHudDefinitions.TopRowAddress,
+            TopRow = ReadCells(bus, HudSourceDefinitions.TopRow,
                 GameplayHudDefinitions.TopRowCellCount),
-            Template = ReadCells(bus, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount),
+            Template = ReadCells(bus, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount),
             Blank = Cell(GameplayHudDefinitions.BlankWord),
             SelectedPalette = GameplayHudDefinitions.SelectedPalette,
             DeselectedPalette = GameplayHudDefinitions.DeselectedPalette,
@@ -52,8 +53,8 @@ public static class GameplayHudPresentationExtractor
             },
             Digits = new()
             {
-                Health = ReadCells(bus, GameplayHudDefinitions.HealthDigitsAddress, 10),
-                Ammo = ReadCells(bus, GameplayHudDefinitions.AmmoDigitsAddress, 10),
+                Health = ReadCells(bus, HudSourceDefinitions.HealthDigits, 10),
+                Ammo = ReadCells(bus, HudSourceDefinitions.AmmoDigits, 10),
                 HealthAnchor = Point(GameplayHudDefinitions.HealthAnchorByteOffset / sizeof(ushort)),
                 MissileAnchor = Point(GameplayHudDefinitions.MissileAnchorByteOffset / sizeof(ushort)),
                 SuperMissileAnchor = Point(GameplayHudDefinitions.SuperMissileAnchorByteOffset / sizeof(ushort)),
@@ -63,8 +64,8 @@ public static class GameplayHudPresentationExtractor
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.AutoReserveCellCount)
                     .Select(cell => Point(GameplayHudDefinitions.AutoReserveCellIndex(cell))).ToArray(),
-                ContainsEnergy = ReadCells(bus, GameplayHudDefinitions.AutoReserveTableAddress, 6),
-                Empty = ReadCells(bus, GameplayHudDefinitions.AutoReserveTableAddress + 12, 6),
+                ContainsEnergy = ReadCells(bus, HudSourceDefinitions.AutoReserve, 6),
+                Empty = ReadCells(bus, HudSourceDefinitions.AutoReserve + HudSourceDefinitions.AutoReserveEmptyOffset, 6),
             },
             Icons = icons,
         });

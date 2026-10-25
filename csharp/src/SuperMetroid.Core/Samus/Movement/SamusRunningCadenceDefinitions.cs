@@ -173,7 +173,7 @@ internal static class SamusRunningCadenceDefinitions
     /// <summary>Reads window position <paramref name="position"/>: the floor update residue in the low half, else the region.</summary>
     private static byte ReadWindow(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, SamusAnimationWindows? windows, ushort position)
     {
-        if (position < SnesBusLayout.RomWindowStart)
+        if (position < SuperMetroid.Core.Compatibility.FloorUpdateResidue.ResidueWindowEnd)
             return (floorUpdateResidue ?? throw new InvalidOperationException(
                 "Running-cadence stage five reads the floor update residue; bind the session's to this Samus."))
                 .ByteAt(position - SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions.FloorUpdateResidueOffset);

@@ -23,6 +23,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
@@ -85,7 +86,7 @@ public static class MapPresentationExtractor
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.InterfaceCharacters, PauseTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> pauseSize);
         using var pauseAtlas = new MemoryStream();
         IndexedPng.Write(pauseAtlas, pauseSize, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));

@@ -18,12 +18,6 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>Stock BG palette selector three for collected but unequipped labels, replacing only tile-word palette bits and leaving the artwork, flips, and priority intact.</summary>
     public const int DisabledPalette = 3;
 
-    /// <summary><c>kEquipmentScreenTilemap_Blank</c> at $82:C01A.</summary>
-    public const ushort BlankSource = 0xc01a;
-
-    /// <summary><c>kHyperBeamWeaponsTilemaps</c> at $82:C0A8.</summary>
-    public const int HyperPointerTable = 0x82c0a8;
-
     /// <summary>The JSON key of the Hyper Beam label; separate from ordinary beam controls and placed at the Wave slot by the native Hyper pointer table.</summary>
     public const string HyperKey = "Beam.Hyper";
     /// <summary>Hyper mode's pointer table places its only nonblank patch in the Wave slot.</summary>

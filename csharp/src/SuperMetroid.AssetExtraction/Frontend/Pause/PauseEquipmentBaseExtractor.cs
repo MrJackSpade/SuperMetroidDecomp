@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -14,7 +15,7 @@ public static class PauseEquipmentBaseExtractor
     /// <returns>UTF-8 JSON bytes for the complete equipment-page base grid.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentBaseDefinitions.Source,
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         var cells = new PauseBackdropCell[PauseEquipmentBaseDefinitions.Cells];
         for (int index = 0; index < cells.Length; index++)

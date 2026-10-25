@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -16,7 +17,7 @@ internal static class PauseCategoryCasesVerification
         Suite(nameof(VerifyPauseCategoryTilemapPointers), () => VerifyPauseCategoryTilemapPointers(rom));
         Suite(nameof(VerifyPauseCategoryItemCounts), () => VerifyPauseCategoryItemCounts(rom));
         Suite(nameof(VerifyPauseCategoryCopyLengths), () => VerifyPauseCategoryCopyLengths(rom));
-        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0, 0, 0, 0),
+        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0, 0),
             PauseEquipmentCategories.Get(PauseEquipmentCategory.Reserves), "reserve controls retain the original managed zero-data contract");
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
             AssertEqual(category, PauseEquipmentCategories.Get(category).Category, "category identity");
@@ -25,20 +26,26 @@ internal static class PauseCategoryCasesVerification
                 "undefined pause category is rejected at the typed boundary");
     }
 
-    /// <summary>Matches inventory category offset table pointers to native bank-$82 entries.</summary>
+    /// <summary>
+    /// Asserts that the label-place table the import reads for each inventory category is the one the cartridge's
+    /// category table at $82:C02C names (it asserted the Core catalog's address before #1416).
+    /// </summary>
     private static void VerifyPauseCategoryOffsets(ISnesAddressSpace rom)
     {
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
             AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c02c + 2 * (int)category),
-                PauseEquipmentCategories.Get(category).OffsetTableAddress, "native category tilemap-offset pointer");
+                PauseMenuSourceDefinitions.EquipmentLabelTables[category].Places, "import reads the cartridge's category label places");
     }
 
-    /// <summary>Matches inventory category tilemap-list pointers to native bank-$82 entries.</summary>
+    /// <summary>
+    /// Asserts that the label-tilemap table the import reads for each inventory category is the one the cartridge's
+    /// category table at $82:C044 names (it asserted the Core catalog's address before #1416).
+    /// </summary>
     private static void VerifyPauseCategoryTilemapPointers(ISnesAddressSpace rom)
     {
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
             AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c044 + 2 * (int)category),
-                PauseEquipmentCategories.Get(category).TilemapPointerTableAddress, "native category tilemap-list pointer");
+                PauseMenuSourceDefinitions.EquipmentLabelTables[category].Labels, "import reads the cartridge's category label tilemaps");
     }
 
     /// <summary>Matches each category's item bound to its native inventory-scan comparison.</summary>

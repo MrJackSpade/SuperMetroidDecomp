@@ -85,7 +85,7 @@ internal static class PauseMenuFixtureVerification
             Screens = stock.Screens,
             WorldArtwork = stock.WorldArtwork,
             Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
-            PauseTiles = new MapTileCharacters(Read(PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)),
+            PauseTiles = new MapTileCharacters(Read(PauseMenuSourceDefinitions.InterfaceCharacters, PauseTileAtlasFormat.ByteCount)),
             PauseBackdrops = backdrops,
             PauseWireframes = stock.PauseWireframes,
             PauseSelectors = PauseSelectorPresentation.Load(selectorJson),

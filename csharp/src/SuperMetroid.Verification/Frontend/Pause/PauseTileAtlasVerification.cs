@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -29,7 +30,7 @@ internal static class PauseTileAtlasVerification
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.InterfaceCharacters, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseTileAtlasFormat.FileName);
         string path = Path.Combine(overrides, PauseTileAtlasFormat.FileName);

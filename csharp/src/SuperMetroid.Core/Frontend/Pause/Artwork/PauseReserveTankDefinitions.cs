@@ -23,14 +23,8 @@ public static class PauseReserveTankDefinitions
         if ((uint)index >= AnchorCount) throw new ArgumentOutOfRangeException(nameof(index));
         return new(checked((ushort)(24 + index * 8)), 95);
     }
-    /// <summary>$82:C1D6, EquipmentScreen_ReserveTank_Xpositions: import-only pointer to the six native horizontal origins; runtime uses the compiled stock anchors and editable deviations.</summary>
-    public const int XPositions = PauseReserveTankRomData.XPositions;
-    /// <summary>$82:C1E2 supplies Y plus one; import applies the draw routine's decrement.</summary>
-    public const int YPosition = PauseReserveTankRomData.YPosition;
-    /// <summary>$82:B3D9 has two identical eight-entry partial-fill tables.</summary>
-    public const int PartialMaps = PauseReserveTankRomData.PartialMaps;
-    /// <summary>$82:B3FC uses OBJ palette three; $82:B433 keeps that palette even as its unused timer advances.</summary>
-    public const ushort PaletteBits = PauseReserveTankRomData.PaletteBits;
+    /// <summary>The sprite palette every reserve-gauge part is drawn with.</summary>
+    public const int Palette = 3;
     /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels.</summary>
     /// <returns>Ten stable frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order; caller-owned reserve quantities select the frame.</returns>
     public static IEnumerable<PauseReserveTankFrame> Frames()

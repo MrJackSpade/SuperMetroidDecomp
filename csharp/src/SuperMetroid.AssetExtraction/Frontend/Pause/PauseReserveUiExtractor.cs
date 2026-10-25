@@ -19,8 +19,8 @@ public static class PauseReserveUiExtractor
         {
             [PauseReserveUiDefinitions.Name(PauseReserveLabel.Mode)] = Label(0, PauseReserveUiDefinitions.LabelWords),
             [PauseReserveUiDefinitions.Name(PauseReserveLabel.ReserveTank)] = Label(1, PauseReserveUiDefinitions.LabelWords),
-            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Manual)] = DirectLabel(PauseReserveUiDefinitions.ManualSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
-            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Auto)] = DirectLabel(PauseReserveUiDefinitions.AutoSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Manual)] = DirectLabel(PauseMenuSourceDefinitions.ReserveManualText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Auto)] = DirectLabel(PauseMenuSourceDefinitions.ReserveAutoText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
         };
         var digits = new PauseReserveDigitVisual
         {
@@ -40,8 +40,8 @@ public static class PauseReserveUiExtractor
         for (int frame = 0; frame < frames.Length; frame++)
             frames[frame] = new()
             {
-                Color6 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.ArrowColor6Source + frame * 2)),
-                Color11 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.ArrowColor11Source + frame * 2)),
+                Color6 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
+                Color11 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
             };
         using var output = new MemoryStream();
         PauseReserveUiFile.Write(output, new()

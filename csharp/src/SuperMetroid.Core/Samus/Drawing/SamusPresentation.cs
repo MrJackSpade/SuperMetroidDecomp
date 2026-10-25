@@ -105,7 +105,7 @@ internal sealed class SamusPresentation
                 $"Samus pose {samus.Pose} cannot initialize directly on delay command ${initialDelay:X2}.");
         }
 
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + initialDelay)));
+        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(initialDelay);
         samus.PendingTransitionalPose = null;
     }
 
@@ -255,7 +255,7 @@ internal sealed class SamusPresentation
                     ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
                     : ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
                 : delayOrCommand;
-            samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + runningOrPoseDelay)));
+            samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
         }
 
@@ -291,8 +291,8 @@ internal sealed class SamusPresentation
             else
             {
                 samus.AnimationFrame = 0;
-                samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-                    samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, byteIndex: 0, windows: null))));
+                samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(
+                    ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, byteIndex: 0, windows: null));
                 return;
             }
         }
@@ -433,7 +433,7 @@ internal sealed class SamusPresentation
             throw new InvalidDataException(
                 $"Samus animation command ${delayOrCommand:X2} selected another command ${selectedDelay:X2}.");
         }
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + selectedDelay)));
+        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(selectedDelay);
     }
 
     /// <summary>Rejects animation updates after a pose change that did not refresh its delay list.</summary>

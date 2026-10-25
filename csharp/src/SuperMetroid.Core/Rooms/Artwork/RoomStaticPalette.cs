@@ -15,7 +15,7 @@ public sealed class RoomStaticPalette
     /// <param name="colours">The selected background colours.</param>
     internal static RoomStaticPalette FromColours(ReadOnlySpan<Bgr555> colours)
     {
-        var native = new byte[RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount];
+        var native = new byte[RoomStaticPaletteFormat.ByteCount];
         for (int index = 0; index < colours.Length; index++)
             BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * Bgr555.ByteCount), colours[index].ToWord());
         return new RoomStaticPalette(native);

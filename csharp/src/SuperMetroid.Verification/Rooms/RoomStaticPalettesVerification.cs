@@ -42,7 +42,7 @@ internal static class RoomStaticPalettesVerification
             byte[] native = RomDataReader.Decompress(bus, source);
             var expected = new SnesCgram();
             var actual = new SnesCgram();
-            expected.LoadBytes(native.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
+            expected.LoadBytes(native.AsSpan(0, RoomStaticPaletteFormat.ByteCount));
             palette.LoadTo(actual);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 $"graphics-set palette ${source:X6} keeps all 128 native CGRAM colors");

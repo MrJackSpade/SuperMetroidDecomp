@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Development-tool members of <see cref="RoomAssetRomData.GraphicsLayout"/>; never linked by player hosts.</summary>
-internal static class RoomAssetRomDataGraphicsLayoutTooling
+/// <summary>Room graphics geometry only the development tools read; never linked by player hosts.</summary>
+internal static class RoomGraphicsLayoutTooling
 {
         /// <summary>Bytes occupied by one SNES four-bit-per-pixel 8x8 character.</summary>
         public const int BytesPer4BppCharacter = 32;
@@ -11,5 +11,5 @@ internal static class RoomAssetRomDataGraphicsLayoutTooling
         public const int CreBlockDefinitionsByteCount = 0x0800;
         /// <summary>Number of CRE block definitions preceding area-specific blocks.</summary>
         public const int CreBlockDefinitionCount =
-            CreBlockDefinitionsByteCount / RoomAssetRomData.GraphicsLayout.BytesPerBlockDefinition;
+            CreBlockDefinitionsByteCount / Artwork.RoomMetatileFormat.BytesPerBlock;
 }

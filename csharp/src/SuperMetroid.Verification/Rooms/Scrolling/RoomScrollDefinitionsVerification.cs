@@ -50,7 +50,7 @@ internal static class RoomScrollDefinitionsVerification
             {
                 explicitStateCount++;
                 explicitPointers.Add(scrollPointer);
-                int source = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
+                int source = RoomTilesetTableConstants.DefinitionBank | scrollPointer;
                 for (int index = 0; index < expected.Length; index++)
                     expected[index] = bus.ReadCartridgeByte(source + index);
                 AssertTrue(expected.SequenceEqual(

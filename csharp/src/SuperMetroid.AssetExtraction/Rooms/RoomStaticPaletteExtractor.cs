@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -33,7 +32,7 @@ public static class RoomStaticPaletteExtractor
             if (files.ContainsKey(name)) continue;
 
             byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address);
-            if (decompressed.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
+            if (decompressed.Length < RoomStaticPaletteFormat.ByteCount)
                 throw new InvalidDataException(
                     $"Room palette {address} has only ${decompressed.Length:X} bytes.");
             var colors = new PaletteRgb5[RoomStaticPaletteFormat.ColorCount];
@@ -60,7 +59,7 @@ public static class RoomStaticPaletteExtractor
             var nativeCgram = new SnesCgram();
             var compiledCgram = new SnesCgram();
             new CgramPalettes(nativeCgram).All.LoadPortBytes(decompressed.AsSpan(
-                0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
+                0, RoomStaticPaletteFormat.ByteCount));
             compiled.LoadTo(compiledCgram);
             if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                 throw new InvalidDataException(

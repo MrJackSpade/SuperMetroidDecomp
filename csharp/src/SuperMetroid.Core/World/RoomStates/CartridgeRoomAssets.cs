@@ -165,7 +165,7 @@ public sealed class CartridgeRoomAssets
 
         foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacters, RoomCharacters))
             placement.BindTo(backgrounds);
-        if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
+        if (PaletteBytes.Length < RoomStaticPaletteFormat.ByteCount)
         {
             throw new InvalidDataException(
                 $"Tileset palette expanded to ${PaletteBytes.Length:X} bytes; expected at least $100.");

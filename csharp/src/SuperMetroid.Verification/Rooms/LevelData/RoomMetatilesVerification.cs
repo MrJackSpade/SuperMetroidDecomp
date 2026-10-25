@@ -30,7 +30,7 @@ internal static class RoomMetatilesVerification
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {
-            [RoomMetatileFormat.CreFileName] = RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress,
+            [RoomMetatileFormat.CreFileName] = (int)RoomTilesetSourceDefinitions.CreBlocks,
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
@@ -58,7 +58,7 @@ internal static class RoomMetatilesVerification
         RoomMetatileAtlas stockCre = RoomMetatileAtlas.Load(
             new MemoryStream(files[RoomMetatileFormat.CreFileName], writable: false),
             RomDataReader.Decompress(bus,
-                RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress).Length);
+                (int)RoomTilesetSourceDefinitions.CreBlocks).Length);
         var stockCatalog = new RoomMetatileCatalog(stockCre, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
@@ -72,7 +72,7 @@ internal static class RoomMetatilesVerification
         }
 
         byte[] cre = RomDataReader.Decompress(bus,
-            RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
+            (int)RoomTilesetSourceDefinitions.CreBlocks);
         JsonNode edited = JsonNode.Parse(files[RoomMetatileFormat.CreFileName])
             ?? throw new InvalidDataException("CRE metatile JSON is empty.");
         JsonNode topLeft = edited.Required("blocks").Required(0).Required("topLeft");

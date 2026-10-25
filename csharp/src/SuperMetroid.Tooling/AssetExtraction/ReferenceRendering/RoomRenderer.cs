@@ -32,7 +32,7 @@ public static class RoomRenderer
     [PpuLayoutBoundary("backend: reference room renderer's BG character VRAM image")]
     private static byte[] BackgroundCharacterImage(byte[] areaTiles, byte[] commonTiles)
     {
-        var vram = new byte[RoomAssetRomDataGraphicsLayoutTooling.BackgroundCharacterVramByteCount];
+        var vram = new byte[RoomGraphicsLayoutTooling.BackgroundCharacterVramByteCount];
         areaTiles.CopyTo(vram, RoomGraphicsLayout.AreaCharacters.Offset * sizeof(ushort));
         commonTiles.CopyTo(vram, RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * sizeof(ushort));
         return vram;
@@ -76,10 +76,10 @@ public static class RoomRenderer
         // select either table without any runtime rebasing.
         byte[] commonBlocks = LoadCompressed(rawAssetDirectory, room.CommonTileTable);
         byte[] areaBlocks = LoadCompressed(rawAssetDirectory, room.AreaTileTable);
-        if (commonBlocks.Length != RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionsByteCount)
+        if (commonBlocks.Length != RoomGraphicsLayoutTooling.CreBlockDefinitionsByteCount)
         {
             throw new InvalidDataException(
-                $"Expected {RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionCount} " +
+                $"Expected {RoomGraphicsLayoutTooling.CreBlockDefinitionCount} " +
                 "common 16x16 block definitions.");
         }
         var blockDefinitions = new byte[commonBlocks.Length + areaBlocks.Length];
@@ -168,8 +168,8 @@ public static class RoomRenderer
         //   bit     15 vertical flip
         SnesBgTilemapWord packedEntry = tileEntry;
         int tileIndex = packedEntry.CharacterIndex;
-        int tileOffset = tileIndex * RoomAssetRomDataGraphicsLayoutTooling.BytesPer4BppCharacter;
-        if (tileOffset + RoomAssetRomDataGraphicsLayoutTooling.BytesPer4BppCharacter > vram.Length)
+        int tileOffset = tileIndex * RoomGraphicsLayoutTooling.BytesPer4BppCharacter;
+        if (tileOffset + RoomGraphicsLayoutTooling.BytesPer4BppCharacter > vram.Length)
             throw new InvalidDataException($"Tile index ${tileIndex:X3} exceeds modeled VRAM.");
         int paletteBase = packedEntry.PaletteIndex * 16;
 

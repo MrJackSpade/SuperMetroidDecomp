@@ -10,7 +10,7 @@ internal static class RoomStateDefinitionsAccess
     extension(RoomStateDefinitions)
     {
         /// <inheritdoc cref="RoomStateSourcesConstants.State"/>
-        internal static CartridgeRoomState Get(ushort pointer) => RoomStateSourcesConstants.State(pointer);
+        internal static RoomStateSettings Get(ushort pointer) => RoomStateSourcesConstants.State(pointer);
     }
 
     /// <summary>The pointers of a room's states.</summary>
@@ -22,7 +22,7 @@ internal static class RoomStateDefinitionsAccess
     }
 
     /// <summary>The bank-$8F pointer of a state.</summary>
-    extension(CartridgeRoomState self)
+    extension(RoomStateSettings self)
     {
         /// <summary>The bank-$8F pointer of this state.</summary>
         internal ushort Pointer => RoomStateSourcesConstants.PointerOf(self);

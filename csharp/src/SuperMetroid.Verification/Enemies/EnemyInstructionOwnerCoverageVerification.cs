@@ -202,7 +202,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
     private static Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
-        CartridgeRoomState[] states = RoomStateDefinitions.All.ToArray();
+        RoomStateSettings[] states = RoomStateDefinitions.All.ToArray();
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Length,
             "owner fixture enumerates every retail room state");
         var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>();

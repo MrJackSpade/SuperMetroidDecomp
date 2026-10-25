@@ -73,7 +73,7 @@ internal static class SpawnedObjectFixtures
     }
 
     /// <summary>The presentation <paramref name="state"/>'s spawned objects draw through.</summary>
-    internal static EnemyPresentation Presentation(CartridgeRoomState state)
+    internal static EnemyPresentation Presentation(RoomStateSettings state)
     {
         ArgumentNullException.ThrowIfNull(state);
         var session = new EnemySession { TileArtwork = InstalledFixtures.EnemyTiles, Sheets = InstalledFixtures.EnemySheets };

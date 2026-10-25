@@ -36,7 +36,7 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
     }
 
     /// <summary>The background-data word of a room state.</summary>
-    extension(CartridgeRoomState self)
+    extension(RoomStateSettings self)
     {
         /// <summary>The word this state stores for its library background: its program's pointer, or zero for none.</summary>
         internal ushort BackgroundDataPointer => self.Background is { } program ? LibraryBackgroundSourcesConstants.PointerOf(program) : (ushort)0;

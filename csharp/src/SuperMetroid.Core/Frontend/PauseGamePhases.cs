@@ -22,7 +22,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // Letting gameplay SFX continue under frozen gameplay causes stale echo,
         // charge, beam, or environmental voices to pulse throughout the menu.
         session.audio.QueueCancelSoundEffects();
-        CartridgeRoomHeader pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
+        SelectedRoom pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active cartridge room header.");
         session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(

@@ -38,7 +38,7 @@ internal static class YardAirborneVerification
     }
 
     /// <summary>Checks dropped, kicked, and beam-launched motion across signed carry and vertical speed caps.</summary>
-    internal static void VerifyYardAirborneTrajectories(CartridgeRoomHeader room)
+    internal static void VerifyYardAirborneTrajectories(SelectedRoom room)
     {
         var empty = new ushort[64 * 64];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(empty, new byte[empty.Length], new ushort[empty.Length]), new byte[8]);

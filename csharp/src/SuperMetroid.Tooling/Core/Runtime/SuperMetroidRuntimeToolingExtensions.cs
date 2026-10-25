@@ -46,13 +46,13 @@ internal static class SuperMetroidRuntimeToolingExtensions
         internal InitialViewportResult LoadCartridgeRoomForDebug(
             RoomHeaderDefinition definition,
             Position16<RoomPixels> camera = default,
-            CartridgeRoomState? state = null)
+            RoomStateSettings? state = null)
         {
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
-            CartridgeRoomHeader room = state is null ? self.RoomLoader.LoadCartridgeRoomHeader(definition)
-                : RoomStateSelectionDefinitions.GetStates(definition).Contains(state) ? new CartridgeRoomHeader(definition, state)
+            SelectedRoom room = state is null ? self.RoomLoader.LoadSelectedRoom(definition)
+                : RoomStateSelectionDefinitions.GetStates(definition).Contains(state) ? new SelectedRoom(definition, state)
                 : throw new ArgumentException($"{state.Name} is not a state of room {definition.Name}.", nameof(state));
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;
@@ -93,7 +93,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoom);
+            SelectedRoom room = self.RoomLoader.LoadSelectedRoom(door.DestinationRoom);
             return self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,

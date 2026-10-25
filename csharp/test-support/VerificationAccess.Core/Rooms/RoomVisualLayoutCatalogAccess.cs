@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Verification access to <see cref="RoomVisualLayoutCatalog"/> members production does not use.</summary>
@@ -8,7 +10,7 @@ internal static class RoomVisualLayoutCatalogAccess
     {
         /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
         internal static RoomVisualLayoutCatalog FromLayoutsForVerification(
-            IReadOnlyDictionary<int, RoomVisualLayout> layouts) =>
-            new RoomVisualLayoutCatalog(layouts, requiredSources: []);
+            IReadOnlyDictionary<RoomLevelId, RoomVisualLayout> layouts) =>
+            new RoomVisualLayoutCatalog(layouts, requiredLevels: []);
     }
 }

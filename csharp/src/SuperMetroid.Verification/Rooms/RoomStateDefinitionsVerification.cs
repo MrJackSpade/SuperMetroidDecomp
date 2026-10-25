@@ -23,7 +23,7 @@ internal static class RoomStateDefinitionsVerification
         RoomHeaderDefinition ceres = LoadStationDefinitions.Get(SuperMetroid.Core.Progression.AreaId.Ceres, 0).Room
             ?? throw new InvalidDataException("Ceres station has no room.");
         ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceres.Pointer).State.Pointer;
-        CartridgeRoomHeader compiledRoom = CartridgeRoomHeader.LoadUsingCompiledSelection(ceres);
+        SelectedRoom compiledRoom = SelectedRoom.LoadUsingCompiledSelection(ceres);
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,
             "production Ceres header construction uses its compiled room-state settings without a cartridge capability");
         Console.WriteLine(

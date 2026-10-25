@@ -62,9 +62,9 @@ internal static class RoomMetatilesVerification
         var stockCatalog = new RoomMetatileCatalog(stockCre, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(header);
-            CartridgeRoomAssets installed = LoadFixtureRoomAssets(header,
+            SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header);
+            LoadedRoomAssets installed = LoadFixtureRoomAssets(header,
                 metatileArt: stockCatalog);
             AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     installed.LevelData.BlockDefinitions.Span),
@@ -96,9 +96,9 @@ internal static class RoomMetatilesVerification
             before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight,
             "edited JSON changes only the intended 8x8 visual child of a solid block");
         RoomMetatileCatalog editedCatalog = new(modified, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
-        CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(landing);
-        CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(landing, metatileArt: editedCatalog);
+        SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+        LoadedRoomAssets nativeLanding = LoadFixtureRoomAssets(landing);
+        LoadedRoomAssets editedLanding = LoadFixtureRoomAssets(landing, metatileArt: editedCatalog);
         AssertTrue(!nativeLanding.LevelData.BlockDefinitions.Span.SequenceEqual(
                 editedLanding.LevelData.BlockDefinitions.Span) &&
             nativeLanding.LevelData.ForegroundEntries.Span.SequenceEqual(

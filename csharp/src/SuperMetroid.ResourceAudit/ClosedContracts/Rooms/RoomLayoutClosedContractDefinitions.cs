@@ -10,6 +10,6 @@ internal static class RoomLayoutClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomVisualLayoutSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomHeader.cs")]),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/SelectedRoom.cs")]),
     ];
 }

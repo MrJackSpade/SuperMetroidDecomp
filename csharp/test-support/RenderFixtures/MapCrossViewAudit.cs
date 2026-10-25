@@ -23,12 +23,12 @@ internal static class MapCrossViewAudit
         int comparisonCount = 0;
         foreach (ushort roomPointer in MapCrossViewAuditDefinitions.RepresentativeRooms)
         {
-            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             comparisonCount += VerifyRoom(room, hasAreaMap: false);
             comparisonCount += VerifyRoom(room, hasAreaMap: true);
         }
 
-        CartridgeRoomHeader reportedRoom = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
+        SelectedRoom reportedRoom = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
             bus,
             MapCrossViewAuditDefinitions.WaterRoom);
         if (reportedRoom.Identity != new RoomIdentity(AreaId.Brinstar, 0x27) ||
@@ -48,7 +48,7 @@ internal static class MapCrossViewAudit
 
     /// <summary>Compares fifteen HUD map cells and the pause marker for one room and map-acquisition state.</summary>
     private static int VerifyRoom(
-        CartridgeRoomHeader room,
+        SelectedRoom room,
         bool hasAreaMap)
     {
         // A half-screen local coordinate keeps Samus inside every representative room and

@@ -26,10 +26,10 @@ internal sealed record RoomScope
     public required DoorDefinition Door { get; init; }
 
     /// <summary>The selected room and state header.</summary>
-    public required CartridgeRoomHeader Room { get; init; }
+    public required SelectedRoom Room { get; init; }
 
     /// <summary>The room's decompressed, read-only asset graph.</summary>
-    public required CartridgeRoomAssets Assets { get; init; }
+    public required LoadedRoomAssets Assets { get; init; }
 
     /// <summary>The room's BG1/BTS/BG2 allocation, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
@@ -75,7 +75,7 @@ internal sealed record RoomScope
     /// arena's BG1 and BG2 at the object character page (#1357); every other room, and the frames before a room is
     /// active, draw from the tileset.
     /// </summary>
-    internal static RoomBackgroundCharacters CharactersOf(CartridgeRoomHeader? room) =>
+    internal static RoomBackgroundCharacters CharactersOf(SelectedRoom? room) =>
         room?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze
             ? RoomBackgroundCharacters.ObjectCharacterPage
             : RoomBackgroundCharacters.Tileset;

@@ -51,7 +51,7 @@ internal static class RoomBlockUploads
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
         {
             bool ceres = room.AreaIndex == AreaId.Ceres;
-            foreach (CartridgeRoomState state in RoomStateSelectionDefinitions.GetStates(room))
+            foreach (RoomStateSettings state in RoomStateSelectionDefinitions.GetStates(room))
             {
                 TilesetDefinition tileset = RoomTilesetDefinitions.Get(state.GraphicsSet);
                 if (!tilesets.TryGetValue(tileset, out TilesetUploads? uploads))
@@ -69,7 +69,7 @@ internal static class RoomBlockUploads
                 }
                 foreach (BgCharacterPlacement placement in LibraryPlacements(inputs, state))
                     uploads.Add(placement);
-                RoomBackgroundCharacters characters = RoomScope.CharactersOf(new CartridgeRoomHeader(room, state));
+                RoomBackgroundCharacters characters = RoomScope.CharactersOf(new SelectedRoom(room, state));
                 BgCharacterPlacement[] loadedObjects = [], encounterObjects = [];
                 if (characters == RoomBackgroundCharacters.ObjectCharacterPage)
                 {
@@ -123,7 +123,7 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>What one state of a room binds after it loads, collectibles and animations aside: Kraid's backdrop.</summary>
-    private static IEnumerable<BgCharacterPlacement> Of(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    private static IEnumerable<BgCharacterPlacement> Of(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
@@ -139,7 +139,7 @@ internal static class RoomBlockUploads
     /// </summary>
     [PpuLayoutBoundary("codec: the VRAM words a room's animated tiles and the Tourian statues' pictures land on")]
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedFrames(RoomBlockSheetInputs inputs, RoomHeaderDefinition room,
-        CartridgeRoomState state)
+        RoomStateSettings state)
     {
         foreach (RoomFxRecordDefinition record in state.Fx?.Records ?? [])
         {
@@ -196,7 +196,7 @@ internal static class RoomBlockUploads
     /// ones.
     /// </summary>
     /// <exception cref="InvalidDataException">It copies other artwork among the block characters.</exception>
-    private static IEnumerable<BgCharacterPlacement> LibraryPlacements(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    private static IEnumerable<BgCharacterPlacement> LibraryPlacements(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
@@ -254,7 +254,7 @@ internal static class RoomBlockUploads
     };
 
     /// <summary>What writes tile words over <paramref name="state"/>'s BG1 or BG2.</summary>
-    private static IEnumerable<TileWordWriter> WritersIn(CartridgeRoomState state) =>
+    private static IEnumerable<TileWordWriter> WritersIn(RoomStateSettings state) =>
         state.EnemyPopulation.Records.ToArray().SelectMany(record => EnemyWriters.TryGetValue(record.DefinitionId, out TileWordWriter[]? writers)
             ? writers : []).Distinct();
 
@@ -263,7 +263,7 @@ internal static class RoomBlockUploads
     /// blocks show: each enemy's tiles its graphics set loads, named as the table records them.
     /// </summary>
     /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
-    private static IEnumerable<BgCharacterPlacement> ObjectPageUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    private static IEnumerable<BgCharacterPlacement> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
         {
@@ -277,7 +277,7 @@ internal static class RoomBlockUploads
     /// What <paramref name="state"/>'s encounters upload over the OBJ character table after its room loads, in the order
     /// they make them, each named as the table records it: Ceres Ridley's getaway its escape timer and its warning.
     /// </summary>
-    private static IEnumerable<BgCharacterPlacement> EncounterObjectUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state) =>
+    private static IEnumerable<BgCharacterPlacement> EncounterObjectUploads(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
         SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterPlacement(
             new BgArtworkIdentity($"{upload.Source}"), BgCharacterSet.Tiles, upload.FirstCharacter,
             upload.Source.Resolve(inputs.Objects)));
@@ -287,7 +287,7 @@ internal static class RoomBlockUploads
         new(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), BgCharacterSet.Layer3, 0, Ensure.NotNull(inputs).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
 
     /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
-    private static IEnumerable<RoomFxType> EffectsIn(CartridgeRoomState state) =>
+    private static IEnumerable<RoomFxType> EffectsIn(RoomStateSettings state) =>
         (state.Fx?.Records ?? []).Select(record => record.Type)
             .Where(RoomLayer3FxState.ShowsPage).Distinct();
 
@@ -311,7 +311,7 @@ internal static class RoomBlockUploads
     /// </summary>
     /// <exception cref="InvalidDataException">A transfer over BG3's characters names no installed character artwork.</exception>
     [PpuLayoutBoundary("codec: the VRAM words a room's library background transfers BG3 characters to")]
-    private static IEnumerable<BgCharacterPlacement> Bg3LibraryUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    private static IEnumerable<BgCharacterPlacement> Bg3LibraryUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
@@ -332,7 +332,7 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>What <paramref name="state"/>'s bosses bind over BG3's characters: the HUD's, which Kraid's death restores.</summary>
-    private static IEnumerable<BgCharacterPlacement> Bg3BossUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    private static IEnumerable<BgCharacterPlacement> Bg3BossUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         if (!state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
             yield break;
@@ -345,7 +345,7 @@ internal static class RoomBlockUploads
     {
         var content = new BgArtworkBindings();
         HudCharacters(inputs).BindTo(content);
-        foreach (BgCharacterPlacement placement in CartridgeRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
+        foreach (BgCharacterPlacement placement in LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
             inputs.Characters.Get(tileset.Characters).Characters))
             placement.BindTo(content);
         return content;

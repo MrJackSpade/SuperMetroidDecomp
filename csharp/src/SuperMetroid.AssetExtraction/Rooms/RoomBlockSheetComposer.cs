@@ -77,7 +77,7 @@ internal static class RoomBlockSheetComposer
     private static ComposedRoomBackground ComposeBackground(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
         RoomBlockUploads.TilesetUploads uploads, RoomBlockUploads.RoomBackgroundMap background)
     {
-        IReadOnlyList<BgCharacterPlacement> load = CartridgeRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
+        IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
             inputs.Characters.Get(tileset.Characters).Characters);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
@@ -112,8 +112,8 @@ internal static class RoomBlockSheetComposer
     /// <exception cref="InvalidDataException">An upload covers only part of a character a block reads.</exception>
     private static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
-        byte[] definitions = CartridgeRoomAssets.BlockDefinitions(inputs.Metatiles, tileset, uploads.Ceres);
-        IReadOnlyList<BgCharacterPlacement> load = CartridgeRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
+        byte[] definitions = LoadedRoomAssets.BlockDefinitions(inputs.Metatiles, tileset, uploads.Ceres);
+        IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
             inputs.Characters.Get(tileset.Characters).Characters);
         var loaded = new BgArtworkBindings();
         foreach (BgCharacterPlacement placement in load)

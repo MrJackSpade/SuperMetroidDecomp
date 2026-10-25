@@ -9,7 +9,7 @@ public static class RoomStateDefinitions
 {
 
     /// <summary>Every retail room state, in native order.</summary>
-    public static IReadOnlyList<CartridgeRoomState> All { get; } =
+    public static IReadOnlyList<RoomStateSettings> All { get; } =
     [
         CrateriaRoomStateDefinitions.LandingSite0,
         CrateriaRoomStateDefinitions.LandingSite1,

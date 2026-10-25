@@ -30,7 +30,7 @@ internal static class RoomCallbackDefinitionsVerification
         foreach (ushort roomPointer in roomPointers)
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
-            CartridgeRoomState state = CartridgeRoomHeader.LoadUsingCompiledSelection(
+            RoomStateSettings state = SelectedRoom.LoadUsingCompiledSelection(
                 RoomHeaderDefinitions.Get(roomPointer), context).State;
             if (!states.Add(state.Pointer))
                 continue;

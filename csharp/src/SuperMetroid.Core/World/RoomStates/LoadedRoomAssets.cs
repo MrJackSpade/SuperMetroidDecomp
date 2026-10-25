@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// Decompressed visual/collision assets selected by one cartridge room-state header.
+/// The level, scroll grid and installed graphics a selected room state loads.
 /// </summary>
 /// <remarks>
 /// This is the reusable, data-only portion of <c>LoadCRETilesTilesetTilesAndPalette</c> and
@@ -18,11 +18,11 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// those bank-$8F setup/main functions remain separate behavior to translate per room.
 /// </remarks>
 [RoomLifetime]
-public sealed class CartridgeRoomAssets
+public sealed class LoadedRoomAssets
 {
     /// <summary>Retains the selected header, physical level allocation, scroll grid, and installed graphics.</summary>
-    private CartridgeRoomAssets(
-        CartridgeRoomHeader header,
+    private LoadedRoomAssets(
+        SelectedRoom header,
         RoomLevelData levelData,
         RoomScrollGrid scrolls,
         RoomTilesetArtwork tileset)
@@ -38,7 +38,7 @@ public sealed class CartridgeRoomAssets
     }
 
     /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
-    public CartridgeRoomHeader Header { get; }
+    public SelectedRoom Header { get; }
     /// <summary>Runtime level allocation with compiled BG1/BG2 physical words, BTS, metatiles, and separately installed visual references; retained allocation rows and streaming tails may exceed the visible header dimensions.</summary>
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
@@ -91,7 +91,7 @@ public sealed class CartridgeRoomAssets
     }
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
-    public static CartridgeRoomAssets Load(RoomScrollStorage scrollStorage, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
+    public static LoadedRoomAssets Load(RoomScrollStorage scrollStorage, SelectedRoom header, RoomAssetCatalogs catalogs)
     {
         Ensure.NotNull(scrollStorage);
         Ensure.NotNull(header);
@@ -107,12 +107,11 @@ public sealed class CartridgeRoomAssets
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation come from the stock-only installed level streams;
         // only the low visual tile bits come from the separately replaceable layout catalog.
-        byte[] levelStream = catalogs.LevelStreams.Get(
-            header.State.CompressedLevelDataAddress).ToArray();
+        byte[] levelStream = catalogs.LevelStreams.Get(header.State.Level).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
-            visualLayouts.Get(header.State.CompressedLevelDataAddress));
+            visualLayouts.Get(header.State.Level));
         RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
-        return new CartridgeRoomAssets(
+        return new LoadedRoomAssets(
             header,
             levelData,
             scrolls,
@@ -121,11 +120,11 @@ public sealed class CartridgeRoomAssets
     }
 
     /// <summary>
-    /// The Mode 7 map a Ceres room shows (#1349): Mode 7 reads its 128 by 128 tile numbers from the low byte of each of
-    /// the first $4000 VRAM words, which the room's two character uploads fill, the area tileset over the CRE.
+    /// The perspective floor a Ceres room shows (#1349): its 128 by 128 tile numbers are the low byte of each of the
+    /// first $4000 VRAM words, which the room's two character uploads fill, the area tileset over the CRE.
     /// </summary>
     [PpuLayoutBoundary("codec: the Mode 7 map shares VRAM words with the room tileset's character upload")]
-    public FloorMap CreateMode7Map()
+    public FloorMap CreateFloorMap()
     {
         var words = new byte[FloorMap.Cells * 2];
         CopyAt(CreCharacters, RoomTileCharacters.CommonRoomElementsFirst * BgCharacterSet.Tiles.CharacterBytes());
@@ -177,7 +176,7 @@ public sealed class CartridgeRoomAssets
 
     /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>
     private static RoomLevelData ParseLevelData(
-        CartridgeRoomHeader header,
+        SelectedRoom header,
         byte[] levelStream,
         byte[] blockDefinitions,
         RoomVisualLayout? visualLayout)
@@ -262,7 +261,7 @@ public sealed class CartridgeRoomAssets
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
-    private static RoomScrollGrid LoadScrolls(RoomScrollStorage scrollStorage, CartridgeRoomHeader header)
+    private static RoomScrollGrid LoadScrolls(RoomScrollStorage scrollStorage, SelectedRoom header)
         => RoomScrollGrid.FromDefinition(
             scrollStorage,
             header.State.Scroll,

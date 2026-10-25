@@ -49,7 +49,7 @@ internal static class RoomHeaderDefinitionsVerification
             if (expected)
             {
                 AssertEqual(pointer, RoomHeaderDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
-                AssertEqual(pointer, CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).Pointer,
+                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).Pointer,
                     "Production header construction preserves identity without a cartridge capability");
             }
             else
@@ -94,7 +94,7 @@ internal static class RoomHeaderDefinitionsVerification
             AssertEqual(expected, field(RoomHeaderDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, (int)CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).AreaIndex, "Production area view");
+                AssertEqual(expected, (int)SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).AreaIndex, "Production area view");
         }
     }
 

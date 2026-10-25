@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Verification.Rooms;
@@ -51,7 +52,7 @@ internal static class LookupRoomStateSettingsVerification
     internal static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
-        Suite(nameof(VerifyRoomStateCompressedLevelDataAddress), () => VerifyRoomStateCompressedLevelDataAddress(rom));
+        Suite(nameof(VerifyRoomStateLevel), () => VerifyRoomStateLevel(rom));
         Suite(nameof(VerifyRoomStateGraphicsSet), () => VerifyRoomStateGraphicsSet(rom));
         Suite(nameof(VerifyRoomStateMusic), () => VerifyRoomStateMusic(rom));
         Suite(nameof(VerifyRoomStateFxPointer), () => VerifyRoomStateFxPointer(rom));
@@ -85,16 +86,25 @@ internal static class LookupRoomStateSettingsVerification
         }
     }
 
-    /// <summary>Checks each compressed level source and the complete distinct visual-layout source view.</summary>
-    private static void VerifyRoomStateCompressedLevelDataAddress(SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// Checks each state's level: the compressed level source its bank-$8F record names is the source extraction's map
+    /// gives the state's level, the importer names the same level, each level has its own source, and the distinct level
+    /// view lists every level once in state order.
+    /// </summary>
+    private static void VerifyRoomStateLevel(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress"));
-        int[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).CompressedLevelDataAddress)
-            .Distinct().Order().ToArray();
+        Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.Level, "Level"));
+        foreach (ushort pointer in OriginalRoomStatePointers)
+            AssertEqual(CartridgeRoomStateImporter.LevelSource(rom, pointer),
+                RoomLevelSourceDefinitions.Addresses[RoomStateDefinitions.Get(pointer).Level], $"State {pointer:X4} level source");
+        RoomLevelId[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).Level)
+            .Distinct().ToArray();
+        AssertEqual(original.Length, RoomLevelSourceDefinitions.Addresses.Count, "Every level has one extraction source");
+        AssertEqual(original.Length, RoomLevelSourceDefinitions.Addresses.Values.Distinct().Count(), "No two levels share a source");
         AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
-            "Required layout-source view matches every distinct original state source in order");
+            "Required level view matches every distinct original state level in order");
         AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
-            "Layout-source view is repeatable after complete enumeration");
+            "Level view is repeatable after complete enumeration");
     }
     /// <summary>Checks the selected room graphics-set identity for every state.</summary>
     private static void VerifyRoomStateGraphicsSet(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.GraphicsSet, "GraphicsSet");
@@ -137,13 +147,13 @@ internal static class LookupRoomStateSettingsVerification
 
     /// <summary>Compares a selected field both through lookup and sorted enumeration for all native identities.</summary>
     private static void VerifyRoomStateField<T>(SuperMetroidAddressSpace rom,
-        Func<CartridgeRoomState, T> field, string name)
+        Func<RoomStateSettings, T> field, string name)
     {
-        CartridgeRoomState[] enumerated = RoomStateDefinitions.All.ToArray();
+        RoomStateSettings[] enumerated = RoomStateDefinitions.All.ToArray();
         for (int index = 0; index < OriginalRoomStatePointers.Length; index++)
         {
             ushort pointer = OriginalRoomStatePointers[index];
-            CartridgeRoomState original = CartridgeRoomStateImporter.Load(rom, pointer);
+            RoomStateSettings original = CartridgeRoomStateImporter.Load(rom, pointer);
             T expected = field(original);
             AssertEqual(expected, field(RoomStateDefinitions.Get(pointer)), $"State {pointer:X4} {name}");
             AssertEqual(expected, field(enumerated[index]), $"Enumerated state {pointer:X4} {name}");

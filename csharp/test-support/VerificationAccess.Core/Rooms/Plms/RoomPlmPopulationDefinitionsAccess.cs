@@ -27,7 +27,7 @@ internal static class RoomPlmPopulationDefinitionsAccess
     }
 
     /// <summary>The population pointer of a room state.</summary>
-    extension(CartridgeRoomState self)
+    extension(RoomStateSettings self)
     {
         /// <summary>The bank-$8F list pointer of this state's population.</summary>
         internal ushort PlmPointer => RoomPlmPopulationSources.PointerOf(self.PlmPopulation);

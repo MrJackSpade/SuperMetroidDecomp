@@ -744,7 +744,7 @@ public sealed class PlayableGameControl : UserControl
             return;
         }
 
-        CartridgeRoomState state = game.GameplayActiveRoomState
+        RoomStateSettings state = game.GameplayActiveRoomState
             ?? throw new InvalidOperationException($"Room {room.Name} has no selected room state.");
         RoomIdentity identity = game.GameplayActiveRoomIdentity
             ?? throw new InvalidOperationException($"Room {room.Name} has no logical room identity.");

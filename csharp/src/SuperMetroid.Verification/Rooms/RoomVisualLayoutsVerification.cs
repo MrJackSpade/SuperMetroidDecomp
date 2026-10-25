@@ -26,44 +26,44 @@ internal static class RoomVisualLayoutsVerification
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room level streams")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
-        AssertEqual(246, RoomVisualLayoutFiles.RetailSources.Count,
-            "distinct pinned room-level visual sources");
+        AssertEqual(246, RoomVisualLayoutFiles.RetailLevels.Count,
+            "distinct pinned room levels");
         RoomLevelStreamCatalog levelStreams = installed.LoadRoomLevelStreams();
-        AssertEqual(RoomVisualLayoutFiles.RetailSources.Count, levelStreams.Count,
-            "installed room-level source count");
+        AssertEqual(RoomVisualLayoutFiles.RetailLevels.Count, levelStreams.Count,
+            "installed room-level count");
         AssertTrue(!Directory.Exists(Path.Combine(installed.Root, "overrides",
                 GameInstallationLayout.RoomLevelStreamDirectoryName)),
             "installed room-level streams have no override directory");
         VerifyRoomLevelStreamRejections(installed);
         try
         {
-            _ = levelStreams.Get(0);
-            throw new InvalidOperationException("Unknown installed room-level source was accepted.");
+            _ = levelStreams.Get(new RoomLevelId("UnknownLevel"));
+            throw new InvalidOperationException("Unknown installed room level was accepted.");
         }
         catch (InvalidDataException error)
         {
-            AssertTrue(error.Message.Contains("lacks source", StringComparison.Ordinal),
-                "unknown installed room-level source fails without ROM fallback");
+            AssertTrue(error.Message.Contains("lacks level", StringComparison.Ordinal),
+                "unknown installed room level fails without ROM fallback");
         }
-        foreach ((int source, int width) in RoomVisualLayoutFiles.RetailSources)
+        foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels)
         {
-            RoomVisualLayout layout = stock.Get(source);
-            byte[] native = RomDataReader.Decompress(bus, source);
+            RoomVisualLayout layout = stock.Get(level);
+            byte[] native = RomDataReader.Decompress(bus, RoomLevelSourceDefinitions.Addresses[level]);
             AssertTrue(native.SequenceEqual(File.ReadAllBytes(Path.Combine(
-                    installed.RoomLevelStreamDirectory, RoomLevelStreamFiles.SourceFileName(source)))),
-                $"installed level file for ${source:X6} is the complete native decompressor output");
-            AssertTrue(native.SequenceEqual(levelStreams.Get(source).Span),
-                $"installed room-level source ${source:X6} matches every native allocation byte");
+                    installed.RoomLevelStreamDirectory, RoomLevelStreamFiles.LevelFileName(level)))),
+                $"installed level file for {level} is the complete native decompressor output");
+            AssertTrue(native.SequenceEqual(levelStreams.Get(level).Span),
+                $"installed room level {level} matches every native allocation byte");
             int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
             int backgroundBytes = Math.Min(layerBytes, native.Length - backgroundOffset);
-            AssertEqual(width, layout.Size.X, $"room ${source:X6} visual stride");
+            AssertEqual(width, layout.Size.X, $"room level {level} visual stride");
             AssertEqual(count / width, layout.Size.Y,
-                $"room ${source:X6} visual allocation height");
+                $"room level {level} visual allocation height");
             for (int index = 0; index < count; index++)
             {
                 ushort foreground = unchecked((ushort)(
@@ -73,9 +73,9 @@ internal static class RoomVisualLayoutsVerification
                         native.AsSpan(backgroundOffset + index * 2)) & 0x0fff))
                     : (ushort)0;
                 AssertEqual(foreground, layout.ForegroundVisualWords.Span[index],
-                    $"room ${source:X6} BG1 visual word {index}");
+                    $"room level {level} BG1 visual word {index}");
                 AssertEqual(background, layout.BackgroundVisualWords.Span[index],
-                    $"room ${source:X6} BG2 visual word {index}");
+                    $"room level {level} BG2 visual word {index}");
             }
         }
 
@@ -90,11 +90,11 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(header);
+            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header);
             foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(header))
             {
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
-                int source = room.State.CompressedLevelDataAddress;
+                int source = RoomLevelSourceDefinitions.Addresses[room.State.Level];
                 byte[] native = RomDataReader.Decompress(bus, source);
                 int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
                 int blockCount = layerBytes / 2;
@@ -133,8 +133,8 @@ internal static class RoomVisualLayoutsVerification
         AssertTrue(slopeBlocks > 0 && spikeBlocks > 0,
             "guarded installed-stream audit includes physical slope and spike-hazard blocks");
 
-        int landingSource = landing.State.CompressedLevelDataAddress;
-        string name = RoomVisualLayoutFiles.SourceFileName(landingSource);
+        RoomLevelId landingLevel = landing.State.Level;
+        string name = RoomVisualLayoutFiles.LevelFileName(landingLevel);
         string stockPath = Path.Combine(installed.RoomVisualLayoutDirectory, name);
         JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
             ?? throw new InvalidDataException("Installed Landing Site layout is empty.");
@@ -146,10 +146,10 @@ internal static class RoomVisualLayoutsVerification
         string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
         File.WriteAllText(overridePath, document.ToJsonString());
 
-        CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
-        CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
+        LoadedRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
+        LoadedRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: stock, levelStreams: levelStreams);
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
+        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
@@ -176,9 +176,9 @@ internal static class RoomVisualLayoutsVerification
         // an extra physical row beyond its camera. Both must survive the installed-stream path.
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
-            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
-            CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(room);
-            CartridgeRoomAssets installedOther = LoadFixtureRoomAssets(room,
+            SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
+            LoadedRoomAssets nativeOther = LoadFixtureRoomAssets(room);
+            LoadedRoomAssets installedOther = LoadFixtureRoomAssets(room,
                 visualLayouts: stock, levelStreams: levelStreams);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
                     installedOther.LevelData.ForegroundEntries.Span) &&
@@ -195,7 +195,7 @@ internal static class RoomVisualLayoutsVerification
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("Room-layout repair lost the installation.");
         AssertEqual(foregroundWords.Required(0).GetValue<int>(),
-            installed.LoadRoomVisualLayouts().Get(landingSource).ForegroundVisualWords.Span[0],
+            installed.LoadRoomVisualLayouts().Get(landingLevel).ForegroundVisualWords.Span[0],
             "room-layout override survives stock installation validation");
 
         int editedForegroundWord = foregroundWords.Required(0).GetValue<int>();
@@ -213,7 +213,7 @@ internal static class RoomVisualLayoutsVerification
         }
         foregroundWords[0] = editedForegroundWord;
         File.WriteAllText(overridePath, document.ToJsonString());
-        Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailSources.Count} native sources and " +
+        Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailLevels.Count} native levels and " +
             $"{stateCount} guarded state loads retain collision/BTS (including slopes and spikes) while BG1/BG2 edits " +
             "affect only rendering, survive repair, and reject collision bits.");
     }
@@ -221,13 +221,14 @@ internal static class RoomVisualLayoutsVerification
     /// <summary>
     /// Confirms the stock-only level-stream loader rejects each corrupted installation with a
     /// path-specific error: a changed or resized stream, a missing file, an unsupported version
-    /// or provenance, and an unknown or missing source.
+    /// or provenance, and an unknown or missing level.
     /// </summary>
     private static void VerifyRoomLevelStreamRejections(GameInstallation installed)
     {
         using var scratch = new TestScratchDirectory("room-level-stream-rejections");
-        string firstName = RoomLevelStreamFiles.SourceFileName(RoomVisualLayoutFiles.RetailSources.Keys.Min());
-        const string unknownName = "level-000000.bin";
+        string firstName = RoomLevelStreamFiles.LevelFileName(
+            RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal).First());
+        const string unknownName = "level-UnknownLevel.bin";
 
         void Expect(string label, string namedFile, Action<string> corrupt)
         {
@@ -271,7 +272,7 @@ internal static class RoomVisualLayoutsVerification
         });
         Expect("missing-file", firstName, directory => File.Delete(Path.Combine(directory, firstName)));
         Expect("wrong-version", RoomLevelStreamFiles.ManifestFileName,
-            directory => EditManifest(directory, manifest => manifest["version"] = 2));
+            directory => EditManifest(directory, manifest => manifest["version"] = 1));
         Expect("wrong-provenance", RoomLevelStreamFiles.ManifestFileName,
             directory => EditManifest(directory, manifest => manifest["sourceCartridgeSha256"] = new string('0', 64)));
         Expect("extra-source", unknownName, directory =>
@@ -280,7 +281,7 @@ internal static class RoomVisualLayoutsVerification
             File.WriteAllBytes(Path.Combine(directory, unknownName), stream);
             EditManifest(directory, manifest => manifest.Required("entries").AsObject()[unknownName] = new JsonObject
             {
-                ["sourceAddress"] = 0,
+                ["level"] = "UnknownLevel",
                 ["byteCount"] = stream.Length,
                 ["sha256"] = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(stream)),
             });

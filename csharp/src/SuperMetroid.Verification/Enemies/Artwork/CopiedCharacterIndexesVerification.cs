@@ -31,7 +31,7 @@ internal static class CopiedCharacterIndexesVerification
         {
             // A room places the enemy each follows; Phantoon's parts are spawned by her body rather than placed.
             EnemyDefinitionId owner = EnemyTileBaseDefinitions.DrawsAtTilesOf[child];
-            (RoomHeaderDefinition room, CartridgeRoomState state) = RoomHeaderDefinitions.All
+            (RoomHeaderDefinition room, RoomStateSettings state) = RoomHeaderDefinitions.All
                 .SelectMany(definition => RoomStateSelectionDefinitions.GetStates(definition).Select(state => KeyValuePair.Create(definition, state)))
                 .FirstOrDefault(candidate => candidate.Value.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == owner));
             if (room is null)

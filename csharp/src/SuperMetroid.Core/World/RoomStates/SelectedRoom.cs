@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// A retail room's fixed header and its selected twenty-six-byte room-state record.
+/// A retail room and the state its selection chose: the room's fixed header and the settings of that state.
 /// </summary>
 /// <remarks>
 /// The engine calls <c>HandleRoomDefStateSelect</c> at $8F:E5D2 immediately after reading
@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// source or destination room sets it, the transition hides BG1 below the HUD and does not keep the common
 /// room elements' colours while the source palette fades.
 /// </remarks>
-public sealed record CartridgeRoomHeader(RoomHeaderDefinition Definition, CartridgeRoomState State)
+public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSettings State)
 {
     /// <summary>The room's native per-area index, 0 through 255.</summary>
     public int RoomIndex => Definition.RoomIndex;
@@ -49,7 +49,7 @@ public sealed record CartridgeRoomHeader(RoomHeaderDefinition Definition, Cartri
     public RoomIdentity Identity => new(AreaIndex, RoomIndex);
 
     /// <summary>Builds a room entirely from compiled fixed metadata, selection, and state payloads.</summary>
-    public static CartridgeRoomHeader LoadUsingCompiledSelection(
+    public static SelectedRoom LoadUsingCompiledSelection(
         RoomHeaderDefinition room,
         RoomStateSelectionContext selection = default) =>
         new(Ensure.NotNull(room), RoomStateSelectionDefinitions.Select(room, selection));

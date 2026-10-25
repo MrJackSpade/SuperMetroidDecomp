@@ -61,7 +61,7 @@ internal static class SuperMetroidGameAccess
             Ensure.NotNull(runtime);
             if (self.Session.Runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
-            CartridgeRoomState roomState = runtime.Room.LoadedRoom.State;
+            RoomStateSettings roomState = runtime.Room.LoadedRoom.State;
             self.AdoptRuntime(runtime);
             self.Session.LastAudioRoomState = roomState;
             self.GameState = SuperMetroidGameState.MainGameplay;

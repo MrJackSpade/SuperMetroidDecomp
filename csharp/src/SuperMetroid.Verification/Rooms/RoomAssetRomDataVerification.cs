@@ -123,9 +123,9 @@ internal static class RoomAssetRomDataVerification
         var layouts = installation.LoadRoomVisualLayouts();
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
-            CartridgeRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
+            SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
+            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharacters.SequenceEqual(guarded.CreCharacters) &&
@@ -198,9 +198,9 @@ internal static class RoomAssetRomDataVerification
         var catalog = new RoomCharacterAtlasCatalog((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(room);
-            CartridgeRoomAssets installed = LoadFixtureRoomAssets(room, catalog);
+            SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(room);
+            LoadedRoomAssets installed = LoadFixtureRoomAssets(room, catalog);
             AssertTrue(installed.CreCharacters.SequenceEqual(native.CreCharacters) &&
                 installed.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
@@ -215,7 +215,7 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
         }
 
-        CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+        SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         int landingSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).CharacterAddress;
         byte[] landingNative = RomDataReader.Decompress(bus, landingSource);
         int landingTiles = landingNative.Length / RoomCharacterAtlasFormat.BytesPerTile;
@@ -232,7 +232,7 @@ internal static class RoomAssetRomDataVerification
         compiledBySource[landingSource] = RoomCharacterAtlasPng.Read(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
+        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
         AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
 

@@ -153,7 +153,7 @@ public sealed class SuperMetroidGame
     public RoomHeaderDefinition? GameplayActiveRoom => Session.Runtime?.Room.ActiveRoom?.Definition;
 
     /// <summary>The active room's selected state, exposed beside the room identity, or null before gameplay.</summary>
-    public CartridgeRoomState? GameplayActiveRoomState => Session.Runtime?.Room.ActiveRoom?.State;
+    public RoomStateSettings? GameplayActiveRoomState => Session.Runtime?.Room.ActiveRoom?.State;
 
     /// <summary>Validated logical area/room pair, or null before cartridge gameplay.</summary>
     public RoomIdentity? GameplayActiveRoomIdentity => Session.Runtime?.Room.ActiveRoom?.Identity;

@@ -70,7 +70,7 @@ internal static class RoomAssetJsonContractsVerification
                 if (contract.Name is "layouts" or "X-ray")
                 {
                     string name = contract.Name == "layouts"
-                        ? RoomVisualLayoutFiles.SourceFileName(RoomVisualLayoutFiles.RetailSources.Keys.Min())
+                        ? RoomVisualLayoutFiles.LevelFileName(RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal).First())
                         : XrayRevealVisualFiles.VisualFileName;
                     string visual = File.ReadAllText(Path.Combine(stock, name));
                     string overrides = Directory.CreateDirectory(Path.Combine(temporary, contract.Name + "-overrides")).FullName;

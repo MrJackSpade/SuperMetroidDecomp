@@ -15,7 +15,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>Provides installed death palettes and explosion sprite compositions.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Receives the death sequence's palette transitions.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one accepted NMI before each isolated death-state frame.</summary>
@@ -31,7 +31,7 @@ internal sealed class DeathSequenceRunner
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
-        _cgram = dependencies.Cgram;
+        _colours = dependencies.Colours;
         _display = dependencies.Display;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
@@ -96,7 +96,7 @@ internal sealed class DeathSequenceRunner
         _sprites.BeginFrame();
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _player.Samus,
-            _cgram,
+            _colours,
             _player.Colours,
             _artwork.SamusBodyArt?.DeathPalettes);
         if (_player.LastDeathSequenceStep.Value.DrawPose)

@@ -63,7 +63,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.Kinematics.YSpeed = default;
             runtime.StepFrame(0);
             palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            runtime.Cgram.AsPaletteColors().SetColor(223, Bgr555.FromWord(0x1234));
+            runtime.Colours.AsPaletteColors().SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame(SnesButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
@@ -72,7 +72,7 @@ internal static class GameplayGrapplePaletteVerification
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
             palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            runtime.Cgram.AsPaletteColors().SetColor(223, Bgr555.FromWord(0x1234));
+            runtime.Colours.AsPaletteColors().SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame(SnesButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");
@@ -81,15 +81,15 @@ internal static class GameplayGrapplePaletteVerification
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "release cancels extending grapple");
             var ordinary = new SamusColourRig();
             palettes.LoadTo(ordinary.Samus.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(ordinary.Colors.Slice(224, 16)),
+            AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(ordinary.Colors.Slice(224, 16)),
                 "cancel restores equipped beam palette");
         }
         Console.WriteLine("Gameplay grapple palette: normal HUD firing, refire, fixed flare color and cancellation restoration verified.");
         void AssertPalette(string phase)
         {
-            AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)),
+            AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)),
                 phase + " loads native palette two");
-            AssertEqual(0x7f91, runtime.Cgram.Colors[223], phase + " sets native flare color");
+            AssertEqual(0x7f91, runtime.Colours.Colors[223], phase + " sets native flare color");
         }
     }
 

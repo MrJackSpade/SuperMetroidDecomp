@@ -14,56 +14,56 @@ public static class StockAttractDemoScenes
     /// <summary>Mutually exclusive demonstration identities.</summary>
     private enum Demonstration
     {
-        /// <summary><c>$91:9E52</c> input object; <c>$82:8774</c> room staging for LandingSite.</summary>
+        /// <summary>The LandingSite demonstration.</summary>
         LandingSite,
-        /// <summary><c>$91:9E88</c> input object; <c>$82:8786</c> room staging for MissileDoor.</summary>
+        /// <summary>The MissileDoor demonstration.</summary>
         MissileDoor,
-        /// <summary><c>$91:9EAC</c> input object; <c>$82:8798</c> room staging for PreSporeSpawnHall.</summary>
+        /// <summary>The PreSporeSpawnHall demonstration.</summary>
         PreSporeSpawnHall,
-        /// <summary><c>$91:9E5E</c> input object; <c>$82:87AA</c> room staging for SpeedBooster.</summary>
+        /// <summary>The SpeedBooster demonstration.</summary>
         SpeedBooster,
-        /// <summary><c>$91:9EB2</c> input object; <c>$82:87BC</c> room staging for GrappleBeam.</summary>
+        /// <summary>The GrappleBeam demonstration.</summary>
         GrappleBeam,
-        /// <summary><c>$91:9E58</c> input object; <c>$82:87CE</c> room staging for PseudoScrewAttack.</summary>
+        /// <summary>The PseudoScrewAttack demonstration.</summary>
         PseudoScrewAttack,
-        /// <summary><c>$91:9EB8</c> input object; <c>$82:87E2</c> room staging for IceBeam.</summary>
+        /// <summary>The IceBeam demonstration.</summary>
         IceBeam,
-        /// <summary><c>$91:9E94</c> input object; <c>$82:87F4</c> room staging for FirefleaRoom.</summary>
+        /// <summary>The FirefleaRoom demonstration.</summary>
         FirefleaRoom,
-        /// <summary><c>$91:9EA0</c> input object; <c>$82:8806</c> room staging for BrinstarDiagonalRoom.</summary>
+        /// <summary>The BrinstarDiagonalRoom demonstration.</summary>
         BrinstarDiagonalRoom,
-        /// <summary><c>$91:9E76</c> input object; <c>$82:8818</c> room staging for LowerNorfairEntrance.</summary>
+        /// <summary>The LowerNorfairEntrance demonstration.</summary>
         LowerNorfairEntrance,
-        /// <summary><c>$91:9E9A</c> input object; <c>$82:882A</c> room staging for ScrewAttack.</summary>
+        /// <summary>The ScrewAttack demonstration.</summary>
         ScrewAttack,
-        /// <summary><c>$91:9E64</c> input object; <c>$82:883C</c> room staging for Dachora.</summary>
+        /// <summary>The Dachora demonstration.</summary>
         Dachora,
-        /// <summary><c>$91:9E70</c> input object; <c>$82:8850</c> room staging for PrePhantoonHall.</summary>
+        /// <summary>The PrePhantoonHall demonstration.</summary>
         PrePhantoonHall,
-        /// <summary><c>$91:9E82</c> input object; <c>$82:8862</c> room staging for DiagonalShinespark.</summary>
+        /// <summary>The DiagonalShinespark demonstration.</summary>
         DiagonalShinespark,
-        /// <summary><c>$91:9E7C</c> input object; <c>$82:8874</c> room staging for EyeDoor.</summary>
+        /// <summary>The EyeDoor demonstration.</summary>
         EyeDoor,
-        /// <summary><c>$91:9E6A</c> input object; <c>$82:8886</c> room staging for RedBrinstarElevator.</summary>
+        /// <summary>The RedBrinstarElevator demonstration.</summary>
         RedBrinstarElevator,
-        /// <summary><c>$91:9E8E</c> input object; <c>$82:8898</c> room staging for Kraid.</summary>
+        /// <summary>The Kraid demonstration.</summary>
         Kraid,
-        /// <summary><c>$91:9ED6</c> input object; <c>$82:88AA</c> room staging for TourianEntrance.</summary>
+        /// <summary>The TourianEntrance demonstration.</summary>
         TourianEntrance,
-        /// <summary><c>$91:9EBE</c> input object; <c>$82:88BE</c> room staging for GauntletEntrance.</summary>
+        /// <summary>The GauntletEntrance demonstration.</summary>
         GauntletEntrance,
-        /// <summary><c>$91:9EC4</c> input object; <c>$82:88D0</c> room staging for AdvancedGrappleBeam.</summary>
+        /// <summary>The AdvancedGrappleBeam demonstration.</summary>
         AdvancedGrappleBeam,
-        /// <summary><c>$91:9ECA</c> input object; <c>$82:88E2</c> room staging for InfiniteBombJump.</summary>
+        /// <summary>The InfiniteBombJump demonstration.</summary>
         InfiniteBombJump,
-        /// <summary><c>$91:9ED0</c> input object; <c>$82:88F4</c> room staging for SpecialBeamAttack.</summary>
+        /// <summary>The SpecialBeamAttack demonstration.</summary>
         SpecialBeamAttack,
-        /// <summary><c>$91:9EDC</c> input object; <c>$82:8906</c> room staging for CrystalFlash.</summary>
+        /// <summary>The CrystalFlash demonstration.</summary>
         CrystalFlash,
     }
 
     /// <summary>
-    /// $91:895D sets equipment bit $0010 (unassigned in the named item domain) alongside the named item abilities in $F33F.
+    /// The diagonal-shinespark staging sets one equipment bit that names no item alongside the named item abilities.
     /// Preserve the exact staged word without assigning this bit an invented ability;
     /// this chosen copied metadata is part of the exact demonstration staging, not an additional named ability.
     /// </summary>
@@ -106,7 +106,7 @@ public static class StockAttractDemoScenes
     }
 
     /// <summary>
-    /// The chosen staging at $82:8774-8918 and $91:888D-8A32. Screen origins, upgrade capacities,
+    /// The chosen staging of each demonstration. Screen origins, upgrade capacities,
     /// and composable equipment words calculate from their domain units; choosing each scene's
     /// starting configuration and editorial cutoff defines this recorded performance.
     /// </summary>
@@ -483,7 +483,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
-    /// <summary>$82:8774-8918: seventeen staged actors stand on identified flat native floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
+    /// <summary>Seventeen staged actors stand on identified flat native floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
     private static short GroundedY(int floorRow, Demonstration demonstration)
     {
         SamusPoseId pose = SamusSetupFor(demonstration) switch
@@ -499,7 +499,7 @@ public static class StockAttractDemoScenes
         return (short)(floorRow * 16 - SamusPoseCollisionDefinitions.ReadVerticalRadius(pose));
     }
 
-    /// <summary>$82:8774-8918: Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>
+    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>
     private static AttractDemoRoomSetup RoomSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or
@@ -516,7 +516,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 
-    /// <summary>$91:89FD-8A32: selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct native callbacks.</summary>
+    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct native callbacks.</summary>
     private static AttractDemoSamusSetup SamusSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => AttractDemoSamusSetup.LandingSite,
@@ -535,7 +535,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
-    /// <summary>$91:888D-89FC: chosen loadouts share actual item abilities, rather than repeating full equipment words. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark bit is preserved without inventing an ability.</summary>
+    /// <summary>Chosen loadouts share actual item abilities, rather than repeating full equipment words. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark bit is preserved without inventing an ability.</summary>
     private static SamusEquipmentFlags ItemsFor(Demonstration demonstration)
     {
         const SamusEquipmentFlags mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
@@ -565,7 +565,7 @@ public static class StockAttractDemoScenes
     }
 
     /// <summary>
-    /// $91:8899-89F9 equipped-beam selections for each demonstration. These choose composable
+    /// Equipped-beam selections for each demonstration. These choose composable
     /// native beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
     /// </summary>
     private static SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
@@ -579,20 +579,20 @@ public static class StockAttractDemoScenes
     };
 
     /// <summary>
-    /// $91:888D-89FC: collected beams equal equipped beams in22 scenes. The diagonal-shinespark
-    /// scene at $91:895D collects all beam types but equips only Charge.
+    /// Collected beams equal equipped beams in 22 scenes. The diagonal-shinespark
+    /// scene collects all beam types but equips only Charge.
     /// </summary>
     private static SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeamsFor(Demonstration demonstration) =>
         demonstration == Demonstration.DiagonalShinespark
             ? (SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
             : EquippedBeamsFor(demonstration);
 
-    /// <summary>$82:86A9-86B8 camera origins use whole256-pixel room screens.</summary>
+    /// <summary>Camera origins use whole 256-pixel room screens.</summary>
     private static Position16<RoomPixels> CameraAtScreen(Position16<RoomScreens> screen) => screen.ToRoomPixels();
 
-    /// <summary>$91:888D-89FC ammo fields express the number of native five-round upgrades.</summary>
+    /// <summary>Ammo counts are a number of five-round upgrades.</summary>
     private static ushort AmmoForPacks(int packs) => (ushort)(packs * 5);
 
-    /// <summary>$91:888D-89FC energy capacities consist of99 base energy plus100 per tank.</summary>
+    /// <summary>Energy capacities consist of 99 base energy plus 100 per tank.</summary>
     private static ushort HealthForEnergyTanks(int tanks) => (ushort)(99 + tanks * 100);
 }

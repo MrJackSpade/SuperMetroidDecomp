@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -15,9 +14,6 @@ internal sealed record AttractDemoDriverDependencies
 
     /// <summary>Attract session.</summary>
     public required AttractDemoSession AttractSession { get; init; }
-
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

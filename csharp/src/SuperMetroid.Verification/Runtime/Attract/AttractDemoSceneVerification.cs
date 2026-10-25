@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Runtime.Attract;
 
 using SuperMetroid.Verification.Harness;
@@ -25,16 +26,16 @@ internal static class AttractDemoSceneVerification
     {
         Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
         var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
-        WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
-        WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
-        WriteRomWord(rom, AttractDemoRomData.SamusSetupSetPointers, 0xb000);
+        WriteRomWord(rom, AttractDemoSceneSources.RoomSetPointers, 0x9000);
+        WriteRomWord(rom, AttractDemoSceneSources.EquipmentSetPointers, 0xa000);
+        WriteRomWord(rom, AttractDemoSceneSources.SamusSetupSetPointers, 0xb000);
         ushort[] room = [0x91f8, 0x896a, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
         ushort inputObject = DemoInputObjectDefinitions.NativeHeaderOf(DemoInputObjectDefinitions.AttractLandingSite);
         ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, inputObject];
         for (int word = 0; word < room.Length; word++) WriteRomWord(rom, 0x829000 + word * 2, room[word]);
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
         WriteRomWord(rom, 0x91b000, 0x8a53);
-        WriteRomWord(rom, 0x829012, AttractDemoRomData.EndOfSet);
+        WriteRomWord(rom, 0x829012, AttractDemoSceneSources.EndOfSet);
         WriteRomWord(rom, DemoInputRomData.BankBase | inputObject, DemoInputRomData.Routines.NoOp);
         WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 2, (ushort)NativeDemoPreInstruction.AttractCheckLeave);
         WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 4, 0xc000);

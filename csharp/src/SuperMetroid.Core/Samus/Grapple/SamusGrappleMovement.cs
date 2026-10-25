@@ -873,7 +873,7 @@ public static class SamusGrappleMovement
                         }
                         catch (UnsupportedShotBlockReactionException error)
                         {
-                            throw new CartridgeDispatchException(
+                            throw new UnmodeledBehaviorException(
                                 $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Bts.Value:X2}",
                                 $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Bts.Value:X2} " +
                                 $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",

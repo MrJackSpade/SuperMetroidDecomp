@@ -43,7 +43,7 @@ internal static class AttractRuntimeBindingsVerification
         int incomingRandom = game.DispatcherRandomNumber;
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
         var demo = game.GameplayRuntimeForVerification;
-        AssertTrue(demo.Cgram.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
+        AssertTrue(demo.Colours.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
         AssertTrue(ReferenceEquals(objects, demo.Artwork.StandardObjectArt), "attract runtime binds installed standard objects");
         AssertTrue(ReferenceEquals(enemyArtwork, demo.EnemySession.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
@@ -52,7 +52,7 @@ internal static class AttractRuntimeBindingsVerification
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var selected = game.GameplayRuntimeForVerification;
         AssertTrue(!ReferenceEquals(demo, selected), "selected play and attract playback own separate runtimes");
-        AssertTrue(selected.Cgram.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
+        AssertTrue(selected.Colours.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
         AssertTrue(selected.Options.PlayerInvincibilityEnabled && selected.Options.InfiniteAmmoEnabled && selected.Options.PreventEscapeTimeout,
             "selected runtime retains host options");
 

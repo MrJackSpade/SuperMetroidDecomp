@@ -83,26 +83,26 @@ internal static class BeamPaletteArtworkVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var expected = new SamusColourRig();
         palettes.LoadTo(expected.Samus.Beam, 0);
-        runtime.Cgram.AsPaletteColors().SetColor(SamusColourDefinitions.BeamFirstColour, new Bgr555(27, 3, 0));
+        runtime.Colours.AsPaletteColors().SetColor(SamusColourDefinitions.BeamFirstColour, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
+        AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
-        runtime.Cgram.AsPaletteColors().SetColor(224, new Bgr555(27, 3, 0));
+        runtime.Colours.AsPaletteColors().SetColor(224, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
+        AssertEqual(123, runtime.Colours.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
         AssertTrue(flash.UpdatePalette(runtime.Player.Colours, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
-        AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
+        AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
         runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
-        runtime.Cgram.AsPaletteColors().SetColor(224, new Bgr555(8, 14, 0));
+        runtime.Colours.AsPaletteColors().SetColor(224, new Bgr555(8, 14, 0));
         runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
+        AssertEqual(456, runtime.Colours.Colors[224], "Rebind cannot erase active Hyper palette");
 
         // Debug grapple selection uses the same palette index as native firing, but
         // installed artwork must win over the cartridge pointer table after binding.
@@ -110,7 +110,7 @@ internal static class BeamPaletteArtworkVerification
         nativeRuntime.LoadDebugGrapplePalette();
         var grappleExpected = new SamusColourRig();
         palettes.LoadTo(grappleExpected.Samus.Beam, SamusBeamCombination.Ice);
-        AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
+        AssertTrue(nativeRuntime.Colours.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
             "Stock debug grapple selection matches native beam palette index two");
 
         var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
@@ -121,9 +121,9 @@ internal static class BeamPaletteArtworkVerification
         nativeRuntime.Artwork.BeamPalettes = editedPalettes;
         nativeRuntime.LoadDebugGrapplePalette();
         editedPalettes.LoadTo(grappleExpected.Samus.Beam, SamusBeamCombination.Ice);
-        AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
+        AssertTrue(nativeRuntime.Colours.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
             "Bound debug grapple selection uses edited extracted palette, not cartridge colors");
-        AssertEqual(32657, nativeRuntime.Cgram.Colors[223], "Debug grapple retains the adjacent fixed flare color");
+        AssertEqual(32657, nativeRuntime.Colours.Colors[223], "Debug grapple retains the adjacent fixed flare color");
     }
 
     /// <summary>Runs the beam palette extraction and live ownership checks.</summary>

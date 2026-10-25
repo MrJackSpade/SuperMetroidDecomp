@@ -687,8 +687,8 @@ internal static class FrontendRomFreeVerification
                         if (nativeVram[offset] != installedVram[offset]) changed++;
                     if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
                 }
-                ReadOnlySpan<Bgr555> nativeColors = native.GameplayRuntimeForVerification.Cgram.Colors;
-                ReadOnlySpan<Bgr555> installedColors = installed.GameplayRuntimeForVerification.Cgram.Colors;
+                ReadOnlySpan<Bgr555> nativeColors = native.GameplayRuntimeForVerification.Colours.Colors;
+                ReadOnlySpan<Bgr555> installedColors = installed.GameplayRuntimeForVerification.Colours.Colors;
                 int changedColors = 0;
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;

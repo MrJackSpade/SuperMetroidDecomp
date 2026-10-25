@@ -103,7 +103,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         if (session.Runtime is null)
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
-        ColourImage target = session.Runtime.Cgram.Capture();
+        ColourImage target = session.Runtime.Colours.Capture();
         // `$82:DCA3-$DCB3` restores only Samus's suit colours into the otherwise black target.
         // Her suitless sprite set and every room and sprite colour therefore fade away.
         target.Fill(Bgr555.Black);

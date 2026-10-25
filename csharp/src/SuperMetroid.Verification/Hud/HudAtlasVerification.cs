@@ -122,7 +122,7 @@ internal static class HudAtlasVerification
             // No room palette has been installed in this focused runtime fixture.
             // Give every BG3 color a distinct grayscale value so a changed index is
             // observable, rather than accepting parity between two black HUDs.
-            for (int i = 0; i < 32; i++) runtime.Cgram.AsPaletteColors().SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
+            for (int i = 0; i < 32; i++) runtime.Colours.AsPaletteColors().SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
@@ -131,10 +131,10 @@ internal static class HudAtlasVerification
         static Rgba32[] Render(SuperMetroidRuntime runtime)
         {
             Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().Words, runtime.ComposedVram(),
-                runtime.Cgram.Colors);
+                runtime.Colours.Colors);
             var layer = new OrdinaryGameplayRenderLayer(new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
                 new Extent16<TilemapCells>(32, 32), ScreenLayers.Bg3), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
-            Rgba32[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Cgram.Colors, []),
+            Rgba32[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Colours.Colors, []),
                 new RenderLayer[] { layer }, FadeLevel.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
         }

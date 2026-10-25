@@ -687,11 +687,11 @@ internal static class RidleyFullMovieVerification
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
         samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
-        Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
-        for (int color = 192; color < 208; color++) runtime.Cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+        Bgr555[] expected = runtime.Colours.Colors.Slice(192, 16).ToArray();
+        for (int color = 192; color < 208; color++) runtime.Colours.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
         runtime.StepFrame(SnesButton.Select);
         AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
-        AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
+        AssertTrue(runtime.Colours.Colors.Slice(192, 16).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
@@ -812,8 +812,8 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToNativeWord());
         for (int color = 0; color < 16; color++)
-            AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
-        AssertEqual(0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
+            AssertEqual(beamPalette[color], runtime.Colours.Colors[224 + color], "beam palette is live during door scrolling");
+        AssertEqual(0, runtime.Colours.Colors[196], "visor remains faded before scroll completes");
         int scrollCalls = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
@@ -823,7 +823,7 @@ internal static class RidleyFullMovieVerification
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
         AssertEqual(DoorTransitionPhase.FinishDoorLoading, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
-        AssertEqual(0x3be0, runtime.Cgram.Colors[196], "final scrolling update publishes native visor green before PLMs");
+        AssertEqual(0x3be0, runtime.Colours.Colors[196], "final scrolling update publishes native visor green before PLMs");
         AssertEqual(0x00de2000u, samus.Kinematics.Position.X.RawValue, "native source frame 276 scrolling endpoint");
         game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
@@ -943,7 +943,7 @@ internal static class RidleyFullMovieVerification
             // loading owners reach their shared completion boundary. Check it there.
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
-                    words.Add(runtime.Cgram.Colors[color].ToWord());
+                    words.Add(runtime.Colours.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
@@ -1243,7 +1243,7 @@ internal static class RidleyFullMovieVerification
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
-            IPaletteColors comparedPalette = runtime.Cgram.AsPaletteColors();
+            IPaletteColors comparedPalette = runtime.Colours.AsPaletteColors();
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
@@ -1260,7 +1260,7 @@ internal static class RidleyFullMovieVerification
             if (deferLoadingOwners)
             {
                 if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FinishDoorLoading)
-                    Check("Completed-scroll visor", runtime.Cgram.Colors[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
+                    Check("Completed-scroll visor", runtime.Colours.Colors[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
                         NativeSnapshotMemory.PaletteBuffer + XrayScopeDefinitionsPaletteConstants.VisorCgramIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
                 if (pendingLoadedOwners is not null && !owners.SequenceEqual(pendingLoadedOwners))

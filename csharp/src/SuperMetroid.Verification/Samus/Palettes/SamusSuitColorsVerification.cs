@@ -208,7 +208,7 @@ internal static class SamusSuitColorsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         AssertEqual(edited.SamusSuitColors.Resolve(0, 1),
-            runtime.Cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + 1],
+            runtime.Colours.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + 1],
             "installed production Ceres entry uses edited Power Suit color");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed normal suit paths do not reread the three cartridge palettes");

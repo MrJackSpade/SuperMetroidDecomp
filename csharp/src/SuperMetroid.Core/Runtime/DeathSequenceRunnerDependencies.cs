@@ -11,8 +11,8 @@ internal sealed record DeathSequenceRunnerDependencies
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
-    /// <summary>Cgram.</summary>
-    public required GameplayColours Cgram { get; init; }
+    /// <summary>Gameplay's colours, which receive the death sequence's palette transitions.</summary>
+    public required GameplayColours Colours { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }

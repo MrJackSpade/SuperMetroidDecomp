@@ -48,7 +48,7 @@ internal static class RetailAttractTests
                 {
                     sawHold = true;
                     // Each scene's ninety-frame final-image hold freezes that scene's own image.
-                    if (legacy.AttractDemoHoldFramesRemaining == AttractDemoRomData.FinalImageHoldFrames)
+                    if (legacy.AttractDemoHoldFramesRemaining == AttractDemoDefinitions.FinalImageHoldFrames)
                         held = legacy.PublishedPixels();
                     held ??= legacy.PublishedPixels();
                     if (!held.SequenceEqual(legacy.PublishedPixels())) throw new InvalidOperationException("Demo held frame changed.");

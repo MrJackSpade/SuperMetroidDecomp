@@ -138,8 +138,8 @@ internal sealed class SuperMetroidRuntime
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState(spriteSets);
-        Cgram = new GameplayColours(spriteSets, Player.Colours);
-        PaletteFxColours = new GameplayPaletteFxColours(Cgram, Player.Colours);
+        Colours = new GameplayColours(spriteSets, Player.Colours);
+        PaletteFxColours = new GameplayPaletteFxColours(Colours, Player.Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -149,28 +149,28 @@ internal sealed class SuperMetroidRuntime
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
-        Tester = new TesterTools(Cgram, Player, System);
-        TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
+        Tester = new TesterTools(Colours, Player, System);
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Colours, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Colours, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
-        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
-        EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
+        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Colours, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
+        EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Colours, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Colours, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         PerLineEffects = new PerLineEffectPhase(Freeze, System);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork});
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
-        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork});
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
-        PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Cgram = Cgram, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
+        PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Cgram = Colours, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Cgram = Cgram, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Cgram = Colours, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
         Tester.GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
@@ -187,7 +187,7 @@ internal sealed class SuperMetroidRuntime
         // game stages this through WRAM before NMI uploads CGRAM; initializing the modeled
         // PPU here produces the same starting colors while that fade pipeline is ported.
         (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
-            "Gameplay requires the installed initial palette catalog.")).LoadInitial(Cgram);
+            "Gameplay requires the installed initial palette catalog.")).LoadInitial(Colours);
     }
 
     /// <summary>
@@ -323,10 +323,10 @@ internal sealed class SuperMetroidRuntime
     public BgArtworkBindings BgArtwork { get; }
 
     /// <summary>
-    /// Gameplay's colours, initialized from <c>kInitialPalette</c> at ROM <c>$9A:8000</c>; the positions Samus holds are
-    /// her colours (#1405).
+    /// Gameplay's colours, initialized from the installed initial palette; the positions Samus holds are her colours
+    /// (#1405).
     /// </summary>
-    public GameplayColours Cgram { get; }
+    public GameplayColours Colours { get; }
 
     /// <summary>The colours palette-FX objects write, by owner (#1405).</summary>
     internal IPaletteFxColourOwners PaletteFxColours { get; }
@@ -472,7 +472,7 @@ internal sealed class SuperMetroidRuntime
         var context = new GameplayFrameContext(SampleSamusCameraPoint());
         PrepareEnemyProcessingList();
         RunPaletteFx();
-        BeginOamFrame();
+        BeginSpriteFrame();
         PrepareEnemiesAndHoistedEnemyMain(context);
         if (Player.Samus is not null && Room.Camera is not null)
         {
@@ -508,7 +508,7 @@ internal sealed class SuperMetroidRuntime
     {
         Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
         FrameBoundary.BeginAcceptedFrame(controller1Input);
-        frameRequest.AfterAcceptedNmi();
+        frameRequest.AfterFrameBoundary();
         ScreenLayers.Choose(Room.LoadedScope);
     }
 
@@ -520,14 +520,14 @@ internal sealed class SuperMetroidRuntime
         if (Room.Camera is not null && !MessageBox.IsActive)
             PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
 
-        // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
+        // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
         // Its cleanup runs Samus command $1E, which can queue sounds before the Samus
         // handler; the frame's Samus sound window therefore opens here.
-        if (Player.Samus is { } hdmaSamus && !MessageBox.IsActive)
+        if (Player.Samus is { } samus && !MessageBox.IsActive)
         {
-            hdmaSamus.LiquidPhysics.BeginFrameSoundRequests(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
-            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(hdmaSamus, Controller1.Current, DispatchGameState);
+            samus.LiquidPhysics.BeginFrameSoundRequests(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
+            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
         }
     }
 
@@ -646,12 +646,12 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Clears high OAM for the frame's draw pass.</summary>
-    private void BeginOamFrame()
+    /// <summary>Starts the frame's sprite list for its draw pass.</summary>
+    private void BeginSpriteFrame()
     {
-        // The bank-$82 main loop clears high OAM and resets its stack before dispatching
-        // game state, then finalizes unused entries afterward. Samus is emitted before the
-        // escape timer so lower OAM indices retain their normal overlap precedence.
+        // The main loop starts the sprite list before dispatching the game state and closes it
+        // afterward. Samus is drawn before the escape timer so she keeps her normal overlap
+        // precedence.
         Sprites.BeginFrame();
     }
 
@@ -1050,7 +1050,7 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, new FramePaint(Cgram.Colors, Player.Colours.ColourOwnDraws(DisplayedSprites.Draws)));
+        return new(Display.Latched, frameEnd, new FramePaint(Colours.Colors, Player.Colours.ColourOwnDraws(DisplayedSprites.Draws)));
     }
 
     /// <summary>
@@ -1104,8 +1104,8 @@ internal sealed class SuperMetroidRuntime
             // The message box's restoring frames ($88:84B9 in Restore_PPU) run the per-line effects too.
             if (Room.Camera is not null)
                 PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
-            if (Player.Samus is { } hdmaSamus)
-                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(hdmaSamus, Controller1.Current, DispatchGameState);
+            if (Player.Samus is { } samus)
+                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;

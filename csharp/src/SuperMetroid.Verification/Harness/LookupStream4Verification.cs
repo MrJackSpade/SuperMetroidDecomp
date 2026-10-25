@@ -2372,8 +2372,7 @@ internal static class LookupStream4Verification
         AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
         for (int index = 0; index < 4; index++)
         {
-            var target = DraygonCannonData.FiringTarget(
-                ClosedNativeWords.Decode<DraygonFiringCannon>((byte)index, "Draygon firing cannon"));
+            var target = DraygonCannonData.FiringTarget(DraygonCannonData.FiringOrder[index]);
             AssertEqual(DraygonCannonControlWordAddresses.Decode((ushort)(0x8804 + 2 * index)), target.DisabledWord, "Draygon original control-word selection");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), target.Origin.X, "Draygon original cannon X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");

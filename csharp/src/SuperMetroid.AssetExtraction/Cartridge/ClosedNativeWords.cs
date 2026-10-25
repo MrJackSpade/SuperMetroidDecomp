@@ -1,9 +1,12 @@
 using System.Runtime.CompilerServices;
 
-namespace SuperMetroid.Core.Programs;
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
-/// <summary>Validated decoding of native words that select a member of a closed enum.</summary>
-public static class ClosedNativeWords
+/// <summary>
+/// Validated decoding, at import, of native words that select a member of a closed enum. Gameplay never decodes a native
+/// word into an identity; only cartridge import and the verification importers use this.
+/// </summary>
+internal static class ClosedNativeWords
 {
     /// <summary>Decodes <paramref name="word"/> or throws, naming <paramref name="meaning"/>.</summary>
     public static TEnum Decode<TEnum>(ushort word, string meaning)

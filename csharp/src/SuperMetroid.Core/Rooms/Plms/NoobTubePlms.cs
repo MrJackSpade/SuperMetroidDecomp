@@ -37,7 +37,7 @@ internal sealed class NoobTubePlms
     {
         level.SetForegroundEntry(
             slot.BlockIndex,
-            NoobTubePlmRomData.SolidProjectileTriggerLevelWord);
+            NoobTubePlmDefinitions.SolidProjectileTriggerLevelWord.Raw);
         level.SetBehavior(
             slot.BlockIndex,
             RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
@@ -59,14 +59,14 @@ internal sealed class NoobTubePlms
                 else if (slot.LoopTimer != 0)
                 {
                     _sounds.Queue(
-                        NoobTubePlmRomData.IneffectiveShotSound,
+                        NoobTubePlmDefinitions.IneffectiveShotSound,
                         MaximumQueued: SoundQueueLimit.Max6);
                 }
                 slot.LoopTimer = 0;
                 return;
 
             case NoobTubePlmPreInstruction.WakeOnAcceptedInput:
-                if ((controllerNewInput & NoobTubePlmRomData.AcceptedWakeInputMask) != 0)
+                if ((controllerNewInput & NoobTubePlmDefinitions.AcceptedWakeInputMask) != 0)
                 {
                     slot.WakeAtLink();
                 }
@@ -79,7 +79,7 @@ internal sealed class NoobTubePlms
     }
 
     /// <summary>Whether the tube was broken on an earlier visit (its event is set).</summary>
-    internal bool IsBroken() => RequireNoobTubeEvents().Has(NoobTubePlmRomData.BrokenEvent);
+    internal bool IsBroken() => RequireNoobTubeEvents().Has(NoobTubePlmDefinitions.BrokenEvent);
 
     /// <summary>Locks Samus in place for the break sequence.</summary>
     internal void LockSamus() => RequireNoobTubeSamus().Control.LockStationary();
@@ -93,9 +93,9 @@ internal sealed class NoobTubePlms
     /// <summary>Spawns the ten glass shards and six released-air bubbles, each with its even native parameter.</summary>
     internal void SpawnShardsAndBubbles(PlmSlot slot)
     {
-        for (int shard = 0; shard < NoobTubePlmRomData.ShardCount; shard++)
+        for (int shard = 0; shard < NoobTubePlmDefinitions.ShardCount; shard++)
             SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, (ushort)(shard * 2));
-        for (int bubble = 0; bubble < NoobTubePlmRomData.BubbleCount; bubble++)
+        for (int bubble = 0; bubble < NoobTubePlmDefinitions.BubbleCount; bubble++)
             SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, (ushort)(bubble * 2));
     }
 
@@ -103,14 +103,14 @@ internal sealed class NoobTubePlms
     internal void TriggerEarthquake()
     {
         (_earthquake ?? throw new InvalidOperationException(
-            "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmRomData.EarthquakeType);
-        _earthquake.SetTimer(NoobTubePlmRomData.EarthquakeTimer);
+            "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmDefinitions.EarthquakeType);
+        _earthquake.SetTimer(NoobTubePlmDefinitions.EarthquakeTimer);
     }
 
     /// <summary>Sets the tube's broken event.</summary>
     internal void SetBrokenEvent() =>
         (_events ?? throw new InvalidOperationException(
-            "N00b tube has no event writer.")).Set(NoobTubePlmRomData.BrokenEvent);
+            "N00b tube has no event writer.")).Set(NoobTubePlmDefinitions.BrokenEvent);
 
     /// <summary>Enables the room's water physics, Samus's included.</summary>
     internal void EnableWaterPhysics() =>

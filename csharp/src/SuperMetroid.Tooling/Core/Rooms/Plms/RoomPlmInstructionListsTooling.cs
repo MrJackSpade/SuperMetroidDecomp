@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Development-tool members of <see cref="RoomPlmInstructionLists"/>; never linked by player hosts.
+/// Development-tool bank-$84 PLM instruction lists; never linked by player hosts.
 /// The PLM program audit enumerates these lists alongside the shipped catalog by reflection.
 /// </summary>
 internal static class RoomPlmInstructionListsTooling

@@ -13,7 +13,7 @@ internal static class LookupElevatubeVerification
     /// <summary>Compares the single installed elevatube draw with its native run, tile, and displacement.</summary>
     internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.PhysicalWord, "Elevatube native scalar");
+        AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "Elevatube native scalar");
         var all = MaridiaElevatubePlmDefinitions.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
         AssertTrue(MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");

@@ -135,7 +135,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
     internal void SetLoweredAcidHeight() =>
         (_chozoRoomFx ?? throw new InvalidOperationException("Chozo PLM has no FX owner."))
-            .ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
+            .SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
 
     /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)

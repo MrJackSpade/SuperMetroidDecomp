@@ -39,28 +39,29 @@ internal static class ChozoStatuePlmDefinitionsVerification
         AssertEqual(5, definitions.Length, "Chozo terrain PLM definition count");
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
-        AssertTrue(headers.SequenceEqual(definitions.Select(d => (ushort)d.Header)), "Chozo original header enumeration");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // PlmHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
+        AssertTrue(headers.SequenceEqual(definitions.Select(d => PlmNativeWords.Word(d.Header))), "Chozo original header enumeration");
+        foreach (PlmHeaderId candidate in Enum.GetValues<PlmHeaderId>())
         {
-            ushort header = (ushort)raw;
+            ushort header = PlmNativeWords.Word(candidate);
             if (!headers.Contains(header))
-                AssertThrows<InvalidDataException>(() => ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header), "Chozo full unsupported header domain");
+                AssertThrows<InvalidDataException>(() => ChozoStatuePlmDefinitions.Resolve(candidate), "Chozo full unsupported header domain");
             else
             {
-                var selected = ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header);
-                AssertEqual(header, (ushort)selected.Header, "Chozo dispatch header identity");
+                var selected = ChozoStatuePlmDefinitions.Resolve(candidate);
+                AssertEqual(candidate, selected.Header, "Chozo dispatch header identity");
                 AssertEqual(PlmProgramStartOracle.ForNativeList(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)))), selected.Program,
                     "Chozo dispatch original initial list");
-                AssertEqual(definitions.Single(d => (ushort)d.Header == header), selected, "Chozo named/enumerated dispatch agreement");
+                AssertEqual(definitions.Single(d => d.Header == candidate), selected, "Chozo named/enumerated dispatch agreement");
             }
         }
         foreach (ChozoStatuePlmDefinition definition in definitions)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 2))));
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(PlmNativeWords.Word(definition.Header) + 2))));
             AssertEqual(
                 PlmProgramStartOracle.ForNativeList(expected),
                 definition.Program,
-                $"Chozo PLM ${(int)definition.Header:X4} initial program matches cartridge");
+                $"Chozo PLM {definition.Header} initial program matches cartridge");
 
             const int width = 32;
             const int height = 16;
@@ -74,7 +75,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
 
             AssertTrue(
                 plms.ChozoStatue.TrySpawnChozoStatuePlm(level, request),
-                $"Chozo PLM ${(int)definition.Header:X4} allocates");
+                $"Chozo PLM {definition.Header} allocates");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Chozo PLM uses highest free native slot");
             AssertEqual(definition.Header, slot.HeaderPointer, "Chozo PLM header identity");

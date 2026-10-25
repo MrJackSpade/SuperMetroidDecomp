@@ -13,7 +13,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.WreckedShipTreadmill, static (slot, context) =>
+        table.Add(PlmFamily.WreckedShipTreadmill, static (slot, context) =>
             TryStepWreckedShipTreadmill(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 

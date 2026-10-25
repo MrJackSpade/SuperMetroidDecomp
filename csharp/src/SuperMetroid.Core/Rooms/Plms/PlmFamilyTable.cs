@@ -9,13 +9,13 @@ internal sealed class PlmFamilyTable
     /// <summary>The step of each family, indexed by family.</summary>
     private readonly PlmFamilyStepHandler?[] _steps = new PlmFamilyStepHandler?[Enum.GetValues<PlmFamily>().Length];
 
-    /// <summary>Registers <paramref name="family"/>'s step.</summary>
+    /// <summary>Adds <paramref name="family"/>'s step.</summary>
     /// <exception cref="InvalidOperationException">The family already has a step.</exception>
-    internal void Register(PlmFamily family, PlmFamilyStepHandler step)
+    internal void Add(PlmFamily family, PlmFamilyStepHandler step)
     {
         Ensure.NotNull(step);
         if (_steps[(int)family] is not null)
-            throw new InvalidOperationException($"PLM family {family} registered its step twice.");
+            throw new InvalidOperationException($"PLM family {family} added its step twice.");
         _steps[(int)family] = step;
     }
 

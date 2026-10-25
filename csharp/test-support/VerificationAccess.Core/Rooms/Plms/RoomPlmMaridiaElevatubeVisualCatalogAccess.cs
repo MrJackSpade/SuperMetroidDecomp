@@ -12,6 +12,6 @@ internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
         internal static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(
             [new RoomPlmVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId,
-                [new RoomLevelWord(MaridiaElevatubePlmDefinitions.PhysicalWord).VisualWord])]);
+                [MaridiaElevatubePlmDefinitions.PhysicalWord.VisualWord])]);
     }
 }

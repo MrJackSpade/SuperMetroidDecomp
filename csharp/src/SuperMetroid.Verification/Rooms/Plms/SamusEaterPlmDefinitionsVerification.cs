@@ -22,7 +22,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         AssertEqual(SamusEaterProgram.CeilingBite, definitions[1].Program, "ceiling plant header starts the ceiling bite");
         Suite(nameof(RoomPlmProgramsVerification.VerifySamusEaterPrograms), () => RoomPlmProgramsVerification.VerifySamusEaterPrograms(rom));
 
-        foreach (PlmHeaderId headerPointer in new ushort[] { 0xb6cb, 0xb6cf })
+        foreach (PlmHeaderId headerPointer in new[] { PlmNativeWords.Header(0xb6cb), PlmNativeWords.Header(0xb6cf) })
         {
             SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(headerPointer);
             const int width = 4;
@@ -71,17 +71,18 @@ internal static class SamusEaterPlmDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater header field")]
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // PlmHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
+        foreach (PlmHeaderId candidate in Enum.GetValues<PlmHeaderId>())
         {
-            ushort header = (ushort)raw;
-            if (header is not ((ushort)PlmHeaderId.InsideReactionBrinstarFloorPlant or (ushort)PlmHeaderId.InsideReactionBrinstarCeilingPlant))
+            ushort header = PlmNativeWords.Word(candidate);
+            if (candidate is not (PlmHeaderId.InsideReactionBrinstarFloorPlant or PlmHeaderId.InsideReactionBrinstarCeilingPlant))
             {
-                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve((PlmHeaderId)header),
+                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve(candidate),
                     "plant header selector rejects every unsupported identity");
                 continue;
             }
-            var actual = SamusEaterPlmDefinitions.Resolve((PlmHeaderId)header);
-            AssertEqual(header == (ushort)PlmHeaderId.InsideReactionBrinstarFloorPlant ? SamusEaterPlmDefinitions.Floor : SamusEaterPlmDefinitions.Ceiling,
+            var actual = SamusEaterPlmDefinitions.Resolve(candidate);
+            AssertEqual(candidate == PlmHeaderId.InsideReactionBrinstarFloorPlant ? SamusEaterPlmDefinitions.Floor : SamusEaterPlmDefinitions.Ceiling,
                 actual, "plant selected header identity");
             if (mounting)
             {

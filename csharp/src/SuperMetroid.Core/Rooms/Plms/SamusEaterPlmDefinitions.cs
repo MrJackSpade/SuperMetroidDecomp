@@ -1,20 +1,31 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Named bank-$84 header cases for the two Samus Eater block actors. B6CB selects
-/// the B0DC floor setup and the floor bite; B6CF selects B113 ceiling setup and the ceiling bite.
-/// Mounting direction follows those native setup identities, including opposite
-/// alignment edges and held-Y adjustments. No indexed descriptor table is stored.
+/// The two Samus Eater block actors, the Brinstar floor and ceiling plants (block actors, not Yapping Maws): the floor
+/// plant takes the floor setup and bite, the ceiling plant the ceiling setup and bite. Mounting direction follows the
+/// setup, including opposite alignment edges and held-Y adjustments.
 /// </summary>
 internal static class SamusEaterPlmDefinitions
 {
-    /// <summary><c>$84:B6CB</c>, Brinstar floor plant and its first program.</summary>
+    /// <summary>The Brinstar floor plant and its first program.</summary>
     public static readonly SamusEaterPlmDefinition Floor =
         new(SamusEaterProgram.FloorBite, Ceiling: false);
 
-    /// <summary><c>$84:B6CF</c>, Brinstar ceiling plant and its first program.</summary>
+    /// <summary>The Brinstar ceiling plant and its first program.</summary>
     public static readonly SamusEaterPlmDefinition Ceiling =
         new(SamusEaterProgram.CeilingBite, Ceiling: true);
+
+    /// <summary>The chew sound.</summary>
+    public static readonly SoundEffectId ChewSound = Library2Sound.PlantChewing;
+
+    /// <summary>The invincibility bit the hold ORs into Samus's invincibility timer each frame.</summary>
+    public const ushort HeldInvincibilityBit = 0x10;
+
+    /// <summary>The immunity the release gives Samus, in frames.</summary>
+    public const ushort ReleaseInvincibilityFrames = 48;
+
+    /// <summary>The periodic damage each chew deals.</summary>
+    public const ushort ChewDamage = 2;
 
     /// <summary>Resolves one supported plant header without interpreting adjacent bank-$84 data.</summary>
     public static SamusEaterPlmDefinition Resolve(PlmHeaderId header) => header switch
@@ -30,9 +41,9 @@ internal static class SamusEaterPlmDefinitions
             PlmHeaderId.UpwardsScrollExtension or
             PlmHeaderId.WreckedShipEntranceTreadmillFromWest or
             PlmHeaderId.WreckedShipEntranceTreadmillFromEast or
-            PlmHeaderId.InsideReactionNothingB653 or
-            PlmHeaderId.InsideReactionNothingB657 or
-            PlmHeaderId.InsideReactionNothingB65B or
+            PlmHeaderId.InsideReactionNothingFirst or
+            PlmHeaderId.InsideReactionNothingSecond or
+            PlmHeaderId.InsideReactionNothingThird or
             PlmHeaderId.FillMotherBrainsWall or
             PlmHeaderId.MotherBrainsRoomEscapeDoor or
             PlmHeaderId.MotherBrainsBackgroundRow2 or
@@ -62,8 +73,8 @@ internal static class SamusEaterPlmDefinitions
             PlmHeaderId.MissileStation or
             PlmHeaderId.MissileStationRightAccess or
             PlmHeaderId.MissileStationLeftAccess or
-            PlmHeaderId.Nothing84B6F7 or
-            PlmHeaderId.Nothing84B6FB or
+            PlmHeaderId.NothingSecond or
+            PlmHeaderId.NothingThird or
             PlmHeaderId.ScrollTriggerCollision or
             PlmHeaderId.ScrollTrigger or
             PlmHeaderId.UnusedSolidScrollPLM or
@@ -298,7 +309,7 @@ internal static class SamusEaterPlmDefinitions
             PlmHeaderId.ShotBlockSpaceJump or
             PlmHeaderId.ShotBlockScrewAttack or
             PlmHeaderId.ShotBlockMorphBall or
-            PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException($"Unsupported Samus Eater PLM ${(int)header:X4}."),
-        _ => throw new InvalidDataException($"Unsupported Samus Eater PLM ${(int)header:X4}."),
+            PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException($"Unsupported Samus Eater PLM {header}."),
+        _ => throw new InvalidDataException($"Unsupported Samus Eater PLM {header}."),
     };
 }

@@ -27,7 +27,7 @@ internal static class SpeedBoosterPickupVerification
             var vram = new SnesVram();
             var fxSession = CreateRetailFxSession(cartridge);
             var fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(), RoomFxDefinitions.Suffix(0x8600), null, 0);
-            CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
+            CollectibleFixture fixture = LoadCollectible(bus, PlmNativeWords.Word(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.Plms.Step(fixture.Level);
             if (chozo)
             {
@@ -71,7 +71,7 @@ internal static class SpeedBoosterPickupVerification
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
                     fx.BaseY.Whole, "lava rises at native subpixel speed after delay");
             }
-            fx.ApplyCartridgeMotionWrites(packedYVelocity: 0);
+            fx.SetLiquidMotion(packedYVelocity: 0);
             fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
             AssertEqual((ushort)0, fx.YVelocity.RawValue, "message continuation is consumed once");
         }

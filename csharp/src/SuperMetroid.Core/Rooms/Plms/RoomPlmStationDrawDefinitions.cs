@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal static class RoomPlmStationDrawDefinitions
 {
-    /// <summary>Published native enumeration order: frames by station, then save and access states.</summary>
-    private static readonly StationDraw[] NativeOrder =
+    /// <summary>Published enumeration order: frames by station, then save and access states.</summary>
+    private static readonly StationDraw[] PublishedOrder =
     [
         StationDraw.MapFrame0, StationDraw.EnergyFrame0, StationDraw.MissileFrame0,
         StationDraw.MapFrame1, StationDraw.EnergyFrame1, StationDraw.MissileFrame1,
@@ -231,7 +231,7 @@ internal static class RoomPlmStationDrawDefinitions
     {
         get
         {
-            foreach (StationDraw frame in NativeOrder)
+            foreach (StationDraw frame in PublishedOrder)
             {
                 TryGet(PlmDraw.Of(frame), out var list);
                 yield return list;

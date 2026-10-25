@@ -14,7 +14,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.Collectible, (slot, context) =>
+        table.Add(PlmFamily.Collectible, (slot, context) =>
             TryStepCollectible(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
@@ -86,8 +86,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             return;
         IRoomFxMotion fx = _roomFx
             ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
-        fx.ApplyCartridgeMotionWrites(
-            packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity);
+        fx.SetLiquidMotion(
+            packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue);
         _pendingSpeedBoosterPickupContinuation = false;
     }
 
@@ -221,55 +221,18 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Decodes one bank-$84 PLM header only when it belongs to one of the three complete
-    /// permanent-item tables. This public read-only seam lets cartridge audits inventory
-    /// room populations without duplicating the header-range ABI.
+    /// Names the item and presentation of a permanent-item PLM; false for every other PLM. This public read-only seam
+    /// lets audits inventory room populations without duplicating the permanent-item catalog.
     /// </summary>
     public static bool TryIdentifyPermanentCollectible(
         PlmHeaderId header,
         out InWorldCollectibleKind kind,
         out CollectiblePresentation presentation)
     {
-        if (TryDecodeCollectibleRange(
-                header,
-                PlmHeaderId.ExposedEnergyTank,
-                out kind))
-        {
-            presentation = CollectiblePresentation.Exposed;
-            return true;
-        }
-        if (TryDecodeCollectibleRange(header, PlmHeaderId.ChozoEnergyTank, out kind))
-        {
-            presentation = CollectiblePresentation.ChozoOrb;
-            return true;
-        }
-        if (TryDecodeCollectibleRange(header, PlmHeaderId.ShotBlockEnergyTank, out kind))
-        {
-            presentation = CollectiblePresentation.ShotBlock;
-            return true;
-        }
-
-        kind = default;
-        presentation = default;
-        return false;
-    }
-
-    /// <summary>Decodes an aligned four-byte entry in one permanent-item header table.</summary>
-    private static bool TryDecodeCollectibleRange(
-        PlmHeaderId header,
-        PlmHeaderId firstHeader,
-        out InWorldCollectibleKind kind)
-    {
-        int byteOffset = (int)header - (int)firstHeader;
-        if (byteOffset >= 0 &&
-            byteOffset < RoomPlmHeaders.PermanentCollectibleKindCount * 4 &&
-            (byteOffset & 3) == 0)
-        {
-            kind = InWorldCollectibleKinds.AtHeaderEntry(byteOffset / 4);
-            return true;
-        }
-        kind = default;
-        return false;
+        bool found = PermanentCollectiblePlmDefinitions.Items.TryGetValue(header, out PermanentCollectiblePlm item);
+        kind = item.Kind;
+        presentation = item.Presentation;
+        return found;
     }
 
     /// <summary>Binds two animation frames to the next collectible character slot (#1350) and updates live block-definition words.</summary>

@@ -35,9 +35,9 @@ public static class ResidentDoorClosingDefinitions
             PlmHeaderId.UpwardsScrollExtension or
             PlmHeaderId.WreckedShipEntranceTreadmillFromWest or
             PlmHeaderId.WreckedShipEntranceTreadmillFromEast or
-            PlmHeaderId.InsideReactionNothingB653 or
-            PlmHeaderId.InsideReactionNothingB657 or
-            PlmHeaderId.InsideReactionNothingB65B or
+            PlmHeaderId.InsideReactionNothingFirst or
+            PlmHeaderId.InsideReactionNothingSecond or
+            PlmHeaderId.InsideReactionNothingThird or
             PlmHeaderId.FillMotherBrainsWall or
             PlmHeaderId.MotherBrainsRoomEscapeDoor or
             PlmHeaderId.MotherBrainsBackgroundRow2 or
@@ -69,8 +69,8 @@ public static class ResidentDoorClosingDefinitions
             PlmHeaderId.MissileStation or
             PlmHeaderId.MissileStationRightAccess or
             PlmHeaderId.MissileStationLeftAccess or
-            PlmHeaderId.Nothing84B6F7 or
-            PlmHeaderId.Nothing84B6FB or
+            PlmHeaderId.NothingSecond or
+            PlmHeaderId.NothingThird or
             PlmHeaderId.ScrollTriggerCollision or
             PlmHeaderId.ScrollTrigger or
             PlmHeaderId.UnusedSolidScrollPLM or
@@ -303,8 +303,8 @@ public static class ResidentDoorClosingDefinitions
             PlmHeaderId.ShotBlockScrewAttack or
             PlmHeaderId.ShotBlockMorphBall or
             PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException(
-            $"Resident door header $84:{(int)header:X4} has no compiled closing definition."),
+            $"Resident door header {header} has no compiled closing definition."),
         _ => throw new InvalidDataException(
-            $"Resident door header $84:{(int)header:X4} has no compiled closing definition."),
+            $"Resident door header {header} has no compiled closing definition."),
     };
 }

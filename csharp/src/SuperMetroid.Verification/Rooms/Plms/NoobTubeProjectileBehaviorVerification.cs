@@ -256,7 +256,7 @@ internal static class NoobTubeProjectileBehaviorVerification
                 else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
-                    AssertEqual(oddFrame ? projectile.Variable1 : NoobTubeProjectileRomData.HiddenXPosition, projectile.Position.X.Whole,
+                    AssertEqual(oddFrame ? projectile.Variable1 : NoobTubeDebrisDefinitions.HiddenXPosition, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
                 }
             }

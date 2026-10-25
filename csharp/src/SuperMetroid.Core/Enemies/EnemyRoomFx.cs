@@ -20,5 +20,5 @@ internal sealed class EnemyRoomFx
     internal void PublishLiquidMotion(ushort target, ushort velocity, ushort delay) =>
         // Execute at the native AI command, not from retained state each frame:
         // repeated application would continually reset the liquid handler's delay.
-        Layer3Fx?.ApplyCartridgeMotionWrites(targetYPosition: target, packedYVelocity: velocity, timer: delay);
+        Layer3Fx?.SetLiquidMotion(targetYPosition: target, packedYVelocity: velocity, timer: delay);
 }

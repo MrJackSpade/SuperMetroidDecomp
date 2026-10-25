@@ -21,7 +21,8 @@ internal static class RoomPlmInstructionListCatalogVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM instruction list catalog")]
     internal static void VerifyRoomPlmInstructionListCatalog()
     {
-        FieldInfo[] fields = CatalogFields.Of(typeof(RoomPlmInstructionLists), BindingFlags.Public | BindingFlags.Static)
+        FieldInfo[] fields = typeof(RoomPlmInstructionListsConstants).GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Concat(typeof(RoomPlmInstructionListsTooling).GetFields(BindingFlags.Public | BindingFlags.Static))
             .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
             .ToArray();
         ushort[] pointers = fields

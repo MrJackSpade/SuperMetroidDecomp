@@ -247,8 +247,8 @@ internal static class CoreAccess
             return matches.Length switch
             {
                 1 => matches[0],
-                0 => throw new InvalidOperationException($"No active PLM uses header ${(ushort)headerPointer:X4}."),
-                _ => throw new InvalidOperationException($"More than one active PLM uses header ${(ushort)headerPointer:X4}."),
+                0 => throw new InvalidOperationException($"No active PLM uses header {headerPointer}."),
+                _ => throw new InvalidOperationException($"More than one active PLM uses header {headerPointer}."),
             };
         }
 

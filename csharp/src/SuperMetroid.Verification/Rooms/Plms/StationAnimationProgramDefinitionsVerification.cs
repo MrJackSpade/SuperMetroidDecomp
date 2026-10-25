@@ -51,16 +51,19 @@ internal static class StationAnimationProgramDefinitionsVerification
         ushort[] lists = [0xad66,0xad76,0xadc6,0xae50,0xafe8,0xaffa,0xaffe];
         var words = StationAnimationProgramDefinitions.NativeWords().ToArray();
         AssertEqual(30, words.Length, "Station original enumeration word count");
-        AssertTrue(lists.SequenceEqual(Enum.GetValues<StationAnimationList>().Select(list => (ushort)list)),
+        // The identities' values are arbitrary (#1414): the domain check translates each through the native-word table.
+        AssertTrue(lists.SequenceEqual(Enum.GetValues<StationAnimationList>().Select(StationNativeWords.AnimationLists.Word)),
             "Station list domain is exactly the seven native entries");
         foreach (ushort raw in new ushort[] { 0, 0xad62, 0xafe9, 0xffff })
-            AssertThrows<InvalidOperationException>(
-                () => StationAnimationProgramDefinitions.Resolve((StationAnimationList)raw, 0),
-                "Undefined station list is rejected at the typed boundary");
+            AssertTrue(!StationNativeWords.AnimationLists.TryDecode(raw, out _),
+                "Undefined station list word names no station animation");
+        AssertThrows<InvalidOperationException>(
+            () => StationAnimationProgramDefinitions.Resolve(default, 0),
+            "Undefined station list is rejected at the typed boundary");
         int ordinal = 0;
         for (int listIndex = 0; listIndex < lists.Length; listIndex++)
         {
-            var list = (StationAnimationList)lists[listIndex];
+            var list = StationNativeWords.AnimationLists.Decode(lists[listIndex], "station animation list");
             int count = listIndex < 4 ? 3 : 1;
             foreach (int bad in new[] { int.MinValue,-1,count,int.MaxValue })
                 AssertThrows<InvalidDataException>(() => StationAnimationProgramDefinitions.Resolve(list, bad), "Station exact frame bounds");

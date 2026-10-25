@@ -10,7 +10,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.Scroll, static (slot, context) =>
+        table.Add(PlmFamily.Scroll, static (slot, context) =>
             TryStepScrollPlm(context.Level, context.Frame.Scrolls, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
@@ -136,9 +136,9 @@ internal sealed class ScrollPlms : IPlmFamilySource
                     PlmHeaderId.CollisionReactionClearCarry or
                     PlmHeaderId.WreckedShipEntranceTreadmillFromWest or
                     PlmHeaderId.WreckedShipEntranceTreadmillFromEast or
-                    PlmHeaderId.InsideReactionNothingB653 or
-                    PlmHeaderId.InsideReactionNothingB657 or
-                    PlmHeaderId.InsideReactionNothingB65B or
+                    PlmHeaderId.InsideReactionNothingFirst or
+                    PlmHeaderId.InsideReactionNothingSecond or
+                    PlmHeaderId.InsideReactionNothingThird or
                     PlmHeaderId.FillMotherBrainsWall or
                     PlmHeaderId.MotherBrainsRoomEscapeDoor or
                     PlmHeaderId.MotherBrainsBackgroundRow2 or
@@ -170,8 +170,8 @@ internal sealed class ScrollPlms : IPlmFamilySource
                     PlmHeaderId.MissileStation or
                     PlmHeaderId.MissileStationRightAccess or
                     PlmHeaderId.MissileStationLeftAccess or
-                    PlmHeaderId.Nothing84B6F7 or
-                    PlmHeaderId.Nothing84B6FB or
+                    PlmHeaderId.NothingSecond or
+                    PlmHeaderId.NothingThird or
                     PlmHeaderId.ScrollTriggerCollision or
                     PlmHeaderId.ScrollTrigger or
                     PlmHeaderId.UnusedSolidScrollPLM or

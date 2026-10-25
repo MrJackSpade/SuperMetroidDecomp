@@ -106,7 +106,7 @@ internal static class LookupRetailPopulationsVerification
                 };
                 int result = field switch
                 {
-                    0 => (ushort)placement.Header.Header,
+                    0 => PlmNativeWords.Word(placement.Header.Header),
                     1 => placement.Block.X,
                     2 => placement.Block.Y,
                     3 => placement.RoomArgument,

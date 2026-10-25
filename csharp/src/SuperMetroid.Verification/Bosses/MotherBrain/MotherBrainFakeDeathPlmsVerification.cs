@@ -84,15 +84,15 @@ internal static class MotherBrainFakeDeathPlmsVerification
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
-            $"Mother Brain mutation ${(int)header:X4} allocates");
+            $"Mother Brain mutation {header} allocates");
         ushort[] expected = Enumerable.Range(0, words.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).PackedWord.Raw)
             .ToArray();
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
-            $"Mother Brain mutation ${(int)header:X4} starts its typed program");
+            $"Mother Brain mutation {header} starts its typed program");
         AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(
                 PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out var draw),
-            $"Mother Brain mutation ${(int)header:X4} has a physical draw");
+            $"Mother Brain mutation {header} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
             RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
@@ -108,16 +108,16 @@ internal static class MotherBrainFakeDeathPlmsVerification
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(level);
         AssertEqual(1, plms.SlotTable.ActiveCount,
-            $"Mother Brain mutation ${(int)header:X4} persists through its draw frame");
+            $"Mother Brain mutation {header} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
                 level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                $"Mother Brain mutation ${(int)header:X4} level block {index}");
+                $"Mother Brain mutation {header} level block {index}");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
-            $"Mother Brain mutation ${(int)header:X4} deletes on the following frame");
+            $"Mother Brain mutation {header} deletes on the following frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Mother Brain mutation ${(int)header:X4} reads no migrated source bytes");
+            $"Mother Brain mutation {header} reads no migrated source bytes");
     }
 
     /// <summary>Forbids bank-$84 reads of the migrated fake-death instruction and draw ranges.</summary>

@@ -12,7 +12,7 @@ internal sealed class RoomPlmLinkedRestoreDefinition
 {
     /// <summary>Linked bomb blocks: a type-F parent.</summary>
     internal static RoomPlmLinkedRestoreDefinition BombBlock { get; } = new(
-        0xf000, RoomPlmVisualBlockDefinitions.CollisionBombParent, new Dictionary<PlmRestoreShape, PlmDraw>
+        RoomCollisionType.BombableBlock, RoomPlmVisualBlockDefinitions.CollisionBombParent, new Dictionary<PlmRestoreShape, PlmDraw>
         {
             [PlmRestoreShape.Horizontal] = PlmDraw.Of(BombBlockRestoreDraw.Horizontal),
             [PlmRestoreShape.Vertical] = PlmDraw.Of(BombBlockRestoreDraw.Vertical),
@@ -21,7 +21,7 @@ internal sealed class RoomPlmLinkedRestoreDefinition
 
     /// <summary>Linked Samus-contact crumble blocks: a type-B parent. Artwork replacement may only alter their visual composition.</summary>
     internal static RoomPlmLinkedRestoreDefinition ContactCrumble { get; } = new(
-        0xb000, RoomPlmVisualBlockDefinitions.ContactCrumbleParent, new Dictionary<PlmRestoreShape, PlmDraw>
+        RoomCollisionType.SpecialBlock, RoomPlmVisualBlockDefinitions.ContactCrumbleParent, new Dictionary<PlmRestoreShape, PlmDraw>
         {
             [PlmRestoreShape.Horizontal] = PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal),
             [PlmRestoreShape.Vertical] = PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical),
@@ -31,8 +31,8 @@ internal sealed class RoomPlmLinkedRestoreDefinition
     /// <summary>Both families, bomb blocks first, in their export order.</summary>
     internal static IReadOnlyList<RoomPlmLinkedRestoreDefinition> Families { get; } = [BombBlock, ContactCrumble];
 
-    /// <summary>The parent block's collision type, in the level word's high nibble.</summary>
-    private readonly ushort _parentCollision;
+    /// <summary>The parent block's collision type.</summary>
+    private readonly RoomCollisionType _parentCollision;
 
     /// <summary>The visual block every restored cell shows.</summary>
     private readonly ushort _visualBlock;
@@ -41,7 +41,7 @@ internal sealed class RoomPlmLinkedRestoreDefinition
     private readonly IReadOnlyDictionary<PlmRestoreShape, PlmDraw> _draws;
 
     /// <summary>Defines a family by its parent collision type, visual tile and the restoration draw of each shape.</summary>
-    private RoomPlmLinkedRestoreDefinition(ushort parentCollision, ushort visualBlock, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
+    private RoomPlmLinkedRestoreDefinition(RoomCollisionType parentCollision, ushort visualBlock, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
     {
         _parentCollision = parentCollision;
         _visualBlock = visualBlock;
@@ -74,8 +74,9 @@ internal sealed class RoomPlmLinkedRestoreDefinition
             int column = Vertical ? 0 : block;
             // Every cell shows the family's tile. Children link left on the parent's row and up on later rows; only
             // the top-left cell carries the parent's collision type.
-            int collision = row == 0 && column == 0 ? Family._parentCollision : row == 0 ? 0x5000 : 0xd000;
-            return (ushort)(collision | Family._visualBlock);
+            RoomCollisionType collision = row == 0 && column == 0 ? Family._parentCollision
+                : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
+            return RoomLevelWord.Create(0, LevelBlockFlipFlags.None, collision).WithVisualWord(Family._visualBlock).Raw;
         }
     }
 

@@ -67,21 +67,21 @@ internal static class CrocomireArenaPlmsVerification
             new byte[sourceWords.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
-            $"Crocomire header ${(int)header:X4} allocates");
+            $"Crocomire header {header} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(level);
         AssertEqual(1, plms.SlotTable.ActiveCount,
-            $"Crocomire header ${(int)header:X4} persists for native draw frame");
+            $"Crocomire header {header} persists for native draw frame");
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
             AssertEqual(expectedWord(new((ushort)x, (ushort)y)),
                 level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).PackedWord.Raw,
-                $"Crocomire header ${(int)header:X4} physical block ({x},{y})");
+                $"Crocomire header {header} physical block ({x},{y})");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
-            $"Crocomire header ${(int)header:X4} deletes on next frame");
+            $"Crocomire header {header} deletes on next frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Crocomire header ${(int)header:X4} reads no migrated ROM records");
+            $"Crocomire header {header} reads no migrated ROM records");
     }
 
     /// <summary>Rejects live reads of the bank-$84 program and draw records now supplied by compiled definitions.</summary>

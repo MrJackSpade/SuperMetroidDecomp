@@ -1,8 +1,17 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Cartridge values and helpers of <see cref="RoomPlmInstructionLists"/> that only verification reads.</summary>
+/// <summary>
+/// The bank-$84 PLM instruction-list pointers only verification reads (#1414): Core names its programs and animations
+/// by identity; the retail oracles locate the cartridge's lists through these words.
+/// </summary>
 internal static class RoomPlmInstructionListsConstants
 {
+    /// <summary>Idle save-pod draw entry at $84:AFE8, before its trigger sleeps.</summary>
+    public const ushort SaveStationIdleDraw = 0xafe8;
+    /// <summary>First save-pod animation frame entry at $84:AFFA.</summary>
+    public const ushort SaveStationAnimationFirstFrame = 0xaffa;
+    /// <summary>Second save-pod animation frame entry at $84:AFFE.</summary>
+    public const ushort SaveStationAnimationSecondFrame = 0xaffe;
     /// <summary>Maridia elevatube's delay and sound list at $84:B8F0.</summary>
     public const ushort MaridiaElevatube = 0xb8f0;
     /// <summary>

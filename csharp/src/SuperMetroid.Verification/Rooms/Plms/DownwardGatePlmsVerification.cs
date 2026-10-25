@@ -66,15 +66,18 @@ internal static class DownwardGatePlmsVerification
             "  Downward gates: setup, slot order, actor handoff, and all eight shot filters agree.");
     }
 
-    /// <summary>Checks both compiled population headers select the pinned cartridge's first instruction words.</summary>
+    /// <summary>
+    /// Checks both gate PLMs are compiled population headers named by the cartridge's header words. The compiled header
+    /// record no longer carries the first instruction word (#1414); this check now asserts each gate's identity survives
+    /// the compiled lookup and translates to the header whose first-list word sits at its source.
+    /// </summary>
     private static void VerifyDownwardGateHeaderDefinitions()
     {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate header oracle revision");
         foreach ((PlmHeaderId header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(PlmHeaderId.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(PlmHeaderId.DownwardGateShotBlock, 0x84c838) })
-            AssertEqual(ReadSamusEaterPlmWord(rom, source), RoomPlmHeaderDefinitions.Get(header).InitialInstruction,
-                "Gate compiled-population first instruction");
+        {
+            AssertEqual(header, RoomPlmHeaderDefinitions.Get(header).Header, "Gate compiled-population header");
+            AssertEqual(unchecked((ushort)(source - 2)), PlmNativeWords.Word(header), "Gate header word precedes its first-list word");
+        }
     }
 
     /// <summary>Runs retail geometry, collision-word, and editable visual comparisons for gate draw lists.</summary>
@@ -112,9 +115,9 @@ internal static class DownwardGatePlmsVerification
         AssertTrue(slots[1].Animation is DownwardGatePlmAnimation { Program: DownwardGateProgram.TriggerBlueLeft },
             "argument zero selects the blue-left trigger program");
 
-        for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
+        for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
-            AssertEqual(DownwardGatePlmRomData.ClosedGateBts,
+            AssertEqual(DownwardGateDefinitions.ClosedGateBts,
                 level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Bts.Value,
                 $"gate setup writes BTS $10 to row {row}");
         }
@@ -168,7 +171,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
             "closed gate publishes a wake request");
         AssertTrue(plms.Sounds.SoundRequests.Any(sound =>
-                sound.SoundEffect == DownwardGatePlmRomData.MovementSound),
+                sound.SoundEffect == DownwardGateDefinitions.MovementSound),
             "opening gate queues its cartridge movement sound");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
 

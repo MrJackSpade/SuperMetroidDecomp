@@ -253,12 +253,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 ChozoStatueAcidLoweringStarted = true;
                 // Native AI writes the FX words consumed by the liquid handler once, at
                 // instruction execution; the FX owns them from then on.
-                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(
+                _roomFx.Layer3Fx?.SetLiquidMotion(
                     timer: ChozoStatueFxData.LoweringDelay, packedYVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
+                _roomFx.Layer3Fx?.SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.UnlockSamus }:

@@ -66,25 +66,25 @@ internal sealed class NoobTubeBehavior
                 if (request.Parameter != 0)
                     throw new InvalidDataException("N00b-tube crack parameter must be zero.");
                 projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-                    blockX * 16 + NoobTubeProjectileRomData.CrackXOffset)), unchecked((ushort)(
-                    blockY * 16 + NoobTubeProjectileRomData.CrackYOffset))));
+                    blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset)), unchecked((ushort)(
+                    blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset))));
                 return;
 
             case RoomEnemyProjectileKind.NoobTubeShard:
             {
                 int index = ValidateEvenNoobTubeParameter(
                     request.Parameter,
-                    NoobTubeProjectileRomData.ShardOffsets.Length,
+                    NoobTubeDebrisDefinitions.ShardOffsets.Length,
                     "shard");
                 projectile.Variable1 = unchecked((ushort)(
-                    blockX * 16 + NoobTubeProjectileRomData.CrackXOffset +
-                    NoobTubeProjectileRomData.ShardOffsets[index].X));
+                    blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset +
+                    NoobTubeDebrisDefinitions.ShardOffsets[index].X));
                 projectile.Variable0 = 0;
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                    blockY * 16 + NoobTubeProjectileRomData.CrackYOffset +
-                    NoobTubeProjectileRomData.ShardOffsets[index].Y)));
+                    blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset +
+                    NoobTubeDebrisDefinitions.ShardOffsets[index].Y)));
                 projectile.StartAnimation(new NoobTubeProjectileAnimation(ShardPrograms[index]));
-                projectile.Velocity = NoobTubeProjectileRomData.ShardVelocities[index];
+                projectile.Velocity = NoobTubeDebrisDefinitions.ShardVelocities[index];
                 return;
             }
 
@@ -92,14 +92,14 @@ internal sealed class NoobTubeBehavior
             {
                 int index = ValidateEvenNoobTubeParameter(
                     request.Parameter,
-                    NoobTubeProjectileRomData.BubbleOffsets.Length,
+                    NoobTubeDebrisDefinitions.BubbleOffsets.Length,
                     "released-air bubble");
                 projectile.Variable1 = unchecked((ushort)(
-                    blockX * 16 + NoobTubeProjectileRomData.BubbleOffsets[index].X));
+                    blockX * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].X));
                 projectile.Variable0 = 0;
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                    blockY * 16 + NoobTubeProjectileRomData.BubbleOffsets[index].Y)));
-                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(NoobTubeProjectileRomData.BubbleInitialYVelocity));
+                    blockY * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].Y)));
+                projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.BubbleInitialYVelocity);
                 return;
             }
 
@@ -253,15 +253,15 @@ internal sealed class NoobTubeBehavior
         switch (preInstruction)
         {
             case EnemyProjectilePreInstruction.NoobTubeCrackFlickering:
-                if (projectile.Position.X.Whole != NoobTubeProjectileRomData.HiddenXPosition)
+                if (projectile.Position.X.Whole != NoobTubeDebrisDefinitions.HiddenXPosition)
                     projectile.Variable0 = projectile.Position.X.Whole;
                 projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
-                    ? NoobTubeProjectileRomData.HiddenXPosition
+                    ? NoobTubeDebrisDefinitions.HiddenXPosition
                     : checked((ushort)projectile.Variable0));
                 return;
 
             case EnemyProjectilePreInstruction.NoobTubeCrackFalling:
-                projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(NoobTubeProjectileRomData.CrackFallVelocity).ToSixteenSixteenDelta());
+                projectile.Position = projectile.Position.AdvanceY(NoobTubeDebrisDefinitions.CrackFallVelocity.ToSixteenSixteenDelta());
                 return;
 
             case EnemyProjectilePreInstruction.NoobTubeShardFlying:
@@ -451,14 +451,14 @@ internal sealed class NoobTubeBehavior
                 // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
                 projectile.Position = projectile.Position.WithWholeX(oddFrame
                     ? checked((ushort)projectile.Variable1)
-                    : unchecked((ushort)(NoobTubeProjectileRomData.ShardMirrorSpan - projectile.Variable1)));
+                    : unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - projectile.Variable1)));
                 ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
                 break;
             case NoobTubeProjectileCueKind.FlickerHidden:
-                projectile.Position = projectile.Position.WithWholeX(oddFrame ? checked((ushort)projectile.Variable1) : NoobTubeProjectileRomData.HiddenXPosition);
+                projectile.Position = projectile.Position.WithWholeX(oddFrame ? checked((ushort)projectile.Variable1) : NoobTubeDebrisDefinitions.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
+                projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), NoobTubeDebrisDefinitions.ShardFallYVelocity);
                 break;
             case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
                 projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())));

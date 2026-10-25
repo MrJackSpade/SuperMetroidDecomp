@@ -62,10 +62,10 @@ internal static class KraidRoomPlmsVerification
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
-            $"Kraid mutation ${(int)header:X4} allocates");
+            $"Kraid mutation {header} allocates");
         AssertEqual((ushort)0x8123,
             level.GetCollisionBlockByIndex(5 * width + 5).PackedWord.Raw,
-            $"Kraid mutation ${(int)header:X4} setup preserves tile priority");
+            $"Kraid mutation {header} setup preserves tile priority");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
@@ -79,12 +79,12 @@ internal static class KraidRoomPlmsVerification
                 PlmHeaderId.CrumbleKraidSpikes)
                 AssertEqual((ushort)0x8180,
                     level.GetCollisionBlockByIndex(5 * width + 5).PackedWord.Raw,
-                    $"Kraid mutation ${(int)header:X4} first crumble frame");
+                    $"Kraid mutation {header} first crumble frame");
             if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(expectedDeletionFrame, deletionFrame,
-            $"Kraid mutation ${(int)header:X4} native deletion frame");
+            $"Kraid mutation {header} native deletion frame");
         for (int offset = 0; offset < changedBlockCount; offset++)
         {
             ushort expected = header is PlmHeaderId.ClearKraidCeiling
@@ -96,10 +96,10 @@ internal static class KraidRoomPlmsVerification
                     : firstFinalWord;
             AssertEqual(expected,
                 level.GetCollisionBlockByIndex(5 * width + 5 + offset).PackedWord.Raw,
-                $"Kraid mutation ${(int)header:X4} final block {offset}");
+                $"Kraid mutation {header} final block {offset}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Kraid mutation ${(int)header:X4} reads no migrated source bytes");
+            $"Kraid mutation {header} reads no migrated source bytes");
     }
 
     /// <summary>Forbids bank-$84 Kraid program and draw bytes after their conversion to compiled definitions.</summary>

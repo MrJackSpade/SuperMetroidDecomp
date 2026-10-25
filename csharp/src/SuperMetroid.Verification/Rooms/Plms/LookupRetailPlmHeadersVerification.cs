@@ -8,15 +8,13 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>Checks the 70 retail PLM headers against native records and room-population references.</summary>
 internal static class LookupRetailPlmHeadersVerification
 {
-    /// <summary>Compares the setup word of each enumerated and selected retail header.</summary>
-    internal static void VerifyRetailPlmHeaderSetups(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, false));
-    /// <summary>Compares the initial instruction word of each enumerated and selected retail header.</summary>
-    internal static void VerifyRetailPlmHeaderInstructions(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, true));
-
-    /// <summary>Checks one header field across the full pointer domain and independently traverses native room populations.</summary>
-    private static void VerifyRetailPlmHeaderField(SuperMetroidAddressSpace rom, bool instruction)
+    /// <summary>
+    /// Checks the seventy retail headers across the full word domain and independently traverses native room
+    /// populations. The compiled header record no longer carries the cartridge's setup and list words (#1414); this
+    /// check now asserts that the compiled headers are exactly the words the retail populations place, translated
+    /// through the native-word table, and that every other word is rejected.
+    /// </summary>
+    internal static void VerifyRetailPlmHeaders(SuperMetroidAddressSpace rom)
     {
         ushort[] headers = [0xb63b,0xb63f,0xb643,0xb647,0xb6d3,0xb6df,0xb6eb,0xb703,0xb70b,
             0xb76f,0xb8ac,0xbaf4,0xbb05,0xc82a,0xc836,0xc842,0xc848,0xc84e,0xc854,0xc85a,
@@ -29,26 +27,17 @@ internal static class LookupRetailPlmHeadersVerification
         AssertEqual(70, RoomPlmHeaderDefinitions.RetailHeaderCount, "Retail header contract count");
         AssertEqual(70, exported.Length, "Retail header enumeration count");
         for (int index = 0; index < headers.Length; index++)
-        {
-            AssertEqual(headers[index], (ushort)exported[index].Header, "Retail header ascending enumeration");
-            ushort expected = ReadSamusEaterPlmWord(rom, 0x840000 | (headers[index] + (instruction ? 2 : 0)));
-            AssertEqual(expected, instruction ? exported[index].InitialInstruction : exported[index].Setup,
-                "Retail header original enumerated field");
-        }
+            AssertEqual(headers[index], PlmNativeWords.Word(exported[index].Header), "Retail header ascending enumeration");
+        AssertThrows<InvalidOperationException>(() => RoomPlmHeaderDefinitions.Get((PlmHeaderId)(-1)), "Undefined header identities fail");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            ushort header = (ushort)raw;
-            if (!Enum.IsDefined((PlmHeaderId)header))
-                AssertThrows<InvalidOperationException>(() => RoomPlmHeaderDefinitions.Get((PlmHeaderId)header), "Undefined header identities fail");
-            else if (!headers.Contains(header))
-                AssertThrows<InvalidDataException>(() => RoomPlmHeaderDefinitions.Get((PlmHeaderId)header), "Retail header rejects all unsupported headers");
+            ushort word = (ushort)raw;
+            if (!PlmNativeWords.Headers.TryDecode(word, out PlmHeaderId header))
+                continue;
+            if (!headers.Contains(word))
+                AssertThrows<InvalidDataException>(() => RoomPlmHeaderDefinitions.Get(header), "Retail header rejects all unsupported headers");
             else
-            {
-                RoomPlmHeaderDefinition selected = RoomPlmHeaderDefinitions.Get((PlmHeaderId)header);
-                AssertEqual(header, (ushort)selected.Header, "Retail header identity preserved");
-                ushort expected = ReadSamusEaterPlmWord(rom, 0x840000 | (raw + (instruction ? 2 : 0)));
-                AssertEqual(expected, instruction ? selected.InitialInstruction : selected.Setup, "Retail header original selected field");
-            }
+                AssertEqual(header, RoomPlmHeaderDefinitions.Get(header).Header, "Retail header identity preserved");
         }
         // Native records independently establish which header identities the retail
         // populations reference; expected pointer fields never come from the new cases.

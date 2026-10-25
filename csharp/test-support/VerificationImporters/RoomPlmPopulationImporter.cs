@@ -24,20 +24,26 @@ internal static class RoomPlmPopulationImporter
         ushort cursor = pointer;
         for (int index = 0; index < RoomPlmPopulationFormat.MaximumParserIterations; index++)
         {
-            PlmHeaderId header = (PlmHeaderId)Word(0x8f, cursor);
-            if (header == 0)
+            ushort headerWord = Word(0x8f, cursor);
+            if (headerWord == 0)
                 return new RoomPlmPopulationDefinition($"$8F:{pointer:X4}", records);
-            var metadata = new RoomPlmHeaderDefinition(header,
-                Word(0x84, (ushort)header), Word(0x84, unchecked((ushort)(header + 2))));
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
+            byte blockX = Byte(0x8f, unchecked((ushort)(cursor + 2)));
+            byte blockY = Byte(0x8f, unchecked((ushort)(cursor + 3)));
+            // PlmHeaderId's values are arbitrary (#1414): a word no member names cannot enter the population.
+            if (!PlmNativeWords.Headers.TryDecode(headerWord, out PlmHeaderId header))
+                throw new InvalidDataException(
+                    $"PLM population $8F:{pointer:X4} record {index} names unlabelled header $84:{headerWord:X4} " +
+                    $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
+            var metadata = new RoomPlmHeaderDefinition(header);
             byte[] scroll = header == PlmHeaderId.ScrollTrigger ? Scroll(argument) : [];
             RoomPlmDynamicCollectibleGraphic? graphic = null;
             if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out var kind, out _) &&
                 kind >= InWorldCollectibleKind.Bombs)
             {
-                ushort instruction = metadata.InitialInstruction;
+                ushort instruction = Word(0x84, unchecked((ushort)(headerWord + 2)));
                 if (Word(0x84, instruction) != RoomPlmInstruction.LoadItemGraphics)
-                    throw new InvalidDataException($"Imported collectible $84:{(ushort)header:X4} lacks its item-graphics instruction.");
+                    throw new InvalidDataException($"Imported collectible $84:{headerWord:X4} lacks its item-graphics instruction.");
                 ushort graphicsPointer = Word(0x84, unchecked((ushort)(instruction + 2)));
                 var palettes = new byte[8];
                 var tiles = new byte[0x100];
@@ -48,7 +54,7 @@ internal static class RoomPlmPopulationImporter
                 graphic = new RoomPlmDynamicCollectibleGraphic(kind, palettes, tiles);
             }
             records.Add(new RoomPlmPlacement(metadata,
-                new(Byte(0x8f, unchecked((ushort)(cursor + 2))), Byte(0x8f, unchecked((ushort)(cursor + 3)))), argument, scroll, graphic,
+                new(blockX, blockY), argument, scroll, graphic,
                 DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonCannonControlWordAddresses.Decode(argument) : null));
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }

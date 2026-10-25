@@ -11,7 +11,7 @@ internal sealed class GatePlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
+        table.Add(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
     }
 
     /// <summary>Samus as the room reads and changes her.</summary>
@@ -57,11 +57,11 @@ internal sealed class GatePlms : IPlmFamilySource
         // Setup $C784 writes BTS $10 to the five vertically adjacent gate cells without
         // replacing their authored level words. C# block indexes are words, whereas the
         // native PLM index is a byte offset, so one room width here equals native +2*width.
-        for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
+        for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
             int blockIndex = checked(slot.BlockIndex + row * level.Size.X);
             _ = level.GetCollisionBlockByIndex(blockIndex);
-            level.SetBehavior(blockIndex, DownwardGatePlmRomData.ClosedGateBts);
+            level.SetBehavior(blockIndex, DownwardGateDefinitions.ClosedGateBts);
         }
 
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
@@ -121,7 +121,7 @@ internal sealed class GatePlms : IPlmFamilySource
                 not DownwardGateTriggerBehavior.BlueRight)
             {
                 _pendingDownwardGateSounds.Add(_sounds.CreateSoundRequest(
-                    DownwardGatePlmRomData.RejectedShotSound,
+                    DownwardGateDefinitions.RejectedShotSound,
                     MaximumQueued: SoundQueueLimit.Max6));
             }
             temporary.Clear();
@@ -207,7 +207,7 @@ internal sealed class GatePlms : IPlmFamilySource
         int gateY = slot.BlockIndex / level.Size.X;
         return (samus.Position.X.Whole >> 4) == gateX &&
             unchecked((ushort)((samus.Position.Y.Whole >> 4) - gateY)) <
-                DownwardGatePlmRomData.GateHeightInBlocks;
+                DownwardGateDefinitions.GateHeightInBlocks;
     }
 
     /// <summary>Distinguishes left-side trigger codes using their native low direction bit.</summary>

@@ -9,8 +9,8 @@ public interface IRoomFxMotion
     /// <summary>The surface the liquid moves toward.</summary>
     Position16<RoomPixels> TargetSurface { get; }
 
-    /// <summary>Writes the shared liquid motion words bank $84 writes; each null word is left as it is.</summary>
-    void ApplyCartridgeMotionWrites(
+    /// <summary>Sets the liquid's base surface, target surface, vertical speed and motion delay; each null value is left as it is.</summary>
+    void SetLiquidMotion(
         ushort? baseYPosition = null,
         ushort? targetYPosition = null,
         ushort? packedYVelocity = null,

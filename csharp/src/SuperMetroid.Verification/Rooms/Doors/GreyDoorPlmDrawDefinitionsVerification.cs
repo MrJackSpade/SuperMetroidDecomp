@@ -58,13 +58,13 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = GreyDoorPlmDrawDefinitionsRomByte(rom, 0x848000 + offset);
-        ushort[] headers =
+        PlmHeaderId[] headers =
         [
-            (ushort)PlmHeaderId.BombTorizoGreyDoor,
-            (ushort)PlmHeaderId.GreyDoorFacingLeft,
-            (ushort)PlmHeaderId.GreyDoorFacingRight,
-            (ushort)PlmHeaderId.GreyDoorFacingUp,
-            (ushort)PlmHeaderId.GreyDoorFacingDown,
+            PlmHeaderId.BombTorizoGreyDoor,
+            PlmHeaderId.GreyDoorFacingLeft,
+            PlmHeaderId.GreyDoorFacingRight,
+            PlmHeaderId.GreyDoorFacingUp,
+            PlmHeaderId.GreyDoorFacingDown,
         ];
         foreach (PlmHeaderId header in headers)
         {
@@ -72,7 +72,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             const ushort population = 0x9000;
             SeedRoomPlmPopulation(bus, population,
             [
-                unchecked((byte)(ushort)header), SnesLittleEndian.HighByte((ushort)header),
+                unchecked((byte)PlmNativeWords.Word(header)), SnesLittleEndian.HighByte(PlmNativeWords.Word(header)),
                 4, 4,
                 header == PlmHeaderId.BombTorizoGreyDoor ? (byte)0x1b : (byte)0,
                 header == PlmHeaderId.BombTorizoGreyDoor ? (byte)0x08 : (byte)0,
@@ -89,20 +89,20 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             var system = new Bank80SystemState();
             var guarded = NewGreyDoorDrawGuard(bus, lists);
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-                $"resident grey-door header ${(int)header:X4} loads");
-            ushort initial = ReadWord(rom, 0x840000 | ((ushort)header + 2));
+                $"resident grey-door header {header} loads");
+            ushort initial = ReadWord(rom, 0x840000 | (PlmNativeWords.Word(header) + 2));
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 12));
             AssertTrue(GreyDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(firstDraw), out var selected),
-                $"resident grey-door header ${(int)header:X4} selects compiled art");
+                $"resident grey-door header {header} selects compiled art");
             plms.Step(level);
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
                     level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
-                    $"resident grey-door ${(int)header:X4} draws physical block {block}");
+                    $"resident grey-door {header} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"resident grey-door ${(int)header:X4} avoids draw payload ROM reads");
+                $"resident grey-door {header} avoids draw payload ROM reads");
             if (header == PlmHeaderId.BombTorizoGreyDoor)
             {
                 AssertEqual((ushort)0x0053,
@@ -122,47 +122,47 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     SetupCode: DoorSetupCode.None);
                 AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor,
                         system),
-                    $"resident grey door ${(int)header:X4} selects its closing list");
+                    $"resident grey door {header} selects its closing list");
                 for (int frame = 0; frame < 20 &&
                      plms.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
                     plms.Step(level);
                 AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
-                    $"resident grey door ${(int)header:X4} returns to locked owner");
+                    $"resident grey door {header} returns to locked owner");
 
                 // The default room argument selects the boss-defeated condition. A
                 // closed door must flash only after the cartridge event bit changes.
                 system.SetBossBits(AreaId.Crateria, BossBits.AreaBoss);
                 plms.Step(level);
                 AssertEqual(GreyDoorPhase.Flashing, plms.GreyDoorSnapshots.Single().Phase,
-                    $"resident grey door ${(int)header:X4} unlocks after boss event");
+                    $"resident grey door {header} unlocks after boss event");
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin,
                         new SamusProjectileTypeWord(0)),
-                    $"resident grey door ${(int)header:X4} accepts a beam hit");
+                    $"resident grey door {header} accepts a beam hit");
                 plms.Step(level);
                 AssertEqual(GreyDoorPhase.Opening, plms.GreyDoorSnapshots.Single().Phase,
-                    $"resident grey door ${(int)header:X4} enters opening list");
+                    $"resident grey door {header} enters opening list");
                 for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
                     plms.Step(level);
                 AssertEqual(0, plms.SlotTable.ActiveCount,
-                    $"resident grey door ${(int)header:X4} completes and deletes");
+                    $"resident grey door {header} completes and deletes");
                 AssertTrue(system.HasOpenedDoorBit(0),
-                    $"resident grey door ${(int)header:X4} persists opened bit");
+                    $"resident grey door {header} persists opened bit");
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
-                    $"resident grey door ${(int)header:X4} never rereads program or draw data");
+                    $"resident grey door {header} never rereads program or draw data");
 
                 var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
                 var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = stock });
                 AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-                    $"opened grey door ${(int)header:X4} reloads");
+                    $"opened grey door {header} reloads");
                 // The closed blue list shows the blue cap for one frame and deletes on the next pass.
                 reopened.Step(reopenedLevel);
                 AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorPlmAnimation,
-                    $"opened grey door ${(int)header:X4} converts to blue cap");
+                    $"opened grey door {header} converts to blue cap");
                 reopened.Step(reopenedLevel);
                 AssertEqual(0, reopened.SlotTable.ActiveCount,
-                    $"opened grey door ${(int)header:X4} deletes after its blue frame");
+                    $"opened grey door {header} deletes after its blue frame");
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
-                    $"opened grey door ${(int)header:X4} avoids program/draw ROM reads");
+                    $"opened grey door {header} avoids program/draw ROM reads");
             }
         }
         editedFrame.Blocks[0] = originalVisual;

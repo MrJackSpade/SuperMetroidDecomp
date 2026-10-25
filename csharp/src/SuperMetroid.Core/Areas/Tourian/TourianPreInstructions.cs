@@ -25,7 +25,7 @@ internal static class TourianPreInstructions
         .. Enumerable.Range(0, MetroidsClearedEntryCount).Select(entry =>
         {
             var roomArgument = (ushort)(entry * 2);
-            return MetroidsClearedPlmRomData.ResolveEvent(roomArgument) is { } eventNumber
+            return MetroidsClearedEvents.ResolveEvent(roomArgument) is { } eventNumber
                 ? new PlmPreInstruction($"Metroids cleared: {eventNumber}", (slot, context) =>
                     context.Plms.Areas().Tourian.RunMetroidsClearedObserver(eventNumber, context.Frame.EnemyDeaths, context.Frame.EnemyDeathQuota))
                 : PlmPreInstruction.NoOp($"Metroids cleared: entry {entry} return");
@@ -36,7 +36,7 @@ internal static class TourianPreInstructions
     /// <exception cref="InvalidDataException">The argument is not an even offset into the table.</exception>
     internal static PlmPreInstruction MetroidsClearedFor(int roomArgument)
     {
-        MetroidsClearedPlmRomData.ResolveEvent(roomArgument);
+        MetroidsClearedEvents.ResolveEvent(roomArgument);
         return MetroidsCleared[roomArgument / 2];
     }
 }

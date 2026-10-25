@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmShotBlockDrawDefinitions
 {
 
-    /// <summary>The direction/count word's vertical flag: a vertical run writes down a column.</summary>
-    private const ushort VerticalRunBit = 0x8000;
+    /// <summary>The direction/count word's top bit, above its fifteen count bits: set when a vertical run writes down a column.</summary>
+    private const int VerticalRunBitIndex = 15;
     /// <summary>The direction/count word's block count.</summary>
     private const ushort RunCountBits = 0x7fff;
 
     /// <summary>Whether a run's direction/count word writes down a column.</summary>
-    internal static bool IsVerticalRun(ushort directionAndCount) => (directionAndCount & VerticalRunBit) != 0;
+    internal static bool IsVerticalRun(ushort directionAndCount) => directionAndCount >> VerticalRunBitIndex != 0;
 
     /// <summary>The blocks a run's direction/count word writes.</summary>
     internal static int RunCount(ushort directionAndCount) => directionAndCount & RunCountBits;

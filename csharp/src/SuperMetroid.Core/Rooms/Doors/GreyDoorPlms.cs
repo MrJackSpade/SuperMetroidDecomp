@@ -12,7 +12,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
-        table.Register(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
+        table.Add(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
     }
 
     /// <summary>The room's system and event state.</summary>
@@ -157,31 +157,32 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         slot.StartAnimation(new GreyDoorPlmAnimation(variant, GreyDoorProgram.Waiting));
     }
 
-    /// <summary>Maps the four native grey-door headers and Bomb Torizo's special header to their orientation.</summary>
+    /// <summary>
+    /// Maps the four grey doors and Bomb Torizo's right-facing grey door to their facing (#1414: matched by member,
+    /// replacing the header range and six-byte stride the cartridge's header words implied).
+    /// </summary>
     internal static bool TryIdentifyGreyDoor(
         PlmHeaderId header,
         out ColoredDoorOrientation orientation)
     {
-        if (header == PlmHeaderId.BombTorizoGreyDoor)
+        switch (header)
         {
-            orientation = ColoredDoorOrientation.Right;
-            return true;
+            case PlmHeaderId.BombTorizoGreyDoor:
+            case PlmHeaderId.GreyDoorFacingRight:
+                orientation = ColoredDoorOrientation.Right;
+                return true;
+            case PlmHeaderId.GreyDoorFacingLeft:
+                orientation = ColoredDoorOrientation.Left;
+                return true;
+            case PlmHeaderId.GreyDoorFacingUp:
+                orientation = ColoredDoorOrientation.Up;
+                return true;
+            case PlmHeaderId.GreyDoorFacingDown:
+                orientation = ColoredDoorOrientation.Down;
+                return true;
+            default:
+                orientation = default;
+                return false;
         }
-
-        if (header is < PlmHeaderId.GreyDoorFacingLeft or
-            > PlmHeaderId.GreyDoorFacingDown)
-        {
-            orientation = default;
-            return false;
-        }
-
-        int byteOffset = header - PlmHeaderId.GreyDoorFacingLeft;
-        if (byteOffset % 6 != 0 || byteOffset > 18)
-        {
-            orientation = default;
-            return false;
-        }
-        orientation = ColoredDoorOrientations.AtTableIndex(byteOffset / 6);
-        return true;
     }
 }

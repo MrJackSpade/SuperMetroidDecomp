@@ -38,9 +38,11 @@ public static class PlmHeaderGenerationProcessPolicy {
     }
 
     $headerNames = @{}
-    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/Plms/PlmHeaderId.cs'))
-    foreach ($match in [regex]::Matches($headerCatalog, '(?m)^    (\w+) = 0x([0-9a-fA-F]+),\r?$')) {
-        $headerNames[[Convert]::ToInt32($match.Groups[2].Value, 16)] = $match.Groups[1].Value
+    # PlmHeaderId's values are arbitrary (#1414); verification's native-word table names each header word.
+    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmNativeWords.cs'))
+    foreach ($match in [regex]::Matches($headerCatalog, '(?m)^        \[PlmHeaderId\.(\w+)\] = 0x([0-9a-fA-F]+),\r?$')) {
+        $word = [Convert]::ToInt32($match.Groups[2].Value, 16)
+        if ($word -ne 0) { $headerNames[$word] = $match.Groups[1].Value }
     }
     $rom = [IO.File]::ReadAllBytes($romFile)
     $lines = [Collections.Generic.List[string]]::new()
@@ -134,10 +136,7 @@ public static class PlmHeaderGenerationProcessPolicy {
     $headerLines.Add('        {')
     foreach ($header in $orderedHeaders) {
         if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
-        $headerOffset = 0x20000 + ($header - 0x8000)
-        $setup = [int]$rom[$headerOffset] -bor ([int]$rom[$headerOffset + 1] -shl 8)
-        $initial = [int]$rom[$headerOffset + 2] -bor ([int]$rom[$headerOffset + 3] -shl 8)
-        $headerLines.Add(('            PlmHeaderId.{0} => new(header, 0x{1:X4}, 0x{2:X4}),' -f $headerNames[$header], $setup, $initial))
+        $headerLines.Add(('            PlmHeaderId.{0} => new(header),' -f $headerNames[$header]))
     }
     # Headers no retail population installs have no compiled definition; name each one so an
     # undefined word fails instead of reading as a missing definition.

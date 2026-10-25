@@ -64,9 +64,9 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
                         return true;
                     int kind = (int)graphic.Kind;
                     return new ushort[]
-                        { (ushort)PlmHeaderId.ExposedEnergyTank,
-                          (ushort)PlmHeaderId.ChozoEnergyTank,
-                          (ushort)PlmHeaderId.ShotBlockEnergyTank }.Any(baseHeader =>
+                        { PlmNativeWords.Word(PlmHeaderId.ExposedEnergyTank),
+                          PlmNativeWords.Word(PlmHeaderId.ChozoEnergyTank),
+                          PlmNativeWords.Word(PlmHeaderId.ShotBlockEnergyTank) }.Any(baseHeader =>
                     {
                         ushort header = checked((ushort)(baseHeader + kind * 4));
                         int instructionAddress = 0x840000 | ReadCollectibleGraphicsWord(source, header + 2);

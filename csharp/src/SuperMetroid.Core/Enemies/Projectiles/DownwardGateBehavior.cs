@@ -63,23 +63,23 @@ internal sealed class DownwardGateBehavior
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;
         int blockY = request.PlmBlockIndex / roomWidthInBlocks;
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            blockX * DownwardGateEnemyProjectileRomData.PixelsPerRoomBlock)), unchecked((ushort)(
-            blockY * DownwardGateEnemyProjectileRomData.PixelsPerRoomBlock +
+            blockX * DownwardGateDefinitions.PixelsPerRoomBlock)), unchecked((ushort)(
+            blockY * DownwardGateDefinitions.PixelsPerRoomBlock +
             (kind == RoomEnemyProjectileKind.DownwardGateClosed
-                ? DownwardGateEnemyProjectileRomData.ClosedPositionOffsetPixels
+                ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0)))));
 
         // Native eproj_E stores PLM_BlockIndices[x], whose unit is bytes. This association
         // is later searched by $84:BBF0 when the gate needs to open again.
         projectile.Variable0 = checked((ushort)(
-            request.PlmBlockIndex * DownwardGateEnemyProjectileRomData.NativeBytesPerRoomBlock));
+            request.PlmBlockIndex * DownwardGateDefinitions.BlockAssociationScale));
     }
 
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
         ushort associatedBlock = checked((ushort)(
-            plmBlockIndex * DownwardGateEnemyProjectileRomData.NativeBytesPerRoomBlock));
+            plmBlockIndex * DownwardGateDefinitions.BlockAssociationScale));
         RoomEnemyProjectileSlot? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
         {
@@ -107,7 +107,7 @@ internal sealed class DownwardGateBehavior
     {
         int speedMagnitude = Math.Abs(unchecked((short)projectile.Velocity.Y.RawValue));
         int accumulated = projectile.GeneralTimer + speedMagnitude;
-        if (accumulated >= DownwardGateEnemyProjectileRomData.OneBlockDistance)
+        if (accumulated >= DownwardGateDefinitions.OneBlockDistance)
         {
             // Native steps the list two bytes past its sleep, which wakes the next visual frame
             // on this same projectile-handler pass.

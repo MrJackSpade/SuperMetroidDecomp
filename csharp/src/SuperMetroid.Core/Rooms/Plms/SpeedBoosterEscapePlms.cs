@@ -59,9 +59,9 @@ internal sealed class SpeedBoosterEscapePlms
                 return;
 
             case SpeedBoosterEscapePreInstruction.WaitForSamusLeft:
-                if (samus.Position.X.Whole > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
+                if (samus.Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
                     return;
-                fx.ApplyCartridgeMotionWrites(timer: 1);
+                fx.SetLiquidMotion(timer: 1);
                 WakeAtNextInstruction(slot);
                 return;
 
@@ -84,7 +84,7 @@ internal sealed class SpeedBoosterEscapePlms
     {
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
-            fx.ApplyCartridgeMotionWrites(
+            fx.SetLiquidMotion(
                 targetYPosition: ushort.MaxValue,
                 packedYVelocity: 0,
                 timer: 0);
@@ -101,8 +101,8 @@ internal sealed class SpeedBoosterEscapePlms
             return;
         }
 
-        fx.ApplyCartridgeMotionWrites(
-            packedYVelocity: SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity);
+        fx.SetLiquidMotion(
+            packedYVelocity: SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue);
         WakeAtNextInstruction(slot);
     }
 
@@ -126,7 +126,7 @@ internal sealed class SpeedBoosterEscapePlms
         if (stage.Value.TargetSamusX < samus.Position.X.Whole)
             return;
 
-        fx.ApplyCartridgeMotionWrites(
+        fx.SetLiquidMotion(
             baseYPosition: stage.Value.MaximumFxY < fx.BaseY.Whole
                 ? stage.Value.MaximumFxY
                 : null,

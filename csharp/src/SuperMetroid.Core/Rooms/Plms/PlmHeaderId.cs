@@ -1,889 +1,887 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Bank-$84 PLM header entry points: every <c>PLMEntries_*</c> record a room population,
-/// door, item or scripted spawner can install. The value is the header's low word in fixed
-/// bank $84; <see cref="None"/> marks an empty PLM slot.
+/// The PLMs a room population, door, item or scripted spawner can install. The values are arbitrary and nothing
+/// reads them (#1414): a family recognises its PLMs by member, and verification translates the cartridge's header
+/// words through its native-word table. <see cref="None"/> marks an empty PLM slot.
 /// </summary>
 /// <remarks>
-/// The exposed, Chozo-orb and concealed shot-block permanent-item header runs each list their items in exactly the
-/// order of <see cref="InWorldCollectibleKind"/>. Door families use a six-byte header
-/// stride in left/right/up/down order; naming each header prevents orientation arithmetic from accepting an
-/// in-between word. Mother Brain's fake-death sequence requests its background-row and tube headers by these exact
-/// identities.
+/// The exposed, Chozo-orb and concealed shot-block permanent items each name one PLM per
+/// <see cref="InWorldCollectibleKind"/>; doors name one PLM per color and facing. Mother Brain's fake-death sequence
+/// requests its background-row and tube PLMs by these identities.
 /// </remarks>
-public enum PlmHeaderId : ushort
+public enum PlmHeaderId
 {
     /// <summary>An empty PLM slot.</summary>
     None = 0,
 
-    /// <summary><c>PLMEntries_nothing</c> at $84:B62F.</summary>
-    Nothing = 0xb62f,
+    /// <summary>The <c>nothing</c> PLM.</summary>
+    Nothing,
 
-    /// <summary><c>PLMEntries_collisionReactionClearCarry</c> at $84:B633.</summary>
-    CollisionReactionClearCarry = 0xb633,
+    /// <summary>The <c>collisionReactionClearCarry</c> PLM.</summary>
+    CollisionReactionClearCarry,
 
-    /// <summary>Extend a horizontal block chain toward increasing X at $84:B63B.</summary>
-    RightwardsScrollExtension = 0xb63b,
+    /// <summary>Extend a horizontal block chain toward increasing X.</summary>
+    RightwardsScrollExtension,
 
-    /// <summary>Extend a horizontal block chain toward decreasing X at $84:B63F.</summary>
-    LeftwardsScrollExtension = 0xb63f,
+    /// <summary>Extend a horizontal block chain toward decreasing X.</summary>
+    LeftwardsScrollExtension,
 
-    /// <summary>Extend a vertical block chain toward increasing Y at $84:B643.</summary>
-    DownwardsScrollExtension = 0xb643,
+    /// <summary>Extend a vertical block chain toward increasing Y.</summary>
+    DownwardsScrollExtension,
 
-    /// <summary>Extend a vertical block chain toward decreasing Y at $84:B647.</summary>
-    UpwardsScrollExtension = 0xb647,
+    /// <summary>Extend a vertical block chain toward decreasing Y.</summary>
+    UpwardsScrollExtension,
 
-    /// <summary>Wrecked Ship entrance treadmill entered from the west at $84:B64B.</summary>
-    WreckedShipEntranceTreadmillFromWest = 0xb64b,
+    /// <summary>Wrecked Ship entrance treadmill entered from the west.</summary>
+    WreckedShipEntranceTreadmillFromWest,
 
-    /// <summary>Wrecked Ship entrance treadmill entered from the east at $84:B64F.</summary>
-    WreckedShipEntranceTreadmillFromEast = 0xb64f,
+    /// <summary>Wrecked Ship entrance treadmill entered from the east.</summary>
+    WreckedShipEntranceTreadmillFromEast,
 
-    /// <summary><c>PLMEntries_insideReactionNothing_B653</c> at $84:B653.</summary>
-    InsideReactionNothingB653 = 0xb653,
+    /// <summary>The first of three inside reactions that do nothing.</summary>
+    InsideReactionNothingFirst,
 
-    /// <summary><c>PLMEntries_insideReactionNothing_B657</c> at $84:B657.</summary>
-    InsideReactionNothingB657 = 0xb657,
+    /// <summary>The second of three inside reactions that do nothing.</summary>
+    InsideReactionNothingSecond,
 
-    /// <summary><c>PLMEntries_insideReactionNothing_B65B</c> at $84:B65B.</summary>
-    InsideReactionNothingB65B = 0xb65b,
+    /// <summary>The third of three inside reactions that do nothing.</summary>
+    InsideReactionNothingThird,
 
-    /// <summary>Fill Mother Brain's wall at $84:B673.</summary>
-    FillMotherBrainsWall = 0xb673,
+    /// <summary>Fill Mother Brain's wall.</summary>
+    FillMotherBrainsWall,
 
-    /// <summary>Open Mother Brain's escape door at $84:B677.</summary>
-    MotherBrainsRoomEscapeDoor = 0xb677,
+    /// <summary>Open Mother Brain's escape door.</summary>
+    MotherBrainsRoomEscapeDoor,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow2</c> at $84:B67B.</summary>
-    MotherBrainsBackgroundRow2 = 0xb67b,
+    /// <summary>The <c>motherBrainsBackgroundRow2</c> PLM.</summary>
+    MotherBrainsBackgroundRow2,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow3</c> at $84:B67F.</summary>
-    MotherBrainsBackgroundRow3 = 0xb67f,
+    /// <summary>The <c>motherBrainsBackgroundRow3</c> PLM.</summary>
+    MotherBrainsBackgroundRow3,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow4</c> at $84:B683.</summary>
-    MotherBrainsBackgroundRow4 = 0xb683,
+    /// <summary>The <c>motherBrainsBackgroundRow4</c> PLM.</summary>
+    MotherBrainsBackgroundRow4,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow5</c> at $84:B687.</summary>
-    MotherBrainsBackgroundRow5 = 0xb687,
+    /// <summary>The <c>motherBrainsBackgroundRow5</c> PLM.</summary>
+    MotherBrainsBackgroundRow5,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow6</c> at $84:B68B.</summary>
-    MotherBrainsBackgroundRow6 = 0xb68b,
+    /// <summary>The <c>motherBrainsBackgroundRow6</c> PLM.</summary>
+    MotherBrainsBackgroundRow6,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow7</c> at $84:B68F.</summary>
-    MotherBrainsBackgroundRow7 = 0xb68f,
+    /// <summary>The <c>motherBrainsBackgroundRow7</c> PLM.</summary>
+    MotherBrainsBackgroundRow7,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow8</c> at $84:B693.</summary>
-    MotherBrainsBackgroundRow8 = 0xb693,
+    /// <summary>The <c>motherBrainsBackgroundRow8</c> PLM.</summary>
+    MotherBrainsBackgroundRow8,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRow9</c> at $84:B697.</summary>
-    MotherBrainsBackgroundRow9 = 0xb697,
+    /// <summary>The <c>motherBrainsBackgroundRow9</c> PLM.</summary>
+    MotherBrainsBackgroundRow9,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRowA</c> at $84:B69B.</summary>
-    MotherBrainsBackgroundRowA = 0xb69b,
+    /// <summary>The <c>motherBrainsBackgroundRowA</c> PLM.</summary>
+    MotherBrainsBackgroundRowA,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRowB</c> at $84:B69F.</summary>
-    MotherBrainsBackgroundRowB = 0xb69f,
+    /// <summary>The <c>motherBrainsBackgroundRowB</c> PLM.</summary>
+    MotherBrainsBackgroundRowB,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRowC</c> at $84:B6A3.</summary>
-    MotherBrainsBackgroundRowC = 0xb6a3,
+    /// <summary>The <c>motherBrainsBackgroundRowC</c> PLM.</summary>
+    MotherBrainsBackgroundRowC,
 
-    /// <summary><c>PLMEntries_motherBrainsBackgroundRowD</c> at $84:B6A7.</summary>
-    MotherBrainsBackgroundRowD = 0xb6a7,
+    /// <summary>The <c>motherBrainsBackgroundRowD</c> PLM.</summary>
+    MotherBrainsBackgroundRowD,
 
-    /// <summary><c>PLMEntries_clearCeilingBlockInMotherBrainsRoom</c> at $84:B6B3.</summary>
-    ClearMotherBrainCeilingBlock = 0xb6b3,
+    /// <summary>The <c>clearCeilingBlockInMotherBrainsRoom</c> PLM.</summary>
+    ClearMotherBrainCeilingBlock,
 
-    /// <summary><c>PLMEntries_clearCeilingTubeInMotherBrainsRoom</c> at $84:B6B7.</summary>
-    ClearMotherBrainCeilingTube = 0xb6b7,
+    /// <summary>The <c>clearCeilingTubeInMotherBrainsRoom</c> PLM.</summary>
+    ClearMotherBrainCeilingTube,
 
-    /// <summary><c>PLMEntries_clearMotherBrainsBottomMiddleSideTube</c> at $84:B6BB.</summary>
-    ClearMotherBrainBottomMiddleSideTube = 0xb6bb,
+    /// <summary>The <c>clearMotherBrainsBottomMiddleSideTube</c> PLM.</summary>
+    ClearMotherBrainBottomMiddleSideTube,
 
-    /// <summary><c>PLMEntries_clearMotherBrainsBottomMiddleTubes</c> at $84:B6BF.</summary>
-    ClearMotherBrainBottomMiddleTubes = 0xb6bf,
+    /// <summary>The <c>clearMotherBrainsBottomMiddleTubes</c> PLM.</summary>
+    ClearMotherBrainBottomMiddleTubes,
 
-    /// <summary><c>PLMEntries_clearMotherBrainsBottomLeftTube</c> at $84:B6C3.</summary>
-    ClearMotherBrainBottomLeftTube = 0xb6c3,
+    /// <summary>The <c>clearMotherBrainsBottomLeftTube</c> PLM.</summary>
+    ClearMotherBrainBottomLeftTube,
 
-    /// <summary><c>PLMEntries_clearMotherBrainsBottomRightTube</c> at $84:B6C7.</summary>
-    ClearMotherBrainBottomRightTube = 0xb6c7,
+    /// <summary>The <c>clearMotherBrainsBottomRightTube</c> PLM.</summary>
+    ClearMotherBrainBottomRightTube,
 
-    /// <summary><c>PLMEntries_insideReactionBrinstarFloorPlant</c> at $84:B6CB.</summary>
-    InsideReactionBrinstarFloorPlant = 0xb6cb,
+    /// <summary>The <c>insideReactionBrinstarFloorPlant</c> PLM.</summary>
+    InsideReactionBrinstarFloorPlant,
 
-    /// <summary><c>PLMEntries_insideReactionBrinstarCeilingPlant</c> at $84:B6CF.</summary>
-    InsideReactionBrinstarCeilingPlant = 0xb6cf,
+    /// <summary>The <c>insideReactionBrinstarCeilingPlant</c> PLM.</summary>
+    InsideReactionBrinstarCeilingPlant,
 
-    /// <summary>Main map-station room actor at $84:B6D3.</summary>
-    MapStation = 0xb6d3,
+    /// <summary>Main map-station room actor.</summary>
+    MapStation,
 
-    /// <summary><c>PLMEntries_mapStationRightAccess</c> at $84:B6D7.</summary>
-    MapStationRightAccess = 0xb6d7,
+    /// <summary>The <c>mapStationRightAccess</c> PLM.</summary>
+    MapStationRightAccess,
 
-    /// <summary><c>PLMEntries_mapStationLeftAccess</c> at $84:B6DB.</summary>
-    MapStationLeftAccess = 0xb6db,
+    /// <summary>The <c>mapStationLeftAccess</c> PLM.</summary>
+    MapStationLeftAccess,
 
-    /// <summary><c>PLMEntries_energyStation</c> at $84:B6DF.</summary>
-    EnergyStation = 0xb6df,
+    /// <summary>The <c>energyStation</c> PLM.</summary>
+    EnergyStation,
 
-    /// <summary><c>PLMEntries_energyStationRightAccess</c> at $84:B6E3.</summary>
-    EnergyStationRightAccess = 0xb6e3,
+    /// <summary>The <c>energyStationRightAccess</c> PLM.</summary>
+    EnergyStationRightAccess,
 
-    /// <summary><c>PLMEntries_energyStationLeftAccess</c> at $84:B6E7.</summary>
-    EnergyStationLeftAccess = 0xb6e7,
+    /// <summary>The <c>energyStationLeftAccess</c> PLM.</summary>
+    EnergyStationLeftAccess,
 
-    /// <summary><c>PLMEntries_missileStation</c> at $84:B6EB.</summary>
-    MissileStation = 0xb6eb,
+    /// <summary>The <c>missileStation</c> PLM.</summary>
+    MissileStation,
 
-    /// <summary><c>PLMEntries_missileStationRightAccess</c> at $84:B6EF.</summary>
-    MissileStationRightAccess = 0xb6ef,
+    /// <summary>The <c>missileStationRightAccess</c> PLM.</summary>
+    MissileStationRightAccess,
 
-    /// <summary><c>PLMEntries_missileStationLeftAccess</c> at $84:B6F3.</summary>
-    MissileStationLeftAccess = 0xb6f3,
+    /// <summary>The <c>missileStationLeftAccess</c> PLM.</summary>
+    MissileStationLeftAccess,
 
-    /// <summary><c>PLMEntries_nothing_84B6F7</c> at $84:B6F7.</summary>
-    Nothing84B6F7 = 0xb6f7,
+    /// <summary>A second PLM that does nothing.</summary>
+    NothingSecond,
 
-    /// <summary><c>PLMEntries_nothing_84B6FB</c> at $84:B6FB.</summary>
-    Nothing84B6FB = 0xb6fb,
+    /// <summary>A third PLM that does nothing.</summary>
+    NothingThird,
 
-    /// <summary><c>PLMEntries_scrollPLMTrigger</c> at $84:B6FF.</summary>
-    ScrollTriggerCollision = 0xb6ff,
+    /// <summary>The <c>scrollPLMTrigger</c> PLM.</summary>
+    ScrollTriggerCollision,
 
-    /// <summary>Resident special-air scroll trigger at $84:B703.</summary>
-    ScrollTrigger = 0xb703,
+    /// <summary>Resident special-air scroll trigger.</summary>
+    ScrollTrigger,
 
-    /// <summary><c>PLMEntries_unusedSolidScrollPLM</c> at $84:B707.</summary>
-    UnusedSolidScrollPLM = 0xb707,
+    /// <summary>The <c>unusedSolidScrollPLM</c> PLM.</summary>
+    UnusedSolidScrollPLM,
 
-    /// <summary>Ordinary elevator-platform room actor at $84:B70B.</summary>
-    ElevatorPlatform = 0xb70b,
+    /// <summary>Ordinary elevator-platform room actor.</summary>
+    ElevatorPlatform,
 
-    /// <summary><c>PLMEntries_insideReactionCrateria80</c> at $84:B70F.</summary>
-    InsideReactionCrateria80 = 0xb70f,
+    /// <summary>The <c>insideReactionCrateria80</c> PLM.</summary>
+    InsideReactionCrateria80,
 
-    /// <summary><c>PLMEntries_insideReactionQuicksandSurface</c> at $84:B713.</summary>
-    InsideReactionQuicksandSurface = 0xb713,
+    /// <summary>The <c>insideReactionQuicksandSurface</c> PLM.</summary>
+    InsideReactionQuicksandSurface,
 
-    /// <summary><c>PLMEntries_insideReactionSubmergingQuicksand</c> at $84:B71F.</summary>
-    InsideReactionSubmergingQuicksand = 0xb71f,
+    /// <summary>The <c>insideReactionSubmergingQuicksand</c> PLM.</summary>
+    InsideReactionSubmergingQuicksand,
 
-    /// <summary><c>PLMEntries_insideReactionSandFallsSlow</c> at $84:B723.</summary>
-    InsideReactionSandFallsSlow = 0xb723,
+    /// <summary>The <c>insideReactionSandFallsSlow</c> PLM.</summary>
+    InsideReactionSandFallsSlow,
 
-    /// <summary><c>PLMEntries_insideReactionSandFallsFast</c> at $84:B727.</summary>
-    InsideReactionSandFallsFast = 0xb727,
+    /// <summary>The <c>insideReactionSandFallsFast</c> PLM.</summary>
+    InsideReactionSandFallsFast,
 
-    /// <summary><c>PLMEntries_collisionReactionQuicksandSurface</c> at $84:B72B.</summary>
-    CollisionReactionQuicksandSurface = 0xb72b,
+    /// <summary>The <c>collisionReactionQuicksandSurface</c> PLM.</summary>
+    CollisionReactionQuicksandSurface,
 
-    /// <summary><c>PLMEntries_collisionReactionSubmergingQuicksand</c> at $84:B737.</summary>
-    CollisionReactionSubmergingQuicksand = 0xb737,
+    /// <summary>The <c>collisionReactionSubmergingQuicksand</c> PLM.</summary>
+    CollisionReactionSubmergingQuicksand,
 
-    /// <summary><c>PLMEntries_collisionReactionSandFallsSlow</c> at $84:B73B.</summary>
-    CollisionReactionSandFallsSlow = 0xb73b,
+    /// <summary>The <c>collisionReactionSandFallsSlow</c> PLM.</summary>
+    CollisionReactionSandFallsSlow,
 
-    /// <summary><c>PLMEntries_collisionReactionSandFallsFast</c> at $84:B73F.</summary>
-    CollisionReactionSandFallsFast = 0xb73f,
+    /// <summary>The <c>collisionReactionSandFallsFast</c> PLM.</summary>
+    CollisionReactionSandFallsFast,
 
-    /// <summary>Clear Crocomire bridge PLM at $84:B747.</summary>
-    ClearCrocomireBridge = 0xb747,
+    /// <summary>Clear Crocomire bridge PLM.</summary>
+    ClearCrocomireBridge,
 
-    /// <summary>Crumble one Crocomire bridge block PLM at $84:B74B.</summary>
-    CrumbleCrocomireBridgeBlock = 0xb74b,
+    /// <summary>Crumble one Crocomire bridge block PLM.</summary>
+    CrumbleCrocomireBridgeBlock,
 
-    /// <summary>Clear one Crocomire bridge block PLM at $84:B74F.</summary>
-    ClearCrocomireBridgeBlock = 0xb74f,
+    /// <summary>Clear one Crocomire bridge block PLM.</summary>
+    ClearCrocomireBridgeBlock,
 
-    /// <summary>Clear Crocomire's invisible wall PLM at $84:B753.</summary>
-    ClearCrocomireInvisibleWall = 0xb753,
+    /// <summary>Clear Crocomire's invisible wall PLM.</summary>
+    ClearCrocomireInvisibleWall,
 
-    /// <summary>Create Crocomire's invisible wall PLM at $84:B757.</summary>
-    CreateCrocomireInvisibleWall = 0xb757,
+    /// <summary>Create Crocomire's invisible wall PLM.</summary>
+    CreateCrocomireInvisibleWall,
 
-    /// <summary><c>PLMEntries_unusedDraw13BlankAirTiles</c> at $84:B75B.</summary>
-    UnusedDraw13BlankAirTiles = 0xb75b,
+    /// <summary>The <c>unusedDraw13BlankAirTiles</c> PLM.</summary>
+    UnusedDraw13BlankAirTiles,
 
-    /// <summary><c>PLMEntries_unusedDraw13BlankSolidTiles</c> at $84:B75F.</summary>
-    UnusedDraw13BlankSolidTiles = 0xb75f,
+    /// <summary>The <c>unusedDraw13BlankSolidTiles</c> PLM.</summary>
+    UnusedDraw13BlankSolidTiles,
 
-    /// <summary>Clear the Baby Metroid encounter's invisible wall at $84:B763.</summary>
-    ClearBabyMetroidInvisibleWall = 0xb763,
+    /// <summary>Clear the Baby Metroid encounter's invisible wall.</summary>
+    ClearBabyMetroidInvisibleWall,
 
-    /// <summary>Create the Baby Metroid encounter's invisible wall at $84:B767.</summary>
-    CreateBabyMetroidInvisibleWall = 0xb767,
+    /// <summary>Create the Baby Metroid encounter's invisible wall.</summary>
+    CreateBabyMetroidInvisibleWall,
 
-    /// <summary><c>PLMEntries_saveStationTrigger</c> at $84:B76B.</summary>
-    SaveStationTrigger = 0xb76b,
+    /// <summary>The <c>saveStationTrigger</c> PLM.</summary>
+    SaveStationTrigger,
 
-    /// <summary>Main save-station room actor at $84:B76F.</summary>
-    SaveStation = 0xb76f,
+    /// <summary>Main save-station room actor.</summary>
+    SaveStation,
 
-    /// <summary><c>PLMEntries_crumbleAccessToTourianElevator</c> at $84:B773.</summary>
-    CrumbleAccessToTourianElevator = 0xb773,
+    /// <summary>The <c>crumbleAccessToTourianElevator</c> PLM.</summary>
+    CrumbleAccessToTourianElevator,
 
-    /// <summary><c>PLMEntries_clearAccessToTourianElevator</c> at $84:B777.</summary>
-    ClearAccessToTourianElevator = 0xb777,
+    /// <summary>The <c>clearAccessToTourianElevator</c> PLM.</summary>
+    ClearAccessToTourianElevator,
 
-    /// <summary>Draw Phantoon's closed arena door at $84:B781.</summary>
-    DrawPhantoonDoorDuringBossFight = 0xb781,
+    /// <summary>Draw Phantoon's closed arena door.</summary>
+    DrawPhantoonDoorDuringBossFight,
 
-    /// <summary>Restore Phantoon's door after the fight at $84:B78B.</summary>
-    RestorePhantoonDoorAfterBossFight = 0xb78b,
+    /// <summary>Restore Phantoon's door after the fight.</summary>
+    RestorePhantoonDoorAfterBossFight,
 
-    /// <summary>Crumble Spore Spawn's ceiling PLM at $84:B78F.</summary>
-    CrumbleSporeSpawnCeiling = 0xb78f,
+    /// <summary>Crumble Spore Spawn's ceiling PLM.</summary>
+    CrumbleSporeSpawnCeiling,
 
-    /// <summary>Clear Spore Spawn's ceiling PLM at $84:B793.</summary>
-    ClearSporeSpawnCeiling = 0xb793,
+    /// <summary>Clear Spore Spawn's ceiling PLM.</summary>
+    ClearSporeSpawnCeiling,
 
-    /// <summary>Clear Botwoon's wall PLM at $84:B797.</summary>
-    ClearBotwoonWall = 0xb797,
+    /// <summary>Clear Botwoon's wall PLM.</summary>
+    ClearBotwoonWall,
 
-    /// <summary>Crumble Botwoon's wall PLM at $84:B79B.</summary>
-    CrumbleBotwoonWall = 0xb79b,
+    /// <summary>Crumble Botwoon's wall PLM.</summary>
+    CrumbleBotwoonWall,
 
-    /// <summary><c>PLMEntries_unusedSetKraidCeilingBlockToBackground1</c> at $84:B79F.</summary>
-    UnusedSetKraidCeilingBlockToBackground1 = 0xb79f,
+    /// <summary>The <c>unusedSetKraidCeilingBlockToBackground1</c> PLM.</summary>
+    UnusedSetKraidCeilingBlockToBackground1,
 
-    /// <summary>Kraid ceiling crumble using background variant one at $84:B7A3.</summary>
-    CrumbleKraidCeilingIntoBackground1 = 0xb7a3,
+    /// <summary>Kraid ceiling crumble using background variant one.</summary>
+    CrumbleKraidCeilingIntoBackground1,
 
-    /// <summary>Kraid platform crumble using the first floor variant at $84:B7A7.</summary>
-    CrumbleKraidPlatformVariant1 = 0xb7a7,
+    /// <summary>Kraid platform crumble using the first floor variant.</summary>
+    CrumbleKraidPlatformVariant1,
 
-    /// <summary>Kraid ceiling crumble using background variant two at $84:B7AB.</summary>
-    CrumbleKraidCeilingIntoBackground2 = 0xb7ab,
+    /// <summary>Kraid ceiling crumble using background variant two.</summary>
+    CrumbleKraidCeilingIntoBackground2,
 
-    /// <summary>Kraid platform crumble using the second floor variant at $84:B7AF.</summary>
-    CrumbleKraidPlatformVariant2 = 0xb7af,
+    /// <summary>Kraid platform crumble using the second floor variant.</summary>
+    CrumbleKraidPlatformVariant2,
 
-    /// <summary>Kraid ceiling crumble using background variant three at $84:B7B3.</summary>
-    CrumbleKraidCeilingIntoBackground3 = 0xb7b3,
+    /// <summary>Kraid ceiling crumble using background variant three.</summary>
+    CrumbleKraidCeilingIntoBackground3,
 
-    /// <summary>Clear Kraid's ceiling after an already-defeated room load at $84:B7B7.</summary>
-    ClearKraidCeiling = 0xb7b7,
+    /// <summary>Clear Kraid's ceiling after an already-defeated room load.</summary>
+    ClearKraidCeiling,
 
-    /// <summary>Clear Kraid-room spikes after an already-defeated room load at $84:B7BB.</summary>
-    ClearKraidSpikes = 0xb7bb,
+    /// <summary>Clear Kraid-room spikes after an already-defeated room load.</summary>
+    ClearKraidSpikes,
 
-    /// <summary><c>$84:B7BF PLMEntries_crumbleKraidSpikeBlocks</c>: animated live-death floor sweep.</summary>
-    CrumbleKraidSpikes = 0xb7bf,
+    /// <summary>The <c>crumbleKraidSpikeBlocks</c> PLM: animated live-death floor sweep.</summary>
+    CrumbleKraidSpikes,
 
-    /// <summary><c>PLMEntries_enableSoundsIn20Frames_F0FramesIfCeres</c> at $84:B7EB.</summary>
-    EnableSoundsIn20FramesF0FramesIfCeres = 0xb7eb,
+    /// <summary>The <c>enableSoundsIn20Frames_F0FramesIfCeres</c> PLM.</summary>
+    EnableSoundsIn20FramesF0FramesIfCeres,
 
-    /// <summary>Speed Booster escape lavaquake controller at $84:B8AC.</summary>
-    SpeedBoosterEscape = 0xb8ac,
+    /// <summary>Speed Booster escape lavaquake controller.</summary>
+    SpeedBoosterEscape,
 
-    /// <summary><c>PLMEntries_shaktoolsRoom</c> at $84:B8EB.</summary>
-    ShaktoolsRoom = 0xb8eb,
+    /// <summary>The <c>shaktoolsRoom</c> PLM.</summary>
+    ShaktoolsRoom,
 
-    /// <summary>Maridia elevatube delay/sound PLM at $84:B8F9.</summary>
-    MaridiaElevatube = 0xb8f9,
+    /// <summary>Maridia elevatube delay/sound PLM.</summary>
+    MaridiaElevatube,
 
     /// <summary>
-    /// Old Tourian escape shaft fake wall at $84:B964, spawned by room setup $8F:91A9 during
+    /// Old Tourian escape shaft fake wall, spawned by its room's setup during
     /// the escape; explodes once Samus passes below and right of it.
     /// </summary>
-    OldTourianEscapeShaftFakeWall = 0xb964,
+    OldTourianEscapeShaftFakeWall,
 
-    /// <summary><c>PLMEntries_RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft</c> at $84:B968.</summary>
-    RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft = 0xb968,
+    /// <summary>The <c>RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft</c> PLM.</summary>
+    RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft,
 
-    /// <summary><c>PLMEntries_gateBlock</c> at $84:B974.</summary>
-    GateBlock = 0xb974,
+    /// <summary>The <c>gateBlock</c> PLM.</summary>
+    GateBlock,
 
-    /// <summary><c>PLMEntries_Reaction_CrittersEscapeBlock</c> at $84:B9C1.</summary>
-    ReactionCrittersEscapeBlock = 0xb9c1,
+    /// <summary>The <c>Reaction_CrittersEscapeBlock</c> PLM.</summary>
+    ReactionCrittersEscapeBlock,
 
-    /// <summary><c>PLMEntries_CrittersEscapeBlock</c> at $84:B9ED.</summary>
-    CrittersEscapeBlock = 0xb9ed,
+    /// <summary>The <c>CrittersEscapeBlock</c> PLM.</summary>
+    CrittersEscapeBlock,
 
-    /// <summary><c>PLMEntries_turnCeresElevatorDoorToSolidBlocksDuringEscape</c> at $84:BA48.</summary>
-    TurnCeresElevatorDoorToSolidBlocksDuringEscape = 0xba48,
+    /// <summary>The <c>turnCeresElevatorDoorToSolidBlocksDuringEscape</c> PLM.</summary>
+    TurnCeresElevatorDoorToSolidBlocksDuringEscape,
 
-    /// <summary>Bomb Torizo's exceptional right-facing grey door at $84:BAF4.</summary>
-    BombTorizoGreyDoor = 0xbaf4,
+    /// <summary>Bomb Torizo's exceptional right-facing grey door.</summary>
+    BombTorizoGreyDoor,
 
-    /// <summary>Resident Wrecked Ship attic no-op observer at $84:BB05.</summary>
-    WreckedShipAttic = 0xbb05,
+    /// <summary>Resident Wrecked Ship attic no-op observer.</summary>
+    WreckedShipAttic,
 
     /// <summary>
-    /// Crateria mainstreet escape-passage clearer at $84:BB30, spawned by room setup $8F:9194;
+    /// Crateria mainstreet escape-passage clearer, spawned by its room's setup;
     /// its setup deletes it unless the critters escaped.
     /// </summary>
-    CrateriaMainstreetEscapePassage = 0xbb30,
+    CrateriaMainstreetEscapePassage,
 
-    /// <summary><c>PLMEntries_leftGreenGateTrigger</c> at $84:C806.</summary>
-    LeftGreenGateTrigger = 0xc806,
+    /// <summary>The <c>leftGreenGateTrigger</c> PLM.</summary>
+    LeftGreenGateTrigger,
 
-    /// <summary><c>PLMEntries_rightGreenGateTrigger</c> at $84:C80A.</summary>
-    RightGreenGateTrigger = 0xc80a,
+    /// <summary>The <c>rightGreenGateTrigger</c> PLM.</summary>
+    RightGreenGateTrigger,
 
-    /// <summary><c>PLMEntries_leftRedGateTrigger</c> at $84:C80E.</summary>
-    LeftRedGateTrigger = 0xc80e,
+    /// <summary>The <c>leftRedGateTrigger</c> PLM.</summary>
+    LeftRedGateTrigger,
 
-    /// <summary><c>PLMEntries_rightRedGateTrigger</c> at $84:C812.</summary>
-    RightRedGateTrigger = 0xc812,
+    /// <summary>The <c>rightRedGateTrigger</c> PLM.</summary>
+    RightRedGateTrigger,
 
-    /// <summary><c>PLMEntries_leftBlueGateTrigger</c> at $84:C816.</summary>
-    LeftBlueGateTrigger = 0xc816,
+    /// <summary>The <c>leftBlueGateTrigger</c> PLM.</summary>
+    LeftBlueGateTrigger,
 
-    /// <summary><c>PLMEntries_rightBlueGateTrigger</c> at $84:C81A.</summary>
-    RightBlueGateTrigger = 0xc81a,
+    /// <summary>The <c>rightBlueGateTrigger</c> PLM.</summary>
+    RightBlueGateTrigger,
 
-    /// <summary><c>PLMEntries_leftYellowGateTrigger</c> at $84:C81E.</summary>
-    LeftYellowGateTrigger = 0xc81e,
+    /// <summary>The <c>leftYellowGateTrigger</c> PLM.</summary>
+    LeftYellowGateTrigger,
 
-    /// <summary><c>PLMEntries_rightYellowGateTrigger</c> at $84:C822.</summary>
-    RightYellowGateTrigger = 0xc822,
+    /// <summary>The <c>rightYellowGateTrigger</c> PLM.</summary>
+    RightYellowGateTrigger,
 
-    /// <summary><c>PLMEntries_downwardsOpenGate</c> at $84:C826.</summary>
-    DownwardsOpenGate = 0xc826,
+    /// <summary>The <c>downwardsOpenGate</c> PLM.</summary>
+    DownwardsOpenGate,
 
-    /// <summary>Resident five-block downward gate at <c>$84:C82A</c>.</summary>
-    DownwardGate = 0xc82a,
+    /// <summary>Resident five-block downward gate.</summary>
+    DownwardGate,
 
-    /// <summary><c>PLMEntries_upwardsOpenGate</c> at $84:C82E.</summary>
-    UpwardsOpenGate = 0xc82e,
+    /// <summary>The <c>upwardsOpenGate</c> PLM.</summary>
+    UpwardsOpenGate,
 
-    /// <summary><c>PLMEntries_upwardsClosedGate</c> at $84:C832.</summary>
-    UpwardsClosedGate = 0xc832,
+    /// <summary>The <c>upwardsClosedGate</c> PLM.</summary>
+    UpwardsClosedGate,
 
-    /// <summary>Room-authored downward-gate shot block at <c>$84:C836</c>.</summary>
-    DownwardGateShotBlock = 0xc836,
+    /// <summary>Room-authored downward-gate shot block.</summary>
+    DownwardGateShotBlock,
 
-    /// <summary><c>PLMEntries_upwardsGateShotblock</c> at $84:C83A.</summary>
-    UpwardsGateShotblock = 0xc83a,
+    /// <summary>The <c>upwardsGateShotblock</c> PLM.</summary>
+    UpwardsGateShotblock,
 
-    /// <summary><c>PLMEntries_genericShotTriggerForAPLM</c> at $84:C83E.</summary>
-    GenericShotTriggerForAPLM = 0xc83e,
+    /// <summary>The <c>genericShotTriggerForAPLM</c> PLM.</summary>
+    GenericShotTriggerForAPLM,
 
-    /// <summary><c>PLMEntries_greyDoorFacingLeft</c> at $84:C842.</summary>
-    GreyDoorFacingLeft = 0xc842,
+    /// <summary>The <c>greyDoorFacingLeft</c> PLM.</summary>
+    GreyDoorFacingLeft,
 
-    /// <summary><c>PLMEntries_greyDoorFacingRight</c> at $84:C848.</summary>
-    GreyDoorFacingRight = 0xc848,
+    /// <summary>The <c>greyDoorFacingRight</c> PLM.</summary>
+    GreyDoorFacingRight,
 
-    /// <summary><c>PLMEntries_greyDoorFacingUp</c> at $84:C84E.</summary>
-    GreyDoorFacingUp = 0xc84e,
+    /// <summary>The <c>greyDoorFacingUp</c> PLM.</summary>
+    GreyDoorFacingUp,
 
-    /// <summary><c>PLMEntries_greyDoorFacingDown</c> at $84:C854.</summary>
-    GreyDoorFacingDown = 0xc854,
+    /// <summary>The <c>greyDoorFacingDown</c> PLM.</summary>
+    GreyDoorFacingDown,
 
-    /// <summary><c>PLMEntries_yellowDoorFacingLeft</c> at $84:C85A.</summary>
-    YellowDoorFacingLeft = 0xc85a,
+    /// <summary>The <c>yellowDoorFacingLeft</c> PLM.</summary>
+    YellowDoorFacingLeft,
 
-    /// <summary><c>PLMEntries_yellowDoorFacingRight</c> at $84:C860.</summary>
-    YellowDoorFacingRight = 0xc860,
+    /// <summary>The <c>yellowDoorFacingRight</c> PLM.</summary>
+    YellowDoorFacingRight,
 
-    /// <summary><c>PLMEntries_yellowDoorFacingUp</c> at $84:C866.</summary>
-    YellowDoorFacingUp = 0xc866,
+    /// <summary>The <c>yellowDoorFacingUp</c> PLM.</summary>
+    YellowDoorFacingUp,
 
-    /// <summary><c>PLMEntries_yellowDoorFacingDown</c> at $84:C86C.</summary>
-    YellowDoorFacingDown = 0xc86c,
+    /// <summary>The <c>yellowDoorFacingDown</c> PLM.</summary>
+    YellowDoorFacingDown,
 
-    /// <summary><c>PLMEntries_greenDoorFacingLeft</c> at $84:C872.</summary>
-    GreenDoorFacingLeft = 0xc872,
+    /// <summary>The <c>greenDoorFacingLeft</c> PLM.</summary>
+    GreenDoorFacingLeft,
 
-    /// <summary><c>PLMEntries_greenDoorFacingRight</c> at $84:C878.</summary>
-    GreenDoorFacingRight = 0xc878,
+    /// <summary>The <c>greenDoorFacingRight</c> PLM.</summary>
+    GreenDoorFacingRight,
 
-    /// <summary><c>PLMEntries_greenDoorFacingUp</c> at $84:C87E.</summary>
-    GreenDoorFacingUp = 0xc87e,
+    /// <summary>The <c>greenDoorFacingUp</c> PLM.</summary>
+    GreenDoorFacingUp,
 
-    /// <summary><c>PLMEntries_greenDoorFacingDown</c> at $84:C884.</summary>
-    GreenDoorFacingDown = 0xc884,
+    /// <summary>The <c>greenDoorFacingDown</c> PLM.</summary>
+    GreenDoorFacingDown,
 
-    /// <summary><c>PLMEntries_redDoorFacingLeft</c> at $84:C88A.</summary>
-    RedDoorFacingLeft = 0xc88a,
+    /// <summary>The <c>redDoorFacingLeft</c> PLM.</summary>
+    RedDoorFacingLeft,
 
-    /// <summary><c>PLMEntries_redDoorFacingRight</c> at $84:C890.</summary>
-    RedDoorFacingRight = 0xc890,
+    /// <summary>The <c>redDoorFacingRight</c> PLM.</summary>
+    RedDoorFacingRight,
 
-    /// <summary><c>PLMEntries_redDoorFacingUp</c> at $84:C896.</summary>
-    RedDoorFacingUp = 0xc896,
+    /// <summary>The <c>redDoorFacingUp</c> PLM.</summary>
+    RedDoorFacingUp,
 
-    /// <summary><c>PLMEntries_redDoorFacingDown</c> at $84:C89C.</summary>
-    RedDoorFacingDown = 0xc89c,
+    /// <summary>The <c>redDoorFacingDown</c> PLM.</summary>
+    RedDoorFacingDown,
 
-    /// <summary><c>PLMEntries_blueDoorFacingLeft</c> at $84:C8A2.</summary>
-    BlueDoorFacingLeft = 0xc8a2,
+    /// <summary>The <c>blueDoorFacingLeft</c> PLM.</summary>
+    BlueDoorFacingLeft,
 
-    /// <summary><c>PLMEntries_blueDoorFacingRight</c> at $84:C8A8.</summary>
-    BlueDoorFacingRight = 0xc8a8,
+    /// <summary>The <c>blueDoorFacingRight</c> PLM.</summary>
+    BlueDoorFacingRight,
 
-    /// <summary><c>PLMEntries_blueDoorFacingUp</c> at $84:C8AE.</summary>
-    BlueDoorFacingUp = 0xc8ae,
+    /// <summary>The <c>blueDoorFacingUp</c> PLM.</summary>
+    BlueDoorFacingUp,
 
-    /// <summary><c>PLMEntries_blueDoorFacingDown</c> at $84:C8B4.</summary>
-    BlueDoorFacingDown = 0xc8b4,
+    /// <summary>The <c>blueDoorFacingDown</c> PLM.</summary>
+    BlueDoorFacingDown,
 
-    /// <summary>Door-transition-only blue-door closer facing left at $84:C8BA.</summary>
-    BlueDoorClosingFacingLeft = 0xc8ba,
+    /// <summary>Door-transition-only blue-door closer facing left.</summary>
+    BlueDoorClosingFacingLeft,
 
-    /// <summary>Door-transition-only blue-door closer facing right at $84:C8BE.</summary>
-    BlueDoorClosingFacingRight = 0xc8be,
+    /// <summary>Door-transition-only blue-door closer facing right.</summary>
+    BlueDoorClosingFacingRight,
 
-    /// <summary>Door-transition-only blue-door closer facing up at $84:C8C2.</summary>
-    BlueDoorClosingFacingUp = 0xc8c2,
+    /// <summary>Door-transition-only blue-door closer facing up.</summary>
+    BlueDoorClosingFacingUp,
 
-    /// <summary>Door-transition-only blue-door closer facing down at $84:C8C6.</summary>
-    BlueDoorClosingFacingDown = 0xc8c6,
+    /// <summary>Door-transition-only blue-door closer facing down.</summary>
+    BlueDoorClosingFacingDown,
 
     /// <summary>
-    /// Resident gate at $84:C8CA in Tourian escape room one. Its second header list is
+    /// Resident gate in Tourian escape room one. Its second header list is
     /// selected by the shared door-transition closer when entering from Mother Brain.
     /// </summary>
-    MotherBrainEscapeRoomGate = 0xc8ca,
+    MotherBrainEscapeRoomGate,
 
     /// <summary>
-    /// Door-transition-only fallback gate closer at $84:C8D0, used when a special
+    /// Door-transition-only fallback gate closer, used when a special
     /// direction-$8..$B door has no resident cap at its authored block coordinate.
     /// </summary>
-    MotherBrainEscapeRoomGateClosing = 0xc8d0,
+    MotherBrainEscapeRoomGateClosing,
 
-    /// <summary><c>PLMEntries_1x1RespawningCrumbleBlock</c> at $84:CFFC.</summary>
-    Plm1x1RespawningCrumbleBlock = 0xcffc,
+    /// <summary>The <c>1x1RespawningCrumbleBlock</c> PLM.</summary>
+    Plm1x1RespawningCrumbleBlock,
 
-    /// <summary><c>PLMEntries_2x1RespawningCrumbleBlock</c> at $84:D000.</summary>
-    Plm2x1RespawningCrumbleBlock = 0xd000,
+    /// <summary>The <c>2x1RespawningCrumbleBlock</c> PLM.</summary>
+    Plm2x1RespawningCrumbleBlock,
 
-    /// <summary><c>PLMEntries_1x2RespawningCrumbleBlock</c> at $84:D004.</summary>
-    Plm1x2RespawningCrumbleBlock = 0xd004,
+    /// <summary>The <c>1x2RespawningCrumbleBlock</c> PLM.</summary>
+    Plm1x2RespawningCrumbleBlock,
 
-    /// <summary><c>PLMEntries_2x2RespawningCrumbleBlock</c> at $84:D008.</summary>
-    Plm2x2RespawningCrumbleBlock = 0xd008,
+    /// <summary>The <c>2x2RespawningCrumbleBlock</c> PLM.</summary>
+    Plm2x2RespawningCrumbleBlock,
 
-    /// <summary><c>PLMEntries_BombReaction_SpeedBoostBlock</c> at $84:D024.</summary>
-    BombReactionSpeedBoostBlock = 0xd024,
+    /// <summary>The <c>BombReaction_SpeedBoostBlock</c> PLM.</summary>
+    BombReactionSpeedBoostBlock,
 
     /// <summary>
-    /// <c>$84:D030 PLMEntries_Collision_BTS82</c>: Brinstar BTS <c>$82</c>, a
+    /// The <c>Collision_BTS82</c> PLM: Brinstar BTS <c>$82</c>, a
     /// respawning Speed Booster block with the slower crumble animation.
     /// </summary>
-    SpeedBlockBrinstarSlowRespawning = 0xd030,
+    SpeedBlockBrinstarSlowRespawning,
 
     /// <summary>
-    /// <c>$84:D034 PLMEntries_Collision_BTS83</c>: Brinstar BTS <c>$83</c>, a
+    /// The <c>Collision_BTS83</c> PLM: Brinstar BTS <c>$83</c>, a
     /// permanent Speed Booster block with the slower crumble animation.
     /// </summary>
-    SpeedBlockBrinstarSlowPermanent = 0xd034,
+    SpeedBlockBrinstarSlowPermanent,
 
     /// <summary>
-    /// <c>$84:D038 PLMEntries_Collision_RespawningSpeedBoostBlock</c>: the
+    /// The <c>Collision_RespawningSpeedBoostBlock</c> PLM: the
     /// area-independent BTS <c>$0E</c> respawning Speed Booster block.
     /// </summary>
-    SpeedBlockRespawning = 0xd038,
+    SpeedBlockRespawning,
 
     /// <summary>
-    /// <c>$84:D03C PLMEntries_Collision_DachoraRespawningSpeedBoostBlock</c>:
+    /// The <c>Collision_DachoraRespawningSpeedBoostBlock</c> PLM:
     /// Brinstar BTS <c>$84</c>, the Dachora-room respawning Speed Booster block.
     /// </summary>
-    SpeedBlockDachoraRespawning = 0xd03c,
+    SpeedBlockDachoraRespawning,
 
     /// <summary>
-    /// <c>$84:D040 PLMEntries_Collision_SpeedBoostBlock</c>: area-independent
+    /// The <c>Collision_SpeedBoostBlock</c> PLM: area-independent
     /// BTS <c>$0F</c> and Brinstar BTS <c>$85</c>, a permanent Speed Booster block.
     /// </summary>
-    SpeedBlockPermanent = 0xd040,
+    SpeedBlockPermanent,
 
-    /// <summary>Respawning 1x1 Samus-contact crumble block at <c>$84:D044</c>.</summary>
-    ContactCrumble1x1Respawning = 0xd044,
+    /// <summary>Respawning 1x1 Samus-contact crumble block.</summary>
+    ContactCrumble1x1Respawning,
 
-    /// <summary>Respawning 2x1 Samus-contact crumble block at <c>$84:D048</c>.</summary>
-    ContactCrumble2x1Respawning = 0xd048,
+    /// <summary>Respawning 2x1 Samus-contact crumble block.</summary>
+    ContactCrumble2x1Respawning,
 
-    /// <summary>Respawning 1x2 Samus-contact crumble block at <c>$84:D04C</c>.</summary>
-    ContactCrumble1x2Respawning = 0xd04c,
+    /// <summary>Respawning 1x2 Samus-contact crumble block.</summary>
+    ContactCrumble1x2Respawning,
 
-    /// <summary>Respawning 2x2 Samus-contact crumble block at <c>$84:D050</c>.</summary>
-    ContactCrumble2x2Respawning = 0xd050,
+    /// <summary>Respawning 2x2 Samus-contact crumble block.</summary>
+    ContactCrumble2x2Respawning,
 
-    /// <summary>Permanent 1x1 Samus-contact crumble block at <c>$84:D054</c>.</summary>
-    ContactCrumble1x1Permanent = 0xd054,
+    /// <summary>Permanent 1x1 Samus-contact crumble block.</summary>
+    ContactCrumble1x1Permanent,
 
-    /// <summary>Permanent 2x1 Samus-contact crumble block at <c>$84:D058</c>.</summary>
-    ContactCrumble2x1Permanent = 0xd058,
+    /// <summary>Permanent 2x1 Samus-contact crumble block.</summary>
+    ContactCrumble2x1Permanent,
 
-    /// <summary>Permanent 1x2 Samus-contact crumble block at <c>$84:D05C</c>.</summary>
-    ContactCrumble1x2Permanent = 0xd05c,
+    /// <summary>Permanent 1x2 Samus-contact crumble block.</summary>
+    ContactCrumble1x2Permanent,
 
-    /// <summary>Permanent 2x2 Samus-contact crumble block at <c>$84:D060</c>.</summary>
-    ContactCrumble2x2Permanent = 0xd060,
+    /// <summary>Permanent 2x2 Samus-contact crumble block.</summary>
+    ContactCrumble2x2Permanent,
 
-    /// <summary><c>PLMEntries_Reaction_1x1RespawningShotBlock</c> at $84:D064.</summary>
-    Reaction1x1RespawningShotBlock = 0xd064,
+    /// <summary>The <c>Reaction_1x1RespawningShotBlock</c> PLM.</summary>
+    Reaction1x1RespawningShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x1RespawningShotBlock</c> at $84:D068.</summary>
-    Reaction2x1RespawningShotBlock = 0xd068,
+    /// <summary>The <c>Reaction_2x1RespawningShotBlock</c> PLM.</summary>
+    Reaction2x1RespawningShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x2RespawningShotBlock</c> at $84:D06C.</summary>
-    Reaction1x2RespawningShotBlock = 0xd06c,
+    /// <summary>The <c>Reaction_1x2RespawningShotBlock</c> PLM.</summary>
+    Reaction1x2RespawningShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x2RespawningShotBlock</c> at $84:D070.</summary>
-    Reaction2x2RespawningShotBlock = 0xd070,
+    /// <summary>The <c>Reaction_2x2RespawningShotBlock</c> PLM.</summary>
+    Reaction2x2RespawningShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x1ShotBlock</c> at $84:D074.</summary>
-    Reaction1x1ShotBlock = 0xd074,
+    /// <summary>The <c>Reaction_1x1ShotBlock</c> PLM.</summary>
+    Reaction1x1ShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x1ShotBlock</c> at $84:D078.</summary>
-    Reaction2x1ShotBlock = 0xd078,
+    /// <summary>The <c>Reaction_2x1ShotBlock</c> PLM.</summary>
+    Reaction2x1ShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x2ShotBlock</c> at $84:D07C.</summary>
-    Reaction1x2ShotBlock = 0xd07c,
+    /// <summary>The <c>Reaction_1x2ShotBlock</c> PLM.</summary>
+    Reaction1x2ShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x2ShotBlock</c> at $84:D080.</summary>
-    Reaction2x2ShotBlock = 0xd080,
+    /// <summary>The <c>Reaction_2x2ShotBlock</c> PLM.</summary>
+    Reaction2x2ShotBlock,
 
-    /// <summary><c>PLMEntries_Reaction_RespawningPowerBombBlock</c> at $84:D084.</summary>
-    ReactionRespawningPowerBombBlock = 0xd084,
+    /// <summary>The <c>Reaction_RespawningPowerBombBlock</c> PLM.</summary>
+    ReactionRespawningPowerBombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_PowerBombBlock</c> at $84:D088.</summary>
-    ReactionPowerBombBlock = 0xd088,
+    /// <summary>The <c>Reaction_PowerBombBlock</c> PLM.</summary>
+    ReactionPowerBombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_RespawningSuperMissileBlock</c> at $84:D08C.</summary>
-    ReactionRespawningSuperMissileBlock = 0xd08c,
+    /// <summary>The <c>Reaction_RespawningSuperMissileBlock</c> PLM.</summary>
+    ReactionRespawningSuperMissileBlock,
 
-    /// <summary><c>PLMEntries_Reaction_SuperMissileBlock</c> at $84:D090.</summary>
-    ReactionSuperMissileBlock = 0xd090,
+    /// <summary>The <c>Reaction_SuperMissileBlock</c> PLM.</summary>
+    ReactionSuperMissileBlock,
 
-    /// <summary><c>PLMEntries_EnemyBreakableBlock</c> at $84:D094.</summary>
-    EnemyBreakableBlock = 0xd094,
+    /// <summary>The <c>EnemyBreakableBlock</c> PLM.</summary>
+    EnemyBreakableBlock,
 
-    /// <summary><c>PLMEntries_Collision_1x1RespawningBombBlock</c> at $84:D098.</summary>
-    Collision1x1RespawningBombBlock = 0xd098,
+    /// <summary>The <c>Collision_1x1RespawningBombBlock</c> PLM.</summary>
+    Collision1x1RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Collision_2x1RespawningBombBlock</c> at $84:D09C.</summary>
-    Collision2x1RespawningBombBlock = 0xd09c,
+    /// <summary>The <c>Collision_2x1RespawningBombBlock</c> PLM.</summary>
+    Collision2x1RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Collision_1x2RespawningBombBlock</c> at $84:D0A0.</summary>
-    Collision1x2RespawningBombBlock = 0xd0a0,
+    /// <summary>The <c>Collision_1x2RespawningBombBlock</c> PLM.</summary>
+    Collision1x2RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Collision_2x2RespawningBombBlock</c> at $84:D0A4.</summary>
-    Collision2x2RespawningBombBlock = 0xd0a4,
+    /// <summary>The <c>Collision_2x2RespawningBombBlock</c> PLM.</summary>
+    Collision2x2RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Collision_1x1BombBlock</c> at $84:D0A8.</summary>
-    Collision1x1BombBlock = 0xd0a8,
+    /// <summary>The <c>Collision_1x1BombBlock</c> PLM.</summary>
+    Collision1x1BombBlock,
 
-    /// <summary><c>PLMEntries_Collision_2x1BombBlock</c> at $84:D0AC.</summary>
-    Collision2x1BombBlock = 0xd0ac,
+    /// <summary>The <c>Collision_2x1BombBlock</c> PLM.</summary>
+    Collision2x1BombBlock,
 
-    /// <summary><c>PLMEntries_Collision_1x2BombBlock</c> at $84:D0B0.</summary>
-    Collision1x2BombBlock = 0xd0b0,
+    /// <summary>The <c>Collision_1x2BombBlock</c> PLM.</summary>
+    Collision1x2BombBlock,
 
-    /// <summary><c>PLMEntries_Collision_2x2BombBlock</c> at $84:D0B4.</summary>
-    Collision2x2BombBlock = 0xd0b4,
+    /// <summary>The <c>Collision_2x2BombBlock</c> PLM.</summary>
+    Collision2x2BombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x1RespawningBombBlock</c> at $84:D0B8.</summary>
-    Reaction1x1RespawningBombBlock = 0xd0b8,
+    /// <summary>The <c>Reaction_1x1RespawningBombBlock</c> PLM.</summary>
+    Reaction1x1RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x1RespawningBombBlock</c> at $84:D0BC.</summary>
-    Reaction2x1RespawningBombBlock = 0xd0bc,
+    /// <summary>The <c>Reaction_2x1RespawningBombBlock</c> PLM.</summary>
+    Reaction2x1RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x2RespawningBombBlock</c> at $84:D0C0.</summary>
-    Reaction1x2RespawningBombBlock = 0xd0c0,
+    /// <summary>The <c>Reaction_1x2RespawningBombBlock</c> PLM.</summary>
+    Reaction1x2RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x2RespawningBombBlock</c> at $84:D0C4.</summary>
-    Reaction2x2RespawningBombBlock = 0xd0c4,
+    /// <summary>The <c>Reaction_2x2RespawningBombBlock</c> PLM.</summary>
+    Reaction2x2RespawningBombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x1BombBlock</c> at $84:D0C8.</summary>
-    Reaction1x1BombBlock = 0xd0c8,
+    /// <summary>The <c>Reaction_1x1BombBlock</c> PLM.</summary>
+    Reaction1x1BombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x1BombBlock</c> at $84:D0CC.</summary>
-    Reaction2x1BombBlock = 0xd0cc,
+    /// <summary>The <c>Reaction_2x1BombBlock</c> PLM.</summary>
+    Reaction2x1BombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_1x2BombBlock</c> at $84:D0D0.</summary>
-    Reaction1x2BombBlock = 0xd0d0,
+    /// <summary>The <c>Reaction_1x2BombBlock</c> PLM.</summary>
+    Reaction1x2BombBlock,
 
-    /// <summary><c>PLMEntries_Reaction_2x2BombBlock</c> at $84:D0D4.</summary>
-    Reaction2x2BombBlock = 0xd0d4,
+    /// <summary>The <c>Reaction_2x2BombBlock</c> PLM.</summary>
+    Reaction2x2BombBlock,
 
-    /// <summary><c>PLMEntries_Grappled_GrappleBlock</c> at $84:D0D8.</summary>
-    GrappledGrappleBlock = 0xd0d8,
+    /// <summary>The <c>Grappled_GrappleBlock</c> PLM.</summary>
+    GrappledGrappleBlock,
 
-    /// <summary><c>PLMEntries_Grappled_RespawningBreakableGrappleBlock</c> at $84:D0DC.</summary>
-    GrappledRespawningBreakableGrappleBlock = 0xd0dc,
+    /// <summary>The <c>Grappled_RespawningBreakableGrappleBlock</c> PLM.</summary>
+    GrappledRespawningBreakableGrappleBlock,
 
-    /// <summary><c>PLMEntries_Grappled_BreakableGrappleBlock</c> at $84:D0E0.</summary>
-    GrappledBreakableGrappleBlock = 0xd0e0,
+    /// <summary>The <c>Grappled_BreakableGrappleBlock</c> PLM.</summary>
+    GrappledBreakableGrappleBlock,
 
-    /// <summary><c>PLMEntries_Grappled_GenericSpikeBlock</c> at $84:D0E4.</summary>
-    GrappledGenericSpikeBlock = 0xd0e4,
+    /// <summary>The <c>Grappled_GenericSpikeBlock</c> PLM.</summary>
+    GrappledGenericSpikeBlock,
 
-    /// <summary><c>PLMEntries_Grappled_DraygonsBrokenTurret</c> at $84:D0E8.</summary>
-    GrappledDraygonsBrokenTurret = 0xd0e8,
+    /// <summary>The <c>Grappled_DraygonsBrokenTurret</c> PLM.</summary>
+    GrappledDraygonsBrokenTurret,
 
-    /// <summary><c>PLMEntries_UnusedBlueBrinstarFaceBlock</c> at $84:D0F2.</summary>
-    UnusedBlueBrinstarFaceBlock = 0xd0f2,
+    /// <summary>The <c>UnusedBlueBrinstarFaceBlock</c> PLM.</summary>
+    UnusedBlueBrinstarFaceBlock,
 
-    /// <summary><c>PLMEntries_CrumbleLowerNorfairChozoRoomPlug</c> at $84:D113.</summary>
-    CrumbleLowerNorfairChozoRoomPlug = 0xd113,
+    /// <summary>The <c>CrumbleLowerNorfairChozoRoomPlug</c> PLM.</summary>
+    CrumbleLowerNorfairChozoRoomPlug,
 
-    /// <summary><c>PLMEntries_UnusedShotBlock</c> at $84:D127.</summary>
-    UnusedShotBlock = 0xd127,
+    /// <summary>The <c>UnusedShotBlock</c> PLM.</summary>
+    UnusedShotBlock,
 
-    /// <summary><c>PLMEntries_UnusedGrappleBlock</c> at $84:D13B.</summary>
-    UnusedGrappleBlock = 0xd13b,
+    /// <summary>The <c>UnusedGrappleBlock</c> PLM.</summary>
+    UnusedGrappleBlock,
 
-    /// <summary><c>PLMEntries_LowerNorfairChozoHand</c> at $84:D6D6.</summary>
-    LowerNorfairChozoHand = 0xd6d6,
+    /// <summary>The <c>LowerNorfairChozoHand</c> PLM.</summary>
+    LowerNorfairChozoHand,
 
-    /// <summary><c>PLMEntries_Collision_LowerNorfairChozoHandCheck</c> at $84:D6DA.</summary>
-    CollisionLowerNorfairChozoHandCheck = 0xd6da,
+    /// <summary>The <c>Collision_LowerNorfairChozoHandCheck</c> PLM.</summary>
+    CollisionLowerNorfairChozoHandCheck,
 
-    /// <summary>Mother Brain's missile-reactive glass actor at $84:D6DE.</summary>
-    MotherBrainGlass = 0xd6de,
+    /// <summary>Mother Brain's missile-reactive glass actor.</summary>
+    MotherBrainGlass,
 
-    /// <summary>Bomb Torizo's Chozo-hand synchronization actor at $84:D6EA.</summary>
-    BombTorizoHand = 0xd6ea,
+    /// <summary>Bomb Torizo's Chozo-hand synchronization actor.</summary>
+    BombTorizoHand,
 
-    /// <summary><c>PLMEntries_WreckedShipChozoHand</c> at $84:D6EE.</summary>
-    WreckedShipChozoHand = 0xd6ee,
+    /// <summary>The <c>WreckedShipChozoHand</c> PLM.</summary>
+    WreckedShipChozoHand,
 
-    /// <summary><c>PLMEntries_Collision_WreckedShipChozoHandCheck</c> at $84:D6F2.</summary>
-    CollisionWreckedShipChozoHandCheck = 0xd6f2,
+    /// <summary>The <c>Collision_WreckedShipChozoHandCheck</c> PLM.</summary>
+    CollisionWreckedShipChozoHandCheck,
 
-    /// <summary><c>PLMEntries_ClearSlopeAccessForWreckedShipChozo</c> at $84:D6F8.</summary>
-    ClearSlopeAccessForWreckedShipChozo = 0xd6f8,
+    /// <summary>The <c>ClearSlopeAccessForWreckedShipChozo</c> PLM.</summary>
+    ClearSlopeAccessForWreckedShipChozo,
 
-    /// <summary><c>PLMEntries_BlockSlopeAccessForWreckedShipChozo</c> at $84:D6FC.</summary>
-    BlockSlopeAccessForWreckedShipChozo = 0xd6fc,
+    /// <summary>The <c>BlockSlopeAccessForWreckedShipChozo</c> PLM.</summary>
+    BlockSlopeAccessForWreckedShipChozo,
 
-    /// <summary>Maridia's power-bomb-reactive n00b tube actor at $84:D70C.</summary>
-    NoobTube = 0xd70c,
+    /// <summary>Maridia's power-bomb-reactive n00b tube actor.</summary>
+    NoobTube,
 
     /// <summary>
-    /// Resident room-kill observer at $84:DB44 which marks the four Tourian Metroid-room
+    /// Resident room-kill observer which marks the four Tourian Metroid-room
     /// events when their authored enemy death quotas have been reached.
     /// </summary>
-    SetMetroidsClearedStatesWhenRequired = 0xdb44,
+    SetMetroidsClearedStatesWhenRequired,
 
-    /// <summary>Right-facing eye-door eye controller at <c>$84:DB48</c>.</summary>
-    EyeDoorEyeFacingRight = 0xdb48,
+    /// <summary>Right-facing eye-door eye controller.</summary>
+    EyeDoorEyeFacingRight,
 
-    /// <summary>Right-facing eye-door middle/door component at <c>$84:DB4C</c>.</summary>
-    EyeDoorFacingRight = 0xdb4c,
+    /// <summary>Right-facing eye-door middle/door component.</summary>
+    EyeDoorFacingRight,
 
-    /// <summary>Right-facing eye-door bottom component at <c>$84:DB52</c>.</summary>
-    EyeDoorBottomFacingRight = 0xdb52,
+    /// <summary>Right-facing eye-door bottom component.</summary>
+    EyeDoorBottomFacingRight,
 
-    /// <summary>Left-facing eye-door eye controller at <c>$84:DB56</c>.</summary>
-    EyeDoorEyeFacingLeft = 0xdb56,
+    /// <summary>Left-facing eye-door eye controller.</summary>
+    EyeDoorEyeFacingLeft,
 
-    /// <summary>Left-facing eye-door middle/door component at <c>$84:DB5A</c>.</summary>
-    EyeDoorFacingLeft = 0xdb5a,
+    /// <summary>Left-facing eye-door middle/door component.</summary>
+    EyeDoorFacingLeft,
 
-    /// <summary>Left-facing eye-door bottom component at <c>$84:DB60</c>.</summary>
-    EyeDoorBottomFacingLeft = 0xdb60,
+    /// <summary>Left-facing eye-door bottom component.</summary>
+    EyeDoorBottomFacingLeft,
 
-    /// <summary>Draygon-room right-facing shielded cannon at <c>$84:DF59</c>.</summary>
-    DraygonCannonFacingRight = 0xdf59,
+    /// <summary>Draygon-room right-facing shielded cannon.</summary>
+    DraygonCannonFacingRight,
 
     /// <summary>
-    /// Draygon-room right-facing cannon at <c>$84:DF65</c>. Its authored list enters the
+    /// Draygon-room right-facing cannon. Its authored list enters the
     /// destroyed state immediately, disabling the unused upper-left firing position.
     /// </summary>
-    DraygonCannonFacingRightDestroyed = 0xdf65,
+    DraygonCannonFacingRightDestroyed,
 
-    /// <summary>Draygon-room left-facing shielded cannon at <c>$84:DF71</c>.</summary>
-    DraygonCannonFacingLeft = 0xdf71,
+    /// <summary>Draygon-room left-facing shielded cannon.</summary>
+    DraygonCannonFacingLeft,
 
-    /// <summary><c>PLMEntries_DraygonCannonFacingLeft</c> at $84:DF7D.</summary>
-    DraygonCannonFacingLeftUnshielded = 0xdf7d,
+    /// <summary>The <c>DraygonCannonFacingLeft</c> PLM.</summary>
+    DraygonCannonFacingLeftUnshielded,
 
-    /// <summary><c>PLMEntries_ItemCollisionDetection</c> at $84:EED3.</summary>
-    ItemCollisionDetection = 0xeed3,
+    /// <summary>The <c>ItemCollisionDetection</c> PLM.</summary>
+    ItemCollisionDetection,
 
-    /// <summary><c>PLMEntries_EnergyTank</c> at $84:EED7.</summary>
-    ExposedEnergyTank = 0xeed7,
+    /// <summary>The <c>EnergyTank</c> PLM.</summary>
+    ExposedEnergyTank,
 
-    /// <summary><c>PLMEntries_MissileTank</c> at $84:EEDB.</summary>
-    ExposedMissileTank = 0xeedb,
+    /// <summary>The <c>MissileTank</c> PLM.</summary>
+    ExposedMissileTank,
 
-    /// <summary><c>PLMEntries_SuperMissileTank</c> at $84:EEDF.</summary>
-    ExposedSuperMissileTank = 0xeedf,
+    /// <summary>The <c>SuperMissileTank</c> PLM.</summary>
+    ExposedSuperMissileTank,
 
-    /// <summary><c>PLMEntries_PowerBombTank</c> at $84:EEE3.</summary>
-    ExposedPowerBombTank = 0xeee3,
+    /// <summary>The <c>PowerBombTank</c> PLM.</summary>
+    ExposedPowerBombTank,
 
-    /// <summary><c>PLMEntries_Bombs</c> at $84:EEE7.</summary>
-    ExposedBombs = 0xeee7,
+    /// <summary>The <c>Bombs</c> PLM.</summary>
+    ExposedBombs,
 
-    /// <summary><c>PLMEntries_ChargeBeam</c> at $84:EEEB.</summary>
-    ExposedChargeBeam = 0xeeeb,
+    /// <summary>The <c>ChargeBeam</c> PLM.</summary>
+    ExposedChargeBeam,
 
-    /// <summary><c>PLMEntries_IceBeam</c> at $84:EEEF.</summary>
-    ExposedIceBeam = 0xeeef,
+    /// <summary>The <c>IceBeam</c> PLM.</summary>
+    ExposedIceBeam,
 
-    /// <summary><c>PLMEntries_HiJumpBoots</c> at $84:EEF3.</summary>
-    ExposedHiJumpBoots = 0xeef3,
+    /// <summary>The <c>HiJumpBoots</c> PLM.</summary>
+    ExposedHiJumpBoots,
 
-    /// <summary><c>PLMEntries_SpeedBooster</c> at $84:EEF7.</summary>
-    ExposedSpeedBooster = 0xeef7,
+    /// <summary>The <c>SpeedBooster</c> PLM.</summary>
+    ExposedSpeedBooster,
 
-    /// <summary><c>PLMEntries_WaveBeam</c> at $84:EEFB.</summary>
-    ExposedWaveBeam = 0xeefb,
+    /// <summary>The <c>WaveBeam</c> PLM.</summary>
+    ExposedWaveBeam,
 
-    /// <summary><c>PLMEntries_Spazer</c> at $84:EEFF.</summary>
-    ExposedSpazerBeam = 0xeeff,
+    /// <summary>The <c>Spazer</c> PLM.</summary>
+    ExposedSpazerBeam,
 
-    /// <summary><c>PLMEntries_SpringBall</c> at $84:EF03.</summary>
-    ExposedSpringBall = 0xef03,
+    /// <summary>The <c>SpringBall</c> PLM.</summary>
+    ExposedSpringBall,
 
-    /// <summary><c>PLMEntries_VariaSuit</c> at $84:EF07.</summary>
-    ExposedVariaSuit = 0xef07,
+    /// <summary>The <c>VariaSuit</c> PLM.</summary>
+    ExposedVariaSuit,
 
-    /// <summary><c>PLMEntries_GravitySuit</c> at $84:EF0B.</summary>
-    ExposedGravitySuit = 0xef0b,
+    /// <summary>The <c>GravitySuit</c> PLM.</summary>
+    ExposedGravitySuit,
 
-    /// <summary><c>PLMEntries_XrayScope</c> at $84:EF0F.</summary>
-    ExposedXrayScope = 0xef0f,
+    /// <summary>The <c>XrayScope</c> PLM.</summary>
+    ExposedXrayScope,
 
-    /// <summary><c>PLMEntries_PlasmaBeam</c> at $84:EF13.</summary>
-    ExposedPlasmaBeam = 0xef13,
+    /// <summary>The <c>PlasmaBeam</c> PLM.</summary>
+    ExposedPlasmaBeam,
 
-    /// <summary><c>PLMEntries_GrappleBeam</c> at $84:EF17.</summary>
-    ExposedGrappleBeam = 0xef17,
+    /// <summary>The <c>GrappleBeam</c> PLM.</summary>
+    ExposedGrappleBeam,
 
-    /// <summary><c>PLMEntries_SpaceJump</c> at $84:EF1B.</summary>
-    ExposedSpaceJump = 0xef1b,
+    /// <summary>The <c>SpaceJump</c> PLM.</summary>
+    ExposedSpaceJump,
 
-    /// <summary><c>PLMEntries_ScrewAttack</c> at $84:EF1F.</summary>
-    ExposedScrewAttack = 0xef1f,
+    /// <summary>The <c>ScrewAttack</c> PLM.</summary>
+    ExposedScrewAttack,
 
-    /// <summary><c>PLMEntries_MorphBall</c> at $84:EF23.</summary>
-    ExposedMorphBall = 0xef23,
+    /// <summary>The <c>MorphBall</c> PLM.</summary>
+    ExposedMorphBall,
 
-    /// <summary><c>PLMEntries_ReserveTank</c> at $84:EF27.</summary>
-    ExposedReserveTank = 0xef27,
+    /// <summary>The <c>ReserveTank</c> PLM.</summary>
+    ExposedReserveTank,
 
-    /// <summary><c>PLMEntries_EnergyTankChozoOrb</c> at $84:EF2B.</summary>
-    ChozoEnergyTank = 0xef2b,
+    /// <summary>The <c>EnergyTankChozoOrb</c> PLM.</summary>
+    ChozoEnergyTank,
 
-    /// <summary><c>PLMEntries_MissileTankChozoOrb</c> at $84:EF2F.</summary>
-    ChozoMissileTank = 0xef2f,
+    /// <summary>The <c>MissileTankChozoOrb</c> PLM.</summary>
+    ChozoMissileTank,
 
-    /// <summary><c>PLMEntries_SuperMissileTankChozoOrb</c> at $84:EF33.</summary>
-    ChozoSuperMissileTank = 0xef33,
+    /// <summary>The <c>SuperMissileTankChozoOrb</c> PLM.</summary>
+    ChozoSuperMissileTank,
 
-    /// <summary><c>PLMEntries_PowerBombTankChozoOrb</c> at $84:EF37.</summary>
-    ChozoPowerBombTank = 0xef37,
+    /// <summary>The <c>PowerBombTankChozoOrb</c> PLM.</summary>
+    ChozoPowerBombTank,
 
-    /// <summary><c>PLMEntries_BombsChozoOrb</c> at $84:EF3B.</summary>
-    ChozoBombs = 0xef3b,
+    /// <summary>The <c>BombsChozoOrb</c> PLM.</summary>
+    ChozoBombs,
 
-    /// <summary><c>PLMEntries_ChargeBeamChozoOrb</c> at $84:EF3F.</summary>
-    ChozoChargeBeam = 0xef3f,
+    /// <summary>The <c>ChargeBeamChozoOrb</c> PLM.</summary>
+    ChozoChargeBeam,
 
-    /// <summary><c>PLMEntries_IceBeamChozoOrb</c> at $84:EF43.</summary>
-    ChozoIceBeam = 0xef43,
+    /// <summary>The <c>IceBeamChozoOrb</c> PLM.</summary>
+    ChozoIceBeam,
 
-    /// <summary><c>PLMEntries_HiJumpBootsChozoOrb</c> at $84:EF47.</summary>
-    ChozoHiJumpBoots = 0xef47,
+    /// <summary>The <c>HiJumpBootsChozoOrb</c> PLM.</summary>
+    ChozoHiJumpBoots,
 
-    /// <summary><c>PLMEntries_SpeedBoosterChozoOrb</c> at $84:EF4B.</summary>
-    ChozoSpeedBooster = 0xef4b,
+    /// <summary>The <c>SpeedBoosterChozoOrb</c> PLM.</summary>
+    ChozoSpeedBooster,
 
-    /// <summary><c>PLMEntries_WaveBeamChozoOrb</c> at $84:EF4F.</summary>
-    ChozoWaveBeam = 0xef4f,
+    /// <summary>The <c>WaveBeamChozoOrb</c> PLM.</summary>
+    ChozoWaveBeam,
 
-    /// <summary><c>PLMEntries_SpazerChozoOrb</c> at $84:EF53.</summary>
-    ChozoSpazerBeam = 0xef53,
+    /// <summary>The <c>SpazerChozoOrb</c> PLM.</summary>
+    ChozoSpazerBeam,
 
-    /// <summary><c>PLMEntries_SpringBallChozoOrb</c> at $84:EF57.</summary>
-    ChozoSpringBall = 0xef57,
+    /// <summary>The <c>SpringBallChozoOrb</c> PLM.</summary>
+    ChozoSpringBall,
 
-    /// <summary><c>PLMEntries_VariaSuitChozoOrb</c> at $84:EF5B.</summary>
-    ChozoVariaSuit = 0xef5b,
+    /// <summary>The <c>VariaSuitChozoOrb</c> PLM.</summary>
+    ChozoVariaSuit,
 
-    /// <summary><c>PLMEntries_GravitySuitChozoOrb</c> at $84:EF5F.</summary>
-    ChozoGravitySuit = 0xef5f,
+    /// <summary>The <c>GravitySuitChozoOrb</c> PLM.</summary>
+    ChozoGravitySuit,
 
-    /// <summary><c>PLMEntries_XrayScopeChozoOrb</c> at $84:EF63.</summary>
-    ChozoXrayScope = 0xef63,
+    /// <summary>The <c>XrayScopeChozoOrb</c> PLM.</summary>
+    ChozoXrayScope,
 
-    /// <summary><c>PLMEntries_PlasmaBeamChozoOrb</c> at $84:EF67.</summary>
-    ChozoPlasmaBeam = 0xef67,
+    /// <summary>The <c>PlasmaBeamChozoOrb</c> PLM.</summary>
+    ChozoPlasmaBeam,
 
-    /// <summary><c>PLMEntries_GrappleBeamChozoOrb</c> at $84:EF6B.</summary>
-    ChozoGrappleBeam = 0xef6b,
+    /// <summary>The <c>GrappleBeamChozoOrb</c> PLM.</summary>
+    ChozoGrappleBeam,
 
-    /// <summary><c>PLMEntries_SpaceJumpChozoOrb</c> at $84:EF6F.</summary>
-    ChozoSpaceJump = 0xef6f,
+    /// <summary>The <c>SpaceJumpChozoOrb</c> PLM.</summary>
+    ChozoSpaceJump,
 
-    /// <summary><c>PLMEntries_ScrewAttackChozoOrb</c> at $84:EF73.</summary>
-    ChozoScrewAttack = 0xef73,
+    /// <summary>The <c>ScrewAttackChozoOrb</c> PLM.</summary>
+    ChozoScrewAttack,
 
-    /// <summary><c>PLMEntries_MorphBallChozoOrb</c> at $84:EF77.</summary>
-    ChozoMorphBall = 0xef77,
+    /// <summary>The <c>MorphBallChozoOrb</c> PLM.</summary>
+    ChozoMorphBall,
 
-    /// <summary><c>PLMEntries_ReserveTankChozoOrb</c> at $84:EF7B.</summary>
-    ChozoReserveTank = 0xef7b,
+    /// <summary>The <c>ReserveTankChozoOrb</c> PLM.</summary>
+    ChozoReserveTank,
 
-    /// <summary><c>PLMEntries_EnergyTankShotBlock</c> at $84:EF7F.</summary>
-    ShotBlockEnergyTank = 0xef7f,
+    /// <summary>The <c>EnergyTankShotBlock</c> PLM.</summary>
+    ShotBlockEnergyTank,
 
-    /// <summary><c>PLMEntries_MissileTankShotBlock</c> at $84:EF83.</summary>
-    ShotBlockMissileTank = 0xef83,
+    /// <summary>The <c>MissileTankShotBlock</c> PLM.</summary>
+    ShotBlockMissileTank,
 
-    /// <summary><c>PLMEntries_SuperMissileTankShotBlock</c> at $84:EF87.</summary>
-    ShotBlockSuperMissileTank = 0xef87,
+    /// <summary>The <c>SuperMissileTankShotBlock</c> PLM.</summary>
+    ShotBlockSuperMissileTank,
 
-    /// <summary><c>PLMEntries_PowerBombTankShotBlock</c> at $84:EF8B.</summary>
-    ShotBlockPowerBombTank = 0xef8b,
+    /// <summary>The <c>PowerBombTankShotBlock</c> PLM.</summary>
+    ShotBlockPowerBombTank,
 
-    /// <summary><c>PLMEntries_BombsShotBlock</c> at $84:EF8F.</summary>
-    ShotBlockBombs = 0xef8f,
+    /// <summary>The <c>BombsShotBlock</c> PLM.</summary>
+    ShotBlockBombs,
 
-    /// <summary><c>PLMEntries_ChargeBeamShotBlock</c> at $84:EF93.</summary>
-    ShotBlockChargeBeam = 0xef93,
+    /// <summary>The <c>ChargeBeamShotBlock</c> PLM.</summary>
+    ShotBlockChargeBeam,
 
-    /// <summary><c>PLMEntries_IceBeamShotBlock</c> at $84:EF97.</summary>
-    ShotBlockIceBeam = 0xef97,
+    /// <summary>The <c>IceBeamShotBlock</c> PLM.</summary>
+    ShotBlockIceBeam,
 
-    /// <summary><c>PLMEntries_HiJumpBootsShotBlock</c> at $84:EF9B.</summary>
-    ShotBlockHiJumpBoots = 0xef9b,
+    /// <summary>The <c>HiJumpBootsShotBlock</c> PLM.</summary>
+    ShotBlockHiJumpBoots,
 
-    /// <summary><c>PLMEntries_SpeedBoosterShotBlock</c> at $84:EF9F.</summary>
-    ShotBlockSpeedBooster = 0xef9f,
+    /// <summary>The <c>SpeedBoosterShotBlock</c> PLM.</summary>
+    ShotBlockSpeedBooster,
 
-    /// <summary><c>PLMEntries_WaveBeamShotBlock</c> at $84:EFA3.</summary>
-    ShotBlockWaveBeam = 0xefa3,
+    /// <summary>The <c>WaveBeamShotBlock</c> PLM.</summary>
+    ShotBlockWaveBeam,
 
-    /// <summary><c>PLMEntries_SpazerShotBlock</c> at $84:EFA7.</summary>
-    ShotBlockSpazerBeam = 0xefa7,
+    /// <summary>The <c>SpazerShotBlock</c> PLM.</summary>
+    ShotBlockSpazerBeam,
 
-    /// <summary><c>PLMEntries_SpringBallShotBlock</c> at $84:EFAB.</summary>
-    ShotBlockSpringBall = 0xefab,
+    /// <summary>The <c>SpringBallShotBlock</c> PLM.</summary>
+    ShotBlockSpringBall,
 
-    /// <summary><c>PLMEntries_VariaSuitShotBlock</c> at $84:EFAF.</summary>
-    ShotBlockVariaSuit = 0xefaf,
+    /// <summary>The <c>VariaSuitShotBlock</c> PLM.</summary>
+    ShotBlockVariaSuit,
 
-    /// <summary><c>PLMEntries_GravitySuitShotBlock</c> at $84:EFB3.</summary>
-    ShotBlockGravitySuit = 0xefb3,
+    /// <summary>The <c>GravitySuitShotBlock</c> PLM.</summary>
+    ShotBlockGravitySuit,
 
-    /// <summary><c>PLMEntries_XrayScopeShotBlock</c> at $84:EFB7.</summary>
-    ShotBlockXrayScope = 0xefb7,
+    /// <summary>The <c>XrayScopeShotBlock</c> PLM.</summary>
+    ShotBlockXrayScope,
 
-    /// <summary><c>PLMEntries_PlasmaBeamShotBlock</c> at $84:EFBB.</summary>
-    ShotBlockPlasmaBeam = 0xefbb,
+    /// <summary>The <c>PlasmaBeamShotBlock</c> PLM.</summary>
+    ShotBlockPlasmaBeam,
 
-    /// <summary><c>PLMEntries_GrappleBeamShotBlock</c> at $84:EFBF.</summary>
-    ShotBlockGrappleBeam = 0xefbf,
+    /// <summary>The <c>GrappleBeamShotBlock</c> PLM.</summary>
+    ShotBlockGrappleBeam,
 
-    /// <summary><c>PLMEntries_SpaceJumpShotBlock</c> at $84:EFC3.</summary>
-    ShotBlockSpaceJump = 0xefc3,
+    /// <summary>The <c>SpaceJumpShotBlock</c> PLM.</summary>
+    ShotBlockSpaceJump,
 
-    /// <summary><c>PLMEntries_ScrewAttackShotBlock</c> at $84:EFC7.</summary>
-    ShotBlockScrewAttack = 0xefc7,
+    /// <summary>The <c>ScrewAttackShotBlock</c> PLM.</summary>
+    ShotBlockScrewAttack,
 
-    /// <summary><c>PLMEntries_MorphBallShotBlock</c> at $84:EFCB.</summary>
-    ShotBlockMorphBall = 0xefcb,
+    /// <summary>The <c>MorphBallShotBlock</c> PLM.</summary>
+    ShotBlockMorphBall,
 
-    /// <summary><c>PLMEntries_ReserveTankShotBlock</c> at $84:EFCF.</summary>
-    ShotBlockReserveTank = 0xefcf,
+    /// <summary>The <c>ReserveTankShotBlock</c> PLM.</summary>
+    ShotBlockReserveTank,
 }

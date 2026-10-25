@@ -34,7 +34,7 @@ internal static void VerifyStrictFailureBoundaries()
     AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(
             PlmHeaderId.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
-    AssertTrue(!RoomPlmSystem.IsSupportedRoomPopulationHeader((PlmHeaderId)0xdead),
+    AssertTrue(!RoomPlmSystem.IsSupportedRoomPopulationHeader((PlmHeaderId)(-1)),
         "unknown PLM is absent from the production dispatcher");
 
     var enemies = new RoomEnemySystem(new EnemySession());

@@ -67,15 +67,15 @@ internal static class NoobTubePlmVerification
         bool brokenEvent = false;
         var plms = PlmFixtures.Unbound();
 
-        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
+        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmDefinitions.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
-                AssertEqual(NoobTubePlmRomData.BrokenEvent, eventNumber,
+                AssertEqual(NoobTubePlmDefinitions.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
                 brokenEvent = true;
             } }, RoomFx = new RoomPlmFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = earthquakes.Add, WriteType = earthquakes.Add }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
-        AssertEqual(NoobTubePlmRomData.SolidProjectileTriggerLevelWord,
+        AssertEqual(NoobTubePlmDefinitions.SolidProjectileTriggerLevelWord.Raw,
             level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "n00b-tube setup installs the complete type-$8 collision word");
         AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
@@ -109,7 +109,7 @@ internal static class NoobTubePlmVerification
         AssertEqual(0, plms.PopulationSlots.Single().LoopTimer, "resident consumes grapple notification once");
         AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
         AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
-            NoobTubePlmRomData.IneffectiveShotSound, SoundQueueLimit.Max6)),
+            NoobTubePlmDefinitions.IneffectiveShotSound, SoundQueueLimit.Max6)),
             "resident emits its cartridge ineffective-shot response to grapple");
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
@@ -118,7 +118,7 @@ internal static class NoobTubePlmVerification
             "n00b-tube collision block locates its resident PLM");
         StepNoobTube(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
-                NoobTubePlmRomData.IneffectiveShotSound,
+                NoobTubePlmDefinitions.IneffectiveShotSound,
                 SoundQueueLimit.Max6)),
             "ordinary shot queues the cartridge rejection sound");
         AssertEqual((ushort)0, plms.PopulationSlots.Single().LoopTimer,
@@ -193,9 +193,9 @@ internal static class NoobTubePlmVerification
             "sixth bubble retains the final even ROM parameter");
         AssertEqual(2, earthquakes.Count,
             "break burst writes both earthquake type and timer");
-        AssertEqual(NoobTubePlmRomData.EarthquakeType, earthquakes[0],
+        AssertEqual(NoobTubePlmDefinitions.EarthquakeType, earthquakes[0],
             "earthquake type matches cartridge value");
-        AssertEqual(NoobTubePlmRomData.EarthquakeTimer, earthquakes[1],
+        AssertEqual(NoobTubePlmDefinitions.EarthquakeTimer, earthquakes[1],
             "earthquake timer matches cartridge value");
 
         // The final broken frame lasts $60 frames, then event $0B is committed, water
@@ -291,7 +291,7 @@ internal static class NoobTubePlmVerification
             projectile.Variable1 == 0x0048);
         AssertEqual(0x0070, firstBubble.Position.Y.Whole,
             "first bubble uses its first absolute PLM-origin offset");
-        AssertEqual(NoobTubeProjectileRomData.BubbleInitialYVelocity,
+        AssertEqual(NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue,
             firstBubble.Velocity.Y.RawValue, "first bubble starts with cartridge upward velocity");
 
         RoomEnemyProjectileSlot lastBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
@@ -317,7 +317,7 @@ internal static class NoobTubePlmVerification
         samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = PlmFixtures.Unbound();
-        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmDefinitions.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not set its event again.") }, RoomFx = new RoomPlmFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake."), WriteType = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });

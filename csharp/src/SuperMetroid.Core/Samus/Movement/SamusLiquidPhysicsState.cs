@@ -775,10 +775,10 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if (useWetFootsteps)
-            SpawnFootstepPair(samus, type: 1);
+            SpawnFootstepPair(samus, SamusAtmosphericEffectType.FootstepSplash);
         else if (samus.HorizontalSpeed.IsFullSpeedBoost &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
-            SpawnFootstepPair(samus, type: 7);
+            SpawnFootstepPair(samus, SamusAtmosphericEffectType.AlternateDust);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress library-three sound $06.
@@ -793,7 +793,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
-    private void SpawnFootstepPair(SamusState samus, byte type)
+    private void SpawnFootstepPair(SamusState samus, SamusAtmosphericEffectType type)
     {
         bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         ushort firstX = directionIsFour

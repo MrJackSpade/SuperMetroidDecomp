@@ -131,10 +131,11 @@ internal static class RoomContentIdentityVerification
         RoomBackgroundTilemapAtlas[] skies = Enumerable.Range(0, RoomSkyTilemapFormat.PageCount)
             .Select(page => Page(edited == nameof(RoomSkyTilemapCatalog) && page == 0)).ToArray();
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;
-        var layouts = new Dictionary<int, RoomVisualLayout>
+        RoomLevelId firstLevel = new("FixtureLevelA"), secondLevel = new("FixtureLevelB");
+        var layouts = new Dictionary<RoomLevelId, RoomVisualLayout>
         {
-            [1] = new RoomVisualLayout(1, new Extent16<RoomBlocks>(1, 2), [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
-            [2] = new RoomVisualLayout(2, new Extent16<RoomBlocks>(2, 1), [1, 0], [0, 1]),
+            [firstLevel] = new RoomVisualLayout(firstLevel, new Extent16<RoomBlocks>(1, 2), [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
+            [secondLevel] = new RoomVisualLayout(secondLevel, new Extent16<RoomBlocks>(2, 1), [1, 0], [0, 1]),
         };
         if (reverse) layouts = layouts.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
         return new RoomIdentityFixture(

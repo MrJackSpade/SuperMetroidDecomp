@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.Core.World.RoomStates;
@@ -15,20 +16,20 @@ internal static class RoomLayoutPresentationContractChecks
     /// <summary>Checks complete source ownership, input isolation, and audit revocation for a partial layout factory.</summary>
     internal static void Run()
     {
-        int first = RoomVisualLayoutSourceDefinitions.All.First();
-        RoomVisualLayout Layout(int source) => new(source, new(1, 1), [0], [0]);
-        var owned = RoomVisualLayoutSourceDefinitions.All.ToDictionary(source => source, Layout);
-        var incomplete = new Dictionary<int, RoomVisualLayout>(owned);
+        RoomLevelId first = RoomVisualLayoutSourceDefinitions.All.First();
+        RoomVisualLayout Layout(RoomLevelId level) => new(level, new(1, 1), [0], [0]);
+        var owned = RoomVisualLayoutSourceDefinitions.All.ToDictionary(level => level, Layout);
+        var incomplete = new Dictionary<RoomLevelId, RoomVisualLayout>(owned);
         incomplete.Remove(first);
         bool rejected = false;
         try { _ = new RoomVisualLayoutCatalog(incomplete, RoomVisualLayoutSourceDefinitions.All); }
         catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "production construction must reject a missing required source");
+        Require(rejected, "production construction must reject a missing required level");
         var catalog = new RoomVisualLayoutCatalog(owned, RoomVisualLayoutSourceDefinitions.All);
         owned.Remove(first);
-        Require(catalog.Get(first).LevelSource == first, "catalog keys must be independent of the input dictionary");
-        var mismatched = RoomVisualLayoutSourceDefinitions.All.ToDictionary(source => source, Layout);
-        mismatched[first] = Layout(0);
+        Require(catalog.Get(first).Level == first, "catalog keys must be independent of the input dictionary");
+        var mismatched = RoomVisualLayoutSourceDefinitions.All.ToDictionary(level => level, Layout);
+        mismatched[first] = Layout(RoomVisualLayoutSourceDefinitions.All.Last());
         rejected = false;
         try { _ = new RoomVisualLayoutCatalog(mismatched, RoomVisualLayoutSourceDefinitions.All); }
         catch (InvalidDataException) { rejected = true; }
@@ -40,11 +41,12 @@ internal static class RoomLayoutPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Rooms;
+            using SuperMetroid.Core.Rooms.LevelData;
             class LayoutConsumer {
-                void Inspect(RoomVisualLayoutCatalog layouts, int source) {
-                    layouts.Get({{first}});
-                    layouts.Get(source);
-                    layouts.Get(0);
+                void Inspect(RoomVisualLayoutCatalog layouts, RoomLevelId level) {
+                    layouts.Get(new RoomLevelId("{{first.Name}}"));
+                    layouts.Get(level);
+                    layouts.Get(new RoomLevelId("UnknownLevel"));
                 }
             }
             """, path: "fixture-room-layout-consumer.cs");
@@ -66,7 +68,7 @@ internal static class RoomLayoutPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
-            after.MissingCount == 0 && after.Consumers.Count == 3, "required-source closure must reject known unowned keys" + " (" + after.Describe() + ")");
+            after.MissingCount == 0 && after.Consumers.Count == 3, "required-level closure must reject known unowned keys" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a room-layout closure regression with its failed contract detail.</summary>

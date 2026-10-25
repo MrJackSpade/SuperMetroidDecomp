@@ -107,10 +107,9 @@ public sealed class CartridgeRoomAssets
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation come from the stock-only installed level streams;
         // only the low visual tile bits come from the separately replaceable layout catalog.
-        byte[] levelStream = catalogs.LevelStreams.Get(
-            header.State.CompressedLevelDataAddress).ToArray();
+        byte[] levelStream = catalogs.LevelStreams.Get(header.State.Level).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
-            visualLayouts.Get(header.State.CompressedLevelDataAddress));
+            visualLayouts.Get(header.State.Level));
         RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
         return new CartridgeRoomAssets(
             header,

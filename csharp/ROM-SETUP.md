@@ -915,9 +915,10 @@ Stock hashes and override repair follow the same rules as the room-character
 sheets.
 
 Room-level visual arrangements are installed as 246 `game/room-layouts/level-*.json`
-files. Find the active file in `game/room-art-index.json` under a room state's
-`layout` field, copy it to the same filename under `overrides/room-layouts/`,
-edit, and restart. `widthInBlocks` and `heightInBlocks` describe the complete
+files, one per level. Each level is named for the room whose state first uses it, for
+example `level-LandingSite.json`; a room's states that share a level share its file.
+Copy the file to the same filename under `overrides/room-layouts/`,
+edit, and restart. Overrides saved under the earlier address names are renamed at reinstall. `widthInBlocks` and `heightInBlocks` describe the complete
 native allocation, including any authored rows beyond the visible camera.
 `foregroundVisualWords` and `backgroundVisualWords` are row-major arrays of
 16x16 block references. Each decimal word uses bits 0-9 for the index into the
@@ -931,7 +932,7 @@ Stock files are hash-checked;
 overrides survive stock repair and invalid values fail with the offending path.
 For all 246 retail level sources, that collision/BTS and streaming baseline is
 extracted at installation into `game/room-level-streams/` as one
-`level-*.bin` file per source: the complete, unmodified decompressor output,
+`level-*.bin` file per level: the complete, unmodified decompressor output,
 listed with its length and SHA-256 in `room-level-streams.json`. These files are
 stock-only; there is no override directory, and a missing or corrupt file fails
 with its path. Installed desktop and Android room loads do not decompress these

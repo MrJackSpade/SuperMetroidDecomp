@@ -200,6 +200,13 @@ internal sealed class ClosedPresentationAudit
         foreach ((string parameter, object constantValue) in ConstantSelections(operation))
         {
             var owner = new PresentationParameter(Type:provider, Method:operation.TargetMethod.Name, Parameter:parameter);
+            if (constantValue is string name &&
+                ClosedPresentationIdentityDefinitions.GetNames(owner.Type, owner.Method, owner.Parameter) is { } names)
+            {
+                if (!names.Contains(name, StringComparer.Ordinal))
+                    return $"Constant {owner.Parameter}=\"{name}\" is not owned by the reviewed {owner.Type}.{owner.Method} resource domain.";
+                continue;
+            }
             int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             if (identities is null && range is null) continue;

@@ -34,16 +34,16 @@ public readonly record struct FixedPosition<TSpace>(SnesFixedPosition X, SnesFix
     public FixedPosition<TSpace> WithY(SnesFixedPosition y) => this with { Y = y };
 
     /// <summary>Replaces only the X whole word, as cartridge routines that store one half do.</summary>
-    public FixedPosition<TSpace> WithWholeX(ushort whole) => WithX(X.WithWhole(whole));
+    public FixedPosition<TSpace> WithWholeX(int whole) => WithX(X.WithWhole(whole));
 
     /// <summary>Replaces only the Y whole word, as cartridge routines that store one half do.</summary>
-    public FixedPosition<TSpace> WithWholeY(ushort whole) => WithY(Y.WithWhole(whole));
+    public FixedPosition<TSpace> WithWholeY(int whole) => WithY(Y.WithWhole(whole));
 
     /// <summary>Replaces only the X subpixel word, as cartridge routines that store one half do.</summary>
-    public FixedPosition<TSpace> WithFractionX(ushort fraction) => WithX(X.WithFraction(fraction));
+    public FixedPosition<TSpace> WithFractionX(int fraction) => WithX(X.WithFraction(fraction));
 
     /// <summary>Replaces only the Y subpixel word, as cartridge routines that store one half do.</summary>
-    public FixedPosition<TSpace> WithFractionY(ushort fraction) => WithY(Y.WithFraction(fraction));
+    public FixedPosition<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
     /// <summary>Translates the whole words by a signed offset, wrapping at sixteen bits; subpixels are unchanged.</summary>
     public static FixedPosition<TSpace> operator +(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>

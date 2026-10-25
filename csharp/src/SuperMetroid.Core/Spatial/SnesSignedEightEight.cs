@@ -8,9 +8,9 @@ public readonly record struct SnesSignedEightEight(ushort RawValue)
     /// <summary>The raw word read as its signed two's-complement value.</summary>
     public short SignedRawValue => unchecked((short)RawValue);
 
-    /// <summary>Creates a value from a signed raw 8.8 word without changing its bits.</summary>
-    public static SnesSignedEightEight FromSignedRaw(short rawValue) =>
-        new(unchecked((ushort)rawValue));
+    /// <summary>Creates a value from a signed raw 8.8 word, -32768 through 32767, without changing its bits.</summary>
+    public static SnesSignedEightEight FromSignedRaw(int rawValue) =>
+        new(unchecked((ushort)Ensure.BetweenInclusive(short.MinValue, short.MaxValue, rawValue)));
 
     /// <summary>Promotes the signed word to the 16.16 delta used by native position adders.</summary>
     public SnesSignedSixteenSixteen ToSixteenSixteenDelta() =>

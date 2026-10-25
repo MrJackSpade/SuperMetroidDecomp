@@ -21,7 +21,7 @@ allowlist. Each finding is fixed, or carries its own reviewed justification at i
 | SME6348 | A hand-written sign-bit test on a countdown-named primitive (#1324): `& 0x8000`, `& 0x80`, a comparison with `0x8000` or `0x80`, or `(short)t < 0`/`(sbyte)t >= 0` where the operand is one member or local whose name ends in a timer, counter, delay, cooldown, countdown, ticks or frames word (`FunctionTimer`, not `TargetCounterClockwiseAngle`). The constant must be the operand's own sign bit: `0x80` for a byte, `0x8000` for a word (a word compared with `0x80` is a threshold). Signed comparisons of differences, velocities and packed flags are not timer idioms. |
 | SME6349 | A wrapping self-decrement of narrow storage: `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
 | SME6346 | A value of a `[Flags]` enum cast to an integral primitive in functional code: the flags leave their type before the encoding boundary. Codecs convert with the type's `ToNativeWord`; a catalog, `[SnesEncodingOwner]` type or reviewed allowance is exempt. |
-| SME6347 | A `byte` or `ushort` (or nullable) instance field, property or positional record parameter in functional code: gameplay state stored at the cartridge register width. Constants, statics, locals, parameters and arrays are not counted; catalogs, `[SnesEncodingOwner]` types and reviewed allowances are exempt. |
+| SME6347 | A `byte`, `sbyte`, `short` or `ushort` (or nullable) instance field, property, parameter or local (written or inferred; `foreach`, `out` and pattern variables included) in Core: gameplay state held at a cartridge register width (#1419). Constants, statics and arrays are not counted. Only `[SnesEncodingOwner]` codecs and the wrapping stubs of the `SuperMetroid.Core.Compatibility` namespace may hold a narrow width; a catalog name or a same-line comment does not excuse one. See "Narrow storage". |
 
 An intrinsic encoded value in functional code (an exact hardware mask, a hash, a wire-format constant) carries a
 reviewed same-line allowance naming its class and a reason:
@@ -33,10 +33,32 @@ int nibble = value & 0x0f; // cartridge-encoding: allow(Mask) - BCD digit extrac
 The `// magic-number-audit: allow(Category) - reason` marker is accepted as the same review. A type that owns and
 documents an encoding carries `[SnesEncodingOwner]`: its literals and width operations are definitions.
 
+## Narrow storage
+
+Gameplay state is never held at the cartridge's register width (SME6347). Each narrow declaration is classified by
+what the value means, and the change records the decision at the site:
+
+| The value is | It becomes |
+| --- | --- |
+| A wrap or borrow the game observes (a timer decremented through zero, a counter that wraps, a low byte stepped beside independent state, health and ammo borrow, level-data allocation tails, over-read windows) | A named wrapping stub in `Core/Compatibility` (`WrappingCountdown`, `WrappingCounter`, `CountdownStep`, `LowByteCountdownStep`, `TickAccumulator`) or a new one whose summary states the gameplay behaviour the width produces, with a focused check that exercises the wrap. |
+| A width an encoding needs (a save word, a cartridge record byte, a packed tile or level word, a file-format field, a host pixel) | The encoding's single `[SnesEncodingOwner]` codec (`RoomLevelWord`, `PcmWaveFile`, `Rgba32`); gameplay holds the decoded domain value or the codec's value type. |
+| Spatial | The branded spatial types (`docs/spatial-types.md`); a value passing through one axis is an `int`. |
+| An index or count | `int`, with `[IntegerQuantity]` where the analyzer needs it. |
+| A flag word | A typed `[Flags]` enum, converted at its codec. |
+| Incidental (the width only mirrors the register) | `int` or the domain type. |
+
+Widening a local or parameter is exact when the value it receives is already a word (or byte): an `int` holds the same
+value, compares and computes the same way, and the arithmetic that produced it keeps its own explicit wrap
+(`unchecked((ushort)(a + b))` where a producer can exceed the range and the game observes the result). What a widening
+must change is any mutation the width wrapped implicitly: `x++`, `x--` and compound assignments of narrow storage
+become an explicit wrap or a stub, or are shown not to reach the boundary. Where a value leaves gameplay for an owner,
+the owner's operation takes `int` and checks the range (`checked`, `Ensure.BetweenInclusive`), so a value that was
+wrongly left unwrapped fails at the boundary instead of being truncated silently.
+
 ## Countdowns
 
-`Core/Hardware/NativeWordCounter.cs` owns the 65C816 timer idioms. A timer that gameplay starts,
-decrements and tests is stored as `NativeCountdown`, which keeps the exact native word: a timer that
+`Core/Compatibility/WrappingCounter.cs` owns the timer idioms. A timer that gameplay starts,
+decrements and tests is stored as `WrappingCountdown`, which keeps the exact word: a timer that
 went negative holds `$FFFF` until something resets it, exactly as the cartridge leaves it. Each site
 keeps the branch the cartridge takes:
 
@@ -46,11 +68,11 @@ keeps the branch the cartridge takes:
 | `DEC` then `BNE`/`BEQ` (expire on reaching zero) | `step.IsZero` |
 | `DEC`, `BEQ`, `BMI` | `step.IsZeroOrNegative` |
 | `LDA`, `BEQ`, `DEC` (saturating) | `t = t.DecrementToZero()` |
-| 8-bit `DEC` of a low byte beside independent high-byte state | `NativeWordCounter.DecrementLowByte(word)` |
+| 8-bit `DEC` of a low byte beside independent high-byte state | `WrappingCounter.DecrementLowByte(word)` |
 
 A site that also reads the timer as a number (a table index, a threshold other than zero or the sign)
-reads `RawValue` explicitly. A countdown is stored as `NativeCountdown` by the state that owns it. A timer
-view over an enemy slot word (`NativeCountdown.FromRaw(...)` on read, `RawValue` on write) is scaffolding for a
+reads `RawValue` explicitly. A countdown is stored as `WrappingCountdown` by the state that owns it. A timer
+view over an enemy slot word (`WrappingCountdown.FromRaw(...)` on read, `RawValue` on write) is scaffolding for a
 family whose state still lives in multipurpose slot words; the destination is per-family typed state holding
 the countdown directly, and no new timer is added as a slot-word view.
 
@@ -69,7 +91,7 @@ widening commit records the result for each field:
 
 Words exist only at the boundaries (SRAM, JSON saves, native snapshot import and word-level parity checks), which
 convert through a named codec that rejects out-of-range words (`SamusQuantity.Decode`/`Encode`). A wrap that is part
-of the behavior stays explicit: `NativeWordCounter` for counters, or a named operation on the owning type.
+of the behavior stays explicit: `WrappingCounter` for counters, or a named operation on the owning type.
 `SubunitHealth` stays a word because its borrow into `Health` is load-bearing.
 
 ## Fixed-point values, angles and carries

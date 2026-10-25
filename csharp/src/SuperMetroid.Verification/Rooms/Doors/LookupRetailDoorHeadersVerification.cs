@@ -29,6 +29,24 @@ internal static class LookupRetailDoorHeadersVerification
         Suite(nameof(VerifyDoorHeaderDestinationScreenY), () => VerifyDoorHeaderDestinationScreenY(rom));
         Suite(nameof(VerifyDoorHeaderSamusSpeed), () => VerifyDoorHeaderSamusSpeed(rom));
         Suite(nameof(VerifyDoorHeaderSetupRoutine), () => VerifyDoorHeaderSetupRoutine(rom));
+        Suite(nameof(VerifyDoorSamusSpeedDecoding), () => VerifyDoorSamusSpeedDecoding());
+    }
+
+    /// <summary>
+    /// #1414: the Samus-distance word decodes to the push the transition applied before: a negative word is the axis
+    /// default (384/256 pixel per step vertically, 200/256 horizontally), any other word is its own push.
+    /// </summary>
+    private static void VerifyDoorSamusSpeedDecoding()
+    {
+        AssertEqual(DoorSamusSpeed.AxisDefault, DoorRecordCodec.DecodeSamusSpeed(0x8000), "a negative distance word is the axis default");
+        AssertEqual(384, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Up), "vertical axis default push");
+        AssertEqual(384, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Down), "vertical axis default push");
+        AssertEqual(200, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Left), "horizontal axis default push");
+        AssertEqual(200, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Right), "horizontal axis default push");
+        AssertEqual(DoorSamusSpeed.SubpixelsPerStep(0x01c0), DoorRecordCodec.DecodeSamusSpeed(0x01c0), "a door's own distance word");
+        AssertEqual(0x01c0, DoorRecordCodec.DecodeSamusSpeed(0x01c0).StepSubpixels(DoorDirection.Up), "a door's own push ignores the axis");
+        AssertEqual(DoorSamusSpeed.None, DoorRecordCodec.DecodeSamusSpeed(0), "a zero distance word is no push");
+        AssertEqual(0, DoorSamusSpeed.None.StepSubpixels(DoorDirection.Left), "no push");
     }
 
     /// <summary>Accepts exactly the 597 physical door headers and rejects pseudo-doors and interior bytes.</summary>

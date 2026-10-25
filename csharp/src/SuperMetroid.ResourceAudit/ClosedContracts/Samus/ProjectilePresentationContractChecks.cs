@@ -20,7 +20,6 @@ internal static class ProjectilePresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         string consumer = """
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {

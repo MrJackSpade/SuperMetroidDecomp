@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

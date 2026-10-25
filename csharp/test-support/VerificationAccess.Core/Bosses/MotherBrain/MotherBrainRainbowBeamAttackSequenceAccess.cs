@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;

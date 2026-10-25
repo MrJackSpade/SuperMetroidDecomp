@@ -30,7 +30,6 @@ internal static class EnemyColorPresentationContractChecks
             using SuperMetroid.Core.Bosses.Ridley.Artwork;
             using SuperMetroid.Core.Enemies.Animals;
             using SuperMetroid.Core.Enemies.Artwork;
-            using SuperMetroid.Core.Hardware;
             class EnemyColorConsumer {
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,
                     BabyMetroidCutsceneColorCatalog baby, NorfairRidleyColorCatalog ridley, ZebetiteColorCatalog zebetite,

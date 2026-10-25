@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;

@@ -55,7 +55,7 @@ internal static class RoomMainCodeCatalogVerification
         {
             foreach (RoomStateSelectionContext context in contexts)
             {
-                CartridgeRoomState state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
+                RoomStateSettings state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
                 if (state.MainCallback != RoomMainCallback.None)

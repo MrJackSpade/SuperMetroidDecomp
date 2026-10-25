@@ -10,6 +10,6 @@ internal static class RoomLevelStreamClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelStreamCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomVisualLayoutSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomHeader.cs")]),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/SelectedRoom.cs")]),
     ];
 }

@@ -27,7 +27,7 @@ internal static class RoomHeaderDefinitionsAccess
     }
 
     /// <summary>The header pointer of a loaded room.</summary>
-    extension(CartridgeRoomHeader self)
+    extension(SelectedRoom self)
     {
         /// <summary>The bank-$8F header pointer of this room.</summary>
         internal ushort Pointer => RoomHeaderSourcesConstants.PointerOf(self.Definition);

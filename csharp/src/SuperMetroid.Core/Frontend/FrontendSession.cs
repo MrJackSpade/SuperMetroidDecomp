@@ -194,7 +194,7 @@ internal sealed class FrontendSession
     /// </summary>
     private ulong lastAudioRuntimeGameplayPublication;
     /// <summary>Room state associated with the last copied audio publication.</summary>
-    internal CartridgeRoomState? LastAudioRoomState { get; set; }
+    internal RoomStateSettings? LastAudioRoomState { get; set; }
     /// <summary>Forgets the publication and room whose audio was last queued, so the next runtime's queue from scratch.</summary>
     internal void ForgetQueuedAudio()
     {
@@ -505,7 +505,7 @@ internal sealed class FrontendSession
             // those fields itself. At this frontend boundary, the player's live edits
             // take precedence over that original snapshot, just like cartridge WRAM.
             ApplySelectedGameOptions();
-            CartridgeRoomState loadedState = runtime.Room.ActiveRoom?.State
+            RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
             // `$92:ED24` starts appearance track one after 14 frames and, on its fifth

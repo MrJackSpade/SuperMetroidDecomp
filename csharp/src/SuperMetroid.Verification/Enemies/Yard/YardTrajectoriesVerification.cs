@@ -61,7 +61,7 @@ internal static class YardTrajectoriesVerification
     }
 
     /// <summary>Checks that a dropped Yard resumes ordinary crawling using facing and native speed, regardless of stale direction.</summary>
-    private static void VerifyYardLanding(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
+    private static void VerifyYardLanding(SuperMetroidAddressSpace bus, SelectedRoom room)
     {
         var words = new ushort[32 * 32];
         for (int x = 0; x < 32; x++) words[16 * 32 + x] = 0x8000;

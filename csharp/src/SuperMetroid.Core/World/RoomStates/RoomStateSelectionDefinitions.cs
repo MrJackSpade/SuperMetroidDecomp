@@ -14,8 +14,8 @@ public static class RoomStateSelectionDefinitions
 
     /// <summary>One room's ordered state-selection branches: each <paramref name="match"/> call offers a
     /// candidate under its condition, and the program returns the first match or its default state.</summary>
-    private delegate CartridgeRoomState RoomStateProgram(RoomStateSelectionContext selection,
-        Func<bool, CartridgeRoomState, bool> match);
+    private delegate RoomStateSettings RoomStateProgram(RoomStateSelectionContext selection,
+        Func<bool, RoomStateSettings, bool> match);
 
     /// <summary>Each retail room's state-selection program, in native room order.</summary>
     private static readonly Dictionary<RoomHeaderDefinition, RoomStateProgram> Programs = new()
@@ -508,25 +508,25 @@ public static class RoomStateSelectionDefinitions
     };
 
     /// <summary>Selects a state with native first-match precedence.</summary>
-    public static CartridgeRoomState Select(RoomHeaderDefinition room, RoomStateSelectionContext selection) =>
+    public static RoomStateSettings Select(RoomHeaderDefinition room, RoomStateSelectionContext selection) =>
         Resolve(Ensure.NotNull(room), selection, null);
 
     /// <summary>Returns the default first, then every alternative in native order.
     /// The caller-owned view is constructed on demand from the same branches;
     /// it is never cached as a second program table.</summary>
-    public static IReadOnlyList<CartridgeRoomState> GetStates(RoomHeaderDefinition room)
+    public static IReadOnlyList<RoomStateSettings> GetStates(RoomHeaderDefinition room)
     {
         Ensure.NotNull(room);
-        var variants = new List<CartridgeRoomState>();
-        CartridgeRoomState fallback = Resolve(room, default, variants);
+        var variants = new List<RoomStateSettings>();
+        RoomStateSettings fallback = Resolve(room, default, variants);
         variants.Insert(0, fallback);
         return variants.AsReadOnly();
     }
 
     /// <summary>Evaluates each room's native conditional branches in order, or records their alternatives before the default state.</summary>
-    private static CartridgeRoomState Resolve(RoomHeaderDefinition room, RoomStateSelectionContext selection, List<CartridgeRoomState>? variants)
+    private static RoomStateSettings Resolve(RoomHeaderDefinition room, RoomStateSelectionContext selection, List<RoomStateSettings>? variants)
     {
-        bool Match(bool condition, CartridgeRoomState candidate)
+        bool Match(bool condition, RoomStateSettings candidate)
         {
             variants?.Add(candidate);
             // Enumeration records every branch and reaches the default. Runtime

@@ -189,7 +189,7 @@ public static class RoomVisualLayoutFiles
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             int width = header.Size.ToRoomBlocks().X;
-            foreach (CartridgeRoomState state in RoomStateSelectionDefinitions.GetStates(header))
+            foreach (RoomStateSettings state in RoomStateSelectionDefinitions.GetStates(header))
             {
                 RoomLevelId level = state.Level;
                 if (levels.TryGetValue(level, out int existing) && existing != width)

@@ -25,7 +25,7 @@ internal static class PowerBombRuntimeIntegrationVerification
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
+        SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
             bus,
             RoomHeaderDefinitions.AlphaPowerBomb.Pointer);
         AssertEqual(

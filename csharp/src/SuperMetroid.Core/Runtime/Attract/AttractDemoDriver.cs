@@ -117,7 +117,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         DoorDefinition door = scene.Door;
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
-        var room = _roomLoader.LoadCartridgeRoomHeader(scene.Room);
+        var room = _roomLoader.LoadSelectedRoom(scene.Room);
         _roomLoader.LoadCartridgeRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built.

@@ -42,7 +42,7 @@ internal sealed class ActiveRoomState
 
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
-    internal RoomScopeConstruction BeginConstruction(DoorDefinition door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
+    internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
         LoadStationEntry? loadStation)
     {
         if (_construction is not null)
@@ -63,9 +63,9 @@ internal sealed class ActiveRoomState
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
     /// <summary>The selected room/state header for a generic cartridge-backed room.</summary>
-    public CartridgeRoomHeader? ActiveRoom => View(c => c.Room, s => s.Room);
+    public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
     /// <summary>The loaded room's header; gameplay runs only in a loaded room.</summary>
-    public CartridgeRoomHeader LoadedRoom => ActiveRoom ??
+    public SelectedRoom LoadedRoom => ActiveRoom ??
         throw new InvalidOperationException("No room is loaded.");
 
     /// <summary>The load-station door whose setup code established the current room.</summary>

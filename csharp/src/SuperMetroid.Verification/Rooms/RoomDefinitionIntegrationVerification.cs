@@ -163,7 +163,7 @@ internal static class RoomDefinitionIntegrationVerification
 
         foreach (ushort statePointer in statePointers)
         {
-            CartridgeRoomState state = RoomStateDefinitions.Get(statePointer);
+            RoomStateSettings state = RoomStateDefinitions.Get(statePointer);
             if (unchecked((short)state.ScrollPointer) < 0)
             {
                 AddAddressRange(forbidden,

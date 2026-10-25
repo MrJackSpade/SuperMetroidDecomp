@@ -53,9 +53,9 @@ internal static class RoomStaticPalettesVerification
         var catalog = new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(header);
-            CartridgeRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
+            SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header);
+            LoadedRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
             var nativeCgram = new GameplayColours(new SpriteColourSets());
             var installedCgram = new GameplayColours(new SpriteColourSets());
             native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram.BackgroundSets);
@@ -64,7 +64,7 @@ internal static class RoomStaticPalettesVerification
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
 
-        CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+        SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         int selectedSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).PaletteAddress;
         string selectedName = RoomStaticPaletteFormat.SourceFileName(selectedSource);
         JsonNode edited = JsonNode.Parse(files[selectedName])
@@ -83,7 +83,7 @@ internal static class RoomStaticPalettesVerification
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
             "editing one RGB5 component changes only its selected runtime CGRAM color");
         compiled[selectedSource] = replacement;
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
+        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
         var editedRoomCgram = new GameplayColours(new SpriteColourSets());
         editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram.BackgroundSets);

@@ -3,8 +3,11 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The fields copied by <c>LoadStateHeader</c> at $82:DEF2.</summary>
-public sealed record CartridgeRoomState(
+/// <summary>
+/// The settings one state of a room loads with: its level, graphics set, music, effects, enemies, scrolling, X-ray
+/// overlay, room callbacks, PLMs and background, as <c>LoadStateHeader</c> at $82:DEF2 copies them.
+/// </summary>
+public sealed record RoomStateSettings(
     string Name,
     RoomLevelId Level,
     int GraphicsSet,

@@ -23,7 +23,7 @@
   {
    "file": "Rooms/RoomLoader.cs",
    "body": "LoadPendingDoorDestination",
-   "step": "CartridgeRoomAssets.Load",
+   "step": "LoadedRoomAssets.Load",
    "classification": "room",
    "evidence": "destination assets are built before the source door is consumed, so a rejected room stays retryable",
    "reads": []

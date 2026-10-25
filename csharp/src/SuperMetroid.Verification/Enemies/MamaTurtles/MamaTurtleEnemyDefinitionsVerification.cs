@@ -37,9 +37,9 @@ internal static class MamaTurtleEnemyDefinitionsVerification
             AssertEqual(expected, actual, $"compiled enemy header {pointer}");
         }
 
-        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
+        SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         var installation = RepositoryInstallation.Installation;
-        CartridgeRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
+        LoadedRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SamusColourRig();

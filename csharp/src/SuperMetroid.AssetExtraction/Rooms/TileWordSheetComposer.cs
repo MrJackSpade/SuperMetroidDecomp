@@ -92,7 +92,7 @@ internal static class TileWordSheetComposer
     {
         Ensure.NotNull(content);
         int characterWords = TileWordSheet.CharacterWordsOf(layer);
-        IReadOnlyList<BgCharacterPlacement> load = CartridgeRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
+        IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
             inputs.Characters.Get(tileset.Characters).Characters);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(bindings.Options).Concat(bindings.Bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);

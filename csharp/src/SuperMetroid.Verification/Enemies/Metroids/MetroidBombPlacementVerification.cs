@@ -81,7 +81,7 @@ internal static class MetroidBombPlacementVerification
     }
 
     /// <summary>Compares the retail room's placed-bomb detach trajectory with native frames 61 through 66.</summary>
-    private static void VerifyMetroidBombRuntime(CartridgeRoomHeader room)
+    private static void VerifyMetroidBombRuntime(SelectedRoom room)
     {
         // Use the dry-floor setup from the full-alpha native capture, not the
         // former submerged fixture or a hand-positioned already-exploding bomb.

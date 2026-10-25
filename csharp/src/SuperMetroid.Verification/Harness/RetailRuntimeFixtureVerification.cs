@@ -45,11 +45,11 @@ internal static class RetailRuntimeFixtureVerification
     /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
     /// catalogs a case supplies. The stock catalogs are the cartridge reference extracted from the ROM.
     /// </summary>
-    internal static CartridgeRoomAssets LoadFixtureRoomAssets(CartridgeRoomHeader room,
+    internal static LoadedRoomAssets LoadFixtureRoomAssets(SelectedRoom room,
         RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
         RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null,
         RoomLevelStreamCatalog? levelStreams = null) =>
-        CartridgeRoomAssets.Load(new RoomScrollStorage(), room, InstalledFixtures.RoomAssets with
+        LoadedRoomAssets.Load(new RoomScrollStorage(), room, InstalledFixtures.RoomAssets with
         {
             Characters = characterArt ?? InstalledFixtures.RoomAssets.Characters,
             Palettes = paletteArt ?? InstalledFixtures.RoomAssets.Palettes,

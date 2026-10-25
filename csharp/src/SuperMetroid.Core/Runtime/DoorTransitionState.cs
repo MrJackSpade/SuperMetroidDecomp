@@ -270,7 +270,7 @@ internal sealed class DoorTransitionState
                     // final Samus nudge and palette fade, not during room creation.
                     if (!runtime.AttractDemo.IsAttractDemo)
                     {
-                        CartridgeRoomState state = runtime.Room.ActiveRoom?.State
+                        RoomStateSettings state = runtime.Room.ActiveRoom?.State
                             ?? throw new InvalidOperationException("Door music requires the destination room.");
                         audio.QueueRoomMusicTrack(state.Music);
                     }
@@ -337,7 +337,7 @@ internal sealed class DoorTransitionState
         // Keep HUD colors legible while the source room palette disappears.
         Keep(runtime.Colours, target, DoorTransitionColourDefinitions.Hud);
 
-        CartridgeRoomHeader sourceRoom = runtime.Room.ActiveRoom ??
+        SelectedRoom sourceRoom = runtime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Door palette fade started without an active source room header.");
         if (!sourceRoom.UsesIsolatedDoorTransition && !runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition)

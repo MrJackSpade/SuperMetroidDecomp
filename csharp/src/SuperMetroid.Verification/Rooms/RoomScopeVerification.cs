@@ -46,7 +46,7 @@ internal static class RoomScopeVerification
         sourceShot.Position = FixedPosition<RoomPixels>.FromWords(0x0120, 0x4321, 0x0080, 0x8765);
         sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
 
-        CartridgeRoomHeader parlor = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.Parlor);
+        SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomHeaderDefinitions.Parlor);
         var camera = new Position16<RoomPixels>(0, 0);
         var door = new DoorDefinition(
             Name: "room scope verification door",

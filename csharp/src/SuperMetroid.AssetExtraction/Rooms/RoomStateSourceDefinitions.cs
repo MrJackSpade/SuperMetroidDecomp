@@ -12,7 +12,7 @@ internal static class RoomStateSourceDefinitions
     internal const int EnemySetOffset = 10;
 
     /// <summary>Each compiled room state, by its bank-$8F pointer.</summary>
-    internal static IReadOnlyDictionary<ushort, CartridgeRoomState> ByPointer { get; } = new Dictionary<ushort, CartridgeRoomState>
+    internal static IReadOnlyDictionary<ushort, RoomStateSettings> ByPointer { get; } = new Dictionary<ushort, RoomStateSettings>
     {
         [0x9213] = CrateriaRoomStateDefinitions.LandingSite0,
         [0x922d] = CrateriaRoomStateDefinitions.LandingSite1,

@@ -76,7 +76,7 @@ internal static class RoomFxDefinitionsAccess
     }
 
     /// <summary>The FX header pointer of a room state.</summary>
-    extension(CartridgeRoomState self)
+    extension(RoomStateSettings self)
     {
         /// <summary>The bank-$83 pointer of this state's FX header, or zero for none.</summary>
         internal ushort FxPointer => self.Fx is { } fx ? RoomFxSourcesConstants.PointerOf(fx) : (ushort)0;

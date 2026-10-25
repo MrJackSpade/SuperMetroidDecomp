@@ -78,7 +78,7 @@ internal static class EnemyGameplayAcceptanceVerification
         // Body/wing adjacency is gameplay-visible: the wing initializer aliases the
         // immediately preceding physical slot. Choose one complete retail pair list,
         // not a hand-written visual-only approximation or a full room playthrough.
-        CartridgeRoomState state = RoomStateDefinitions.All
+        RoomStateSettings state = RoomStateDefinitions.All
             .Where(candidate => IsKiHunterPairList(RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)))
             .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();

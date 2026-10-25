@@ -147,13 +147,13 @@ internal static class LookupRoomStateSettingsVerification
 
     /// <summary>Compares a selected field both through lookup and sorted enumeration for all native identities.</summary>
     private static void VerifyRoomStateField<T>(SuperMetroidAddressSpace rom,
-        Func<CartridgeRoomState, T> field, string name)
+        Func<RoomStateSettings, T> field, string name)
     {
-        CartridgeRoomState[] enumerated = RoomStateDefinitions.All.ToArray();
+        RoomStateSettings[] enumerated = RoomStateDefinitions.All.ToArray();
         for (int index = 0; index < OriginalRoomStatePointers.Length; index++)
         {
             ushort pointer = OriginalRoomStatePointers[index];
-            CartridgeRoomState original = CartridgeRoomStateImporter.Load(rom, pointer);
+            RoomStateSettings original = CartridgeRoomStateImporter.Load(rom, pointer);
             T expected = field(original);
             AssertEqual(expected, field(RoomStateDefinitions.Get(pointer)), $"State {pointer:X4} {name}");
             AssertEqual(expected, field(enumerated[index]), $"Enumerated state {pointer:X4} {name}");

@@ -187,7 +187,7 @@ internal static class RoomScrollDefinitionsAccess
     }
 
     /// <summary>The scroll word of a room state.</summary>
-    extension(CartridgeRoomState self)
+    extension(RoomStateSettings self)
     {
         /// <summary>The word this state stores for its scroll data.</summary>
         internal ushort ScrollPointer => RoomScrollDefinitions.PointerOf(self.Scroll);

@@ -53,7 +53,7 @@ internal static class RoomSetupCodeCatalogVerification
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                CartridgeRoomState state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
+                RoomStateSettings state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
                 if (state.SetupCallback != RoomSetupCallback.None)

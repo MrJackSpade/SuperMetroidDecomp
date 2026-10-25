@@ -436,7 +436,7 @@ internal static class RoomBlockPicturesVerification
     /// Loads <paramref name="room"/>, in <paramref name="state"/> when given and after <paramref name="progress"/> sets the
     /// session's progress, and checks its displayed blocks over <see cref="Frames"/> frames.
     /// </summary>
-    private static void Check(RoomHeaderDefinition room, bool expectUploads, CartridgeRoomState? state = null,
+    private static void Check(RoomHeaderDefinition room, bool expectUploads, RoomStateSettings? state = null,
         Action<SuperMetroidRuntime>? progress = null)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

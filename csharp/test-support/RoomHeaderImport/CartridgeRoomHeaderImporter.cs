@@ -10,7 +10,7 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.TestSupport.RoomHeaderImport;
 
 /// <summary>Reads native bank-$8F room records for import and cartridge-reference checks.</summary>
-[CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → CartridgeRoomHeader")]
+[CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → SelectedRoom")]
 public static class CartridgeRoomHeaderImporter
 {
     /// <summary>Evaluates the native room selector commands for import and reference checks, independently of compiled gameplay branches.</summary>
@@ -75,7 +75,7 @@ public static class CartridgeRoomHeaderImporter
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
     /// <param name="selection">Event, boss, and equipment conditions used to select the first matching native state, or the inline default state.</param>
     /// <returns>The decoded room header and selected room-state payload; no gameplay state is initialized.</returns>
-    public static CartridgeRoomHeader Load(ISnesAddressSpace bus, ushort roomPointer,
+    public static SelectedRoom Load(ISnesAddressSpace bus, ushort roomPointer,
         RoomStateSelectionContext selection = default)
     {
         Ensure.NotNull(bus);
@@ -84,6 +84,6 @@ public static class CartridgeRoomHeaderImporter
         ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
         var definition = new RoomHeaderDefinition(RoomHeaderDefinitions.Get(roomPointer).Name, Byte(0), (AreaId)Byte(1),
             new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8));
-        return new CartridgeRoomHeader(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
+        return new SelectedRoom(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

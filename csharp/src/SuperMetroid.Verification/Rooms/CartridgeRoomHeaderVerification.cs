@@ -18,7 +18,7 @@ internal static class CartridgeRoomHeaderVerification
         bool sawOtherBitsOnly = false;
         foreach (RoomHeaderDefinition definition in RoomHeaderDefinitions.All)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(definition);
+            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(definition);
             bool expected = (definition.CreBitset & 1) != 0;
             AssertEqual(expected, room.UsesIsolatedDoorTransition,
                 $"room ${definition.Pointer:X4} settings ${definition.CreBitset:X2} isolated door transition");

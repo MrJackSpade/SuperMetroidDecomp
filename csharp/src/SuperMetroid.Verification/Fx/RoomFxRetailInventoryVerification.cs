@@ -114,8 +114,8 @@ internal static class RoomFxRetailInventoryVerification
 
         foreach (RetailFxRoomState namedState in states)
         {
-            CartridgeRoomHeader defaultRoom = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer);
-            CartridgeRoomHeader room = defaultRoom with
+            SelectedRoom defaultRoom = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer);
+            SelectedRoom room = defaultRoom with
             {
                 State = SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.Load(bus, namedState.StatePointer),
             };
@@ -227,7 +227,7 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Compares independent ROM FX selection and liquid fields with the production owner for one room and entry door.</summary>
     private static RetailFxPathAudit AuditRetailFxEntryPath(
         SuperMetroidAddressSpace bus,
-        CartridgeRoomHeader room,
+        SelectedRoom room,
         ushort doorPointer)
     {
         ushort expectedRecord = SelectFxRecordIndependently(
@@ -405,7 +405,7 @@ internal static class RoomFxRetailInventoryVerification
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
     {
-        CartridgeRoomHeader room = LoadRoomByIdentity(
+        SelectedRoom room = LoadRoomByIdentity(
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
@@ -609,10 +609,10 @@ internal static class RoomFxRetailInventoryVerification
     {
         RetailFxRoomState namedState = states.Single(state =>
         {
-            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
+            SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
             return header.Identity == definition.Room;
         });
-        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer) with
+        SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer) with
         {
             State = SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.Load(bus, namedState.StatePointer),
         };
@@ -812,7 +812,7 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Advances a native tide through both waveform halves and checks its bounded surface displacement.</summary>
     private static void VerifyRetailLiquidTide(
         SuperMetroidAddressSpace bus,
-        CartridgeRoomHeader room,
+        SelectedRoom room,
         ushort doorPointer)
     {
         var fxSession = CreateRetailFxSession(bus);
@@ -848,11 +848,11 @@ internal static class RoomFxRetailInventoryVerification
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
     {
-        CartridgeRoomHeader visibleRoom = LoadRoomByIdentity(
+        SelectedRoom visibleRoom = LoadRoomByIdentity(
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
-        CartridgeRoomHeader hiddenRoom = LoadRoomByIdentity(
+        SelectedRoom hiddenRoom = LoadRoomByIdentity(
             bus,
             states,
             RetailRoomFxDefinitions.HiddenLavaRoom);
@@ -885,7 +885,7 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Loads the named retail room with the exact state pointer found in the FX inventory.</summary>
-    private static CartridgeRoomHeader LoadRoomByIdentity(
+    private static SelectedRoom LoadRoomByIdentity(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
         RoomIdentity identity)

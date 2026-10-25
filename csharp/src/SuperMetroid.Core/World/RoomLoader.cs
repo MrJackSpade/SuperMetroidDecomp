@@ -163,7 +163,7 @@ internal sealed class RoomLoader
                 $"{door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
+        SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.AreaIndex != AreaId.Ceres)
         {
             throw new InvalidDataException(
@@ -223,7 +223,7 @@ internal sealed class RoomLoader
         RestoreSavedPlayerState(slot, resetBossesOnLoad);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.SamusPosition.X);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.SamusPosition.Y);
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
+        SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.AreaIndex != requestedArea)
         {
             throw new InvalidDataException(
@@ -329,7 +329,7 @@ internal sealed class RoomLoader
                 $"door {door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
+        SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.AreaIndex != AreaId.Crateria)
         {
             throw new InvalidDataException(
@@ -413,7 +413,7 @@ internal sealed class RoomLoader
 
     /// <summary>Whether the pending door's destination room header selects the isolated door transition.</summary>
     public bool PendingDoorDestinationUsesIsolatedDoorTransition => PendingDoorTransition is { } door
-        ? LoadCartridgeRoomHeader(door.DestinationRoom).UsesIsolatedDoorTransition
+        ? LoadSelectedRoom(door.DestinationRoom).UsesIsolatedDoorTransition
         : throw new InvalidOperationException("No pending door destination exists.");
 
     /// <summary>
@@ -703,7 +703,7 @@ internal sealed class RoomLoader
         DoorDefinition door = sourceLevel.PendingDoorTransition
             ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? _player.Samus.Position);
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
+        SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
         // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
         // but it does not restore the four subsystem enable words. Destination room setup
@@ -715,7 +715,7 @@ internal sealed class RoomLoader
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // state $0B with no destination on the following frame.
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
+        LoadedRoomAssets assets = LoadedRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
         DoorDefinition consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
@@ -775,7 +775,7 @@ internal sealed class RoomLoader
     /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
     internal InitialViewportResult LoadCartridgeRoom(
         DoorDefinition door,
-        CartridgeRoomHeader room,
+        SelectedRoom room,
         Position16<RoomPixels> camera,
         RoomViewportLoadMode viewportLoadMode,
         RoomEntry entry = default)
@@ -789,8 +789,8 @@ internal sealed class RoomLoader
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
-        CartridgeRoomAssets assets = entry.PreloadedAssets ??
-            CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
+        LoadedRoomAssets assets = entry.PreloadedAssets ??
+            LoadedRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
@@ -876,7 +876,7 @@ internal sealed class RoomLoader
 
         assets.LoadGraphics(_backgrounds, _cgram.BackgroundSets);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
-        scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateMode7Map() : null;
+        scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloorMap() : null;
 
         // `$82:E139` is part of every retail room-load/door-transition pipeline. It
         // replaces OBJ palette zero with `kCommonSpritesPalette1` before enemy setup;
@@ -1102,7 +1102,7 @@ internal sealed class RoomLoader
     /// no production path executes bank-$8F selector bytes. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>
-    internal CartridgeRoomHeader LoadCartridgeRoomHeader(RoomHeaderDefinition room)
+    internal SelectedRoom LoadSelectedRoom(RoomHeaderDefinition room)
     {
         AreaId areaIndex = Ensure.NotNull(room).AreaIndex;
 
@@ -1121,7 +1121,7 @@ internal sealed class RoomLoader
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
                 samus.MaxMissiles != 0,
             HasPowerBombs: samus?.MaxPowerBombs != 0);
-        return CartridgeRoomHeader.LoadUsingCompiledSelection(room, selection);
+        return SelectedRoom.LoadUsingCompiledSelection(room, selection);
     }
 
     /// <summary>

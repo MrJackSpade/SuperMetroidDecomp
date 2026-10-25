@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 internal static class YardKickVerification
 {
     /// <summary>Compares both facing directions and fractional X motion through the real contact dispatcher.</summary>
-    internal static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
+    internal static void VerifyYardKickWords(SuperMetroidAddressSpace bus, SelectedRoom room)
     {
         var assets = LoadFixtureRoomAssets(room);
         int cases = 0;

@@ -26,7 +26,7 @@ internal static class RoomVisualLayoutsVerification
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room level streams")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailLevels.Count,
@@ -90,7 +90,7 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(header);
+            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header);
             foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(header))
             {
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
@@ -146,10 +146,10 @@ internal static class RoomVisualLayoutsVerification
         string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
         File.WriteAllText(overridePath, document.ToJsonString());
 
-        CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
-        CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
+        LoadedRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
+        LoadedRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: stock, levelStreams: levelStreams);
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
+        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
@@ -176,9 +176,9 @@ internal static class RoomVisualLayoutsVerification
         // an extra physical row beyond its camera. Both must survive the installed-stream path.
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
-            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
-            CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(room);
-            CartridgeRoomAssets installedOther = LoadFixtureRoomAssets(room,
+            SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
+            LoadedRoomAssets nativeOther = LoadFixtureRoomAssets(room);
+            LoadedRoomAssets installedOther = LoadFixtureRoomAssets(room,
                 visualLayouts: stock, levelStreams: levelStreams);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
                     installedOther.LevelData.ForegroundEntries.Span) &&

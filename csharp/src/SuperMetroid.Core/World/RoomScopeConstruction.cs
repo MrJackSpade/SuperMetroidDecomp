@@ -20,17 +20,17 @@ namespace SuperMetroid.Core.World;
 /// every required part. The load runs within one host call, so no frame observes a partial construction.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomScopeConstruction(DoorDefinition door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
+internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
     LoadStationEntry? loadStation)
 {
     /// <summary>The destination door.</summary>
     public DoorDefinition Door { get; } = Ensure.NotNull(door);
 
     /// <summary>The destination room and state header.</summary>
-    public CartridgeRoomHeader Room { get; } = Ensure.NotNull(room);
+    public SelectedRoom Room { get; } = Ensure.NotNull(room);
 
     /// <summary>The destination's asset graph.</summary>
-    public CartridgeRoomAssets Assets { get; } = Ensure.NotNull(assets);
+    public LoadedRoomAssets Assets { get; } = Ensure.NotNull(assets);
 
     /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
     public LoadStationEntry? LoadStation { get; } = loadStation;
@@ -159,7 +159,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, CartridgeRoomHe
 
     /// <summary>The artwork the room's own load binds: its common room elements and tileset.</summary>
     private HashSet<BgArtworkIdentity> RoomLoadArtwork() =>
-        [.. CartridgeRoomAssets.CharacterPlacements(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(placement => placement.Identity)];
+        [.. LoadedRoomAssets.CharacterPlacements(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(placement => placement.Identity)];
 
     /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>
     private static InvalidOperationException Missing(string part) =>

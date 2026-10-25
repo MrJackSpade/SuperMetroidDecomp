@@ -15,7 +15,7 @@ internal readonly record struct RoomEntry
     public bool RunDoorClosingPlm { get; init; }
 
     /// <summary>The destination assets a door transition built before consuming its door, or null to load them here.</summary>
-    public CartridgeRoomAssets? PreloadedAssets { get; init; }
+    public LoadedRoomAssets? PreloadedAssets { get; init; }
 
     /// <summary>The load-station record whose load establishes the room; null for a room entered otherwise.</summary>
     public LoadStationEntry? LoadStation { get; init; }

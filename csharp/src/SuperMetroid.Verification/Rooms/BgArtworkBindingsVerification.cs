@@ -28,7 +28,7 @@ internal static class BgArtworkBindingsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        CartridgeRoomAssets assets = runtime.Room.LoadedScope.Assets;
+        LoadedRoomAssets assets = runtime.Room.LoadedScope.Assets;
         // The room's characters are bound, not written: VRAM lacks them and the published image composes them in the
         // cartridge's transfer order, the area tileset over the CRE (Kraid's tileset covers the whole allocation).
         byte[] published = runtime.ComposedVram().ToArray();

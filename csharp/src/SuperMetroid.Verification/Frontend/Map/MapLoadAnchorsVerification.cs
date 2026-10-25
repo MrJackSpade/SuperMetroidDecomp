@@ -217,7 +217,7 @@ internal static class MapLoadAnchorsVerification
     private static Position16<MapPixels> ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {
         // Independent literal native layout: no production LoadStationEntry or
-        // CartridgeRoomHeader/state-selection call participates in this oracle.
+        // SelectedRoom/state-selection call participates in this oracle.
         int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x80c4b5 + (int)area * 2);
         int record = 0x800000 | (list + station * 14);
         int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record);

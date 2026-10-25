@@ -25,7 +25,7 @@ internal static class EnemyDefinitionsVerification
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var referencedPointers = new HashSet<EnemyDefinitionId>();
-        foreach (CartridgeRoomState state in RoomStateDefinitions.All)
+        foreach (RoomStateSettings state in RoomStateDefinitions.All)
         {
             int populationAddress = RoomEnemyRomLayout.PopulationBank |
                 RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation);

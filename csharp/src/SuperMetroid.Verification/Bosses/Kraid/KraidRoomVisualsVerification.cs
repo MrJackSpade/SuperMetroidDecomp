@@ -133,8 +133,7 @@ internal static class KraidRoomVisualsVerification
             "elevatube allocates alongside Kraid appearance resource");
         var tubeGuard = NewKraidRoomSourceGuard(new TestAddressSpace());
         tubePlms.Step(tubeLevel);
-        int tubeBlock = tubeLevel.GetBlockIndex(
-            new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
+        int tubeBlock = tubeLevel.GetBlockIndex(MaridiaElevatubeDefinitions.PlmBlock);
         AssertEqual((ushort)0x8180,
             tubeLevel.GetCollisionBlockByIndex(tubeBlock).PackedWord.Raw,
             "elevatube retains shared native physical word");

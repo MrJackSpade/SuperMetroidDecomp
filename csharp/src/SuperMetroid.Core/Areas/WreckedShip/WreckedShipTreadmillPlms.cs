@@ -81,8 +81,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
     {
         Ensure.NotNull(level);
-        int blockIndex = level.GetBlockIndex(
-            new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
+        int blockIndex = level.GetBlockIndex(MaridiaElevatubeDefinitions.PlmBlock);
 
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;

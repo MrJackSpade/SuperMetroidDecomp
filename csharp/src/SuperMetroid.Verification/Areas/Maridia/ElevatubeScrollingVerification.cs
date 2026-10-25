@@ -32,9 +32,9 @@ internal static class ElevatubeScrollingVerification
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
             var samus = runtime.Player.IntroducedSamus;
             var camera = runtime.Room.LoadedCamera;
-            samus.Position = samus.Position.WithWholeX(MaridiaElevatubeRomData.SamusCenterX);
-            samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeRomData.NorthStartingPosition
-                : MaridiaElevatubeRomData.SouthStartingPosition);
+            samus.Position = samus.Position.WithWholeX(MaridiaElevatubeDefinitions.SamusCenterX);
+            samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeDefinitions.NorthStartingY
+                : MaridiaElevatubeDefinitions.SouthStartingY);
             uint? previousScrollY = null;
             for (int frame = 0; frame < 180; frame++)
             {

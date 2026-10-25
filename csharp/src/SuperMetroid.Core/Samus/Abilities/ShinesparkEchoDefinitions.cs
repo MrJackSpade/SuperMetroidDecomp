@@ -285,6 +285,6 @@ public static class ShinesparkEchoDefinitions
     }
 
     /// <summary>The departure angles at two table indexes.</summary>
-    private static ShinesparkDepartureAngles Departure(byte first, byte second) =>
-        new ShinesparkDepartureAngles(SnesAngle.FromTableIndex(first), SnesAngle.FromTableIndex(second));
+    private static ShinesparkDepartureAngles Departure(int first, int second) =>
+        new ShinesparkDepartureAngles(SnesAngle.FromTableIndex(checked((byte)first)), SnesAngle.FromTableIndex(checked((byte)second)));
 }

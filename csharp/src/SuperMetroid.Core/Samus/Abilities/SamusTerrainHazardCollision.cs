@@ -35,7 +35,7 @@ public static class SamusTerrainHazardCollision
             area != AreaId.WreckedShip || areaBossDefeated;
 
         SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
-            VisitInsidePoint(level, samus, new(samus.Position.X.Whole, y)));
+            VisitInsidePoint(level, samus, Position16<RoomPixels>.Of(samus.Position.X.Whole, y)));
     }
 
     /// <summary>Applies `$94:8E83/$8ECF/$8F0A` after a solid spike block is contacted.</summary>
@@ -56,11 +56,11 @@ public static class SamusTerrainHazardCollision
         };
         if (spike is not { } behavior)
             return;
-        ushort damage = behavior switch
+        int damage = behavior switch
         {
             SpikeBlockBehavior.Heavy => samus.OrdinarySpikeBlockBtsZeroDamageEnabled
                 ? SpikeHazardDefinitions.HeavySpikeDamage
-                : (ushort)0,
+                : 0,
             SpikeBlockBehavior.Light or SpikeBlockBehavior.AlternateLight =>
                 SpikeHazardDefinitions.LightSpikeDamage,
             _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
@@ -99,7 +99,7 @@ public static class SamusTerrainHazardCollision
     /// <summary>Applies spike damage and the native invincibility, knockback duration, and facing-dependent direction side effects.</summary>
     private static void PublishDamage(
         SamusState samus,
-        ushort wholeDamage)
+        int wholeDamage)
     {
         samus.LiquidPhysics.AccumulatePeriodicDamage(subDamage: 0, wholeDamage);
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);

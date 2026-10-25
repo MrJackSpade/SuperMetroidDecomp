@@ -72,7 +72,7 @@ internal static class SamusBodyPixelDefinitions
     /// <summary>$9E:AC40/C0A0/C0C0 and $9D:B8E0 contain the same bounded
     /// Ep diagnostic drawing. Its selected pen1 and compact letter metrics are
     /// bitmap-font design; the three E bars and p bowl/stem calculate directly.</summary>
-    internal static bool TryDiagnosticByte(bool upper, int set, int position, int index, out byte value)
+    internal static bool TryDiagnosticByte(bool upper, int set, int position, int index, out int value)
     {
         value = 0;
         if (set != 1 || !(upper ? position is 4 or 22 or 23 : position == 16) || (uint)index >= TileBytes)

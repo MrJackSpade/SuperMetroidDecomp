@@ -116,7 +116,7 @@ internal static class SamusGroundedPoseTransitions
         // at `$91:FB5C` exits before touching frame, timer, or delay-buffer state. Every live
         // running arm pose points to the same `$91:B20A` list, so the cached list address is
         // already exact and must not be rebound or reset here.
-        ushort oldRadius = samus.Kinematics.Radius.Y;
+        int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y != oldRadius)
@@ -134,7 +134,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
     {
-        byte shotDirection = SamusPoseMetadata.ReadShotDirection(sourcePose);
+        int shotDirection = SamusPoseMetadata.ReadShotDirection(sourcePose);
         return shotDirection switch
         {
             0 => SamusPoseId.StandingAimUpRightPose,
@@ -353,7 +353,7 @@ internal static class SamusGroundedPoseTransitions
 
         // Preserve the old muzzle direction before installing turn art. The next alpha
         // uses the tag to admit the turning HUD producer and forcibly release charge.
-        byte sourceShotDirection = SamusPoseMetadata.ReadShotDirection(samus);
+        int sourceShotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
         samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.MoonwalkTag | sourceShotDirection));
@@ -480,7 +480,7 @@ internal static class SamusGroundedPoseTransitions
         // `$91:F8F3-$F903` reads the PREVIOUS moonwalk pose, not the selected turn pose.
         // Preserve the complete source byte now so the low-nibble projectile direction is
         // still available after ApplySimpleGroundedPoseChange replaces `Pose` below.
-        byte moonwalkSourceShotDirection = wasMoonwalking
+        int moonwalkSourceShotDirection = wasMoonwalking
             ? SamusPoseMetadata.ReadShotDirection(samus)
             : (byte)0;
 
@@ -532,7 +532,7 @@ internal static class SamusGroundedPoseTransitions
         }
         else
         {
-            byte shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
+            int shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
             selectedTurnPose = wasCrouching
                 ? shotDirection switch
                 {

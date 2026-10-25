@@ -24,7 +24,7 @@ internal static class SamusAnimationDelayDefinitions
     internal const byte CommandBit = 0x80;
 
     /// <summary>Whether a delay-stream byte is an animation command rather than a frame delay (the handler's <c>BMI</c>).</summary>
-    internal static bool IsCommand(byte delayOrCommand) => (delayOrCommand & CommandBit) != 0;
+    internal static bool IsCommand(int delayOrCommand) => (delayOrCommand & CommandBit) != 0;
 
     /// <summary>$91:B56F, AnimationDelays_0_9B: animation selected by ForwardFacingPowerSuitPose and its explicit pose aliases below.</summary>
     private static readonly SamusAnimationDelayList ForwardFacingPowerSuitAnimation = new(158, 0);
@@ -699,7 +699,7 @@ internal static class SamusAnimationDelayDefinitions
     internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
         SamusAnimationDelayList list, int byteIndex, SamusAnimationWindows? windows)
     {
-        ushort position;
+        int position;
         if (list.Segment is { } segment)
         {
             int offset = unchecked((ushort)(SamusAnimationDelayPrograms.segments[segment].Offset + byteIndex));

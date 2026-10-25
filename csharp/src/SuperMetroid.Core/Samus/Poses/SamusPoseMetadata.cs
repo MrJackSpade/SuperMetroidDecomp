@@ -95,13 +95,13 @@ internal static class SamusPoseMetadata
     /// Reads pose-definition byte three, the ten-way arm-cannon direction consumed by
     /// the native normal-jump landing selector at <c>$91:E974</c>.
     /// </summary>
-    public static byte ReadShotDirection(SamusState samus)
+    public static int ReadShotDirection(SamusState samus)
     {
         return ReadShotDirection(samus.Pose);
     }
 
     /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
-    public static byte ReadShotDirection(SamusPoseId pose)
+    public static int ReadShotDirection(SamusPoseId pose)
     {
         return SamusPoseAimDefinitions.Read(pose);
     }
@@ -295,7 +295,7 @@ internal static class SamusPoseMetadata
                 $"Draygon-grabbed input transition {samus.Pose} -> {targetPose} crosses owner-controlled facing families.");
         }
 
-        ushort oldRadius = samus.Kinematics.Radius.Y;
+        int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
         RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y != oldRadius)
@@ -605,7 +605,7 @@ internal static class SamusPoseMetadata
     /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
     /// frame-handler alpha; setup considers it after movement and hurt arbitration.
     /// </summary>
-    public static void PublishBombJumpDirection(SamusState samus, byte direction)
+    public static void PublishBombJumpDirection(SamusState samus, int direction)
     {
         if (direction is < 1 or > 3)
         {

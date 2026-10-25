@@ -71,8 +71,11 @@ internal static class ChargeFlareAnimationDefinitions
         return frame == 6 ? RestartByte : (byte)Math.Max(minimum, minimum + 2 - frame);
     }
     /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
-    internal static bool TryDecodeCommand(byte streamByte, out ChargeFlareDelayCommand command) =>
-        CommandBytes.TryGetValue(streamByte, out command);
+    internal static bool TryDecodeCommand(int streamByte, out ChargeFlareDelayCommand command)
+    {
+        command = default;
+        return (uint)streamByte <= byte.MaxValue && CommandBytes.TryGetValue((byte)streamByte, out command);
+    }
 
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
     private const byte RewindByte = 0xfe;

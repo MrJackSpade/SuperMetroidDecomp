@@ -19,10 +19,10 @@ internal static class GrappleFiringDefinitions
     /// Angle is (0x8000+0x2000*q) modulo 65536, q=d for d&lt;=4 else d-1.
     /// throw ArgumentOutOfRangeException for unsupported directions.
     /// </remarks>
-    internal static GrappleLaunchDefinition Launch(byte direction)
+    internal static GrappleLaunchDefinition Launch(int direction)
     {
-        if (direction >= 10) throw new ArgumentOutOfRangeException(nameof(direction));
-        short x = direction switch
+        if ((uint)direction >= 10) throw new ArgumentOutOfRangeException(nameof(direction));
+        int x = direction switch
         {
             1 or 3 => DiagonalVelocity,
             2 => CardinalVelocity,
@@ -30,7 +30,7 @@ internal static class GrappleFiringDefinitions
             7 => -CardinalVelocity,
             _ => 0,
         };
-        short y = direction switch
+        int y = direction switch
         {
             0 or 9 => -CardinalVelocity,
             1 or 8 => -DiagonalVelocity,
@@ -46,15 +46,15 @@ internal static class GrappleFiringDefinitions
     /// Up/down facings remain distinct; down-left X is -4 versus down-right +3.
     /// Running raises only horizontal anchors by four pixels. All native words
     /// independently match; subsequent graphics/pose corrections stay with callers.</summary>
-    internal static Offset16<RoomPixels> Origin(byte direction, bool running)
+    internal static Offset16<RoomPixels> Origin(int direction, bool running)
     {
-        if (direction >= 10)
+        if ((uint)direction >= 10)
         {
             throw new InvalidDataException(
                 $"Grapple firing direction {direction} is outside the ten compiled origin records.");
         }
         SamusProjectileDirection aim = SamusProjectileDirectionCodec.FromAimIndex(direction);
-        short x = aim switch
+        int x = aim switch
         {
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.Right => 2,
             SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight => 10,
@@ -64,7 +64,7 @@ internal static class GrappleFiringDefinitions
             SamusProjectileDirection.Left or SamusProjectileDirection.UpFacingLeft => -2,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {aim}."),
         };
-        short y = aim switch
+        int y = aim switch
         {
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => -16,
             SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => -12,
@@ -73,6 +73,6 @@ internal static class GrappleFiringDefinitions
             SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => 6,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {aim}."),
         };
-        return new Offset16<RoomPixels>(x, y);
+        return Offset16<RoomPixels>.Of(x, y);
     }
 }

@@ -179,7 +179,7 @@ internal static class SamusBodyArtworkVerification
                 : SamusSourceDefinitions.SharedAtmosphericAttributes;
             int source = SamusSourceDefinitions.MovementBank.Value | (pointer + frame * sizeof(ushort));
             ushort expectedAttributes = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out ushort installedAttributes),
+            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out int installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
                 $"atmospheric type {type} frame {frame} imported exact native attributes");

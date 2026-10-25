@@ -320,7 +320,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
                 return false;
 
             SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(samus);
-            ushort previousRadius = samus.Kinematics.Radius.Y;
+            int previousRadius = samus.Kinematics.Radius.Y;
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             if (samus.Kinematics.Radius.Y > previousRadius)

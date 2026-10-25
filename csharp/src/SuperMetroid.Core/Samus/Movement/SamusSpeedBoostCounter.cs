@@ -56,5 +56,5 @@ public readonly record struct SamusSpeedBoostCounter
     public SamusSpeedBoostCounter AdvanceStage() => new(RawValue + StageSpan);
 
     /// <summary>The current stage ORed with a cadence reset word, as the cartridge stores it.</summary>
-    public SamusSpeedBoostCounter WithCadenceWord(ushort resetWord) => new(Stage * StageSpan | resetWord);
+    public SamusSpeedBoostCounter WithCadenceWord(int resetWord) => new(Stage * StageSpan | Ensure.BetweenInclusive(0, ushort.MaxValue, resetWord));
 }

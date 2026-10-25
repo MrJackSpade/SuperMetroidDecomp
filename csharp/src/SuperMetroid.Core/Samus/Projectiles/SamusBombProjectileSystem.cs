@@ -67,14 +67,14 @@ public sealed class SamusBombProjectileSystem
     /// separate translated class because the native slot arrays split cleanly at byte index
     /// <c>$0A</c>, but that host boundary must not accidentally create a second clock.
     /// </remarks>
-    internal void SetSharedCooldown(ushort value) => CooldownTimer = WrappingCountdown.FromRaw(value);
+    internal void SetSharedCooldown(int value) => CooldownTimer = WrappingCountdown.FromRaw(value);
 
     /// <summary>
     /// Replaces WRAM <c>$0CD2</c> from an enemy-owned Samus interaction. Shitroid writes
     /// five while it drains Samus to suppress projectile allocation, then clears the word
     /// at the terminal one-energy transition without disturbing the shared cooldown.
     /// </summary>
-    internal void SetSharedBombCounter(ushort value) => BombCounter = value;
+    internal void SetSharedBombCounter(int value) => BombCounter = value;
 
     /// <summary>Observable result of the most recent translated alpha/interaction pass.</summary>
     public BombProjectileFrameResult LastFrameResult { get; private set; }
@@ -249,7 +249,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Runs the bomb subset of the post-alpha Samus/projectile interaction pass.</summary>
-    public void ResolveSamusOverlap(SamusState samus, ushort projectileInvincibilityTimer)
+    public void ResolveSamusOverlap(SamusState samus, int projectileInvincibilityTimer)
     {
         Ensure.NotNull(samus);
         SamusBombJumpDirection direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
@@ -289,15 +289,15 @@ public sealed class SamusBombProjectileSystem
             // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
             // the wrapped room-relative word is zero, i.e. [0,255]. OAM itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
-            short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
-            ushort screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
+            int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
+            int screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
             if (screenX < -48 || screenX >= 304 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
                 continue;
 
             SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
                 slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex), image,
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), SpriteMirror.None));
+                Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY), SpriteMirror.None));
         }
     }
 
@@ -683,8 +683,8 @@ public sealed class SamusBombProjectileSystem
         slot.BombSpreadVerticalVelocity += SnesSignedSixteenSixteen.FromParts(
             unchecked((short)samus.YAcceleration.Whole), samus.YAcceleration.Fraction);
 
-        ushort previousY = slot.Position.Y.Whole;
-        ushort previousYSub = slot.Position.Y.Fraction;
+        int previousY = slot.Position.Y.Whole;
+        int previousYSub = slot.Position.Y.Fraction;
         slot.Position = slot.Position.AdvanceY(slot.BombSpreadVerticalVelocity);
         if (BombSpreadCollides(level, slot))
         {
@@ -702,8 +702,8 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        ushort previousX = slot.Position.X.Whole;
-        ushort previousXSub = slot.Position.X.Fraction;
+        int previousX = slot.Position.X.Whole;
+        int previousXSub = slot.Position.X.Fraction;
         // Rightward travel adds the speed with the fraction carrying into the whole word; leftward travel subtracts it
         // with the borrow. Both wrap at sixteen whole bits, the signed 16.16 value's wrapping addition.
         slot.Position = slot.Position.AdvanceX(slot.BombSpreadHorizontal.Displacement);
@@ -767,7 +767,7 @@ public sealed class SamusBombProjectileSystem
         List<BombBlockReaction> reactions,
         ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
-        ushort projectileType)
+        int projectileType)
     {
         int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = (3 * horizontalRadius) >> 2;
@@ -838,8 +838,9 @@ public sealed class SamusBombProjectileSystem
         List<BombBlockReaction> reactions,
         ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
-        ushort projectileType)
+        int projectileType)
     {
+        SamusProjectileTypeWord typeWord = checked((ushort)projectileType);
         int x = bombedBlock.X;
         int y = bombedBlock.Y;
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
@@ -872,7 +873,7 @@ public sealed class SamusBombProjectileSystem
             block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             if (roomPlms is null ||
-                !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
+                !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, typeWord))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Index} has no active PLM owner.");
@@ -898,7 +899,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.Index,
                 block.Bts,
-                projectileType);
+                typeWord);
             return;
         }
 
@@ -949,7 +950,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.Index,
                 block.Bts,
-                projectileType);
+                typeWord);
             return;
         }
 
@@ -969,7 +970,7 @@ public sealed class SamusBombProjectileSystem
                     level,
                     block.Index,
                     block.Bts,
-                    projectileType);
+                    typeWord);
                 return;
             }
 
@@ -1006,7 +1007,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.Index,
                 block.Bts,
-                projectileType,
+                typeWord,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
             return;
         }
@@ -1025,7 +1026,7 @@ public sealed class SamusBombProjectileSystem
                 block.Index,
                 block.Bts,
                 areaIndex,
-                projectileType);
+                typeWord);
             return;
         }
 

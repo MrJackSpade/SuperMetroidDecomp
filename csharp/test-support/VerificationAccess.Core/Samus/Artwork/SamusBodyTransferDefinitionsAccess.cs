@@ -13,7 +13,7 @@ internal static class SamusBodyTransferDefinitionsAccess
         /// canonical composition from an unrelated pose's OAM.
         /// </summary>
         internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
-            int payloadBytes, out ushort firstSize)
+            int payloadBytes, out int firstSize)
         {
             if (SamusBodyTransferDefinitions.TrySelectedPacking(upper, set, position, payloadBytes, out firstSize))
                 return true;

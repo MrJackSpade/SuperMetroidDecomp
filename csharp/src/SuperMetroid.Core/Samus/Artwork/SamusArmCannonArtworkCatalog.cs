@@ -39,7 +39,7 @@ public sealed class SamusArmCannonArtworkCatalog
                 this.poseDescriptors.Add(pose, poseDescriptors[pose]);
         for (int index = 0; index < drawingData.Length; index++)
         {
-            bool derived = SamusArmCannonArtworkFormat.TryStockDrawingByte(index, out byte calculated);
+            bool derived = SamusArmCannonArtworkFormat.TryStockDrawingByte(index, out int calculated);
             if (!derived && SamusArmCannonArtworkFormat.TryStockCoordinateSource(index, out int source))
             {
                 calculated = drawingData[source];
@@ -162,14 +162,14 @@ public sealed class SamusArmCannonArtworkCatalog
         if ((uint)offset >= SamusArmCannonArtworkFormat.DrawingDataByteCount)
             throw new InvalidDataException(
                 $"Arm-cannon drawing byte {offset} is not installed.");
-        if (drawingData.TryGetValue(offset, out byte supplied)) return supplied;
-        if (SamusArmCannonArtworkFormat.TryStockDrawingByte(offset, out byte calculated)) return calculated;
+        if (drawingData.ContainsKey(offset)) return drawingData[offset];
+        if (SamusArmCannonArtworkFormat.TryStockDrawingByte(offset, out int calculated)) return (byte)calculated;
         if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(offset, out int source))
             return ReadDrawingByte(source);
         if (SamusArmCannonArtworkFormat.TryStockReflectedXSource(offset, out source))
             return SamusArmCannonArtworkFormat.ReflectCoverX(ReadDrawingByte(source));
-        if (bodyGeometry is not null && SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, offset, out byte coordinate))
-            return coordinate;
+        if (bodyGeometry is not null && SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, offset, out int coordinate))
+            return (byte)coordinate;
         throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }
 
@@ -177,7 +177,7 @@ public sealed class SamusArmCannonArtworkCatalog
     public ushort SpriteAttributes(int direction)
     {
         if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
-        return attributes.TryGetValue(direction, out ushort supplied) ? supplied
+        return attributes.ContainsKey(direction) ? attributes[direction]
             : SamusArmCannonArtworkFormat.StockSpriteAttributes(SamusProjectileDirectionCodec.FromAimIndex(direction));
     }
 

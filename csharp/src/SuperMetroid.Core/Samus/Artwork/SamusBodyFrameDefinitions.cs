@@ -31,7 +31,7 @@ internal static class SamusBodyFrameDefinitions
     /// <summary>$92:D926 -> CEF7, native top set4, left grapple middle half-turn allocation.</summary>
     private const int GrappleLeftMiddleSet = 4;
     /// <summary>$92:E050/E158: upper grapple characters follow the same three angular allocation runs as their OAM compositions. Set identities select the native glyph allocation; positions advance or reverse within it.</summary>
-    internal static bool TryComponent(int index, out byte value)
+    internal static bool TryComponent(int index, out int value)
     {
         int address = index;
         bool ClearSlot(SamusPoseId pose, int phase) => (uint)(address - ListStart(pose) - phase * 4) < 4;

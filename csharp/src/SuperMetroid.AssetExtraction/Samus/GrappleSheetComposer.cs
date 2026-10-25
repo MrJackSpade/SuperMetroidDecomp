@@ -31,7 +31,7 @@ internal static class GrappleSheetComposer
         Ensure.NotNull(inputs);
         GrappleTileAtlas tiles = inputs.Projectiles.GrappleTiles;
         var frames = new List<SheetFrameSource>();
-        var endpoint = new SnesObjAttributeWord(tiles.Sprites?.Endpoint ?? GrappleBeamDefinitions.Rendering.EndpointAttributes);
+        var endpoint = new SnesObjAttributeWord(checked((ushort)(tiles.Sprites?.Endpoint ?? GrappleBeamDefinitions.Rendering.EndpointAttributes)));
         if (endpoint.TileNumber is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.TileNumber:X3}, which its orientation selects.");
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++)

@@ -50,7 +50,7 @@ public sealed class ProjectileTrailCatalog
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
     public ushort Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame)
     {
-        if (suppliedAttributes.TryGetValue(frame, out ushort value)) return value;
+        if (suppliedAttributes.ContainsKey(frame)) return suppliedAttributes[frame];
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
             if (ProjectileTrailVisualDefinitions.Frames[index] == frame) return DefaultAttributes(index);
         throw new InvalidDataException($"Missing trail frame {frame}.");

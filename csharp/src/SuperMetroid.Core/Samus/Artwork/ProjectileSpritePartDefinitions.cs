@@ -125,7 +125,7 @@ public static class ProjectileSpritePartDefinitions
                 7 => WaveDirection.DownRight,
                 _ => throw new ArgumentOutOfRangeException(nameof(phase)),
             };
-            var (dx, dy) = direction switch
+            Offset16<RoomPixels> lobeDirection = direction switch
             {
                 WaveDirection.Up => new Offset16<RoomPixels>(0, -1),
                 WaveDirection.Down => new Offset16<RoomPixels>(0, 1),
@@ -138,9 +138,9 @@ public static class ProjectileSpritePartDefinitions
                 _ => throw new ArgumentOutOfRangeException(nameof(phase)),
             };
             int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step);
-            if (dx != 0 && dy != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
-            x += dx * distance;
-            y += dy * distance;
+            if (lobeDirection.X != 0 && lobeDirection.Y != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
+            x += lobeDirection.X * distance;
+            y += lobeDirection.Y * distance;
             tile += (step + 1) / 2;
         }
         return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),

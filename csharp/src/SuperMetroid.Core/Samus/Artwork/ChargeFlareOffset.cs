@@ -8,10 +8,10 @@ public sealed record ChargeFlareOffset
 {
     /// <summary>The displacement as one spatial value.</summary>
     [JsonIgnore]
-    public Offset16<RoomPixels> Offset => new(X, Y);
+    public Offset16<RoomPixels> Offset => Offset16<RoomPixels>.Of(X, Y);
 
-    /// <summary>Horizontal displacement in signed pixels; positive values move the visual origin right.</summary>
-    public required short X { get; init; }
-    /// <summary>Vertical displacement in signed pixels; positive values move the visual origin down, before the separate pose-graphics Y offset is subtracted.</summary>
-    public required short Y { get; init; }
+    /// <summary>Horizontal displacement in signed pixels, -32768 through 32767; positive values move the visual origin right.</summary>
+    public required int X { get; init => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
+    /// <summary>Vertical displacement in signed pixels, -32768 through 32767; positive values move the visual origin down, before the separate pose-graphics Y offset is subtracted.</summary>
+    public required int Y { get; init => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
 }

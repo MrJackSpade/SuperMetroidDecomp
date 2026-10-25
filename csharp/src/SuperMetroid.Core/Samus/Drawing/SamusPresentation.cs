@@ -89,7 +89,7 @@ internal sealed class SamusPresentation
     /// Seeds the animation frame timer as <c>Set_Samus_AnimationFrame_if_PoseChanged</c>
     /// at <c>$91:FB08</c> does, including its bottom-minus-one liquid boundary test.
     /// </summary>
-    public static void InitializeAnimation(SamusState samus, ushort initialFrame = 0)
+    public static void InitializeAnimation(SamusState samus, int initialFrame = 0)
     {
 
         samus.AnimationFrame = initialFrame;
@@ -98,7 +98,7 @@ internal sealed class SamusPresentation
         // Gravity Suit takes the ordinary speed-divisor path.
         samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
         samus.AnimationDelayList = ResolveAnimationDelayList(samus);
-        byte initialDelay = ReadAnimationByte(samus, samus.AnimationFrame);
+        int initialDelay = ReadAnimationByte(samus, samus.AnimationFrame);
         if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
@@ -139,8 +139,8 @@ internal sealed class SamusPresentation
     /// </remarks>
     internal static void SetPoseAndAnimationFromScriptedController(SamusState samus, 
         SamusPoseId pose,
-        ushort frame,
-        ushort timer)
+        int frame,
+        int timer)
     {
         // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement and collision radii.
         samus.WritePoseWithoutInitialization(pose);
@@ -231,7 +231,7 @@ internal sealed class SamusPresentation
     /// seam preserves the native ordering: movement writes the pair, then animation later
     /// in beta immediately decrements the newly written timer.
     /// </remarks>
-    internal static void SetAnimationFrameFromSpecialHandler(SamusState samus, ushort frame, ushort timer)
+    internal static void SetAnimationFrameFromSpecialHandler(SamusState samus, int frame, int timer)
     {
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
@@ -242,14 +242,14 @@ internal sealed class SamusPresentation
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
-        byte delayOrCommand = ReadAnimationByte(samus, samus.AnimationFrame);
+        int delayOrCommand = ReadAnimationByte(samus, samus.AnimationFrame);
         if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))
         {
             // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
             // with the pointer stored at `$91:B5D1` whenever momentum flag `$0B3C` is set.
             // Notice that this branch does NOT test the Dash button: releasing B retains
             // the default running cadence until a transition/collision cancels momentum.
-            byte runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
+            int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
                     ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
@@ -270,14 +270,14 @@ internal sealed class SamusPresentation
             // command number zero, whose handler does no further timer selection.
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
-                ushort stagedFrame = checked((ushort)samus.AnimationFrame);
+                int stagedFrame = checked((ushort)samus.AnimationFrame);
                 if (samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
                     samus.FloorQueueResidue,
                     movementType: SamusMovementType.Running,
                     controllerInput,
                     samus.AnimationFrameBuffer,
                     ref stagedFrame,
-                    out ushort stagedTimer,
+                    out int stagedTimer,
                     queueEchoSound))
                 {
                     samus.AnimationFrame = stagedFrame;
@@ -359,12 +359,12 @@ internal sealed class SamusPresentation
                 // according to BOTH halves of Y speed. `$37/$38` test Spring Ball bit $0002
                 // and use this command to finish ordinary morph entry without guessing
                 // whether the transition walked off a ledge.
-                ushort itemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
+                int itemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
                 bool itemEquipped = (samus.EquippedItems.ToEquipmentWord() & itemMask) != 0;
                 bool movingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
-                ushort targetOffset = itemEquipped
-                    ? movingVertically ? (ushort)6 : (ushort)5
-                    : movingVertically ? (ushort)4 : (ushort)3;
+                int targetOffset = itemEquipped
+                    ? movingVertically ? 6 : 5
+                    : movingVertically ? 4 : 3;
                 samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
                     unchecked((ushort)(samus.AnimationFrame + targetOffset))));
                 return;
@@ -397,7 +397,7 @@ internal sealed class SamusPresentation
                 // mask is followed by unequipped/equipped pose bytes. Poses `$3F/$40` are
                 // the only retail users (Spring Ball-aware Morph Ball selection), but the
                 // command still publishes through the ordinary transitional-pose seam.
-                ushort fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
+                int fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
                 bool fcItemEquipped = (samus.EquippedItems.ToEquipmentWord() & fcItemMask) != 0;
                 samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
                     unchecked((ushort)(samus.AnimationFrame + (fcItemEquipped ? 4 : 3)))));
@@ -414,7 +414,7 @@ internal sealed class SamusPresentation
             case 14:
                 // $90:84C7, command $FE nn: move backward nn byte positions. The operand
                 // remains in the same delay stream and is not itself an animation frame.
-                byte backwardCount = ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1)));
+                int backwardCount = ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1)));
                 samus.AnimationFrame = unchecked((ushort)(samus.AnimationFrame - backwardCount));
                 break;
 
@@ -427,7 +427,7 @@ internal sealed class SamusPresentation
                 throw new InvalidOperationException($"Samus animation command ${delayOrCommand:X2} has no handler.");
         }
 
-        byte selectedDelay = ReadAnimationByte(samus, samus.AnimationFrame);
+        int selectedDelay = ReadAnimationByte(samus, samus.AnimationFrame);
         if (SamusAnimationDelayDefinitions.IsCommand(selectedDelay))
         {
             throw new InvalidDataException(
@@ -515,16 +515,16 @@ internal sealed class SamusPresentation
         Position16<RoomPixels> renderPoint = mode7Transform is { } transform
             ? transform.Transform(position)
             : position;
-        ushort renderX = renderPoint.X;
-        ushort renderY = renderPoint.Y;
+        int renderX = renderPoint.X;
+        int renderY = renderPoint.Y;
 
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
-        sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        ushort spritemapX = unchecked((ushort)(renderX - layer1.X));
-        ushort spritemapY;
+        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int spritemapX = unchecked((ushort)(renderX - layer1.X));
+        int spritemapY;
         // The part of the stored spritemap Y that OAM never shows: a landing frame's leaked neighbouring byte.
-        ushort hiddenOamYHighByte = 0;
+        int hiddenOamYHighByte = 0;
         if (movementType == SamusMovementType.Standing &&
             samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             samus.AnimationFrame >= 2)
@@ -545,7 +545,7 @@ internal sealed class SamusPresentation
             int landingOffsetIndex = (samus.Pose - SamusPoseId.NormalLandingRightPose) * 4 +
                 samus.AnimationFrame;
             if (BodyFrames.Artwork is not { } landingArt ||
-                !landingArt.TryLandingYOffset(landingOffsetIndex, out ushort landingOffset))
+                !landingArt.TryLandingYOffset(landingOffsetIndex, out int landingOffset))
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             spritemapY = unchecked((ushort)(
                 renderY - landingOffset - layer1.Y));
@@ -562,7 +562,7 @@ internal sealed class SamusPresentation
             // selection rejects; neighboring cartridge bytes are not a runtime fallback.
             int postureIndex = (samus.Pose - SamusPoseId.CrouchingTransitionRightPose) * 2 + samus.AnimationFrame;
             if (BodyFrames.Artwork is not { } postureArt ||
-                !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))
+                !postureArt.TryPostureYOffset(postureIndex, out int transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
             spritemapY = unchecked((ushort)(renderY + transitionOffset - layer1.Y));
         }
@@ -573,7 +573,7 @@ internal sealed class SamusPresentation
             // because the external controller can publish those literal indices for a
             // visible frame. The installed 32-byte table preserves that odd layout.
             if (BodyFrames.Artwork is not { } drainedArt ||
-                !drainedArt.TryDrainedYOffset(samus.AnimationFrame, out sbyte drainedOffset))
+                !drainedArt.TryDrainedYOffset(samus.AnimationFrame, out int drainedOffset))
                 throw new InvalidDataException($"Samus drained offset {samus.AnimationFrame} lacks installed art.");
             spritemapY = unchecked((ushort)(renderY + drainedOffset - layer1.Y));
         }
@@ -588,12 +588,12 @@ internal sealed class SamusPresentation
         {
             spritemapY = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
         }
-        SpritemapPosition = new(spritemapX, spritemapY);
-        Position16<ScreenPixels> drawOrigin = new(spritemapX, unchecked((ushort)(spritemapY + hiddenOamYHighByte)));
+        SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
+        Position16<ScreenPixels> drawOrigin = Position16<ScreenPixels>.Of(spritemapX, unchecked((ushort)(spritemapY + hiddenOamYHighByte)));
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
-        ushort topBase = spritemaps.TopBase(samus.Pose);
+        int topBase = spritemaps.TopBase(samus.Pose);
         TopSpritemapIndex = unchecked((ushort)(topBase + samus.AnimationFrame));
         // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
@@ -609,11 +609,11 @@ internal sealed class SamusPresentation
         // not SpritemapPosition.Y (which has already applied pose graphics offset `$08`).
         if (samus.Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
-            ushort chestX = unchecked((ushort)(samus.Position.X.Whole - 7 - layer1.X));
-            ushort chestY = unchecked((ushort)(samus.Position.Y.Whole - 17 - layer1.Y));
+            int chestX = unchecked((ushort)(samus.Position.X.Whole - 7 - layer1.X));
+            int chestY = unchecked((ushort)(samus.Position.Y.Whole - 17 - layer1.Y));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChest),
                 BodySheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ChestCoverFrame),
-                new Position16<ScreenPixels>(chestX, chestY), SpriteMirror.None));
+                Position16<ScreenPixels>.Of(chestX, chestY), SpriteMirror.None));
         }
 
         // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
@@ -678,7 +678,7 @@ internal sealed class SamusPresentation
         BottomSpritemapIndex = 0;
         if (drawBottom)
         {
-            ushort bottomBase = spritemaps.BottomBase(samus.Pose);
+            int bottomBase = spritemaps.BottomBase(samus.Pose);
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + samus.AnimationFrame));
             sprites.AddSamusBody(BottomSpritemapIndex, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 1));
         }
@@ -818,8 +818,8 @@ internal sealed class SamusPresentation
         if (echo.X == 0)
             return;
 
-        sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        short screenY = unchecked((short)(echo.Y - graphicsYOffset - layer1.Y));
+        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int screenY = unchecked((short)(echo.Y - graphicsYOffset - layer1.Y));
 
         // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,
         // exactly as it is for the current Samus body.
@@ -828,8 +828,8 @@ internal sealed class SamusPresentation
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
-        ushort screenX = unchecked((ushort)(echo.X - layer1.X));
-        var origin = new Position16<ScreenPixels>(screenX, unchecked((ushort)screenY));
+        int screenX = unchecked((ushort)(echo.X - layer1.X));
+        var origin = Position16<ScreenPixels>.Of(screenX, unchecked((ushort)screenY));
         sprites.AddSamusBody(TopSpritemapIndex, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
         if (BottomSpritemapIndex != 0)
             sprites.AddSamusBody(BottomSpritemapIndex, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));

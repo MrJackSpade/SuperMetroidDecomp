@@ -792,7 +792,7 @@ internal static class LookupStream1Verification
         {
             AssertEqual(Source(index), SamusBodyFrameDefinitions.SourceComponent(index), "Exact native crouching/standing component relation domain");
             AssertEqual(native[index], native[Source(index)], "Direct native source relationship");
-            AssertEqual(Direct(index), SamusBodyFrameDefinitions.TryComponent(index, out byte calculated), "Exact direct angular-allocation domain");
+            AssertEqual(Direct(index), SamusBodyFrameDefinitions.TryComponent(index, out int calculated), "Exact direct angular-allocation domain");
             if (Direct(index)) AssertEqual(native[index], calculated, "Direct native angular allocation set/position");
             AssertEqual(Source(index) == index && !Direct(index), Stored(stock).ContainsKey(index), "Exact required source-key membership without stock fallbacks");
         }
@@ -1054,7 +1054,7 @@ internal static class LookupStream1Verification
         AssertEqual(0, Stored(stock), "Native drained placement uses no stored offset fallback: " + string.Join(", ", stock.drainedYOffsets.Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
         for (int index = 0; index < 32; index++)
         {
-            AssertTrue(SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, index, out sbyte direct), "Every native drained phase has a derived default");
+            AssertTrue(SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, index, out int direct), "Every native drained phase has a derived default");
             AssertEqual(native[index], direct, "Direct native support-aligned offset");
             sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
             var edited = Create(changed);
@@ -1064,7 +1064,7 @@ internal static class LookupStream1Verification
         int draws = 0;
         for (ushort frame = 0; frame < 32; frame++)
         {
-            AssertTrue(stock.TryDrainedYOffset(frame, out sbyte offset), "Entire native drained byte window admitted");
+            AssertTrue(stock.TryDrainedYOffset(frame, out int offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
@@ -1120,7 +1120,7 @@ internal static class LookupStream1Verification
         AssertEqual(0, Stored(stock), "Native posture uses no stored offset fallback: " + string.Join(", ", stock.postureYOffsets.Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
         for (int index = 0; index < 24; index++)
         {
-            AssertTrue(SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, index, out sbyte direct), "Every native posture has a derived default");
+            AssertTrue(SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, index, out int direct), "Every native posture has a derived default");
             AssertEqual(native[index], direct, "Direct native support-aligned offset");
             sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
             var edited = Create(changed);
@@ -1203,12 +1203,12 @@ internal static class LookupStream1Verification
             AssertTrue(catalog.PostureYOffsets.SequenceEqual(expectedPosture), "Posture snapshot preserves supplied bytes");
             for (int index = 0; index < 16; index++)
             {
-                AssertTrue(catalog.TryLandingYOffset(index, out ushort actual), "Landing word admission");
+                AssertTrue(catalog.TryLandingYOffset(index, out int actual), "Landing word admission");
                 AssertEqual(SnesLittleEndian.Word(unchecked((byte)expectedLanding[index]), unchecked((byte)expectedLanding[index + 1])), actual, "Native unaligned landing word including adjacent byte");
             }
             for (int index = 0; index < 24; index++)
             {
-                AssertTrue(catalog.TryPostureYOffset(index, out sbyte actual), "Posture admission");
+                AssertTrue(catalog.TryPostureYOffset(index, out int actual), "Posture admission");
                 AssertEqual(expectedPosture[index], actual, "Signed posture offset");
             }
         }
@@ -2325,7 +2325,7 @@ internal static class LookupStream1Verification
         {
             ushort address = (ushort)(start + index);
             byte expected = LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address);
-            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address - start, out byte value);
+            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address - start, out int value);
             AssertEqual(headers.Contains(address), calculated, "cannon only original controls/cost aliases are calculated");
             if (calculated) AssertEqual(expected, value, "cannon direct original header/cost calculation");
             bool alias = SamusArmCannonArtworkFormat.TryStockCoordinateSource(address - start, out int source);
@@ -2409,7 +2409,7 @@ internal static class LookupStream1Verification
             foreach (byte type in new byte[] { 1, 4, 6, 7 })
             for (byte other = 0; other < 4; other++)
             {
-                AssertTrue(edited.TryResolve(type, other, out ushort value), "atmospheric admitted type/frame");
+                AssertTrue(edited.TryResolve(type, other, out int value), "atmospheric admitted type/frame");
                 AssertEqual((type == 1) == (kind == 0) && other == frame ? changedWord : (type == 1 ? one : shared)[other], value,
                     "atmospheric supplied full word and caller-input isolation");
             }
@@ -2856,7 +2856,7 @@ internal static class LookupStream1Verification
                 !SamusArmCannonArtworkFormat.TryStockCoordinateSource(index, out _) &&
                 !SamusArmCannonArtworkFormat.TryStockReflectedXSource(index, out _))
             {
-                AssertTrue(SamusArmCannonPlacementDefinitions.TryCoordinate(body, index, out byte direct), "Every independent coordinate has a direct body/default source");
+                AssertTrue(SamusArmCannonPlacementDefinitions.TryCoordinate(body, index, out int direct), "Every independent coordinate has a direct body/default source");
                 AssertEqual(expected, direct, $"Direct native cannon attachment {address:X4}");
                 basis++;
             }
@@ -3049,7 +3049,7 @@ internal static class LookupStream1Verification
                     bool blank = SamusBodyPixelDefinitions.IsBlank(upper, set, position, tile);
                     bool relation = SamusBodyPixelDefinitions.TrySourceByte(upper, set, position, index, out int sourcePosition, out int sourceIndex);
                     bool shared = !blank && relation;
-                    bool diagnostic = SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out byte glyphByte);
+                    bool diagnostic = SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out int glyphByte);
                     if (diagnostic) { AssertEqual(native, glyphByte, "Direct native Ep drawing"); diagnosticBytes++; }
                     else if (blank) { AssertEqual((byte)0, native, "Direct native transparent allocation"); blankBytes++; }
                     else if (shared) { AssertEqual(LookupStream1BodyPixelsRomByte(rom, groups[set][sourcePosition].SourceAddress + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
@@ -3126,7 +3126,7 @@ internal static class LookupStream1Verification
                 int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
                 int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), Word(address));
                 ushort first = Word(address + 3), second = Word(address + 5);
-                AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out ushort calculated), "Every native record has a direct row calculation");
+                AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out int calculated), "Every native record has a direct row calculation");
                 AssertEqual(first, calculated, $"Direct native row geometry {upper}/{set:X}/{position:X}");
                 AssertEqual(source, value.SourceAddress, "Installed native source");
                 AssertEqual(first, value.FirstSize, "Installed native first row");

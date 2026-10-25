@@ -16,7 +16,7 @@ internal static class TrailOverrunEntryFormat
 
     /// <summary>The kind a byte records.</summary>
     /// <exception cref="InvalidDataException">The byte records no kind.</exception>
-    internal static TrailOverrunEntryKind FromByte(byte value) => value switch
+    internal static TrailOverrunEntryKind FromByte(int value) => value switch
     {
         0 => TrailOverrunEntryKind.Scratch,
         1 => TrailOverrunEntryKind.Placement,

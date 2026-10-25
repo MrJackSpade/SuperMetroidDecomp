@@ -287,8 +287,8 @@ public sealed class SamusHorizontalSpeedState
         SamusMovementType movementType,
         ControllerButton controllerInput,
         int animationFrameBuffer,
-        ref ushort animationFrame,
-        out ushort animationFrameTimer,
+        ref int animationFrame,
+        out int animationFrameTimer,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
         animationFrameTimer = 0;
@@ -306,7 +306,7 @@ public sealed class SamusHorizontalSpeedState
             return false;
 
         int tableSelection = SpeedBoostCounter.RawValue;
-        byte? echoSelection = null;
+        int? echoSelection = null;
         if (!SpeedBoostCounter.HasActiveStageBit)
         {
             // Without the fourth-stage bit the counter is below 64512, so one more stage
@@ -329,8 +329,8 @@ public sealed class SamusHorizontalSpeedState
             }
         }
 
-        byte stage = echoSelection ?? SnesLittleEndian.HighByte(tableSelection);
-        ushort nextCadence = SamusRunningCadenceDefinitions.ReadResetWord(stage);
+        int stage = echoSelection ?? SnesLittleEndian.HighByte(tableSelection);
+        int nextCadence = SamusRunningCadenceDefinitions.ReadResetWord(stage);
         SpeedBoostCounter = SpeedBoostCounter.WithCadenceWord(nextCadence);
 
         SamusRunningCadence cadence = SamusRunningCadenceDefinitions.SpeedBoostCadence(stage);
@@ -347,7 +347,7 @@ public sealed class SamusHorizontalSpeedState
     public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex,
         SamusAnimationWindows? windows)
     {
-        byte stage = checked((byte)SpeedBoostCounter.Stage);
+        int stage = checked((byte)SpeedBoostCounter.Stage);
         return SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue,
             SamusRunningCadenceDefinitions.SpeedBoostCadence(stage), byteIndex, windows);
     }
@@ -363,7 +363,7 @@ public sealed class SamusHorizontalSpeedState
         Ensure.NotNull(colours);
 
         bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems, suitColors);
-        ushort suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
+        int suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
         // immediate normal-palette copy above still occurs, but handler zero must not advance
@@ -475,7 +475,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
-        ushort suitTableOffset,
+        int suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
         SamusFullBodyCyclePalette palette = SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalette(
@@ -569,7 +569,7 @@ public sealed class SamusHorizontalSpeedState
     /// from the exact words consumed by the translated draw handler.
     /// </remarks>
     public void SetShinesparkCrashEchoState(
-        ushort encodedIndex,
+        int encodedIndex,
         Position16<RoomPixels> first,
         Position16<RoomPixels> second)
     {
@@ -721,11 +721,11 @@ public sealed class SamusHorizontalSpeedState
         Position16<RoomPixels> echo = slot == 0
             ? FirstSpeedEchoPosition
             : SecondSpeedEchoPosition;
-        ushort xPosition = echo.X;
+        int xPosition = echo.X;
         if (xPosition == 0)
             return false;
 
-        ushort yPosition = echo.Y;
+        int yPosition = echo.Y;
         if (yPosition != samusPosition.Y)
         {
             yPosition = unchecked((short)(yPosition - samusPosition.Y)) < 0
@@ -744,9 +744,9 @@ public sealed class SamusHorizontalSpeedState
             xPosition = 0;
 
         if (slot == 0)
-            FirstSpeedEchoPosition = new(xPosition, yPosition);
+            FirstSpeedEchoPosition = Position16<RoomPixels>.Of(xPosition, yPosition);
         else
-            SecondSpeedEchoPosition = new(xPosition, yPosition);
+            SecondSpeedEchoPosition = Position16<RoomPixels>.Of(xPosition, yPosition);
 
         return xPosition != 0;
     }
@@ -871,8 +871,8 @@ public sealed class SamusHorizontalSpeedState
 
         // CMP/BMI performs signed 16-bit comparisons. Exact equality in both halves is
         // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
-        ushort maximumWhole = entry.MaximumSpeed.WholeWord;
-        ushort maximumFraction = entry.MaximumSpeed.Fraction;
+        int maximumWhole = entry.MaximumSpeed.WholeWord;
+        int maximumFraction = entry.MaximumSpeed.Fraction;
         bool exceedsMaximum = unchecked((short)(BaseSpeed.Whole - maximumWhole)) > 0 ||
             (BaseSpeed.Whole == maximumWhole &&
              unchecked((short)(BaseSpeed.Fraction - maximumFraction)) > 0);
@@ -958,8 +958,8 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static int ClampDisplacement(int displacement)
     {
-        short high = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
-        ushort low = unchecked((ushort)displacement);
+        int high = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
+        int low = unchecked((ushort)displacement);
 
         if (high < 0)
         {

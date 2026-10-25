@@ -55,7 +55,7 @@ public sealed class SamusAtmosphericArtworkCatalog
     /// <param name="frame">Animation-frame index 0..3; does not select an animation duration.</param>
     /// <param name="attributes">Selected packed tile/attribute word on success; zero on failure.</param>
     /// <returns>True for a supported type and frame; false otherwise without reading cartridge or mutable memory.</returns>
-    public bool TryResolve(byte type, int frame, out ushort attributes)
+    public bool TryResolve(int type, int frame, out int attributes)
     {
         if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
         {
@@ -67,7 +67,9 @@ public sealed class SamusAtmosphericArtworkCatalog
     }
 
     /// <summary>Uses a supplied edit when present, otherwise calculates the stock direct-OBJ word.</summary>
-    private ushort Resolve(bool footstep, int frame) =>
-        (footstep ? typeOne : sharedTypeFour).TryGetValue(frame, out ushort attributes)
-            ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
+    private ushort Resolve(bool footstep, int frame)
+    {
+        Dictionary<int, ushort> edits = footstep ? typeOne : sharedTypeFour;
+        return edits.ContainsKey(frame) ? edits[frame] : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
+    }
 }

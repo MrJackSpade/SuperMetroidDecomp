@@ -198,22 +198,22 @@ internal static class XrayRevealDefinitions
     };
 
     /// <summary>Copies one authored tile to the X-ray overlay at the inspected block.</summary>
-    private static XrayRevealDefinition One(ushort tile) =>
+    private static XrayRevealDefinition One(int tile) =>
         new(XrayRevealCommand.CopyOne, tile, 0, 0, 0);
 
     /// <summary>Copies a left and right tile across two horizontal overlay cells.</summary>
-    private static XrayRevealDefinition Wide(ushort left, ushort right) =>
+    private static XrayRevealDefinition Wide(int left, int right) =>
         new(XrayRevealCommand.CopyWide, left, right, 0, 0);
 
     /// <summary>Copies a top and bottom tile across two vertical overlay cells.</summary>
-    private static XrayRevealDefinition Tall(ushort top, ushort bottom) =>
+    private static XrayRevealDefinition Tall(int top, int bottom) =>
         new(XrayRevealCommand.CopyTall, top, 0, bottom, 0);
 
     /// <summary>Copies four authored tiles into a two-by-two overlay block.</summary>
     private static XrayRevealDefinition Square(
-        ushort topLeft,
-        ushort topRight,
-        ushort bottomLeft,
-        ushort bottomRight) =>
+        int topLeft,
+        int topRight,
+        int bottomLeft,
+        int bottomRight) =>
         new(XrayRevealCommand.CopySquare, topLeft, topRight, bottomLeft, bottomRight);
 }

@@ -72,14 +72,14 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareAnimationTimer.IsNegative)
         {
             grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, 1);
-            byte delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
+            int delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
             if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command) &&
                 command == ChargeFlareDelayCommand.Rewind)
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
-                byte rewind = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
+                int rewind = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
                 grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, -rewind);
                 delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
             }
@@ -87,8 +87,8 @@ public static class SamusGrappleBeamDrawing
             grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(delay);
         }
 
-        ushort screenX = unchecked((ushort)(grapple.BeamStart.X - layer1.X));
-        ushort screenY = unchecked((ushort)(grapple.BeamStart.Y - layer1.Y));
+        int screenX = unchecked((ushort)(grapple.BeamStart.X - layer1.X));
+        int screenY = unchecked((ushort)(grapple.BeamStart.Y - layer1.Y));
         // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
         if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
@@ -96,7 +96,7 @@ public static class SamusGrappleBeamDrawing
 
         // The first word of both native facing rows is zero. Grapple uses the
         // shared main flare only; charge-spark direction offsets do not apply.
-        ushort tableIndex = unchecked((ushort)(
+        int tableIndex = unchecked((ushort)(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
         // Flare compositions name characters $50-$5D of the standard OBJ sheet, which no beam or trail upload covers,
         // so the loaded beams' projectile sheet shows them as the standard page does.
@@ -105,7 +105,7 @@ public static class SamusGrappleBeamDrawing
         SpriteSheetFrame image = objects.Sheet.Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetDefinitions.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
-            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
+            Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
         return true;
     }
 
@@ -142,8 +142,8 @@ public static class SamusGrappleBeamDrawing
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection.ToAimIndex(), useRunOffsets);
         var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), useRunOffsets);
-        sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
+        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.
@@ -241,8 +241,8 @@ public static class SamusGrappleBeamDrawing
                 }
             }
 
-            ushort screenX = SnesFixedPosition.WholeOf(screenXFixed);
-            ushort screenY = SnesFixedPosition.WholeOf(screenYFixed);
+            int screenX = SnesFixedPosition.WholeOf(screenXFixed);
+            int screenY = SnesFixedPosition.WholeOf(screenYFixed);
             // Native ticks this slot before the visibility check, then abandons
             // the remaining rope slots entirely at the first off-screen segment.
             if ((screenX | screenY) >= GrappleBeamDefinitions.Rendering.ViewportExtent)
@@ -251,7 +251,7 @@ public static class SamusGrappleBeamDrawing
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.RopeFrame(
                 orientation, grapple.SegmentAnimationFrames[instructionSlot], mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
-                new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
+                Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
             screenXFixed = unchecked(screenXFixed + stepX);
             screenYFixed = unchecked(screenYFixed + stepY);
         }
@@ -266,7 +266,7 @@ public static class SamusGrappleBeamDrawing
         Position16<RoomPixels> layer1, SamusPoseId samusPose)
     {
         bool swinging = samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-        ushort relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
+        int relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
         if (!swinging && (SnesLittleEndian.HighByteInPlace(relativeY)) != 0)

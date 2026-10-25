@@ -30,7 +30,7 @@ internal static class SamusProjectileOriginDefinitions
     };
 
     /// <summary>Reads the selected X/Y muzzle offsets using the native low-nibble direction and running table layout.</summary>
-    internal static Offset16<RoomPixels> Read(bool running, ushort direction)
+    internal static Offset16<RoomPixels> Read(bool running, int direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
         int x = running ? SamusFiringTableDefinitions.RunningXOrigins : SamusFiringTableDefinitions.DefaultXOrigins;

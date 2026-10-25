@@ -63,7 +63,7 @@ public static class ChargeFlarePlacementDefinitions
                     _ => throw new InvalidOperationException($"Undefined {nameof(StandingTurnDirection)} {direction}."),
                 },
             };
-        var (x, y) = new SamusFiringStance(running, SamusProjectileDirectionCodec.FromAimIndex(direction)) switch
+        return new SamusFiringStance(running, SamusProjectileDirectionCodec.FromAimIndex(direction)) switch
         {
             (false, SamusProjectileDirection.UpFacingRight) => new Offset16<RoomPixels>(2, -28),
             (false, SamusProjectileDirection.UpRight) => new Offset16<RoomPixels>(18, -19),
@@ -87,7 +87,6 @@ public static class ChargeFlarePlacementDefinitions
             (true, SamusProjectileDirection.UpFacingLeft) => new Offset16<RoomPixels>(-2, -32),
             _ => throw new InvalidOperationException("Beam visual origin requires a named native direction."),
         };
-        return new() { X = x, Y = y };
     }
     /// <summary>
     /// $9B:C14A/C15E and C19A/C1AE: Grapple's ten visual origins equal the beam origins.
@@ -98,9 +97,9 @@ public static class ChargeFlarePlacementDefinitions
         if ((uint)direction >= DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         if (direction < GrappleBeamDefinitions.Firing.DirectionCount) return BeamOffset(running, direction);
         int adjacent = direction - GrappleBeamDefinitions.Firing.DirectionCount;
-        short y = running ? unchecked((short)(SwingSelectorByte(adjacent * 2) | SwingSelectorByte(adjacent * 2 + 1) << 8))
-            : GrappleFiringDefinitions.Origin((byte)adjacent, true).X;
-        return new() { X = BeamOffset(running, adjacent).Y, Y = y };
+        return Offset16<RoomPixels>.Of(BeamOffset(running, adjacent).Y,
+            running ? unchecked((short)(SwingSelectorByte(adjacent * 2) | SwingSelectorByte(adjacent * 2 + 1) << 8))
+                : GrappleFiringDefinitions.Origin((byte)adjacent, true).X);
     }
 
     /// <summary>$9B:C1C2 GrappleSwingSamusXYOffsets: nearest eight-angle bucket, modulo32; its first twelve bytes bound the running-flare Y alias.</summary>

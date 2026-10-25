@@ -54,7 +54,7 @@ public sealed class XrayRevealVisualCatalog
     {
         Ensure.NotNull(entries);
         Overlays = overlays;
-        foreach ((RoomCollisionType type, byte bts, XrayRevealVisualWords visual) in entries)
+        foreach ((RoomCollisionType type, int bts, XrayRevealVisualWords visual) in entries)
         {
             XrayRevealDefinition? native = XrayRevealTable.Find(type, bts);
             if (native is not { } definition || !IsDrawable(definition.Command))
@@ -89,7 +89,8 @@ public sealed class XrayRevealVisualCatalog
             {
                 content.Append("type and bts", index);
                 content.AppendWords("visual operands",
-                    [visual.TopLeft, visual.TopRight, visual.BottomLeft, visual.BottomRight]);
+                    [checked((ushort)visual.TopLeft), checked((ushort)visual.TopRight),
+                        checked((ushort)visual.BottomLeft), checked((ushort)visual.BottomRight)]);
             }
         content.Append("has overlays", Overlays is null ? 0 : 1);
         if (Overlays is not null)

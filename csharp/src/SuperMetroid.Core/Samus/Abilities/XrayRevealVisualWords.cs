@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="BottomLeft">Adjacent vertical metatile operand for tall and square copies.</param>
 /// <param name="BottomRight">Diagonal metatile operand for square copies; other command shapes leave it unused.</param>
 public readonly record struct XrayRevealVisualWords(
-    ushort TopLeft,
-    ushort TopRight,
-    ushort BottomLeft,
-    ushort BottomRight);
+    int TopLeft,
+    int TopRight,
+    int BottomLeft,
+    int BottomRight);

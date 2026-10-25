@@ -371,9 +371,9 @@ level, targetPose, nmiFrameCounter, plms))
         // radius 10 moves Samus down nine pixels while preserving her feet. Reading the
         // history record instead of assuming a hurt pose also covers the no-animation
         // path, where both radii ordinarily match and the alignment is a no-op.
-        ushort previousRadius = SamusPoseMetadata.ReadPoseYRadius(
+        int previousRadius = SamusPoseMetadata.ReadPoseYRadius(
             unchecked(samus.PoseHistory.PreviousPose));
-        ushort targetRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
+        int targetRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 
         // UpdateSamusPose jumps straight to command one without installing its own

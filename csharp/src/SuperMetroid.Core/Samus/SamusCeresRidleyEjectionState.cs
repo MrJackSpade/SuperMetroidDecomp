@@ -61,7 +61,7 @@ public sealed class SamusCeresRidleyEjectionState
 
         RoomLevelData level,
         SamusState samus,
-        ushort layer1X,
+        int layer1X,
         int nmiFrameCounter)
     {
 
@@ -91,7 +91,7 @@ public sealed class SamusCeresRidleyEjectionState
 
             // The side is selected from screen X, not world X. Exact center belongs to the
             // rightward branch because the native BMI tests a signed `(screenX - 128)`.
-            ushort screenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
+            int screenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
             PushDirection = unchecked((short)(screenX - 128)) < 0
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;

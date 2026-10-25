@@ -59,7 +59,7 @@ public sealed class SamusSpritemapArtworkCatalog
                 ? entries[index] != entries[SamusSpritemapFrameDefinitions.SourceIndex(index)]
                 : !SamusSpritemapFrameDefinitions.TryComposition(index, this.definitions.Length, out SamusSpritemapId? calculated) || entries[index] != calculated)
             .ToDictionary(index => index, index => entries[index]);
-        foreach (ushort index in topBases.Concat(bottomBases))
+        foreach (int index in topBases.Concat(bottomBases))
             if (index >= PointerCount)
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
     }
@@ -102,7 +102,8 @@ public sealed class SamusSpritemapArtworkCatalog
     public ushort TopBase(SamusPoseId pose)
     {
         if (!SamusPoseNumbering.HasRecord(pose)) throw new ArgumentOutOfRangeException(nameof(pose));
-        return topBases.TryGetValue(SamusPoseNumbering.Number(pose), out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase(pose);
+        int number = SamusPoseNumbering.Number(pose);
+        return topBases.ContainsKey(number) ? topBases[number] : SamusSpritemapPoseDefinitions.TopBase(pose);
     }
     /// <summary>Resolves the installed lower-half base corresponding to native $92:945D, independently of whether the current draw policy displays that half.</summary>
     /// <param name="pose">Native Samus pose identity, $00..$FC.</param>
@@ -111,7 +112,8 @@ public sealed class SamusSpritemapArtworkCatalog
     public ushort BottomBase(SamusPoseId pose)
     {
         if (!SamusPoseNumbering.HasRecord(pose)) throw new ArgumentOutOfRangeException(nameof(pose));
-        return bottomBases.TryGetValue(SamusPoseNumbering.Number(pose), out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
+        int number = SamusPoseNumbering.Number(pose);
+        return bottomBases.ContainsKey(number) ? bottomBases[number] : SamusSpritemapPoseDefinitions.BottomBase(pose);
     }
 
     /// <summary>Whole frames already built, by composition.</summary>

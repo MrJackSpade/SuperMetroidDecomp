@@ -207,7 +207,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(7, booster.ExtraRunSpeed.Whole, "Speed Booster reaches exact 7.0000 cap");
     AssertEqual(0, booster.ExtraRunSpeed.Fraction, "Speed Booster cap has zero fraction");
 
-    ushort boostFrame = 1;
+    int boostFrame = 1;
     for (int command = 0; command < 4; command++)
     {
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
@@ -216,7 +216,7 @@ internal static void VerifySamusHorizontalSpeed()
             controllerInput: ControllerButton.B,
             animationFrameBuffer: 0,
             ref boostFrame,
-            out ushort boostTimer);
+            out int boostTimer);
         if (command == 0)
         {
             AssertTrue(intercepted, "first stage-zero command advances Speed Booster");

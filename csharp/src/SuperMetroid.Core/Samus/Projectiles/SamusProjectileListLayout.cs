@@ -56,8 +56,8 @@ public sealed class SamusProjectileListLayout
     internal ushort RecordPosition(int record) => _recordPositions[record];
 
     /// <summary>The cursor instruction pointer <paramref name="place"/> stands for; zero is a cleared projectile.</summary>
-    internal AnimationProgramCursor<SamusProjectileProgram>? CursorAt(ushort place) =>
-        place == 0 ? null : _cursors.TryGetValue(place, out var cursor) ? cursor
+    internal AnimationProgramCursor<SamusProjectileProgram>? CursorAt(int place) =>
+        place == 0 ? null : _cursors.TryGetValue(checked((ushort)place), out var cursor) ? cursor
             : throw new InvalidDataException($"$93:{place:X4} is not a Samus projectile list position.");
 
     /// <summary>
@@ -104,7 +104,7 @@ public sealed class SamusProjectileListLayout
     /// <summary>Finds the one pointer each timed record is shown from.</summary>
     private ushort[] BuildRecordPositions()
     {
-        var places = new ushort?[SamusProjectileRecordDefinitions.Records.Length];
+        var places = new int?[SamusProjectileRecordDefinitions.Records.Length];
         foreach (SamusProjectileProgram program in ListOrder)
         {
             var steps = SamusProjectileAnimations.Programs.Steps(program);
@@ -112,13 +112,13 @@ public sealed class SamusProjectileListLayout
             {
                 if (steps[position] is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
                     continue;
-                ushort place = _stepPositions[program][position];
+                int place = _stepPositions[program][position];
                 int record = show.Frame.Record;
                 if (places[record] is { } known && known != place)
                     throw new InvalidDataException($"Timed projectile record {record} stands at $93:{known:X4} and $93:{place:X4}.");
                 places[record] = place;
             }
         }
-        return [.. places.Select((place, record) => place ?? throw new InvalidDataException($"Timed projectile record {record} stands in no list."))];
+        return [.. places.Select((place, record) => checked((ushort)(place ?? throw new InvalidDataException($"Timed projectile record {record} stands in no list."))))];
     }
 }

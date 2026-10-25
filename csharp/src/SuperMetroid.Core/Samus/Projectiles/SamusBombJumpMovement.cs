@@ -23,7 +23,7 @@ public static class SamusBombJumpMovement
     public static BombJumpMovementResult Start(SamusState samus)
     {
         Ensure.NotNull(samus);
-        byte direction = unchecked((byte)samus.BombJumpDirection);
+        int direction = unchecked((byte)samus.BombJumpDirection);
         if (direction is < 1 or > 3 || (samus.BombJumpDirection & ActiveFlag) == 0)
             throw new InvalidOperationException($"Bomb-jump start requires armed direction $0801-$0803, got ${samus.BombJumpDirection:X4}.");
 
@@ -56,7 +56,7 @@ public static class SamusBombJumpMovement
         if (samus.BombJumpDirection == 0)
             return End(samus, null);
 
-        byte direction = unchecked((byte)samus.BombJumpDirection);
+        int direction = unchecked((byte)samus.BombJumpDirection);
         if (direction is < 1 or > 3)
         {
             // Native doubles this value into a four-entry pointer table whose zero entry

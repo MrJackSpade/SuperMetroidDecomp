@@ -99,7 +99,7 @@ internal static class SamusSpritemapFrameDefinitions
             for (int cursor = 0; cursor <= phase;)
             {
                 if (cursor >= remaining) return false;
-                byte value = SamusAnimationDelayDefinitions.ReadAnimationByte(null, list, cursor, windows: null);
+                int value = SamusAnimationDelayDefinitions.ReadAnimationByte(null, list, cursor, windows: null);
                 int size = value switch { 0xf8 or 0xfd or 0xfe => 2, 0xf9 => 7, 0xfa => 3, 0xfc => 5, _ => 1 };
                 if (phase < cursor + size) return value is 0xf6 or 0xfb or 0xfd or 0xfe or 0xff;
                 cursor += size;

@@ -7,7 +7,7 @@ public static class HudItems
     public static HudItem Next(HudItem item) => EnumOrder.NextWrapping(item);
 
     /// <summary>A stored word as a HUD item; any other word is corrupt.</summary>
-    public static HudItem Decode(ushort word) => word switch
+    public static HudItem Decode(int word) => word switch
     {
         0 => HudItem.Beam,
         1 => HudItem.Missile,

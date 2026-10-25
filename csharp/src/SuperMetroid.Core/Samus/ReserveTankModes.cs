@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 public static class ReserveTankModes
 {
     /// <summary>A stored word as a reserve mode; any other word is corrupt.</summary>
-    public static ReserveTankMode Decode(ushort word) => word switch
+    public static ReserveTankMode Decode(int word) => word switch
     {
         0 => ReserveTankMode.None,
         1 => ReserveTankMode.Auto,

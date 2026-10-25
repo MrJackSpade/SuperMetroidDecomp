@@ -332,8 +332,8 @@ internal sealed class ProjectileMotion
         const int MinimumVisibleCoordinate = -64;
         const int MaximumVisibleCoordinateExclusive = 320;
 
-        short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
-        short screenY = unchecked((short)(slot.Position.Y.Whole - layer1.Y));
+        int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
+        int screenY = unchecked((short)(slot.Position.Y.Whole - layer1.Y));
         bool outside =
             screenX < MinimumVisibleCoordinate ||
             screenX >= MaximumVisibleCoordinateExclusive ||
@@ -403,8 +403,8 @@ internal sealed class ProjectileMotion
         if (!link.IsActive)
             return;
 
-        short velocity = axis == Axis.Vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
-        int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs((int)velocity));
+        int velocity = axis == Axis.Vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
+        int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs(velocity));
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {
@@ -427,8 +427,8 @@ internal sealed class ProjectileMotion
         // just exploded; only then is it cleared. A missile that skips a door cap and
         // strikes the door behind it still opens the cap through its link.
         int offset = wholeMagnitude - 10;
-        ushort ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
-        ushort linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
+        int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
+        int linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
         if (axis == Axis.Vertical)
             link.Position = link.Position.WithWholeY(linkPosition);
         else

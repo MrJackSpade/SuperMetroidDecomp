@@ -16,7 +16,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // $9B:BD9B-BDB1: a fast swing selects the slow-scrolling camera branch.
-        ushort angularSpeed = unchecked((ushort)Math.Abs((int)grapple.AngularVelocity));
+        int angularSpeed = unchecked((ushort)Math.Abs(grapple.AngularVelocity));
         grapple.SlowScrolling = unchecked((short)(angularSpeed -
             GrappleSlowScrollDefinitions.FastSwingAngularSpeed)) >= 0;
         // $94:AC11 calls the same position helper used by terrain probes. Besides scaling the
@@ -37,7 +37,7 @@ public static class SamusGrappleSwing
         // Native shares a selector between physical body placement and displayed art.
         // Keep the authored physical mapping compiled so a visual-frame override cannot
         // move the collision body. Stock art still selects the same native frame.
-        byte artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
+        int artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
             .Resolve(grapple.MirroredAngle.ToByteAngle());
         var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.ToByteAngle(),
@@ -53,9 +53,9 @@ public static class SamusGrappleSwing
         SamusState samus,
         SamusGrappleState grapple)
     {
-        int absoluteVelocity = Math.Abs((int)grapple.AngularVelocity);
+        int absoluteVelocity = Math.Abs(grapple.AngularVelocity);
         int doubledVelocity = absoluteVelocity * 2;
-        short cosine = ReadSignedSine(
+        int cosine = ReadSignedSine(
             grapple.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
@@ -68,7 +68,7 @@ public static class SamusGrappleSwing
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
-        byte horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
+        int horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
         uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
         samus.HorizontalSpeed.BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(horizontalFixed);
@@ -76,7 +76,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Scales a signed 8.8 trigonometric component, preserving exact positive and negative unit endpoints.</summary>
-    private static int ScaleCoordinate(short sine, int length) => sine switch
+    private static int ScaleCoordinate(int sine, int length) => sine switch
     {
         -256 => -length,
         256 => length,
@@ -129,7 +129,7 @@ public static class SamusGrappleSwing
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 256;
             grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (short)(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
+                ? (GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
                 : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
             return;
         }
@@ -139,8 +139,8 @@ public static class SamusGrappleSwing
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -256;
             grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (short)-(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
-                : (short)-GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
+                ? -(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
+                : -GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
             return;
         }
 
@@ -230,8 +230,8 @@ public static class SamusGrappleSwing
             grapple.VelocityCorrection = -(
                 GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude >> 2);
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)-(GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
-                : (short)-(GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
+                ? -(GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
+                : -(GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
         }
         else if ((angle & 1 << 15) != 0)
         {
@@ -240,7 +240,7 @@ public static class SamusGrappleSwing
             {
                 grapple.GravityAcceleration = 0;
                 grapple.VelocityCorrection = 0;
-                if (Math.Abs((int)grapple.AngularVelocity) < 256)
+                if (Math.Abs(grapple.AngularVelocity) < 256)
                     grapple.AngularVelocity = 0;
             }
             else
@@ -248,8 +248,8 @@ public static class SamusGrappleSwing
                 grapple.VelocityCorrection =
                     -GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
                 grapple.GravityAcceleration = grapple.Submerged
-                    ? (short)-(GrappleBeamDefinitions.Physics.GravityMagnitude >> 1)
-                    : (short)-GrappleBeamDefinitions.Physics.GravityMagnitude;
+                    ? -(GrappleBeamDefinitions.Physics.GravityMagnitude >> 1)
+                    : -GrappleBeamDefinitions.Physics.GravityMagnitude;
             }
         }
         else if ((angle & 1 << 14) != 0)
@@ -257,7 +257,7 @@ public static class SamusGrappleSwing
             grapple.VelocityCorrection =
                 GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)(GrappleBeamDefinitions.Physics.GravityMagnitude >> 1)
+                ? (GrappleBeamDefinitions.Physics.GravityMagnitude >> 1)
                 : GrappleBeamDefinitions.Physics.GravityMagnitude;
         }
         else
@@ -265,8 +265,8 @@ public static class SamusGrappleSwing
             grapple.VelocityCorrection =
                 GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude >> 2;
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)(GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
-                : (short)(GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
+                ? (GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
+                : (GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
         }
     }
 
@@ -306,11 +306,11 @@ public static class SamusGrappleSwing
             grapple.JumpImpulse = grapple.AngularVelocity switch
             {
                 > 0 => grapple.Submerged
-                    ? (short)(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
+                    ? (GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
                     : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
                 < 0 => grapple.Submerged
-                    ? (short)-(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
-                    : (short)-GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
+                    ? -(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
+                    : -GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
                 _ => 0,
             };
         }
@@ -334,8 +334,8 @@ public static class SamusGrappleSwing
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
         SnesAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
-        byte targetAngleByte = targetAngle.TableIndex;
-        byte lastSafeAngleByte = grapple.Angle.TableIndex;
+        int targetAngleByte = targetAngle.TableIndex;
+        int lastSafeAngleByte = grapple.Angle.TableIndex;
         int byteDirection = combined < 0 ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
@@ -345,19 +345,19 @@ public static class SamusGrappleSwing
              lastSafeAngleByte != targetAngleByte && angleSteps < 256;
              angleSteps++)
         {
-            byte candidateAngleByte = unchecked((byte)(lastSafeAngleByte + byteDirection));
+            int candidateAngleByte = unchecked((byte)(lastSafeAngleByte + byteDirection));
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
                 level,
                 samus,
                 grapple,
-                new SnesByteAngle(candidateAngleByte));
+                new SnesByteAngle((byte)candidateAngleByte));
             if (collision.Collided)
             {
                 // $94:ADB4/$AE84 restore the last safe whole angle byte and force the
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
                 grapple.Angle = SnesAngle.FromRaw(
-                    SnesAngle.FromTableIndex(unchecked(lastSafeAngleByte)).AddRaw(128).RawValue);
+                    SnesAngle.FromTableIndex((byte)lastSafeAngleByte).AddRaw(128).RawValue);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&
@@ -398,9 +398,9 @@ public static class SamusGrappleSwing
         // $94:ACFE damps the temporary jump impulse toward zero by six after a successful
         // angle step. This word is separate from angular velocity and must not be folded in.
         if (grapple.JumpImpulse > 0)
-            grapple.JumpImpulse = (short)Math.Max(0, grapple.JumpImpulse - 6);
+            grapple.JumpImpulse = Math.Max(0, grapple.JumpImpulse - 6);
         else if (grapple.JumpImpulse < 0)
-            grapple.JumpImpulse = (short)Math.Min(0, grapple.JumpImpulse + 6);
+            grapple.JumpImpulse = Math.Min(0, grapple.JumpImpulse + 6);
 
         return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
@@ -443,8 +443,8 @@ public static class SamusGrappleSwing
         SnesByteAngle angle,
         int distance)
     {
-        short xSine = ReadSignedSine(angle.RawValue + 64);
-        short yNegativeCosine = ReadSignedSine(angle.RawValue);
+        int xSine = ReadSignedSine(angle.RawValue + 64);
+        int yNegativeCosine = ReadSignedSine(angle.RawValue);
 
         // For a block anchor, $94:A95F-$A996 biases the low nibble toward the side from
         // which the rope leaves the block: eight for a nonnegative component, seven for a
@@ -570,7 +570,7 @@ public static class SamusGrappleSwing
         if (!samus.InvincibilityTimer.IsZero || new RoomBlockBehavior(behavior).RejectsGrappleReaction)
             return;
 
-        ushort damage = block == SwingSpikeBlock.Solid
+        int damage = block == SwingSpikeBlock.Solid
             ? behavior switch
             {
                 0 => (ushort)60,
@@ -592,6 +592,6 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Negates an arithmetic-shifted half, preserving the cartridge's rounding for odd negative values.</summary>
-    private static short NegatedArithmeticHalf(short value) =>
+    private static short NegatedArithmeticHalf(int value) =>
         unchecked((short)-(value >> 1));
 }

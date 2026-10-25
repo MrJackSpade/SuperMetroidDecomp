@@ -181,7 +181,7 @@ public sealed class SamusKinematicsState
     /// <summary>Tests the four collision words exactly as dead-monster wait AI does.</summary>
     internal bool DidCollideWithSolidEnemy(int nativeEnemyIndex)
     {
-        foreach (ushort index in _solidEnemyCollisionIndexes)
+        foreach (int index in _solidEnemyCollisionIndexes)
         {
             if (index == nativeEnemyIndex)
                 return true;

@@ -472,7 +472,7 @@ internal sealed class ProjectileTerrainCollision
     /// shifting it left eight. Advancing by it as one wrapped 32-bit quantity is exactly
     /// equivalent to its low-word ADC followed by sign-word ADC.
     /// </summary>
-    internal static SnesSignedSixteenSixteen EightEightDelta(short velocity) =>
+    internal static SnesSignedSixteenSixteen EightEightDelta(int velocity) =>
         SnesSignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
 
     /// <summary>
@@ -553,11 +553,11 @@ internal sealed class ProjectileTerrainCollision
     internal static void ScanHorizontalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
-        ushort top = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
-        ushort bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+        int top = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
+        int bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int remaining = unchecked((ushort)(bottom - (top & ~15))) >> 4;
         int span = remaining;
-        ushort targetX = unchecked((ushort)(slot.Velocity.X.SignedRawValue < 0
+        int targetX = unchecked((ushort)(slot.Velocity.X.SignedRawValue < 0
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1));
         // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
         // BMI therefore tests the original coordinate's high-byte sign, not bit 7
@@ -569,7 +569,7 @@ internal sealed class ProjectileTerrainCollision
             return;
 
         int product = unchecked((byte)(top >> 4)) * unchecked((byte)level.Size.X);
-        ushort byteOffset = unchecked((ushort)((product + (targetX >> 4)) * 2));
+        int byteOffset = unchecked((ushort)((product + (targetX >> 4)) * 2));
         do
         {
             int index = byteOffset >> 1;
@@ -580,7 +580,7 @@ internal sealed class ProjectileTerrainCollision
                 {
                     if (index + 1 >= level.ForegroundEntries.Length)
                         throw new NotSupportedException("Odd Wave collision read crosses the modeled level-data allocation.");
-                    ushort next = level.GetCollisionBlockByIndex(index + 1).PackedWord.Raw;
+                    int next = level.GetCollisionBlockByIndex(index + 1).PackedWord.Raw;
                     // Dispatch consumes the unaligned word; BTS and PLM setup
                     // still use floor(byteOffset / 2), including aligned writes.
                     block = block with { PackedWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.PackedWord.Raw), unchecked((byte)next)) };
@@ -603,12 +603,12 @@ internal sealed class ProjectileTerrainCollision
     internal static void ScanVerticalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
-        ushort left = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
-        ushort right = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
+        int left = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
+        int right = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int remaining = unchecked((ushort)(right - (left & ~15))) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
-        ushort targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
+        int targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1));
         int centerScreenX = SnesEightEight.WholeOf(slot.Position.X.Whole);
@@ -623,7 +623,7 @@ internal sealed class ProjectileTerrainCollision
         // The native block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
         int rowOffset = unchecked((byte)(targetY >> 4)) * level.Size.X;
-        ushort byteOffset = unchecked((ushort)((rowOffset + (left >> 4)) * 2));
+        int byteOffset = unchecked((ushort)((rowOffset + (left >> 4)) * 2));
         do
         {
             int index = byteOffset >> 1;

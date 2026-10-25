@@ -35,9 +35,10 @@ public sealed class RevealedBlockIndex
     /// beyond the room, where BG1 shows nothing and the copy writes zero words that lay out no definition.
     /// </summary>
     /// <exception cref="InvalidDataException">No definition laid out any of the reveal's ways writes those words.</exception>
-    public RevealedBlock? Find(ushort topLeft, ushort topRight, ushort bottomLeft, ushort bottomRight)
+    public RevealedBlock? Find(int topLeft, int topRight, int bottomLeft, int bottomRight)
     {
-        if (layouts.TryGetValue(new ExpandedBlockTiles(new(topLeft), new(topRight), new(bottomLeft), new(bottomRight)), out RevealedBlock block))
+        if (layouts.TryGetValue(new ExpandedBlockTiles(new(checked((ushort)topLeft)), new(checked((ushort)topRight)),
+                new(checked((ushort)bottomLeft)), new(checked((ushort)bottomRight))), out RevealedBlock block))
             return block;
         if ((topLeft | topRight | bottomLeft | bottomRight) == 0)
             return null;

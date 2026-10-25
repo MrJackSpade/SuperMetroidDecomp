@@ -30,7 +30,7 @@ internal static class SamusAtmosphericAnimationDefinitions
     /// <summary>Uniform splash/lava/bubble cadence and linearly increasing dust holds, with independent diving-splash input.</summary>
     internal static ushort FrameTimer(SamusAtmosphericEffectType type, int frame)
     {
-        byte count = FrameCount(type);
+        int count = FrameCount(type);
         if (frame < 0 || frame >= count)
             throw new InvalidDataException($"Atmospheric type {type} frame {frame} is outside {count} authored frames.");
         return type switch

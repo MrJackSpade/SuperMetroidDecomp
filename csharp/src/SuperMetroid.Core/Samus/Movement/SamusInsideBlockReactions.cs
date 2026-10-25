@@ -17,7 +17,7 @@ public static class SamusInsideBlockReactions
         SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
             Visit(y, point == SamusInsideBlockPoint.Bottom, point == SamusInsideBlockPoint.Center));
 
-        void Visit(ushort y, bool bottomPoint, bool centerPoint)
+        void Visit(int y, bool bottomPoint, bool centerPoint)
         {
             var block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(body.Position.X.Whole >> 4)), unchecked((ushort)(y >> 4))));
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||

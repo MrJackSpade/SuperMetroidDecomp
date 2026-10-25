@@ -79,7 +79,7 @@ internal static class GrappleConnectionDefinitions
     };
 
     /// <summary>$9B:C9BA/$C9C4 directional standing/crouching poses after the rope drops.</summary>
-    internal static SamusPoseId DroppedPose(byte direction, bool compact) => direction switch
+    internal static SamusPoseId DroppedPose(int direction, bool compact) => direction switch
     {
         0 => compact ? CrouchingAimUpRightPose : StandingAimUpRightPose,
         1 => compact ? CrouchingAimDiagonalUpRightPose : StandingAimDiagonalUpRightPose,

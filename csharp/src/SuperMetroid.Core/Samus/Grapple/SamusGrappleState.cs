@@ -40,8 +40,8 @@ public sealed class SamusGrappleState
         set => field = Ensure.BetweenInclusive(0, short.MaxValue, value);
     }
 
-    /// <summary>Gets or sets the signed per-update change in rope length.</summary>
-    public short RopeLengthDelta { get; set; }
+    /// <summary>Gets or sets the signed per-update change in rope length, -32768 through 32767.</summary>
+    public int RopeLengthDelta { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
     /// <summary>
     /// The direction the beam was fired in: one of the ten projectile directions, which select the launch velocity,
     /// the hand and flare origins and the connection record. Firing admits only those ten directions.
@@ -69,16 +69,19 @@ public sealed class SamusGrappleState
     public SnesAngle Angle { get; set; }
     /// <summary>Gets or sets the angle mirrored for the connected-swing calculations.</summary>
     public SnesAngle MirroredAngle { get; set; }
-    /// <summary>Gets or sets the signed angular velocity.</summary>
-    public short AngularVelocity { get; set; }
-    /// <summary>Gets or sets the angular acceleration contributed by directional input.</summary>
-    public short DirectionInputAcceleration { get; set; }
-    /// <summary>Gets or sets the angular acceleration contributed by gravity.</summary>
-    public short GravityAcceleration { get; set; }
-    /// <summary>Gets or sets the native angular-velocity correction term.</summary>
-    public short VelocityCorrection { get; set; }
-    /// <summary>Gets or sets the signed vertical impulse applied by a grapple wall jump.</summary>
-    public short JumpImpulse { get; set; }
+    /// <summary>
+    /// Gets or sets the signed angular velocity, -32768 through 32767: the swing clamps every update's sum to that range
+    /// before storing it, and the bounce halves it.
+    /// </summary>
+    public int AngularVelocity { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
+    /// <summary>Gets or sets the angular acceleration contributed by directional input, one of the swing's constants.</summary>
+    public int DirectionInputAcceleration { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
+    /// <summary>Gets or sets the angular acceleration contributed by gravity, one of the swing's constants.</summary>
+    public int GravityAcceleration { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
+    /// <summary>Gets or sets the native angular-velocity correction term, -32768 through 32767.</summary>
+    public int VelocityCorrection { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
+    /// <summary>Gets or sets the signed vertical impulse applied by a grapple wall jump, -32768 through 32767.</summary>
+    public int JumpImpulse { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
     /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
     public WrappingCountdown CollisionBounceTimer { get; set; }
     /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>

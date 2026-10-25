@@ -53,8 +53,8 @@ public sealed class SamusAtmosphericEffectsState
     public void SetSlot(
         int slotIndex,
         SamusAtmosphericEffectType type,
-        byte animationFrame,
-        ushort animationTimer,
+        int animationFrame,
+        int animationTimer,
         Position16<RoomPixels> anchor)
     {
         ValidateSlotIndex(slotIndex);
@@ -88,7 +88,7 @@ public sealed class SamusAtmosphericEffectsState
     public void UpdateAndDraw(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
-        ushort fxYPosition,
+        int fxYPosition,
         InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(sprites);
@@ -179,8 +179,8 @@ public sealed class SamusAtmosphericEffectsState
         SamusAtmosphericEffectType type,
         string frame)
     {
-        short screenX = unchecked((short)(slot.Position.X - drawing.Camera.X - 4));
-        short screenY = unchecked((short)(slot.Position.Y - drawing.Camera.Y - 4));
+        int screenX = unchecked((short)(slot.Position.X - drawing.Camera.X - 4));
+        int screenY = unchecked((short)(slot.Position.Y - drawing.Camera.Y - 4));
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
@@ -200,15 +200,15 @@ public sealed class SamusAtmosphericEffectsState
         int slotIndex,
         string frame)
     {
-        ushort screenX = unchecked((ushort)(slot.Position.X - drawing.Camera.X));
-        ushort screenY = unchecked((ushort)(slot.Position.Y - drawing.Camera.Y));
+        int screenX = unchecked((ushort)(slot.Position.X - drawing.Camera.X));
+        int screenY = unchecked((ushort)(slot.Position.Y - drawing.Camera.Y));
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
         if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
         drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
-            drawing.Frame(frame), new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
+            drawing.Frame(frame), Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
 
     /// <summary>One pass's drawing inputs: the frame, camera and installed sheets.</summary>

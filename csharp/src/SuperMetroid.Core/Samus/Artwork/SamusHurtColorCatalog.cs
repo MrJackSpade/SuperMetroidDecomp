@@ -49,7 +49,7 @@ public sealed class SamusHurtColorCatalog
     }
 
     /// <summary>Gets an independently edited intro shade level or its native default.</summary>
-    private byte IntroLevel(int index) => introLevels.TryGetValue(index, out byte level) ? level : SamusHurtColorDefinitions.DefaultIntroLevel(index);
+    private byte IntroLevel(int index) => introLevels.ContainsKey(index) ? introLevels[index] : SamusHurtColorDefinitions.DefaultIntroLevel(index);
     /// <summary>Gets an edited intro color or derives it from the selected shade level.</summary>
     private Bgr555 Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(new ColourCell(0, index), out Bgr555 value)
         ? value : SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index));

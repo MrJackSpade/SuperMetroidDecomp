@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="Type">The block's collision type.</param>
 /// <param name="Bts">The block's BTS.</param>
 /// <param name="Visual">The words the reveal shows.</param>
-public readonly record struct XrayRevealVisualDefinition(RoomCollisionType Type, byte Bts, XrayRevealVisualWords Visual);
+public readonly record struct XrayRevealVisualDefinition(RoomCollisionType Type, int Bts, XrayRevealVisualWords Visual);

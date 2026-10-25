@@ -13,9 +13,9 @@ internal sealed class SamusSpritePartYJsonConverter : JsonConverter<SnesSpritema
     [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesSpritemapYByte Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetByte(out byte y))
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int y) || y is < 0 or > byte.MaxValue)
             throw new JsonException("A Samus sprite part's Y byte must be a number from 0 through 255.");
-        return new SnesSpritemapYByte(y);
+        return new SnesSpritemapYByte((byte)y);
     }
 
     /// <summary>Writes the encoded Y byte as the document's numeric value.</summary>

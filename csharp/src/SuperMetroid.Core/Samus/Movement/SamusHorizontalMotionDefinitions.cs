@@ -65,7 +65,7 @@ internal static class SamusHorizontalMotionDefinitions
         }
         bool air = row < AirRecordCount;
         bool water = false;
-        ushort decelerationFraction;
+        int decelerationFraction;
         if (air)
         {
             decelerationFraction = 0x8000;
@@ -75,7 +75,7 @@ internal static class SamusHorizontalMotionDefinitions
             row -= AirRecordCount;
             water = row < LiquidRecordCount;
             if (!water) row -= LiquidRecordCount;
-            decelerationFraction = water ? (ushort)0x0800 : (ushort)0x4000;
+            decelerationFraction = water ? 0x0800 : 0x4000;
         }
         SamusMovementType movement = RecordOrder[row];
         uint maximum = movement switch

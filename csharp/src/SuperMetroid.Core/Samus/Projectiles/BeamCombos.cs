@@ -134,23 +134,23 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return outward ? null : Library1Sound.IceSpecialAttackEnd;
         }
-        ushort oldTimer = slot.TrailTimer.RawValue;
+        int oldTimer = slot.TrailTimer.RawValue;
         slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
-        ushort distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : (ushort)32;
-        var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(checked(new SnesByteAngle(unchecked((byte)((ushort)slot.Variable)))), distance);
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(samus.Position.X.Whole + x)));
+        int distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : 32;
+        Offset16<RoomPixels> orbit = SamusComboMechanicsDefinitions.GetSineOffset(checked(new SnesByteAngle(unchecked((byte)((ushort)slot.Variable)))), distance);
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(samus.Position.X.Whole + orbit.X)));
         if (outward && (unchecked((short)(slot.Position.X.Whole - camera.X + 32)) < 0 ||
                         unchecked((short)(slot.Position.X.Whole - camera.X - 288)) >= 0))
         {
             _animation.ClearProjectile(slot);
             return null;
         }
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + y)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + orbit.Y)));
         if (outward && (unchecked((short)(slot.Position.Y.Whole - camera.Y - 16)) < 0 ||
                         unchecked((short)(slot.Position.Y.Whole - camera.Y - 256)) >= 0))
         {
@@ -163,7 +163,7 @@ internal sealed class BeamCombos
             slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue + 8))));
         else
         {
-            short oldLifetime = slot.Velocity.Y.SignedRawValue;
+            int oldLifetime = slot.Velocity.Y.SignedRawValue;
             slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(oldLifetime - 1))));
             if (oldLifetime == 1)
             {
@@ -189,9 +189,9 @@ internal sealed class BeamCombos
         }
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
-        var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
+        Offset16<RoomPixels> orbit = SamusComboMechanicsDefinitions.GetSineOffset(
             checked(new SnesByteAngle(unchecked((byte)((ushort)slot.Variable)))), unchecked((ushort)slot.Velocity.X.SignedRawValue));
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(x + samus.Position.X.Whole)), unchecked((ushort)(y + samus.Position.Y.Whole))));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(orbit.X + samus.Position.X.Whole)), unchecked((ushort)(orbit.Y + samus.Position.Y.Whole))));
         slot.Variable = unchecked((byte)(slot.Variable + ComboState));
         switch (slot.Velocity.Y.SignedRawValue)
         {
@@ -227,14 +227,14 @@ internal sealed class BeamCombos
         SamusOverreadCatalog? overreads,
         SamusProjectileSlot slot)
     {
-        ushort inheritedY = slot.Sprite is null
+        int inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusFiringTableDefinitions.InitialSpeedRowBytes))
             : unchecked((ushort)((overreads ?? throw new InvalidOperationException(
                 "The SpaceTime palette copy needs the installed Samus overread catalog.")).ProjectileLists.Position(slot.Cursor) -
                 SamusProjectileListLayout.TimedRecordByteCount));
-        ushort x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
-        ushort y = unchecked((ushort)(inheritedY + sizeof(ushort)));
+        int x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
+        int y = unchecked((ushort)(inheritedY + sizeof(ushort)));
         while (unchecked((short)(y - SpacetimeBeamCopyDefinitions.PaletteByteCount)) < 0)
         {
             new SpacetimeBeamCorruptionMemory(
@@ -248,7 +248,7 @@ internal sealed class BeamCombos
     }
     /// <summary>Runs $90:DB06/$DC9C, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared, ushort cameraY)
+        SamusProjectileSlot slot, SamusBombProjectileSystem shared, int cameraY)
     {
         bool falling = slot.PreInstruction == SamusProjectilePreInstruction.SpazerComboFalling;
         if (!falling && slot.PreInstruction != SamusProjectilePreInstruction.SpazerCombo)
@@ -260,7 +260,7 @@ internal sealed class BeamCombos
             if (!falling) _animation.ClearProjectile(_slotTable.Slots[partner]);
             return null;
         }
-        ushort previousTimer = slot.TrailTimer.RawValue;
+        int previousTimer = slot.TrailTimer.RawValue;
         slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(previousTimer - 1)));
         if (previousTimer == 1)
         {
@@ -278,9 +278,9 @@ internal sealed class BeamCombos
         }
         else
         {
-            var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
+            Offset16<RoomPixels> orbit = SamusComboMechanicsDefinitions.GetSineOffset(
                 checked(new SnesByteAngle(unchecked((byte)((ushort)slot.Variable)))), unchecked((ushort)slot.Velocity.X.SignedRawValue));
-            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + x)), unchecked((ushort)(samus.Position.Y.Whole + y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)))));
+            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + orbit.X)), unchecked((ushort)(samus.Position.Y.Whole + orbit.Y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)))));
             switch (slot.AuxiliaryPhase)
             {
                 case SpazerComboPhase.Circling:
@@ -365,8 +365,8 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        short oldXSpeed = slot.Velocity.X.SignedRawValue;
-        ushort oldTimer = slot.TrailTimer.RawValue;
+        int oldXSpeed = slot.Velocity.X.SignedRawValue;
+        int oldTimer = slot.TrailTimer.RawValue;
         slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
@@ -376,7 +376,7 @@ internal sealed class BeamCombos
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));
         uint x = unchecked(new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(SnesSixteenSixteen.FromEightEight(slot.Velocity.X.SignedRawValue)));
         slot.Position = slot.Position.WithWholeX(SnesFixedPosition.WholeOf(unchecked((int)x))).WithFractionX(unchecked((ushort)x));
-        short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
+        int ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
         slot.Variable = unchecked((ushort)ySpeed);
         uint y = unchecked(new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(SnesSixteenSixteen.FromEightEight(ySpeed)));
         slot.Position = slot.Position.WithWholeY(SnesFixedPosition.WholeOf(unchecked((int)y))).WithFractionY(unchecked((ushort)y));
@@ -386,7 +386,7 @@ internal sealed class BeamCombos
     }
 
     /// <summary>Moves one Wave velocity component toward Samus, respecting the native acceleration and signed speed bound.</summary>
-    private static short AccelerateWaveAxis(short speed, short targetDelta)
+    private static short AccelerateWaveAxis(int speed, int targetDelta)
     {
         if (targetDelta < 0)
             return unchecked((short)(speed + BeamComboDefinitions.WaveSpeedLimit - 1)) >= 0 ?

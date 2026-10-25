@@ -10,7 +10,7 @@ public static class SamusEnergyRestoration
     /// only the excess into reserves, and enable auto reserve only from disabled mode.
     /// Gunship and crystal-flash restoration both call this native routine.
     /// </summary>
-    public static void Restore(SamusState samus, ushort amount)
+    public static void Restore(SamusState samus, int amount)
     {
         Ensure.NotNull(samus);
         int restored = samus.Health + amount;

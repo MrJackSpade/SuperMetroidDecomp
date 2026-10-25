@@ -1738,7 +1738,7 @@ floor, walker, nmiFrameCounter: 0);
         SamusPoseMetadata.RefreshCollisionRadii(turn);
         turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
-        byte sourceMuzzleDirection = SamusPoseMetadata.ReadShotDirection(turn);
+        int sourceMuzzleDirection = SamusPoseMetadata.ReadShotDirection(turn);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
         AssertEqual((ushort)(SamusShotDirectionHandoff.MoonwalkTag | sourceMuzzleDirection),
             turn.PoseTransitionShotDirection, "all six Moonwalk jump routes publish their original muzzle direction");

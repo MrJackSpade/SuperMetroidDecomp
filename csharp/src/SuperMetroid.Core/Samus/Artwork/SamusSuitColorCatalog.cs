@@ -50,7 +50,7 @@ public sealed class SamusSuitColorCatalog
     /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
     /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
     /// <returns>The selected packed SNES RGB555 word.</returns>
-    public Bgr555 Resolve(ushort suitTableOffset, int colorIndex)
+    public Bgr555 Resolve(int suitTableOffset, int colorIndex)
     {
         Dictionary<ColourCell, Bgr555>? differences = suitTableOffset switch
         {
@@ -66,7 +66,7 @@ public sealed class SamusSuitColorCatalog
     }
 
     /// <summary>Writes only Samus's sixteen OBJ colors; no equipment or phase state changes.</summary>
-    public void Apply(ColourRun suit, ushort suitTableOffset)
+    public void Apply(ColourRun suit, int suitTableOffset)
     {
         for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
             suit.Write(index,

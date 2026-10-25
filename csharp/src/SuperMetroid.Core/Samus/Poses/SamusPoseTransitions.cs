@@ -103,12 +103,12 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(samus, wasSpinning, controllerInput);
 
-        ushort oldRadius = samus.Kinematics.Radius.Y;
+        int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y > oldRadius)
         {
-            ushort difference = unchecked((ushort)(samus.Kinematics.Radius.Y - oldRadius));
+            int difference = unchecked((ushort)(samus.Kinematics.Radius.Y - oldRadius));
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, unchecked((short)difference));
         }
 
@@ -217,7 +217,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             SamusMovementDefinitions.Poses.NoShotDirection => facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose,
             // Directions four/five are consumed by TryApplyCompactAerialLanding,
             // because the 10 -> 21 expansion needs room collision data.
-            byte shotDirection => throw new InvalidOperationException(
+            int shotDirection => throw new InvalidOperationException(
                 $"Landing from shot direction ${shotDirection:X2} requires the collision-aware compact landing operation."),
         };
     }
@@ -261,7 +261,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         {
             4 => SamusPoseId.NormalLandingRightPose,
             5 => SamusPoseId.NormalLandingLeftPose,
-            byte shotDirection => throw new InvalidOperationException(
+            int shotDirection => throw new InvalidOperationException(
                 $"Compact pose {samus.Pose} has unexpected shot direction ${shotDirection:X2}."),
         };
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(

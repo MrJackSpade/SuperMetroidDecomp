@@ -203,17 +203,18 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The three bounds Kraid's mouth and body collision passes compare shots against. Between shots the damage and
     /// dud paths overwrite them with the shot's type, the vulnerability table and the dud sprite's index, and the next
     /// shot's wrapped signed comparisons read those leftovers: a Super Missile's type moves the next shot's mouth
-    /// bound, which doubles close-range damage. Each bound therefore stays a sixteen-bit wrapping value that can hold
-    /// any of those leftovers.
+    /// bound, which doubles close-range damage. Each bound therefore holds any of those leftovers as a value in 0
+    /// through 65535: every store is a wrapped room coordinate or one of those words, and every comparison takes the
+    /// signed sixteen-bit difference.
     /// </summary>
     internal struct KraidCollisionScratch
     {
-        /// <summary>Lower vertical mouth bound in wrapped room coordinates, or the leftover the damage path stored over it.</summary>
-        public ushort Bottom; // cartridge-encoding: allow(Aliasing) - also receives the previous shot's type and the dud sprite index, and the next shot's signed compare reads that leftover
-        /// <summary>Upper vertical mouth bound in wrapped room coordinates, or the leftover the damage path stored over it.</summary>
-        public ushort Top; // cartridge-encoding: allow(Aliasing) - also receives the vulnerability table and the dud sprite's Y, and the next shot's signed compare reads that leftover
-        /// <summary>Left horizontal mouth bound in wrapped room coordinates, or the leftover the dud path stored over it.</summary>
-        public ushort Left; // cartridge-encoding: allow(Aliasing) - also receives the dud sprite's kind, and the next shot's signed compare reads that leftover
+        /// <summary>Lower vertical mouth bound in wrapped room coordinates, or the previous shot's type or dud sprite index the damage path stored over it.</summary>
+        public int Bottom;
+        /// <summary>Upper vertical mouth bound in wrapped room coordinates, or the vulnerability table or dud sprite's Y the damage path stored over it.</summary>
+        public int Top;
+        /// <summary>Left horizontal mouth bound in wrapped room coordinates, or the dud sprite's kind the dud path stored over it.</summary>
+        public int Left;
 
         /// <summary>Tests the mouth using native signed results of wrapped coordinate subtraction.</summary>
         public readonly bool OverlapsMouth(KraidCollisionShot shot) =>
@@ -229,7 +230,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     unchecked((short)(shot.Position.X + shot.Radius.X - Left)) >= 0;
 
             Bottom = unchecked((ushort)(shot.Position.X + shot.Radius.X));
-            short relativeY = unchecked((short)(shot.Position.Y - body.Position.Y.Whole));
+            int relativeY = unchecked((short)(shot.Position.Y - body.Position.Y.Whole));
             return unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - Bottom)) < 0;
         }
     }
@@ -237,7 +238,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunKraidCombatFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
-        ushort cameraX)
+        int cameraX)
     {
         switch (state.Parts[body.SlotIndex].Function)
         {

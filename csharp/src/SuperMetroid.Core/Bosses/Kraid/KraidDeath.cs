@@ -78,7 +78,7 @@ internal sealed class KraidDeath
     internal void RunKraidDeathFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
-        ushort cameraX)
+        int cameraX)
     {
         switch (state.Parts[body.SlotIndex].Function)
         {
@@ -217,7 +217,7 @@ internal sealed class KraidDeath
     /// Ports the shared body of <c>$A7:C843</c>/<c>$A7:C851</c>: a living Kraid, or a dead
     /// one whose camera has left the room's left edge, gets <c>SetEnemyPropertiesToDead</c>.
     /// </summary>
-    private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, ushort cameraX)
+    private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, int cameraX)
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && cameraX == 0)
             return;
@@ -307,7 +307,7 @@ internal sealed class KraidDeath
             if (KraidPlmDefinitions.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
-                _ = _background.SpawnKraidCeilingRock((ushort)(request.Block.X * 16));
+                _ = _background.SpawnKraidCeilingRock(request.Block.X * 16);
                 _frameResults.KraidPlms.Add(request);
             }
             return;

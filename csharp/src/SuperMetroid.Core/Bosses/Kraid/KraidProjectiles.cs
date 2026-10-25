@@ -148,7 +148,7 @@ internal sealed class KraidProjectiles
     {
         if (lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) || !samus.InvincibilityTimer.IsZero)
             return;
-        ushort edge = unchecked((ushort)(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge));
+        int edge = unchecked((ushort)(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge));
         if (unchecked((short)(samus.Position.X.Whole + samus.Kinematics.Radius.X - edge)) < 0 ||
             unchecked((short)(samus.Position.X.Whole - samus.Kinematics.Radius.X - edge)) >= 0 ||
             unchecked((short)(samus.Position.Y.Whole + samus.Kinematics.Radius.Y -
@@ -156,7 +156,7 @@ internal sealed class KraidProjectiles
             unchecked((short)(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
                 lint.Position.Y.Whole - KraidContactDefinitions.LintBottom)) >= 0)
             return;
-        ushort push = unchecked((ushort)(~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
+        int push = unchecked((ushort)(~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
             samus.Kinematics.ExtraDisplacement.X.WholePixels));
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(unchecked((short)(
             unchecked((short)(push - KraidContactDefinitions.LintPush)) < 0 ? push : KraidContactDefinitions.LintPush)));
@@ -312,7 +312,7 @@ internal sealed class KraidProjectiles
     internal bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
         RoomEnemySlot body = _slotTable.Slots[0];
-        ushort contourX = unchecked((ushort)(
+        int contourX = unchecked((ushort)(
             body.Position.X.Whole + KraidNailContourDefinitions.LeftOffset(
                 unchecked((ushort)(nail.Position.Y.Whole - body.Position.Y.Whole)))));
         return unchecked((short)(nail.Position.X.Whole + nail.Radius.X - contourX)) >= 0 &&
@@ -467,10 +467,10 @@ internal sealed class KraidProjectiles
         {
             SnesSignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
                 SnesSignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
-            short whole = carry.WholePixels;
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels(
+            int whole = carry.WholePixels;
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels((short)(
                 unchecked((short)(whole - KraidPlatformMovement.MinimumCarryWholePixels)) < 0
-                    ? (short)KraidPlatformMovement.MinimumCarryWholePixels : whole));
+                    ? KraidPlatformMovement.MinimumCarryWholePixels : whole)));
         }
     }
 
@@ -496,7 +496,7 @@ internal sealed class KraidProjectiles
             return;
         }
 
-        short horizontal = unchecked((short)(rock.Velocity.X.RawValue + 8));
+        int horizontal = unchecked((short)(rock.Velocity.X.RawValue + 8));
         if (horizontal >= 256)
             horizontal = -256;
         rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)horizontal)));

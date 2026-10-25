@@ -18,7 +18,8 @@ public static class KraidBodyContour
     /// Remaining inputs select the first inclusive top boundary. Preserve this
     /// wrapped-sign test, rather than replacing it with ordered signed comparison.
     /// </remarks>
-    public static short LeftEdge(short relativeY) => relativeY switch
+    /// <param name="relativeY">The signed vertical distance from Kraid's body, -32768 through 32767.</param>
+    public static short LeftEdge(int relativeY) => relativeY switch
     {
         <= short.MinValue + FirstBottomBoundary - 1 => -48,
         >= 0 => -48,

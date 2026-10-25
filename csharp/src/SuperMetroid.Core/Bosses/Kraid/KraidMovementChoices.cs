@@ -37,7 +37,7 @@ public static class KraidMovementChoices
     /// third branch at the leftmost, middle and right positions. Independently checked
     /// against all native pairs and both complete selector domains for #1165.
     /// </remarks>
-    public static KraidMovementChoice Select(ushort position, int random)
+    public static KraidMovementChoice Select(int position, int random)
     {
         // The $A7:BA7D record search ends on the starting row for every unlisted position.
         Destination row = Destination.Records.FirstOrDefault(record => record.X == position) ?? Destination.Starting;
@@ -53,9 +53,9 @@ public static class KraidMovementChoices
                 : row == Destination.Middle || row == Destination.Right ? Destination.Leftmost : Destination.Middle,
             _ => row == Destination.Right ? Destination.Middle : Destination.Right,
         };
-        ushort timer = choice switch
+        int timer = choice switch
         {
-            0 => row == Destination.Left ? (ushort)344 : (ushort)256,
+            0 => row == Destination.Left ? 344 : 256,
             1 => 344,
             2 when row == Destination.Leftmost || row == Destination.Middle || row == Destination.Right => 344,
             _ => 44,

@@ -169,7 +169,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Keeps the arm aligned to the body and advances its animation.</summary>
-    internal void RunKraidArmMain(RoomEnemySlot arm, ushort cameraY)
+    internal void RunKraidArmMain(RoomEnemySlot arm, int cameraY)
     {
         KraidEnemyState state = _access.RequireKraidState(arm);
         RoomEnemySlot body = _slotTable.Slots[0];
@@ -190,7 +190,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Dispatches the foot's lunge, retreat, and grown-form walking functions.</summary>
-    internal void RunKraidFootMain(RoomEnemySlot foot, ushort cameraY)
+    internal void RunKraidFootMain(RoomEnemySlot foot, int cameraY)
     {
         KraidEnemyState state = _access.RequireKraidState(foot);
         RoomEnemySlot body = _slotTable.Slots[0];
@@ -404,7 +404,7 @@ internal sealed class KraidLimbs
             return;
 
         (int targetX, int thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
-        SetKraidWalking(foot, part, checked((ushort)targetX), checked((ushort)thinkTimer), rightward: unchecked((short)(targetX - body.Position.X.Whole)) >= 0);
+        SetKraidWalking(foot, part, targetX, thinkTimer, rightward: unchecked((short)(targetX - body.Position.X.Whole)) >= 0);
     }
 
     /// <summary>
@@ -414,11 +414,11 @@ internal sealed class KraidLimbs
     private void SetKraidWalking(
         RoomEnemySlot foot,
         KraidPartState part,
-        ushort targetX,
-        ushort thinkTimer,
+        int targetX,
+        int thinkTimer,
         bool rightward)
     {
-        _access.RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
+        _access.RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(checked((ushort)targetX), 0);
         part.ThinkTimer = WrappingCountdown.FromRaw(thinkTimer);
         _access.Part(foot).Function = rightward ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft;
         _access.StartKraidPartProgram(foot, rightward ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward);

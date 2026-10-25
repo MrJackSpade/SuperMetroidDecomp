@@ -51,7 +51,7 @@ internal static class KraidNailContourDefinitions
     }
 
     /// <summary>Returns the native selected left offset for a wrapped nail-minus-body Y word.</summary>
-    public static ushort LeftOffset(ushort relativeY)
+    public static ushort LeftOffset(int relativeY)
     {
         for (int record = 0; record < RecordCount; record++)
             if (unchecked((short)(TopAt(record) - relativeY)) < 0)

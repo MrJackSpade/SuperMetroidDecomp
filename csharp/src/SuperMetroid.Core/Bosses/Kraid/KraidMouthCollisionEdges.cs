@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="Left">The left edge, in room pixels.</param>
 /// <param name="Top">The top edge, in room pixels.</param>
 /// <param name="Bottom">The bottom edge, in room pixels.</param>
-public readonly record struct KraidMouthCollisionEdges(short Left, short Top, short Bottom);
+public readonly record struct KraidMouthCollisionEdges(int Left, int Top, int Bottom);

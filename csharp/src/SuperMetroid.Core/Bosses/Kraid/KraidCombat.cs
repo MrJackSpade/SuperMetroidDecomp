@@ -56,7 +56,7 @@ internal sealed class KraidCombat
                 // then returns to the multibox walker that has already installed direction bit `$10`. `$94B5` is the
                 // adjacent literal RTL used by protected arm frames and every foot rectangle.
                 if (c.SelectedShotAi == EnemyInteractionCallback.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole);
+                    SpawnKraidArmShotExplosion(c.Bomb.PackedType, c.Bomb.Position.Whole);
             });
     }
 
@@ -82,7 +82,7 @@ internal sealed class KraidCombat
 
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 if (c.HitboxShotAi == EnemyInteractionCallback.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.ProjectileType.Raw, c.Projectile.Position.Whole);
+                    SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
                 return true;
             },
         });
@@ -115,11 +115,11 @@ internal sealed class KraidCombat
     /// shared room-graphics projectile allocator and queues sound-library-one effect `$3D`.
     /// </summary>
     private void SpawnKraidArmShotExplosion(
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         Position16<RoomPixels> position)
     {
         // Family bit 1 ($0200) is set for super missiles and power bombs.
-        MiscDustAnimation animationIndex = (projectileType & 512) != 0
+        MiscDustAnimation animationIndex = (projectileType.Raw & 512) != 0
             ? MiscDustAnimation.BigExplosion
             : MiscDustAnimation.DudShotTinyExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex);
@@ -234,7 +234,7 @@ internal sealed class KraidCombat
                 KraidBehavior.KraidCollisionShot shot = shots.Read(index);
                 if (!scratch.OverlapsBody(body, shot))
                     continue;
-                SpawnKraidArmShotExplosion(shot.Type.Raw, shot.Position);
+                SpawnKraidArmShotExplosion(shot.Type, shot.Position);
                 scratch.Bottom = shot.Position.X;
                 scratch.Top = shot.Position.Y;
                 shots.MarkCollision(index);
@@ -264,12 +264,11 @@ internal sealed class KraidCombat
     internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(
         RoomEnemySlot body, KraidMouthCollisionEdges shape)
     {
-        (short left, short top, short bottom) = shape;
         return new()
         {
-            Left = unchecked((ushort)(body.Position.X.Whole + left)),
-            Top = unchecked((ushort)(body.Position.Y.Whole + top)),
-            Bottom = unchecked((ushort)(body.Position.Y.Whole + bottom)),
+            Left = unchecked((ushort)(body.Position.X.Whole + shape.Left)),
+            Top = unchecked((ushort)(body.Position.Y.Whole + shape.Top)),
+            Bottom = unchecked((ushort)(body.Position.Y.Whole + shape.Bottom)),
         };
     }
 
@@ -296,7 +295,7 @@ internal sealed class KraidCombat
     {
         if (state.Parts[body.SlotIndex].Function >= KraidAiFunction.DeathInitialize)
             return;
-        short relativeY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
+        int relativeY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
         if (unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
             samus.Position.X.Whole - samus.Kinematics.Radius.X)) >= 0)
             return;

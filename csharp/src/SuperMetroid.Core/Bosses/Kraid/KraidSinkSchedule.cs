@@ -8,7 +8,7 @@ internal static class KraidSinkSchedule
     /// apart, terminated by FFFF. Six rows crumble platforms; the remaining rows
     /// invoke the distinct empty RTS. Tilemap offsets are presentation data.
     /// </summary>
-    public static KraidSinkCallback? CallbackAt(ushort y)
+    public static KraidSinkCallback? CallbackAt(int y)
     {
         if (y < 304 || y > 520 || (y & 7) != 0)
             return null;

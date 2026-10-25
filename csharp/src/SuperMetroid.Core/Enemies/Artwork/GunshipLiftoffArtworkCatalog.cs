@@ -31,11 +31,11 @@ public sealed class GunshipLiftoffArtworkCatalog
     /// <summary>Returns the current editable characters for a typed pending VRAM transfer.</summary>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {
-        int index = (int)asset - (int)VramAssetId.GunshipLiftoffFirstTiles;
-        if ((uint)index >= (uint)frames.Length ||
-            GunshipLiftoffTransferDefinitions.Frames[index].Asset != asset)
-            throw new ArgumentOutOfRangeException(nameof(asset), asset,
-                "Not a gunship takeoff transfer.");
-        return frames[index].Characters;
+        for (int index = 0; index < frames.Length; index++)
+        {
+            if (GunshipLiftoffTransferDefinitions.Frames[index].Asset == asset)
+                return frames[index].Characters;
+        }
+        throw new ArgumentOutOfRangeException(nameof(asset), asset, "Not a gunship takeoff transfer.");
     }
 }

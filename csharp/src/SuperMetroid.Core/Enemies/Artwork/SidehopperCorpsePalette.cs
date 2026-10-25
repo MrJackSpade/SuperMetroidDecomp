@@ -33,24 +33,12 @@ internal sealed class SidehopperCorpsePalette
         Bgr555 endpoint = Count == 16 ? colors[15] : Bgr555.Black;
         if (Count == 15)
         {
-            // Intersect the exact integer intervals admitted by each rounded
-            // sample. Ambiguous or incompatible independent content stays raw.
-            Span<int> endpointChannels = stackalloc int[3];
-            foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())
-            {
-                int start = colors[8][channel];
-                int lower = 0, upper = 31;
-                for (int phase = 1; phase < Count - 8; phase++)
-                {
-                    int sample = colors[8 + phase][channel];
-                    int numerator = sample * 7 - start * (7 - phase) - 3;
-                    lower = Math.Max(lower, (int)Math.Ceiling((double)numerator / phase));
-                    upper = Math.Min(upper, (int)Math.Floor((double)(numerator + 6) / phase));
-                }
-                if (lower != upper) return;
-                endpointChannels[(int)channel] = lower;
-            }
-            endpoint = new(endpointChannels[0], endpointChannels[1], endpointChannels[2]);
+            // Ambiguous or incompatible independent content stays raw.
+            if (EndpointChannel(colors, ColorChannel.Red) is not { } red ||
+                EndpointChannel(colors, ColorChannel.Green) is not { } green ||
+                EndpointChannel(colors, ColorChannel.Blue) is not { } blue)
+                return;
+            endpoint = new(red, green, blue);
         }
         for (int color = 8; color < Count; color++)
             if (Interpolate(colors[8], endpoint, color - 8) != colors[color]) return;
@@ -59,6 +47,24 @@ internal sealed class SidehopperCorpsePalette
         colors.AsSpan(6, 3).CopyTo(independentOrSupplied.AsSpan(5));
         independentOrSupplied[8] = endpoint;
         calculated = true;
+    }
+
+    /// <summary>
+    /// The one endpoint channel value every rounded sample of the fifteen-colour gradient admits, found by intersecting
+    /// the exact integer intervals each sample allows, or null when the samples admit none or several.
+    /// </summary>
+    private static int? EndpointChannel(Bgr555[] colors, ColorChannel channel)
+    {
+        int start = colors[8][channel];
+        int lower = 0, upper = 31;
+        for (int phase = 1; phase < colors.Length - 8; phase++)
+        {
+            int sample = colors[8 + phase][channel];
+            int numerator = sample * 7 - start * (7 - phase) - 3;
+            lower = Math.Max(lower, (int)Math.Ceiling((double)numerator / phase));
+            upper = Math.Min(upper, (int)Math.Floor((double)(numerator + 6) / phase));
+        }
+        return lower == upper ? lower : null;
     }
 
     /// <summary>Resolves a stock, independently supplied, or reconstructed corpse palette color.</summary>

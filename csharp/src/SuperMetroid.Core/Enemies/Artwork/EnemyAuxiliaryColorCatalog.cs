@@ -9,10 +9,11 @@ public sealed class EnemyAuxiliaryColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
         {
             Span<Bgr555> row = stackalloc Bgr555[16];
-            foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
+            for (int tag = 0; tag < EnemyAuxiliaryColorDefinitions.All.Length; tag++)
             {
-                PaletteRows rows = RowsFor(definition.Id);
-                content.Append("palette", (int)definition.Id);
+                // Each palette is tagged by its place in the definitions' face-block, corpse, body and belly order.
+                PaletteRows rows = RowsFor(EnemyAuxiliaryColorDefinitions.All[tag].Id);
+                content.Append("palette", tag);
                 content.Append("frames", rows.FrameCount);
                 for (int frame = 0; frame < rows.FrameCount; frame++)
                 {

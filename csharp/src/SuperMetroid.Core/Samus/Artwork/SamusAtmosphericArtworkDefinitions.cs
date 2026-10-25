@@ -20,12 +20,12 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// original attribute words are covered; independent tile pixels, RGB colors and timing are not exempt.</remarks>
     internal const int Priority = 2;
 
-    /// <summary>Builds one native OBJ attribute word from a bounded footstep or lava/dust frame, retaining palette and priority routing.</summary>
-    internal static ushort Attributes(bool footstep, int frame)
+    /// <summary>The native appearance of a bounded footstep or lava/dust frame, retaining palette and priority routing.</summary>
+    internal static SpritePart Attributes(bool footstep, int frame)
     {
         if ((uint)frame >= SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        return SnesObjAttributeWord.Create((footstep ? FootstepFirstTile : LavaDustFirstTile) + frame,
-            Palette, Priority).Raw;
+        return SpritePart.Single((footstep ? FootstepFirstTile : LavaDustFirstTile) + frame,
+            Palette, Priority);
     }
 }

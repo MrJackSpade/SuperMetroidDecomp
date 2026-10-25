@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -32,10 +33,10 @@ internal static class SamusBodyTransferDefinitions
                 int mapIndex = baseIndex + phase;
                 if ((uint)mapIndex >= SamusSpritemapArtworkCatalog.PointerCount ||
                     !body.Spritemaps.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
-                foreach (SamusSpritePart part in map.Parts)
+                foreach (SpritePart part in map.Parts)
                 {
-                    int tile = part.Attributes.TileNumber - (upper ? 0 : 8);
-                    int width = part.X.IsLarge ? LargeObjTilesAcross : 1;
+                    int tile = part.Character - (upper ? 0 : 8);
+                    int width = part.Large ? LargeObjTilesAcross : 1;
                     for (int x = 0; x < width; x++)
                         if ((uint)(tile + x) < 8) firstTiles = Math.Max(firstTiles, tile + x + 1);
                 }

@@ -82,8 +82,8 @@ public static class ProjectileSpritePartDefinitions
         int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
         var flips = (phase is >= 3 and <= 5 ? TileFlip.Horizontal : 0) |
             (phase >= 4 ? TileFlip.Vertical : 0);
-        return new(SnesSpritemapXWord.Create(-8 / 2, false), SnesSpritemapYByte.Create(-8 / 2),
-            SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
+        return new(SpritePart.Create(-8 / 2, -8 / 2, false,
+            tile, PowerPalette, PowerPriority, flips), false);
     }
 
     /// <summary>$93:EC43/EDA3: charged Power/Ice use independently selected OBJ glyphs $33/$34, sharing palette6/priority2 with the single-tile beam.</summary>
@@ -143,8 +143,8 @@ public static class ProjectileSpritePartDefinitions
             y += lobeDirection.Y * distance;
             tile += (step + 1) / 2;
         }
-        return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-            SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, 0), false);
+        return new(SpritePart.Create(x, y, false,
+            tile, PowerPalette, PowerPriority, 0), false);
     }
 
     /// <summary>Recognizes charged Wave or IceWave vertical compositions: two cores, then eight paired-lobe phases.</summary>

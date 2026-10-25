@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Grapple;
@@ -78,10 +79,8 @@ public static class GrappleBeamDefinitions
         public const ushort SegmentAnimationDelay = 5;
         /// <summary>$94:B18B-B197: four successive rope animation records before the goto.</summary>
         public const int SegmentAnimationFrameCount = 4;
-        /// <summary>$94:B18D: first rope character with palette five and priority three.</summary>
-        public const ushort FirstSegmentAttributes = 0x3a21;
-        /// <summary>$94:B13C/B17C, DrawGrappleBeamEnd: endpoint tile with palette five and priority three.</summary>
-        public const ushort EndpointAttributes = 0x3a20;
+        /// <summary>$94:B13C/B17C, DrawGrappleBeamEnd: the endpoint is character $20 in palette five, priority three.</summary>
+        public static SpritePart Endpoint { get; } = SpritePart.Single(0x20, 5, 3);
     }
 
 }

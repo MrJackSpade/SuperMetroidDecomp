@@ -1,15 +1,16 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Immutable small-OBJ appearance keyed by native trail frame; no timing or movement fields.</summary>
+/// <summary>Immutable single-piece appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class ProjectileTrailCatalog
 {
-    /// <summary>Only authored OBJ attribute words differing from the shared native tile progressions.</summary>
-    internal readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> suppliedAttributes = [];
+    /// <summary>Only authored appearances differing from the shared native tile progressions.</summary>
+    internal readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> suppliedAttributes = [];
     /// <summary>Copies the frame appearances that differ from the shared native tile progressions.</summary>
-    private ProjectileTrailCatalog(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> attributes)
+    private ProjectileTrailCatalog(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes)
     {
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
@@ -26,16 +27,16 @@ public sealed class ProjectileTrailCatalog
     private const int MissileFirstTile = 0x48;
 
     /// <summary>
-    /// Shared tile progression and OBJ fields. Ice's independently chosen pose boundaries
+    /// Shared character progression, palette and priority. Ice's independently chosen pose boundaries
     /// at records4,8,16 remain pending source payload; no timing derivation is claimed.
     /// </summary>
-    private static ushort DefaultAttributes(int index)
+    private static SpritePart DefaultAttributes(int index)
     {
         bool ice = index < 34;
         int phase = ice ? index % 17 : (index - 34) % 4;
         if (ice) phase = phase < 4 ? 0 : phase < 8 ? 1 : phase < 16 ? 2 : 3;
         int firstTile = ice ? IceFirstTile : index < 38 ? WaveFirstTile : MissileFirstTile;
-        return SnesObjAttributeWord.Create(firstTile + phase, ice ? 6 : 5, 2, TileFlip.None).Raw;
+        return SpritePart.Single(firstTile + phase, ice ? 6 : 5, 2);
     }
     /// <summary>Uses stable camel-case output and rejects unknown appearance properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -44,11 +45,11 @@ public sealed class ProjectileTrailCatalog
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-    /// <summary>Resolves one trail frame to its selected small-OBJ tile and attribute word.</summary>
+    /// <summary>Resolves one trail frame to its selected single-piece appearance.</summary>
     /// <param name="frame">The trail frame, among the 42 left/right ice, wave and missile poses.</param>
-    /// <returns>The complete nine-bit character number, palette, priority and reflection flags packed in native OBJ attribute form.</returns>
+    /// <returns>The character, palette, priority and mirroring.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
-    public ushort Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame)
+    public SpritePart Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame)
     {
         if (suppliedAttributes.ContainsKey(frame)) return suppliedAttributes[frame];
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
@@ -56,7 +57,7 @@ public sealed class ProjectileTrailCatalog
         throw new InvalidDataException($"Missing trail frame {frame}.");
     }
 
-    /// <summary>Validates every native trail-frame appearance and compiles independent OBJ attributes, retaining only differences from the default appearances.</summary>
+    /// <summary>Validates every native trail-frame appearance, retaining only differences from the default appearances.</summary>
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
     /// <returns>An immutable appearance catalog that does not retain the document's mutable frame dictionary.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -75,7 +76,7 @@ public sealed class ProjectileTrailCatalog
         if (document.Version != ProjectileTrailVisualDefinitions.Version || document.Frames is null ||
             document.Frames.Count != ProjectileTrailVisualDefinitions.FrameCount)
             throw new InvalidDataException("Trail document requires every native frame and version 1.");
-        var attributes = new Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort>();
+        var attributes = new Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart>();
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
             var frame = ProjectileTrailVisualDefinitions.Frames[index];
@@ -84,8 +85,8 @@ public sealed class ProjectileTrailCatalog
                 (uint)p.TileColumn >= ProjectileSpriteDefinitions.TileColumns || (uint)p.TileRow >= ProjectileSpriteDefinitions.TileRows ||
                 (uint)p.Palette > 7 || (uint)p.Priority > 3)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
-            attributes.Add(frame, SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                p.Palette, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0)).Raw);
+            attributes.Add(frame, SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
+                p.Palette, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0)));
         }
         return new(attributes);
     }

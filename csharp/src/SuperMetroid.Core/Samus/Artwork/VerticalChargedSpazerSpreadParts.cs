@@ -18,8 +18,8 @@ internal readonly struct VerticalChargedSpazerSpreadParts(int phase) : IReadOnly
             int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase);
             int x = lane == 0 ? distance : lane == 1 ? -size - distance : -size / 2;
             int y = (ProjectileSpritePartDefinitions.ChargedSpazerVerticalCells / 2 - 1 - index % ProjectileSpritePartDefinitions.ChargedSpazerVerticalCells) * size;
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(ProjectileSpritePartDefinitions.ChargedSpazerVerticalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
+            return new(SpritePart.Create(x, y, false,
+                ProjectileSpritePartDefinitions.ChargedSpazerVerticalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
         }
     }
     /// <summary>Yields the three selected vertical charged-Spazer columns.</summary>

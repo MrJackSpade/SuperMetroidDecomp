@@ -24,8 +24,8 @@ internal readonly struct AxialSuperMissileParts(int pose) : IReadOnlyList<Compil
             }
             int tile = vertical ? ProjectileSpritePartDefinitions.SuperMissileVerticalGlyph + index : ProjectileSpritePartDefinitions.SuperMissileHorizontalGlyph - index;
             var flips = reflected ? (vertical ? TileFlip.Vertical : TileFlip.Horizontal) : 0;
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.FixedProjectilePalette, ProjectileSpritePartDefinitions.SuperMissilePriority, flips), false);
+            return new(SpritePart.Create(x, y, false,
+                tile, ProjectileSpritePartDefinitions.FixedProjectilePalette, ProjectileSpritePartDefinitions.SuperMissilePriority, flips), false);
         }
     }
     /// <summary>Yields the two axial strip parts in native OAM order.</summary>

@@ -41,8 +41,8 @@ internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSprit
                 y = vertical ? along : SpazerCompositionGeometryDefinitions.HorizontalStripOriginY;
                 tile = vertical ? ProjectileSpritePartDefinitions.SpazerVerticalGlyph : ProjectileSpritePartDefinitions.SpazerHorizontalGlyph;
             }
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
+            return new(SpritePart.Create(x, y, false,
+                tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }
     /// <summary>Yields the seed's OAM cells in the chosen travel order.</summary>

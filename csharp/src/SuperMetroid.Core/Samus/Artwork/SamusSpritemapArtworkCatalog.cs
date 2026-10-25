@@ -50,7 +50,7 @@ public sealed class SamusSpritemapArtworkCatalog
         this.definitions = [.. definitions.Select(definition =>
             definition is not { Parts: { Length: <= 128 } parts }
                 ? throw new InvalidDataException("Samus spritemap has an invalid composition.")
-                : new SamusSpritemapDefinition((SamusSpritePart[])parts.Clone()))];
+                : new SamusSpritemapDefinition((SpritePart[])parts.Clone()))];
         foreach (SamusSpritemapId? entry in entries)
             if (entry is { } composition && (uint)composition.Ordinal >= (uint)this.definitions.Length)
                 throw new InvalidDataException($"Samus spritemap {composition.Ordinal} is absent from installed art.");
@@ -64,8 +64,8 @@ public sealed class SamusSpritemapArtworkCatalog
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
     }
 
-    /// <summary>SHA-256 of selected pose bases, table entries and ordered OBJ composition parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-spritemaps-v2", content =>
+    /// <summary>SHA-256 of selected pose bases, table entries and ordered composition parts.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
     {
         content.AppendWords("top bases", TopBases);
         content.AppendWords("bottom bases", BottomBases);
@@ -74,12 +74,8 @@ public sealed class SamusSpritemapArtworkCatalog
         foreach (SamusSpritemapDefinition definition in definitions)
         {
             content.Append("part count", definition.Parts.Length);
-            foreach (SamusSpritePart part in definition.Parts)
-            {
-                content.Append("x", part.X.Raw);
-                content.Append("y", part.Y.Raw);
-                content.Append("attributes", part.Attributes.Raw);
-            }
+            foreach (SpritePart part in definition.Parts)
+                part.AppendIdentity(content);
         }
     });
 
@@ -121,7 +117,7 @@ public sealed class SamusSpritemapArtworkCatalog
 
     /// <summary>
     /// The spritemap at <paramref name="index"/> as a whole frame named by its composition, whose parts' characters
-    /// are their OBJ tile numbers. Returns false only for an entry with no composition, which draws nothing.
+    /// are their sheet characters. Returns false only for an entry with no composition, which draws nothing.
     /// </summary>
     public bool TryGetFrame(int index, [NotNullWhen(true)] out SpriteFrame? frame)
     {
@@ -131,8 +127,7 @@ public sealed class SamusSpritemapArtworkCatalog
             return false;
         }
         frame = frames.GetOrAdd(composition, selected => new SpriteFrame($"Samus.{selected.Ordinal}",
-            [.. definitions[selected.Ordinal].Parts.Select(part => SpritePartFrames.Part(part.X, part.Y,
-                part.Attributes, 0))]));
+            [.. definitions[selected.Ordinal].Parts.Select(part => SpritePartFrames.Part(part, 0))]));
         return true;
     }
 

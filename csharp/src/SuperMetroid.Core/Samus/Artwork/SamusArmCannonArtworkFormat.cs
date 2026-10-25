@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -8,7 +9,7 @@ public static class SamusArmCannonArtworkFormat
 {
 
     /// <summary>Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table dimensions.</summary>
-    public const int Version = 2;
+    public const int Version = 3;
     /// <summary>Installed editable placement, OBJ-attribute, and tile-selector JSON filename, separate from cover pixels and animation mechanics.</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
     /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
@@ -729,12 +730,12 @@ public static class SamusArmCannonArtworkFormat
         /// <summary>$90:C7D1 selects upward-diagonal frames from $9A:AC00.</summary>
         UpwardDiagonal,
     }
-    /// <summary>$90:C791..C7A4 assigns OBJ character $1F, palette4 and priority2 to the cannon cover.</summary>
-    private const ushort CoverSpriteIdentity = 31 | (4 << 9) | (2 << 12);
-    /// <summary>$90:C791..C7A4 uses bit14 to reflect the selected cover artwork horizontally.</summary>
-    private const ushort HorizontalReflection = 1 << 14;
-    /// <summary>$90:C791..C7A4 uses bit15 to reflect the vertical source for downward aim.</summary>
-    private const ushort VerticalReflection = 1 << 15;
+    /// <summary>$90:C791..C7A4 draws the cannon cover as sprite character $1F.</summary>
+    private const int CoverCharacter = 31;
+    /// <summary>$90:C791..C7A4 draws the cannon cover in palette row four.</summary>
+    private const int CoverPalette = 4;
+    /// <summary>$90:C791..C7A4 draws the cannon cover at priority two.</summary>
+    private const int CoverPriority = 2;
 
     /// <summary>
     /// $90:C7A5..C7D8 chooses a physical artwork orientation and three successive opening frames: the installed cover
@@ -763,12 +764,13 @@ public static class SamusArmCannonArtworkFormat
         return orientationGroup * (FramesPerDirection - 1) + frame - 1;
     }
 
-    /// <summary>$90:C791..C7A4 reflects the selected vertical/horizontal/diagonal artwork according to native aiming direction.</summary>
-    internal static ushort StockSpriteAttributes(SamusProjectileDirection direction)
+    /// <summary>$90:C791..C7A4 mirrors the selected vertical/horizontal/diagonal artwork according to native aiming direction.</summary>
+    internal static SpritePart StockCoverAppearance(SamusProjectileDirection direction)
     {
         bool horizontal = direction is SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingLeft
             or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft;
         bool vertical = direction is SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft;
-        return (ushort)(CoverSpriteIdentity | (horizontal ? HorizontalReflection : 0) | (vertical ? VerticalReflection : 0));
+        return SpritePart.Single(CoverCharacter, CoverPalette, CoverPriority,
+            (horizontal ? TileFlip.Horizontal : TileFlip.None) | (vertical ? TileFlip.Vertical : TileFlip.None));
     }
 }

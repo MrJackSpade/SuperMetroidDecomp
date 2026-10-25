@@ -21,8 +21,8 @@ internal readonly struct SpazerDiagonalStartupParts(int group, int pairs) : IRea
             if (!flipX) x = -size - x;
             if (flipY) y = -size - y;
             var flips = (flipX ? TileFlip.Horizontal : 0) | (flipY ? TileFlip.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index % 2, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
+            return new(SpritePart.Create(x, y, false,
+                ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index % 2, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }
     /// <summary>Yields the selected diagonal startup pairs in OAM order.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -369,10 +370,10 @@ internal static class SamusArmCannonPlacementDefinitions
             !body.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map) ||
             map.Parts.Length == 0) return false;
         int best = int.MinValue, selectedX = 0, selectedY = 0;
-        foreach (SamusSpritePart part in map.Parts)
+        foreach (SpritePart part in map.Parts)
         {
-            int x = part.X.SignedOffset;
-            int y = part.Y.SignedOffset;
+            int x = part.Offset.X;
+            int y = part.Offset.Y;
             int score = Math.Abs(direction) == 1 ? x * direction : y * Math.Sign(direction);
             if (score <= best) continue;
             best = score;

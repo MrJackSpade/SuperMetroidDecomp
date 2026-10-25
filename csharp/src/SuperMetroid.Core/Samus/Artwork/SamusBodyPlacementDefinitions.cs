@@ -452,17 +452,16 @@ internal static class SamusBodyPlacementDefinitions
             int index = baseIndex + frame;
             if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||
                 !art.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map)) return false;
-            foreach (SamusSpritePart part in map.Parts)
+            foreach (SpritePart part in map.Parts)
             {
-                int size = part.X.IsLarge ? 16 : 8;
-                var attributes = part.Attributes;
-                if (attributes.TileNumber >= 256) return false;
+                int size = part.Large ? 16 : 8;
+                if (part.Character >= 256) return false;
                 for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++)
                 {
-                    int sx = attributes.FlipHorizontally ? size - 1 - x : x;
-                    int sy = attributes.FlipVertically ? size - 1 - y : y;
-                    int tile = (attributes.TileNumber + (sy / 8) * 16 + sx / 8) & 255;
+                    int sx = part.FlipsHorizontally ? size - 1 - x : x;
+                    int sy = part.FlipsVertically ? size - 1 - y : y;
+                    int tile = (part.Character + (sy / 8) * 16 + sx / 8) & 255;
                     int row = tile * 32 + (sy % 8) * 2;
                     int mask = 128 >> (sx % 8);
                     bool opaque = false;
@@ -472,7 +471,7 @@ internal static class SamusBodyPlacementDefinitions
                         if ((uint)at >= pixels.Length || !defined[at]) return false;
                         opaque |= (pixels[at] & mask) != 0;
                     }
-                    if (opaque) bottom = Math.Max(bottom, part.Y.SignedOffset + y);
+                    if (opaque) bottom = Math.Max(bottom, part.Offset.Y + y);
                 }
             }
         }

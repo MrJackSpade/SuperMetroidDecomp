@@ -22,8 +22,8 @@ internal readonly struct DiagonalMissileParts(int pose, bool super) : IReadOnlyL
             if (flipY) y = -8 - y;
             int tile = (super ? ProjectileSpritePartDefinitions.SuperMissileDiagonalGlyph : ProjectileSpritePartDefinitions.MissileDiagonalGlyph) + 2 - corner;
             var flips = (flipX ? TileFlip.Horizontal : 0) | (flipY ? TileFlip.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.FixedProjectilePalette, ProjectileSpritePartDefinitions.SuperMissilePriority, flips), false);
+            return new(SpritePart.Create(x, y, false,
+                tile, ProjectileSpritePartDefinitions.FixedProjectilePalette, ProjectileSpritePartDefinitions.SuperMissilePriority, flips), false);
         }
     }
     /// <summary>Yields the three diagonal missile corners in their cartridge order.</summary>

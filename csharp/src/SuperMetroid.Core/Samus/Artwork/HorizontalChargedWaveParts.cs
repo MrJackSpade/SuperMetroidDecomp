@@ -24,8 +24,8 @@ internal readonly struct HorizontalChargedWaveParts(int phase) : IReadOnlyList<C
             int tile = ProjectileSpritePartDefinitions.ChargedBeamTile + 1 - (phase + lobe) % 2;
             var flips = (column == 0 ? TileFlip.Horizontal : 0) |
                 (row == 0 ? TileFlip.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(centerX - column * 8, false), SnesSpritemapYByte.Create(-row * 8),
-                SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
+            return new(SpritePart.Create(centerX - column * 8, -row * 8, false,
+                tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }
     /// <summary>Yields both horizontal lobes in their native asymmetric order.</summary>

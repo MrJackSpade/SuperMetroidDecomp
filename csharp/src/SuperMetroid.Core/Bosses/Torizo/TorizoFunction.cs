@@ -1,26 +1,26 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bank-$AA main functions a Bomb or Golden Torizo installs in <c>toriz_var_E</c>.</summary>
-public enum TorizoFunction : ushort
+/// <summary>The main function a Bomb or Golden Torizo runs; each member names the bank-$AA routine it replaced (#1413: the values are arbitrary).</summary>
+public enum TorizoFunction
 {
     /// <summary><c>RTS_AAC6AB</c>: dormant.</summary>
-    Idle = 0xc6ab,
+    Idle = 1,
 
     /// <summary><c>Function_Torizo_SimpleMovement</c> at $AA:C6BF.</summary>
-    Falling = 0xc6bf,
+    Falling,
 
     /// <summary><c>Function_Torizo_WakeWhenBombTorizoChozoFinishesCrumbling</c> at $AA:C6C6.</summary>
-    WaitForHandTrigger = 0xc6c6,
+    WaitForHandTrigger,
 
     /// <summary><c>Function_Torizo_NormalMovement</c> at $AA:C6FF.</summary>
-    Active = 0xc6ff,
+    Active,
 
     /// <summary><c>Function_GoldenTorizo_WakeIfSamusIsBelowAndRightOfTargetPos</c> at $AA:D5C2.</summary>
-    GoldenWaitForSamus = 0xd5c2,
+    GoldenWaitForSamus,
 
     /// <summary><c>Function_GoldenTorizo_SimpleMovement</c> at $AA:D5DF.</summary>
-    GoldenGravity = 0xd5df,
+    GoldenGravity,
 
     /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6.</summary>
-    GoldenPreInstruction = 0xd5e6,
+    GoldenPreInstruction,
 }

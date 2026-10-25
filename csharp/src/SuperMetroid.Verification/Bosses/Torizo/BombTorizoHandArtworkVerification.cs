@@ -25,7 +25,7 @@ internal static class BombTorizoHandArtworkVerification
         {
             EnemyTileArtworkFiles.Extract(importer, directory, SupportedCartridge.Sha256);
             InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
-            TileSheetDefinition page = TorizoSwapArtworkDefinitions.ChozoDebris;
+            TorizoTileSheet page = TorizoSwapArtworkDefinitions.ChozoDebris;
             AssertTrue(new EnemyTileTransfers(stock).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
                 "installed Chozo debris page exists");
             for (int index = 0; index < bytes.Length; index++)
@@ -43,7 +43,7 @@ internal static class BombTorizoHandArtworkVerification
 
     /// <summary>Checks a PNG override changes exactly its edited planar pixel of the installed debris page.</summary>
     private static void VerifyBombTorizoDebrisOverride(string directory,
-        InstalledEnemyArtwork stock, TileSheetDefinition page)
+        InstalledEnemyArtwork stock, TorizoTileSheet page)
     {
         string overrides = Path.Combine(directory, "overrides");
         Directory.CreateDirectory(overrides);

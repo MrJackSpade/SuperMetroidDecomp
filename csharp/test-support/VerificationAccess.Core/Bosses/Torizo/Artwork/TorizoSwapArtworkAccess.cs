@@ -1,10 +1,17 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>Verification access to <see cref="TorizoSwapArtwork"/> members production does not use.</summary>
 internal static class TorizoSwapArtworkAccess
 {
+    /// <summary>A page's cartridge source, which only verification and extraction read.</summary>
+    extension(TorizoTileSheet page)
+    {
+        /// <summary>The page's first byte on the SNES bus.</summary>
+        internal int SourceAddress => TorizoSourceDefinitions.PageSources[page.Page];
+    }
+
     /// <summary>Exposes <see cref="TorizoSwapArtwork"/> state that only verification reads.</summary>
     extension(TorizoSwapArtwork self)
     {
@@ -14,7 +21,7 @@ internal static class TorizoSwapArtworkAccess
         {
             for (int index = 0; index < self.pages.Length; index++)
             {
-                TileSheetDefinition page =
+                TorizoTileSheet page =
                     TorizoSwapArtworkDefinitions.All[index];
                 int offset = sourceAddress - page.SourceAddress;
                 if (offset < 0 || byteCount <= 0 ||

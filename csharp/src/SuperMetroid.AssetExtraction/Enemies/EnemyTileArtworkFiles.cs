@@ -184,7 +184,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
         var torizoInstructionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (TileSheetDefinition page in
+        foreach (TorizoTileSheet page in
                  TorizoSwapArtworkDefinitions.All)
         {
             byte[] png = ExtractTorizoInstructionPage(bus, page);
@@ -727,7 +727,7 @@ public static class EnemyTileArtworkFiles
             TorizoSwapArtworkDefinitions.All.Length];
         for (int index = 0; index < torizoPages.Length; index++)
         {
-            TileSheetDefinition page =
+            TorizoTileSheet page =
                 TorizoSwapArtworkDefinitions.All[index];
             if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
@@ -1300,8 +1300,8 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Exports one Torizo instruction tile page with its definition's source range.</summary>
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
-        TileSheetDefinition page) =>
-        IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
+        TorizoTileSheet page) =>
+        IndexedTilePageExtractor.Extract(bus, TorizoSourceDefinitions.PageSources[page.Page], page.ByteCount,
             $"Torizo instruction page {page.FileName}");
 
     /// <summary>Writes Kraid's backdrop, target, health, secondary, and death-arm palettes as one editable color document.</summary>

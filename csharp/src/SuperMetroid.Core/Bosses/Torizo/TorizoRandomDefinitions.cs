@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoRandomDefinitions
 {
-    /// <summary>Bomb Torizo drools while hurt when none of these bits is set: one time in sixteen.</summary>
-    internal const ushort LowHealthDroolMask = 0x8142;
+    /// <summary>Bomb Torizo drools while hurt when random bits 1, 6, 8 and 15 are clear: one time in sixteen.</summary>
+    internal static readonly TorizoRandomBits LowHealthDrool = TorizoRandomBits.At(1, 6, 8, 15);
 
-    /// <summary>Golden Torizo's low-health call is skipped when either of these bits is set: taken one time in four.</summary>
-    internal const ushort LowHealthCallMask = 0x0102;
+    /// <summary>Golden Torizo's low-health call is taken when random bits 1 and 8 are clear: one time in four.</summary>
+    internal static readonly TorizoRandomBits LowHealthCall = TorizoRandomBits.At(1, 8);
 
-    /// <summary>Golden Torizo's medium-range attack is skipped when either of these bits is set: taken one time in four.</summary>
-    internal const ushort MediumRangeAttackMask = 0x0110;
+    /// <summary>Golden Torizo's medium-range attack is taken when random bits 4 and 8 are clear: one time in four.</summary>
+    internal static readonly TorizoRandomBits MediumRangeAttack = TorizoRandomBits.At(4, 8);
 
-    /// <summary>Golden Torizo's forward leap waits while held directions draw neither of these bits: one time in four.</summary>
-    internal const ushort ForwardLeapMask = 0x0101;
+    /// <summary>Golden Torizo's forward leap goes while held directions draw random bits 0 and 8 clear: one time in four.</summary>
+    internal static readonly TorizoRandomBits ForwardLeap = TorizoRandomBits.At(0, 8);
 
     /// <summary>The initial drool's added fall speed: five low bits of raw 8.8 speed.</summary>
     internal const ushort DroolFallJitterMask = 0x001f;

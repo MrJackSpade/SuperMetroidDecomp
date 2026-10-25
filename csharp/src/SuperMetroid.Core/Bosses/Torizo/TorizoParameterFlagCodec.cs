@@ -1,31 +1,64 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// The codec between Torizo's typed flags and the words that hold them at the spawn record and the egg projectile: the
-/// posture bits in the top three bits of the authored parameter 1 (beside its independent low thirteen bits), the
-/// behaviour latches in the authored parameter 2, and the launching posture an egg keeps in its projectile variable 0.
+/// The codec between Torizo's typed latches and the words that hold them at the spawn record and the egg projectile: the
+/// posture latches in the top three bits of the authored parameter 1 (beside its independent low thirteen bits), the
+/// behaviour latches in the top four bits of the authored parameter 2, and the launching posture an egg keeps in its
+/// projectile variable 0. It is the one place that knows where each latch sits.
 /// </summary>
 [SnesEncodingOwner]
 internal static class TorizoParameterFlagCodec
 {
     /// <summary>The bits of parameter 1 below the posture bits.</summary>
-    internal const int PostureLowBitsMask = 0x1FFF;
+    internal const int PostureLowBitsMask = (1 << 13) - 1;
 
-    /// <summary>The posture bits as the word that stores them.</summary>
-    internal static ushort ToNativeWord(this TorizoPostureFlags posture) => (ushort)posture;
+    /// <summary>Each posture latch's bit in parameter 1.</summary>
+    private static readonly (TorizoPostureFlags Flag, int Bit)[] PostureBits =
+    [
+        (TorizoPostureFlags.OppositeLegForward, 1 << 13),
+        (TorizoPostureFlags.TurningAround, 1 << 14),
+        (TorizoPostureFlags.FacingRight, 1 << 15),
+    ];
+
+    /// <summary>Each behaviour latch's bit in parameter 2; its other bits name no behaviour.</summary>
+    private static readonly (TorizoBehaviorFlags Flag, int Bit)[] BehaviorBits =
+    [
+        (TorizoBehaviorFlags.CaughtSuperMissile, 1 << 12),
+        (TorizoBehaviorFlags.Stunned, 1 << 13),
+        (TorizoBehaviorFlags.FaceBlownUp, 1 << 14),
+        (TorizoBehaviorFlags.GutBlownUp, 1 << 15),
+    ];
 
     /// <summary>The posture and the low bits beside it as one parameter word, the form an egg carries.</summary>
-    internal static ushort ToParameterWord(TorizoPostureFlags posture, int lowBits) =>
-        checked((ushort)(lowBits | (ushort)posture));
+    internal static ushort ToParameterWord(TorizoPostureFlags posture, int lowBits)
+    {
+        int word = Ensure.BetweenInclusive(0, PostureLowBitsMask, lowBits);
+        foreach ((TorizoPostureFlags flag, int bit) in PostureBits)
+            if ((posture & flag) != 0)
+                word |= bit;
+        return checked((ushort)word);
+    }
 
-    /// <summary>The posture bits of an authored parameter-1 word.</summary>
-    internal static TorizoPostureFlags PostureOf(int parameterWord) => (TorizoPostureFlags)parameterWord & TorizoPostureFlags.All;
+    /// <summary>The posture latches of an authored parameter-1 word.</summary>
+    internal static TorizoPostureFlags PostureOf(int parameterWord)
+    {
+        TorizoPostureFlags posture = TorizoPostureFlags.None;
+        foreach ((TorizoPostureFlags flag, int bit) in PostureBits)
+            if ((parameterWord & bit) != 0)
+                posture |= flag;
+        return posture;
+    }
 
     /// <summary>The low thirteen bits of an authored parameter-1 word.</summary>
     internal static int PostureLowBitsOf(int parameterWord) => parameterWord & PostureLowBitsMask;
 
-    /// <summary>The behaviour latches of an authored parameter-2 word; its other bits name no behaviour.</summary>
-    internal static TorizoBehaviorFlags BehaviorOf(int parameterWord) =>
-        (TorizoBehaviorFlags)parameterWord & (TorizoBehaviorFlags.CaughtSuperMissile | TorizoBehaviorFlags.Stunned |
-            TorizoBehaviorFlags.FaceBlownUp | TorizoBehaviorFlags.GutBlownUp);
+    /// <summary>The behaviour latches of an authored parameter-2 word.</summary>
+    internal static TorizoBehaviorFlags BehaviorOf(int parameterWord)
+    {
+        TorizoBehaviorFlags behavior = 0;
+        foreach ((TorizoBehaviorFlags flag, int bit) in BehaviorBits)
+            if ((parameterWord & bit) != 0)
+                behavior |= flag;
+        return behavior;
+    }
 }

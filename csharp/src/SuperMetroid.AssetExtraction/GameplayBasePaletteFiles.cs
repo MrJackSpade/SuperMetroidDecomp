@@ -12,6 +12,12 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM starting gameplay CGRAM image and room-sprite palette → GameplayBasePaletteCatalog")]
 public static class GameplayBasePaletteFiles
 {
+    /// <summary>
+    /// Where the sprite colours begin in the gameplay colours: the upper half, whose first row receives the common
+    /// sprite colours at every room load.
+    /// </summary>
+    private const int FirstSpriteColour = CgramPalettes.ColorCount / 2;
+
     /// <summary>Writes the initial 256-color CGRAM image and 16 common-sprite colors as RGB5 JSON with a hashed manifest, then validates the resulting stock installation.</summary>
     /// <param name="bus">Cartridge source for the initial palette at $9A:8000 and common-sprite palette at $9A:FC00.</param>
     /// <param name="directory">Destination directory, created if absent; existing palette JSON and manifest are replaced.</param>
@@ -130,7 +136,7 @@ public static class GameplayBasePaletteFiles
             ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress, GameplayBasePaletteFormat.SpriteColorCount));
         GameplayBasePaletteCatalog catalog = Read(new MemoryStream(Write(document), writable: false));
-        int first = SuperMetroid.Core.World.RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex;
+        int first = FirstSpriteColour;
         Bgr555[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
         catalog.commonSprites.CopyTo(colours, 0);
         return colours;

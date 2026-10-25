@@ -251,11 +251,11 @@ internal sealed class RoomLoader
         _player.IntroducedSamus.Presentation.PrimeGraphics(_player.IntroducedSamus);
         PaletteFxObject loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? RoomLoadingRomData.GravitySuitLoadPaletteFx
+                ? SavedGameAppearanceDefinitions.GravitySuitGlow
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? RoomLoadingRomData.VariaSuitLoadPaletteFx
-                    : RoomLoadingRomData.PowerSuitLoadPaletteFx;
-        _player.BeginLoadAppearance(loadAppearance, WrappingCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount));
+                    ? SavedGameAppearanceDefinitions.VariaSuitGlow
+                    : SavedGameAppearanceDefinitions.PowerSuitGlow;
+        _player.BeginLoadAppearance(loadAppearance, WrappingCountdown.Start(SavedGameAppearanceDefinitions.FrameCount));
         _room.LoadedScope.PaletteFx.SpawnDefinition(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,

@@ -85,22 +85,23 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
 
-        state.HorizontalTriggerLimit = unchecked((short)-(byte)slot.Spawn.Population.Parameter2);
+        int horizontalReach = -(byte)slot.Spawn.Population.Parameter2;
 
         // The population record's initialization parameter was copied to current_instruction
         // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y
         // trigger threshold, then starts the real rolling animation in its place.
-        state.VerticalTriggerLimit = unchecked((byte)slot.CurrentInstruction);
+        int verticalReach = unchecked((byte)slot.CurrentInstruction);
         state.DirectionSelector = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         if (state.DirectionSelector == 0)
         {
-            state.HorizontalTriggerLimit = unchecked((short)-state.HorizontalTriggerLimit);
+            horizontalReach = -horizontalReach;
             state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Right);
         }
         else
         {
             state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
         }
+        state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
 
         state.VerticalCompensation = new Offset16<RoomPixels>(0, (byte)slot.Spawn.Population.Parameter1 == 0 ? (short)2 : (short)5);
     }
@@ -142,13 +143,13 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
         int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
-        if (deltaY < 0 || unchecked((short)(deltaY - state.VerticalTriggerLimit)) >= 0)
+        if (deltaY < 0 || unchecked((short)(deltaY - state.TriggerReach.Y)) >= 0)
             return;
 
         int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
         bool enteredHorizontalWindow = state.DirectionSelector != 0
-            ? deltaX < 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) >= 0
-            : deltaX >= 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) < 0;
+            ? deltaX < 0 && unchecked((short)(deltaX - state.TriggerReach.X)) >= 0
+            : deltaX >= 0 && unchecked((short)(deltaX - state.TriggerReach.X)) < 0;
         if (!enteredHorizontalWindow)
             return;
 

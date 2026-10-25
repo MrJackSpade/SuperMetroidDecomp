@@ -54,8 +54,14 @@ public sealed class BoulderEnemyState
         internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Signed pixel threshold for Samus's X displacement, from parameter two's low byte: positive for rightward activation and negative for leftward activation. Native <c>XProximity</c> at $7E:7800,x. A negated byte, or its negation, so it stays between -255 and 255.</summary>
-    public int HorizontalTriggerLimit { get; internal set; }
+    /// <summary>
+    /// The window, relative to the boulder, that Samus's displacement must enter to start it. X is the signed pixel
+    /// threshold from parameter two's low byte, positive for rightward activation and negative for leftward
+    /// activation (a negated byte, or its negation, so between -255 and 255; native <c>XProximity</c> at $7E:7800,x).
+    /// Y is the exclusive upper threshold (0 through 255) for Samus's nonnegative Y displacement, taken from the
+    /// population initialization instruction word's low byte (native <c>YProximity</c> at $7E:780C,x).
+    /// </summary>
+    public Offset16<RoomPixels> TriggerReach { get; internal set; }
     /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two or five pixels from parameter one's low byte, then zero once the full Y position stops changing. Native <c>minimumDistanceFromGround</c> at $7E:7802,x.</summary>
     public Offset16<RoomPixels> VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update. Native <c>previousEnemyYSubPosition</c> and <c>previousEnemyYPosition</c> at $7E:7804,x and $7E:7806,x.</summary>
@@ -67,8 +73,6 @@ public sealed class BoulderEnemyState
     /// <c>fallingTargetYPosition</c> at $7E:780A,x).
     /// </summary>
     public Position16<RoomPixels> InitialPosition { get; internal set; }
-    /// <summary>Exclusive upper pixel threshold (0 through 255) for Samus's nonnegative Y displacement, taken from the population initialization instruction word's low byte. Native <c>YProximity</c> at $7E:780C,x.</summary>
-    public int VerticalTriggerLimit { get; internal set; }
     /// <summary>True when parameter two's high byte is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence. Native <c>type</c> at $7E:780E,x.</summary>
     public bool StartsRollingWithoutBounce { get; internal set; }
 

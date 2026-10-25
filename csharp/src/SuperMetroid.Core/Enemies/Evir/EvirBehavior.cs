@@ -149,7 +149,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // The projectile definition has no graphics-set entry of its own. Native copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
         slot.PaletteIndex = body.PaletteIndex;
-        slot.VramTilesIndex = body.VramTilesIndex;
+        slot.TileIndexBase = body.TileIndexBase;
         ResetEvirProjectilePosition(slot, state);
 
         // Native clears installed-list after having installed the normal list. That oddity
@@ -316,7 +316,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
-        SnesByteAngle transformedAngle = EnemyMath.CalculateCartridgeAngle(
+        SnesByteAngle transformedAngle = EnemyMath.CalculateBearing(
             new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole)))).ToTableAngle();
         SnesSignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,

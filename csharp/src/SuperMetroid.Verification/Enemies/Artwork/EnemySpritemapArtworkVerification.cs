@@ -503,7 +503,7 @@ internal static class EnemySpritemapArtworkVerification
             {
                 Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080),
                 PaletteBits = checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteIndex),
-                BaseTileIndex = checked((ushort)drawn.VramTilesIndex),
+                BaseTileIndex = checked((ushort)drawn.TileIndexBase),
             });
             AssertTrue(room.ImageEquals(nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
@@ -2818,7 +2818,7 @@ internal static class EnemySpritemapArtworkVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.VramTilesIndex = indexes.TileIndex;
+            slot.TileIndexBase = indexes.TileIndex;
             slot.PaletteIndex = indexes.PaletteIndex;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.

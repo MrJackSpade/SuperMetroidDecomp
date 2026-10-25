@@ -85,7 +85,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
-        ushort graphicsIndex = unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex));
+        ushort graphicsIndex = unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex));
         RoomSpriteObjectSlot outerBodyA = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyA,
@@ -138,7 +138,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The ordinary body supplies the central map. Both outer bank-$B4 objects are
         // repositioned and re-enabled every non-frozen main call, exactly after movement.
-        ushort graphicsIndex = unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex));
+        ushort graphicsIndex = unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex));
         PositionMetroidOuterBody(state.OuterBodyA, slot, graphicsIndex);
         PositionMetroidOuterBody(state.OuterBodyB, slot, graphicsIndex);
     }

@@ -235,7 +235,7 @@ internal static class SporeSpawnAnimationsVerification
             AngleDelta = 1,
             BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
         };
-        enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         enemies.SporeSpawnBehavior.SporeSpawn = state;

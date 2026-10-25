@@ -39,7 +39,7 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var enemy = new Func<ushort, byte, ushort>((speed, angle) => EnemyMath.MultiplyCartridgeSinCos(speed, new SnesByteAngle(angle)));
+        var enemy = new Func<ushort, byte, ushort>((speed, angle) => EnemyMath.MultiplySineSample(speed, new SnesByteAngle(angle)));
         var baby = new Func<ushort, byte, ushort>(BabyMetroidCutsceneState.CalculateVelocityComponent);
         var rainbow = new Func<ushort, SnesAngle, ushort>(MotherBrainRainbowBeamSamusMovement.CalculateYVelocity);
         var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);

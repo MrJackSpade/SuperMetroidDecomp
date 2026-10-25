@@ -27,16 +27,16 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>Gameplay's background colour sets (#1405).</summary>
-    internal BackgroundColourSets BackgroundSets => Cgram.BackgroundSets;
+    internal BackgroundColourSets BackgroundSets => Colours.BackgroundSets;
 
     /// <summary>Sprite colour set <paramref name="set"/> (#1405).</summary>
-    internal ColourRun ColourSet(int set) => Cgram.SpriteSets.Set(set);
+    internal ColourRun ColourSet(int set) => Colours.SpriteSets.Set(set);
 
     /// <summary>The sprite colour set <paramref name="slot"/>'s palette bits select (#1405).</summary>
     internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSet(SnesObjAttributeWord.FromPaletteBits(checked((ushort)slot.PaletteIndex)).PaletteIndex);
 
     /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
-    internal GameplayColours Cgram
+    internal GameplayColours Colours
     {
         get => field ?? throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
         private set;
@@ -78,7 +78,7 @@ internal sealed class EnemyPresentation
         Bg2Image ?? throw new InvalidOperationException("No boss has attached the enemy BG2 image.");
 
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
-    internal void BindCgram(GameplayColours cgram) => Cgram = Ensure.NotNull(cgram);
+    internal void BindColours(GameplayColours colours) => Colours = Ensure.NotNull(colours);
     /// <summary>
     /// The session's gameplay OBJ character table bindings, which enemy-format sprites draw from. Uploads that bypass
     /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.

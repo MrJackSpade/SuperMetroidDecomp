@@ -65,7 +65,7 @@ internal sealed class DraygonTurrets
         // PlaceAndAim negates the common zero-up angle, then adds $40 before retaining the
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
-        SnesByteAngle flightAngle = EnemyMath.CalculateCartridgeAngle(
+        SnesByteAngle flightAngle = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole)))).ToTableAngle();
         DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 

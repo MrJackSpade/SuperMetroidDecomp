@@ -217,7 +217,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.KagoBug,
-            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
+            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
 
         projectile.Variable1 = source.NativeIndex;
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);

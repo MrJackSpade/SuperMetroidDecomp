@@ -91,7 +91,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // base zero. Both property changes are literal ORs performed by the initializer:
         // normal instructions animate visibility, while extended maps supply per-frame art
         // and collision boxes whose geometry cannot be represented by header radii.
-        slot.VramTilesIndex = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Steam];
+        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Steam];
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);

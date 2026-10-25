@@ -552,7 +552,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateClaw,
-            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
+            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight

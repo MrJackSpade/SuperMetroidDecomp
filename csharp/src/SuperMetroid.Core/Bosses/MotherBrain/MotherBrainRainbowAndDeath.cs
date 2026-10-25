@@ -360,7 +360,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
         // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
         if (sequence.State.HealthBasedPaletteHandlingEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            MotherBrainHealthPalette.Apply(_presentation.Cgram, state.Head.Health, _bossArtwork.MotherBrainHealthColors);
+            MotherBrainHealthPalette.Apply(_presentation.Colours, state.Head.Health, _bossArtwork.MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -458,8 +458,8 @@ internal sealed class MotherBrainRainbowAndDeath
             int index = MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).State.GreyTransitionCounter - 1;
             var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's grey transition requires installed palette artwork.");
-            if (draining) installed.ApplyToGrey(_presentation.Cgram, index);
-            else installed.ApplyFromGrey(_presentation.Cgram, index);
+            if (draining) installed.ApplyToGrey(_presentation.Colours, index);
+            else installed.ApplyFromGrey(_presentation.Colours, index);
             return;
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
@@ -467,7 +467,7 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's normal palette requires installed artwork.");
-            installed.ApplyNormal(_presentation.Cgram);
+            installed.ApplyNormal(_presentation.Colours);
             return;
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam &&
@@ -475,7 +475,7 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's drained palette requires installed artwork.");
-            installed.ApplyRainbow(_presentation.Cgram, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
+            installed.ApplyRainbow(_presentation.Colours, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
@@ -501,6 +501,6 @@ internal sealed class MotherBrainRainbowAndDeath
             frame = 0;
         }
         state.RainbowPaletteCursor += sizeof(ushort);
-        rainbow.ApplyRainbow(_presentation.Cgram, frame);
+        rainbow.ApplyRainbow(_presentation.Colours, frame);
     }
 }

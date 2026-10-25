@@ -113,7 +113,7 @@ internal sealed class NorfairRidleyCombat
         // ranges that the reveal gradually fills; color zero remains transparent.
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
-            .ApplyInitial(_presentation.Cgram);
+            .ApplyInitial(_presentation.Colours);
         _presentation.BossColours().NorfairRidleyBody.Fill(Bgr555.Black);
         _presentation.BossColours().NorfairRidleyTail.Fill(Bgr555.Black);
     }
@@ -137,7 +137,7 @@ internal sealed class NorfairRidleyCombat
             throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
         hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
         if (hasPalette)
-            colors.ApplyReveal(_presentation.Cgram, row);
+            colors.ApplyReveal(_presentation.Colours, row);
         state.FadePaletteOffset++;
         if (hasPalette)
             return;

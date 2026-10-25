@@ -448,7 +448,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             (RoomEnemyProjectileKind)definition,
-            unchecked((ushort)(robot.VramTilesIndex | robot.PaletteIndex)));
+            unchecked((ushort)(robot.TileIndexBase | robot.PaletteIndex)));
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch
         {

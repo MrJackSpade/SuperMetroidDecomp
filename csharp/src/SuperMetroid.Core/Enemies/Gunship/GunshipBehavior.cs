@@ -157,7 +157,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // dependency on physical slot order.
         if (slot.SlotIndex == 0)
             throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
-        slot.VramTilesIndex = _slotTable.Slots[slot.SlotIndex - 1].VramTilesIndex;
+        slot.TileIndexBase = _slotTable.Slots[slot.SlotIndex - 1].TileIndexBase;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
 
         if (slot.Spawn.Population.Parameter2 != 0)

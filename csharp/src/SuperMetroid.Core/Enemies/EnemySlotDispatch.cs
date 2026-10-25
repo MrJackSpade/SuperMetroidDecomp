@@ -54,7 +54,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.FrameCounter = 0;
         slot.HurtAiTime = definition.HurtAiTime;
         slot.PaletteIndex = paletteIndex;
-        slot.VramTilesIndex = tileIndex;
+        slot.TileIndexBase = tileIndex;
         slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 

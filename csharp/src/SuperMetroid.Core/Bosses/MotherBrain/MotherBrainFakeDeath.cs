@@ -84,7 +84,7 @@ internal sealed class MotherBrainFakeDeath
                 // whole palette would visibly alter unrelated room art and is not what
                 // `$AD:ED5A` does.
                 if (_bossArtwork.MotherBrainRainbowColors is { } colors)
-                    colors.ApplyFakeDeathToGrey(_presentation.Cgram, step);
+                    colors.ApplyFakeDeathToGrey(_presentation.Colours, step);
                 else throw new InvalidOperationException(
                     "Mother Brain fake-death fade requires installed colors.");
             }
@@ -103,7 +103,7 @@ internal sealed class MotherBrainFakeDeath
         state.RoomFlashTimer = 0;
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain room finale requires installed colors."))
-            .ApplyFinal(_presentation.Cgram);
+            .ApplyFinal(_presentation.Colours);
     }
 
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
@@ -564,7 +564,7 @@ internal sealed class MotherBrainFakeDeath
         {
             // Fake-death restoration changes only brain sprite colors one through three.
             if (_bossArtwork.MotherBrainRainbowColors is { } colors)
-                colors.ApplyFakeDeathFromGrey(_presentation.Cgram, paletteStep);
+                colors.ApplyFakeDeathFromGrey(_presentation.Colours, paletteStep);
             else throw new InvalidOperationException(
                 "Mother Brain revival requires installed colors.");
             return;

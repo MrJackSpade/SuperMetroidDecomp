@@ -87,7 +87,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             var colors = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
-            enemies.Presentation.BindCgram(colors.Gameplay);
+            enemies.Presentation.BindColours(colors.Gameplay);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

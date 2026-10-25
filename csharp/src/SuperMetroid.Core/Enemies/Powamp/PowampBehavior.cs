@@ -584,7 +584,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </returns>
     internal ushort SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
-        ushort graphics = unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex));
+        ushort graphics = unchecked((ushort)(body.TileIndexBase | body.PaletteIndex));
         ushort accumulator = 0;
         // Native Y counts from seven down to zero. Allocation independently searches the
         // eighteen-slot bank-$86 pool from native index $22 downward on every iteration.
@@ -601,7 +601,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,
-                unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
+                unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             spike.DirectionParameter = unchecked((ushort)direction);

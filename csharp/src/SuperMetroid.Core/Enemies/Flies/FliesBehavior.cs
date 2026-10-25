@@ -110,7 +110,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state,
         SamusState samus)
     {
-        byte angle = EnemyMath.CalculateCartridgeAngle(
+        byte angle = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
         state.Velocity = new(
             unchecked((short)(ReadSignedSineCosine(angle + 64) * 2)),

@@ -135,7 +135,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
                     frame.Bank, frame.Pointer, new(x, y),
                     checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteIndex),
-                    checked((ushort)drawn.VramTilesIndex));
+                    checked((ushort)drawn.TileIndexBase));
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed extended {frame.Name} matches native OAM at {x:X4},{y:X4}");
@@ -1352,7 +1352,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId), new SpriteColourSets());
             EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(slot.DefinitionId);
-            slot.VramTilesIndex = indexes.TileIndex;
+            slot.TileIndexBase = indexes.TileIndex;
             slot.PaletteIndex = indexes.PaletteIndex;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches

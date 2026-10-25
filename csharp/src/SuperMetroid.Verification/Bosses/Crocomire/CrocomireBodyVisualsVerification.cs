@@ -215,7 +215,7 @@ internal static class CrocomireBodyVisualsVerification
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire), new SpriteColourSets());
             EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
-            slot.VramTilesIndex = indexes.TileIndex;
+            slot.TileIndexBase = indexes.TileIndex;
             slot.PaletteIndex = indexes.PaletteIndex;
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);

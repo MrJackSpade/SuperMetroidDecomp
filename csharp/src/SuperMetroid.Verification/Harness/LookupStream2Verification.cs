@@ -167,7 +167,7 @@ internal static class LookupStream2Verification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };

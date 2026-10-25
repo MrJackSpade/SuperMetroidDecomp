@@ -776,7 +776,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.LavaThrownByMagdollite,
-            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
+            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
 
         // SpawnEprojInner has already cleared all generic scratch words. The initializer
         // copies both subpixels from the throwing overlay, starts two pixels below it, and

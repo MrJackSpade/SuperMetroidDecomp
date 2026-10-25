@@ -533,8 +533,8 @@ internal sealed class MotherBrainProjectiles
         int speedRandom = _room.Random.Generate();
         // Bits 8 to 10 of the random word: a whole speed of zero to seven.
         ushort scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
-        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(scatterSpeed, new SnesByteAngle(scatterAngle))));
-        beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
+        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplySineSample(scatterSpeed, new SnesByteAngle(scatterAngle))));
+        beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplySineSample(
             scatterSpeed,
             new SnesByteAngle(scatterAngle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());

@@ -220,7 +220,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SamusColourRig cgram = SeedColors();
-            enemy.Presentation.BindCgram(cgram.Gameplay);
+            enemy.Presentation.BindColours(cgram.Gameplay);
             return new CreateEnemyResult(enemy, cgram);
         }
 

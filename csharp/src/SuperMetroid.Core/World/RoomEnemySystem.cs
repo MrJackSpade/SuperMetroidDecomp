@@ -844,7 +844,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
         Presentation.BindBackgrounds(request.Backgrounds, request.ArtworkFrames);
-        Presentation.BindCgram(request.Cgram);
+        Presentation.BindColours(request.Colours);
         FrameResults.Begin();
         BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();
@@ -857,7 +857,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet, request.Cgram.SpriteSets);
+            GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet, request.Colours.SpriteSets);
         PopulationLoader.LoadPopulation(
             definitions,
             population,
@@ -1313,7 +1313,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateProjectiles(table);
         WorkRobotBehavior.RegisterWorkRobotProjectiles(table);
 
-        DeathsAndDrops.RegisterPickupPreInstruction(table);
+        DeathsAndDrops.ConnectPickupPreInstruction(table);
 
         RinkaBehavior.RegisterMiscDustPreInstruction(table);
 
@@ -1337,7 +1337,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
         CrocomireBehavior.Combat.RegisterCrocomireDropProjectiles(table);
 
-        DeathsAndDrops.RegisterDeathExplosionInstructions(table);
+        DeathsAndDrops.ConnectDeathExplosionCues(table);
     }
 
     /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>

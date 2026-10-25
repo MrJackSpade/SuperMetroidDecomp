@@ -70,7 +70,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
-            Enemies.Presentation.BindCgram(Colors.Gameplay);
+            Enemies.Presentation.BindColours(Colors.Gameplay);
             Enemies.VerificationServices().NextRandom = NextRandom;
             Enemies.VerificationServices().ReadRandom = () => RandomWord;
             Enemies.VerificationServices().SeedRandom = value => RandomWord = value;
@@ -89,7 +89,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             {
                 Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Colors.Gameplay.SpriteSets);
                 EnemyGraphicsIndexes indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
-                Actor.VramTilesIndex = indexes.TileIndex;
+                Actor.TileIndexBase = indexes.TileIndex;
                 Actor.PaletteIndex = indexes.PaletteIndex;
             }
             if (golden)

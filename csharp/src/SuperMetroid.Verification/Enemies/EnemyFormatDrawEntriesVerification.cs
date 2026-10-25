@@ -55,7 +55,7 @@ internal static class EnemyFormatDrawEntriesVerification
         RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
-        ordinary.VramTilesIndex = checked((ushort)beetom.VramTilesIndex);
+        ordinary.TileIndexBase = checked((ushort)beetom.TileIndexBase);
         ordinary.PaletteIndex = PaletteBits(beetom.PaletteRow);
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(0, 0);
@@ -67,7 +67,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.Frame = extendedFrame;
-        extended.VramTilesIndex = checked((ushort)pirate.VramTilesIndex);
+        extended.TileIndexBase = checked((ushort)pirate.TileIndexBase);
         extended.PaletteIndex = PaletteBits(pirate.PaletteRow);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));

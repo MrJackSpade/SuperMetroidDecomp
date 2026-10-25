@@ -167,7 +167,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyGraphicsSetEntry specialGraphics = enemies.GraphicsSet.Entries[1];
     AssertEqual(0x0800, ordinaryGraphics.StagingOffset, "ordinary enemy staging offset");
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
-    AssertEqual(2, specialGraphics.VramTilesIndex,
+    AssertEqual(2, specialGraphics.TileIndexBase,
         "second enemy tile index includes first definition size");
     // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
     enemies.GraphicsSet.ShowGraphics();
@@ -186,7 +186,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
-    AssertEqual(0, slot.VramTilesIndex, "first graphics-set tile index");
+    AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
         "definition bank $A2 runs the shared no-op callback as an immediate return");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
@@ -1793,7 +1793,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
 /// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
 /// <param name="tiles">The fixture's seeded enemy artwork.</param>
 internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
-    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork
+    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => tiles;

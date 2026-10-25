@@ -61,7 +61,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             {
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-                enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+                enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
                 enemies.VerificationServices().NextRandom = () => 0;
                 enemies.VerificationServices().ReadRandom = () => 0;
 

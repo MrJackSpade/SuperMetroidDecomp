@@ -40,7 +40,7 @@ internal sealed class RidleyProjectiles
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(ridley);
         int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.Position.Y.Whole - 43;
-        byte angle = EnemyMath.CalculateCartridgeAngle(
+        byte angle = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
 
         if (state.FacingDirection == RidleyFacing.Left)
@@ -67,8 +67,8 @@ internal sealed class RidleyProjectiles
         // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds $0500.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(FireballSpeed, new SnesByteAngle(angle))),
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(FireballSpeed, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, new SnesByteAngle(angle))),
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>

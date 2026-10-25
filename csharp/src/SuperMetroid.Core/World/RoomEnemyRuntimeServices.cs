@@ -87,7 +87,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) => room.LoadedScope.DrawBg2Overlay(firstWord, words);
 
     /// <inheritdoc />
-    public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
+    public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>
         (room.LoadedScope.FloorMap ?? throw new InvalidOperationException("Only a Ceres room has a Mode 7 map to write."))
             .Write(firstCell, tiles);
 

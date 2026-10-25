@@ -80,7 +80,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)

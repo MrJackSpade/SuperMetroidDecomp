@@ -515,7 +515,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RoomFlashTimer++;
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain room flash requires installed colors."))
-            .ApplyFlash(_presentation.Cgram, frame);
+            .ApplyFlash(_presentation.Colours, frame);
     }
     /// <summary>Native X positions cycled when Mother Brain's ascent emits floor dust.</summary>
     internal static readonly ushort[] MotherBrainAscentDustXPositions =

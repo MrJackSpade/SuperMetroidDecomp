@@ -232,7 +232,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>SporeSpawn_Func_3</c> at $A5:EB9B.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
-        byte direction = EnemyMath.CalculateCartridgeAngle(
+        byte direction = EnemyMath.CalculateBearing(
             new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole)))).ToTableAngle().RawValue;
         state.DeathAngle = SnesAngle.FromTableIndex(direction);
         state.DeathVelocityMagnitude = new(
@@ -708,7 +708,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
-            unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
+            unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
         stalk.Position = stalk.Position.WithWholeY(unchecked((ushort)(
@@ -728,7 +728,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
-            unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
+            unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);

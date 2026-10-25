@@ -114,7 +114,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        slot.VramTilesIndex = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
+        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
         if (slot.SlotIndex == 0)
             SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf
@@ -224,7 +224,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         SharedPaletteCycle = paletteCycle;
         (_bossArtwork.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
-            .Apply(ZebetiteDefinitions.PulseColours.In(_presentation.Cgram), paletteCycle);
+            .Apply(ZebetiteDefinitions.PulseColours.In(_presentation.Colours), paletteCycle);
     }
 
     /// <summary>Restarts the instruction list chosen from the half's pairing and current health.</summary>

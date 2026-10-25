@@ -153,7 +153,7 @@ internal sealed class CeresRidleyHits
             : CeresRidleyPaletteRomData.HealthLateRow;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation.Cgram, paletteIndex);
+            .ApplyHealth(_presentation.Colours, paletteIndex);
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>

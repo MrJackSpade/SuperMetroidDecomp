@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 internal static class EnemyPresentationBossColours
 {
     /// <summary>The boss palette ranges of <paramref name="presentation"/>'s CGRAM.</summary>
-    internal static BossColours BossColours(this EnemyPresentation presentation) => new(Ensure.NotNull(presentation).Cgram);
+    internal static BossColours BossColours(this EnemyPresentation presentation) => new(Ensure.NotNull(presentation).Colours);
 }

@@ -173,7 +173,7 @@ internal sealed class EnemyGraphicsSet
         {
             if (entry.DefinitionId == definitionId)
             {
-                return new EnemyGraphicsIndexes(                    checked((ushort)entry.VramTilesIndex),
+                return new EnemyGraphicsIndexes(                    checked((ushort)entry.TileIndexBase),
                     unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
             }
         }

@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;

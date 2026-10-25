@@ -138,7 +138,7 @@ public sealed class RoomEnemySlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
-    public int VramTilesIndex
+    public int TileIndexBase
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
@@ -200,7 +200,7 @@ public sealed class RoomEnemySlot
         FrozenTimer = WrappingCountdown.Start(0);
         FlashTimer = WrappingCountdown.Start(0);
         Layer = 0;
-        VramTilesIndex = 0;
+        TileIndexBase = 0;
         PaletteIndex = 0;
         FrameCounter = 0;
         ShakeTimer = WrappingCountdown.Start(0);

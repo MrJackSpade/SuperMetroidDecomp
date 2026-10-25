@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Frame">The frame shown.</param>
 /// <param name="World">Its room position.</param>
 /// <param name="PaletteIndex">Its packed palette attribute bits.</param>
-/// <param name="VramTilesIndex">Its packed tile base.</param>
-internal readonly record struct MotherBrainWorldFrame(EnemyFrameId Frame, Position16<RoomPixels> World, int PaletteIndex, int VramTilesIndex);
+/// <param name="TileIndexBase">Its packed tile base.</param>
+internal readonly record struct MotherBrainWorldFrame(EnemyFrameId Frame, Position16<RoomPixels> World, int PaletteIndex, int TileIndexBase);

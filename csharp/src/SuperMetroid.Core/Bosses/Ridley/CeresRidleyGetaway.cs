@@ -195,8 +195,8 @@ internal sealed class CeresRidleyGetaway
     {
         byte angle = state.FloorAngle.TableIndex;
         ushort zoom = checked((ushort)state.FloorZoom);
-        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
-        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, new SnesByteAngle(angle)));
+        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(zoom, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
+        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(zoom, new SnesByteAngle(angle)));
         state.Mode7MatrixA = diagonal;
         state.Mode7MatrixB = offDiagonal;
         state.Mode7MatrixC = NegateMode7Coefficient(offDiagonal);
@@ -212,7 +212,7 @@ internal sealed class CeresRidleyGetaway
         if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
             zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
         {
-            installed.Apply(_presentation.Cgram, zoomHighByte);
+            installed.Apply(_presentation.Colours, zoomHighByte);
             return;
         }
         throw new InvalidOperationException(
@@ -227,7 +227,7 @@ internal sealed class CeresRidleyGetaway
     private void ApplyMode7TransferList(CeresMode7TransferList transferList, List<FloorUpdate> updates)
     {
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
-            _room.Services.DrawMode7Map(transfer.MapCell, [.. transfer.TileNumbers]);
+            _room.Services.DrawFloorMap(transfer.MapCell, [.. transfer.TileNumbers]);
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
             updates.Add(new FloorUpdate(transfer.SourceOffset, transfer.TileNumbers.Count, transfer.MapCell));
     }
@@ -429,7 +429,7 @@ internal sealed class CeresRidleyGetaway
 
         state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
         if (_bossArtwork.CeresRidleyColors is { } colors)
-            colors.ApplyAlarm(_presentation.Cgram, state.CeresEscapePaletteFrame);
+            colors.ApplyAlarm(_presentation.Colours, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(
             "Ceres alarm requires installed Ridley color rows.");
     }

@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         {
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-            enemies.Presentation.BindCgram(cgram.Gameplay);
+            enemies.Presentation.BindColours(cgram.Gameplay);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(variant);
             initialize(enemies, statue);

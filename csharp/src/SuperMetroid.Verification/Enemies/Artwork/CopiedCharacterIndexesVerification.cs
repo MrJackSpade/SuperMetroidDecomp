@@ -46,7 +46,7 @@ internal static class CopiedCharacterIndexesVerification
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
             foreach (RoomEnemySlot slot in placed)
             {
-                AssertEqual(composed.TileIndex, slot.VramTilesIndex, $"{child} in {room.Name} draws at the character index its sheet is composed at");
+                AssertEqual(composed.TileIndex, slot.TileIndexBase, $"{child} in {room.Name} draws at the character index its sheet is composed at");
                 if (EnemyTileBaseDefinitions.DrawsInPaletteOf.ContainsKey(child))
                     AssertEqual(composed.PaletteIndex, slot.PaletteIndex, $"{child} in {room.Name} draws in the palette its sheet is coloured in");
                 slots++;

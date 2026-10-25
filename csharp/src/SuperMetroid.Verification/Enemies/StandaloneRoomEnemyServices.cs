@@ -69,7 +69,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public FloorMap FloorMap { init => floorMap = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
+    public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>
         (floorMap ?? throw Unavailable.Missing("write the room's Mode 7 map")).Write(firstCell, tiles);
 
     /// <summary>Installs the target of words written over BG2, which the Zebes escape typewriter writes.</summary>

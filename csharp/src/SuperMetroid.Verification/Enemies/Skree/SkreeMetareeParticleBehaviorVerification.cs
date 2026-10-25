@@ -25,7 +25,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            VramTilesIndex = 512,
+            TileIndexBase = 512,
             PaletteIndex = 3072,
         };
         foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleProgram program) in new VerifySkreeMetareeParticleBehaviorCase[]

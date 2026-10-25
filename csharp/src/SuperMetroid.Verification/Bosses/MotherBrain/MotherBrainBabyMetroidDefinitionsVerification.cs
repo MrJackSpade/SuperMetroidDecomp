@@ -43,7 +43,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby population definition");
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-        enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);

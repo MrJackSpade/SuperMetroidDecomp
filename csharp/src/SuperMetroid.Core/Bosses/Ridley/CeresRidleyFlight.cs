@@ -112,7 +112,7 @@ internal sealed class CeresRidleyFlight
         // Metroid container palettes. This runtime exposes the final target directly in
         // CGRAM, matching the established Ceres-door palette seam.
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation.Cgram);
+            "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation.Colours);
 
         // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
@@ -400,7 +400,7 @@ internal sealed class CeresRidleyFlight
         // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
         // copied to colors 1..8 of BG palette two and OBJ palette seven.
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Cgram);
+            "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Colours);
     }
 
     /// <summary>The retrieval steering target relative to the falling Baby (<c>$BE03</c>).</summary>

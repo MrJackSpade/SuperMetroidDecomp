@@ -137,8 +137,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         Loaded("write over the room's BG2").DrawBg2Overlay(firstWord, words);
 
     /// <summary>Writes tile numbers into the loaded room's Mode 7 map.</summary>
-    public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
-        Loaded("write the room's Mode 7 map").DrawMode7Map(firstCell, tiles);
+    public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>
+        Loaded("write the room's Mode 7 map").DrawFloorMap(firstCell, tiles);
 
     /// <summary>Queries the loaded room's active PLM headers.</summary>
     public bool HasActiveHeader(PlmHeaderId header) =>

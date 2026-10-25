@@ -267,7 +267,7 @@ internal sealed class CeresRidleyBabyScene
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
                 if (_bossArtwork.CeresRidleyColors is { } babyColors)
-                    babyColors.ApplyBaby(_presentation.Cgram, updateColors.PaletteRow);
+                    babyColors.ApplyBaby(_presentation.Colours, updateColors.PaletteRow);
                 else throw new InvalidOperationException(
                     "Ceres Ridley requires installed Baby Metroid colors.");
                 return null;

@@ -47,7 +47,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors } };
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         Action<RidleyEnemyState> tick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
 
         var state = new RidleyEnemyState

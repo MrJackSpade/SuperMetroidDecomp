@@ -2,8 +2,8 @@ using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>The installed gameplay artwork that domain OBJ character sources name.</summary>
-internal interface IInstalledObjCharacterArtwork
+/// <summary>The installed gameplay artwork that domain sprite character sources name.</summary>
+internal interface IInstalledSpriteCharacterArtwork
 {
     /// <summary>The installed enemy and boss tile artwork.</summary>
     /// <exception cref="InvalidOperationException">No enemy artwork is installed.</exception>

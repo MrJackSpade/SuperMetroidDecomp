@@ -50,7 +50,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
             BossArtworkBinding = { CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
         };
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.Room.Session.FloorQueueResidue = residue;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
 

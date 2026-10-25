@@ -616,7 +616,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>
-    internal void RegisterPickupPreInstruction(EnemyProjectileHandlerTable table)
+    internal void ConnectPickupPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
         {
@@ -629,7 +629,7 @@ internal sealed class EnemyDeathsAndDrops
     internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = EnemyKilledSound;
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
-    internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table) =>
+    internal void ConnectDeathExplosionCues(EnemyProjectileHandlerTable table) =>
         table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
 
     /// <summary>

@@ -111,7 +111,7 @@ internal sealed class CrocomireFight
         // zero inclusively. Preserve that palette-boundary write because later fades compare
         // the exact target image produced by the cartridge.
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-            "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Cgram);
+            "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Colours);
     }
 
     /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>

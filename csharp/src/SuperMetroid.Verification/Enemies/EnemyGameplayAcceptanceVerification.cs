@@ -100,7 +100,7 @@ internal static class EnemyGameplayAcceptanceVerification
                 RoomEnemySlot body = baseline.SlotTable.Slots[index - 1];
                 AssertEqual(body.Position.X.Whole, slot.Position.X.Whole, "wing initializer retains its preceding body's X");
                 AssertEqual(body.Position.Y.Whole, slot.Position.Y.Whole, "wing initializer retains its preceding body's Y");
-                AssertEqual(body.VramTilesIndex, slot.VramTilesIndex, "wing initializer retains its preceding body's tile binding");
+                AssertEqual(body.TileIndexBase, slot.TileIndexBase, "wing initializer retains its preceding body's tile binding");
             }
         }
 

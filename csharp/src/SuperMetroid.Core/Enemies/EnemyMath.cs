@@ -24,7 +24,7 @@ internal static class EnemyMath
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
     /// result advances clockwise in 256 units per turn, matching bank-$A0 enemy callers.
     /// </summary>
-    internal static SnesBearing CalculateCartridgeAngle(Offset16<RoomPixels> delta)
+    internal static SnesBearing CalculateBearing(Offset16<RoomPixels> delta)
     {
         int quadrant = 0;
         ushort absoluteX = unchecked((ushort)delta.X);
@@ -217,7 +217,7 @@ internal static class EnemyMath
     internal static bool SineIsNegative(SnesByteAngle angle) => angle.AddTableUnits(SnesByteAngle.HalfTurn.RawValue).RawValue >= SnesByteAngle.HalfTurn.RawValue;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
-    internal static ushort MultiplyCartridgeSinCos(ushort speed, SnesByteAngle angle) =>
+    internal static ushort MultiplySineSample(ushort speed, SnesByteAngle angle) =>
         EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
 
     /// <summary>

@@ -11,5 +11,5 @@ public interface IRoomEnemyPopulationSource
     RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <summary>CGRAM the enemy palettes load into.</summary>
-    GameplayColours Cgram { get; }
+    GameplayColours Colours { get; }
 }

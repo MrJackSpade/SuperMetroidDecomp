@@ -110,7 +110,7 @@ internal sealed class MotherBrainBody
             bg2[index] = MotherBrainBg2Definitions.BlankTile;
 
         body.InstructionTimer = WrappingCountdown.Start(1);
-        body.VramTilesIndex = 0;
+        body.TileIndexBase = 0;
         body.Properties = body.Properties.With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
@@ -143,7 +143,7 @@ internal sealed class MotherBrainBody
     {
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain room requires installed color artwork."))
-            .ApplyRoomEntry(_presentation.Cgram);
+            .ApplyRoomEntry(_presentation.Colours);
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
@@ -412,12 +412,12 @@ internal sealed class MotherBrainBody
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
-        SnesByteAngle angle = EnemyMath.CalculateCartridgeAngle(samus.Position.Whole - beam.Position.Whole)
+        SnesByteAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
             .ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
         state.HandBeamNextAngle = angle.RawValue;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(3072, angle)),
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(3072, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(3072, angle)),
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(3072, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
 
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }

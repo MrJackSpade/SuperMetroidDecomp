@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
@@ -16,15 +16,15 @@ public static class CeresRidleyMode7ColorFile
     /// <exception cref="InvalidDataException">The document schema, row dimensions, or RGB5 colors are invalid.</exception>
     public static CeresRidleyMode7ColorCatalog Read(Stream json)
     {
-        FixedGridShape zoomShape = new(CeresRidleyPaletteRomData.Mode7ZoomRowCount,
-            CeresRidleyPaletteRomData.Mode7ZoomColorCount);
+        FixedGridShape zoomShape = new(CeresRidleyPaletteDefinitions.GetawayZoomRowCount,
+            CeresRidleyPaletteDefinitions.GetawayZoomColorCount);
         Ensure.NotNull(json);
         CeresRidleyMode7ColorDocument document;
         document = JsonAssetDocument.Read<CeresRidleyMode7ColorDocument>(json, ArtworkJson.Options, "Ceres Ridley Mode-7 color");
         if (document.Version != CeresRidleyMode7ColorFormat.Version ||
             !zoomShape.HasRows(document.ZoomRows))
             throw new InvalidDataException("Ceres Ridley Mode-7 colors require version one and nine zoom rows.");
-        var rows = new Bgr555[CeresRidleyPaletteRomData.Mode7ZoomRowCount][];
+        var rows = new Bgr555[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];
         for (int row = 0; row < rows.Length; row++)
         {
             PaletteRgb5[]? colors = document.ZoomRows[row];

@@ -53,6 +53,6 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinition.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresRidleyPaletteRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteDefinitions.cs")]),
     ];
 }

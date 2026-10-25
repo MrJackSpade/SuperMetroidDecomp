@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -29,8 +28,8 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     /// <summary>Compares supplied warning colors with calculated rows and retains only independently edited cells.</summary>
     internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
     {
-        for (int row = 0; row < CeresRidleyPaletteRomData.AlarmRowCount; row++)
-        for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmRowCount; row++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
             if (Calculate(row, color) != rows[row][color])
                 edits.Add(new ColourCell(row, color), rows[row][color]);
     }
@@ -38,16 +37,16 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     /// <summary>$A6:C1DF-C23E: sixteen rows ascend through row8, then revisit rows7..1.</summary>
     internal static int SourceRow(int row)
     {
-        if ((uint)row >= CeresRidleyPaletteRomData.AlarmRowCount)
+        if ((uint)row >= CeresRidleyPaletteDefinitions.AlarmRowCount)
             throw new ArgumentOutOfRangeException(nameof(row));
-        return Math.Min(row, CeresRidleyPaletteRomData.AlarmRowCount - row);
+        return Math.Min(row, CeresRidleyPaletteDefinitions.AlarmRowCount - row);
     }
 
     /// <summary>Uses an edited cell when supplied; otherwise computes its bright, middle, or dark warning shade.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         _ = SourceRow(row);
-        if ((uint)color >= CeresRidleyPaletteRomData.AlarmColorCount)
+        if ((uint)color >= CeresRidleyPaletteDefinitions.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new ColourCell(row, color);
         return edits.TryGetValue(key, out Bgr555 value) ? value : Calculate(row, color);

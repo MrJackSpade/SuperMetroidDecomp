@@ -1,8 +1,8 @@
 ﻿
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Cartridge values and helpers of <see cref="NorfairRidleyPaletteRomData"/> that only verification reads.</summary>
-internal static class NorfairRidleyPaletteRomDataConstants
+/// <summary>Cartridge values and helpers of <see cref="NorfairRidleyPaletteDefinitions"/> that only verification reads.</summary>
+internal static class NorfairRidleyPaletteDefinitionsConstants
 {
     /// <summary>CGRAM entry 160, converted from native color-memory byte offset $0140; the initial copy covers entries 160..191, OBJ palettes 2 and 3.</summary>
     public const int InitialCgramIndex = 0x140 / 2;

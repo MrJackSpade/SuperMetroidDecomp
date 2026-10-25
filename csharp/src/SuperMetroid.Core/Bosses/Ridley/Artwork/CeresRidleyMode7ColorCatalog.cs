@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -15,7 +14,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     /// <summary>Reads an authored color by the high byte of the native zoom word.</summary>
     public Bgr555 Resolve(int zoomHighByte, int color)
     {
-        if ((uint)zoomHighByte >= CeresRidleyPaletteRomData.Mode7ZoomRowCount)
+        if ((uint)zoomHighByte >= CeresRidleyPaletteDefinitions.GetawayZoomRowCount)
             throw new ArgumentOutOfRangeException(nameof(zoomHighByte));
         return rows.Resolve(zoomHighByte, color);
     }
@@ -28,7 +27,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     {
         Ensure.NotNull(cgram);
         _ = Resolve(zoomHighByte, 0);
-        for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
             new RidleyColours(cgram).CeresMode7Zoom.Write(color, rows.Resolve(zoomHighByte, color));
     }
 }

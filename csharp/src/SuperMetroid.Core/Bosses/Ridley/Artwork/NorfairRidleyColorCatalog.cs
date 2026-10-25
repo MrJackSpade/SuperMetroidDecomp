@@ -8,13 +8,13 @@ public sealed class NorfairRidleyColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
         {
-            Span<Bgr555> initialWords = stackalloc Bgr555[NorfairRidleyPaletteRomData.InitialColorCount];
+            Span<Bgr555> initialWords = stackalloc Bgr555[NorfairRidleyPaletteDefinitions.InitialColorCount];
             for (int color = 0; color < initialWords.Length; color++) initialWords[color] = initial.ColorAt(color);
             content.AppendColors("initial", initialWords);
-            Bgr555[][] revealWords = new Bgr555[NorfairRidleyPaletteRomData.RevealRowCount][];
+            Bgr555[][] revealWords = new Bgr555[NorfairRidleyPaletteDefinitions.RevealRowCount][];
             for (int row = 0; row < revealWords.Length; row++)
             {
-                revealWords[row] = new Bgr555[NorfairRidleyPaletteRomData.RevealColorCount];
+                revealWords[row] = new Bgr555[NorfairRidleyPaletteDefinitions.RevealColorCount];
                 for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = reveal.ColorAt(row, color);
             }
             content.AppendColorFrames("reveal", revealWords);
@@ -37,7 +37,7 @@ public sealed class NorfairRidleyColorCatalog
     public void ApplyInitial(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
-        for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
+        for (int color = 0; color < NorfairRidleyPaletteDefinitions.InitialColorCount; color++)
             new RidleyColours(cgram).NorfairInitial.Write(color, initial.ColorAt(color));
     }
 
@@ -48,7 +48,7 @@ public sealed class NorfairRidleyColorCatalog
     {
         NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
         Ensure.NotNull(cgram);
-        for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
+        for (int color = 0; color < NorfairRidleyPaletteDefinitions.RevealColorCount; color++)
             new RidleyColours(cgram).NorfairReveal.Write(color, reveal.ColorAt(row, color));
     }
 }

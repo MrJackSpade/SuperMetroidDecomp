@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -59,12 +58,12 @@ internal sealed class CeresRidleyFades
         // The cartridge steps a colour offset one row of colours at a time; the row it reaches is the fade's progress.
         int row = state.FadePaletteOffset;
         if (_bossArtwork.CeresRidleyColors is { } bodyColors &&
-            row < CeresRidleyPaletteRomData.BodyFadeRowCount)
+            row < CeresRidleyPaletteDefinitions.BodyFadeRowCount)
             bodyColors.ApplyBodyFade(_presentation.Colours, row);
         else throw new InvalidOperationException(
             $"Ceres Ridley body-fade row {row} is outside the installed color rows.");
         state.FadePaletteOffset++;
-        if (state.FadePaletteOffset < CeresRidleyPaletteRomData.BodyFadeRowCount)
+        if (state.FadePaletteOffset < CeresRidleyPaletteDefinitions.BodyFadeRowCount)
             return;
 
         // CeresRidley_Func_5 clears tangible bit $0400 after the final palette row, waits

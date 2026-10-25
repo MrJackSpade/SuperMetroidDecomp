@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -11,7 +12,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -31,15 +31,15 @@ internal static class CeresRidleyMode7ColorsVerification
         CeresRidleyMode7ColorCatalog native = CeresRidleyMode7ColorFile.Read(
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
-        for (int row = 0; row < CeresRidleyPaletteRomData.Mode7ZoomRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.GetawayZoomRowCount; row++)
         {
             ushort nativePointer = unchecked((ushort)(
-                row * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride - 0x4ef9));
-            int rowAddress = CeresRidleyPaletteRomData.Mode7ZoomColors +
-                row * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride;
+                row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes - 0x4ef9));
+            int rowAddress = RidleySourceDefinitions.Ceres.GetawayZoomColors +
+                row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes;
             AssertEqual(0xa60000 | nativePointer, rowAddress,
                 $"Mode-7 row {row} matches cartridge wrapped source expression");
-            for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
             {
                 int address = rowAddress + color * sizeof(ushort);
                 forbidden.Add(address);
@@ -89,12 +89,12 @@ internal static class CeresRidleyMode7ColorsVerification
             int row = SnesLittleEndian.HighByte(frame.Zoom);
             visited.Add(row);
             select(checked((ushort)frame.Zoom));
-            for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
                 AssertEqual(edited.CeresRidleyFloorColors.Resolve(row, color),
-                    cgram.Colors[CeresRidleyPaletteRomDataConstants.Mode7ZoomCgramIndex + color],
+                    cgram.Colors[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
-        AssertEqual(CeresRidleyPaletteRomData.Mode7ZoomRowCount, visited.Count,
+        AssertEqual(CeresRidleyPaletteDefinitions.GetawayZoomRowCount, visited.Count,
             "native getaway selects every extracted zoom row");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed Mode-7 zoom cycle avoids source-color ROM reads");

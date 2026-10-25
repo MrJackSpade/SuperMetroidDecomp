@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -64,7 +63,7 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
     public Bgr555 ResolveRetreatBg(int color)
     {
-        if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
+        if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatBg.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : CalculateRetreatBg(color);
     }
@@ -74,7 +73,7 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
     public Bgr555 ResolveRetreatShared(int color)
     {
-        if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
+        if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatShared.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : start.Resolve(color + 1);
     }
@@ -83,7 +82,7 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyStart(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.StartColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.StartColorCount; color++)
             new RidleyColours(cgram).CeresStart.Write(color, start.Resolve(color));
     }
 
@@ -92,7 +91,7 @@ public sealed class CeresRidleyColorCatalog
     {
         eyeFade.ValidateRow(row);
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.EyeFadeColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.EyeFadeColorCount; color++)
             new RidleyColours(cgram).CeresEyeFade.Write(color, eyeFade.Resolve(row, color));
     }
 
@@ -101,9 +100,9 @@ public sealed class CeresRidleyColorCatalog
     {
         bodyFade.ValidateRow(row);
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
             new RidleyColours(cgram).CeresBodyFadeShadow.Write(color, bodyFade.Resolve(row, color));
-        for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
             new RidleyColours(cgram).CeresBodyFade.Write(color, bodyFade.Resolve(row, color));
     }
     /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
@@ -111,7 +110,7 @@ public sealed class CeresRidleyColorCatalog
     {
         _ = health.Resolve(row, 0);
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.HealthColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
             new RidleyColours(cgram).Health.Write(color, health.Resolve(row, color));
     }
 
@@ -120,7 +119,7 @@ public sealed class CeresRidleyColorCatalog
     {
         _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
             new RidleyColours(cgram).CeresAlarm.Write(color, alarm.Resolve(row, color));
     }
 
@@ -128,9 +127,9 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyRetreat(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.RetreatBgColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatBgColorCount; color++)
             new RidleyColours(cgram).CeresRetreatBackground.Write(color, ResolveRetreatBg(color));
-        for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatSharedColorCount; color++)
         {
             Bgr555 selected = ResolveRetreatShared(color);
             new RidleyColours(cgram).CeresRetreatSharedBackground.Write(color, selected);
@@ -143,7 +142,7 @@ public sealed class CeresRidleyColorCatalog
     {
         _ = baby.Resolve(row, 0);
         Ensure.NotNull(cgram);
-        for (int color = 0; color < CeresRidleyPaletteRomData.BabyColorCount; color++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
             new RidleyColours(cgram).CeresBaby.Write(color, baby.Resolve(row, color));
     }
 }

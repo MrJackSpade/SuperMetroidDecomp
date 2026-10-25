@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -149,8 +148,8 @@ internal sealed class CeresRidleyHits
             return;
 
         int paletteIndex = state.HitCounter < 70
-            ? CeresRidleyPaletteRomData.HealthMidRow
-            : CeresRidleyPaletteRomData.HealthLateRow;
+            ? CeresRidleyPaletteDefinitions.HealthMidRow
+            : CeresRidleyPaletteDefinitions.HealthLateRow;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
             .ApplyHealth(_presentation.Colours, paletteIndex);

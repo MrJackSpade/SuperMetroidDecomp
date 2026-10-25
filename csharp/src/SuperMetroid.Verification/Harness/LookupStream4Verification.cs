@@ -2816,7 +2816,7 @@ internal static class LookupStream4Verification
                             cgram.Colors[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
-                AssertEqual(RidleyLiquidRomData.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
+                AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
                 AssertEqual((ushort)8, state.WingAnimationTimer.RawValue, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
             }
@@ -3266,7 +3266,7 @@ internal static class LookupStream4Verification
             selected.ApplyBaby(cgram, 0);
             for (int color = 0; color < 15; color++)
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
-                    cgram.Colors[CeresRidleyPaletteRomDataConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
+                    cgram.Colors[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");

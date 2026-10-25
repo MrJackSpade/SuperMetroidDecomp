@@ -210,7 +210,7 @@ internal sealed class CeresRidleyGetaway
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomHighByte = SnesLittleEndian.HighByte(zoom);
         if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
-            zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
+            zoomHighByte < CeresRidleyPaletteDefinitions.GetawayZoomRowCount)
         {
             installed.Apply(_presentation.Colours, zoomHighByte);
             return;

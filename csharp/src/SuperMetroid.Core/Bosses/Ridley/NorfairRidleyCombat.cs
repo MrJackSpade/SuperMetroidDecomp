@@ -133,17 +133,17 @@ internal sealed class NorfairRidleyCombat
         bool hasPalette;
         var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley reveal requires installed colors.");
-        if (row > NorfairRidleyPaletteRomData.RevealRowCount)
+        if (row > NorfairRidleyPaletteDefinitions.RevealRowCount)
             throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
-        hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
+        hasPalette = row < NorfairRidleyPaletteDefinitions.RevealRowCount;
         if (hasPalette)
             colors.ApplyReveal(_presentation.Colours, row);
         state.FadePaletteOffset++;
         if (hasPalette)
             return;
 
-        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidRomData.BattleHeight,
-            RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
+        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.BattleHeight,
+            RidleyLiquidDefinitions.RiseVelocity, RidleyLiquidDefinitions.RiseDelay);
         state.FadePaletteOffset = 0;
         CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
         state.WingAnimationTimer = WrappingCountdown.Start(8);

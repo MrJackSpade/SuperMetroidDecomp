@@ -26,8 +26,8 @@ public readonly record struct SpriteFramePart(
     /// <param name="pixel">The pixel's position inside the returned character.</param>
     public int CharacterAt(Position16<ScreenPixels> cell, out Position16<CharacterPixels> pixel)
     {
-        int sourceX = (Flip & SnesTileFlipFlags.Horizontal) != 0 ? Size.X - 1 - cell.X : cell.X;
-        int sourceY = (Flip & SnesTileFlipFlags.Vertical) != 0 ? Size.Y - 1 - cell.Y : cell.Y;
+        int sourceX = (Flip & SnesTileFlipFlags.Horizontal) != SnesTileFlipFlags.None ? Size.X - 1 - cell.X : cell.X;
+        int sourceY = (Flip & SnesTileFlipFlags.Vertical) != SnesTileFlipFlags.None ? Size.Y - 1 - cell.Y : cell.Y;
         pixel = new((ushort)(sourceX % SpriteArtwork.CharacterPixels), (ushort)(sourceY % SpriteArtwork.CharacterPixels));
         return Character + sourceY / SpriteArtwork.CharacterPixels * SpriteArtwork.CharactersPerRow
             + sourceX / SpriteArtwork.CharacterPixels;

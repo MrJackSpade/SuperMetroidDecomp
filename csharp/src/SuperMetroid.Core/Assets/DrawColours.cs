@@ -86,7 +86,7 @@ public sealed class DrawColours
         {
             if (row >= FirstBlendingRow)
                 blending |= 1 << row;
-            if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == 0)
+            if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == SpritePaletteRows.None)
                 continue;
             ReadOnlySpan<Bgr555> colours = Row(frameColours, row);
             // Colour zero is transparent and never shown.
@@ -112,7 +112,7 @@ public sealed class DrawColours
         Span<Bgr555> colours = stackalloc Bgr555[RowColours];
         for (int row = 0; row < InkRows; row++)
         {
-            if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == 0)
+            if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == SpritePaletteRows.None)
                 continue;
             ReadOnlySpan<Bgr555> own = standard.Slice(row * RowColours, RowColours);
             own.CopyTo(colours);

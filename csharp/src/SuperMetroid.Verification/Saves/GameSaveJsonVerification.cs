@@ -242,7 +242,7 @@ internal static class GameSaveJsonVerification
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
         GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "JSON carries the largest item-load count");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.CartridgeDebugFlag, "JSON carries the largest debug value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.DebugMode, "JSON carries the largest debug value");
         AssertEqual(0, slot.NewFileMarker, "JSON carries a zero new-file marker");
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadingGameState, "JSON carries an unnamed dispatcher route unchanged");
         AssertEqual(SaveFieldValue.MaximumValue, slot.Checkpoint.SaveStation, "JSON carries the largest load station");

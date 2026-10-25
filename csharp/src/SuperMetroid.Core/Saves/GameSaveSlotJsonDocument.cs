@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Progression;
 
 
@@ -52,8 +53,13 @@ public sealed record GameSaveSlotJsonDocument
     /// </summary>
     public required int LoadedItemCount { get; init; }
 
-    /// <summary>The checksummed cartridge debug value, carried unchanged.</summary>
-    public required int CartridgeDebugFlag { get; init; }
+    /// <summary>The debug-mode setting the slot was saved with, carried unchanged.</summary>
+    /// <remarks>
+    /// The JSON property keeps the schema-two name <c>cartridgeDebugFlag</c>, so saves written before the rename stay
+    /// readable and new saves stay readable by earlier builds.
+    /// </remarks>
+    [JsonPropertyName("cartridgeDebugFlag")]
+    public required int DebugMode { get; init; }
 
     /// <summary>The checksummed new-file initialization marker, carried unchanged.</summary>
     public required int NewFileMarker { get; init; }

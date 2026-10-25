@@ -139,7 +139,7 @@ public static class GameSaveJsonCodec
         IconCancelEnabled = slot.IconCancelEnabled,
         JapaneseText = slot.JapaneseText,
         LoadedItemCount = slot.LoadedItemCount,
-        CartridgeDebugFlag = slot.DebugFlag,
+        DebugMode = slot.DebugFlag,
         NewFileMarker = slot.NewFileMarker,
         LoadingGameState = slot.LoadingGameState,
         Progression = new SaveProgressionJsonDocument
@@ -175,7 +175,7 @@ public static class GameSaveJsonCodec
             IconCancelEnabled = slot.IconCancelEnabled,
             JapaneseText = slot.JapaneseText,
             LoadedItemCount = slot.LoadedItemCount,
-            DebugFlag = slot.CartridgeDebugFlag,
+            DebugFlag = slot.DebugMode,
             NewFileMarker = slot.NewFileMarker,
             LoadingGameState = slot.LoadingGameState,
             EquippedItems = slot.Inventory.EquippedItems,
@@ -262,7 +262,7 @@ public static class GameSaveJsonCodec
         RequireRange(slot.ReserveMode, SaveFieldValue.MaximumValue, expectedSlot, "reserveMode");
         RequireRange(slot.HudItem, SaveFieldValue.MaximumValue, expectedSlot, "hudItem");
         RequireRange(slot.LoadedItemCount, SaveFieldValue.MaximumValue, expectedSlot, "loadedItemCount");
-        RequireRange(slot.CartridgeDebugFlag, SaveFieldValue.MaximumValue, expectedSlot, "cartridgeDebugFlag");
+        RequireRange(slot.DebugMode, SaveFieldValue.MaximumValue, expectedSlot, "cartridgeDebugFlag");
         RequireRange(slot.NewFileMarker, SaveFieldValue.MaximumValue, expectedSlot, "newFileMarker");
         RequireRange(slot.LoadingGameState, SaveFieldValue.MaximumValue, expectedSlot, "loadingGameState");
         SaveResourcesJsonDocument resources = slot.Resources;

@@ -17,7 +17,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed flight artwork the frame is drawn from, rebound after debugger restoration.</summary>
-    [field: NonSerialized] internal CeresFlightArtworkCatalog? Artwork { get; private set; }
+    [field: NonSerialized] internal CeresFlightArtwork? Artwork { get; private set; }
     /// <summary>The floor's cells for the front or the rear view of the bound artwork, until the view or the artwork changes.</summary>
     [NonSerialized] private byte[]? floorMap;
     /// <summary>Whether <see cref="floorMap"/> lays out the rear view.</summary>
@@ -25,7 +25,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
     [NonSerialized] private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
-    [NonSerialized] private CeresFlightActorLayout? actorLayout;
+    [NonSerialized] private CeresFlightActorPlacements? actorLayout;
     /// <summary>Mode 1 caption tiles progressively written during the SPACE COLONY title.</summary>
     internal BackgroundTile[] SpaceColonyTilemap { get; } = new BackgroundTile[32 * 32];
     /// <summary>Front-view star actor whose timer also drives the diagonal background rush.</summary>
@@ -72,14 +72,14 @@ internal sealed class IntroCeresFlightState
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles; required.</param>
     public IntroCeresFlightState(AudioQueues audio,
-        CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
+        CeresFlightArtwork? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
     {
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
         BindSheets(sheets ?? throw new InvalidOperationException("Ceres approach requires the installed sprite sheets."));
         actorLayout = artwork?.Actors;
 
-        CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+        CeresFlightArtwork content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
         RequireMinimum(content.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightArtworkFormat.FloorByteCount,
             "gunship/Ceres Mode 7 characters");
@@ -113,7 +113,7 @@ internal sealed class IntroCeresFlightState
     [NonSerialized] private ScreenLayerPictures? captionTiles;
 
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
-    public void BindArtwork(CeresFlightArtworkCatalog? artwork)
+    public void BindArtwork(CeresFlightArtwork? artwork)
     {
         actorLayout = artwork?.Actors;
         Artwork = artwork;
@@ -249,7 +249,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>The floor's cells: the blank tile everywhere, with the front or the rear view's map over the start.</summary>
     private byte[] FloorMap()
     {
-        CeresFlightArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
+        CeresFlightArtwork content = Artwork ?? throw new InvalidOperationException(
             "Ceres approach rendering requires installed cinematic artwork.");
         bool rear = ShowsRearView;
         if (floorMap is null || floorMapIsRear != rear)
@@ -279,7 +279,7 @@ internal sealed class IntroCeresFlightState
             .Select(index =>
             {
                 CeresFlightActorDefinition definition =
-                    CeresFlightActorDefinitions.RearViewActor(index);
+                    CeresFlightActors.RearViewActor(index);
                 if (actorLayout is { } layout)
                 {
                     CeresFlightActorPlacement placement = layout[index];
@@ -381,7 +381,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Writes one authored title glyph to the caption tilemap.</summary>
     private void WriteNextSpaceColonyLetter()
     {
-        (int column, BackgroundTile tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
+        (int column, BackgroundTile tile) = SpaceColonyCaption.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 24;
         SpaceColonyTilemap[CaptionRow * 32 + column] = tile;
     }
@@ -415,7 +415,7 @@ internal sealed class IntroCeresFlightState
         {
             IntroDiscoverySprite actor = RearViewActors[index];
             CeresFlightActorDefinition definition =
-                CeresFlightActorDefinitions.RearViewActor(index);
+                CeresFlightActors.RearViewActor(index);
             if (actor.PreInstruction != definition.ActivePreInstruction)
             {
                 throw new InvalidDataException(

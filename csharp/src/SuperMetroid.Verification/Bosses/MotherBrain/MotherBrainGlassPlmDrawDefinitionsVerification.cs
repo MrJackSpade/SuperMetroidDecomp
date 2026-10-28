@@ -37,10 +37,10 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         Suite(nameof(VerifyGlassLayoutVisuals), () => VerifyGlassLayoutVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            MotherBrainGlassDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Draw),
+                MotherBrainGlassDraws.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         RoomPlmVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");
@@ -101,7 +101,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         var expected = new Dictionary<int, ushort>();
         foreach (RoomPlmShotBlockDrawDefinitions.Run run in selected.Runs.Span)
         {
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
+            bool vertical = run.Direction == PlmRunDirection.Vertical;
             for (int block = 0; block < run.LevelWords.Length; block++)
             {
                 int x = entryX + (vertical ? 0 : block);

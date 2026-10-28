@@ -28,8 +28,8 @@ internal static class RoomRevealPresentationContractChecks
             using SuperMetroid.Core.Rooms.Xray;
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
-                void Inspect(XrayRevealVisualCatalog reveals, XrayOverlayVisualCatalog overlays,
-                    RoomPlmDynamicCollectibleArtCatalog items) {
+                void Inspect(InstalledXrayReveals reveals, InstalledXrayOverlays overlays,
+                    InstalledDynamicCollectibleArt items) {
                     reveals.Apply(RoomCollisionType.ShootableBlock, 2);
                     reveals.Apply(RoomCollisionType.SolidBlock, 0);
                     reveals.Apply(RoomCollisionType.HorizontalExtension, 3);
@@ -46,7 +46,7 @@ internal static class RoomRevealPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomRevealProviderFixture", sources,
-            platforms.Append(typeof(XrayRevealVisualCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(InstalledXrayReveals).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -74,9 +74,9 @@ internal static class RoomRevealPresentationContractChecks
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
-            if (XrayRevealTable.Find(type, (byte)value) is { } rule && XrayRevealVisualCatalog.IsDrawable(rule.Command))
+            if (XrayRevealTable.Find(type, (byte)value) is { } rule && InstalledXrayReveals.IsDrawable(rule.Command))
                 entries.Add(new(type, (byte)value, new(1, 2, 3, 4)));
-        var catalog = new XrayRevealVisualCatalog(entries);
+        var catalog = new InstalledXrayReveals(entries);
         Require(catalog.Apply(RoomCollisionType.ShootableBlock, 2) is { } tall &&
             tall.Command == XrayRevealCommand.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,
             "one identity must select the compiled command and the matching installed operands");
@@ -85,7 +85,7 @@ internal static class RoomRevealPresentationContractChecks
         Require(catalog.Apply(RoomCollisionType.SolidBlock, 0) is null &&
             catalog.Apply(RoomCollisionType.ShootableBlock, byte.MaxValue) is null,
             "unowned collision/BTS pairs must return native no-reveal, not demand missing artwork");
-        Require(typeof(XrayRevealVisualCatalog).GetMethods().Where(method => method.Name == "Apply")
+        Require(typeof(InstalledXrayReveals).GetMethods().Where(method => method.Name == "Apply")
             .Single().GetParameters().Length == 2, "the mismatched third input must no longer exist");
     }
 

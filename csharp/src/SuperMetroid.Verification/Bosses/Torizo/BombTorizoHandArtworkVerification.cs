@@ -70,7 +70,7 @@ internal static class BombTorizoHandArtworkVerification
     }
 
     /// <summary>Creates the minimal valid palette catalog for a ROM-free hand artwork fixture.</summary>
-    internal static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
+    internal static GameplayBasePalette BombTorizoHandFixturePalette() =>
         GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),

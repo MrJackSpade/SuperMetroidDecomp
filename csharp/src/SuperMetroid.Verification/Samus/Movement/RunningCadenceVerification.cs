@@ -192,10 +192,10 @@ internal static class RunningCadenceVerification
         {
             int address = 0x91b61f + 2 * selection;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                SamusRunningCadenceDefinitions.ReadResetWord(selection), "Original reset including pose0 alias");
+                SamusRunningCadenceBytes.ReadResetWord(selection), "Original reset including pose0 alias");
         }
         for (int selection = 6; selection <= byte.MaxValue; selection++)
-            AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadResetWord((byte)selection), "Reset unsupported stage");
+            AssertThrows<InvalidDataException>(() => SamusRunningCadenceBytes.ReadResetWord((byte)selection), "Reset unsupported stage");
     }
 
     /// <summary>Compares one bounded compiled cadence byte range with retail cartridge bytes.</summary>

@@ -13,8 +13,4 @@ internal static class IntroRinkaSpriteDefinitions
         new("rinka-1", new(74), 4),
         new("rinka-2", new(75), 4),
     ];
-
-    /// <summary>The pose of Rinka frame <paramref name="frame"/>, 0 through 2.</summary>
-    internal static CinematicSpritePose FramePose(int frame) =>
-        (uint)frame < 3 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

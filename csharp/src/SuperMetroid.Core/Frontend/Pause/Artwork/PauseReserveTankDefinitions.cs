@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Reserve-strip visual identities and import-only cartridge bindings.</summary>
@@ -10,71 +7,61 @@ public static class PauseReserveTankDefinitions
     public const int Version = 1;
     /// <summary>JSON asset filename for the pause equipment screen's reserve-tank strip presentation.</summary>
     public const string FileName = "pause-reserve-tanks.json";
-    /// <summary>The pause sheet's frame for the reserve-strip frame <paramref name="frame"/>.</summary>
-    public static string SheetFrameName(string frame) => $"ReserveTank.{frame}";
     /// <summary>$82:C1D6 supplies six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
-    /// <summary>$82:C1D6..C1E2: six eight-pixel columns starting at24, at Y96 minus the draw bias.</summary>
-    /// <param name="index">Zero-based tank/cap anchor, 0..5, not a reserve-energy quantity.</param>
-    /// <returns>The stock screen-pixel origin before editable anchor deviations are applied.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The anchor is outside the six-entry strip.</exception>
-    public static Position16<SpritePixels> StockAnchor(int index)
-    {
-        if ((uint)index >= AnchorCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return new(checked((ushort)(24 + index * 8)), 95);
-    }
     /// <summary>The sprite palette every reserve-gauge part is drawn with.</summary>
     public const int Palette = 3;
-    /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels.</summary>
-    /// <returns>Ten stable frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order; caller-owned reserve quantities select the frame.</returns>
-    public static IEnumerable<PauseReserveTankFrame> Frames()
-    {
-        yield return new PauseReserveTankFrame("Full", PauseReserveTankVisual.Full);
-        yield return new PauseReserveTankFrame("EndCap", PauseReserveTankVisual.EndCap);
-        yield return new PauseReserveTankFrame("Empty", PauseReserveTankVisual.Empty);
-        for (int fill = 1; fill <= 7; fill++) yield return new PauseReserveTankFrame($"Fill{fill}", FillLevel(fill));
-    }
+    /// <summary>$82:C1D6: screen X of the first tank's anchor.</summary>
+    internal const int FirstAnchorX = 0x18;
+    /// <summary>$82:C1D6..C1E2: horizontal distance between neighbouring tank anchors, one eight-pixel column.</summary>
+    internal const int AnchorStride = 8;
+    /// <summary>$82:C1D6..C1E2: screen Y shared by every anchor, Y96 minus the draw bias.</summary>
+    internal const int AnchorY = 0x5f;
+    /// <summary>$82:B3D9: the two identical eight-entry partial-fill tables together hold sixteen entries.</summary>
+    internal const int PartialMapEntries = 16;
 
-    /// <summary>The partial-tank spritemap identity for a fill-step count.</summary>
-    /// <param name="steps">Fill steps, 0 (empty) through 7.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The count is outside the eight fill levels.</exception>
-    internal static PauseReserveTankVisual FillLevel(int steps) => steps switch
-    {
-        0 => PauseReserveTankVisual.Empty,
-        1 => PauseReserveTankVisual.Fill1,
-        2 => PauseReserveTankVisual.Fill2,
-        3 => PauseReserveTankVisual.Fill3,
-        4 => PauseReserveTankVisual.Fill4,
-        5 => PauseReserveTankVisual.Fill5,
-        6 => PauseReserveTankVisual.Fill6,
-        7 => PauseReserveTankVisual.Fill7,
-        _ => throw new ArgumentOutOfRangeException(nameof(steps), steps, "A reserve tank has eight fill levels."),
-    };
-    /// <summary>Reserve spritemaps $82:C35B/C369/C3D9..C410 are one stationary small sprite.</summary>
-    /// <remarks>Partial levels1..6 advance through sheet tiles47..4C; level7 uses
-    /// the full tile4E. Tile4D is empty, and4F is the end cap. Palette is caller-owned.</remarks>
-    internal static int StockTile(PauseReserveTankVisual identity) => identity switch
-    {
-        PauseReserveTankVisual.Full or PauseReserveTankVisual.Fill7 => 0x4e,
-        PauseReserveTankVisual.EndCap => 0x4f,
-        PauseReserveTankVisual.Empty => 0x4d,
-        PauseReserveTankVisual.Fill1 or PauseReserveTankVisual.Fill2 or PauseReserveTankVisual.Fill3 or
-            PauseReserveTankVisual.Fill4 or PauseReserveTankVisual.Fill5 or PauseReserveTankVisual.Fill6 =>
-            0x46 + (identity - PauseReserveTankVisual.Empty),
-        _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {identity}."),
-    };
+    /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels, as ten stable
+    /// frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order.</summary>
+    internal static readonly PauseReserveTankFrame[] Frames =
+    [
+        new("Full", PauseReserveTankVisual.Full),
+        new("EndCap", PauseReserveTankVisual.EndCap),
+        new("Empty", PauseReserveTankVisual.Empty),
+        new("Fill1", PauseReserveTankVisual.Fill1),
+        new("Fill2", PauseReserveTankVisual.Fill2),
+        new("Fill3", PauseReserveTankVisual.Fill3),
+        new("Fill4", PauseReserveTankVisual.Fill4),
+        new("Fill5", PauseReserveTankVisual.Fill5),
+        new("Fill6", PauseReserveTankVisual.Fill6),
+        new("Fill7", PauseReserveTankVisual.Fill7),
+    ];
 
-    /// <summary>Builds the native eight-pixel reserve-tank part with its tile identity and caller-owned palette.</summary>
-    internal static SpriteVisualPart StockPart(PauseReserveTankVisual identity)
+    /// <summary>The partial-tank spritemap identity for each fill-step count, empty (zero steps) through seven steps.</summary>
+    internal static readonly PauseReserveTankVisual[] FillLevels =
+    [
+        PauseReserveTankVisual.Empty,
+        PauseReserveTankVisual.Fill1,
+        PauseReserveTankVisual.Fill2,
+        PauseReserveTankVisual.Fill3,
+        PauseReserveTankVisual.Fill4,
+        PauseReserveTankVisual.Fill5,
+        PauseReserveTankVisual.Fill6,
+        PauseReserveTankVisual.Fill7,
+    ];
+
+    /// <summary>Reserve spritemaps $82:C35B/C369/C3D9..C410 are one stationary small sprite: partial levels 1..6 advance
+    /// through sheet tiles 47..4C, level 7 uses the full tile 4E, 4D is empty and 4F is the end cap.</summary>
+    internal static readonly IReadOnlyDictionary<PauseReserveTankVisual, int> StockTiles = new Dictionary<PauseReserveTankVisual, int>
     {
-        int tile = StockTile(identity);
-        return new() { OffsetX = 0, OffsetY = 0, Size = 8, Priority = 3, Palette = null,
-            FlipX = false, FlipY = false, TileColumn = tile % MapSpriteFormat.TileColumns, TileRow = tile / MapSpriteFormat.TileColumns };
-    }
-    /// <summary>$82:B3D9 maps each of eight fill-step indices to $20..$27; both native tables agree.</summary>
-    /// <param name="index">Entry index, 0..15, covering both identical eight-entry native tables.</param>
-    /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the sixteen native entries.</exception>
-    public static PauseReserveTankVisual PartialMap(int index) => (uint)index < 16
-        ? FillLevel(index % 8) : throw new ArgumentOutOfRangeException(nameof(index));
+        [PauseReserveTankVisual.Full] = 0x4e,
+        [PauseReserveTankVisual.EndCap] = 0x4f,
+        [PauseReserveTankVisual.Empty] = 0x4d,
+        [PauseReserveTankVisual.Fill1] = 0x47,
+        [PauseReserveTankVisual.Fill2] = 0x48,
+        [PauseReserveTankVisual.Fill3] = 0x49,
+        [PauseReserveTankVisual.Fill4] = 0x4a,
+        [PauseReserveTankVisual.Fill5] = 0x4b,
+        [PauseReserveTankVisual.Fill6] = 0x4c,
+        [PauseReserveTankVisual.Fill7] = 0x4e,
+    };
 }

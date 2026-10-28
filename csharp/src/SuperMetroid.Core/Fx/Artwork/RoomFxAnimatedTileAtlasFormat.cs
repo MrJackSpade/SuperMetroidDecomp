@@ -53,15 +53,15 @@ public static class RoomFxAnimatedTileAtlasFormat
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
+        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTiles.All)
             if (definition.AnimatedObject is not (AnimatedTileObject.Spores or AnimatedTileObject.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
                     yield return segment;
                 }
-        WreckedShipTreadmillObjectDefinition treadmill =
-            WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);
+        WreckedShipTreadmillLoop treadmill =
+            WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards);
         for (int frame = 0; frame < TreadmillFrameCount; frame++)
         {
             total += WreckedShipTreadmillMechanicsDefinitions.FrameByteCount;
@@ -70,12 +70,12 @@ public static class RoomFxAnimatedTileAtlasFormat
         var statues = new RoomFxAtlasSegment.TourianStatueStrip();
         total += statues.ByteCount;
         yield return statues;
-        foreach (var segment in Frames(RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Spores)))
+        foreach (var segment in Frames(RoomFxAnimatedTiles.Require(AnimatedTileObject.Spores)))
         {
             total += segment.ByteCount;
             yield return segment;
         }
-        foreach (var segment in Frames(RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.HorizontalSpikes)))
+        foreach (var segment in Frames(RoomFxAnimatedTiles.Require(AnimatedTileObject.HorizontalSpikes)))
         {
             total += segment.ByteCount;
             yield return segment;
@@ -84,7 +84,7 @@ public static class RoomFxAnimatedTileAtlasFormat
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
 
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
-        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileObjectDefinition definition) =>
+        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileLoop definition) =>
             definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.FrameByteCount));
     }
 }

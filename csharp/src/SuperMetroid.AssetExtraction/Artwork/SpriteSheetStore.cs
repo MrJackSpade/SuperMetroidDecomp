@@ -65,16 +65,41 @@ internal sealed class SpriteSheetStore
     }
 
     /// <summary>Writes one composed sheet's image, palette map and frame manifest.</summary>
-    internal void Write(string name, ComposedSpriteSheet composed)
+    internal void Write(string name, ComposedSpriteSheet composed) => WriteEncoded(Encode(name, composed));
+
+    /// <summary>
+    /// Writes every sheet: their images and manifests are encoded in parallel, the slow part (PNG compression), and
+    /// written in the given order, so the files and the provenance manifest are the same as writing them one by one.
+    /// </summary>
+    internal void WriteAll(IReadOnlyList<NamedComposedSheet> sheets)
+    {
+        Ensure.NotNull(sheets);
+        var encoded = new EncodedSheet[sheets.Count];
+        Parallel.For(0, sheets.Count, index => encoded[index] = Encode(sheets[index].Name, sheets[index].Sheet));
+        foreach (EncodedSheet sheet in encoded)
+            WriteEncoded(sheet);
+    }
+
+    /// <summary>One sheet's three files, encoded and ready to write.</summary>
+    private readonly record struct EncodedSheet(string Name, byte[] Image, byte[] Palette, byte[] Frames);
+
+    /// <summary>Encodes one composed sheet's image, palette map and frame manifest.</summary>
+    private static EncodedSheet Encode(string name, ComposedSpriteSheet composed)
     {
         Ensure.NotNull(composed);
         using var image = new MemoryStream();
         RgbaPng.Write(image, composed.Size, composed.Pixels);
-        WriteFile(ImageFile(name), image.ToArray());
         using var palette = new MemoryStream();
         RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities, composed.PartRows));
-        WriteFile(PaletteFile(name), palette.ToArray());
-        WriteFile(FrameFile(name), SpriteSheet.Write(composed.Manifest));
+        return new(name, image.ToArray(), palette.ToArray(), SpriteSheet.Write(composed.Manifest));
+    }
+
+    /// <summary>Writes one encoded sheet's files and records their hashes.</summary>
+    private void WriteEncoded(EncodedSheet sheet)
+    {
+        WriteFile(ImageFile(sheet.Name), sheet.Image);
+        WriteFile(PaletteFile(sheet.Name), sheet.Palette);
+        WriteFile(FrameFile(sheet.Name), sheet.Frames);
     }
 
     /// <summary>Writes the provenance manifest of every file written.</summary>

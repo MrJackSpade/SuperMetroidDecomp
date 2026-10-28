@@ -21,11 +21,11 @@ internal static class CeresDestructionActorDefinitionsVerification
         Suite(nameof(VerifyCeresZebesActorMetadata), () => VerifyCeresZebesActorMetadata(retail));
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresDestructionActorDefinitions.InitialActor(
+            () => CeresDestructionActors.InitialActor(
                 CeresDestructionActorDefinitions.InitialActorCount),
             "destruction initial actor definition boundary");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresDestructionActorDefinitions.ZebesActor(
+            () => CeresDestructionActors.ZebesActor(
                 CeresDestructionActorDefinitions.ZebesActorCount),
             "Zebes reveal actor definition boundary");
 

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Resident SPC sound-effect bytecode identifiers used by authored channel programs.</summary>
-internal enum SpcSoundEffectOpcode : byte
+internal enum SpcSoundEffectOpcode
 {
     /// <summary>`$F5`: enable a legato pitch slide before the following note packet.</summary>
     PitchSlideLegato = 0xf5,

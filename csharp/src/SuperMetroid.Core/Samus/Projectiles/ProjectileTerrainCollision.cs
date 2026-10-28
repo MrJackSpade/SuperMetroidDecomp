@@ -233,7 +233,7 @@ internal sealed class ProjectileTerrainCollision
         // Cell index bits: 0 = right half, 1 = bottom half; BTS bit 6 / bit 7 flip them.
         int flips = (block.Bts.SlopeFlipsHorizontally ? 1 : 0) | (block.Bts.SlopeFlipsVertically ? 2 : 0);
         int baseIndex = block.Bts.SlopeShape * 4;
-        bool Solid(int cell) => SquareSlopeDefinitions.ReadSamusQuadrant(baseIndex + cell) != 0;
+        bool Solid(int cell) => SquareSlopes.ReadSamusQuadrant(baseIndex + cell) != 0;
 
         if (horizontalMovement)
         {
@@ -297,7 +297,7 @@ internal sealed class ProjectileTerrainCollision
             int y = slot.Position.Y.Whole & 15;
             if (block.Bts.SlopeFlipsHorizontally) x ^= 15;
             if (block.Bts.SlopeFlipsVertically) y ^= 15;
-            bool hit = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, x) <= y;
+            bool hit = SlopeHeights.Read(block.Bts.SlopeShape, x) <= y;
             // $94:A5DC/A5DE clears both scan counters on a surface hit. This overrides
             // earlier air rows and ends the span; Wave still discards collision carry.
             endSpan = hit;
@@ -340,7 +340,7 @@ internal sealed class ProjectileTerrainCollision
 
         // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A), and
         // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
-        return block.CollisionType is >= RoomCollisionType.SolidBlock and <= RoomCollisionType.BombableBlock;
+        return block.CollisionType.IsSolidBlockType();
     }
 
     /// <summary>Follows signed horizontal or vertical BTS links to the actual reaction block, rejecting cycles and out-of-room targets.</summary>

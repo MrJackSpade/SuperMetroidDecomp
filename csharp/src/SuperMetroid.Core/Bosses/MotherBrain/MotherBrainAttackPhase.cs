@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Index into Mother Brain's three-entry phase-two attack dispatcher at
 /// <c>$A9:B654</c>. The values are array indices in the cartridge, not host-only states.
 /// </summary>
-public enum MotherBrainAttackPhase : ushort
+public enum MotherBrainAttackPhase
 {
     /// <summary>Index 0 selects the next head/body attack using Samus movement and sampled RNG, then seeds the 64-update cooldown.</summary>
     ChooseAttack = 0,

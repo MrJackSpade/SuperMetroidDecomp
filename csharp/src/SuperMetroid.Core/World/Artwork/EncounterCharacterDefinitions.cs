@@ -31,7 +31,7 @@ internal static class EncounterCharacterDefinitions
             [EnemyDefinitionId.Crocomire] = CrocomireSkeletonTransferDefinitions.Sources,
             [EnemyDefinitionId.BombTorizo] = TorizoArtworkSwapDefinitions.Sources,
             [EnemyDefinitionId.GoldenTorizo] = TorizoArtworkSwapDefinitions.Sources,
-            [EnemyDefinitionId.RidleyCeres] = CeresEscapePageDefinitions.ObjectPages,
+            [EnemyDefinitionId.RidleyCeres] = CeresEscapeObjectPages.ObjectPages,
             [EnemyDefinitionId.CeresDoor] = [CeresDoorCharacters.Shown],
             [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterSources.All,
         };

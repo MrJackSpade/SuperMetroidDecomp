@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -22,21 +23,25 @@ internal static class BotwoonWallPlmsVerification
         Suite(nameof(BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms), () => BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList draw =
-            BotwoonWallPlmDrawDefinitions.All.Single();
+            BotwoonWallPlmDraws.All.Single();
         AssertEqual((ushort)0x930f, PlmDrawAddressCodec.Of(draw.Draw),
             "Botwoon clear draw pointer");
         AssertEqual(1, draw.Runs.Length, "Botwoon clear has one vertical run");
-        AssertEqual(0x8009, draw.Runs.Span[0].DirectionAndCount,
+        AssertEqual(PlmRunDirection.Vertical, draw.Runs.Span[0].Direction,
+            "Botwoon clear runs down its column");
+        AssertEqual(9, draw.Runs.Span[0].Count,
             "Botwoon clear is nine blocks tall");
         int cursor = PlmDrawAddressCodec.Of(draw.Draw);
-        AssertWord(checked((ushort)draw.Runs.Span[0].DirectionAndCount));
+        AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), draw.Runs.Span[0],
+            "Botwoon clear run header");
+        cursor += 2;
         foreach (ushort word in draw.Runs.Span[0].LevelWords.Span)
             AssertWord(word);
         for (int index = 0; index < 9; index++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2),
-                BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon calculated clear word matches native");
+                BotwoonWallPlmDraws.LevelWordAt(index), "Botwoon calculated clear word matches native");
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon fill rejects invalid block index");
+            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDraws.LevelWordAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)draw.Runs.Span[0].Next.X),
             "Botwoon clear final X offset");

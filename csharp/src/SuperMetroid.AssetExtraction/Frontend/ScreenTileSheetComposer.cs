@@ -36,7 +36,7 @@ internal static class ScreenTileSheetComposer
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
     {
         Ensure.NotNull(sources);
-        AreaMapPresentationCatalog maps = sources.Maps;
+        AreaMapPresentation maps = sources.Maps;
         return sheet switch
         {
             SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
@@ -202,11 +202,11 @@ internal static class ScreenTileSheetComposer
         ComposeFloorPixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).BabyCharacters, TitleColours(palette));
 
     /// <summary>The Ceres flight's Mode 7 characters under its palette.</summary>
-    internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>
+    internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtwork flight) =>
         ComposeFloorPixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount], FlightColours(flight));
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
-    private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
+    private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtwork mode7, EndingPaletteSet palettes) =>
         ComposeFloorPixels(HighBytes(EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
 
     /// <summary>The sheet of Mode 7 characters whose pixels <paramref name="pixels"/> holds, one colour index each, coloured from <paramref name="palette"/>.</summary>
@@ -262,11 +262,11 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
-    internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtworkCatalog flight) =>
+    internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtwork flight) =>
         Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
-    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtworkCatalog intro)
+    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtwork intro)
     {
         var colours = new ScreenPalette();
         intro.Palette.LoadTo(colours);
@@ -277,7 +277,7 @@ internal static class ScreenTileSheetComposer
     private static ReadOnlySpan<RgbColor> EndingColours(ScreenTileSources sources, EndingPaletteId palette) => EndingColours(sources.EndingPalettes, palette);
 
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
-    private static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteCatalog palettes, EndingPaletteId palette)
+    private static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteSet palettes, EndingPaletteId palette)
     {
         var colours = new ScreenPalette();
         palettes[palette].LoadTo(colours.All, 0);
@@ -285,7 +285,7 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The Ceres flight's palette.</summary>
-    private static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtworkCatalog flight)
+    private static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight)
     {
         var colours = new ScreenPalette();
         flight.Palette.LoadTo(colours);

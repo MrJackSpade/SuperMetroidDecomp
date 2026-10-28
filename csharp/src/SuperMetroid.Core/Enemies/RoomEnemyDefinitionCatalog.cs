@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
-    /// <summary>The 148 referenced enemy definitions, sorted by identity for binary lookup.</summary>
+    /// <summary>The 148 referenced enemy definitions.</summary>
     internal static readonly RoomEnemyDefinitionEntry[] Definitions =
     [
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Boyon, new(0x0400, EnemyTilePlacement.FollowingPrevious, 0x03e8, 0x000a, new(0x0008, 0x0008), 0x00, null, 0x0000, EnemyAiRoutine.SpeciesRoutine, 0x0001, EnemyAiRoutine.SpeciesRoutine, GrappleAiRoutine.Cancel, EnemyAiRoutine.CommonNoOp, 0x0000, null, EnemyCallbackBody.None, 0x0000, EnemyInteractionCallback.NormalEnemyTouch, EnemyCallbackBody.Routine, EnemyInteractionCallback.NormalEnemyShot, EnemyCallbackBody.Routine, EnemyCallbackBody.ImmediateReturn, 0x05, new(50), new(18))),
@@ -166,38 +167,10 @@ public static class RoomEnemyDefinitionCatalog
     /// <summary>Number of distinct retail enemy definitions reachable from room states.</summary>
     public const int Count = 148;
 
-    /// <summary>Checks the compiled definition count and strict identity order before any lookup.</summary>
-    static RoomEnemyDefinitionCatalog()
-    {
-        if (Definitions.Length != Count)
-            throw new InvalidDataException(
-                $"Expected {Count} compiled enemy headers, found {Definitions.Length}.");
-        for (int index = 1; index < Definitions.Length; index++)
-        {
-            if (Definitions[index - 1].Id >= Definitions[index].Id)
-                throw new InvalidDataException(
-                    $"Compiled enemy definitions are not strictly ordered at entry {index}.");
-        }
-    }
-
-    /// <summary>Gets an application-owned retail definition, rejecting an unreferenced identity.</summary>
-    public static RoomEnemyDefinition Get(EnemyDefinitionId definitionId)
-    {
-        int low = 0;
-        int high = Definitions.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            var candidate = Definitions[middle];
-            if (candidate.Id == definitionId)
-                return candidate.Definition;
-            if (candidate.Id < definitionId)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new ArgumentOutOfRangeException(nameof(definitionId), definitionId,
-            "Not a referenced retail enemy definition.");
-    }
+    /// <summary>
+    /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);
+    /// the compiled count and each identity's single compilation are checked when it is built.
+    /// </summary>
+    internal static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById =
+        RoomEnemyHeaders.Index(Definitions, Count);
 }

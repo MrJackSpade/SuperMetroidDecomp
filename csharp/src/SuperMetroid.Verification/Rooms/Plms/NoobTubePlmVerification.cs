@@ -86,7 +86,7 @@ internal static class NoobTubePlmVerification
         // under the power-bomb detector with its link pointing at the input-wait stage.
         StepNoobTube(plms, level);
         RoomPlmSlotSnapshot intact = plms.PopulationSlots.Single();
-        AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb,
+        AssertEqual(PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnPowerBomb),
             intact.PreInstruction, "intact tube waits for a power bomb");
         AssertTrue(intact.Animation is NoobTubePlmAnimation { Program: NoobTubeProgram.Main, Link: NoobTubeProgram.WaitForInput },
             "intact tube sleeps in its main program, linked to the input wait");
@@ -149,7 +149,7 @@ internal static class NoobTubePlmVerification
             "generic trigger publishes the native marked Power Bomb word");
         StepNoobTube(plms, level);
         RoomPlmSlotSnapshot armed = plms.PopulationSlots.Single();
-        AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
+        AssertEqual(PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnAcceptedInput),
             armed.PreInstruction, "power bomb arms the input wake callback");
         AssertTrue(armed.Animation is NoobTubePlmAnimation { Program: NoobTubeProgram.WaitForInput, Link: NoobTubeProgram.Break },
             "power bomb wakes the input wait, linked to the break");

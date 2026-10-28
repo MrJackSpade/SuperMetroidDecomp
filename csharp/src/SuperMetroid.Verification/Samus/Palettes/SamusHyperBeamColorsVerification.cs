@@ -38,7 +38,7 @@ internal static class SamusHyperBeamColorsVerification
 
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam color oracle revision");
-        SamusHyperBeamColorCatalog catalog = SamusHyperBeamColorFile.Read(
+        InstalledSamusHyperBeamColors catalog = SamusHyperBeamColorFile.Read(
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = catalog.colors;
         AssertEqual(6, stored.Count, "Hyper Beam whole inputs after cyan shadow midpoint calculation");
@@ -46,7 +46,7 @@ internal static class SamusHyperBeamColorsVerification
         AssertEqual(9, endpointInputs.Count, "Three endpoint hues each have three independent shade inputs");
         int endpointComponentCount = 0;
         foreach (var entry in endpointInputs.Values)
-            foreach (var field in MetadataShape.Fields(typeof(SamusHyperBeamColorCatalog.EndpointChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(InstalledSamusHyperBeamColors.EndpointChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) endpointComponentCount++;
         AssertEqual(8, endpointComponentCount, "Only eight independent endpoint channels remain after middle-shadow calculation");
         var componentInputs = catalog.intermediateInputs;
@@ -182,14 +182,14 @@ internal static class SamusHyperBeamColorsVerification
             }
             foreach (bool redHue in new[] { false, true })
             {
-                var inputs = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, rgb % 32);
+                var inputs = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, rgb % 32);
                 AssertEqual((ushort)rgb, inputs.Resolve(redHue, rgb % 32), "Every RGB5 endpoint input survives channel separation");
-                var independent = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, (rgb + 1) % 32);
+                var independent = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, (rgb + 1) % 32);
                 AssertEqual((ushort)rgb, independent.Resolve(redHue, (rgb + 1) % 32), "Every RGB5 endpoint preserves a differing source maximum");
             }
-            var minimumInput = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, green);
+            var minimumInput = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, green);
             AssertEqual((ushort)rgb, minimumInput.Resolve(false, 0, green), "Every RGB5 shared endpoint minimum");
-            var editedMinimum = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, (green + 1) % 32);
+            var editedMinimum = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, (green + 1) % 32);
             AssertEqual((ushort)rgb, editedMinimum.Resolve(false, 0, (green + 1) % 32), "Every RGB5 independently edited endpoint minimum");
             AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 green-to-yellow domain");
             int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
@@ -306,7 +306,7 @@ internal static class SamusHyperBeamColorsVerification
         }
         byte[] chargeJson = SamusChargeColorExtractor.Extract(rom);
         var shot = SamusChargeColorFile.Read(new MemoryStream(chargeJson));
-        AssertEqual(typeof(SamusHyperBeamColorCatalog), MetadataShape.FieldType(typeof(SamusChargeColorCatalog), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
+        AssertEqual(typeof(InstalledSamusHyperBeamColors), MetadataShape.FieldType(typeof(InstalledSamusChargeColors), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
             "Hyper-shot owns the shared calculated representation, not another whole palette table");
         var shotCgram = new SamusColourRig();
         for (int frame = 0; frame < 10; frame++)
@@ -398,8 +398,8 @@ internal static class SamusHyperBeamColorsVerification
 
     /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes,
+        AreaMapPresentation baseline, ISnesAddressSpace rom,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusHyperBeamColorFormat.FileName);
@@ -410,7 +410,7 @@ internal static class SamusHyperBeamColorsVerification
         PaletteRgb5 original = document.Frames[4][7];
         document.Frames[4][7] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, SamusHyperBeamColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
@@ -442,7 +442,7 @@ internal static class SamusHyperBeamColorsVerification
                  .. document.Frames[4].Skip(8)], .. document.Frames.Skip(5)],
         }), "out-of-range Hyper Beam RGB5 fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing Hyper Beam override restores stock content identity");
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");

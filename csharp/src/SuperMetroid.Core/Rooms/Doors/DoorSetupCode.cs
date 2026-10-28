@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The setup routine a door runs while Samus passes through it: the complete set the retail doors name, plus none.
 /// The values are arbitrary; the import pipeline translates the cartridge's routine words (#1414).
 /// </summary>
-public enum DoorSetupCode : ushort
+public enum DoorSetupCode
 {
     /// <summary>The door header names no setup routine.</summary>
     None = 1,

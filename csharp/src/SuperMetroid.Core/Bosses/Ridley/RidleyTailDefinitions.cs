@@ -30,23 +30,25 @@ internal static class RidleyTailDefinitions
     internal const ushort RightWhipTargetBase = 0x4000;
 
     /// <summary>The longest each segment may extend while whipping, base through tip ($A6:CF5A-$D09E).</summary>
-    internal static ushort MaximumDistance(int segmentIndex) => segmentIndex switch
-    {
-        0 => 0,
-        1 or 2 => 0x1800,
-        3 or 4 => 0x1600,
-        5 => 0x1200,
-        6 => 0x0500,
-        _ => throw new ArgumentOutOfRangeException(nameof(segmentIndex)),
-    };
+    internal static readonly ushort[] MaximumDistances = [0, 24 << 8, 24 << 8, 22 << 8, 22 << 8, 18 << 8, 5 << 8];
     /// <summary>$A6:CE08, descending stab extension request.</summary>
     internal const ushort StabDistance = 0x0a00;
     /// <summary>$A6:B76E, bounce extension request.</summary>
     internal const ushort BounceDistance = 0x0c00;
     /// <summary>$A6:CC12, SetRidleyTailAngleExtrema_minClockwiseAngle for left/front/right facing.</summary>
-    internal static RotationAngle MinimumClockwise(RidleyFacing facing) => RotationAngle.FromRaw(facing == RidleyFacing.Right ? (ushort)0x3fc0 : (ushort)0x3ff0);
+    internal static readonly Dictionary<RidleyFacing, RotationAngle> MinimumClockwiseAngles = new()
+    {
+        [RidleyFacing.Left] = RotationAngle.FromRaw(0x3ff0),
+        [RidleyFacing.Turning] = RotationAngle.FromRaw(0x3ff0),
+        [RidleyFacing.Right] = RotationAngle.FromRaw(0x3fc0),
+    };
     /// <summary>$A6:CC18, SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
-    internal static RotationAngle MaximumCounterClockwise(RidleyFacing facing) => RotationAngle.FromRaw(facing == RidleyFacing.Right ? (ushort)0x4010 : (ushort)0x4040);
+    internal static readonly Dictionary<RidleyFacing, RotationAngle> MaximumCounterClockwiseAngles = new()
+    {
+        [RidleyFacing.Left] = RotationAngle.FromRaw(0x4040),
+        [RidleyFacing.Turning] = RotationAngle.FromRaw(0x4040),
+        [RidleyFacing.Right] = RotationAngle.FromRaw(0x4010),
+    };
 
     /// <summary>$A6:D38A begins InitializeTailParts.angles at $4000, one quarter of the 16-bit full turn.</summary>
     private const int InitialBaseAngle = 0x10000 / 4;
@@ -60,16 +62,14 @@ internal static class RidleyTailDefinitions
     private const ushort TipRestDistance = 5 << 8;
 
     /// <summary>The tail returns to its initialized rest geometry: base, five shaft links, then tip.</summary>
-    internal static ushort RestDistance(int segmentIndex) => segmentIndex switch
-    {
-        0 => BaseRestDistance,
-        >= 1 and <= 5 => ShaftRestDistance,
-        6 => TipRestDistance,
-        _ => throw new ArgumentOutOfRangeException(nameof(segmentIndex)),
-    };
+    internal static readonly ushort[] RestDistances =
+        [BaseRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, TipRestDistance];
 
     /// <summary>$A6:D38A..D397 contains seven successive initial link angles, base through tip.</summary>
-    internal static ushort InitialAngle(int segmentIndex) => (uint)segmentIndex < 7
-        ? (ushort)(InitialBaseAngle + segmentIndex * IdealInterSegmentSpacing)
-        : throw new ArgumentOutOfRangeException(nameof(segmentIndex));
+    internal static readonly ushort[] InitialAngles =
+    [
+        InitialBaseAngle, InitialBaseAngle + IdealInterSegmentSpacing, InitialBaseAngle + 2 * IdealInterSegmentSpacing,
+        InitialBaseAngle + 3 * IdealInterSegmentSpacing, InitialBaseAngle + 4 * IdealInterSegmentSpacing,
+        InitialBaseAngle + 5 * IdealInterSegmentSpacing, InitialBaseAngle + 6 * IdealInterSegmentSpacing,
+    ];
 }

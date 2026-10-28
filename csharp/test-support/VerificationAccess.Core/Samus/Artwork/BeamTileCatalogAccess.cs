@@ -9,7 +9,7 @@ internal static class BeamTileCatalogAccess
     {
         /// <summary>Requires every beam artwork file and decodes each under its authored selection.</summary>
         internal static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
-            BeamPaletteCatalog? palettes = null, HyperBeamFxColorCatalog? hyperBeamFxColors = null)
+            InstalledBeamPalettes? palettes = null, InstalledHyperBeamFxColors? hyperBeamFxColors = null)
         {
             var sheets = new BeamTileAtlas[BeamTileAtlasDefinitions.ArtworkCount];
             for (int i = 0; i < sheets.Length; i++)

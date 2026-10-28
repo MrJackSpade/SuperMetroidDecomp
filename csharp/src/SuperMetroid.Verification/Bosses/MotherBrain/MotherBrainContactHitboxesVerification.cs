@@ -28,7 +28,7 @@ internal static class MotherBrainContactHitboxesVerification
         {
             int address = MotherBrainContactHitboxDefinitions.GetSourceAddress(part);
             MotherBrainContactHitboxes hitboxes =
-                MotherBrainContactHitboxDefinitions.Get(part);
+                MotherBrainContacts.Get(part);
             AssertEqual(hitboxes.Count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 $"Mother Brain {part} hitbox count");
 
@@ -85,7 +85,7 @@ internal static class MotherBrainContactHitboxesVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainContactHitboxDefinitions.Get((MotherBrainContactPart)3),
+            () => MotherBrainContacts.Get((MotherBrainContactPart)3),
             "Mother Brain hitbox catalog rejects an unknown component");
         Console.WriteLine(
             $"  Mother Brain contact hitboxes: {comparedWords} native extent words and " +
@@ -98,7 +98,7 @@ internal static class MotherBrainContactHitboxesVerification
         Offset16<RoomPixels> delta,
         Extent16<RoomPixels> radius)
     {
-        foreach (EnemyHitboxRectangle hitbox in MotherBrainContactHitboxDefinitions.Get(part))
+        foreach (EnemyHitboxRectangle hitbox in MotherBrainContacts.Get(part))
         {
             int yExtent = delta.Y >= 0 ? hitbox.Bottom : hitbox.Top;
             if (radius.Y + Math.Abs(yExtent) - Math.Abs((int)delta.Y) < 0)

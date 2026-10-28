@@ -13,7 +13,7 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 internal static class RoomPlmPopulationImporter
 {
     /// <summary>Imports bounded PLM placements, header words, scroll programs, and dynamic collectible graphics.</summary>
-    public static RoomPlmPopulationDefinition Read(ISnesAddressSpace source, ushort pointer)
+    public static RoomPlmPopulation Read(ISnesAddressSpace source, ushort pointer)
     {
         Ensure.NotNull(source);
         if (source is not IImportCartridgeSource cartridge)
@@ -24,7 +24,7 @@ internal static class RoomPlmPopulationImporter
         {
             ushort headerWord = Word(0x8f, cursor);
             if (headerWord == 0)
-                return new RoomPlmPopulationDefinition($"$8F:{pointer:X4}", records);
+                return new RoomPlmPopulation($"$8F:{pointer:X4}", records);
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
             byte blockX = Byte(0x8f, unchecked((ushort)(cursor + 2)));
             byte blockY = Byte(0x8f, unchecked((ushort)(cursor + 3)));
@@ -52,7 +52,7 @@ internal static class RoomPlmPopulationImporter
                 graphic = new RoomPlmDynamicCollectibleGraphic(kind, palettes, tiles);
             }
             records.Add(new RoomPlmPlacement(metadata,
-                new(blockX, blockY), argument, scroll, graphic,
+                new(blockX, blockY), PlmRoomArgumentWords.Decode(header, argument), scroll, graphic,
                 DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonCannonControlWordAddresses.Decode(argument) : null));
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }

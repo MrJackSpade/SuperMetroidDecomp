@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// EnemyMain's `$A0:9044` runs the handler of the lowest set bit (grapple, then hurt, then frozen, otherwise main AI).
 /// </summary>
 [Flags]
-public enum EnemyAiStates : ushort
+public enum EnemyAiStates
 {
     /// <summary>No special handler: the enemy runs its main AI.</summary>
     None = 0,

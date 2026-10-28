@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>The ten bank-$82 menu spritemaps the reserve-tank strip draws, valued by their $82:C569 ordinal.</summary>
-public enum PauseReserveTankVisual : ushort
+public enum PauseReserveTankVisual
 {
     /// <summary>$82:B305 full-tank spritemap ID.</summary>
     Full = 0x1b,

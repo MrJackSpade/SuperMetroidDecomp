@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// Special-Samus-palette handler index at WRAM <c>$0ACC</c>, dispatched through the table at
 /// <c>$91:D72D</c>. These are the values the cartridge stores into the word.
 /// </summary>
-public enum SamusSpecialPaletteType : ushort
+public enum SamusSpecialPaletteType
 {
     /// <summary>No special palette handler owns Samus's suit colors.</summary>
     None = 0,

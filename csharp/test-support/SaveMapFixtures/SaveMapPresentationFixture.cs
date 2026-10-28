@@ -12,7 +12,7 @@ internal static class SaveMapPresentationFixture
     /// Extracts the source's map presentation into an isolated temporary installation,
     /// loads the typed catalog for verification, and removes the temporary files afterward.
     /// </summary>
-    public static AreaMapPresentationCatalog Create(ISnesAddressSpace nativeSource)
+    public static AreaMapPresentation Create(ISnesAddressSpace nativeSource)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         Directory.CreateDirectory(parent);

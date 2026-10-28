@@ -42,9 +42,9 @@ internal static class BeamSpeedRowsVerification
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
-            short ax = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            short ax = unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + direction * 2));
-            short ay = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            short ay = unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2));
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
             AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
@@ -54,11 +54,11 @@ internal static class BeamSpeedRowsVerification
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
+            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
         foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
+                () => SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

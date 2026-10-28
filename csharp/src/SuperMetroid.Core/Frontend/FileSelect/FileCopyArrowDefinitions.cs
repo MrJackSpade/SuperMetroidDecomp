@@ -18,16 +18,6 @@ public static class FileCopyArrowDefinitions
     /// <summary>$82:BB0E: all file-copy arrows use screen X = $14.</summary>
     internal const ushort OriginX = 20;
 
-    /// <summary>Chooses one of four up/down, short/long arrows and its screen Y from two distinct file-slot indexes.</summary>
-    internal static FileCopyArrowPlacement Select(int source, int destination)
-    {
-        if ((uint)source >= 3 || (uint)destination >= 3 || source == destination)
-            throw new ArgumentOutOfRangeException(nameof(destination));
-        int distance = Math.Abs(source - destination);
-        int shape = (distance == 2 ? 2 : 0) + (source > destination ? 1 : 0);
-        return new FileCopyArrowPlacement(shape, (ushort)(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
-    }
-
     /// <summary>The file-copy arrow shapes: short and long, downward and upward.</summary>
     internal const int ShapeCount = 4;
 

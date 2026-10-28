@@ -43,8 +43,8 @@ internal static class EndingExplosionSpriteArtworkVerification
             int header = 0x8c0000 | pointer;
             int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
-            AssertEqual(frames[i].Pose, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPose(i) :
-                EndingExplosionSpriteDefinitions.PoseOf(Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[i - 10]),
+            AssertEqual(frames[i].Pose, i < 10 ? EndingExplosionSpritePoses.PlanetPose(i) :
+                EndingExplosionSpritePoses.PoseOf(Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[i - 10]),
                 $"explosion shared pose {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
@@ -53,19 +53,19 @@ internal static class EndingExplosionSpriteArtworkVerification
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PoseOf(
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpritePoses.PoseOf(
                 (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpritePoses.PlanetPose(invalid),
                 "explosion planet record bounds");
         }
         // The composite poses and the planet records name disjoint compositions.
         foreach (EndingExplosionSpriteDefinitions.Pose composite in Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>())
         {
             for (int planet = 0; planet < 10; planet++)
-                AssertTrue(EndingExplosionSpriteDefinitions.PoseOf(composite) != EndingExplosionSpriteDefinitions.PlanetPose(planet),
+                AssertTrue(EndingExplosionSpritePoses.PoseOf(composite) != EndingExplosionSpritePoses.PlanetPose(planet),
                     "planet records are not composite poses");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(10),
+        AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpritePoses.PlanetPose(10),
             "planet record count");
     }
 
@@ -173,7 +173,7 @@ internal static class EndingExplosionSpriteArtworkVerification
 
     /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>
     internal static void VerifyEndingExplosionActorArtwork(
-        ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
+        ISnesAddressSpace bus, EndingObjectArtwork stock)
     {
         Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
@@ -206,7 +206,7 @@ internal static class EndingExplosionSpriteArtworkVerification
 
     /// <summary>Flips the starfield art and confirms a live explosion scene changes OAM and pixels without bank-$8C reads, then rejects a missing frame.</summary>
     internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
+        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingExplosionSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
@@ -224,7 +224,7 @@ internal static class EndingExplosionSpriteArtworkVerification
         {
             using (var output = File.Create(overridePath))
                 EndingExplosionSpritePresentation.Write(output, document);
-            EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
             scene.InstalledArtwork.BindFixtureObjectArtwork(stock);

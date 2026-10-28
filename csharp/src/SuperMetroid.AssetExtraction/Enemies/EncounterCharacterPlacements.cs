@@ -40,11 +40,11 @@ internal static class EncounterCharacterPlacements
         CeresEscapeTileCharacters warning => new(source,
             SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(warning.Offset), Characters(warning.ByteCount)),
         MotherBrainSpecialSpriteCharacters special => new(source,
-            MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet].PageFirstCharacter(special.Page), Characters(special.ByteCount)),
+            MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(special.ByteCount)),
         MotherBrainCorpseCharacters corpse => new(source,
-            MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(corpse.Page), Characters(MotherBrainCorpseArtworkDefinitions.PageByteCount)),
+            MotherBrainCorpseSheet.PageFirstCharacter(corpse.Page), Characters(MotherBrainCorpseArtworkDefinitions.PageByteCount)),
         MotherBrainEscapeTextCharacters text => new(source,
-            EscapeTextArtworkDefinitions.PageFirstCharacter(text.Page), Characters(EscapeTextArtworkDefinitions.PageByteCount(text.Page))),
+            EscapeTextPages.PageFirstCharacter(text.Page), Characters(EscapeTextPages.PageByteCount(text.Page))),
         _ => throw new InvalidDataException($"The cartridge shows no {source} among the sprite characters."),
     };
 

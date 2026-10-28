@@ -63,7 +63,7 @@ internal sealed class EndingArtwork
 
 
     /// <summary>Reapplies the current ending OBJ uploads after a state restore.</summary>
-    internal void BindObjectArtwork(EndingObjectArtworkCatalog? value)
+    internal void BindObjectArtwork(EndingObjectArtwork? value)
     {
         _stage.ObjectArtwork = value;
         screen.Invalidate();
@@ -135,7 +135,7 @@ internal sealed class EndingArtwork
     /// <summary>Transfers waiting, shooting and selected reward art plus their post-credits map fragments.</summary>
     private void LoadCreditsCharacterArt()
     {
-        EndingObjectArtworkCatalog artwork = _stage.ObjectArtwork ?? throw new InvalidOperationException(
+        EndingObjectArtwork artwork = _stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Post-credits scenes require installed object artwork.");
         byte[] waiting = artwork.WaitingSamus.Characters.ToArray();
         byte[] shooting = artwork.ShootingScreen.Characters.ToArray();
@@ -166,7 +166,7 @@ internal sealed class EndingArtwork
     /// completed native fade or palette-FX step. Future native palette transfers and
     /// target-color reads use the newly selected resource.
     /// </summary>
-    internal void BindPaletteArtwork(EndingPaletteCatalog? value)
+    internal void BindPaletteArtwork(EndingPaletteSet? value)
     {
         _stage.BindPaletteArtwork(value);
         CurrentEndingLogo?.BindPaletteArtwork(value);

@@ -22,19 +22,19 @@ public static class PauseEquipmentLabelExtractor
             {
                 int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Places + item * 2);
                 int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Labels + item * 2);
-                labels.Add(PauseEquipmentLabelDefinitions.Key(category, item), new()
+                labels.Add(PauseEquipmentLabelTiles.Key(category, item), new()
                 {
                     Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
                     Row = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
                     Cells = ReadCells(bus, source, definition.LabelWordCount,
-                        PauseEquipmentLabelDefinitions.Key(category, item)),
+                        PauseEquipmentLabelTiles.Key(category, item)),
                 });
             }
         }
 
         int hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
             PauseEquipmentLabelDefinitions.HyperBeamItem * sizeof(ushort));
-        for (int index = 0; index < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); index++)
+        for (int index = 0; index < PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Beams); index++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseMenuSourceDefinitions.HyperBeamLabels + index * sizeof(ushort));
@@ -45,8 +45,8 @@ public static class PauseEquipmentLabelExtractor
         }
         labels.Add(PauseEquipmentLabelDefinitions.HyperKey, new()
         {
-            Column = labels[PauseEquipmentLabelDefinitions.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
-            Row = labels[PauseEquipmentLabelDefinitions.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
+            Column = labels[PauseEquipmentLabelTiles.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
+            Row = labels[PauseEquipmentLabelTiles.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
             Cells = ReadCells(bus, hyper, PauseEquipmentLabelDefinitions.EquipmentWords,
                 PauseEquipmentLabelDefinitions.HyperKey),
         });

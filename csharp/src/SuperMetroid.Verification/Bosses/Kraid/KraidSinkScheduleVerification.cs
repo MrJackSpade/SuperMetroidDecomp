@@ -41,7 +41,7 @@ internal static class KraidSinkScheduleVerification
         foreach (ushort callback in callbacks.Distinct())
         {
             int code = 0xa70000 | callback;
-            var request = KraidPlmDefinitions.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
+            var request = KraidPlms.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
             if (KraidSinkPlmFieldRomByte(rom, code) == 0x60)
             {
                 AssertEqual<PlmSpawnRequest?>(null, request, "Native empty RTS emits no request");

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// The five routines Shaktool's segments run before their instructions.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum ShaktoolPreInstruction : ushort
+public enum ShaktoolPreInstruction
 {
     /// <summary><c>$AA:DCAA</c>, native <c>RTS_AADCAA</c>: suspends segment motion during the collision-response instruction sequence until its reset callback restores the segment functions.</summary>
     IdleAfterAttack = 1,

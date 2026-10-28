@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's contact-damage index at WRAM <c>$0A6E</c>. Bank <c>$90</c> stores only these five
 /// values; enemy touch handling selects Samus's attacking body (or ordinary touch damage) from it.
 /// </summary>
-public enum SamusContactDamageIndex : ushort
+public enum SamusContactDamageIndex
 {
     /// <summary>Zero: no attacking body, so enemy contact damages Samus (cleared at <c>$90:E725</c> and by hurt/knockback).</summary>
     None = 0,

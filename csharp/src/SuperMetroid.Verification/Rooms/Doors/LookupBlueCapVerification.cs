@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -23,7 +24,7 @@ internal static class LookupBlueCapVerification
         string[] ids = ["left-frame-0","left-frame-1","left-frame-2","left-frame-3","right-frame-0","right-frame-1","right-frame-2","right-frame-3","up-frame-0","up-frame-1","up-frame-2","up-frame-3","down-frame-0","down-frame-1","down-frame-2","down-frame-3","left-frame-0","right-frame-0","up-frame-0","down-frame-0"];
         var exported = BlueDoorPlmDrawDefinitionsTooling.All.ToArray();
         AssertEqual(20, exported.Length, "Blue cap export count");
-        AssertTrue(BlueDoorPlmDrawDefinitions.Editable.Select(frame => PlmDrawAddressCodec.Of(frame.Draw)).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
+        AssertTrue(BlueDoorCaps.Editable.Select(frame => PlmDrawAddressCodec.Of(frame.Draw)).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -31,39 +32,39 @@ internal static class LookupBlueCapVerification
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
                 ushort alias = pointer switch { 0xa9a7 => 0xa9b3, 0xa9e3 => 0xa9ef, 0xaa1f => 0xaa2b, 0xaa5b => 0xaa67, _ => pointer };
-                AssertEqual(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(alias), BlueDoorPlmDrawDefinitions.VisualSource(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer)), "Blue cap alias and passthrough domain");
-                AssertEqual(owned, BlueDoorPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer), out var shape), "Blue cap descriptor domain");
-                AssertEqual(owned, BlueDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer), out var dto), "Blue cap DTO domain");
+                AssertEqual(NativePlmDraws.At<BlueDoorCaps.Draw>(alias), BlueDoorCaps.VisualSource(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap alias and passthrough domain");
+                AssertEqual(owned, BlueDoorCaps.TryDescribe(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var shape), "Blue cap descriptor domain");
+                AssertEqual(owned, BlueDoorCaps.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var dto), "Blue cap DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(BlueDoorPlmDrawDefinitions.Draw), shape, "Blue cap missing descriptor");
+                    AssertEqual(default(BlueDoorCaps.Draw), shape, "Blue cap missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Blue cap missing DTO");
-                    AssertThrows<InvalidDataException>(() => BlueDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer)), "Blue cap missing ID");
+                    AssertThrows<InvalidDataException>(() => BlueDoorCaps.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap missing ID");
                 }
             }
             foreach (string id in new[] { "LEFT-FRAME-0", "left-frame-4", "", "unknown" })
             {
-                AssertTrue(!BlueDoorPlmDrawDefinitions.TryGetByVisualId(id, out var missing), "Blue cap ordinal ID domain");
+                AssertTrue(!BlueDoorCaps.TryGetByVisualId(id, out var missing), "Blue cap ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Blue cap missing ID output");
             }
         }
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            BlueDoorPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer), out var shape);
-            BlueDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer), out var dto);
+            BlueDoorCaps.TryDescribe(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var shape);
+            BlueDoorCaps.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var dto);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Blue cap original order");
-                AssertEqual(ids[index], BlueDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer)), "Blue cap published ID");
-                AssertTrue(BlueDoorPlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Blue cap reverse ID");
+                AssertEqual(ids[index], BlueDoorCaps.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap published ID");
+                AssertTrue(BlueDoorCaps.TryGetByVisualId(ids[index], out var byId), "Blue cap reverse ID");
                 AssertEqual(index < 16 ? pointer : pointers[(index - 16) * 4], PlmDrawAddressCodec.Of(byId.Draw), "Blue cap ID identity");
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.DirectionAndCount, "Blue cap native geometry");
+                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.Direction, 4, "Blue cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Blue cap native final offset");
                 foreach (var frame in new[] {dto,exported[index]})
                 {
                     AssertEqual(1, frame.Runs.Length, "Blue cap one run");
-                    AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0].DirectionAndCount, "Blue cap DTO geometry");
+                    AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Blue cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Blue cap DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Blue cap DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Blue cap DTO final Y");

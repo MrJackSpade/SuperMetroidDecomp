@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Debugger-visible phase of one translated permanent-item PLM.</summary>
-public enum CollectiblePhase : byte
+public enum CollectiblePhase
 {
     /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate slot deletion.</summary>
     CollectedEmpty,

@@ -32,11 +32,11 @@ public sealed class EndingTextPresentation
     {
         this.resultText = resultText;
         for (int cell = 0; cell < resultPanel.Length; cell++)
-            if (resultPanel[cell] != EndingTextLayoutDefinitions.ResultTile(cell, resultText))
+            if (resultPanel[cell] != EndingTextPanels.ResultTile(cell, resultText))
                 resultOverrides.Add(cell, resultPanel[cell]);
         this.copyrightPanel = copyrightPanel;
         for (int cell = 0; cell < japaneseSubtitle.Length; cell++)
-            if (japaneseSubtitle[cell] != EndingTextLayoutDefinitions.SubtitleTile(cell))
+            if (japaneseSubtitle[cell] != EndingTextPanels.SubtitleTile(cell))
                 subtitleOverrides.Add(cell, japaneseSubtitle[cell]);
         this.percentage = percentage;
         this.finalMessage = finalMessage;
@@ -50,7 +50,7 @@ public sealed class EndingTextPresentation
     {
         var output = new BackgroundTile[EndingTextLayoutDefinitions.ResultCellCount];
         for (int cell = 0; cell < output.Length; cell++)
-            output[cell] = resultOverrides.GetValueOrDefault(cell, EndingTextLayoutDefinitions.ResultTile(cell, resultText));
+            output[cell] = resultOverrides.GetValueOrDefault(cell, EndingTextPanels.ResultTile(cell, resultText));
         return output;
     }
     /// <summary>Returns fresh 2-by-32 row-major tiles containing the configured large year and company labels in the layout of native panel $8C:DEDB.</summary>
@@ -72,7 +72,7 @@ public sealed class EndingTextPresentation
         {
             get
             {
-                return owner.subtitleOverrides.GetValueOrDefault(index, EndingTextLayoutDefinitions.SubtitleTile(index));
+                return owner.subtitleOverrides.GetValueOrDefault(index, EndingTextPanels.SubtitleTile(index));
             }
         }
         /// <summary>Copies all 64 subtitle tiles in row-major order, leaving any additional destination cells unchanged.</summary>
@@ -194,9 +194,9 @@ public sealed class EndingTextPresentation
             char glyph = text[index];
             try
             {
-                BackgroundTile top = EndingTextDefinitions.CompileGlyph(glyph, region.Style);
+                BackgroundTile top = EndingTextGlyphs.CompileGlyph(glyph, region.Style);
                 BackgroundTile? bottom = region.Style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge
-                    ? EndingTextDefinitions.CompileGlyph(glyph, region.Style, bottom: true)
+                    ? EndingTextGlyphs.CompileGlyph(glyph, region.Style, bottom: true)
                     : null;
                 result[index] = new(region.Row, region.Column + index, top, bottom);
             }

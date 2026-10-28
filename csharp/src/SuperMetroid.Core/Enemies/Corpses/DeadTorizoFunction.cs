@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// The routines the Dead Torizo corpse's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-internal enum DeadTorizoFunction : ushort
+internal enum DeadTorizoFunction
 {
     /// <summary>$A9:D3AD holds the intact corpse before its contact or shot trigger.</summary>
     Wait = 1,

@@ -21,7 +21,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
     public static ushort ReadPoseYRadius(SamusPoseId pose) =>
-        SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
+        SamusPoseCollisionRadii.ReadVerticalRadius(pose);
 
     /// <summary>Reads pose-definition byte zero, the direction byte other actors' AI reads back.</summary>
     public static byte ReadPoseXDirection(SamusState samus)
@@ -45,7 +45,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>The way an arbitrary current or prospective pose faces.</summary>
     public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
-        SamusPoseDispatchDefinitions.ReadFacing(pose);
+        SamusPoseDispatch.ReadFacing(pose);
 
     /// <summary>Whether the current pose faces <paramref name="direction"/>: pose-definition value four is left, eight right.</summary>
     public static bool IsFacing(SamusState samus, SamusFacingDirection direction) =>
@@ -76,7 +76,7 @@ internal static class SamusPoseMetadata
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
-        SamusPoseDispatchDefinitions.ReadMovement(pose);
+        SamusPoseDispatch.ReadMovement(pose);
 
     /// <summary>Compatibility spelling for an arbitrary prospective pose.</summary>
     public static SamusMovementType ReadMovementKind(SamusPoseId pose) =>
@@ -88,7 +88,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static SamusPoseId ReadNoInputFallbackPose(SamusState samus)
     {
-        return SamusPoseDispatchDefinitions.ReadNoInputPose(samus.Pose);
+        return SamusPoseDispatch.ReadNoInputPose(samus.Pose);
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ internal static class SamusPoseMetadata
     /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
     public static int ReadShotDirection(SamusPoseId pose)
     {
-        return SamusPoseAimDefinitions.Read(pose);
+        return SamusPoseAimRestrictions.Read(pose);
     }
 
     /// <summary>
@@ -535,8 +535,7 @@ internal static class SamusPoseMetadata
     public static bool BreaksCollisionBombBlocks(SamusState samus) =>
         samus.HorizontalSpeed.IsActivelySpeedBoosting ||
         IsScrewAttackPose(samus.Pose) ||
-        samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
-            and <= SamusPoseId.ShinesparkDiagonalLeftPose;
+        SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.ShinesparkHorizontalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose);
 
     /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
     public static bool IsSpaceJumpPose(SamusPoseId pose) => pose is

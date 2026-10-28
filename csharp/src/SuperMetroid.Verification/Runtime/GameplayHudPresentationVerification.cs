@@ -19,8 +19,8 @@ internal static class GameplayHudPresentationVerification
 {
     /// <summary>Compares stock HUD tiles with native data and checks override propagation without live ROM reads.</summary>
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        string overrides, AreaMapPresentation original,
+        GameplayBasePalette initialPalettes)
     {
         string stockPath = Path.Combine(stock, GameplayHudDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);

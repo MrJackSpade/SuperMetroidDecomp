@@ -12,11 +12,11 @@ internal static class KraidArmCallbackMappingsVerification
     /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false,
-            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollisionDefinitions.TouchCallback(rectangle))));
+            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollision.TouchCallback(rectangle))));
     /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true,
-            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollisionDefinitions.ShotCallback(rectangle))));
+            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollision.ShotCallback(rectangle))));
 
     /// <summary>
     /// Compares the 24 compiled rectangles' typed reactions, converted through the callback codec the shared walker
@@ -36,7 +36,7 @@ internal static class KraidArmCallbackMappingsVerification
         foreach (ushort pointer in selectedLists)
         {
             int count = ReadKraidArmInstructionWord(rom, pointer);
-            var actual = KraidArmCollisionDefinitions.HitboxesAt(pointer);
+            var actual = KraidArmCollision.HitboxesAt(pointer);
             AssertEqual(count, actual.Length, "Arm rectangle view count");
             int index = 0;
             foreach (var box in actual)

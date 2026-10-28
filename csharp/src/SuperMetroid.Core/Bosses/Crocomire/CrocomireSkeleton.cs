@@ -96,7 +96,7 @@ internal sealed class CrocomireSkeleton
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         CrocomireRumbleDefinition definition =
-            CrocomireRumbleDefinitions.AtOffset(state.RumbleTableOffset);
+            CrocomireRumble.AtOffset(state.RumbleTableOffset);
         int target = definition.TargetYOffset;
         if (definition.IsTerminator)
         {
@@ -206,7 +206,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
     internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
     {
-        if (state.BodyResidentProgram < CrocomireBodyProgram.SkeletonStable)
+        if (!CrocomireBodyProgramGroups.SkeletonAtRest.Contains(state.BodyResidentProgram))
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 16, maximumWhole: 6);
             return;

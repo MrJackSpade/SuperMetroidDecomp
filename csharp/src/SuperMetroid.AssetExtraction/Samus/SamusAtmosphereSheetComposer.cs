@@ -26,8 +26,8 @@ internal static class SamusAtmosphereSheetComposer
         Sources(inputs, Ensure.NotNull(inputs).SamusBody.Spritemaps, inputs.SamusBody.Atmosphere);
 
     /// <summary>What the atmosphere sheet composes with <paramref name="spritemaps"/> and <paramref name="atmosphere"/>.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusSpritemapArtworkCatalog spritemaps,
-        SamusAtmosphericArtworkCatalog atmosphere)
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, InstalledSamusSpritemaps spritemaps,
+        InstalledSamusAtmosphericArtwork atmosphere)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(spritemaps);
@@ -52,7 +52,7 @@ internal static class SamusAtmosphereSheetComposer
     }
 
     /// <summary>A small sprite whose installed attributes name its character, palette, priority and flips.</summary>
-    private static SheetFrameSource Direct(SamusSheetInputs inputs, SamusAtmosphericArtworkCatalog atmosphere, string name,
+    private static SheetFrameSource Direct(SamusSheetInputs inputs, InstalledSamusAtmosphericArtwork atmosphere, string name,
         int type, int frame)
     {
         if (!atmosphere.TryResolve(type, frame, out SpritePart appearance))
@@ -64,6 +64,6 @@ internal static class SamusAtmosphereSheetComposer
     /// A Samus spritemap over the standard OBJ sheet. A zero entry in the installed pointer table names direct-page
     /// scratch the port does not model and draws nothing (owner decision on #1318), so its frame is empty.
     /// </summary>
-    private static SheetFrameSource Spritemap(SamusSheetInputs inputs, SamusSpritemapArtworkCatalog spritemaps, string name, int index) =>
+    private static SheetFrameSource Spritemap(SamusSheetInputs inputs, InstalledSamusSpritemaps spritemaps, string name, int index) =>
         new(name, spritemaps.TryGetFrame(index, out SpriteFrame? frame) ? frame : new SpriteFrame(name, []), inputs.StandardObjects);
 }

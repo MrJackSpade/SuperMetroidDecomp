@@ -181,7 +181,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
     {
-        _ = SamusHorizontalMotionDefinitions.FirstRow(liquidMedium);
+        _ = SamusHorizontalMotion.FirstRow(liquidMedium);
         ActiveSpeedTable = liquidMedium;
     }
 
@@ -229,7 +229,7 @@ public sealed class SamusHorizontalSpeedState
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = WrappingCountdown.Start(1);
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceDefinitions.ReadResetWord(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceBytes.ReadResetWord(0));
             }
 
             if (ExtraRunSpeed.WordsAtLeast(new UnsignedSixteenSixteen(7, 0)))
@@ -322,19 +322,19 @@ public sealed class SamusHorizontalSpeedState
                     // call leaves there selects BOTH reset tables, independently of the
                     // stage word already stored above. Do not clamp this selection:
                     // queue occupancy five reads adjacent native data.
-                    echoSelection = SamusRunningCadenceDefinitions.EchoQueueSelection(queueEchoSound());
+                    echoSelection = SamusRunningCadenceBytes.EchoQueueSelection(queueEchoSound());
                 }
             }
         }
 
         int stage = echoSelection ?? SpeedBoostCounter.Stage;
-        int nextCadence = SamusRunningCadenceDefinitions.ReadResetWord(stage);
+        int nextCadence = SamusRunningCadenceBytes.ReadResetWord(stage);
         SpeedBoostCounter = SpeedBoostCounter.WithCadenceWord(nextCadence);
 
-        SamusRunningCadence cadence = SamusRunningCadenceDefinitions.SpeedBoostCadence(stage);
+        SamusRunningCadence cadence = SamusRunningCadenceBytes.SpeedBoostCadence(stage);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(floorUpdateResidue, cadence, 0, windows: null)));
+            animationFrameBuffer + SamusRunningCadenceBytes.ReadAnimationByte(floorUpdateResidue, cadence, 0, windows: null)));
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -346,8 +346,8 @@ public sealed class SamusHorizontalSpeedState
         SamusAnimationWindows? windows)
     {
         int stage = checked((byte)SpeedBoostCounter.Stage);
-        return SamusRunningCadenceDefinitions.ReadAnimationByte(floorUpdateResidue,
-            SamusRunningCadenceDefinitions.SpeedBoostCadence(stage), byteIndex, windows);
+        return SamusRunningCadenceBytes.ReadAnimationByte(floorUpdateResidue,
+            SamusRunningCadenceBytes.SpeedBoostCadence(stage), byteIndex, windows);
     }
 
     /// <summary>
@@ -355,8 +355,8 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
-        SamusOverreadCatalog? overreads = null)
+    public bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame, InstalledSamusSuitColors? suitColors = null, InstalledSamusFullBodyCycleColors? cycleColors = null,
+        InstalledSamusOverreads? overreads = null)
     {
         Ensure.NotNull(colours);
 
@@ -434,7 +434,7 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = WrappingCountdown.Start(4);
 
-        SpeedBoosterPaletteSource source = SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalette(
+        SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
         SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overreads);
 
@@ -459,7 +459,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
         SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? suitColors = null)
+        InstalledSamusSuitColors? suitColors = null)
     {
         Ensure.NotNull(colours);
         if (!NormalSuitPaletteRestoreRequested)
@@ -474,9 +474,9 @@ public sealed class SamusHorizontalSpeedState
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
         int suitTableOffset,
-        SamusFullBodyCycleColorCatalog? cycleColors)
+        InstalledSamusFullBodyCycleColors? cycleColors)
     {
-        SamusFullBodyCyclePalette palette = SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalette(
+        SamusFullBodyCyclePalette palette = SamusFullBodyCyclePalettes.ReadScrewAttackPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
         (cycleColors ?? throw new InvalidOperationException(
             "Screw Attack palette requires installed Samus full-body cycle colors."))
@@ -493,7 +493,7 @@ public sealed class SamusHorizontalSpeedState
     private static void LoadNormalSuitPalette(
         SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? suitColors)
+        InstalledSamusSuitColors? suitColors)
     {
         SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
     }
@@ -635,7 +635,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 SpecialPaletteTimer = WrappingCountdown.Start(0);
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceDefinitions.ReadResetWord(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceBytes.ReadResetWord(0));
             }
             return;
         }
@@ -769,7 +769,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaction chose the table.
     /// </summary>
     public int ResolveEntryRow(SamusMovementType movementType) =>
-        SamusHorizontalMotionDefinitions.Row(ActiveSpeedTable, movementType);
+        SamusHorizontalMotion.Row(ActiveSpeedTable, movementType);
 
     /// <summary>
     /// Resolves authored speed entries without ROM access. Fields remain split into the
@@ -779,7 +779,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Resolves an authored speed record by row; a row past the tables reads beyond the authored records.</summary>
     internal static SpeedTableEntry ReadEntryAtRow(int row) =>
-        SamusHorizontalMotionDefinitions.TryResolveRow(row, out SpeedTableEntry compiled)
+        SamusHorizontalMotion.TryResolveRow(row, out SpeedTableEntry compiled)
             ? compiled
             : throw new InvalidDataException(
                 $"Samus horizontal speed row {row} is past the {SamusHorizontalMotionDefinitions.RowCount} authored mechanics records.");
@@ -799,7 +799,7 @@ public sealed class SamusHorizontalSpeedState
     /// `$90:9F25` instead of the movement-type-indexed normal table.
     /// </summary>
     public uint CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
-        CalculateBaseSpeed(SamusHorizontalMotionDefinitions.Standalone(record));
+        CalculateBaseSpeed(SamusHorizontalMotion.Standalone(record));
 
     /// <summary>Applies the table's acceleration or deceleration using native split-word arithmetic and updates base speed.</summary>
     internal uint CalculateBaseSpeed(SpeedTableEntry entry)

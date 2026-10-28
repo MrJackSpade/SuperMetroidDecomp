@@ -31,8 +31,9 @@ internal static class PlmPreInstructionNativeRoutines
     /// <summary>The routine a Metroids-cleared PLM installs for <paramref name="roomArgument"/>.</summary>
     internal static ushort MetroidsCleared(ushort roomArgument)
     {
-        MetroidsClearedEvents.ResolveEvent(roomArgument);
-        int entry = roomArgument / 2;
+        int entry = PlmRoomArgumentWords.Decode(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, roomArgument) is MetroidRoomArgument metroids
+            ? metroids.Entry : throw new InvalidDataException($"Metroids-cleared argument ${roomArgument:X4} decodes to no entry.");
+        MetroidsClearedEvents.ResolveEvent(entry);
         return (ushort)(entry < 9 ? MetroidsClearedFirstNoOp + entry : MetroidsClearedFirstQuotaObserver + (entry - 9) * 16);
     }
 
@@ -55,20 +56,20 @@ internal static class PlmPreInstructionNativeRoutines
             [ColoredDoorPreInstructions.WakeOnSuperMissile] = DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPreInstruction.WakeOnSuperMissile),
             [EyeDoorPreInstructions.WakeWhenDoorBitSet] = DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.WakeWhenDoorBitSet),
             [EyeDoorPreInstructions.MissileHit] = DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.MissileHit),
-            [DownwardGatePreInstructions.WakeIfTriggered] = (ushort)DownwardGatePreInstruction.WakeIfTriggered,
-            [DownwardGatePreInstructions.WakeIfTriggeredOrSamusBelow] = (ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
-            [DownwardGatePreInstructions.Inert] = (ushort)DownwardGatePreInstruction.Inert,
-            [NoobTubePreInstructions.WakeOnPowerBomb] = (ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb,
-            [NoobTubePreInstructions.WakeOnAcceptedInput] = (ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
-            [NoobTubePreInstructions.Inactive] = (ushort)NoobTubePlmPreInstruction.Inactive,
+            [DownwardGatePreInstructions.WakeIfTriggered] = PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggered),
+            [DownwardGatePreInstructions.WakeIfTriggeredOrSamusBelow] = PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow),
+            [DownwardGatePreInstructions.Inert] = PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.Inert),
+            [NoobTubePreInstructions.WakeOnPowerBomb] = PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnPowerBomb),
+            [NoobTubePreInstructions.WakeOnAcceptedInput] = PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnAcceptedInput),
+            [NoobTubePreInstructions.Inactive] = PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.Inactive),
         };
         foreach (GreyDoorPreInstruction routine in Enum.GetValues<GreyDoorPreInstruction>().Where(routine => routine != GreyDoorPreInstruction.None))
             routines.Add(GreyDoorPreInstructions.Of(routine), DoorsNativeWords.GreyDoorPreInstructions.Word(routine));
         foreach (SpeedBoosterEscapePreInstruction routine in Enum.GetValues<SpeedBoosterEscapePreInstruction>()
                      .Where(routine => routine != SpeedBoosterEscapePreInstruction.None))
-            routines.Add(SpeedBoosterEscapePreInstructions.Of(routine), (ushort)routine);
+            routines.Add(SpeedBoosterEscapePreInstructions.Of(routine), PlmPreInstructionNativeWords.SpeedBoosterEscape.Word(routine));
         for (ushort roomArgument = 0; roomArgument < 26; roomArgument += 2)
-            routines.Add(TourianPreInstructions.MetroidsClearedFor(roomArgument), MetroidsCleared(roomArgument));
+            routines.Add(TourianPreInstructions.MetroidsClearedFor(roomArgument / 2), MetroidsCleared(roomArgument));
         return routines;
     }
 }

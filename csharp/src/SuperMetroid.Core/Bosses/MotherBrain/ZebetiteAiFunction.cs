@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The three Zebetite AI functions stored in variable A, in bank $A6 order.</summary>
-public enum ZebetiteAiFunction : ushort
+public enum ZebetiteAiFunction
 {
     /// <summary>$A6:FC41, Function_Zebetite_SpawnBottomZebetiteIfNeeded: primary setup allocates a linked half when the generation flag is negative, links native slot indices, then enters the door wait in the same update.</summary>
     SpawnLinkedHalf = 1,

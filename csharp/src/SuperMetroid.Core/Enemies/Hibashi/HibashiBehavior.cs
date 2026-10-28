@@ -146,7 +146,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
-        HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
+        HibashiActivityDefinition frame = HibashiEruption.ActivityFrame(frameIndex);
         hitbox.Position = hitbox.Position.WithWholeY(unchecked((ushort)(
             state.SpawnHeight.Y - frame.YOffset)));
         hitbox.Radius = hitbox.Radius.WithY(checked((ushort)frame.YRadius));

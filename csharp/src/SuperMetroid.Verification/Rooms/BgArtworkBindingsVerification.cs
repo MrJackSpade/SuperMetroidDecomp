@@ -33,7 +33,7 @@ internal static class BgArtworkBindingsVerification
         byte[] published = runtime.ComposedVram().ToArray();
         int area = RoomGraphicsLayout.AreaCharacters.Offset * 2, cre = RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * 2;
         var expected = new byte[RoomGraphicsLayout.AreaCharacters.Count * 2];
-        RoomCharacterAtlasCatalog characters = runtime.Artwork.RoomCharacterArt
+        RoomCharacterAtlases characters = runtime.Artwork.RoomCharacterArt
             ?? throw new InvalidOperationException("Verification requires installed room characters.");
         assets.CreCharactersIn(characters).Span.CopyTo(expected.AsSpan(cre - area));
         ReadOnlySpan<byte> tileset = assets.TilesetCharactersIn(characters).Span;

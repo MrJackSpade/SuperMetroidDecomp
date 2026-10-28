@@ -47,7 +47,7 @@ internal static class CeresVortexPartsVerification
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresStation");
                     var selected = CeresVortexParts.CalculateIfMatching(definition.Pose, supplied);
                     AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
-                    bool odd = definition.Pose == CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Odd);
+                    bool odd = definition.Pose == CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Odd);
                     int tip = odd ? 3 : 0, core = odd ? 12 : 18;
                     bool sharedPart = (piece >= tip && piece < tip + 2) || (piece >= core && piece < core + 11);
                     AssertTrue(sharedPart == ReferenceEquals(supplied, selected),

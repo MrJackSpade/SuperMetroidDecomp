@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>The per-frame condition a palette effect checks before its program runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge word (#1415).
 /// </summary>
-public enum PaletteFxPreInstruction : ushort
+public enum PaletteFxPreInstruction
 {
     /// <summary><c>PaletteFxPreInstruction_Null</c> at $8D:C526.</summary>
     Null = 1,

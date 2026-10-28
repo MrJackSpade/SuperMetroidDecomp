@@ -24,13 +24,13 @@ internal static class PlmPopulationInputBoundaryVerification
     internal static void VerifyPlmPopulationInputBoundary()
     {
         byte[] pairs = [1, (byte)RoomScrollState.Green, 0x80];
-        var trigger = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
-            new(3, 3), 0x9100, pairs);
-        var extension = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.RightwardsScrollExtension),
-            new(4, 3), 0x8000);
+        var trigger = new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.ScrollTrigger),
+            new(3, 3), null, pairs);
+        var extension = new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.RightwardsScrollExtension),
+            new(4, 3), null);
         var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
         RoomPlmPlacement[] records = [trigger, extension, second];
-        var population = new RoomPlmPopulationDefinition($"$8F:{0xfffa:X4}", records);
+        var population = new RoomPlmPopulation($"$8F:{0xfffa:X4}", records);
         pairs[0] = 49;
         pairs[1] = 0;
         records[0] = second;
@@ -56,14 +56,14 @@ internal static class PlmPopulationInputBoundaryVerification
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!plms.ScrollPlmTriggered(plms.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulation($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulation($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = new byte[] { 0, 3, 0x80 } }]), "invalid decoded scroll states are rejected");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulation($"$8F:{0x9000:X4}",
             Enumerable.Repeat(second, RoomPlmPopulationFormat.MaximumParserIterations)),
             "typed records cannot evade the native bounded terminator limit");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulation($"$8F:{0x9000:X4}",
             [extension with { ScrollProgram = new byte[] { 0x80 } }]), "an extension cannot own a resident scroll program");
 
         int count = 0;

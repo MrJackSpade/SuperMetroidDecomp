@@ -59,11 +59,11 @@ internal sealed class MotherBrainGlassPlms
             throw new InvalidDataException(
                 $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
                 $"slot={physicalSlot}, block=({record.Block.X},{record.Block.Y}), " +
-                $"argument=${record.RoomArgument:X4}.");
+                $"argument={record.Argument}.");
         }
 
         slot.StartAnimation(new MotherBrainGlassPlmAnimation());
-        slot.RoomArgument = 0;
+        slot.HitCounter = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         level.SetForegroundEntry(slot.BlockIndex, RoomLevelWord.Create(original.PackedWord.VisualBlockIndex, original.PackedWord.VisualFlipFlags,
             RoomCollisionType.SolidBlock).Raw);
@@ -90,7 +90,7 @@ internal sealed class MotherBrainGlassPlms
         }
 
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
-            slot.RoomArgument = WrappingCounter.IncrementWord(slot.RoomArgument);
+            slot.HitCounter = WrappingCounter.IncrementWord(slot.HitCounter);
         else
             MotherBrainGlassLastRoomArgument++;
     }
@@ -103,7 +103,7 @@ internal sealed class MotherBrainGlassPlms
     {
         SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-            slot.RoomArgument = WrappingCounter.IncrementWord(slot.RoomArgument);
+            slot.HitCounter = WrappingCounter.IncrementWord(slot.HitCounter);
         slot.LoopTimer = 0;
     }
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
@@ -157,7 +157,7 @@ internal sealed class MotherBrainGlassPlms
     {
         if (slot.Header != PlmHeaderId.MotherBrainGlass)
             return;
-        MotherBrainGlassLastRoomArgument = slot.RoomArgument;
+        MotherBrainGlassLastRoomArgument = slot.HitCounter;
         _motherBrainGlassSlotIndex = -1;
         // Deleted physical slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.

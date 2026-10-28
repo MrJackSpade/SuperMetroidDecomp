@@ -27,8 +27,10 @@ internal sealed class PlmSlot
     public WrappingCountdown InstructionTimer { get; set; }
     /// <summary>The pre-instruction run before the timer/list pass (native bank-$84 pointer <c>$1CD7,x</c>).</summary>
     internal IPlmPreInstruction PreInstruction { get; set; } = PlmPreInstructions.Inert;
-    /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
-    public int RoomArgument { get; set; }
+    /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
+    public PlmRoomArgument? Argument { get; set; }
+    /// <summary>The hits a Draygon cannon or Mother Brain's glass has taken.</summary>
+    public int HitCounter { get; set; }
     /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
     public int LoopTimer
     {
@@ -56,7 +58,8 @@ internal sealed class PlmSlot
         Animation = null;
         InstructionTimer = WrappingCountdown.Start(0);
         PreInstruction = PlmPreInstructions.Inert;
-        RoomArgument = 0;
+        Argument = null;
+        HitCounter = 0;
         LoopTimer = 0;
         Family = null;
     }

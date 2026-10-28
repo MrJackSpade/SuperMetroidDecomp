@@ -14,9 +14,9 @@ public sealed class FileSelectMapNavigation
     /// <summary>Previous controller word used to detect new confirm and cancel edges.</summary>
     private ControllerButton previousInput;
     /// <summary>Optional label presentation excluded from serialized navigation state.</summary>
-    [NonSerialized] private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels;
+    [NonSerialized] private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels;
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
-    internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? content) => labels = content;
+    internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? content) => labels = content;
 
     /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>
     /// <param name="area">Zero-based saved area index.</param>

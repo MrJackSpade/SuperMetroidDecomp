@@ -54,7 +54,7 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
             {
                 int column = 2 * (18 - index);
                 x = -48 + 8 * column; y = 16;
-                tile = ZebesPlanetBandCellDefinitions.TwoRowStrip(ZebesPlanetBandCellDefinitions.South, column);
+                tile = CinematicAtlasStrip.TwoRowStrip(ZebesPlanetBandCellDefinitions.South, column);
             }
             else if (index < 33)
             {
@@ -79,7 +79,7 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
             {
                 int column = Math.Min(2 * (46 - index), 9);
                 x = -56 + 8 * column; y = -48;
-                tile = ZebesPlanetBandCellDefinitions.TwoRowStrip(ZebesPlanetBandCellDefinitions.North, column);
+                tile = CinematicAtlasStrip.TwoRowStrip(ZebesPlanetBandCellDefinitions.North, column);
             }
             else
             {

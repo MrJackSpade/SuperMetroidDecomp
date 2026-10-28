@@ -38,16 +38,16 @@ internal sealed record AreaMapPresentationParts
     public required MapStaticPalettes Palettes { get; init; }
 
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
-    public required WorldMapLabelLayout Labels { get; init; }
+    public required WorldMapLabelPositions Labels { get; init; }
 
     /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
-    public required MapStationLayout Stations { get; init; }
+    public required MapStationPositions Stations { get; init; }
 
     /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
-    public required MapLandmarkLayout Landmarks { get; init; }
+    public required MapLandmarkPositions Landmarks { get; init; }
 
     /// <summary>File-select save-marker visual coordinate overrides, independent of native load targets and scrolling.</summary>
-    public required MapSaveMarkerLayout SaveMarkers { get; init; }
+    public required MapSaveMarkerPositions SaveMarkers { get; init; }
 
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public required MapArrowPresentation Arrows { get; init; }
@@ -59,7 +59,7 @@ internal sealed record AreaMapPresentationParts
     public required WorldMapArtwork WorldArtwork { get; init; }
 
     /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
-    public required MapSpriteCatalog Sprites { get; init; }
+    public required MapSpriteCompositions Sprites { get; init; }
 
     /// <summary>Selected pause-menu character atlas, separate from map-screen characters in <see cref="Tiles"/>.</summary>
     public required MapTileAtlas PauseTiles { get; init; }
@@ -155,31 +155,31 @@ internal sealed record AreaMapPresentationParts
     public required RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; init; }
 
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    public required RoomFxLayer3TilemapCatalog RoomFxLayer3Tilemaps { get; init; }
+    public required RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; init; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
-    public required RoomFxPaletteBlendCatalog RoomFxPaletteBlends { get; init; }
+    public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
-    public required PowerBombFixedColorCatalog PowerBombFixedColors { get; init; }
+    public required InstalledPowerBombFixedColors PowerBombFixedColors { get; init; }
 
     /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    public required SamusVisorColorCatalog SamusVisorColors { get; init; }
+    public required InstalledSamusVisorColors SamusVisorColors { get; init; }
 
     /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    public required SamusHurtColorCatalog SamusHurtColors { get; init; }
+    public required InstalledSamusHurtColors SamusHurtColors { get; init; }
 
     /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    public required SamusSuitColorCatalog SamusSuitColors { get; init; }
+    public required InstalledSamusSuitColors SamusSuitColors { get; init; }
 
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public required SamusFullBodyCycleColorCatalog SamusFullBodyCycleColors { get; init; }
+    public required InstalledSamusFullBodyCycleColors SamusFullBodyCycleColors { get; init; }
 
     /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
-    public required CrystalFlashColorCatalog CrystalFlashColors { get; init; }
+    public required InstalledCrystalFlashColors CrystalFlashColors { get; init; }
 
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public required SamusChargeColorCatalog SamusChargeColors { get; init; }
+    public required InstalledSamusChargeColors SamusChargeColors { get; init; }
 
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public required CeresRidleyColorCatalog CeresRidleyColors { get; init; }
@@ -191,5 +191,5 @@ internal sealed record AreaMapPresentationParts
     public required CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; init; }
 
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public required SamusHyperBeamColorCatalog SamusHyperBeamColors { get; init; }
+    public required InstalledSamusHyperBeamColors SamusHyperBeamColors { get; init; }
 }

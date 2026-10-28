@@ -21,7 +21,7 @@ public sealed class PauseBackdropPresentation
     {
         var result = new BackgroundTile[PauseBackdropDefinitions.ButtonCells];
         for (int cell = 0; cell < PauseBackdropDefinitions.ButtonCells; cell++)
-            result[cell] = buttons.TryGetValue(cell, out BackgroundTile edited) ? edited : PauseBackdropDefinitions.StockButtonTile(cell);
+            result[cell] = buttons.TryGetValue(cell, out BackgroundTile edited) ? edited : PauseBackdropTiles.StockButtonTile(cell);
         return result;
     }
 
@@ -34,7 +34,7 @@ public sealed class PauseBackdropPresentation
         var selected = areas[AreaIds.ToIndex(area)];
         Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
         for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
-            destination[cell] = selected.TryGetValue(cell, out BackgroundTile edited) ? edited : PauseBackdropDefinitions.StockAreaTile(area, cell);
+            destination[cell] = selected.TryGetValue(cell, out BackgroundTile edited) ? edited : PauseBackdropTiles.StockAreaTile(area, cell);
     }
 
     /// <summary>Extracts only tiles changed from the stock calculation, preserving independent authored edits.</summary>
@@ -88,9 +88,9 @@ public sealed class PauseBackdropPresentation
             BackgroundTile[] tilemap = areaTilemaps[AreaIds.ToIndex(area)] ?? throw new InvalidDataException($"Pause backdrop {area} is missing.");
             if (tilemap.Length != PauseBackdropDefinitions.Cells)
                 throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells.");
-            areas[AreaIds.ToIndex(area)] = Differences(tilemap, cell => PauseBackdropDefinitions.StockAreaTile(area, cell));
+            areas[AreaIds.ToIndex(area)] = Differences(tilemap, cell => PauseBackdropTiles.StockAreaTile(area, cell));
         }
-        return new(areas, Differences(buttonTilemap, PauseBackdropDefinitions.StockButtonTile));
+        return new(areas, Differences(buttonTilemap, PauseBackdropTiles.StockButtonTile));
     }
 
     /// <summary>Serializes and validates every backdrop and button cell before writing the UTF-8 JSON document.</summary>

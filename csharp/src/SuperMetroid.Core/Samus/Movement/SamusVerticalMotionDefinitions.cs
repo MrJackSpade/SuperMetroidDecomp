@@ -9,46 +9,60 @@ internal static class SamusVerticalMotionDefinitions
     /// </summary>
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
-    /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids.</summary>
-    internal static UnsignedSixteenSixteen BombJump(SamusLiquidMedium medium) => SplitSpeed(medium switch
+    /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids,
+    /// as 8.8 speeds by medium.</summary>
+    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, int> BombJumpSpeeds = new Dictionary<SamusLiquidMedium, int>
     {
-        SamusLiquidMedium.Air => 0x02c0,
-        SamusLiquidMedium.Water or SamusLiquidMedium.LavaOrAcid => 0x0010,
-        _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-    });
+        [SamusLiquidMedium.Air] = 0x02c0,
+        [SamusLiquidMedium.Water] = 0x0010,
+        [SamusLiquidMedium.LavaOrAcid] = 0x0010,
+    };
 
-    /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed.</summary>
-    internal static UnsignedSixteenSixteen Knockback(SamusLiquidMedium medium) => SplitSpeed(medium switch
+    /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed,
+    /// as 8.8 speeds by medium.</summary>
+    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, int> KnockbackSpeeds = new Dictionary<SamusLiquidMedium, int>
     {
-        SamusLiquidMedium.Air => 0x0500,
-        SamusLiquidMedium.Water or SamusLiquidMedium.LavaOrAcid => 0x0200,
-        _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-    });
+        [SamusLiquidMedium.Air] = 0x0500,
+        [SamusLiquidMedium.Water] = 0x0200,
+        [SamusLiquidMedium.LavaOrAcid] = 0x0200,
+    };
 
     /// <summary>
-    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: choose the launch magnitude
-    /// by medium, jump equipment and whether Samus kicks away from a wall. Each
-    /// original whole/fraction pair is the split representation of one 8.8 speed.
+    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude with High Jump equipped by medium and
+    /// whether Samus kicks away from a wall, as 8.8 speeds. In lava or acid High Jump outweighs the wall kick.
     /// </summary>
-    internal static UnsignedSixteenSixteen Launch(SamusLiquidMedium medium, bool highJump, SamusLaunchKind kind) =>
-        SplitSpeed(medium switch
-        {
-            SamusLiquidMedium.Air => kind == SamusLaunchKind.WallJump ? highJump ? 0x0580 : 0x04a0 : highJump ? 0x0600 : 0x04e0,
-            SamusLiquidMedium.Water => kind == SamusLaunchKind.WallJump ? highJump ? 0x0080 : 0x0040 : highJump ? 0x0280 : 0x01c0,
-            SamusLiquidMedium.LavaOrAcid => highJump ? 0x0380 : kind == SamusLaunchKind.WallJump ? 0x02a0 : 0x02c0,
-            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-        });
-
-    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: whole acceleration is zero in all three media.</summary>
-    internal static UnsignedSixteenSixteen Gravity(SamusLiquidMedium medium) => new UnsignedSixteenSixteen(0, medium switch
+    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, int> HighJumpLaunchSpeeds =
+        new Dictionary<SamusLaunchSpeedKey, int>
     {
-        SamusLiquidMedium.Air => 0x1c00,
-        SamusLiquidMedium.Water => 0x0800,
-        SamusLiquidMedium.LavaOrAcid => 0x0900,
-        _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-    });
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = 0x0580,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = 0x0600,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = 0x0080,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = 0x0280,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = 0x0380,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = 0x0380,
+    };
 
-    /// <summary>Splits a native 8.8 launch magnitude into the separate whole and 16.16 fractional words Samus stores.</summary>
-    private static UnsignedSixteenSixteen SplitSpeed(int speed) =>
-        new(EightEight.WholeOf(speed), SixteenSixteen.FractionOf(SixteenSixteen.FromEightEight(speed)));
+    /// <summary>
+    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude without High Jump by medium and whether
+    /// Samus kicks away from a wall, as 8.8 speeds.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, int> UnassistedLaunchSpeeds =
+        new Dictionary<SamusLaunchSpeedKey, int>
+    {
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = 0x04a0,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = 0x04e0,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = 0x0040,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = 0x01c0,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = 0x02a0,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = 0x02c0,
+    };
+
+    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: the fraction of each medium's gravity; the whole is zero in
+    /// all three media.</summary>
+    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, int> GravityFractions = new Dictionary<SamusLiquidMedium, int>
+    {
+        [SamusLiquidMedium.Air] = 0x1c00,
+        [SamusLiquidMedium.Water] = 0x0800,
+        [SamusLiquidMedium.LavaOrAcid] = 0x0900,
+    };
 }

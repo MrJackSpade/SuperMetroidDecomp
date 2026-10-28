@@ -304,7 +304,7 @@ public sealed class SharedGameState
     public void SetBossBits(int areaIndex, BossBits bits)
     {
         ValidateAreaIndex(areaIndex);
-        BossBitMasks.Validate(bits, "Boss-state set mask");
+        ProvenBossBits.Validate(bits, "Boss-state set mask");
         _bossBitsByArea[areaIndex] |= bits;
     }
 
@@ -319,7 +319,7 @@ public sealed class SharedGameState
     public void ClearBossBits(int areaIndex, BossBits bits)
     {
         ValidateAreaIndex(areaIndex);
-        BossBitMasks.Validate(bits, "Boss-state clear mask");
+        ProvenBossBits.Validate(bits, "Boss-state clear mask");
         _bossBitsByArea[areaIndex] &= ~bits;
     }
 
@@ -333,7 +333,7 @@ public sealed class SharedGameState
     public bool HasAnyBossBits(int areaIndex, BossBits bits)
     {
         ValidateAreaIndex(areaIndex);
-        BossBitMasks.Validate(bits, "Boss-state query mask");
+        ProvenBossBits.Validate(bits, "Boss-state query mask");
         return (_bossBitsByArea[areaIndex] & bits) != BossBits.None;
     }
 
@@ -362,7 +362,7 @@ public sealed class SharedGameState
     {
         ValidateAreaIndex(areaIndex);
         BossBits bits = _bossBitsByArea[areaIndex];
-        BossBitMasks.Validate(bits, $"Area {areaIndex} boss state");
+        ProvenBossBits.Validate(bits, $"Area {areaIndex} boss state");
         return bits;
     }
 
@@ -587,7 +587,7 @@ public sealed class SharedGameState
     {
         ValidateExploredMapCoordinate(areaIndex, cell);
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, cell);
-        _exploredMapTiles[byteIndex] |= AreaMapLayout.GetBitMask(cell.X);
+        _exploredMapTiles[byteIndex] |= AreaMapPages.GetBitMask(cell.X);
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -599,7 +599,7 @@ public sealed class SharedGameState
     {
         ValidateExploredMapCoordinate(areaIndex, cell);
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, cell);
-        return (_exploredMapTiles[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0;
+        return (_exploredMapTiles[byteIndex] & AreaMapPages.GetBitMask(cell.X)) != 0;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -753,7 +753,7 @@ public sealed class SharedGameState
     private static int ResolveExploredMapByteIndex(int areaIndex, Position16<MapTiles> cell)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
-        return areaOffset + AreaMapLayout.GetBitByteIndex(cell);
+        return areaOffset + AreaMapPages.GetBitByteIndex(cell);
     }
 
     /// <summary>Validates area and cell bounds before a map exploration bit is read or written.</summary>

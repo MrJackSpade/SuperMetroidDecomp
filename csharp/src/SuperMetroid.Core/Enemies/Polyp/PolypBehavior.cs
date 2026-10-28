@@ -106,13 +106,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
-        int xVelocity = PolypLaunchDefinitions.XVelocity(_room.Random.Generate());
+        int xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
 
-        int initialYSpeed = PolypLaunchDefinitions.InitialYIndex(_room.Random.Generate());
+        int initialYSpeed = PolypLaunches.InitialYIndex(_room.Random.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = WrappingCountdown.FromRaw(PolypLaunchDefinitions.Cooldown(_room.Random.Generate()));
+        state.CooldownTimer = WrappingCountdown.FromRaw(PolypLaunches.Cooldown(_room.Random.Generate()));
     }
 
     /// <summary>
@@ -262,7 +262,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
             (half == QuadraticSpeedHalf.Negative ? 4 : 0);
-        int fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
+        int fraction = EnemyQuadraticSpeeds.ReadWord(record);
         projectile.Variable1 = fraction;
         // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
         int fractionalSum = projectile.Position.Y.Fraction + fraction;
@@ -270,7 +270,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         if (fractionalSum > ushort.MaxValue)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
-        int whole = EnemyQuadraticSpeedDefinitions.ReadWord(record + 2);
+        int whole = EnemyQuadraticSpeeds.ReadWord(record + 2);
         projectile.Variable1 = whole;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }

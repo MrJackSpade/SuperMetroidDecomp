@@ -40,7 +40,7 @@ internal static class LookupDraygonCannonStockVerification
         var stock = RoomPlmDraygonCannonVisualCatalog.Stock();
         var imported = new RoomPlmDraygonCannonVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmDraygonCannonVisualCatalog), words.ToDictionary(pair => DraygonCannonPlmDrawDefinitions.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmDraygonCannonVisualCatalog), words.ToDictionary(pair => DraygonCannonDraws.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Cannon original flattened identity");

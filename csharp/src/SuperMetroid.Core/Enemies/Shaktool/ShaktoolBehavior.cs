@@ -51,7 +51,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int segmentIndex = slot.Spawn.Population.Parameter2 >> 1;
-        ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(segmentIndex);
+        ShaktoolSegmentDefinition definition = ShaktoolSegments.ForIndex(segmentIndex);
         var state = new ShaktoolSegmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -187,7 +187,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         int directionBucket = unchecked((ushort)((RotationAngle.FromRaw(checked((ushort)midpoint)).TableIndex + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
-            ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket));
+            ShaktoolPrograms.ForOrientationBucket(directionBucket));
         slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
@@ -296,7 +296,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             CalculateShaktoolAngularVelocity(segmentState);
             segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
             segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
-                ShaktoolInstructionDefinitions.CollisionForSegment(index));
+                ShaktoolPrograms.CollisionForSegment(index));
             segment.InstructionTimer = WrappingCountdown.Start(1);
         }
     }
@@ -354,7 +354,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ShaktoolSegmentState state = RequireShaktoolState(group[index]);
             state.OrbitAngle = target;
-            state.AngularVelocity = ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity;
+            state.AngularVelocity = ShaktoolSegments.ForIndex(index).AngularVelocity;
         }
     }
 
@@ -471,7 +471,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
                 {
                     RequireShaktoolState(group[index]).PreInstruction =
-                        ShaktoolSegmentDefinitions.ForIndex(index).PreInstruction;
+                        ShaktoolSegments.ForIndex(index).PreInstruction;
                 }
                 break;
             }

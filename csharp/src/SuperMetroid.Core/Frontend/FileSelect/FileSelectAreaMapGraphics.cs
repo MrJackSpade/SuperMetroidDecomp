@@ -22,17 +22,17 @@ public sealed class FileSelectAreaMapGraphics
     [AllowNull]
     private MapStaticPalettes Palettes { get => field ?? throw new InvalidOperationException("No area-map world colors are installed."); set; }
     /// <summary>Installed world-label positions used when building OAM.</summary>
-    [NonSerialized] private WorldMapLabelLayout? labels;
+    [NonSerialized] private WorldMapLabelPositions? labels;
     /// <summary>Installed foreground and per-area background tilemaps.</summary>
     [NonSerialized] private MapScreenPresentation? screens;
     /// <summary>The installed map sprite sheet the title and area labels draw from.</summary>
     [NonSerialized] private SpriteSheet? mapSheet;
     /// <summary>Replaces label positions without changing the selected area or PPU state.</summary>
-    internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
+    internal void BindLabels(WorldMapLabelPositions? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
     public static FileSelectAreaMapGraphics FromPresentation(int selectedArea,
-        AreaMapPresentationCatalog presentation, InstalledSpriteSheets sheets)
+        AreaMapPresentation presentation, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(presentation);
         var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
@@ -52,7 +52,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
     public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
-        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null,
+        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCompositions? mapSprites = null,
         InstalledSpriteSheets? sheets = null)
     {
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
@@ -102,7 +102,7 @@ public sealed class FileSelectAreaMapGraphics
     /// Rebinds every installed resource the area map draws, after a content change or debugger restoration, without
     /// selecting another area or restarting its palette fade.
     /// </summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    internal void BindMapPresentation(AreaMapPresentation? catalog)
     {
         BindLabels(catalog?.Labels);
         BindPalettes(catalog?.Palettes);
@@ -127,7 +127,7 @@ public sealed class FileSelectAreaMapGraphics
         if (content is not null) LoadInstalledPalette(AreaIds.At(SelectedArea));
     }
     /// <summary>Rebinds the menu screen's label OBJ art.</summary>
-    private void BindSprites(MapSpriteCatalog? content) => screen.BindMapSprites(content);
+    private void BindSprites(MapSpriteCompositions? content) => screen.BindMapSprites(content);
 
     /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background tiles.</summary>
     internal void BindSheets(InstalledSpriteSheets? sheets)
@@ -160,14 +160,14 @@ public sealed class FileSelectAreaMapGraphics
             if (!AreaIds.IsZebes(area))
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
             int index = AreaIds.ToIndex(area);
-            if (MapSaveMarkerDefinitions.HasUsedMarker(area, usedStationMasks[index]))
+            if (MapSaveMarkers.HasUsedMarker(area, usedStationMasks[index]))
                 DrawArea(area, index);
         }
         entries.FinishFrame();
 
         void DrawArea(AreaId shown, int shownIndex)
         {
-            Draw(MapSpriteDefinitions.WorldLabel(shown), labels.Get(shownIndex),
+            Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shownIndex),
                 shownIndex == SelectedArea ? 0 : 1);
         }
 

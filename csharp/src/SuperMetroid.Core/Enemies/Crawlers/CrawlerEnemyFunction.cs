@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// The routine a creepy-crawly enemy's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum CrawlerEnemyFunction : ushort
+public enum CrawlerEnemyFunction
 {
     /// <summary>$A3:E08A: return-only initial orange-Zoomer state, awaiting the animation command that installs a horizontal or vertical crawling function.</summary>
     HZoomerInstructionPending = 1,

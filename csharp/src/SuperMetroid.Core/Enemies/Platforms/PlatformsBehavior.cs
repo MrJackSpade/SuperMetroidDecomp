@@ -69,7 +69,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // data and is rejected here rather than normalized to rightward movement.
         state.XMovement = HorizontalMovements.Decode(slot.Spawn.Population.Parameter1);
 
-        state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformAnimationDefinitions.SelectProgram(
+        state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformPrograms.SelectProgram(
             isKamer, axis: Axis.Horizontal, state.XMovement));
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
@@ -313,7 +313,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        InstallPlatformProgram(slot, state, PlatformAnimationDefinitions.SelectProgram(
+        InstallPlatformProgram(slot, state, PlatformPrograms.SelectProgram(
             state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
     }
 
@@ -322,7 +322,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        InstallPlatformProgram(slot, state, PlatformAnimationDefinitions.SelectProgram(
+        InstallPlatformProgram(slot, state, PlatformPrograms.SelectProgram(
             state.IsSuspensorPlatform, axis: Axis.Horizontal, state.XMovement));
     }
 

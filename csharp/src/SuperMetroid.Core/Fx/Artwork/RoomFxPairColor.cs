@@ -21,19 +21,19 @@ internal sealed class RoomFxPairColor
         this.selection = selection;
         this.isPrimary = member == RoomFxPairMember.Primary;
         int red = color.Red, green = color.Green, blue = color.Blue;
-        redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, member == RoomFxPairMember.Primary) == red ? null : red;
-        greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, member == RoomFxPairMember.Primary) == green ? null : green;
-        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, member == RoomFxPairMember.Primary) == blue ? null : blue;
+        redOverride = RoomFxPaletteBlendRules.CalculatedPairRed(selection, member == RoomFxPairMember.Primary) == red ? null : red;
+        greenOverride = RoomFxPaletteBlendRules.CalculatedPairGreen(selection, red, member == RoomFxPairMember.Primary) == green ? null : green;
+        blueOverride = RoomFxPaletteBlendRules.CalculatedPairBlue(selection, red, green, member == RoomFxPairMember.Primary) == blue ? null : blue;
     }
 
     /// <summary>Rebuilds the ink from retained edits and any still-applicable shared tint rules.</summary>
     public RgbColor CreateColor()
     {
-        int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary) ??
+        int red = redOverride ?? RoomFxPaletteBlendRules.CalculatedPairRed(selection, isPrimary) ??
             throw new InvalidOperationException("A blend color without a red edit has a calculated red.");
-        int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary) ??
+        int green = greenOverride ?? RoomFxPaletteBlendRules.CalculatedPairGreen(selection, red, isPrimary) ??
             throw new InvalidOperationException("A blend color without a green edit has a calculated green.");
-        int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) ??
+        int blue = blueOverride ?? RoomFxPaletteBlendRules.CalculatedPairBlue(selection, red, green, isPrimary) ??
             throw new InvalidOperationException("A blend color without a blue edit has a calculated blue.");
         return new RgbColor(red, green, blue);
     }

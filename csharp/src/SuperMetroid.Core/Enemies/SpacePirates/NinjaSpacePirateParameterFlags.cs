@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// behavior that the retail routine never actually proves.
 /// </summary>
 [Flags]
-public enum NinjaSpacePirateParameterFlags : ushort
+public enum NinjaSpacePirateParameterFlags
 {
     /// <summary>No named parameter meaning is set.</summary>
     None = 0,

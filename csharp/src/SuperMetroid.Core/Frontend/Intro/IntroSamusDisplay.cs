@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// $1A57 IntroSamusDisplayFlag. $8B:8E0D runs Samus's state handlers only while it is
 /// nonzero, and $8B:8E2D tests its sign to order Samus against the cinematic objects.
 /// </summary>
-internal enum IntroSamusDisplay : short
+internal enum IntroSamusDisplay
 {
     /// <summary>Zero: Samus is neither processed nor drawn.</summary>
     Hidden = 0,

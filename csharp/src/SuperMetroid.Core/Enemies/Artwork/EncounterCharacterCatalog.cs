@@ -8,55 +8,28 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// divide the characters into, and the picture of a frame drawn over them that shows (#1392). The encounters' own module
 /// supplies the uploads; the installed sheets carry the catalogue to the enemies drawing from them.
 /// </summary>
-public sealed class EncounterCharacterCatalog
+/// <param name="byEnemy">Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</param>
+public sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy)
 {
     /// <summary>Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    private readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy;
+    internal readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> uploadsByEnemy = Ensure.NotNull(byEnemy);
 
     /// <summary>Every catalogued upload, once, in a fixed order whose index names it in picture names.</summary>
-    private readonly ImmutableArray<SpriteArtworkPlacement> all;
-
-    /// <summary>Catalogues each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    public EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy)
-    {
-        this.byEnemy = Ensure.NotNull(byEnemy);
-        all = [.. byEnemy.OrderBy(entry => entry.Key).SelectMany(entry => entry.Value).Distinct()];
-    }
+    internal readonly ImmutableArray<SpriteArtworkPlacement> all = EncounterUploads.InCatalogueOrder(byEnemy);
 
     /// <summary>The catalogued placement that shows <paramref name="source"/>.</summary>
     /// <exception cref="InvalidDataException">No catalogued encounter shows the source, or several place it differently.</exception>
-    public SpriteArtworkPlacement Placement(SpriteArtworkSource source)
-    {
-        Ensure.NotNull(source);
-        SpriteArtworkPlacement[] matches = [.. all.Where(upload => upload.Source == source)];
-        return matches.Length == 1 ? matches[0]
-            : throw new InvalidDataException(matches.Length == 0 ? $"No catalogued encounter shows {source}." : $"{source} is catalogued in {matches.Length} places.");
-    }
+    public SpriteArtworkPlacement Placement(SpriteArtworkSource source) => EncounterUploads.Placement(this, source);
 
     /// <summary>The uploads the encounters of graphics set <paramref name="set"/>'s members make, in catalogue order.</summary>
-    public IReadOnlyList<SpriteArtworkPlacement> Of(RoomEnemyGraphicsSetDefinition set) =>
-        [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()
-            .Where(byEnemy.ContainsKey).SelectMany(enemy => byEnemy[enemy]).Distinct().OrderBy(all.IndexOf)];
+    public IReadOnlyList<SpriteArtworkPlacement> Of(RoomEnemyGraphicsSetDefinition set) => EncounterUploads.Of(this, set);
 
     /// <summary>
     /// The name of the picture of layer <paramref name="layer"/> of <paramref name="frame"/> whose regions each show what
     /// <paramref name="shown"/> pairs with it.
     /// </summary>
-    public string PictureName(string frame, int layer, IReadOnlyList<CharacterRegionContent> shown)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(frame);
-        Ensure.AtLeastZero(layer);
-        return $"{frame}#{layer}" + string.Concat(Ensure.NotNull(shown).Select(content =>
-            $"|{content.Region.Name}={Token(content)}"));
-    }
-
-    /// <summary>How a picture's name spells what <paramref name="content"/> shows over its region.</summary>
-    private string Token(CharacterRegionContent content)
-    {
-        if (content.RotStep is int step)
-            return $"rot{step}";
-        return content.Placement is { } placement ? $"u{all.IndexOf(placement)}" : "set";
-    }
+    public string PictureName(string frame, int layer, IReadOnlyList<CharacterRegionContent> shown) =>
+        EncounterUploads.PictureName(this, frame, layer, shown);
 
     /// <summary>
     /// What shows over <paramref name="region"/> now: the frame an animation the set's encounters paint the region with
@@ -69,29 +42,6 @@ public sealed class EncounterCharacterCatalog
     /// encounters do not paint the region with.
     /// </exception>
     public CharacterRegionContent Showing(SpriteArtworkPlacements uploads, IReadOnlyList<SpriteArtworkPlacement> setUploads,
-        CharacterRegion region, ArtworkFrameSelections frames, SetCharacterCoverage coverage)
-    {
-        Ensure.NotNull(uploads);
-        Ensure.NotNull(setUploads);
-        Ensure.NotNull(region);
-        Ensure.NotNull(frames);
-        Ensure.NotNull(coverage);
-        SpriteArtworkPlacement[] over = [.. setUploads.Where(upload => coverage.Covers(upload.Source, region))];
-        foreach (SpriteArtworkPlacement upload in over)
-        {
-            if (upload.Source is not ArtworkFrameCharacters painted || !frames.TryShown(painted.Frame.Animation, out ArtworkFrame shown))
-                continue;
-            SpriteArtworkPlacement selected = over.FirstOrDefault(candidate => candidate.Source is ArtworkFrameCharacters frame && frame.Frame == shown)
-                ?? throw new InvalidDataException($"{shown} shows over region {region.Name}, which no encounter of this graphics set paints with it.");
-            return new CharacterRegionContent(region, selected);
-        }
-        foreach (SpriteArtworkSource source in uploads.NewestFirst)
-        {
-            if (!coverage.Knows(source) && all.Any(upload => upload.Source == source))
-                throw new InvalidDataException($"{source}, uploaded by an encounter of another graphics set, shows over a frame drawn under this one.");
-            if (coverage.Covers(source, region))
-                return new CharacterRegionContent(region, setUploads.FirstOrDefault(upload => upload.Source == source));
-        }
-        return new CharacterRegionContent(region, null);
-    }
+        CharacterRegion region, ArtworkFrameSelections frames, SetCharacterCoverage coverage) =>
+        EncounterUploads.Showing(this, uploads, setUploads, region, frames, coverage);
 }

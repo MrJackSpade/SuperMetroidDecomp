@@ -18,19 +18,19 @@ internal static class DragonAnimationDefinitionsVerification
         {
             var selector = (DragonAnimationSelector)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonAnimationDefinitions.Program(selector)),
+                NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program(selector)),
                 $"Dragon animation selector {selector}");
             AssertEqual((DragonAnimationSelector)(index & ~1),
-                DragonAnimationDefinitions.WithFacing(selector, facingLeft: true),
+                DragonPhases.WithFacing(selector, facingLeft: true),
                 $"Dragon left-facing mapping {selector}");
             AssertEqual((DragonAnimationSelector)(index | 1),
-                DragonAnimationDefinitions.WithFacing(selector, facingLeft: false),
+                DragonPhases.WithFacing(selector, facingLeft: false),
                 $"Dragon right-facing mapping {selector}");
             AssertEqual((DragonAnimationSelector)(4 | (index & 1)),
-                DragonAnimationDefinitions.AttackingWithSameFacing(selector),
+                DragonPhases.AttackingWithSameFacing(selector),
                 $"Dragon attack mapping {selector}");
             AssertEqual((DragonAnimationSelector)(index & 1),
-                DragonAnimationDefinitions.IdleWithSameFacing(selector),
+                DragonPhases.IdleWithSameFacing(selector),
                 $"Dragon idle mapping {selector}");
         }
 
@@ -39,11 +39,11 @@ internal static class DragonAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: true));
 
         AssertThrows<InvalidDataException>(
-            () => DragonAnimationDefinitions.Program(
+            () => DragonPhases.Program(
                 DragonAnimationSelector.ForceReinstall),
             "Dragon reinstall sentinel cannot select a list");
         AssertThrows<InvalidDataException>(
-            () => DragonAnimationDefinitions.WithFacing(
+            () => DragonPhases.WithFacing(
                 DragonAnimationSelector.ForceReinstall,
                 facingLeft: true),
             "Dragon reinstall sentinel has no facing mapping");
@@ -146,7 +146,7 @@ internal static class DragonAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.InstalledInstructionListIndex,
             $"{context} installed selector");
-        AssertEqual(AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(expected)),
+        AssertEqual(AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(expected)),
             state.Program,
             $"{context} animation");
         AssertEqual(expectedInstructionTimer, slot.InstructionTimer.RawValue,

@@ -13,7 +13,7 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class InstalledFileSelectMapVerification
 {
     /// <summary>Compares stock frames through entry, scroll, debugger restore, and exit handoffs with map ROM blocked.</summary>
-    internal static void VerifyInstalledFileSelectMenu(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
+    internal static void VerifyInstalledFileSelectMenu(AreaMapPresentation original, AreaMapPresentation edited, bool verifyCapturedRendering = false)
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };

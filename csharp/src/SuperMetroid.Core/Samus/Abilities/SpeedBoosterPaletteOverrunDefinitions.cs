@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// Bounded instruction-data reads when Gravity Speed Booster inherits Screw Attack phases eight or ten. Phase ten's
-/// grapple-handler code ($9B:C90A-$C929) is read from the player's cartridge into <see cref="SamusOverreadCatalog"/>.
+/// grapple-handler code ($9B:C90A-$C929) is read from the player's cartridge into <see cref="InstalledSamusOverreads"/>.
 /// </summary>
 internal static class SpeedBoosterPaletteOverrunDefinitions
 {

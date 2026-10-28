@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Composable room-policy bits used by the duplicated Crateria footstep and landing tables.
 /// </summary>
 [Flags]
-internal enum CrateriaAtmosphericEffectFlags : byte
+internal enum CrateriaAtmosphericEffectFlags
 {
     /// <summary>No special landing, entrance, or wet-footstep behavior.</summary>
     None = 0,

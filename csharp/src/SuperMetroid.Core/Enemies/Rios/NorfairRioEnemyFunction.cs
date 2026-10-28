@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The routines Norfair Rio's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum NorfairRioEnemyFunction : ushort
+public enum NorfairRioEnemyFunction
 {
     /// <summary>Native <c>Function_Geruta_Flames</c> at <c>$A2:C281</c>; follows the preceding parent using its signed animation-authored Y offset, hides for parent freeze/idle, and deletes the follower when the parent dies.</summary>
     FollowParent = 1,

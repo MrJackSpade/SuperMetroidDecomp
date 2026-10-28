@@ -62,7 +62,7 @@ internal static class RidleyFlightTailVerification
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,
-                Angle = 0x3ff0, Distance = RidleyTailDefinitions.RestDistance(index),
+                Angle = 0x3ff0, Distance = RidleyTailReach.RestDistance(index),
             }).ToArray(),
         };
         run(slot, state, null, 0, null);

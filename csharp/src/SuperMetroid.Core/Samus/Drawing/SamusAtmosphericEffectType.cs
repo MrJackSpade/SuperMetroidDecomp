@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// The graphics type of one shared atmospheric slot. The slot's packed frame/type word still stores the type number,
 /// so the members keep the numbers that word holds; <see cref="Inactive"/> is the cleared slot.
 /// </summary>
-public enum SamusAtmosphericEffectType : byte
+public enum SamusAtmosphericEffectType
 {
     /// <summary>The slot holds no effect.</summary>
     Inactive = 0,

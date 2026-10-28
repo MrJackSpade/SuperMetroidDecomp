@@ -23,7 +23,7 @@ public sealed class SamusPowerBombExplosionState
 
     /// <summary>Current host-owned explosion colors; excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
-    public PowerBombFixedColorCatalog? PresentationColors { get; set; }
+    public InstalledPowerBombFixedColors? PresentationColors { get; set; }
 
     /// <summary>The HDMA explosion status, 0 through 65535; the top bit set is the normal active state.</summary>
     [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
@@ -437,7 +437,7 @@ public sealed class SamusPowerBombExplosionState
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = WrappingCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
-            PowerBombExplosionDefinitions.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
+            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 

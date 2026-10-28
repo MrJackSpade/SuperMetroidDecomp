@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -10,83 +9,24 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 internal static class SporeSpawnCeilingPlmDrawDefinitions
 {
-
     /// <summary>
-    /// Clear fills with the blank tile; crumble advances through tiles $53..55
-    /// in its three successive sixteen-byte records. Every cell uses the same air word.
+    /// The one air cell each draw fills its square with: clear fills with the blank tile; crumble advances through
+    /// tiles $53..55 in its three successive sixteen-byte records.
     /// </summary>
-    internal static bool TryGetWord(PlmDraw request, out RoomLevelWord word)
+    internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomLevelWord> Cells = new()
     {
-        if (request is not PlmFrameDraw<SporeSpawnCeilingDraw>)
-        {
-            word = default;
-            return false;
-        }
-        var list = PlmDraw.FrameOf<SporeSpawnCeilingDraw>(request, "SporeSpawnCeilingDraw");
-        word = new RoomLevelWord(list switch
-        {
-            SporeSpawnCeilingDraw.Clear => 0x00ff,
-            SporeSpawnCeilingDraw.CrumbleFirst => 0x53,
-            SporeSpawnCeilingDraw.CrumbleSecond => 0x54,
-            SporeSpawnCeilingDraw.CrumbleThird => 0x55,
-            _ => throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {list}."),
-        });
-        return true;
-    }
-
-    /// <summary>Temporary draw records for the artwork interface; runtime draws the scalar two-by-two square directly.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (SporeSpawnCeilingDraw frame in Enum.GetValues<SporeSpawnCeilingDraw>())
-            {
-                TryGet(PlmDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
-    }
-
-    /// <summary>Selects a ceiling draw's published artwork key.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        VisualId(PlmDraw.FrameOf<SporeSpawnCeilingDraw>(request, "Spore Spawn ceiling draw with a visual ID"));
-
-    /// <summary>Names the clear layout and the three successive crumble appearances for visual editing.</summary>
-    internal static string VisualId(SporeSpawnCeilingDraw frame) => frame switch
-    {
-        SporeSpawnCeilingDraw.Clear => "clear-ceiling",
-        SporeSpawnCeilingDraw.CrumbleFirst => "crumble-frame-0",
-        SporeSpawnCeilingDraw.CrumbleSecond => "crumble-frame-1",
-        SporeSpawnCeilingDraw.CrumbleThird => "crumble-frame-2",
-        _ => throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {frame}."),
+        [SporeSpawnCeilingDraw.Clear] = RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.CrumbleFirst] = RoomLevelWord.Create(0x53, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.CrumbleSecond] = RoomLevelWord.Create(0x54, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.CrumbleThird] = RoomLevelWord.Create(0x55, LevelBlockFlipFlags.None, RoomCollisionType.Air),
     };
 
-    /// <summary>Finds the native physical square associated with an editable ceiling-frame key.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
-
-    /// <summary>Builds a two-run physical square for a supported clear or crumble draw.</summary>
-    internal static bool TryGet(PlmDraw request,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    /// <summary>The clear layout's and the three successive crumble appearances' editable artwork keys.</summary>
+    internal static readonly Dictionary<SporeSpawnCeilingDraw, string> VisualIds = new()
     {
-        if (TryGetWord(request, out RoomLevelWord word))
-        {
-            list = Square(request, checked((ushort)word));
-            return true;
-        }
-        list = default;
-        return false;
-    }
-
-    /// <summary>Duplicates one physical tile across the two horizontal runs of the ceiling's two-by-two layout.</summary>
-    private static RoomPlmShotBlockDrawDefinitions.DrawList Square(
-        PlmDraw draw, RoomLevelWord physicalWord) => new(draw,
-        new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new RoomPlmShotBlockDrawDefinitions.Run(
-                2, new ushort[] { physicalWord.Raw, physicalWord.Raw }, new(0, 1)),
-            new RoomPlmShotBlockDrawDefinitions.Run(
-                2, new ushort[] { physicalWord.Raw, physicalWord.Raw }, new(0, 0)),
-        });
+        [SporeSpawnCeilingDraw.Clear] = "clear-ceiling",
+        [SporeSpawnCeilingDraw.CrumbleFirst] = "crumble-frame-0",
+        [SporeSpawnCeilingDraw.CrumbleSecond] = "crumble-frame-1",
+        [SporeSpawnCeilingDraw.CrumbleThird] = "crumble-frame-2",
+    };
 }

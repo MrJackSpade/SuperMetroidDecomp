@@ -17,7 +17,7 @@ internal static class CeresLargeAsteroidPartsVerification
     internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);
-        foreach (var definition in new[] { new { Pose = CeresDestructionSpriteDefinitions.BackdropPose(CeresDestructionBackdrop.LargeAsteroids), StockPartCount = 19, Name = "under-attack" }, new { Pose = CeresFlightSpriteDefinitions.LargeAsteroids, StockPartCount = 19, Name = "approach" } })
+        foreach (var definition in new[] { new { Pose = CeresDestructionSpritePoses.BackdropPose(CeresDestructionBackdrop.LargeAsteroids), StockPartCount = 19, Name = "under-attack" }, new { Pose = CeresFlightSpriteDefinitions.LargeAsteroids, StockPartCount = 19, Name = "approach" } })
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);

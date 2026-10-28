@@ -24,7 +24,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseTileAtlasVerification
 {
     /// <summary>Compares stock VRAM bytes, three-area menu transitions, live and captured edits, restore rebinding, and malformed resources.</summary>
-    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(

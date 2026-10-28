@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,7 +29,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
     {
         ushort[] pointers = [0xaa97,0xaaaf,0xaac7];
         string[] ids = ["first-frame","second-frame","third-frame"];
-        var exported = ElevatorPlatformPlmDefinitions.DrawLists.ToArray();
+        var exported = ElevatorPlatformDraws.DrawLists.ToArray();
         AssertEqual(3, exported.Length, "ElevatorPlatform layout export count");
         if (field == 0)
         {
@@ -36,18 +37,18 @@ internal static class LookupElevatorPlatformLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
-                AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
+                AssertEqual(owned, ElevatorPlatformDraws.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
+                AssertEqual(owned, ElevatorPlatformDraws.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(ElevatorPlatformPlmDefinitions.Draw), shape, "ElevatorPlatform layout missing shape");
+                    AssertEqual(default(ElevatorPlatformDraws.Draw), shape, "ElevatorPlatform layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "ElevatorPlatform layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => ElevatorPlatformPlmDefinitions.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout missing ID");
+                    AssertThrows<InvalidDataException>(() => ElevatorPlatformDraws.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout missing ID");
                 }
             }
             foreach (string id in new[] { "FIRST-FRAME", "broken", "", "unknown" })
             {
-                AssertTrue(!ElevatorPlatformPlmDefinitions.TryGetByVisualId(id, out var missing), "ElevatorPlatform layout ordinal ID domain");
+                AssertTrue(!ElevatorPlatformDraws.TryGetByVisualId(id, out var missing), "ElevatorPlatform layout ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "ElevatorPlatform layout rejected ID output");
             }
         }
@@ -55,13 +56,13 @@ internal static class LookupElevatorPlatformLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ElevatorPlatformPlmDefinitions.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape);
-            ElevatorPlatformPlmDefinitions.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
-            ElevatorPlatformPlmDefinitions.TryGetByVisualId(ids[index], out var byId);
+            ElevatorPlatformDraws.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape);
+            ElevatorPlatformDraws.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
+            ElevatorPlatformDraws.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "ElevatorPlatform layout original export order");
-                AssertEqual(ids[index], ElevatorPlatformPlmDefinitions.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout published ID");
+                AssertEqual(ids[index], ElevatorPlatformDraws.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout published ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "ElevatorPlatform layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
@@ -96,7 +97,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
-                        AssertEqual(header, part.DirectionAndCount, "ElevatorPlatform layout native DTO geometry");
+                        AssertRunHeader(header, part, "ElevatorPlatform layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "ElevatorPlatform layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "ElevatorPlatform layout native DTO offset");
                     }

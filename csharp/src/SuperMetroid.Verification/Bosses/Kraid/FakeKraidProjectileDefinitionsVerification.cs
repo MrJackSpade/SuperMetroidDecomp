@@ -22,10 +22,10 @@ internal static class FakeKraidProjectileDefinitionsVerification
         Suite(nameof(VerifyFakeKraidSpikeRowSelection), () => VerifyFakeKraidSpikeRowSelection(rom));
 
         AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectileDefinitions.SpitLaunch(false, -1),
+            () => FakeKraidProjectiles.SpitLaunch(false, -1),
             "Fake Kraid negative spit index");
         AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectileDefinitions.SpitLaunch(true, 2),
+            () => FakeKraidProjectiles.SpitLaunch(true, 2),
             "Fake Kraid spit index past direction set");
 
         var guarded = new CartridgeReadGuard(rom).Forbid(
@@ -55,7 +55,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             for (int projectile = 0; projectile < 2; projectile++)
             {
                 EightEightVector<RoomPixels> launch =
-                    FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
+                    FakeKraidProjectiles.SpitLaunch(movingRight, projectile);
                 AssertEqual(RoomEnemyProjectileKind.FakeKraidSpit, spawned[projectile].Kind,
                     $"Fake Kraid spit {projectile} kind");
                 AssertEqual(unchecked((ushort)(source.Position.X.Whole + (movingRight ? 4 : -4))),
@@ -91,7 +91,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             AssertEqual(source.Position.X.Whole, spike.Position.X.Whole,
                 $"Fake Kraid spike row {row} X origin");
             AssertEqual(unchecked((ushort)(source.Position.Y.Whole +
-                    FakeKraidProjectileDefinitions.SpikeYOffset(row))),
+                    FakeKraidProjectiles.SpikeYOffset(row))),
                 spike.Position.Y.Whole,
                 $"Fake Kraid spike row {row} Y origin");
             AssertEqual(facingDelta < 0 ? (ushort)0xfe00 : (ushort)0x0200,
@@ -110,11 +110,11 @@ internal static class FakeKraidProjectileDefinitionsVerification
         {
             int address = 0x869e7d + row * 2;
             short expected = unchecked((short)(LittleEndianBytes.Word(FakeKraidSpikeRowSelectionRomByte(rom, address), FakeKraidSpikeRowSelectionRomByte(rom, address + 1))));
-            AssertEqual(expected, FakeKraidProjectileDefinitions.SpikeYOffset(row),
+            AssertEqual(expected, FakeKraidProjectiles.SpikeYOffset(row),
                 $"Fake Kraid original signed launch port {row}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 4, 0x10000, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => FakeKraidProjectileDefinitions.SpikeYOffset(invalid),
+            AssertThrows<InvalidDataException>(() => FakeKraidProjectiles.SpikeYOffset(invalid),
                 "Fake Kraid unsupported launch port is rejected without masking");
     }
 

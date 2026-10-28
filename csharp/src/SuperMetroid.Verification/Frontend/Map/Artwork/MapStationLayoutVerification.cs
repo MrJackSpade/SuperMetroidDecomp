@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 internal static class MapStationLayoutVerification
 {
     /// <summary>Compares every discovery subset and confirms edited positions change pixels without changing exploration.</summary>
-    internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewStationLayoutGuard(bus);
         int combinations = 0;
@@ -51,7 +51,7 @@ internal static class MapStationLayoutVerification
         points[moved] = new(80, 64);
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapStationLayoutFormat.FileName);
-        using (var stream = File.Create(replacement)) MapStationLayout.Write(stream, document with { Markers = points });
+        using (var stream = File.Create(replacement)) MapStationPositions.Write(stream, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(replacement);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "station position edit changes catalog identity");
@@ -96,7 +96,7 @@ internal static class MapStationLayoutVerification
         File.WriteAllBytes(rebuiltStations, rebuiltBytes);
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = 512 }) } })
-            AssertThrows<InvalidDataException>(() => MapStationLayout.Write(new MemoryStream(), invalid), "invalid station version/identity/position rejected");
+            AssertThrows<InvalidDataException>(() => MapStationPositions.Write(new MemoryStream(), invalid), "invalid station version/identity/position rejected");
         File.WriteAllText(replacement, "{bad stations");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "malformed station override cannot fall back");
         AssertEqual("{bad stations", File.ReadAllText(replacement), "malformed station override not overwritten");

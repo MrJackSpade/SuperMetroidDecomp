@@ -19,8 +19,8 @@ public static class RoomPlmEscapeGateVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Escape-gate", MotherBrainEscapeGatePlmDrawDefinitions.All,
-            MotherBrainEscapeGatePlmDrawDefinitions.VisualId);
+            VisualFileName, "Escape-gate", MotherBrainEscapeGateDraws.All,
+            MotherBrainEscapeGateDraws.VisualId);
 
     /// <summary>Validates stock escape-gate art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the escape-gate JSON and its provenance/digest manifest.</param>
@@ -30,7 +30,7 @@ public static class RoomPlmEscapeGateVisualFiles
     public static RoomPlmEscapeGateVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", MotherBrainEscapeGatePlmDrawDefinitions.All, MotherBrainEscapeGatePlmDrawDefinitions.VisualId, entries => new RoomPlmEscapeGateVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", MotherBrainEscapeGateDraws.All, MotherBrainEscapeGateDraws.VisualId, entries => new RoomPlmEscapeGateVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Checks stock escape-gate provenance, digest, schema, three-frame coverage, and equality with compiled visual words; ignores overrides.</summary>

@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Fx;
 /// and compare the import's decode with the cartridge (#1415).</summary>
 internal static class RoomFxRecordEncoding
 {
+    /// <summary>
+    /// The height word that holds <paramref name="y"/>: <see cref="RoomFxRecordCodec.UnnamedSurfaceWord"/> where the record
+    /// names none.
+    /// </summary>
+    internal static ushort SurfaceWord(int? y) => y is int named ? checked((ushort)named) : RoomFxRecordCodec.UnnamedSurfaceWord;
+
     /// <summary>The record byte naming <paramref name="type"/>.</summary>
     internal static byte TypeByte(RoomFxType type) => (byte)RoomFxRecordWords.Types.Word(type);
 

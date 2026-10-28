@@ -26,15 +26,15 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     internal readonly byte[]? verticalSegments;
 
     /// <summary>Gets the optional installed Grapple endpoint and beam sprite compositions.</summary>
-    public GrappleSpriteCatalog? Sprites { get; }
+    public InstalledGrappleSprites? Sprites { get; }
 
     /// <summary>Gets the optional installed standing and running Grapple flare offsets.</summary>
-    public ChargeFlarePlacementCatalog? FlarePlacement { get; }
+    public ChargeFlarePlacements? FlarePlacement { get; }
 
     /// <summary>Gets the optional installed angle-to-displayed-frame mapping for Samus's swing pose.</summary>
-    public GrappleSwingFrameCatalog? SwingFrames { get; }
+    public InstalledGrappleSwingFrames? SwingFrames { get; }
     /// <summary>Retains only independently supplied tile differences and associated optional visual catalogs.</summary>
-    private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
+    private GrappleTileAtlas(byte[] tiles, InstalledGrappleSprites? sprites, ChargeFlarePlacements? flarePlacement, InstalledGrappleSwingFrames? swingFrames)
     {
         Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames;
         byte[]? coverage = GrappleBeamTilePatterns.InkCoverage(tiles.AsSpan(128, 256));
@@ -57,7 +57,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     /// <param name="flarePlacement">Optional installed Grapple flare placement catalog.</param>
     /// <param name="swingFrames">Optional installed swing-frame selection catalog.</param>
     /// <returns>The immutable tile atlas and its associated optional visual assets.</returns>
-    public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null, GrappleSwingFrameCatalog? swingFrames = null)
+    public static GrappleTileAtlas Load(Stream png, InstalledGrappleSprites? sprites = null, ChargeFlarePlacements? flarePlacement = null, InstalledGrappleSwingFrames? swingFrames = null)
     {
         var image = IndexedPng.Read(png, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4), sprites, flarePlacement, swingFrames);
@@ -67,7 +67,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     /// <returns>The current 32-byte endpoint or 128-byte segment transfer.</returns>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset)
     {
-        var transfer = GrappleTileDefinitions.TransferFor(asset);
+        var transfer = GrappleTileSelection.TransferFor(asset);
         return asset switch
         {
             InstalledArtworkId.GrapplePointFirstTiles => firstPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.FilledDiamond),
@@ -121,8 +121,8 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     /// </summary>
     public SpriteArtwork Tiles(int pointFrame, GrappleRopeOrientation orientation)
     {
-        InstalledArtworkId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
-        InstalledArtworkId segments = GrappleTileDefinitions.SegmentAssetFor(orientation);
+        InstalledArtworkId point = GrappleTileSelection.PointAssetFor(pointFrame);
+        InstalledArtworkId segments = GrappleTileSelection.SegmentAssetFor(orientation);
         return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
             new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, LittleEndianBytes.Word(checked((byte)key.Segments), checked((byte)key.Point))),
             [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));

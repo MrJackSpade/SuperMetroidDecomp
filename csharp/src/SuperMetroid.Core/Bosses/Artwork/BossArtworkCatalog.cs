@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
@@ -85,38 +84,8 @@ public sealed record BossArtworkCatalog
     public NorfairRidleyColorCatalog? NorfairRidleyColors { get; init; }
 
     /// <summary>The selected boss presentation, computed rather than persisted in an exact debugger snapshot.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("boss-bundle-v1", content =>
-    {
-        content.AppendIdentity("CrocomireMelting", CrocomireMelting?.ContentIdentity);
-        content.AppendIdentity("CrocomireSkeleton", CrocomireSkeleton?.ContentIdentity);
-        content.AppendIdentity("CrocomireBg2Frames", CrocomireBg2Frames?.ContentIdentity);
-        content.AppendIdentity("CrocomireColors", CrocomireColors?.ContentIdentity);
-        content.AppendIdentity("TorizoInstructionVram", TorizoSwaps?.ContentIdentity);
-        content.AppendIdentity("PhantoonBg2Frames", PhantoonBg2Frames?.ContentIdentity);
-        content.AppendIdentity("PhantoonColors", PhantoonColors?.ContentIdentity);
-        content.AppendIdentity("DraygonBg2Frames", DraygonBg2Frames?.ContentIdentity);
-        content.AppendIdentity("DraygonColors", DraygonColors?.ContentIdentity);
-        content.AppendIdentity("KraidBackground", KraidBackground?.ContentIdentity);
-        content.AppendIdentity("KraidColors", KraidColors?.ContentIdentity);
-        content.AppendIdentity("MotherBrainBodyBg2Frames", MotherBrainBodyBg2Frames?.ContentIdentity);
-        content.AppendIdentity("MotherBrainCorpse", MotherBrainCorpse?.ContentIdentity);
-        content.AppendIdentity("MotherBrainEscapeText", MotherBrainEscapeText?.ContentIdentity);
-        content.AppendIdentity("MotherBrainSpecialSprites", MotherBrainSpecialSprites?.ContentIdentity);
-        content.AppendIdentity("MotherBrainDeathColors", MotherBrainDeathColors?.ContentIdentity);
-        content.AppendIdentity("BabyMetroidCutsceneColors", BabyMetroidCutsceneColors?.ContentIdentity);
-        content.AppendIdentity("ShitroidColors", ShitroidColors?.ContentIdentity);
-        content.AppendIdentity("ZebetiteColors", ZebetiteColors?.ContentIdentity);
-        content.AppendIdentity("SporeSpawnColors", SporeSpawnColors?.ContentIdentity);
-        content.AppendIdentity("BotwoonColors", BotwoonColors?.ContentIdentity);
-        content.AppendIdentity("NorfairRidleyColors", NorfairRidleyColors?.ContentIdentity);
-    });
+    public string ContentIdentity => BossArtwork.ContentIdentity(this);
 
     /// <summary>Returns installed boss artwork, which must carry the Torizo transfer provider the room-entry queue resolves.</summary>
-    public static BossArtworkCatalog FromInstalledArtwork(BossArtworkCatalog artwork)
-    {
-        Ensure.NotNull(artwork);
-        if (artwork.TorizoSwaps is null)
-            throw new InvalidDataException("Installed boss artwork requires the Torizo transfer provider.");
-        return artwork;
-    }
+    public static BossArtworkCatalog FromInstalledArtwork(BossArtworkCatalog artwork) => BossArtwork.Installed(artwork);
 }

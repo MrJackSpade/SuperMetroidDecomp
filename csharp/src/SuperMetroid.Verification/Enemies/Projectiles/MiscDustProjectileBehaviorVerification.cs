@@ -34,7 +34,7 @@ internal static class MiscDustProjectileBehaviorVerification
             enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>(128, 96), animation);
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
-            MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(animation);
+            MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
             AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == program,
                 $"misc-dust animation {animation} starts {program}");
 
@@ -69,7 +69,7 @@ internal static class MiscDustProjectileBehaviorVerification
                 new SharedGameState());
             RoomEnemyProjectileSlot smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
-            MiscDustProjectileProgram expected = MiscDustProjectileDefinitions.Program(animation);
+            MiscDustProjectileProgram expected = MiscDustProjectiles.Program(animation);
             AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == expected,
                 $"Eye Door {puff} starts {expected}");
             int smokeCalls = 0;

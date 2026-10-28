@@ -23,12 +23,7 @@ internal static class SamusAnimationDelayNative
         internal static int DelayStreamsEndExclusive => 0x91B5D1;
 
         /// <summary>The bank-$91 address of the program <paramref name="pose"/> animates by.</summary>
-        internal static ushort PointerForPose(SamusPoseId pose) => Address(SamusAnimationDelayDefinitions.ListForPose(pose));
-
-        /// <summary>Reads a delay byte from the program starting at bank-$91 <paramref name="pointer"/>.</summary>
-        internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
-            ushort pointer, int byteIndex) =>
-            SamusAnimationDelayDefinitions.ReadAnimationByte(floorUpdateResidue, List(pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
+        internal static ushort PointerForPose(SamusPoseId pose) => Address(SamusAnimationDelays.ListForPose(pose));
 
         /// <summary>Read the bounded native table image for byte-for-byte verification.</summary>
         internal static byte ReadCompiledByte(int address)
@@ -36,7 +31,7 @@ internal static class SamusAnimationDelayNative
             if (address is >= 0x91B010 and < 0x91B20A)
             {
                 int byteIndex = address - 0x91B010;
-                ushort pointer = Address(SamusAnimationDelayDefinitions.ListForPose((SamusPoseId)(byteIndex / 2)));
+                ushort pointer = Address(SamusAnimationDelays.ListForPose((SamusPoseId)(byteIndex / 2)));
                 return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
             }
             if (address is >= 0x91B20A and < 0x91B5D1)
@@ -44,6 +39,15 @@ internal static class SamusAnimationDelayNative
             throw new ArgumentOutOfRangeException(nameof(address), address,
                 "Address is outside the compiled Samus animation definition catalog.");
         }
+    }
+
+    /// <summary>Reads pose delay bytes by the bank-$91 address their program starts at.</summary>
+    extension(SamusAnimationDelays)
+    {
+        /// <summary>Reads a delay byte from the program starting at bank-$91 <paramref name="pointer"/>.</summary>
+        internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
+            ushort pointer, int byteIndex) =>
+            SamusAnimationDelays.ReadAnimationByte(floorUpdateResidue, List(pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
     }
 
     /// <summary>The program starting at bank-$91 <paramref name="pointer"/>.</summary>

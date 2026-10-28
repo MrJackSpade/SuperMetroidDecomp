@@ -67,7 +67,7 @@ internal static class FileMapSnapshotTestsVerification
             return saves;
         }
         var game = CreateRetailGameFixture(Saves()); var capturedGame = CreateRetailGameFixture(Saves());
-        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
+        AreaMapPresentation presentation = RetailPresentationFixture();
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = presentation,

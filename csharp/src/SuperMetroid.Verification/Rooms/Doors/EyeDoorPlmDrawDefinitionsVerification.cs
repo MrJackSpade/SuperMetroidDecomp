@@ -37,26 +37,26 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyEyeDoorLayoutCollision), () => VerifyEyeDoorLayoutCollision(rom));
         Suite(nameof(VerifyEyeDoorLayoutVisuals), () => VerifyEyeDoorLayoutVisuals(rom));
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            EyeDoorPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomPlmVisualEntry[] entries = EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
+            EyeDoorDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+        RoomPlmVisualEntry[] entries = EyeDoorDraws.Editable.Select(draw =>
             new RoomPlmVisualEntry(
-                EyeDoorPlmDrawDefinitions.VisualId(draw.Draw),
+                EyeDoorDraws.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmVisualEntry rightEye = entries.Single(entry =>
             entry.Id == "right-eye-frame-0");
         ushort stockWord = rightEye.Blocks[0];
         rightEye.Blocks[0] = 0x0055;
-        var edited = new RoomPlmEyeDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmEyeDoorVisuals(entries);
         rightEye.Blocks[0] = 0x0056;
-        AssertEqual((ushort)0x0055, edited.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(0x9c5b), 0),
+        AssertEqual((ushort)0x0055, edited.GetWord(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
             "eye-door catalog copies author data");
         rightEye.Blocks[0] = stockWord;
         AssertEqual(24, lists.Length,
             "mirrored eye, middle and bottom components include both four-block opening clears");
         AssertEqual(23, entries.Length, "the mirrored clear preserves the existing authored visual identities");
         for (int block = 0; block < 4; block++)
-            AssertEqual((ushort)(edited.GetWord(EyeDoorPlmDrawDefinitions.VisualSource(
+            AssertEqual((ushort)(edited.GetWord(EyeDoorDraws.VisualSource(
                 EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)LevelBlockFlipFlags.Horizontal),
                 edited.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
                 "left opening clear mirrors its authored appearance without changing the override schema");
@@ -79,7 +79,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     private static void VerifyEyeDoorNativeDrawPath(
         EyeDoorOrientation orientation,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
-        RoomPlmEyeDoorVisualCatalog? visuals)
+        InstalledRoomPlmEyeDoorVisuals? visuals)
     {
         const int width = 16;
         var bus = new TestAddressSpace();
@@ -100,10 +100,10 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {
-            AssertTrue(EyeDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pointers[component]), out var list),
+            AssertTrue(EyeDoorDraws.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>(pointers[component]), out var list),
                 $"{orientation} component {component} selects compiled draw data");
             RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int stride = (run.DirectionAndCount & 0x8000) != 0 ? width : 1;
+            int stride = run.Direction == PlmRunDirection.Vertical ? width : 1;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 AssertEqual(run.LevelWords.Span[block],
                     level.GetCollisionBlockByIndex(origins[component] + block * stride).PackedWord.Raw,
@@ -235,7 +235,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
                 RoomPlmEyeDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0055,
-                installation.LoadRoomPlmEyeDoorVisuals().GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(0x9c5b), 0),
+                installation.LoadRoomPlmEyeDoorVisuals().GetWord(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
                 "installed eye-door override changes the selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -244,7 +244,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             AssertEqual((ushort)0x0055,
                 RoomPlmEyeDoorVisualFiles.Load(refreshed,
                     installation.RoomPlmEyeDoorVisualOverrideDirectory)
-                    .GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(0x9c5b), 0),
+                    .GetWord(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
                 "eye-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf055;

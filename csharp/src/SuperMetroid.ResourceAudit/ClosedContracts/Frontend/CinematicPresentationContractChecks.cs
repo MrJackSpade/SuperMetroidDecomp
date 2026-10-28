@@ -31,8 +31,8 @@ internal static class CinematicPresentationContractChecks
                 void Inspect(TitlePalettePresentation palette, TitleGradientPresentation gradient,
                     TitleGraphicsPresentation title, IntroEyeTilemapPresentation eye,
                     CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
-                    CinematicSpriteSheet explosions, CeresDoorVisualCatalog door,
-                    EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
+                    CinematicSpriteSheet explosions, CeresDoorVisuals door,
+                    EscapeTimerPresentation timer, CeresEscapeOverlays overlay,
                     EscapeTimer countdown, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
@@ -80,11 +80,12 @@ internal static class CinematicPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "CinematicPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 23, "twenty-three constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 15 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
             after.Consumers.Count == 23, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
-        Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlayTilemapCatalog.TryResolve") == 3,
+        Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlays.TryResolve") == 3,
             "an overlay that is not one of the five validly returns false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
             "undefined title compositions must not be accepted as loaded title compositions");

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The two literal values written to Puyo's direction word.</summary>
-public enum PuyoDirection : ushort
+public enum PuyoDirection
 {
     /// <summary>Native direction word zero: positive X motion and right-facing hop poses; also selected when Samus and Puyo have equal X coordinates.</summary>
     Right = 0,

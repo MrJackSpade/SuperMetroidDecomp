@@ -206,7 +206,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        MiscDustProjectileProgram program = MotherBrainDeathExplosionDefinitions.Program(request.ProjectileParameter);
+        MiscDustProjectileProgram program = MotherBrainDeathExplosions.Program(request.ProjectileParameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Native shared-pool exhaustion drops the spawn.
         MotherBrainProjectileStarts.Initialize(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphics: default);
@@ -220,7 +220,7 @@ internal sealed class MotherBrainRainbowAndDeath
     internal void SpawnMotherBrainDoorFragment(int parameter)
     {
         MotherBrainDoorFragmentDefinition definition =
-            MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
+            MotherBrainDoorFragments.ForParameter(parameter);
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
         MotherBrainProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphics: default);

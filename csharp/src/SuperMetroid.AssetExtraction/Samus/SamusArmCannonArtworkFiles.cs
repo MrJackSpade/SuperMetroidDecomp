@@ -41,7 +41,7 @@ public static class SamusArmCannonArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        int[] descriptors = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
+        int[] descriptors = Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount)
             .Select(pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2) - SamusSourceDefinitions.ArmCannonDrawingData).ToArray();
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
@@ -87,7 +87,7 @@ public static class SamusArmCannonArtworkFiles
         using var pngStream = new MemoryStream();
         IndexedPng.Write(pngStream, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] png = pngStream.ToArray();
-        byte[] json = SamusArmCannonArtworkCatalog.Write(document);
+        byte[] json = InstalledSamusArmCannonArtwork.Write(document);
         File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName), png);
         File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName), json);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -95,7 +95,7 @@ public static class SamusArmCannonArtworkFiles
                 SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256,
                 Convert.ToHexString(SHA256.HashData(json)),
                 Convert.ToHexString(SHA256.HashData(png))), JsonOptions));
-        SamusArmCannonArtworkCatalog roundTrip = Load(directory, null);
+        InstalledSamusArmCannonArtwork roundTrip = Load(directory, null);
         for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
         {
             if (!roundTrip.TryResolveTile(SamusSourceDefinitions.CharacterDataBank.Value |
@@ -115,13 +115,13 @@ public static class SamusArmCannonArtworkFiles
     /// <remarks>Stock provenance, both byte hashes, and production codec admission are mandatory even with overrides. Overrides need no manifest; strict placement JSON retains bounded pose/descriptor/direction/source domains, while the PNG supplies twelve four-bit characters.</remarks>
     /// <exception cref="InvalidDataException">Manifest compatibility, stock hashes, strict JSON, selectors, or indexed artwork are invalid; admission errors identify the offending filename.</exception>
     /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static SamusArmCannonArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static InstalledSamusArmCannonArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
         Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
-        SamusArmCannonArtworkCatalog LoadArtwork()
+        InstalledSamusArmCannonArtwork LoadArtwork()
         {
             if (manifest.Version != SamusArmCannonArtworkFormat.Version ||
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -135,13 +135,13 @@ public static class SamusArmCannonArtworkFiles
             return Compile(stockJson.Select(overrideDirectory), stockPng.Select(overrideDirectory));
         }
 
-        static SamusArmCannonArtworkCatalog Compile(SamusArtworkFile json, SamusArtworkFile png)
+        static InstalledSamusArmCannonArtwork Compile(SamusArtworkFile json, SamusArtworkFile png)
         {
-            var placement = json.Compile(SamusArmCannonArtworkCatalog.LoadPlacement);
+            var placement = json.Compile(InstalledSamusArmCannonArtwork.LoadPlacement);
             var tiles = png.Compile(stream => RoomCharacterAtlasPng.Read(stream,
                 SamusArmCannonArtworkFormat.CoverTileCount *
                     SamusDrawingDefinitions.ArmCannon.TileByteCount));
-            return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
+            return InstalledSamusArmCannonArtwork.FromPlacement(placement, tiles);
         }
     }
 

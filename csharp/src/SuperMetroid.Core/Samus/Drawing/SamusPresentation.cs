@@ -43,25 +43,25 @@ internal sealed class SamusPresentation
 
     /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
-    public SamusSuitColorCatalog? SuitColors { get; set; }
+    public InstalledSamusSuitColors? SuitColors { get; set; }
 
     /// <summary>Where the animation regions sit in their banks, which a restored index reading past its program needs.</summary>
     public SamusAnimationWindows? AnimationWindows { get; set; }
 
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
-    public SamusFullBodyCycleColorCatalog? FullBodyCycleColors { get; set; }
+    public InstalledSamusFullBodyCycleColors? FullBodyCycleColors { get; set; }
 
     /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
     [field: NonSerialized]
-    public SamusChargeColorCatalog? ChargeColors { get; set; }
+    public InstalledSamusChargeColors? ChargeColors { get; set; }
 
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
     /// </summary>
     public static void LoadPowerSuitPalette(ColourRun suit,
-        SamusSuitColorCatalog? suitColors = null)
+        InstalledSamusSuitColors? suitColors = null)
     {
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
@@ -100,7 +100,7 @@ internal sealed class SamusPresentation
         samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
         samus.AnimationDelayList = ResolveAnimationDelayList(samus);
         int initialDelay = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
+        if (SamusAnimationDelays.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
                 $"Samus pose {samus.Pose} cannot initialize directly on delay command ${initialDelay:X2}.");
@@ -244,7 +244,7 @@ internal sealed class SamusPresentation
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
         int delayOrCommand = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))
+        if (!SamusAnimationDelays.IsCommand(delayOrCommand))
         {
             // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
             // with the pointer stored at `$91:B5D1` whenever momentum flag `$0B3C` is set.
@@ -429,7 +429,7 @@ internal sealed class SamusPresentation
         }
 
         int selectedDelay = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (SamusAnimationDelayDefinitions.IsCommand(selectedDelay))
+        if (SamusAnimationDelays.IsCommand(selectedDelay))
         {
             throw new InvalidDataException(
                 $"Samus animation command ${delayOrCommand:X2} selected another command ${selectedDelay:X2}.");
@@ -449,11 +449,11 @@ internal sealed class SamusPresentation
 
     /// <summary>Resolves the current pose's animation-delay program.</summary>
     internal static SamusAnimationDelayList ResolveAnimationDelayList(SamusState samus) =>
-        SamusAnimationDelayDefinitions.ListForPose(samus.Pose);
+        SamusAnimationDelays.ListForPose(samus.Pose);
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
-        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
+        SamusAnimationDelays.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
@@ -462,7 +462,7 @@ internal sealed class SamusPresentation
     internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
         SamusAnimationWindows? windows)
     {
-        return SamusRunningCadenceDefinitions.ReadAnimationByte(
+        return SamusRunningCadenceBytes.ReadAnimationByte(
             floorUpdateResidue,
             SamusRunningCadence.Ordinary,
             byteIndex,
@@ -535,15 +535,15 @@ internal sealed class SamusPresentation
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
             spritemapY = unchecked((ushort)(renderY - 1 - layer1.Y));
         }
-        else if (movementType == SamusMovementType.Standing && samus.Pose >= SamusPoseId.NormalLandingRightPose &&
-            samus.Pose <= SamusPoseId.SpinLandingLeftPose)
+        else if (movementType == SamusMovementType.Standing &&
+            SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
         {
             // `$90:8CDC-$90:8CF6` indexes sixteen packed bytes, but performs a 16-bit
             // unaligned LDA. The following landing frame's byte therefore becomes the high
             // byte of the subtraction. The complete wrapped `$0AFA` spritemap-position word
             // is observable state and is preserved, but OAM displays only low Y, so the
             // drawn origin takes back the leaked high byte (#1397).
-            int landingOffsetIndex = (samus.Pose - SamusPoseId.NormalLandingRightPose) * 4 +
+            int landingOffsetIndex = SamusPoseNumbering.Offset(samus.Pose, SamusPoseId.NormalLandingRightPose) * 4 +
                 samus.AnimationFrame;
             if (BodyFrames.Artwork is not { } landingArt ||
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out int landingOffset))
@@ -553,8 +553,8 @@ internal sealed class SamusPresentation
             landingOffsetHighPart = (ushort)(landingOffset - (byte)landingOffset);
         }
         else if (movementType == SamusMovementType.PostureTransition &&
-            samus.Pose >= SamusPoseId.CrouchingTransitionRightPose &&
-            samus.Pose < SamusPoseId.MorphBallGroundLeftPose)
+            !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) &&
+            SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.MorphBallGroundLeftPose))
         {
             // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
             // of using the pose-definition graphics offset. Installed visual bytes
@@ -638,13 +638,13 @@ internal sealed class SamusPresentation
         // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
         // only on frame two, and the aimed transition family `$F1+` always draws it.
         bool transitionBottom = movementType != SamusMovementType.PostureTransition ||
-            samus.Pose >= SamusPoseId.CrouchingTransitionAimUpRightPose ||
+            !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
             samus.Pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
                 SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ||
             (samus.Pose is SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc &&
                 samus.AnimationFrame == 0) ||
-            (samus.Pose >= SamusPoseId.UnusedPoseDd &&
-                samus.Pose < SamusPoseId.CrouchingTransitionAimUpRightPose && samus.AnimationFrame == 2);
+            (!SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.UnusedPoseDd) &&
+                SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) && samus.AnimationFrame == 2);
 
         // The otherwise-unused movement type `$0D` still has executable cartridge logic
         // at `$90:874C`: poses `$65/$66` draw a lower half only on frame zero, while every

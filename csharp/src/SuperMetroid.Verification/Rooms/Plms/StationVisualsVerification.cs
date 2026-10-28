@@ -25,10 +25,10 @@ internal static class StationVisualsVerification
     /// <summary>Changes a map-station tile while checking physical collision and other station families.</summary>
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
-        RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
-        RoomPlmVisualRunEntry[] entries = RoomPlmStationDrawDefinitions.All
+        InstalledRoomPlmStationVisuals stock = InstalledRoomPlmStationVisuals.Stock();
+        RoomPlmVisualRunEntry[] entries = StationPlmDraws.All
             .Select(list => new RoomPlmVisualRunEntry(
-                RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
+                StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
                 list.Runs.Span
                     .SelectToArray(run => run.LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord))
@@ -36,14 +36,14 @@ internal static class StationVisualsVerification
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
         first.Runs[0][0] = 0x0053;
-        var edited = new RoomPlmStationVisualCatalog(entries);
+        var edited = new InstalledRoomPlmStationVisuals(entries);
         first.Runs[0][0] = 0x0054;
-        ushort pointer = PlmDrawAddressCodec.Of(StationAnimationProgramDefinitions.Resolve(
+        ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
             StationAnimationList.MapIdle, 0).Draw);
         AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
             "station visual catalog copies author data");
         StationVisualsRenderResult Render(
-            RoomPlmStationVisualCatalog visuals)
+            InstalledRoomPlmStationVisuals visuals)
         {
             var bus = new TestAddressSpace();
             SeedRoomPlmPopulationRom(bus);
@@ -91,7 +91,7 @@ internal static class StationVisualsVerification
                 installation.RoomPlmStationVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmStationVisualFiles.ValidateStock(
                 installation.RoomPlmStationVisualDirectory);
-            ushort pointer = PlmDrawAddressCodec.Of(StationAnimationProgramDefinitions.Resolve(
+            ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
                 StationAnimationList.MapIdle, 0).Draw);
             VerifyStationStockMapping(rom, installation.LoadRoomPlmStationVisuals());
 

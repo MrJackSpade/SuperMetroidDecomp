@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class SamusBodyTransferDefinitionsAccess
 {
     /// <summary>Checks canonical transfer size using in-group OAM and the separate pixel payload.</summary>
-    extension(SamusBodyTransferDefinitions)
+    extension(SamusBodyTransfers)
     {
         /// <summary>
         /// Canonical in-group OAM establishes the first-row footprint; the remainder
@@ -12,12 +12,12 @@ internal static class SamusBodyTransferDefinitionsAccess
         /// Physical cross-group selectors remain valid but do not redefine a glyph's
         /// canonical composition from an unrelated pose's OAM.
         /// </summary>
-        internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
+        internal static bool TryFirstSize(InstalledSamusBodyArtwork body, bool upper, int set, int position,
             int payloadBytes, out int firstSize)
         {
-            if (SamusBodyTransferDefinitions.TrySelectedPacking(upper, set, position, payloadBytes, out firstSize))
+            if (SamusBodyTransfers.TrySelectedPacking(upper, set, position, payloadBytes, out firstSize))
                 return true;
-            return SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), payloadBytes, body.PoseFirstFrames, body.Frames, out firstSize);
+            return SamusBodyTransfers.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), payloadBytes, body.PoseFirstFrames, body.Frames, out firstSize);
         }
     }
 }

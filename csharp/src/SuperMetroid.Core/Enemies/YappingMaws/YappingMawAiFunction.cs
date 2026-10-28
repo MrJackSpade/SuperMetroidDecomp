@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// The routine Yapping Maw's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum YappingMawAiFunction : ushort
+public enum YappingMawAiFunction
 {
     /// <summary>$A8:A235, Function_YappingMaw_Neutral: samples Samus distance/angle, refreshes the grab cooldown inside 32 pixels, and starts an attack only below the population activation threshold.</summary>
     WaitingForSamus = 1,

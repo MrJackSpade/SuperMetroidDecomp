@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The three independently authored PLMs which together form one eye door.</summary>
-public enum EyeDoorComponent : byte
+public enum EyeDoorComponent
 {
     /// <summary>Live eye PLM, native headers $84:DB48/$DB56: receives missile hits, fires attack/sweat actors, sets the persistent opened-door bit, and ultimately becomes the ordinary blue-door cap.</summary>
     Eye,

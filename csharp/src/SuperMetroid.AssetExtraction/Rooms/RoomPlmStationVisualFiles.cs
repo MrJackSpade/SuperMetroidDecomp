@@ -66,7 +66,7 @@ public static class RoomPlmStationVisualFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or visual bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmStationVisualCatalog Load(
+    public static InstalledRoomPlmStationVisuals Load(
         string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -81,7 +81,7 @@ public static class RoomPlmStationVisualFiles
         if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
                 manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Stock station visuals {stockPath} failed their manifest hash.");
-        RoomPlmStationVisualCatalog stock = CreateCatalog(
+        InstalledRoomPlmStationVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
         VerifyStockMatchesCompiled(stock, stockPath);
 
@@ -102,13 +102,13 @@ public static class RoomPlmStationVisualFiles
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmStationDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 StationPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != run.DirectionAndCount)
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
@@ -133,18 +133,18 @@ public static class RoomPlmStationVisualFiles
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                RoomPlmStationDrawDefinitions.VisualId(list.Draw), visuals.ToArray()));
+                StationPlmDraws.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
     }
 
     /// <summary>Requires every stock visual word to match the compiled station draw catalog.</summary>
-    private static void VerifyStockMatchesCompiled(RoomPlmStationVisualCatalog catalog,
+    private static void VerifyStockMatchesCompiled(InstalledRoomPlmStationVisuals catalog,
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmStationDrawDefinitions.All)
+                 StationPlmDraws.All)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
         {
@@ -153,17 +153,17 @@ public static class RoomPlmStationVisualFiles
             if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock station visuals {path} differ from compiled frame " +
-                    RoomPlmStationDrawDefinitions.VisualId(list.Draw) + ".");
+                    StationPlmDraws.VisualId(list.Draw) + ".");
         }
     }
 
     /// <summary>Checks the visual document revision and wraps catalog validation with its source path.</summary>
-    private static RoomPlmStationVisualCatalog CreateCatalog(
+    private static InstalledRoomPlmStationVisuals CreateCatalog(
         VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Station visuals {path} have an incompatible format.");
-        try { return new RoomPlmStationVisualCatalog(document.Entries); }
+        try { return new InstalledRoomPlmStationVisuals(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

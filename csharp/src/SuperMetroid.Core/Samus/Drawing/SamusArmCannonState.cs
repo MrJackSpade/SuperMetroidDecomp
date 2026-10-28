@@ -21,7 +21,7 @@ public sealed class SamusArmCannonState
 
     /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
     [field: NonSerialized]
-    public SamusArmCannonArtworkCatalog? Artwork { get; set; }
+    public InstalledSamusArmCannonArtwork? Artwork { get; set; }
 
     /// <summary>Low byte of WRAM `$0AA6`, 0 through 255: zero closed, one open/opening.</summary>
     public int OpenFlag
@@ -156,7 +156,7 @@ public sealed class SamusArmCannonState
         if (ToggleFlag < 2)
             return false;
 
-        int desiredOpenFlag = SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem);
+        int desiredOpenFlag = SamusArmCannonOpening.DesiredOpenFlag(selectedHudItem);
         if (OpenFlag == desiredOpenFlag)
             return false;
 

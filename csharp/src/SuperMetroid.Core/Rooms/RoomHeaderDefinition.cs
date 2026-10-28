@@ -23,8 +23,4 @@ public sealed record RoomHeaderDefinition(
     Extent16<RoomScreens> Size,
     int UpScroller,
     int DownScroller,
-    RoomDoorTransitionStyle DoorTransition)
-{
-    /// <summary>Whether door transitions into or out of this room hide BG1 below the HUD and show the objects alone.</summary>
-    public bool UsesIsolatedDoorTransition => DoorTransition == RoomDoorTransitionStyle.ObjectsOnly;
-}
+    RoomDoorTransitionStyle DoorTransition);

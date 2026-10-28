@@ -21,7 +21,7 @@ internal sealed class SamusEaterPlms
     internal void TrySpawnSamusEater(RoomLevelData level,
         RoomCollisionBlock block, PlmHeaderId header, IRoomSamus samus)
     {
-        SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(header);
+        SamusEaterPlmDefinition definition = Plant(header);
         // Rejected native setups clear their just-allocated slot without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
@@ -39,6 +39,12 @@ internal sealed class SamusEaterPlms
         level.SetForegroundEntry(block.Index, block.PackedWord.WithPlmDeactivation().Raw);
         return;
     }
+
+    /// <summary>The plant one supported header places, without interpreting adjacent bank-$84 data.</summary>
+    internal static SamusEaterPlmDefinition Plant(PlmHeaderId header) =>
+        SamusEaterPlmDefinitions.ByHeader.TryGetValue(header, out SamusEaterPlmDefinition plant)
+            ? plant
+            : throw new InvalidDataException($"Unsupported Samus Eater PLM {header}.");
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
     internal IRoomSamus RequirePlantSamus() => _samus?.Current

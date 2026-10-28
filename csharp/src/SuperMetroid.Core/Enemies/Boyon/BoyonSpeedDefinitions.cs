@@ -12,41 +12,15 @@ public static class BoyonSpeedDefinitions
     /// 0..7 and rejects 8, which would read the adjacent jump-height table.
     /// VerifyCompiledBoyonSpeeds covers all eight real initializer selections.
     /// </remarks>
-    public static ushort InitialMultiplier(int index) => index switch
-    {
-        0 => 1, 1 => 2, 2 => 4, 3 => 8, 4 => 10, 5 => 13, 6 => 16, 7 => 20,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    internal static readonly ushort[] InitialMultipliers = [1, 2, 4, 8, 10, 13, 16, 20];
 
-    /// <summary>$A2:86EF, BoyonData.jumpHeights: parameter one's high byte selects one of nine 8.8 heights.</summary>
-    /// <remarks>
-    /// #625 / #644 exact NTSC J/U v1.0 algorithm: for high-byte selector i in 0..8,
-    /// the unsigned height is $3000 + i*$1000. All nine words at $A2:86EF-$8700
-    /// match the pinned ROM and bank-A2 disassembly. The native initializer doubles
-    /// the selector for its word offset; selector 9 would read the adjacent curve
-    /// and is outside this height domain. VerifyCompiledBoyonSpeeds exercises every
-    /// authored height through the real initializer and rejects selector 9.
-    /// </remarks>
-    public static ushort InitialHeight(int index) => (uint)index < 9
-        ? (ushort)(0x3000 + index * 0x1000)
-        : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>$A2:86EF, BoyonData.jumpHeights: the number of 8.8 heights parameter one's high byte selects from.</summary>
+    internal const int InitialHeightCount = 9;
+    /// <summary>The lowest 8.8 jump height, selected by high byte zero.</summary>
+    internal const int LowestInitialHeight = 0x3000;
+    /// <summary>How much higher each successive 8.8 jump height is.</summary>
+    internal const int InitialHeightStep = 0x1000;
+
     /// <summary>$A2:875E/$880F/$885B clamp indices at or above 23 to $FF before multiplication.</summary>
     public const int StoredSampleCount = 23;
-
-    /// <summary>The native curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
-    /// <remarks>
-    /// #625 / #643 exact NTSC J/U v1.0 proof: each of the 23 unsigned bytes at
-    /// $A2:8701-$8717 equals k*(k+1)/2 for authored index k in 0..22, ending at $FD.
-    /// The native caller reads first, then substitutes $FF for every index at or above
-    /// 23 before its eight-bit hardware multiply; the nominal overread at index 23 is
-    /// discarded. This method models that effective caller result, not a larger table.
-    /// VerifyCompiledBoyonSpeeds checks all ROM bytes, all 65,536 input indices, and
-    /// every low-byte multiplier through the real production calculation.
-    /// </remarks>
-    public static byte Sample(int index) => index < StoredSampleCount
-        ? (byte)(index * (index + 1) / 2)
-        : byte.MaxValue;
-
-    /// <summary>Only the multiplier's low byte reaches the multiply; the product is 0 through 65025.</summary>
-    public static int Multiply(int index, int multiplier) => Sample(index) * unchecked((byte)multiplier);
 }

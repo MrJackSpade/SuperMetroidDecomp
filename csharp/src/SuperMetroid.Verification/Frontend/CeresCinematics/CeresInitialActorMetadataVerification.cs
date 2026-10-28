@@ -18,7 +18,7 @@ internal static class CeresInitialActorMetadataVerification
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
             CeresDestructionActorDefinition actor =
-                CeresDestructionActorDefinitions.InitialActor(index);
+                CeresDestructionActors.InitialActor(index);
             int[] spawnOperands = [0x8bc27d, 0x8bc283, 0x8bc28e];
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native destruction spawn LDY");
             // The spawn operand names the native definition this compiled actor must match.
@@ -28,10 +28,10 @@ internal static class CeresInitialActorMetadataVerification
             AssertEqual((ushort)0, actor.SlidePreInstruction.NativeAddress, "destruction actor has no slide callback");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
         }
-        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0), new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "destruction large asteroids"));
-        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1), new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "destruction small asteroids"));
+        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActors.InitialActor(0), new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "destruction large asteroids"));
+        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActors.InitialActor(1), new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
-            CeresDestructionActorDefinitions.InitialActor(2);
+            CeresDestructionActors.InitialActor(2);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfa6), vortex.Position.X, "destruction vortex X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), vortex.Palette,
@@ -46,7 +46,7 @@ internal static class CeresInitialActorMetadataVerification
         AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
         foreach (int index in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresDestructionActorDefinitions.InitialActor(index), "destruction actor invalid index");
+                () => CeresDestructionActors.InitialActor(index), "destruction actor invalid index");
 
         static void VerifyActor(
             ISnesAddressSpace source,

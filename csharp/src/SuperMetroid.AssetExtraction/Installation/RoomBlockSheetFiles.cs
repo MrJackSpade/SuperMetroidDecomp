@@ -50,7 +50,7 @@ public static class RoomBlockSheetFiles
     /// <summary>The animation manifest's schema revision.</summary>
     private const int AnimationManifestVersion = 1;
 
-    /// <summary>Composes and writes every tileset's block sheet and background image, then validates the result.</summary>
+    /// <summary>Composes and writes every tileset's block sheet and background image; the installer validates them with <see cref="ValidateStock"/>.</summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
@@ -58,19 +58,16 @@ public static class RoomBlockSheetFiles
     {
         RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(content));
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
-        foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.BlockSheets)
-            store.Write(RoomBlockSheet.NameOf(tileset), sheet);
         foreach (RoomBlockCharacters characters in composition.BlockCharacters.Values)
             RoomBlockCharacterFiles.Write(directory, characters);
-        foreach ((string name, ComposedRoomBackground background) in composition.Backgrounds)
-            store.Write(name, background.Sheet);
         ComposedTileWordSheet[] wordSheets = [.. composition.TileWords.Values, .. composition.Bg3Words.Values];
-        foreach (ComposedTileWordSheet words in wordSheets)
-            store.Write(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet);
-        foreach ((TilesetDefinition tileset, ComposedSpriteSheet messages) in composition.MessageBoxes)
-            store.Write(MessageBoxSheet.NameOf(tileset), messages);
-        foreach (ComposedMode7Tiles tiles in composition.FloorTiles.Values)
-            store.Write(FloorTileSheet.NameOf(tiles.Tileset), tiles.Sheet);
+        store.WriteAll([
+            .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
+            .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
+            .. wordSheets.Select(words => new NamedComposedSheet(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet)),
+            .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
+            .. composition.FloorTiles.Values.Select(tiles => new NamedComposedSheet(FloorTileSheet.NameOf(tiles.Tileset), tiles.Sheet)),
+        ]);
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new Mode7Manifest(Mode7ManifestVersion, composition.FloorTiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
@@ -92,7 +89,6 @@ public static class RoomBlockSheetFiles
         var animations = new AnimationManifest(AnimationManifestVersion, composition.Animations.ToDictionary(entry => RoomBlockSheet.NameOf(entry.Key),
             entry => new TilesetAnimationsDocument(Runs(entry.Value.Blocks), Runs(entry.Value.ObjectPage), Runs(entry.Value.Bg3)), StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, AnimationManifestFileName), JsonSerializer.SerializeToUtf8Bytes(animations, JsonOptions));
-        _ = Load(directory, null);
 
         // The runs one layer's animations paint, as the manifest records them.
         static AnimatedRunDocument[] Runs(AnimatedCharacters characters) =>
@@ -104,7 +100,7 @@ public static class RoomBlockSheetFiles
     /// preferring a player override of each file.
     /// </summary>
     /// <exception cref="InvalidDataException">The manifest, a stock hash, an image or a picture manifest is invalid, or a sheet is not of blocks.</exception>
-    public static RoomBlockSheetCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static InstalledRoomArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, BackgroundManifestFileName);
@@ -141,7 +137,7 @@ public static class RoomBlockSheetFiles
         // The characters each block reads are the stock record's: an override repaints a block's pictures, not what it reads.
         Dictionary<RoomBlockSet, RoomBlockCharacters> blockCharacters = tilesets.Select(tileset => tileset.Blocks).Distinct()
             .ToDictionary(set => set, set => RoomBlockCharacterFiles.Read(stockDirectory, set));
-        return new RoomBlockSheetCatalog(
+        return new InstalledRoomArtwork(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
                 blockCharacters[tileset.Blocks])),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. BackgroundTileWords.ToTiles(entry.Value)]),

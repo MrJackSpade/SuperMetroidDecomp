@@ -54,8 +54,8 @@ internal sealed class RidleyTail
 
         if (state.TailFunctionIndex != RidleyTailFunction.None)
         {
-            state.TailMinimumClockwiseAngle = RidleyTailDefinitions.MinimumClockwise(state.FacingDirection);
-            state.TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.MaximumCounterClockwise(state.FacingDirection);
+            state.TailMinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.FacingDirection);
+            state.TailMaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.FacingDirection);
 
             if (state.TailFunctionIndex == RidleyTailFunction.Neutral)
             {
@@ -329,10 +329,10 @@ internal sealed class RidleyTail
                 if (segment.TargetDistance < segment.Distance)
                     segment.TargetDistance = 0;
                 segment.Distance = Math.Min(
-                    RidleyTailDefinitions.MaximumDistance(index),
+                    RidleyTailReach.MaximumDistance(index),
                     segment.Distance + state.TailExtensionSpeed);
             }
-            else if (segment.Distance > RidleyTailDefinitions.RestDistance(index))
+            else if (segment.Distance > RidleyTailReach.RestDistance(index))
             {
                 // Half a pixel per update; every rest length is at least two pixels, so a shrinking link never passes zero.
                 segment.Distance -= 128;
@@ -351,8 +351,8 @@ internal sealed class RidleyTail
             segments[index] = new RidleyTailSegment
             {
                 Clockwise = true,
-                Distance = RidleyTailDefinitions.RestDistance(index),
-                Angle = RidleyTailDefinitions.InitialAngle(index),
+                Distance = RidleyTailReach.RestDistance(index),
+                Angle = RidleyTailReach.InitialAngle(index),
                 StaggerAngle = 17,
             };
         }
@@ -424,7 +424,7 @@ internal sealed class RidleyTail
         for (int index = 0; index < state.TailSegments.Length; index++)
         {
             RidleyTailSegment segment = state.TailSegments[index];
-            segment.Distance = RidleyTailDefinitions.RestDistance(index);
+            segment.Distance = RidleyTailReach.RestDistance(index);
             segment.Angle = unchecked((ushort)(RidleyTailDefinitions.MirrorAxisAngle.RawValue - segment.Angle));
             segment.Clockwise = true;
         }
@@ -511,8 +511,8 @@ internal sealed class RidleyTail
         if (!pointed && function is not (RidleyTailFunction.Pogo or RidleyTailFunction.StabSetup))
             throw new InvalidDataException($"Ridley tail function {function} is not translated.");
 
-        state.TailMinimumClockwiseAngle = RidleyTailDefinitions.MinimumClockwise(state.FacingDirection);
-        state.TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.MaximumCounterClockwise(state.FacingDirection);
+        state.TailMinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.FacingDirection);
+        state.TailMaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.FacingDirection);
         if (pointed)
         {
             state.TailAngleDelta = function == RidleyTailFunction.Stab ? 3 : 8;

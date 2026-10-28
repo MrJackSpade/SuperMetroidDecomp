@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class GrappleTileDefinitionsAccess
 {
     /// <summary>Selects rope characters by angle.</summary>
-    extension(GrappleTileDefinitions)
+    extension(GrappleTileSelection)
     {
         /// <summary>The installed rope characters the grapple's angle selects.</summary>
         internal static InstalledArtworkId SegmentAssetFor(RotationAngle angle) =>
-            GrappleTileDefinitions.SegmentAssetFor(GrappleTileDefinitions.OrientationFor(angle));
+            GrappleTileSelection.SegmentAssetFor(GrappleTileSelection.OrientationFor(angle));
     }
 }

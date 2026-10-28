@@ -48,7 +48,7 @@ public static class GameplayBasePaletteFiles
     /// <param name="overrideDirectory">Optional directory whose palette JSON replaces both stock arrays when present; an absent file retains stock.</param>
     /// <returns>An owned selected-color catalog for the initial CGRAM image and common sprites, also supplying enemy-projectile colors from the initial image.</returns>
     /// <exception cref="InvalidDataException">Stock provenance, digest, schema, or selected palette counts and RGB5 values are invalid.</exception>
-    public static GameplayBasePaletteCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static GameplayBasePalette Load(string stockDirectory, string? overrideDirectory)
     {
         ArtworkManifest manifest;
         try
@@ -87,13 +87,13 @@ public static class GameplayBasePaletteFiles
     /// <param name="json">The caller-owned stream holding the gameplay base-palette document.</param>
     /// <returns>The selected colours, detached from the document.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, palette lengths or RGB5 channels are invalid.</exception>
-    public static GameplayBasePaletteCatalog Read(Stream json)
+    public static GameplayBasePalette Read(Stream json)
     {
         GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
             json, GameplayBasePaletteFormat.JsonOptions, "gameplay base palette");
         if (document.Version != GameplayBasePaletteFormat.Version)
             throw new InvalidDataException("Gameplay base palette has an unsupported version.");
-        return new GameplayBasePaletteCatalog(
+        return new GameplayBasePalette(
             Compile(document.Initial, CgramPalettes.ColorCount, "initial"),
             Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount,
                 "commonSprites"));
@@ -135,7 +135,7 @@ public static class GameplayBasePaletteFiles
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.InitialPalette, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette, GameplayBasePaletteFormat.SpriteColorCount));
-        GameplayBasePaletteCatalog catalog = Read(new MemoryStream(Write(document), writable: false));
+        GameplayBasePalette catalog = Read(new MemoryStream(Write(document), writable: false));
         int first = FirstSpriteColour;
         RgbColor[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
         catalog.commonSprites.CopyTo(colours, 0);

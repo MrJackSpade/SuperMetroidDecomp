@@ -25,6 +25,6 @@ internal static class RetailPresentationFixtureVerification
     /// The shared installation's map presentation, the same extracted content contract the
     /// playable host uses. Independent game instances still own their mutable state.
     /// </summary>
-    internal static AreaMapPresentationCatalog RetailPresentationFixture() =>
+    internal static AreaMapPresentation RetailPresentationFixture() =>
         InstalledFixtures.Maps;
 }

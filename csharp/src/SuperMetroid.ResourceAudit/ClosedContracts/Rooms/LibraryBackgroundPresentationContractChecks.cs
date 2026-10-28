@@ -30,10 +30,10 @@ internal static class LibraryBackgroundPresentationContractChecks
         substituted.Remove(first);
         substituted.Add(default, atlas);
         bool rejected = false;
-        try { _ = new RoomBackgroundTilemapCatalog(substituted); }
+        try { _ = new RoomBackgroundTilemaps(substituted); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "a correct count with one substituted tilemap must fail at construction");
-        var catalog = new RoomBackgroundTilemapCatalog(owned);
+        var catalog = new RoomBackgroundTilemaps(owned);
         owned.Remove(first);
         Require(ReferenceEquals(catalog.Get(first), atlas), "catalog keys must be independent of the caller's dictionary");
 
@@ -45,7 +45,7 @@ internal static class LibraryBackgroundPresentationContractChecks
             using SuperMetroid.Core.Rooms.Artwork;
             using SuperMetroid.Core.Rooms.Backgrounds;
             class BackgroundConsumer {
-                void Inspect(RoomBackgroundTilemapCatalog catalog, RoomBackgroundTilemap selected) {
+                void Inspect(RoomBackgroundTilemaps catalog, RoomBackgroundTilemap selected) {
                     catalog.Get(RoomBackgroundTilemap.{{first}});
                     catalog.Get(selected);
                     catalog.Get((RoomBackgroundTilemap)0);
@@ -55,7 +55,7 @@ internal static class LibraryBackgroundPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("LibraryBackgroundProviderFixture", sources,
-            platforms.Append(typeof(RoomBackgroundTilemapCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(RoomBackgroundTilemaps).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

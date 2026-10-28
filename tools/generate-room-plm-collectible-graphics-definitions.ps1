@@ -30,7 +30,7 @@ try {
     $lines.Add('    /// retain this artwork under the nonsense exception (dynamicCollectibleArtworkReview).')
     $lines.Add('    /// Kind, source address and palette selection are calculated separately.')
     $lines.Add('    /// </summary>')
-    $lines.Add('    private static readonly string[] Tiles =')
+    $lines.Add('    internal static readonly string[] Tiles =')
     $lines.Add('    [')
     $tileBlocks = [Collections.Generic.SortedDictionary[int,string]]::new()
     $uniqueGraphics = [Collections.Generic.HashSet[int]]::new()

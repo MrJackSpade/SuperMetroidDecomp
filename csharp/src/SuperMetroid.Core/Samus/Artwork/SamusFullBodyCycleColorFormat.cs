@@ -165,9 +165,9 @@ public static class SamusFullBodyCycleColorFormat
     internal static RgbColor SpeedSharedChannelColor(int palette, int color, RgbColor basis, RgbColor shared)
     {
         if (SpeedSharedChannelSource(palette, color) < 0) throw new ArgumentOutOfRangeException(nameof(palette));
-        if (palette == 1 && color == 9) return LoadingPaletteColorDefinitions.TintColor(basis, 2);
-        RgbColor tint = palette == 2 ? LoadingPaletteColorDefinitions.TintColor(basis, 1) :
-            palette == 19 ? LoadingPaletteColorDefinitions.VariaTintColor(basis, 0) : basis;
+        if (palette == 1 && color == 9) return LoadingPaletteColors.TintColor(basis, 2);
+        RgbColor tint = palette == 2 ? LoadingPaletteColors.TintColor(basis, 1) :
+            palette == 19 ? LoadingPaletteColors.VariaTintColor(basis, 0) : basis;
         return tint.WithBlue(shared.Blue);
     }
 
@@ -186,7 +186,7 @@ public static class SamusFullBodyCycleColorFormat
         if (!(suit == 0 ? color is 1 or 2 or 10 or 11 or 12 : suit == 1 ? color == 12 : color == 2)) return false;
         bool plateau = suit == 2 || (suit == 0 && color is 1 or 12);
         int greenPeak = plateau ? 15 : suit == 0 && color is 10 or 11 ? 5 : 0;
-        value = LoadingPaletteColorDefinitions.BrightenDimColor(dim, 3 - palette % 4, greenPeak, plateau);
+        value = LoadingPaletteColors.BrightenDimColor(dim, 3 - palette % 4, greenPeak, plateau);
         return true;
     }
 
@@ -210,8 +210,8 @@ public static class SamusFullBodyCycleColorFormat
             _ => color is 10 or 11,
         };
         if (!included) return false;
-        value = suit == 1 ? LoadingPaletteColorDefinitions.VariaTintColor(basis, 3 - shade) :
-            LoadingPaletteColorDefinitions.TintColor(basis, 3 - shade);
+        value = suit == 1 ? LoadingPaletteColors.VariaTintColor(basis, 3 - shade) :
+            LoadingPaletteColors.TintColor(basis, 3 - shade);
         return true;
     }
 

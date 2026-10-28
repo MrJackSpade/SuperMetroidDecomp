@@ -168,7 +168,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
                     NativeEnemyProgramOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformAnimationDefinitions.SelectProgram(isKamer, Axis.Horizontal, (PlatformHorizontalMovement)direction)),
+                        PlatformPrograms.SelectProgram(isKamer, Axis.Horizontal, (PlatformHorizontalMovement)direction)),
                     "platform initial program uses full-word zero/nonzero direction");
         }
     }
@@ -191,7 +191,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
                     NativeEnemyProgramOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformAnimationDefinitions.SelectProgram(isKamer, moving ? Axis.Vertical : Axis.Horizontal, (PlatformHorizontalMovement)direction)),
+                        PlatformPrograms.SelectProgram(isKamer, moving ? Axis.Vertical : Axis.Horizontal, (PlatformHorizontalMovement)direction)),
                     "platform animation program uses species, motion and full-word direction");
         }
     }

@@ -21,12 +21,4 @@ public sealed record DoorDefinition(
     Position16<RoomBlocks> PlmBlock,
     Position16<RoomScreens> DestinationScreen,
     DoorSamusSpeed SamusSpeed,
-    DoorSetupCode SetupCode)
-{
-    /// <summary>
-    /// True only for the door into the Ceres elevator shaft, whose setup routine shows the room as a turning floor,
-    /// unrotated, about room point (128, 1008).
-    /// </summary>
-    public bool EntersCeresElevatorShaft =>
-        SetupCode == DoorSetupCode.DoorASM_ToCeresElevatorShaft;
-}
+    DoorSetupCode SetupCode);

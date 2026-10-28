@@ -25,12 +25,12 @@ internal static class FakeKraidSpitVelocitiesVerification
             {
                 int address = 0xa69a48 + (right ? 8 : 0) + projectile * 4 + fieldOffset;
                 ushort expected = LittleEndianBytes.Word(FakeKraidSpitVelocityFieldRomByte(rom, address), FakeKraidSpitVelocityFieldRomByte(rom, address + 1));
-                AssertEqual(expected, select(FakeKraidProjectileDefinitions.SpitLaunch(right, projectile)),
+                AssertEqual(expected, select(FakeKraidProjectiles.SpitLaunch(right, projectile)),
                     $"Fake Kraid spit field {fieldOffset}, facing {right}, projectile {projectile}");
             }
             foreach (int projectile in new[] { int.MinValue, -1, 2, int.MaxValue })
                 AssertThrows<InvalidDataException>(
-                    () => FakeKraidProjectileDefinitions.SpitLaunch(right, projectile),
+                    () => FakeKraidProjectiles.SpitLaunch(right, projectile),
                     "Fake Kraid spit rejects invalid projectile ordinal before calculating velocity");
         }
     }

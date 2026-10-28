@@ -19,7 +19,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         for (int index = 0; index <= 112; index++)
         {
             int offset = index * 2;
-            var frame = CeresRidleyGetawayDefinitions.FromIndex(index);
+            var frame = CeresRidleyGetawayCurve.FromIndex(index);
             ushort nativeZoom = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6ae4d + offset);
             if (offset == 224)
             {
@@ -35,7 +35,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
         }
         foreach (int invalid in new[] { -1, 113, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayDefinitions.FromIndex(invalid), "Ceres invalid curve index");
+            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.FromIndex(invalid), "Ceres invalid curve index");
         Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
@@ -51,8 +51,8 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         AssertEqual(0xadb7, installed.TileSource(CeresFloorAnimationFrame.WingFrame0, 0), "the wing's first run source the import decodes");
         foreach (CeresFloorAnimationFrame pointer in Enum.GetValues<CeresFloorAnimationFrame>())
         {
-            CeresFloorAnimationDefinitions.FrameRuns compiled =
-                CeresFloorAnimationDefinitions.Get(pointer);
+            CeresFloorAnimation.FrameRuns compiled =
+                CeresFloorAnimation.Get(pointer);
             int cursor = 0xa60000 | CeresNativeWords.FloorAnimationFrames.Word(pointer);
             bool getawayFrame = pointer is not (CeresFloorAnimationFrame.ElevatorLight or CeresFloorAnimationFrame.ElevatorDark);
             int run = 0;
@@ -92,7 +92,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertEqual((byte)0, rom.ReadCartridgeByte(cursor),
                 "Ceres Mode 7 compiled list reaches native terminator");
             // Ridley writes each transfer into the room's Mode 7 map, in list order (#1349).
-            foreach (CeresFloorTileRun transfer in CeresFloorAnimationDefinitions.Get(pointer))
+            foreach (CeresFloorTileRun transfer in CeresFloorAnimation.Get(pointer))
                 actual.Write(transfer.FloorCell, [.. transfer.TileNumbers]);
             byte[] cells = [.. actual.Publish().Cells.Select(cell => (byte)cell.Tile)];
             bool matches = true;
@@ -101,7 +101,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertTrue(matches, "Ceres Mode 7 compiled list writes its map cells in order");
         }
         AssertThrows<InvalidDataException>(() =>
-            CeresFloorAnimationDefinitions.Get((CeresFloorAnimationFrame)0xffff),
+            CeresFloorAnimation.Get((CeresFloorAnimationFrame)0xffff),
             "Ceres Mode 7 unknown transfer list fails loudly");
         Console.WriteLine($"Ceres compiled Mode 7: {checkedTransfers} native transfers across all seven lists match source bytes, destinations, and VRAM effects.");
     }

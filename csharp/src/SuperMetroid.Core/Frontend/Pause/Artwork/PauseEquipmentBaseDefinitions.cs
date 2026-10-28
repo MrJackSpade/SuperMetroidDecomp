@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Equipment-page base artwork and the compiled footprints owned by live menu state.</summary>
@@ -13,73 +11,21 @@ public static class PauseEquipmentBaseDefinitions
 
     /// <summary>The 32-column, 32-row tilemap geometry and its calculated 1024-cell extent.</summary>
     public const int Columns = 32, Rows = 32, Cells = Columns * Rows;
-
-    /// <summary>
-    /// $82:C06C-$C087 destinations: beams occupy rows16-20, suits/misc rows9-10
-    /// and13-16, boots rows19-21. All own nine cells, including the Plasma overrun
-    /// into adjacent words used by the native simultaneous-input VAR behavior.
-    /// </summary>
-    public static bool IsEquipmentLabelCell(int cell)
-    {
-        if ((uint)cell >= Cells) return false;
-        int row = cell / Columns;
-        int column = cell % Columns;
-        if (row is >= 16 and <= 20 && column is >= 4 and < 13) return true;
-        return column is >= 21 and < 30 &&
-            (row is 9 or 10 or >= 13 and <= 16 or >= 19 and <= 21);
-    }
-
-    /// <summary>$82:C068/$C06A reserve labels occupy seven columns on rows10/11; supply digits use their own anchor.</summary>
-    private static bool IsReserveCell(int cell)
-    {
-        if ((uint)(cell - PauseReserveUiDefinitions.DigitCell) < PauseReserveUiDefinitions.SupplyDigitPlaces)
-            return true;
-        if ((uint)cell >= Cells) return false;
-        return cell / Columns is 10 or 11 && cell % Columns is >= 4 and < 11;
-    }
-    /// <summary>Returns whether runtime inventory, reserve, or wireframe state owns a tilemap cell.</summary>
-    /// <param name="cell">Zero-based cell index in the 32-by-32 equipment tilemap.</param>
-    /// <returns><see langword="true"/> when the static base must leave the cell for live menu composition.</returns>
-    public static bool IsLiveOwnedCell(int cell)
-    {
-        if (IsEquipmentLabelCell(cell)) return true;
-        if (IsReserveCell(cell)) return true;
-        int wireframeRelative = cell - PauseWireframeDefinitions.FirstPageTile;
-        return wireframeRelative >= 0 && wireframeRelative / PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Rows &&
-            wireframeRelative % PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Columns;
-    }
-
-    /// <summary>Returns whether reserve or wireframe composition owns a cell outside the equipment-label footprints.</summary>
-    /// <param name="cell">Zero-based cell index in the equipment tilemap.</param>
-    /// <returns><see langword="true"/> for a live-owned cell that is not an equipment label.</returns>
-    public static bool IsNonInventoryLiveOwnedCell(int cell) =>
-        IsLiveOwnedCell(cell) && !IsEquipmentLabelCell(cell);
-
-    /// <summary>Returns whether a cell belongs to the vertical or horizontal reserve-mode arrow footprint.</summary>
-    /// <param name="cell">Zero-based cell index in the equipment tilemap.</param>
-    /// <returns><see langword="true"/> when the reserve UI supplies the arrow cell.</returns>
-    public static bool IsArrowCell(int cell)
-    {
-        int vertical = cell - PauseReserveUiDefinitions.VerticalStartCell;
-        if (vertical >= 0 && vertical % PauseReserveUiDefinitions.RowStrideCells == 0 &&
-            vertical / PauseReserveUiDefinitions.RowStrideCells < PauseReserveUiDefinitions.VerticalCount) return true;
-        return (uint)(cell - PauseReserveUiDefinitions.HorizontalStartCell) < PauseReserveUiDefinitions.HorizontalCount;
-    }
     /// <summary>$B6:E800 template border artwork: side $140, corner $141, horizontal $142 and title end $143.</summary>
-    private const int PanelSide = 0x140, PanelCorner = 0x141, PanelHorizontal = 0x142, PanelTitleEnd = 0x143;
+    internal const int PanelSide = 0x140, PanelCorner = 0x141, PanelHorizontal = 0x142, PanelTitleEnd = 0x143;
     /// <summary>$B6:E800 template title fragments: SUPPLY $107, BEAM $F9, SUIT $F6, MISC $1B0 and BOOTS $A0.</summary>
-    private const int SupplyTitle = 0x107, BeamTitle = 0xf9, SuitTitle = 0xf6, MiscTitle = 0x1b0, BootsTitle = 0xa0;
+    internal const int SupplyTitle = 0x107, BeamTitle = 0xf9, SuitTitle = 0xf6, MiscTitle = 0x1b0, BootsTitle = 0xa0;
     /// <summary>$B6:E95A-E965: six-character SAMUS title begins at $13A.</summary>
-    private const int SamusTitle = 0x13a;
+    internal const int SamusTitle = 0x13a;
     /// <summary>$B6:E952-E96D title ornament uses repeated bar $BE and end $BD.</summary>
-    private const int TitleBar = 0xbe, TitleBarEnd = 0xbd;
+    internal const int TitleBar = 0xbe, TitleBarEnd = 0xbd;
     /// <summary>$B6:E902-EB02: reserve arrow tip/stem/elbow characters $14C/$15C/$16C/$16F.</summary>
-    private const int ArrowTip = 0x14c, ArrowStem = 0x15c, ArrowTurn = 0x16c, ArrowJoin = 0x16f;
+    internal const int ArrowTip = 0x14c, ArrowStem = 0x15c, ArrowTurn = 0x16c, ArrowJoin = 0x16f;
     /// <summary>$B6:EB06-EB0F: repeated empty reserve-gauge segment $FC and endcap $FE.</summary>
-    private const int EmptyGauge = 0xfc, GaugeEnd = 0xfe;
+    internal const int EmptyGauge = 0xfc, GaugeEnd = 0xfe;
 
     /// <summary>The five framed sections in the authored equipment-page layout.</summary>
-    private enum PanelKind
+    internal enum PanelKind
     {
         /// <summary>The reserve-tank mode and amount section.</summary>
         Supply,
@@ -93,121 +39,14 @@ public static class PauseEquipmentBaseDefinitions
         Boots,
     }
     /// <summary>Right-column panels whose left border joins the beam panel's guide line.</summary>
-    private static readonly PanelKind[] GuidedPanels = [PanelKind.Suit, PanelKind.Misc, PanelKind.Boots];
+    internal static readonly PanelKind[] GuidedPanels = [PanelKind.Suit, PanelKind.Misc, PanelKind.Boots];
     /// <summary>Inclusive frame bounds and title rendering choices for one equipment-page section.</summary>
     [IndependentFlag("the panel text's BG priority bit, a fact of the authored panel")]
-    private readonly record struct PanelShape(int Left, int Top, int Right, int Bottom,
+    internal readonly record struct PanelShape(int Left, int Top, int Right, int Bottom,
         int TextColumn, int TextWidth, int TextTile, int TextPalette, bool TextPriority);
 
     /// <summary>$B6:EBC0-EC54: two atlas rows form the diagonal beam guide.</summary>
-    private const int GuideDiagonal = 0x145, AtlasRowStride = 16;
+    internal const int GuideDiagonal = 0x145, AtlasRowStride = 16;
     /// <summary>$B6:EAA8/EBA8/EC52/ED68: border junction for equipment guide strokes.</summary>
-    private const int GuideBorderJunction = 0x154;
-
-    /// <summary>Chooses the native frame footprint, title glyphs, and palette for each section.</summary>
-    /// <remarks>Title styles and supply padding belong to the authored composition of this page.</remarks>
-    private static PanelShape Panel(PanelKind kind) => kind switch
-    {
-        PanelKind.Supply => SupplyPanel(),
-        PanelKind.Beam => InventoryPanel(PauseEquipmentCategory.Beams, 0, 4, 3, BeamTitle, 6),
-        PanelKind.Suit => InventoryPanel(PauseEquipmentCategory.Suits, 0, 1, 3, SuitTitle, 2),
-        PanelKind.Misc => InventoryPanel(PauseEquipmentCategory.Suits, 2, 5, 3, MiscTitle, 2),
-        PanelKind.Boots => InventoryPanel(PauseEquipmentCategory.Boots, 0, 2, 3, BootsTitle, 3),
-        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
-    };
-
-    /// <summary>Frames the reserve-mode and tank labels with two-cell left padding and centered title.</summary>
-    private static PanelShape SupplyPanel()
-    {
-        int label = PauseReserveUiDefinitions.StockLabelOffset(PauseReserveLabel.Mode) / sizeof(ushort);
-        int last = PauseReserveUiDefinitions.StockLabelOffset(PauseReserveLabel.ReserveTank) / sizeof(ushort);
-        int left = label % Columns - 2, right = label % Columns + PauseReserveUiDefinitions.LabelWords;
-        const int titleWidth = 4;
-        return new(left, label / Columns - 1, right, last / Columns + 2,
-            (left + right - titleWidth + 1) / 2, titleWidth, SupplyTitle, 3, false);
-    }
-    /// <summary>Derives an equipment frame from its first and last stock labels, leaving a row above and below.</summary>
-    private static PanelShape InventoryPanel(PauseEquipmentCategory category, int firstItem, int lastItem,
-        int titleWidth, int titleGlyph, int titlePalette)
-    {
-        int first = PauseEquipmentLabelDefinitions.StockPageByte(PauseEquipmentLabelDefinitions.Label(category, firstItem)) / sizeof(ushort);
-        int last = PauseEquipmentLabelDefinitions.StockPageByte(PauseEquipmentLabelDefinitions.Label(category, lastItem)) / sizeof(ushort);
-        int left = first % Columns - 1, right = first % Columns + PauseEquipmentLabelDefinitions.WordCount(category);
-        return new(left, first / Columns - 1, right, last / Columns + 1,
-            (left + right - titleWidth + 1) / 2, titleWidth, titleGlyph, titlePalette, true);
-    }
-    /// <summary>Shared stock text, rectangular borders, title bars and reserve-arrow primitives.</summary>
-    /// <remarks>The exact panel/header/arrow/gauge/guide composition and bounded metadata are retained choices;
-    /// the presentation stores exact independent differences rather than dropping them.</remarks>
-    internal static BackgroundTile StockTile(int cell)
-    {
-        if ((uint)cell >= Cells) throw new ArgumentOutOfRangeException(nameof(cell));
-        int row = cell / Columns, column = cell % Columns;
-        foreach (var label in PauseEquipmentLabelDefinitions.Labels())
-        {
-            int first = PauseEquipmentLabelDefinitions.StockPageByte(label.Label) / sizeof(ushort);
-            int index = cell - first;
-            if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Label)) continue;
-            BackgroundTile tile = PauseEquipmentLabelDefinitions.StockTile(label.Label, index);
-            bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
-                (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);
-            return grayTemplate ? tile with { ColourVariant = PauseEquipmentLabelDefinitions.DisabledPalette } : tile;
-        }
-        // Copied transparent edge metadata and guide-layer policy are separately accounted
-        // composition inputs, not unexplained full-word fallbacks.
-        if (column == Columns - 1 && (row == 4 || row is >= 14 and <= 18)) return Tile(0, 2, false);
-        PanelShape beam = Panel(PanelKind.Beam);
-        int diagonalColumn = column - beam.Right, diagonalRow = row - beam.Top;
-        if (diagonalColumn is 1 or 2 && diagonalRow == 2 - diagonalColumn)
-            return Tile(GuideDiagonal, diagonalColumn == 1 ? 6 : 2);
-        if (diagonalColumn is 1 or 2 && diagonalRow == 3 - diagonalColumn)
-            return Tile(GuideDiagonal + AtlasRowStride, diagonalColumn == 1 ? 6 : 2);
-        if (column == beam.Right && row == beam.Top + 2) return Tile(GuideBorderJunction, 6);
-        foreach (PanelKind kind in GuidedPanels)
-        {
-            PanelShape panel = Panel(kind);
-            int guideRow = kind == PanelKind.Boots ? panel.Bottom - 1 : panel.Top + 2;
-            if (column == panel.Left && row == guideRow)
-                return Tile(GuideBorderJunction, 6, flips: TileFlip.Horizontal | (kind == PanelKind.Boots ? TileFlip.Vertical : TileFlip.None));
-        }
-        if (row == 12 && column == 2) return Tile(ArrowJoin, 7);
-        if (row == 12 && column is >= 3 and <= 6) return Tile(EmptyGauge, 7, false);
-        if (row == 12 && column == 7) return Tile(GaugeEnd, 7);
-        foreach (PanelKind kind in Enum.GetValues<PanelKind>())
-        {
-            PanelShape panel = Panel(kind);
-            if (column < panel.Left || column > panel.Right || row < panel.Top || row > panel.Bottom) continue;
-            if (row == panel.Top)
-            {
-                if (column == panel.Left || column == panel.Right)
-                    return Tile(PanelCorner, 6, flips: (column == panel.Right ? TileFlip.Horizontal : TileFlip.None));
-                if (column >= panel.TextColumn && column < panel.TextColumn + panel.TextWidth)
-                    return Tile(panel.TextTile + column - panel.TextColumn, panel.TextPalette, panel.TextPriority);
-                if (column == panel.TextColumn - 1 || column == panel.TextColumn + panel.TextWidth)
-                    return Tile(PanelTitleEnd, 6, flips: (column > panel.TextColumn ? TileFlip.Horizontal : TileFlip.None));
-                return Tile(PanelHorizontal, 6);
-            }
-            if (row == panel.Bottom)
-                return Tile(column == panel.Left || column == panel.Right ? PanelCorner : PanelHorizontal,
-                    6, flips: (column == panel.Right ? TileFlip.Horizontal : TileFlip.None) | TileFlip.Vertical);
-            if (column == panel.Left || column == panel.Right)
-                return Tile(PanelSide, 6, flips: (column == panel.Right ? TileFlip.Horizontal : TileFlip.None));
-            if (kind == PanelKind.Supply) return Tile(1, 2);
-        }
-        if (column == 1 && row is >= 4 and <= 12)
-            return row == 4 ? Tile(ArrowTip, 7) : Tile(row == 12 ? ArrowTurn : ArrowStem, 7, row == 5);
-        if (row == 4 && column is >= 12 and <= 30) return Tile(0, 2);
-        if (row == 5 && column is >= 9 and <= 22)
-        {
-            if (column is 9 or 10 or 21 or 22) return Tile(TitleBar, 2);
-            if (column is 11 or 20) return Tile(TitleBarEnd, 2, flips: (column == 11 ? TileFlip.Horizontal : TileFlip.None));
-            if (column is 12 or 19) return Tile(1, 2);
-            return Tile(SamusTitle + column - 13, 2);
-        }
-        return default;
-    }
-
-    /// <summary>Places a glyph in <paramref name="palette"/>, prioritised and mirrored as given.</summary>
-    private static BackgroundTile Tile(int character, int palette, bool priority = true, TileFlip flips = TileFlip.None) =>
-        new(character, palette, priority, flips);
+    internal const int GuideBorderJunction = 0x154;
 }

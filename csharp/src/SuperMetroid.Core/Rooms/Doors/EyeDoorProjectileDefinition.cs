@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// What an eye door spawns from the shared enemy-projectile pool. The values are arbitrary (#1414); the enemy side
 /// owns each effect's placement, launch and animation.
 /// </summary>
-public enum EyeDoorProjectileDefinition : ushort
+public enum EyeDoorProjectileDefinition
 {
     /// <summary>The eye-door attack actor, whose initial animation later installs aimed movement and whose shot/impact lists terminate it.</summary>
     Projectile = 1,

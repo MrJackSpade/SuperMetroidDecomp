@@ -12,7 +12,7 @@ public static class GrappleSwingFrameExtractor
     /// <returns>A new UTF-8 JSON buffer with versioned frame indices 0..31 in unsigned angle-byte order.</returns>
     /// <remarks>This is an orientation-art selection, not a physical body-offset table; extraction does not modify swing geometry or facing.</remarks>
     public static byte[] Extract(ISnesAddressSpace bus)
-        => GrappleSwingFrameCatalog.Write(new()
+        => InstalledGrappleSwingFrames.Write(new()
         {
             Version = GrappleSwingFrameDefinitions.Version,
             Frames = Enumerable.Range(0, GrappleSwingFrameDefinitions.AngleCount)

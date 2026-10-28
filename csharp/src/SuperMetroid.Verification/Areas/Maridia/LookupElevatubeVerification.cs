@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Areas.Maridia;
@@ -15,13 +16,13 @@ internal static class LookupElevatubeVerification
         AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "Elevatube native scalar");
         var all = MaridiaElevatubePlmDefinitions.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
-        AssertTrue(MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
+        AssertTrue(MaridiaElevatubeDraws.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
         foreach (var draw in new[] {MaridiaElevatubePlmDefinitions.BlockDrawList,all[0],selected})
         {
             AssertEqual((ushort)0x9367, PlmDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
             AssertEqual(1, draw.Runs.Length, "Elevatube one run");
             var run = draw.Runs.Span[0];
-            AssertEqual(ReadSamusEaterPlmWord(rom, 0x849367), run.DirectionAndCount, "Elevatube native run header");
+            AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x849367), run, "Elevatube native run header");
             AssertEqual(1, run.LevelWords.Length, "Elevatube one word");
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), run.LevelWords.Span[0], "Elevatube DTO original word");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), run.Next.X, "Elevatube original X");
@@ -29,7 +30,7 @@ internal static class LookupElevatubeVerification
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
         {
-            AssertTrue(!MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
+            AssertTrue(!MaridiaElevatubeDraws.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Elevatube missing DTO");
         }
     }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The falling-tube main functions stored in a tube's VariableA, in bank $A9 order.</summary>
-internal enum MotherBrainTubeFunction : ushort
+internal enum MotherBrainTubeFunction
 {
     /// <summary><c>Function_MotherBrainTubes_NonMainTube</c> at $A9:8B88.</summary>
     NonMainTube = 1,

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// five-bit channel <c>q</c> of <c>base[c]</c>, the output channel is
 /// <c>floor(((7 - t)*q + 31*t)/7)</c>. Frame 6 is white, frames 7..12
 /// mirror frames 5..0, and frame 13 restores the base. This rule matches
-/// all 224 ROM colors exactly. LogoGlarePaletteColorDefinitions evaluates matching
+/// all 224 ROM colors exactly. LogoGlarePaletteColors evaluates matching
 /// presentation colors from the final supplied row; independent edits remain explicit.
 /// The presentation compiler owns the base colors and overrides. ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.

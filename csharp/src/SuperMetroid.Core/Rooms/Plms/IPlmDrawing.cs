@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal interface IPlmDrawing
 {
     /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; }
+    InstalledDynamicCollectibleArt? DynamicCollectibleArt { get; }
 
     /// <summary>Draws <paramref name="draw"/> with its block origin at <paramref name="blockIndex"/>, with its family's installed visuals and its compiled collision words.</summary>
     void Draw(RoomLevelData level, int blockIndex, PlmDraw draw);

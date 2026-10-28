@@ -24,8 +24,8 @@ public static class RoomPlmMotherBrainFakeDeathVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Mother Brain fake-death room",
-            MotherBrainFakeDeathPlmDrawDefinitions.All,
-            MotherBrainFakeDeathPlmDrawDefinitions.VisualId);
+            MotherBrainFakeDeathDraws.All,
+            MotherBrainFakeDeathDraws.VisualId);
 
     /// <summary>Validates stock fake-death room artwork before selecting a complete optional replacement of its visual layouts.</summary>
     /// <param name="stockDirectory">Family directory containing the required version-one manifest and stock JSON.</param>
@@ -37,7 +37,7 @@ public static class RoomPlmMotherBrainFakeDeathVisualFiles
     public static RoomPlmMotherBrainFakeDeathVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmMotherBrainFakeDeathVisualCatalog>(VisualFileName, "Mother Brain fake-death room", MotherBrainFakeDeathPlmDrawDefinitions.All, MotherBrainFakeDeathPlmDrawDefinitions.VisualId, entries => new RoomPlmMotherBrainFakeDeathVisualCatalog(
+            new RoomPlmVisualFamily<RoomPlmMotherBrainFakeDeathVisualCatalog>(VisualFileName, "Mother Brain fake-death room", MotherBrainFakeDeathDraws.All, MotherBrainFakeDeathDraws.VisualId, entries => new RoomPlmMotherBrainFakeDeathVisualCatalog(
                 entries.Select(entry =>
                     new RoomPlmVisualEntry(
                         entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));

@@ -12,11 +12,11 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
     /// <summary>Recalculates only the three suitless frame compositions represented by atlas grids.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusLowerBody))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.SuitlessSamusLowerBody))
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusLowerBody));
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusPreparingToJump))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.SuitlessSamusPreparingToJump))
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusPreparingToJump));
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusJumping))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.SuitlessSamusJumping))
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusJumping));
         return supplied;
     }

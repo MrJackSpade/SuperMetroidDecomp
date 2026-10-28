@@ -19,7 +19,7 @@ internal static class SpecializedColorDomainAudit
         string? Outside(string parameter, int count, string selected) => Constant(parameter) is int index && (uint)index >= count
             ? $"Constant {parameter}={index} is outside the selected {selected} color domain (0..{count - 1})." : null;
         string type = operation.TargetMethod.ContainingType.ToDisplayString();
-        if (type == typeof(PowerBombFixedColorCatalog).FullName && Constant("sequence") is int sequence)
+        if (type == typeof(InstalledPowerBombFixedColors).FullName && Constant("sequence") is int sequence)
         {
             var kind = (PowerBombFixedColorSequence)sequence;
             // Invalid enum members are reported by the independent domain check;

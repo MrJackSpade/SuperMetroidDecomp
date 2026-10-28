@@ -48,7 +48,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (walk.ReachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, 7);
-            PainfulWalkingFunctionTimer = WrappingCountdown.Start(MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex));
+            PainfulWalkingFunctionTimer = WrappingCountdown.Start(MotherBrainPainfulWalking.FunctionTimer(timerIndex));
         }
         return walk.Requested;
     }
@@ -115,8 +115,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
         {
             PainfulWalkingAnimationDelay =
-                MotherBrainPainfulWalkingDefinitions.AnimationDelay(PainfulWalkingStage);
-            _state.NeckAngleDelta = MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(PainfulWalkingStage);
+                MotherBrainPainfulWalking.AnimationDelay(PainfulWalkingStage);
+            _state.NeckAngleDelta = MotherBrainPainfulWalking.NeckAngleDelta(PainfulWalkingStage);
         }
         if (PainfulWalkingStage == 6)
         {

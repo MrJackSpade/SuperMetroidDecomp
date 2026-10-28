@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class RoomFxLayer3TilemapFixtures
 {
     /// <summary>The cartridge transfer bytes of a catalog's pages.</summary>
-    extension(RoomFxLayer3TilemapCatalog catalog)
+    extension(RoomFxLayer3Pages catalog)
     {
         /// <summary>The little-endian tilemap words of the page <paramref name="type"/> shows.</summary>
         internal byte[] ResolveBytes(RoomFxType type) => BackgroundTileWordBytes.Of(catalog.Resolve(type).Span);
@@ -18,7 +18,7 @@ internal static class RoomFxLayer3TilemapFixtures
 
     /// <summary>A catalog loaded from a document holding <paramref name="stock"/>'s pages with <paramref name="type"/>'s replaced by <paramref name="page"/>.</summary>
     /// <exception cref="InvalidDataException">The edited page is not a complete page.</exception>
-    internal static RoomFxLayer3TilemapCatalog WithPage(RoomFxLayer3TilemapCatalog stock, RoomFxType type, ReadOnlySpan<BackgroundTile> page)
+    internal static RoomFxLayer3Pages WithPage(RoomFxLayer3Pages stock, RoomFxType type, ReadOnlySpan<BackgroundTile> page)
     {
         var pages = RoomFxLayer3TilemapFormat.Types.ToDictionary(each => each.ToString(),
             each => Cells(stock.Resolve(each).Span));
@@ -26,7 +26,7 @@ internal static class RoomFxLayer3TilemapFixtures
         using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
             new RoomFxLayer3TilemapDocument { Version = RoomFxLayer3TilemapFormat.Version, Pages = pages },
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-        return RoomFxLayer3TilemapCatalog.Load(json);
+        return RoomFxLayer3Pages.Load(json);
     }
 
     /// <summary>The document cells that place <paramref name="tiles"/>.</summary>

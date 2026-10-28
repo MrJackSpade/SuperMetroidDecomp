@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorInitializationDefinitions
 {
     /// <summary>The variant each authored population parameter-one value selects.</summary>
-    private static readonly ParameterVariants<CeresDoorVariant> Variants = new(new Dictionary<int, CeresDoorVariant>
+    internal static readonly ParameterVariants<CeresDoorVariant> Variants = new(new Dictionary<int, CeresDoorVariant>
     {
         [0] = CeresDoorVariant.NormalFacingRight,
         [1] = CeresDoorVariant.NormalFacingLeft,
@@ -32,31 +32,29 @@ internal static class CeresDoorInitializationDefinitions
     /// and 6. Those aliases classify authored behavior, rather than a
     /// numeric progression of code addresses.
     /// </summary>
-    internal static CeresDoorInitializationDefinition For(int variant) =>
-        Variants.Decode(variant) switch
+    internal static readonly IReadOnlyDictionary<CeresDoorVariant, CeresDoorInitializationDefinition> Initializations =
+        new Dictionary<CeresDoorVariant, CeresDoorInitializationDefinition>
         {
-            CeresDoorVariant.NormalFacingRight => new(
+            [CeresDoorVariant.NormalFacingRight] = new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
                 CeresDoorProgram.NormalFacingRight),
-            CeresDoorVariant.NormalFacingLeft => new(
+            [CeresDoorVariant.NormalFacingLeft] = new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
                 CeresDoorProgram.NormalFacingLeft),
-            CeresDoorVariant.RotatingElevatorPreExplosionOverlay => new(
+            [CeresDoorVariant.RotatingElevatorPreExplosionOverlay] = new(
                 CeresDoorFunction.RotatingElevatorRoomDefault,
                 CeresDoorProgram.RotatingElevatorPreExplosionOverlay),
-            CeresDoorVariant.RidleyRoomFacingRight => new(
+            [CeresDoorVariant.RidleyRoomFacingRight] = new(
                 CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom,
                 CeresDoorProgram.RidleyRoomFacingRight),
-            CeresDoorVariant.RotatingElevatorInvisibleWall => new(
+            [CeresDoorVariant.RotatingElevatorInvisibleWall] = new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
                 CeresDoorProgram.RotatingElevatorInvisibleWall),
-            CeresDoorVariant.RidleyEscapeFloorLeftWall => new(
+            [CeresDoorVariant.RidleyEscapeFloorLeftWall] = new(
                 CeresDoorFunction.RidleyEscapeFloorWall,
                 CeresDoorProgram.RidleyEscapeFloorLeftWall),
-            CeresDoorVariant.RidleyEscapeFloorRightWall => new(
+            [CeresDoorVariant.RidleyEscapeFloorRightWall] = new(
                 CeresDoorFunction.RidleyEscapeFloorWall,
                 CeresDoorProgram.RidleyEscapeFloorRightWall),
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(variant), variant, "Ceres door initialization variant must be zero through six."),
         };
 }

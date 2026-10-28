@@ -20,11 +20,11 @@ public sealed class FileSelectStationMarker
     /// <param name="layout">Required installed save-marker layout; its independently edited X/Y coordinates affect drawing only, despite the optional parameter syntax.</param>
     /// <remarks>The frame and timer begin at zero. The first <see cref="Step"/> advances to frame one; subsequent frame holds use the native 8/4/8/4 menu-update sequence.</remarks>
     public FileSelectStationMarker(AreaId area, int stationIndex,
-        SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayout? layout = null)
+        SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout = null)
         => BindPosition(area, stationIndex, layout);
 
     /// <summary>Rebinds drawing position without changing the existing marker animation or selected load index.</summary>
-    internal void BindPosition(AreaId area, int stationIndex, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayout? layout)
+    internal void BindPosition(AreaId area, int stationIndex, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout)
     {
         int areaIndex = AreaIds.ToIndex(area);
         if ((uint)areaIndex >= FileSelectMapDefinitions.AreaCount)

@@ -21,7 +21,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     {
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
         {
-            MaridiaLargeSnailProgram program = MaridiaLargeSnailInstructionDefinitions.Program(animationIndex);
+            MaridiaLargeSnailProgram program = MaridiaLargeSnailPrograms.Program(animationIndex);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(MaridiaLargeSnailNativeValues.SelectorTable + animationIndex * 2),
                 NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
@@ -39,7 +39,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertEqual((ushort)1, slot.InstructionTimer.RawValue, $"Oum instruction timer {animationIndex}");
             AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.Program(8), "Oum selector past table");
+        AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailPrograms.Program(8), "Oum selector past table");
 
         foreach (MaridiaLargeSnailProgram attack in new[] { MaridiaLargeSnailProgram.FacingLeftAttacking, MaridiaLargeSnailProgram.FacingRightAttacking })
         {

@@ -15,16 +15,16 @@ public static class PauseReserveUiExtractor
     {
         var labels = new Dictionary<string, PauseReserveLabelVisual>
         {
-            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Mode)] = Label(0, PauseReserveUiDefinitions.LabelWords),
-            [PauseReserveUiDefinitions.Name(PauseReserveLabel.ReserveTank)] = Label(1, PauseReserveUiDefinitions.LabelWords),
-            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Manual)] = DirectLabel(PauseMenuSourceDefinitions.ReserveManualText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
-            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Auto)] = DirectLabel(PauseMenuSourceDefinitions.ReserveAutoText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveUiTiles.Name(PauseReserveLabel.Mode)] = Label(0, PauseReserveUiDefinitions.LabelWords),
+            [PauseReserveUiTiles.Name(PauseReserveLabel.ReserveTank)] = Label(1, PauseReserveUiDefinitions.LabelWords),
+            [PauseReserveUiTiles.Name(PauseReserveLabel.Manual)] = DirectLabel(PauseMenuSourceDefinitions.ReserveManualText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveUiTiles.Name(PauseReserveLabel.Auto)] = DirectLabel(PauseMenuSourceDefinitions.ReserveAutoText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
         };
         var digits = new PauseReserveDigitVisual
         {
             Anchor = Point(PauseReserveUiDefinitions.DigitCell),
             Cells = Enumerable.Range(0, PauseReserveUiDefinitions.DigitCount)
-                .Select(value => PauseTileGrid.FromWord(BackgroundTileWords.ToWord(PauseReserveUiDefinitions.DigitTile(value)), $"Reserve.Digit{value}"))
+                .Select(value => PauseTileGrid.FromWord(BackgroundTileWords.ToWord(PauseReserveUiTiles.DigitTile(value)), $"Reserve.Digit{value}"))
                 .ToArray(),
         };
         PauseGridPoint[] arrowCells =

@@ -115,7 +115,7 @@ internal sealed class CeresRidleyGetaway
         if (tableIndex == 104 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
 
-        var frame = CeresRidleyGetawayDefinitions.FromIndex(tableIndex);
+        var frame = CeresRidleyGetawayCurve.FromIndex(tableIndex);
         int zoom = frame.Zoom;
         if (frame.IsFinished)
         {
@@ -159,7 +159,7 @@ internal sealed class CeresRidleyGetaway
         if ((frameCounter & 3) == 0)
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
-            ApplyFloorAnimationFrame(CeresFloorAnimationDefinitions.BabyFrameForPhase(state.GetawayBabyFrame), updates);
+            ApplyFloorAnimationFrame(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame), updates);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
@@ -229,7 +229,7 @@ internal sealed class CeresRidleyGetaway
     {
         CeresRidleyFloorUpdateSources sources = _bossArtwork.CeresRidleyFloorUpdates ?? throw new InvalidOperationException(
             "The Ceres Ridley getaway requires the installed floor update sources.");
-        CeresFloorAnimationDefinitions.FrameRuns runs = CeresFloorAnimationDefinitions.Get(frame);
+        CeresFloorAnimation.FrameRuns runs = CeresFloorAnimation.Get(frame);
         foreach (CeresFloorTileRun run in runs)
             _room.Services.DrawFloorMap(run.FloorCell, [.. run.TileNumbers]);
         for (int index = 0; index < runs.Count; index++)
@@ -355,7 +355,7 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Writes one installed warning tilemap over the room's BG1 at its overlay cell.</summary>
     private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page)
     {
-        CeresEscapeOverlayTilemapCatalog overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
+        CeresEscapeOverlays overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The Ceres escape has no installed warning tilemaps.");
         if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
             throw new InvalidDataException($"Installed Ceres escape has no editable {page.Name} tilemap.");
@@ -378,7 +378,7 @@ internal sealed class CeresRidleyGetaway
             return true;
         if (cursor.List == CeresEscapePageList.Objects)
         {
-            SpriteArtworkSource page = CeresEscapePageDefinitions.ObjectPages[cursor.Shown];
+            SpriteArtworkSource page = CeresEscapeObjectPages.ObjectPages[cursor.Shown];
             RequireInstalled(page);
             _presentation.ShowCharacters(page);
         }

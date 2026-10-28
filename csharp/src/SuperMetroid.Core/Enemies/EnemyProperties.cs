@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// receiving plausible-but-unverified labels.
 /// </summary>
 [Flags]
-public enum EnemyProperties : ushort
+public enum EnemyProperties
 {
     /// <summary>No property is set.</summary>
     None = 0,

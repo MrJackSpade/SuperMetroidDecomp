@@ -42,7 +42,7 @@ internal static class ProjectileCompositionsVerification
             VerifyBeamTileArtwork(rom);
             VerifyHyperBeamFxColorArtwork(rom);
         }
-        var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        var content = InstalledProjectileSprites.Load(new MemoryStream(json));
         Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners());
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
@@ -69,7 +69,7 @@ internal static class ProjectileCompositionsVerification
         var original = document.Frames[name][0];
         document.Frames[name][0] = original with { OffsetX = original.OffsetX == 255 ? 254 : original.OffsetX + 1 };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
-        var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
+        var edited = InstalledProjectileSprites.Load(new MemoryStream(editedJson));
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
         // The retail ROM's installation is shared and only read here; another ROM installs its own.
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
@@ -89,7 +89,7 @@ internal static class ProjectileCompositionsVerification
         editedOam = new OamBuffer(); edited.Draw(editedId, editedOam, new(100, 100));
         AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns immutable compiled parts");
 
-        void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
+        void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
         Reject(document with { Version = ProjectileSpriteDefinitions.Version + 1 });
         foreach (var badPart in new[] { original with { Palette = null }, original with { TileColumn = 16 }, original with { TileRow = 32 }, original with { OffsetX = 256 }, original with { OffsetY = -129 }, original with { Size = 32 } })
         {
@@ -99,7 +99,7 @@ internal static class ProjectileCompositionsVerification
         foreach (string field in new[] { "\"version\":1,", "\"damage\":10," })
         {
             byte[] malformed = System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(json).Insert(1, field));
-            AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(malformed)), "Duplicate or unknown mechanics fields rejected");
+            AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(malformed)), "Duplicate or unknown mechanics fields rejected");
         }
         AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), new(0, 0)), "Unknown sprite is loud");
         Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons, observable edits, immutable load and invalid-field rejection pass without a draw-time ROM.");
@@ -183,7 +183,7 @@ internal static class ProjectileCompositionsVerification
     /// rebound sheet set reaches them, and that saved graphs exclude the sheets and draw alike once rebound.
     /// </summary>
     private static void VerifyRuntimeProjectileSheets(ushort sprite, InstalledSpriteSheets sheets,
-        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
+        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentation maps)
     {
         var random = new SharedRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes, random: random);
@@ -196,7 +196,7 @@ internal static class ProjectileCompositionsVerification
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
-        string frame = ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
+        string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
         // Seed only a visible timed composition. The shared production actor draw, not
         // a duplicate test emitter, must bind all three owner passes to host content.
         foreach (ushort family in new ushort[] { 0x10, 0x700, 0x500 })
@@ -320,7 +320,7 @@ internal static class ProjectileCompositionsVerification
         string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName);
         string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(paletteStock));
-        var red = paletteDocument.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0);
+        var red = paletteDocument.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0);
         red["red"] = red.Required("red").GetValue<int>() ^ 1;
         File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
         var paletteEdited = installation.LoadProjectiles();
@@ -396,7 +396,7 @@ internal static class ProjectileCompositionsVerification
         string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName);
         string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
         var flareDocument = RequiredJson.Parse(File.ReadAllText(flareStock));
-        flareDocument.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
+        flareDocument.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         var flareEdited = installation.LoadProjectiles();
         AssertTrue(flareEdited.SelectedSha256 != pngEdited.SelectedSha256, "Flare-only edit changes content identity");
@@ -413,7 +413,7 @@ internal static class ProjectileCompositionsVerification
         string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName);
         string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
         var compositionDocument = RequiredJson.Parse(File.ReadAllText(compositionStock));
-        string firstFlare = ChargeFlareSpriteDefinitions.Selectors[0].Name;
+        string firstFlare = ChargeFlareSpriteSelection.Selectors[0].Name;
         compositionDocument.Required("frames").Required(firstFlare).Required(0)["offsetX"] = 17;
         File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
         var compositionEdited = installation.LoadProjectiles();
@@ -472,7 +472,7 @@ internal static class ProjectileCompositionsVerification
         string grappleFlareStock = Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName);
         string grappleFlareOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName);
         var grappleFlare = RequiredJson.Parse(File.ReadAllText(grappleFlareStock));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
         File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
         var grappleFlareEdited = installation.LoadProjectiles();
         AssertTrue(grappleFlareEdited.SelectedSha256 != styleEdited.SelectedSha256, "Grapple flare-only edit changes content identity");

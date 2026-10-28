@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The phases Mother Brain's body dispatcher runs, one per cartridge routine; unrelated phases are not interchangeable.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
 /// </summary>
-public enum MotherBrainBodyFunction : ushort
+public enum MotherBrainBodyFunction
 {
     /// <summary><c>$A9:87E1 Function_MotherBrain_FirstPhase</c>: observes the tank-bound head's health and hands zero-health defeat to the fake-death descent.</summary>
     FirstPhase = 1,

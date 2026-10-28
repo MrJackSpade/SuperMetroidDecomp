@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The movement routines the Baby Metroid route records name.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
 /// </summary>
-internal enum BabyMetroidRouteMovementFunction : ushort
+internal enum BabyMetroidRouteMovementFunction
 {
     /// <summary><c>$A9:F45F</c>, gradual acceleration with wrong-way extra <c>$0008</c>.</summary>
     GradualAccelerationExtraEight = 1,

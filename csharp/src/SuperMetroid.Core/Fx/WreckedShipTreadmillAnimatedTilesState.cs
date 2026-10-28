@@ -19,7 +19,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     private bool _waitingForAreaBoss;
 
     /// <summary>The selected direction's object definition, which names its frame art.</summary>
-    private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
+    private WreckedShipTreadmillLoop? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
     public bool IsActive { get; private set; }
@@ -40,8 +40,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// </summary>
     public void Start(WreckedShipTreadmillDirection direction)
     {
-        WreckedShipTreadmillObjectDefinition definition =
-            WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
+        WreckedShipTreadmillLoop definition =
+            WreckedShipTreadmills.ForDirection(direction);
         StartDefinition(direction, definition.AnimatedObject);
     }
 
@@ -58,7 +58,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         Direction = direction;
         NextFrameIndex = 0;
         LastImage = null;
-        if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out _compiledMechanics))
+        if (!WreckedShipTreadmills.TryResolve(animatedObject, out _compiledMechanics))
             throw new InvalidDataException($"Wrecked Ship treadmill {animatedObject} is not compiled.");
         if (_compiledMechanics.Direction != direction)
             throw new InvalidDataException(
@@ -95,7 +95,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             _waitingForAreaBoss = false;
         }
 
-        WreckedShipTreadmillObjectDefinition definition = _compiledMechanics ?? throw new InvalidOperationException(
+        WreckedShipTreadmillLoop definition = _compiledMechanics ?? throw new InvalidOperationException(
             "Wrecked Ship treadmill lost its compiled mechanics.");
         _instructionTimer = WrappingCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
         AnimatedTileImage image = definition.Image(NextFrameIndex);

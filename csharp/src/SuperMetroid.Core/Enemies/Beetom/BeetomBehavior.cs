@@ -479,7 +479,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             // The ROM reads at table+1, intentionally combining bytes from adjacent fixed-
             // point fields. An aligned host read changes every resulting jump arc.
             accumulatedHeight = unchecked((ushort)(accumulatedHeight +
-                EnemyQuadraticSpeedDefinitions.ReadWord(tableIndex * 8 + 1)));
+                EnemyQuadraticSpeeds.ReadWord(tableIndex * 8 + 1)));
             if (unchecked((short)(accumulatedHeight - targetHeight)) >= 0)
                 return tableIndex;
         }

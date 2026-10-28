@@ -20,17 +20,17 @@ internal static class GameOverSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the game-over sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps)
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         GameOverPresentation gameOver = maps.GameOver;
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
-            frames.Add(Frame(GameOverPresentationDefinitions.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
+            frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
-            frames.Add(Frame(GameOverPresentationDefinitions.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
+            frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
         var colours = new ScreenPalette();
         colours.Load(maps.Palettes.FileSelect);
         gameOver.ApplyBabyPalette(colours, GameOverBabyPalette.Idle);

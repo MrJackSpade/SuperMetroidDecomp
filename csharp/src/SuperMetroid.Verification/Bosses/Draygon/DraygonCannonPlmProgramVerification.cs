@@ -54,9 +54,9 @@ internal static class DraygonCannonPlmProgramVerification
             new ushort[width * 32], new byte[width * 32]);
         var disabled = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
-        var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
+        var entries = DraygonCannonDraws.All.Select(draw =>
             new RoomPlmVisualEntry(
-                DraygonCannonPlmDrawDefinitions.VisualId(draw.Draw),
+                DraygonCannonDraws.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
@@ -128,7 +128,7 @@ internal static class DraygonCannonPlmProgramVerification
             .Forbid(address =>
                     (address >= 0x84dcde && address <= 0x84dd26) ||
                     (address >= 0x84ddb9 && address <= 0x84de01) ||
-                    DraygonCannonPlmDrawDefinitions.All.Any(draw =>
+                    DraygonCannonDraws.All.Any(draw =>
                     {
                         int start = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int size = draw.Runs.Span.Sum(run =>

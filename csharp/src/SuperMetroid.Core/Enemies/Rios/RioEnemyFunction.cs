@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The routines Rio's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum RioEnemyFunction : ushort
+public enum RioEnemyFunction
 {
     /// <summary>$A2:BBED Function_Rio_WaitForSamusToGetNear: starts a dive when Samus is within a strict 160-world-pixel horizontal distance, selecting launch direction toward her.</summary>
     WaitingForSamus = 1,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// The routine Alcoon's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum AlcoonEnemyFunction : ushort
+public enum AlcoonEnemyFunction
 {
     /// <summary>$A8:DD71, <c>Function_Alcoon_WaitForSamusToGetNear</c>: starts the emergence jump when Samus is strictly within 80 horizontal pixels and 32 pixels of the previously discovered landing Y.</summary>
     WaitingForSamus = 1,

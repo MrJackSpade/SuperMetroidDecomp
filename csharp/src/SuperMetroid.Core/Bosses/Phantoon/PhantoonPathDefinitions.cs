@@ -8,7 +8,7 @@ public static class PhantoonPathDefinitions
 
     /// <summary>Lossless keypad notation for native unit steps with screen Y increasing downward; source rows are formatting only.</summary>
     /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. The movement cursor crosses string-row boundaries without resetting.</remarks>
-    private const string Directions =
+    internal const string Directions =
         "8686898686886868688686868686886868686868668686868668668668668666" +
         "6866666666663666626662662663636266262662626263333262626226226226" +
         "2226222222224222422124224242421241142424244242442414144244244424" +
@@ -19,16 +19,16 @@ public static class PhantoonPathDefinitions
         "6626662666636666666666866668668668668668686868696868686868868686" +
         "8686886868986868986868";
 
-    /// <summary>Reads the authored signed displacement at the native movement cursor.</summary>
-    public static Offset16<RoomPixels> Step(int index)
+    /// <summary>The signed unit step each keypad direction stands for, with screen Y increasing downward.</summary>
+    internal static readonly Dictionary<char, Offset16<RoomPixels>> Steps = new()
     {
-        if ((uint)index >= Length) throw new ArgumentOutOfRangeException(nameof(index));
-        return Directions[index] switch
-        {
-            '1' => new Offset16<RoomPixels>(-1, 1), '2' => new Offset16<RoomPixels>(0, 1), '3' => new Offset16<RoomPixels>(1, 1),
-            '4' => new Offset16<RoomPixels>(-1, 0), '6' => new Offset16<RoomPixels>(1, 0),
-            '7' => new Offset16<RoomPixels>(-1, -1), '8' => new Offset16<RoomPixels>(0, -1), '9' => new Offset16<RoomPixels>(1, -1),
-            _ => throw new InvalidOperationException("Invalid compiled Phantoon path direction."),
-        };
-    }
+        ['1'] = new(-1, 1),
+        ['2'] = new(0, 1),
+        ['3'] = new(1, 1),
+        ['4'] = new(-1, 0),
+        ['6'] = new(1, 0),
+        ['7'] = new(-1, -1),
+        ['8'] = new(0, -1),
+        ['9'] = new(1, -1),
+    };
 }

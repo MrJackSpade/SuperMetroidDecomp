@@ -17,7 +17,7 @@ internal static class AbsoluteTangentDefinitionsVerification
         var mother = new Func<int, int>(RainbowBeamWindowBuilder.Tangent);
         for (int index = 0; index <= 128; index++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangents.Sample(index), "All native tangent words including endpoint");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), eye(index), "Eye actual tangent reader without ROM");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), mother(index), "Mother Brain actual tangent reader without ROM");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), mother(index - 256), "Mother Brain caller byte wrap");
@@ -25,7 +25,7 @@ internal static class AbsoluteTangentDefinitionsVerification
         if (definitionsOnly)
         {
             foreach (int invalid in new[] { int.MinValue, -1, 129, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(invalid), "Tangent invalid index rejected");
+                AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangents.Sample(invalid), "Tangent invalid index rejected");
             return;
         }
         for (int angle = -256; angle < 512; angle++)
@@ -58,7 +58,7 @@ internal static class AbsoluteTangentDefinitionsVerification
             beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512);
             _ = RainbowBeamWindowBuilder.Build(beam.Geometry);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond native endpoint rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangents.Sample(129), "Tangent beyond native endpoint rejected");
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }
 

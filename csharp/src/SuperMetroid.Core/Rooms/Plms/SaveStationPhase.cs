@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The save-pod coroutine's handshake between resident PLM animation and frontend messages.</summary>
-public enum SaveStationPhase : byte
+public enum SaveStationPhase
 {
     /// <summary>The initial pod draw sleeps until an eligible floor collision; a room-entry lockout can still prevent another request.</summary>
     Idle,

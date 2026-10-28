@@ -43,7 +43,7 @@ internal static class StandardObjectArtworkVerification
             RoomCharacterAtlas baseline = StandardObjectArtworkFiles.Load(stock, overrides);
             string paletteDirectory = Path.Combine(directory, "palettes");
             GameplayBasePaletteFiles.Extract(native, paletteDirectory, SupportedCartridge.Sha256);
-            GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Load(paletteDirectory, null);
+            GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(paletteDirectory, null);
             for (int offset = 0; offset < StandardObjectArtworkFormat.ByteCount; offset++)
                 AssertEqual(native.ReadCartridgeByte(NativeStandardObjects + offset),
                     baseline.Characters.Span[offset], $"standard OBJ native byte {offset:X4}");

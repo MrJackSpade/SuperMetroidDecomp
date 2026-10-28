@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The routine a ninja Space Pirate's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum NinjaSpacePirateFunction : ushort
+public enum NinjaSpacePirateFunction
 {
     /// <summary>$B2:804B, shared return stub used while animation bytecode owns the actor.</summary>
     NoOperation = 1,

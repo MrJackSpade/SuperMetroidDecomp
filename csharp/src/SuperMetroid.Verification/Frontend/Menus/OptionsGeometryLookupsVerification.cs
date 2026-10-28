@@ -12,23 +12,23 @@ internal static class OptionsGeometryLookupsVerification
     /// <summary>Checks five four-byte-stride primary-menu cursor heights and their index bounds.</summary>
     internal static void VerifyOptionsPrimaryCursorY(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f309, 4, 5,
-            GameOptionsLayout.PrimaryY, "primary cursor Y"));
+            GameOptionsPositions.PrimaryY, "primary cursor Y"));
 
     /// <summary>Checks nine four-byte-stride controller-menu cursor heights and their index bounds.</summary>
     internal static void VerifyOptionsControllerCursorY(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f31d, 4, 9,
-            GameOptionsLayout.ControllerY, "controller cursor Y"));
+            GameOptionsPositions.ControllerY, "controller cursor Y"));
 
     /// <summary>Checks three four-byte-stride special-menu cursor heights and their index bounds.</summary>
     internal static void VerifyOptionsSpecialCursorY(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f341, 4, 3,
-            GameOptionsLayout.SpecialY, "special cursor Y"));
+            GameOptionsPositions.SpecialY, "special cursor Y"));
 
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
-            action => checked((ushort)((GameOptionsLayout.ControllerLabelAnchor(action).Y * GameOptionsDefinitions.MenuTilemapWidth
-                + GameOptionsLayout.ControllerLabelAnchor(action).X) * sizeof(ushort))), "controller label box"));
+            action => checked((ushort)((GameOptionsPositions.ControllerLabelAnchor(action).Y * GameOptionsDefinitions.MenuTilemapWidth
+                + GameOptionsPositions.ControllerLabelAnchor(action).X) * sizeof(ushort))), "controller label box"));
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>

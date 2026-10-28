@@ -450,7 +450,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingLeft
             ? unchecked((ushort)-AlcoonFireballGraphicsHorizontalSpeed)
             : AlcoonFireballGraphicsHorizontalSpeed));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(EnemyFireballLaunchDefinitions.AlcoonYVelocity(yVelocityTableByteOffset)));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(EnemyFireballLaunches.AlcoonYVelocity(yVelocityTableByteOffset)));
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>

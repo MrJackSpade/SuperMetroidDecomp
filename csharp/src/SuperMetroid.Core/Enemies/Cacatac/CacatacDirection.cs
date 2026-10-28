@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// value as right, but the initializer's three-word pointer table distinguishes the shipped
 /// value two as an initial stop.
 /// </summary>
-public enum CacatacDirection : ushort
+public enum CacatacDirection
 {
     /// <summary>Population and native direction word zero: leftward patrol, restored by animation instruction $A2:A095 after an attack.</summary>
     Left = 0,

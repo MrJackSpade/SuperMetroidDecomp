@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// Yard behavior word at <c>$7E:7810,X</c> (<c>Yard.behavior</c>). Bank <c>$A3</c> stores
 /// only these six values and compares them for look-at, solidity, touch and airborne decisions.
 /// </summary>
-public enum YardBehavior : ushort
+public enum YardBehavior
 {
     /// <summary>Zero: normal crawling (<c>$A3:CE1C</c>, <c>$A3:D2D0</c>, <c>$A3:D41C</c>).</summary>
     NormalCrawling = 0,

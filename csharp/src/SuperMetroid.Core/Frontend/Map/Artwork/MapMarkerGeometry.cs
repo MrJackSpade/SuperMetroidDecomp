@@ -59,7 +59,7 @@ internal static class MapMarkerGeometry
             case MapSpriteId.ElevatorMaridia:
                 int column = 3 - index;
                 x = -8 + 8 * column; y = -8;
-                tile = MenuCompactLetteringDefinitions.Strip(id switch
+                tile = MenuCompactLettering.Strip(id switch
                 {
                     MapSpriteId.ElevatorCrateria => "CRATERIA",
                     MapSpriteId.ElevatorBrinstar => "BRINSTAR",
@@ -94,7 +94,7 @@ internal static class MapMarkerGeometry
                 bool bottom = index < 2;
                 int rowColumn = bottom ? 1 - index : 5 - index;
                 x = (bottom ? -4 : -12) + 8 * rowColumn; y = bottom ? 0 : -8;
-                tile = MenuCompactLetteringDefinitions.Strip(bottom ? "SHIP" : "WRECKED").OrderedCells[rowColumn];
+                tile = MenuCompactLettering.Strip(bottom ? "SHIP" : "WRECKED").OrderedCells[rowColumn];
                 break;
             case MapSpriteId.ArrowRight:
             case MapSpriteId.ArrowLeft:

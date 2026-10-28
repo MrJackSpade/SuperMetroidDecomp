@@ -32,7 +32,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 4; orientation++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
-                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerAnimationDefinitions.InitialProgram(
+                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.InitialProgram(
                     family, orientations[orientation])),
                 $"crawler initial selector {family}/{orientation}");
         }
@@ -42,7 +42,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 4; orientation++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + speciesOffset)),
-                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerAnimationDefinitions.SurfaceProgram(
+                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.SurfaceProgram(
                     speciesOffset, orientations[orientation])),
                 $"crawler surface selector {speciesOffset}/{orientation}");
         }
@@ -71,7 +71,7 @@ internal static class CrawlerAnimationDefinitionsVerification
                         slot, family, speciesOffset);
             }
 
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
                     family, (CrawlerSurfaceOrientation)orientation)),
                 (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.")).Program,
                 $"crawler production initial selector {family}/{orientation}");
@@ -87,36 +87,36 @@ internal static class CrawlerAnimationDefinitionsVerification
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideRight)),
                 state.Program, $"crawler production right surface {speciesOffset}");
             state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
             setHorizontal(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideLeft)),
                 state.Program, $"crawler production left surface {speciesOffset}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
             setVertical(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideDown)),
                 state.Program, $"crawler production down surface {speciesOffset}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
             setVertical(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideUp)),
                 state.Program, $"crawler production up surface {speciesOffset}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrawlerAnimationDefinitions.InitialProgram(
+            () => CrawlerSurfaceAnimations.InitialProgram(
                 (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.UpsideRight),
             "crawler initial family beyond authored tables");
         AssertThrows<InvalidDataException>(
-            () => CrawlerAnimationDefinitions.SurfaceProgram(
+            () => CrawlerSurfaceAnimations.SurfaceProgram(
                 1, CrawlerSurfaceOrientation.UpsideRight),
             "crawler odd species byte offset");
         AssertThrows<InvalidDataException>(
-            () => CrawlerAnimationDefinitions.SurfaceProgram(
+            () => CrawlerSurfaceAnimations.SurfaceProgram(
                 12, CrawlerSurfaceOrientation.UpsideRight),
             "crawler species byte offset beyond authored tables");
         Console.WriteLine(

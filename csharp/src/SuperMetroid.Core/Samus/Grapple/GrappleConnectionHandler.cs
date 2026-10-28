@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Bank-$9B pose handlers named by the directional grapple connection records.</summary>
-public enum GrappleConnectionHandler : ushort
+public enum GrappleConnectionHandler
 {
     /// <summary>Bank-$9B clockwise swing-pose connection handler at $9B:B9D9.</summary>
     SwingClockwise,

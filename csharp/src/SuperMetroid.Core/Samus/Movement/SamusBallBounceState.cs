@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// landing handler (<c>$91:F25E</c>) additionally stores high byte <c>$06</c> as its bounce
 /// family. Bank <c>$91</c> stores only these five words.
 /// </summary>
-public enum SamusBallBounceState : ushort
+public enum SamusBallBounceState
 {
     /// <summary>Zero: not bouncing.</summary>
     None = 0x0000,

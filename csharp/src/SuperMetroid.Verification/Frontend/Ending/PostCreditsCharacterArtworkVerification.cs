@@ -21,8 +21,8 @@ internal static class PostCreditsCharacterArtworkVerification
     /// <summary>Checks native versus installed VRAM and rendered pixels across the suitless post-shot handoff and all four logo actors.</summary>
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
-        EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
-        EndingFloorArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();
+        EndingObjectArtwork stock = installation.LoadEndingObjectArt();
+        EndingFloorArtwork stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
@@ -95,7 +95,7 @@ internal static class PostCreditsCharacterArtworkVerification
             }
             if (hours == 2)
             {
-                EndingObjectArtworkCatalog editedLogo = LoadEditedEndingLogoArtwork(installation);
+                EndingObjectArtwork editedLogo = LoadEditedEndingLogoArtwork(installation);
                 bool visibleLogoEdit = false;
                 // Continue the installed suitless route through all four logo
                 // actors, not merely the initial logo upload after the shot.
@@ -202,7 +202,7 @@ internal static class PostCreditsCharacterArtworkVerification
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
                         image.Colours);
                 }
-                EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+                EndingObjectArtwork edited = installation.LoadEndingObjectArt();
                 var stockBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var editedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var stockAudio = new AudioQueues();

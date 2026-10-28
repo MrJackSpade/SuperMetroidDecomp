@@ -32,7 +32,7 @@ internal sealed record PauseMenuEntry
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;
 
     /// <summary>Map presentation.</summary>
-    public AreaMapPresentationCatalog? MapPresentation { get; init; } = null;
+    public AreaMapPresentation? MapPresentation { get; init; } = null;
 
     /// <summary>The installed sprite sheets the map's sprites draw from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; } = null;

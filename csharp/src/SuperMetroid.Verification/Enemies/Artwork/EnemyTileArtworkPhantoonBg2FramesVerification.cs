@@ -155,7 +155,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         {
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
             System.Collections.Immutable.ImmutableArray<PhantoonCollisionComponent> components =
-                PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
+                PhantoonCollision.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), (byte)components.Length,
                 $"Phantoon {frame.Name} compiled hitbox component count");
             for (int index = 0; index < components.Length; index++)

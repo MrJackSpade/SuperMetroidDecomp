@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Opcodes in Super Metroid's SPC music-pattern bytecode.</summary>
-internal enum SpcMusicEffect : byte
+internal enum SpcMusicEffect
 {
     /// <summary>Selects the channel's instrument sample and envelope by driver instrument index.</summary>
     SetInstrument = 0xe0,

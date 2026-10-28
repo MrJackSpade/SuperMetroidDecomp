@@ -232,7 +232,7 @@ using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerifi
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
-using static SuperMetroid.Verification.Rendering.PowerBombShapeDefinitionsVerification;
+using static SuperMetroid.Verification.Rendering.PowerBombShapeVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDamageVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileOriginsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileSoundRoutingVerification;
@@ -788,8 +788,8 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slope speed oracle revision");
         Suite(nameof(VerifyCompiledSlopeSpeeds), () => VerifyCompiledSlopeSpeeds(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(-1), "Slope family lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(32), "Slope family upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeeds.HorizontalMultiplier(-1), "Slope family lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeeds.HorizontalMultiplier(32), "Slope family upper bound");
         return 0;
     }
 
@@ -3439,7 +3439,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
         Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(oracle));
         Suite(nameof(VerifyBotwoonWallVisualIdMapping), () => VerifyBotwoonWallVisualIdMapping());
-        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(new SuperMetroid.Core.Rooms.Plms.RoomPlmBotwoonWallVisualCatalog(
+        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(new SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmBotwoonWallVisuals(
             [new("clear-wall", [0xff,0xff,0xff,0x58,0xff,0xff,0xff,0xff,0xff])])));
         return 0;
     }

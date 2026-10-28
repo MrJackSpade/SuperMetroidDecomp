@@ -15,7 +15,7 @@ internal static class SlopeSpeedDefinitionsVerification
         {
             int address = SamusMovementDefinitionsSlopes.HorizontalMultipliers + shape * 4 + 2;
             multipliers[shape] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(multipliers[shape], SlopeSpeedDefinitions.HorizontalMultiplier(shape), "All native horizontal slope multipliers");
+            AssertEqual(multipliers[shape], SlopeSpeeds.HorizontalMultiplier(shape), "All native horizontal slope multipliers");
         }
 
         // Model the native byte loads/XBA, 16-bit negation and unsigned multiply with

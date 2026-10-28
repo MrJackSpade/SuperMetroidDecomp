@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// records consecutively as head, rising body, then tracking overlay. The names describe
 /// ownership; they do not collapse the three physical enemy slots into one host actor.
 /// </summary>
-public enum MagdollitePart : ushort
+public enum MagdollitePart
 {
     /// <summary>Population parameter 0: the collision-enabled head/master that chooses facing and initiates the three-slot attack.</summary>
     Head = 0,

@@ -308,7 +308,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int carryRecord)
     {
-        var motion = ChozoCarryMotionDefinitions.Read(carryRecord);
+        var motion = ChozoCarry.Read(carryRecord);
         state.CarryRecord = carryRecord;
         int signedVelocity = motion.Velocity;
 

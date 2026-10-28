@@ -31,7 +31,7 @@ internal static class GunshipDustAnimationsVerification
                 address => $"Production read a native gunship dust list at ${address:X6}.");
             enemies.Projectiles.SpawnGunshipLiftoffDustCloud(parameter, new SamusState());
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
-            GunshipDustProgram program = GunshipDustDefinitions.ForParameter(parameter).Program;
+            GunshipDustProgram program = GunshipDust.ForParameter(parameter).Program;
             AssertTrue(dust.Animation is GunshipDustAnimation started && started.Cursor == AnimationProgramCursor<GunshipDustProgram>.Start(program),
                 $"dust parameter {parameter} starts {program}");
             AssertEqual(Entry(program), cartridge.ReadCartridgeWord(SpawnListWord(parameter)), $"dust parameter {parameter} names the native list");

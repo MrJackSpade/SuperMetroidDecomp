@@ -293,7 +293,7 @@ internal static class CrocomireAnimationsVerification
         AssertTrue(projectile.Animation is CrocomireProjectileAnimation, $"Crocomire {label} runs a typed program");
         AssertTrue(projectile.Animation is not null, $"Crocomire {label} keeps no native list");
         var native = new NativeProjectileList(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank |
-                ((ushort)kind + (shot ? ShotListOffset : InitialListOffset))),
+                (EnemyProjectileNativeWords.Kinds.Word(kind) + (shot ? ShotListOffset : InitialListOffset))),
             projectile.InstructionTimer.RawValue);
         int dropsBefore = enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int update = 0; update < 50 && !native.Deleted; update++)

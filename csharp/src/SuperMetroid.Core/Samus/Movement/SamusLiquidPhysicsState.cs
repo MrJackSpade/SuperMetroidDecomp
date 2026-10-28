@@ -219,7 +219,7 @@ public sealed class SamusLiquidPhysicsState
             return SamusLiquidMedium.Air;
         // Samus_GetBottom_R18 samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
-        int bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+        int bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1));
         return DetermineRawMediumAtBoundary(bottom);
     }
 
@@ -283,7 +283,7 @@ public sealed class SamusLiquidPhysicsState
             return checked((ushort)samus.XSpeedDivisor);
 
         int bottomMinusOne = unchecked((ushort)(
-            samus.Position.Y.Whole + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+            samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1));
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
         return medium switch
         {
@@ -534,7 +534,7 @@ public sealed class SamusLiquidPhysicsState
         // The cartridge duplicates this room policy for running footsteps and landing
         // effects. Preserve its BIT priority even though retail rows contain one bit each.
         CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity);
+            SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
@@ -571,7 +571,7 @@ public sealed class SamusLiquidPhysicsState
         // GetBottom_R18 uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
         int bottom = unchecked((ushort)(samus.Position.Y.Whole +
-            SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+            SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1));
 
         // Both `$91:F116` and `$91:F166` suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
@@ -669,7 +669,7 @@ public sealed class SamusLiquidPhysicsState
         SamusMovementType movementType,
         int bottom)
     {
-        if (SamusAtmosphericEffectDefinitions.WaterSplashFor(movementType) ==
+        if (SamusAtmosphericEffects.WaterSplashFor(movementType) ==
             WaterSplashKind.Diving)
         {
             AtmosphericEffects.SetSlot(
@@ -747,7 +747,7 @@ public sealed class SamusLiquidPhysicsState
     {
         if (movementType != SamusMovementType.Running ||
             samus.AnimationFrameTimer.RawValue != 1 ||
-            !SamusAtmosphericEffectDefinitions.IsRunningFootContact(samus.AnimationFrame))
+            !SamusAtmosphericEffects.IsRunningFootContact(samus.AnimationFrame))
         {
             return;
         }
@@ -762,7 +762,7 @@ public sealed class SamusLiquidPhysicsState
             else if (RoomIdentity.RoomIndex < 16)
             {
                 CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity);
+                    SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)

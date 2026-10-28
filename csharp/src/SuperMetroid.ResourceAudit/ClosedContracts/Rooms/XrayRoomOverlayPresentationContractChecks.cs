@@ -19,20 +19,20 @@ internal static class XrayRoomOverlayPresentationContractChecks
     internal static void Run()
     {
         bool rejected = false;
-        try { _ = new XrayOverlayVisualCatalog(new ushort[8], []); }
+        try { _ = new InstalledXrayOverlays(new ushort[8], []); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject missing required room overlays");
         XrayRoomOverlayDefinition first = XrayRoomOverlayDefinitions.All[0];
         XrayRoomOverlayVisual[] tiles = [new(new(1, 2), new RoomLevelWord(3))];
         var rooms = XrayRoomOverlayDefinitions.All.Select(overlay =>
             new XrayRoomOverlayTiles(overlay, tiles)).ToArray();
-        var catalog = new XrayOverlayVisualCatalog(new ushort[8], rooms);
+        var catalog = new InstalledXrayOverlays(new ushort[8], rooms);
         tiles[0] = new(new(0, 0), new RoomLevelWord(0));
         Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), new RoomLevelWord(3)),
             "installed overlays must be independent of caller tile arrays");
 
         ClosedPresentationContract contract = RoomRevealClosedContractDefinitions.All.Single(item =>
-            item.Type == typeof(XrayOverlayVisualCatalog).FullName);
+            item.Type == typeof(InstalledXrayOverlays).FullName);
         var trees = contract.Sources.Select(source => CSharpSyntaxTree.ParseText(
             File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
@@ -40,7 +40,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
             using SuperMetroid.Core.Rooms.Xray;
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class OverlayConsumer {
-                void Inspect(XrayOverlayVisualCatalog overlays, XrayRoomOverlayDefinition selected) {
+                void Inspect(InstalledXrayOverlays overlays, XrayRoomOverlayDefinition selected) {
                     overlays.RoomTiles(XrayRoomOverlayDefinitions.{{first.Name}});
                     overlays.RoomTiles(selected);
                 }
@@ -49,7 +49,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("XrayRoomOverlayFixture", sources,
-            platforms.Append(typeof(XrayOverlayVisualCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(InstalledXrayOverlays).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

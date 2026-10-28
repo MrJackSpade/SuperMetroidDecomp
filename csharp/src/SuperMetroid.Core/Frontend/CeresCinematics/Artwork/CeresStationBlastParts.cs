@@ -13,12 +13,12 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 6; frame++)
-            if (shown == CeresDestructionSpriteDefinitions.StationFrame(frame))
+            if (shown == CeresDestructionSpritePoses.StationFrame(frame))
                 return supplied.CalculateIfMatching(new CeresStationBlastParts(frame));
         return supplied;
     }
     /// <summary>Uses each animation frame's native OAM part count.</summary>
-    public int Count => CeresDestructionSpriteDefinitions.StationPartCount(frame);
+    public int Count => CeresDestructionSpritePoses.StationPartCount(frame);
     /// <summary>Calculates one core, lobe, or detached tip from frame geometry and atlas tiles.</summary>
     public CompiledSpritePart this[int index]
     {

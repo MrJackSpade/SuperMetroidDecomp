@@ -34,12 +34,30 @@ internal sealed class MenuCompactLetteringArtwork
     internal readonly Dictionary<int, byte>? edits;
 
     /// <summary>Identifies atlas cells occupied by the elevator labels, EXIT, SELECT, START, or ship lettering.</summary>
-    internal static bool Contains(int tile) => MenuCompactLetteringDefinitions.Strips.Any(strip => strip.Contains(tile));
+    internal static bool Contains(int tile) => StripByTile.ContainsKey(tile);
 
     /// <summary>The label strip occupying <paramref name="tile"/> (<see cref="MenuCompactLetteringDefinitions.Strips"/>).</summary>
     private static MenuLetteringStrip Layout(int tile) =>
-        MenuCompactLetteringDefinitions.Strips.FirstOrDefault(strip => strip.Contains(tile)) ??
+        StripByTile.TryGetValue(tile, out MenuLetteringStrip? strip) ? strip :
         throw new ArgumentOutOfRangeException(nameof(tile), tile, "No compact-lettering label occupies this cell.");
+
+    /// <summary>The first label strip occupying each cell, built once: the loader asks for every pixel.</summary>
+    private static readonly Dictionary<int, MenuLetteringStrip> StripByTile = BuildStripByTile();
+
+    /// <summary>Indexes each strip's cells, keeping the first strip that occupies a cell.</summary>
+    private static Dictionary<int, MenuLetteringStrip> BuildStripByTile()
+    {
+        var strips = new Dictionary<int, MenuLetteringStrip>();
+        foreach (MenuLetteringStrip strip in MenuCompactLetteringDefinitions.Strips)
+        {
+            foreach (MenuAtlasCellRange range in strip.Cells)
+            {
+                for (int cell = range.First; cell <= range.Last; cell++)
+                    strips.TryAdd(cell, strip);
+            }
+        }
+        return strips;
+    }
 
     /// <summary>Six-row font metrics: I is a single stem, N spans four columns,
     /// M/W span five, and the other authored letters span three.</summary>

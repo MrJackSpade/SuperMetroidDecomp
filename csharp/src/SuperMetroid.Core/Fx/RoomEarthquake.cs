@@ -46,7 +46,7 @@ internal sealed class RoomEarthquake
     {
         if (EarthquakeTimer.IsZero || timeIsFrozen || EarthquakeType >= RoomEarthquakeDefinitions.FirstNonRenderedType)
             return default;
-        RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
+        RoomShakeDefinition definition = RoomShakes.ForType(EarthquakeType);
         return (EarthquakeTimer.RawValue & RoomEarthquakeDefinitions.AlternatingDirectionTimerMask) != 0
             ? -definition.Projectile
             : definition.Projectile;
@@ -68,7 +68,7 @@ internal sealed class RoomEarthquake
             EarthquakeType >= RoomEarthquakeDefinitions.FirstNonRenderedType)
             return false;
 
-        RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
+        RoomShakeDefinition definition = RoomShakes.ForType(EarthquakeType);
         Offset16<RoomPixels> bg1 = definition.Bg1;
         Offset16<Bg2Pixels> bg2 = definition.Bg2;
 

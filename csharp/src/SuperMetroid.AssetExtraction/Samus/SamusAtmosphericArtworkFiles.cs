@@ -70,13 +70,13 @@ public static class SamusAtmosphericArtworkFiles
     /// <remarks>Stock provenance, byte hash, and strict schema/list-length admission are checked even with overrides. Replacement JSON needs both four-word lists but no manifest; packed attribute values themselves are unrestricted, and type-two/animation mechanics are unchanged.</remarks>
     /// <exception cref="InvalidDataException">Provenance, hash, strict JSON, version, or list dimensions are invalid; admission errors include the source filename.</exception>
     /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static SamusAtmosphericArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static InstalledSamusAtmosphericArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
         ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
-        SamusAtmosphericArtworkCatalog LoadArtwork()
+        InstalledSamusAtmosphericArtwork LoadArtwork()
         {
             if (manifest.Version != FormatVersion ||
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -90,12 +90,12 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>Requires both four-frame single-piece lists before installing a ROM-independent catalog.</summary>
-    private static SamusAtmosphericArtworkCatalog Build(ArtworkDocument document, string source)
+    private static InstalledSamusAtmosphericArtwork Build(ArtworkDocument document, string source)
     {
         if (document.Version != FormatVersion || document.TypeOne is null ||
             document.SharedTypeFour is null)
             throw new InvalidDataException($"Samus atmospheric artwork {source} has invalid structure.");
-        return new SamusAtmosphericArtworkCatalog(Pieces(document.TypeOne, source), Pieces(document.SharedTypeFour, source));
+        return new InstalledSamusAtmosphericArtwork(Pieces(document.TypeOne, source), Pieces(document.SharedTypeFour, source));
     }
 
     /// <summary>The stored single small pieces of one list, each at the sprite origin.</summary>

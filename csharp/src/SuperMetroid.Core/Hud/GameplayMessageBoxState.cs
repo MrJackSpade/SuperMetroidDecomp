@@ -444,7 +444,7 @@ public sealed class GameplayMessageBoxState
     /// <summary>Selects the Shoot or Run binding required by the installed panel before drawing it.</summary>
     private void PatchInstalledPanelButton(GameplayMessageId messageId)
     {
-        switch (GameplayMessagePanelDefinitions.ButtonBinding(messageId))
+        switch (GameplayMessagePanelDefinitions.ButtonBindings[messageId])
         {
             case GameplayMessagePanelButtonBinding.Shoot:
                 PatchConfiguredButton(messageId, _shootBinding);
@@ -463,7 +463,7 @@ public sealed class GameplayMessageBoxState
 
     /// <summary>Whether the ordinary message coroutine shows <paramref name="messageId"/>.</summary>
     internal static bool IsOrdinary(GameplayMessageId messageId) =>
-        messageId is (>= GameplayMessageId.EnergyTank and <= GameplayMessageId.GravitySuit) or GameplayMessageId.GunshipSaveConfirmation;
+        messageId != GameplayMessageId.None && Enum.IsDefined(messageId);
 
     /// <summary>The messages the ordinary message coroutine shows.</summary>
     internal static IEnumerable<GameplayMessageId> OrdinaryMessages => Enum.GetValues<GameplayMessageId>().Where(IsOrdinary);

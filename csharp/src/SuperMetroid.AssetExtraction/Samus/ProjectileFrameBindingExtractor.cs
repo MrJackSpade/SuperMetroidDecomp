@@ -24,7 +24,7 @@ public static class ProjectileFrameBindingExtractor
             frames.Add(ProjectileFrameBindingFormat.FrameName(record), byLocation.TryGetValue(recordSprites[record], out ProjectileSpriteId sprite)
                 ? sprite.Name
                 : throw new InvalidDataException($"Timed projectile record {record} selects ${recordSprites[record]:X4}, which is no projectile composition."));
-        return ProjectileFrameBindingCatalog.Write(new ProjectileFrameBindingDocument
+        return InstalledProjectileFrameBindings.Write(new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,
             Frames = frames,

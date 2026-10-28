@@ -22,7 +22,7 @@ internal static class IntroMotherBrainPartsVerification
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            var calculated = new IntroMotherBrainParts(Enumerable.Range(0, 3).Single(frame => IntroMotherBrainSpriteDefinitions.FramePose(frame) == definition.Pose));
+            var calculated = new IntroMotherBrainParts(Enumerable.Range(0, 3).Single(frame => IntroMotherBrainSpritePoses.FramePose(frame) == definition.Pose));
             for (int index = 0; index < visual.Length; index++)
                 AssertTrue(source.Part(index).Equals(calculated[index]), $"{definition.Name} part{index}: expected{source.Part(index)},actual{calculated[index]}");
             SpriteComposition result = IntroMotherBrainParts.CalculateIfMatching(definition.Pose, source);

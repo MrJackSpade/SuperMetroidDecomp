@@ -54,18 +54,18 @@ internal static class EnemyTileArtworkPresentationContractChecks
         EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
-        using var overlayJson = new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(new CeresEscapeOverlayTilemapDocument {
+        using var overlayJson = new MemoryStream(CeresEscapeOverlays.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
             Pages = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name, page => new BackgroundTile[page.WordCount]) }));
-        CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
+        CeresEscapeOverlays overlays = CeresEscapeOverlays.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());
         EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileArtworkCatalog catalog = Install();
-        _ = AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
+        _ = AreaArtworkBundle.FromInstalledArtwork(new AreaArtworkBundle { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
         _ = BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog { TorizoSwaps = torizo });
-        Reject(() => AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
+        Reject(() => AreaArtworkBundle.FromInstalledArtwork(new AreaArtworkBundle { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
         Reject(() => BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog()), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionId];
         sheets.Remove(first.DefinitionId); sheets.Add(0, original);

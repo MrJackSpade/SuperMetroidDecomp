@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.SpriteObjects;
 /// <c>$B4:BDA8</c>, not invented managed identifiers, so a debugger watch can be compared
 /// directly with the caller's native argument.
 /// </summary>
-public enum RoomSpriteObjectKind : ushort
+public enum RoomSpriteObjectKind
 {
     /// <summary>Managed $FFFF sentinel for a cleared slot; not a valid selector in the native $B4:BDA8 dispatch table.</summary>
     None = 0xffff,

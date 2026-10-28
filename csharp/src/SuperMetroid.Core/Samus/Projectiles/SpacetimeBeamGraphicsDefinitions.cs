@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -15,11 +14,4 @@ internal static class SpacetimeBeamGraphicsDefinitions
     /// (owner decision on #1318).
     /// </summary>
     internal const ushort PaletteWord = 0x0000;
-
-    /// <summary>Loads the SpaceTime beam's defined palette.</summary>
-    internal static void LoadPalette(ColourRun beam)
-    {
-        for (int color = 0; color < SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount; color++)
-            beam.Write(color, RgbColor.FromWordIgnoringTopBit(PaletteWord));
-    }
 }

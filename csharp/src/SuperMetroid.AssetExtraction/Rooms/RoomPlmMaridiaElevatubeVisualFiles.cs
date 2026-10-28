@@ -23,7 +23,7 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Maridia elevatube",
             MaridiaElevatubePlmDefinitions.AllDraws,
-            MaridiaElevatubePlmDefinitions.DrawVisualId);
+            MaridiaElevatubeDraws.DrawVisualId);
 
     /// <summary>Validates the installed elevatube stock image and selects an optional one-block visual replacement.</summary>
     /// <param name="stockDirectory">Family directory containing stock JSON and its required version-one manifest.</param>
@@ -32,10 +32,10 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
     /// <remarks>Stock must match supported-cartridge provenance, its byte hash, and compiled visual bits before overrides are considered. Override JSON needs the sole known identity and one twelve-bit visual word, but no manifest.</remarks>
     /// <exception cref="InvalidDataException">Stock integrity/provenance, JSON version, identity, coverage, block count, or visual-only bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmMaridiaElevatubeVisualCatalog Load(
+    public static InstalledRoomPlmMaridiaElevatubeVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmMaridiaElevatubeVisualCatalog>(VisualFileName, "Maridia elevatube", MaridiaElevatubePlmDefinitions.AllDraws, MaridiaElevatubePlmDefinitions.DrawVisualId, entries => new RoomPlmMaridiaElevatubeVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", MaridiaElevatubePlmDefinitions.AllDraws, MaridiaElevatubeDraws.DrawVisualId, entries => new InstalledRoomPlmMaridiaElevatubeVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Runs the elevatube stock checks from <see cref="Load"/> with no override, cartridge reads, or writes.</summary>

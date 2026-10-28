@@ -17,5 +17,5 @@ public sealed record LibraryBackgroundCharacterArtwork
     public HudTileAtlas? HudArt { get; init; }
 
     /// <summary>The installed room characters, which hold the Tourian statue ghost's; null where none is installed.</summary>
-    public RoomCharacterAtlasCatalog? CharacterArt { get; init; }
+    public RoomCharacterAtlases? CharacterArt { get; init; }
 }

@@ -62,18 +62,18 @@ internal static class PlmDefinitionMigrationVerification
         AssertEqual(48, SamusEaterPlmDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
         AssertEqual(2, SamusEaterPlmDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(0xb123 & 0x8fff, new RoomLevelWord(0xb123).WithPlmDeactivation().Raw, "plant trigger deactivation keeps the former mask's bits");
-        AssertEqual(null, MetroidsClearedEvents.ResolveEvent(16), "ninth metroids-cleared entry is a no-op");
-        AssertEqual((EventNumber?)EventNumber.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(18), "first quota observer");
-        AssertEqual((EventNumber?)EventNumber.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(24), "last quota observer");
+        AssertEqual(null, MetroidsClearedEvents.ResolveEvent(8), "ninth metroids-cleared entry is a no-op");
+        AssertEqual((EventNumber?)EventNumber.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(9), "first quota observer");
+        AssertEqual((EventNumber?)EventNumber.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(12), "last quota observer");
 
         // Level words built from collision type and visual block equal the former literal words.
         AssertEqual(0x8180, MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "elevatube level word");
-        AssertEqual(0xc046, DownwardGateShotBlockDefinitions.Resolve(0).LeftBlockWord, "blue-left gate trigger block");
-        AssertEqual(0xc04d, DownwardGateShotBlockDefinitions.Resolve(14).RightBlockWord, "yellow-right gate trigger block");
-        var bombHorizontal = new RoomPlmLinkedRestoreDefinition.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, RoomPlmLinkedRestoreDefinition.BombBlock);
+        AssertEqual(0xc046, GatePlms.DownwardGateShotBlock(0).LeftBlockWord, "blue-left gate trigger block");
+        AssertEqual(0xc04d, GatePlms.DownwardGateShotBlock(7).RightBlockWord, "yellow-right gate trigger block");
+        var bombHorizontal = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, LinkedRestorePlmFamily.BombBlock);
         AssertEqual(0xf058, bombHorizontal.WordAt(0, 0), "bomb block parent");
         AssertEqual(0x5058, bombHorizontal.WordAt(0, 1), "bomb block horizontal child");
-        var crumbleVertical = new RoomPlmLinkedRestoreDefinition.Draw(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical), PlmRestoreShape.Vertical, RoomPlmLinkedRestoreDefinition.ContactCrumble);
+        var crumbleVertical = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical), PlmRestoreShape.Vertical, LinkedRestorePlmFamily.ContactCrumble);
         AssertEqual(0xb0bc, crumbleVertical.WordAt(0, 0), "contact crumble parent");
         AssertEqual(0xd0bc, crumbleVertical.WordAt(0, 1), "contact crumble vertical child");
         Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and level words keep their values.");

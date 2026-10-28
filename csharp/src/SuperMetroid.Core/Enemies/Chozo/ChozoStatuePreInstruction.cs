@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// The pre-instruction routines the two retail Chozo-statue variants run.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum ChozoStatuePreInstruction : ushort
+public enum ChozoStatuePreInstruction
 {
     /// <summary>$AA:E7A6, the initializer's one-byte RTL.</summary>
     Idle = 1,

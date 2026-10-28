@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// Exclusive cartridge pose identifiers. Undefined byte values remain representable through an explicit cast for corrupt-state diagnostics.
 /// </summary>
-public enum SamusPoseId : ushort
+public enum SamusPoseId
 {
     /// <summary>
     /// Pose `$00`: the power-suit body viewed from the front during the intro, elevators,

@@ -45,7 +45,7 @@ internal static class CrawlerBehaviorVerification
             else
                 CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
-            CrawlerProgram program = CrawlerAnimationDefinitions.InitialProgram(family, orientation);
+            CrawlerProgram program = CrawlerSurfaceAnimations.InitialProgram(family, orientation);
             string context = $"{family} {orientation}";
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(program), state.Program, $"{context} starts its surface animation");
 

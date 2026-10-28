@@ -40,7 +40,7 @@ internal static class ScreenTilePicturesVerification
     /// </summary>
     internal static void VerifyMenuScreenTilePictures()
     {
-        AreaMapPresentationCatalog maps = InstalledFixtures.Maps;
+        AreaMapPresentation maps = InstalledFixtures.Maps;
         int screens = 0, layers = 0;
         void Check(LayeredScene scene, byte[] vram, string name)
         {
@@ -163,7 +163,7 @@ internal static class ScreenTilePicturesVerification
     /// <summary>The pause screen's map and equipment pages each draw every background from their tiles, exactly as their characters draw them.</summary>
     internal static void VerifyPauseScreenTilePictures()
     {
-        AreaMapPresentationCatalog maps = InstalledFixtures.Maps;
+        AreaMapPresentation maps = InstalledFixtures.Maps;
         var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         var pause = new PauseMenuState(new PauseMenuEntry

@@ -29,7 +29,7 @@ internal static class EscapeTimerDrawChecks
     {
         ComposedSpriteSheet composed = EscapeTimerSheetComposer.Compose(bus);
         return SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false),
-            SpriteSheetDefinitions.FileName(SpriteSheetId.EscapeTimer), composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
+            SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer], composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
     }
 
     /// <summary>Draws the timer into a fresh sprite frame and returns its finalized draws.</summary>
@@ -53,7 +53,7 @@ internal static class EscapeTimerDrawChecks
     /// <param name="palettes">The starting and common sprite colours a room load copies into CGRAM.</param>
     /// <param name="message">Prefix for every assertion.</param>
     internal static void AssertSamePixels(OamBuffer native, IReadOnlyList<SpriteDraw> draws, SpriteArtwork characters,
-        GameplayBasePaletteCatalog palettes, string message)
+        GameplayBasePalette palettes, string message)
     {
         foreach (SpriteDraw draw in draws)
         {

@@ -38,7 +38,7 @@ internal static class InstalledPowerBombIsolationTests
         var options = CamelCaseJson;
         var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
             ?? throw new InvalidDataException($"Null color document: {path}");
-        AreaMapPresentationCatalog stock = MapPresentationFiles.Load(stockDirectory, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory, null);
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
         var framesToRender = new List<ContextFrame>();
@@ -62,7 +62,7 @@ internal static class InstalledPowerBombIsolationTests
                 File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFormat.FileName),
                     PowerBombFixedColorFile.Write(document with
                     { PreExplosion = Replace(document.PreExplosion), Explosion = Replace(document.Explosion) }));
-                AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrides);
+                AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrides);
                 Require(stock.ContentIdentity != edited.ContentIdentity, edit + ": override identity did not change");
                 foreach (bool crystalFlash in new[] { false, true })
                 {
@@ -144,7 +144,7 @@ internal static class InstalledPowerBombIsolationTests
     }
 
     /// <summary>Starts a Crystal Flash or arms and spawns a Power Bomb with the supplied presentation catalog.</summary>
-    internal static SamusPowerBombExplosionState Create(PowerBombFixedColorCatalog colors, bool crystalFlash)
+    internal static SamusPowerBombExplosionState Create(InstalledPowerBombFixedColors colors, bool crystalFlash)
     {
         var state = new SamusPowerBombExplosionState { PresentationColors = colors };
         if (crystalFlash) state.BeginCrystalFlash(new(128, 112));
@@ -189,19 +189,19 @@ internal static class InstalledPowerBombIsolationTests
     }
 
     /// <summary>Checks every reachable Crystal Flash radius derives its afterglow step count from the stock row's largest channel.</summary>
-    private static void CheckCompiledLifetimeOperands(PowerBombFixedColorCatalog stock)
+    private static void CheckCompiledLifetimeOperands(InstalledPowerBombFixedColors stock)
     {
         // The pinned $88:8D85 rows are (14,14,10), (15,15,9), (16,16,8),
         // (17,17,7). Check every reachable radius, not just the final row.
         for (ushort radius = 0; radius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit; radius++)
         {
             var native = stock.Resolve(PowerBombFixedColorSequence.Explosion, radius >> 11);
-            Require(PowerBombExplosionDefinitions.CrystalFlashAfterglowSteps(radius) ==
+            Require(PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(radius) ==
                 Math.Max(native.Red, Math.Max(native.Green, native.Blue)), $"Native fade operand differs at radius {radius}.");
         }
         try
         {
-            _ = PowerBombExplosionDefinitions.CrystalFlashAfterglowSteps(
+            _ = PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(
                 PowerBombExplosionDefinitions.CrystalFlashRadiusLimit);
         }
         catch (ArgumentOutOfRangeException) { return; }
@@ -210,7 +210,7 @@ internal static class InstalledPowerBombIsolationTests
 
     /// <summary>Round-trips the debugger graph at every active frame and compares its remaining stock lifetime. Old layouts are
     /// rejected, not migrated (#1270).</summary>
-    private static void CheckStateRestoration(PowerBombFixedColorCatalog colors)
+    private static void CheckStateRestoration(InstalledPowerBombFixedColors colors)
     {
         int restores = 0;
         foreach (bool crystalFlash in new[] { false, true })
@@ -234,7 +234,7 @@ internal static class InstalledPowerBombIsolationTests
 
     /// <summary>Checks edited checkpoints rebind to the colours supplied after loading.</summary>
     private static void CheckEditedRestore(SamusPowerBombExplosionState edited,
-        PowerBombFixedColorCatalog reboundColors, string context)
+        InstalledPowerBombFixedColors reboundColors, string context)
     {
         var restored = Restore(edited, out string warning);
         Require(warning.Length == 0, context + ": current edited capture warned");
@@ -246,7 +246,7 @@ internal static class InstalledPowerBombIsolationTests
 
     /// <summary>Steps a restored pair through cleanup, comparing mechanics and display colors on each remaining frame.</summary>
     private static void CompareRemainder(SamusPowerBombExplosionState state,
-        SamusPowerBombExplosionState restored, PowerBombFixedColorCatalog colors, string context)
+        SamusPowerBombExplosionState restored, InstalledPowerBombFixedColors colors, string context)
     {
         var baseline = Restore(state, out _);
         baseline.PresentationColors = colors;

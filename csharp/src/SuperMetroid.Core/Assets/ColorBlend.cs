@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <remarks>The members combine freely. The Direct3D 11 backend uploads a combination as the bits below.</remarks>
 [Flags]
-public enum ColorBlend : byte
+public enum ColorBlend
 {
     /// <summary>No layer blends.</summary>
     None = 0,

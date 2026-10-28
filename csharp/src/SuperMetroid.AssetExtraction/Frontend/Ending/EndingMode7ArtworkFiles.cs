@@ -129,7 +129,7 @@ public static class EndingMode7ArtworkFiles
     /// <returns>The selected three-backdrop and reward-icon artwork catalog with owned decoded transfer data.</returns>
     /// <remarks>Backdrop maps are 128x64 tile-index half-maps; the reward icon uses a full 128x128 map, with map and character lanes compiled separately.</remarks>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or selected map/PNG geometry and content is invalid.</exception>
-    public static EndingFloorArtworkCatalog Load(string stockDirectory,
+    public static EndingFloorArtwork Load(string stockDirectory,
         string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);

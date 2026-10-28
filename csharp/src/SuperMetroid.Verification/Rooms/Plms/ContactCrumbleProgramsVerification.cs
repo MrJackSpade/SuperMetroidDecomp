@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -82,18 +83,18 @@ internal static class ContactCrumbleProgramsVerification
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
-        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreDefinition.ContactCrumble.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(pointers.SequenceEqual(LinkedRestorePlmFamily.ContactCrumble.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
             "contact restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = RoomPlmLinkedRestoreDefinition.ContactCrumble.TryDescribe(NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer), out var draw);
-            bool exported = RoomPlmLinkedRestoreDefinition.ContactCrumble.TryGet(NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer), out var list);
+            bool found = LinkedRestorePlmFamily.ContactCrumble.TryDescribe(NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer), out var draw);
+            bool exported = LinkedRestorePlmFamily.ContactCrumble.TryGet(NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer), out var list);
             AssertEqual(expected, found, "contact restoration full native pointer domain");
             AssertEqual(expected, exported, "contact restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomPlmLinkedRestoreDefinition.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(LinkedRestorePlmFamily.Draw), draw, "missing restoration descriptor cleared");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
                 continue;
             }
@@ -106,7 +107,7 @@ internal static class ContactCrumbleProgramsVerification
                 AssertEqual(2, count, "contact restoration two words per native run");
                 AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "contact restoration native orientation");
                 var exportedRun = list.Runs.Span[run];
-                AssertEqual(nativeCount, exportedRun.DirectionAndCount, "contact restoration exported direction/count");
+                AssertRunHeader(nativeCount, exportedRun, "contact restoration exported direction/count");
                 AssertEqual(count, exportedRun.LevelWords.Length, "contact restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
@@ -159,7 +160,7 @@ internal static class ContactCrumbleProgramsVerification
         // The four shape-specific breakup animations are shared with shot and bomb
         // blocks. They must remain compiled even when a contact-crumble list selects them.
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmShotBlockDrawDefinitions.All)
+                 ShotBlockPlmDraws.All)
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
@@ -211,8 +212,8 @@ internal static class ContactCrumbleProgramsVerification
     private static void VerifyContactCrumbleVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
-            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockDrawDefinitions.VisualId(list.Draw),
+        RoomPlmVisualRunEntry[] entries = ShotBlockPlmDraws.All
+            .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
                 list.Runs.Span.SelectToArray(run =>
                     run.LevelWords.Span.SelectToArray(word =>
                         new RoomLevelWord(word).VisualWord))))
@@ -220,10 +221,10 @@ internal static class ContactCrumbleProgramsVerification
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "single-breakup-0");
         first.Runs[0][0] = 0x0054;
-        var edited = new RoomPlmShotBlockVisualCatalog(entries);
+        var edited = new InstalledRoomPlmShotBlockVisuals(entries);
 
         RenderBreakResult RenderBreak(
-            RoomPlmShotBlockVisualCatalog visuals)
+            InstalledRoomPlmShotBlockVisuals visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -244,7 +245,7 @@ internal static class ContactCrumbleProgramsVerification
                 level.DisplayedVisualWord(blockIndex));
         }
 
-        var stock = RenderBreak(RoomPlmShotBlockVisualCatalog.Stock());
+        var stock = RenderBreak(InstalledRoomPlmShotBlockVisuals.Stock());
         var changed = RenderBreak(edited);
         AssertEqual((ushort)0x0053, stock.Physical,
             "contact-crumble first frame installs native air collision");

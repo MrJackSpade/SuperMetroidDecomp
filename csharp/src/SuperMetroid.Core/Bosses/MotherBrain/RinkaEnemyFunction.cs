@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The routines Rinka's main AI ($A2:B7C4) dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
 /// </summary>
-public enum RinkaEnemyFunction : ushort
+public enum RinkaEnemyFunction
 {
     /// <summary>Function_Rinka_Fire, $A2:B7DF: decrements the initially 26-update timer through signed underflow, then samples Samus once to form signed 8.8 velocities at nominal $0120 speed; movement begins on the following AI update.</summary>
     AimDelay = 1,

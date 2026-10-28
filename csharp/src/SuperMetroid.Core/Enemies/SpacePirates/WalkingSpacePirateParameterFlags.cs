@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// are named. The values are arbitrary bits; <see cref="SpacePirateParameters.Walking"/> decodes them from the parameter.
 /// </summary>
 [Flags]
-public enum WalkingSpacePirateParameterFlags : ushort
+public enum WalkingSpacePirateParameterFlags
 {
     /// <summary>No named parameter meaning is set.</summary>
     None = 0,

@@ -25,7 +25,7 @@ internal static class AreaMapPresentationContractChecks
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             class MapConsumer {
-                void Inspect(AreaMapPresentationCatalog maps, EnemyTileArtworkCatalog enemies) {
+                void Inspect(AreaMapPresentation maps, EnemyTileArtworkCatalog enemies) {
                     maps.Get(AreaId.Crateria);
                     maps.Get(AreaId.Ceres);
                     maps.Get((AreaId)7);
@@ -42,7 +42,7 @@ internal static class AreaMapPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("AreaMapProviderFixture", sources,
-            platforms.Append(typeof(AreaMapPresentationCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(AreaMapPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -55,6 +55,7 @@ internal static class AreaMapPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "AreaMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 6 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&

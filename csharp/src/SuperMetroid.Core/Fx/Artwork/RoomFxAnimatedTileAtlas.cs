@@ -45,11 +45,11 @@ public sealed class RoomFxAnimatedTileAtlas
     /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not the statue's picture size, or <paramref name="statue"/> is not a statue.</exception>
     public ReadOnlyMemory<byte> TourianStatuePicture(AnimatedTileObject statue, TourianStatueTilePicture picture, int byteCount)
     {
-        int windowByteCount = TourianStatueTileStripDefinitions.WindowByteCount(statue);
+        int windowByteCount = TourianStatueTileStrip.WindowByteCount(statue);
         if (byteCount != windowByteCount)
             throw new InvalidDataException(
                 $"Tourian statue {statue} {picture} requires {windowByteCount} bytes, not {byteCount}.");
-        int offset = (RoomFxAnimatedTileAtlasFormat.PreStatueTileCount + TourianStatueTileStripDefinitions.FirstTile(statue, picture)) *
+        int offset = (RoomFxAnimatedTileAtlasFormat.PreStatueTileCount + TourianStatueTileStrip.FirstTile(statue, picture)) *
             TourianStatueTileStripDefinitions.BytesPerTile;
         return characters.AsMemory(offset, byteCount);
     }

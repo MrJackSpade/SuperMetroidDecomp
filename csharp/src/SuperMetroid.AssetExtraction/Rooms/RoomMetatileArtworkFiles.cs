@@ -111,7 +111,7 @@ public static class RoomMetatileArtworkFiles
         };
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomBlockSet set = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
+            RoomBlockSet set = RoomTilesets.Get(graphicsSet).Blocks;
             sources[RoomMetatileFormat.FileName(set)] = new(set);
         }
         return sources;

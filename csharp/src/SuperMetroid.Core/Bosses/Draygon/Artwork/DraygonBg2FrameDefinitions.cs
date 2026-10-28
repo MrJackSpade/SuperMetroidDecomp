@@ -58,6 +58,6 @@ internal static class DraygonBg2FrameDefinitions
         new(EnemyFrameId.DraygonFrame63, "draygon_bg2_A6E3"),
     ];
 
-    /// <summary>Whether <paramref name="frame"/> is one of Draygon's BG2 frames.</summary>
-    internal static bool IsFrame(EnemyFrameId frame) => Frames.Any(definition => definition.Frame == frame);
+    /// <summary>The frames Draygon draws on BG2.</summary>
+    internal static IReadOnlySet<EnemyFrameId> FrameIds { get; } = Frames.Select(definition => definition.Frame).ToHashSet();
 }

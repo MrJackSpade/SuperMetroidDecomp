@@ -22,7 +22,7 @@ public static class MapLandmarkExtractor
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int boss = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.BossLists), area);
-            var bosses = MapLandmarkDefinitions.Bosses(area);
+            var bosses = MapLandmarks.Bosses(area);
             if (boss == 0 && !bosses.IsEmpty) throw new InvalidDataException($"Missing {area} boss list.");
             for (int i = 0; i < bosses.Length; i++)
             {
@@ -38,11 +38,11 @@ public static class MapLandmarkExtractor
                 throw new InvalidDataException($"Unexpected {area} boss slots.");
             if (area == AreaId.Ceres) continue;
             int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
-            var elevators = MapLandmarkDefinitions.Elevators(area);
+            var elevators = MapLandmarks.Elevators(area);
             for (int i = 0; i < elevators.Length; i++)
             {
                 var label = elevators[i];
-                if (Read(elevator + i * 6 + 4) != MapSpriteOrdinals.Spritemaps.Word(MapLandmarkDefinitions.ElevatorSpritemap(label.Destination)))
+                if (Read(elevator + i * 6 + 4) != MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorSpritemap(label.Destination)))
                     throw new InvalidDataException($"Elevator label destination differs from cartridge: {label.Id}.");
                 points.Add(label.Id, new(Read(elevator + i * 6), Read(elevator + i * 6 + 2)));
             }
@@ -52,7 +52,7 @@ public static class MapLandmarkExtractor
         int ship = Pointer(FrontendSourceDefinitions.SavePointMapPointers, AreaId.Crateria);
         points.Add(MapLandmarkDefinitions.Gunship, new(Read(ship), Read(ship + 2)));
         using var stream = new MemoryStream();
-        MapLandmarkLayout.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
+        MapLandmarkPositions.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
         return stream.ToArray();
 
         ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(AreaIds.ToIndex(area) * 2));

@@ -94,25 +94,25 @@ internal sealed class ClosedPresentationAudit
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));
             }
-            if (valid && contract.Type == typeof(ProjectileSpriteCatalog).FullName)
+            if (valid && contract.Type == typeof(InstalledProjectileSprites).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
                         .Where(name => name.Identifier.ValueText == "LoadFrames")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
-                            factory.ContainingType.ToDisplayString() == typeof(ProjectileSpriteCatalog).FullName));
-            if (valid && contract.Type == typeof(ProjectileFrameBindingCatalog).FullName)
+                            factory.ContainingType.ToDisplayString() == typeof(InstalledProjectileSprites).FullName));
+            if (valid && contract.Type == typeof(InstalledProjectileFrameBindings).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
                         .Where(name => name.Identifier.ValueText == "TimedRecordAddresses")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IPropertySymbol property &&
                             property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRecordDefinitions).FullName));
-            if (valid && contract.Type == typeof(SamusArmCannonArtworkCatalog).FullName)
+            if (valid && contract.Type == typeof(InstalledSamusArmCannonArtwork).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
                         .Where(name => name.Identifier.ValueText == "FromPlacement")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
                             IMethodSymbol { Name: "FromPlacement" } factory &&
-                                factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkCatalog).FullName));
+                                factory.ContainingType.ToDisplayString() == typeof(InstalledSamusArmCannonArtwork).FullName));
             foreach (string method in contract.Methods)
                 contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid));
             if (!valid)

@@ -21,8 +21,8 @@ internal static class RidleyInertiaVerification
         {
             byte divisor = rom.ReadCartridgeByte(0xa6d61f + index);
             byte ceresDivisor = rom.ReadCartridgeByte(0xa6d712 + index);
-            AssertEqual(rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertiaDefinitions.Divisor(index), "Ceres native inertia byte");
-            AssertEqual(divisor, RidleyInertiaDefinitions.Divisor(index), "Norfair native inertia byte");
+            AssertEqual(rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertia.Divisor(index), "Ceres native inertia byte");
+            AssertEqual(divisor, RidleyInertia.Divisor(index), "Norfair native inertia byte");
             // Every signed distance, with both reversal directions and zero/saturation boundaries.
             // Call the production two-axis entry points without an address space attached.
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -41,8 +41,8 @@ internal static class RidleyInertiaVerification
                 AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, divisor, boost), state.Velocity.Y.RawValue, "Norfair actual wrapped Y acceleration");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertiaDefinitions.Divisor(-1), "Negative inertia index");
-        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertiaDefinitions.Divisor(16), "Inertia table boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(-1), "Negative inertia index");
+        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(16), "Inertia table boundary");
         Console.WriteLine("Ridley inertia: 32 native bytes and 2,097,152 real two-axis calls match without a bus.");
     }
 

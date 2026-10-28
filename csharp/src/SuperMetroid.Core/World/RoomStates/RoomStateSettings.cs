@@ -12,14 +12,14 @@ public sealed record RoomStateSettings(
     RoomLevelId Level,
     int GraphicsSet,
     RoomMusic Music,
-    SuperMetroid.Core.Fx.RoomFxDefinition? Fx,
+    SuperMetroid.Core.Fx.RoomFxHeader? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
     Enemies.RoomEnemyGraphicsSetDefinition EnemyGraphicsSet,
     SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes Layer2Scroll,
     SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition Scroll,
     SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition? XrayOverlay,
     RoomMainCallback MainCallback,
-    SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinition PlmPopulation,
+    SuperMetroid.Core.Rooms.Plms.RoomPlmPopulation PlmPopulation,
     SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgram? Background,
     RoomSetupCallback SetupCallback)
 {

@@ -10,14 +10,26 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Limits calculated compositions to the large helmet, jumping head, and four face frames.</summary>
-    private static bool IsHead(Pose pose) => pose is >= Pose.LargeSamusHelmetFromEndingFrame1 and <= Pose.JumpingSamusHeadFromEnding
-        or >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadWithHelmetFromEnding;
+    private static bool IsHead(Pose pose) => pose is Pose.LargeSamusHelmetFromEndingFrame1 or Pose.LargeSamusHelmetFromEndingFrame2
+        or Pose.JumpingSamusHeadFromEnding or Pose.SamusHeadWithHelmetFromEnding || FaceFrame(pose) is not null;
+
+    /// <summary>The face frame, 0 through 3, each bare-head reward pose shows.</summary>
+    private static readonly Dictionary<Pose, int> FaceFrames = new()
+    {
+        [Pose.SamusHeadFromEndingFrame1] = 0,
+        [Pose.SamusHeadFromEndingFrame2] = 1,
+        [Pose.SamusHeadFromEndingFrame3] = 2,
+        [Pose.SamusHeadFromEndingFrame4] = 3,
+    };
+
+    /// <summary>The face frame a bare-head reward pose shows; null for every other pose.</summary>
+    private static int? FaceFrame(Pose pose) => FaceFrames.TryGetValue(pose, out int frame) ? frame : null;
 
     /// <summary>Recalculates a reward head only when its pose belongs to this head family.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         foreach (Pose pose in Enum.GetValues<Pose>())
-            if (IsHead(pose) && EndingRewardSpriteDefinitions.FramePose(pose) == shown)
+            if (IsHead(pose) && EndingRewardSpritePoses.FramePose(pose) == shown)
                 return supplied.CalculateIfMatching(new EndingRewardHeadParts(pose));
         return supplied;
     }
@@ -72,10 +84,10 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int x, y, tile;
             bool large;
-            if (pose is >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadFromEndingFrame4)
+            if (FaceFrame(pose) is int faceFrame)
             {
                 x = -8; y = index == 0 ? -8 : -16; large = true;
-                tile = index == 0 ? CharacterSheetGrid.Cell(24, 8) + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : CharacterSheetGrid.Cell(23, 8); // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
+                tile = index == 0 ? CharacterSheetGrid.Cell(24, 8) + 2 * faceFrame : CharacterSheetGrid.Cell(23, 8); // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
             }
             else if (pose == Pose.SamusHeadWithHelmetFromEnding)
             {

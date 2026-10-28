@@ -19,25 +19,25 @@ public sealed record SamusBodyArtworkParts
     public required SamusBodyFrameSelection[] Frames { get; init; }
 
     /// <summary>Upper-body tile definitions grouped by pointer table entry.</summary>
-    public required SamusBodyTileDefinition[][] Top { get; init; }
+    public required SamusBodyTileTransfer[][] Top { get; init; }
 
     /// <summary>Lower-body tile definitions grouped by pointer table entry.</summary>
-    public required SamusBodyTileDefinition[][] Bottom { get; init; }
+    public required SamusBodyTileTransfer[][] Bottom { get; init; }
 
     /// <summary>Editable Samus OAM compositions.</summary>
-    public required SamusSpritemapArtworkCatalog Spritemaps { get; init; }
+    public required InstalledSamusSpritemaps Spritemaps { get; init; }
 
     /// <summary>Editable atmospheric-effect OBJ attributes.</summary>
-    public required SamusAtmosphericArtworkCatalog Atmosphere { get; init; }
+    public required InstalledSamusAtmosphericArtwork Atmosphere { get; init; }
 
     /// <summary>Editable fatal-damage and death palettes.</summary>
-    public required SamusDeathPaletteArtworkCatalog DeathPalettes { get; init; }
+    public required InstalledSamusDeathPalettes DeathPalettes { get; init; }
 
     /// <summary>Identity of the selected death-explosion characters.</summary>
     public required string DeathTilesContentIdentity { get; init; }
 
     /// <summary>Editable arm-cannon placement and cover artwork.</summary>
-    public required SamusArmCannonArtworkCatalog ArmCannon { get; init; }
+    public required InstalledSamusArmCannonArtwork ArmCannon { get; init; }
 
     /// <summary>Native landing vertical-offset bytes.</summary>
     public required ushort[] LandingYOffsets { get; init; }

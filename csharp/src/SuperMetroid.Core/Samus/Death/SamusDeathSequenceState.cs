@@ -83,7 +83,7 @@ public sealed class SamusDeathSequenceState
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
-        int initialFrame = SamusDeathSequenceDefinitions.InitialFrame(sourceMovementType);
+        int initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
         // Native initializes pose `$D7/$D8` normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
@@ -120,7 +120,7 @@ public sealed class SamusDeathSequenceState
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
         GameplayColours colours, SamusColours samusColours,
-        SamusDeathPaletteArtworkCatalog? artwork = null)
+        InstalledSamusDeathPalettes? artwork = null)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(colours);
@@ -153,7 +153,7 @@ public sealed class SamusDeathSequenceState
                     WritePalettePair(samus, colours, samusColours, paletteIndex: 0, artwork);
                     paletteChanged = true;
                     AnimationTimer =
-                        WrappingCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0));
+                        WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(index: 0));
                     AnimationIndex = 0;
                     AnimationCounter = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -232,7 +232,7 @@ public sealed class SamusDeathSequenceState
         GameplayColours colours, SamusColours samusColours,
         ref bool paletteChanged,
         ref bool whiteoutChanged,
-        SamusDeathPaletteArtworkCatalog? artwork)
+        InstalledSamusDeathPalettes? artwork)
     {
         AnimationTimer = AnimationTimer.Decrement().Remaining;
         if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
@@ -250,7 +250,7 @@ public sealed class SamusDeathSequenceState
         }
 
         AnimationTimer =
-            WrappingCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex));
+            WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(AnimationIndex));
         int paletteIndex = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
         WritePalettePair(samus, colours, samusColours, paletteIndex, artwork);
@@ -260,7 +260,7 @@ public sealed class SamusDeathSequenceState
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
     private bool ApplyWhiteout(GameplayColours colours, SamusColours samusColours,
-        SamusDeathPaletteArtworkCatalog? artwork)
+        InstalledSamusDeathPalettes? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
         // frame remains over the original room even though game state `$18` has begun.
@@ -287,7 +287,7 @@ public sealed class SamusDeathSequenceState
         SamusState samus,
         GameplayColours colours, SamusColours samusColours,
         int paletteIndex,
-        SamusDeathPaletteArtworkCatalog? artwork)
+        InstalledSamusDeathPalettes? artwork)
     {
         // SuitPaletteIndex is 0/2/4. Multiplying it by ten skips each twenty-byte pointer
         // family (ten little-endian pointers) and exactly reproduces `$9B:B5D1-$B5E6`.
@@ -295,7 +295,7 @@ public sealed class SamusDeathSequenceState
             samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 0;
         if (artwork is not null)
         {
-            for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
+            for (int color = 0; color < InstalledSamusDeathPalettes.ColorCount; color++)
             {
                 samusColours.Suit.Write(color,
                     artwork.SuitedColor(suitIndex / 2, paletteIndex, color));

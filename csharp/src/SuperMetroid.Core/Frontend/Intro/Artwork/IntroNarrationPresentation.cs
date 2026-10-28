@@ -46,7 +46,7 @@ public sealed class IntroNarrationPresentation
                 result.Add(new(
                     IntroNarrationDefinitions.FirstColumn + index,
                     line.Row,
-                    IntroNarrationDefinitions.CompileGlyph(glyph),
+                    IntroNarrationGlyphs.CompileGlyph(glyph),
                     glyph == ' '));
             }
         }
@@ -102,7 +102,7 @@ public sealed class IntroNarrationPresentation
                     line.Row > IntroNarrationDefinitions.LastTextRow ||
                     (line.Row & 1) != 0 || !usedRows.Add(line.Row) ||
                     line.Text.Any(static character =>
-                        !IntroNarrationDefinitions.IsSupportedGlyph(character)))
+                        !IntroNarrationGlyphs.IsSupportedGlyph(character)))
                 {
                     throw new InvalidDataException(
                         $"Opening-narration {page} contains an invalid row, width or glyph.");

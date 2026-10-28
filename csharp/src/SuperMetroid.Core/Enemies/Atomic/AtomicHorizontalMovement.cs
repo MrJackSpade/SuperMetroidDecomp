@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// though both targets update X.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum AtomicHorizontalMovement : ushort
+public enum AtomicHorizontalMovement
 {
     /// <summary>$A8:E443, Function_Atomic_MoveLeft: add the stored negative whole/fraction speed to X without terrain collision, selected when wrapped Samus-minus-enemy X is signed-negative.</summary>
     MoveLeft = 1,

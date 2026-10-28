@@ -59,7 +59,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             for (int page = 0; page < sheet.PageCount; page++)
             {
                 int sourceOffset = page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount;
-                int destinationOffset = ShownByte(sheet.PageFirstCharacter(page));
+                int destinationOffset = ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(sheet, page));
                 int count = MotherBrainSpecialSpriteSheetDefinition.PageByteCount;
                 AssertTrue(installedVram.Bytes.Slice(destinationOffset, count)
                     .SequenceEqual(native.AsSpan(sourceOffset, count)),
@@ -122,11 +122,11 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual((uint)(MotherBrainSourceDefinitions.SpecialSprites.Sources[baby.Sheet] +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
-            AssertEqual(ShownByte(baby.PageFirstCharacter(page)),
+            AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
             SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
-            AssertEqual(ShownByte(baby.PageFirstCharacter(page)) - ObjectCharactersByte, shown.FirstByte,
+            AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)) - ObjectCharactersByte, shown.FirstByte,
                 $"Baby page {page} selection shows at its record's characters");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.ByteCount,
                 $"Baby page {page} selection shows its record's bytes");
@@ -237,7 +237,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet] + page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
-            int destination = ShownByte(sheet.PageFirstCharacter(page));
+            int destination = ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(sheet, page));
             vram.LoadBytes(destination, bytes);
         }
         return vram;

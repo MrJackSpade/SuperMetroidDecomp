@@ -14,5 +14,14 @@ internal readonly record struct MenuAtlasCellRange(int First, int Last)
     internal bool Contains(int cell) => cell >= First && cell <= Last;
 
     /// <summary>Whether <paramref name="cell"/> lies in any of <paramref name="ranges"/>.</summary>
-    internal static bool AnyContains(IEnumerable<MenuAtlasCellRange> ranges, int cell) => ranges.Any(range => range.Contains(cell));
+    /// <remarks>Artwork loaders ask this for every pixel, so it walks the runs without allocating.</remarks>
+    internal static bool AnyContains(IReadOnlyList<MenuAtlasCellRange> ranges, int cell)
+    {
+        for (int index = 0; index < ranges.Count; index++)
+        {
+            if (ranges[index].Contains(cell))
+                return true;
+        }
+        return false;
+    }
 }

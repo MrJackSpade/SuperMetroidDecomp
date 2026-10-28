@@ -51,7 +51,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 
         // The sweep table holds only directions zero and one, so the definition rejects any other selector.
-        NuclearWaffleSweepDefinition sweep = NuclearWaffleDefinitions.Sweep(direction);
+        NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(direction);
         state.SweepsForward = direction != 0;
         state.SweepStartAngle = sweep.StartAngle;
         state.SweepAngle = SignedSixteenSixteen.FromParts(checked((short)sweep.StartAngle), 0);

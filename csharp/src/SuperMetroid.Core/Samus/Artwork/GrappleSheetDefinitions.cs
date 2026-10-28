@@ -15,27 +15,12 @@ public static class GrappleSheetDefinitions
     public static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
         [SpriteMirror.None, SpriteMirror.Horizontal, SpriteMirror.Vertical, SpriteMirror.Horizontal | SpriteMirror.Vertical];
 
-    /// <summary>The endpoint in animation frame <paramref name="pointFrame"/>.</summary>
-    public static string EndpointFrame(int pointFrame) => $"Endpoint.{pointFrame}";
-
-    /// <summary>A rope segment of an orientation and segment frame, as the rope's direction mirrors it.</summary>
-    public static string RopeFrame(GrappleRopeOrientation orientation, int segmentFrame, SpriteMirror mirror) =>
-        $"Rope.{orientation}.{segmentFrame}.{MirrorName(mirror)}";
-
-    /// <summary>The frame-name segment for a rope mirroring, in <see cref="RopeMirrors"/> order.</summary>
-    private static string MirrorName(SpriteMirror mirror) => mirror switch
+    /// <summary>The value each key selects; MirrorName looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<SpriteMirror, string> MirrorNames = new Dictionary<SpriteMirror, string>
     {
-        SpriteMirror.None => "0",
-        SpriteMirror.Horizontal => "1",
-        SpriteMirror.Vertical => "2",
-        SpriteMirror.Horizontal | SpriteMirror.Vertical => "3",
-        _ => throw new ArgumentOutOfRangeException(nameof(mirror), mirror, "Undefined rope mirroring."),
+        [SpriteMirror.None] = "0",
+        [SpriteMirror.Horizontal] = "1",
+        [SpriteMirror.Vertical] = "2",
+        [SpriteMirror.Horizontal | SpriteMirror.Vertical] = "3",
     };
-
-    /// <summary>Every frame the grapple sheet holds.</summary>
-    public static IEnumerable<string> Frames =>
-        Enumerable.Range(0, EndpointFrameCount).Select(EndpointFrame)
-            .Concat(Enum.GetValues<GrappleRopeOrientation>().SelectMany(orientation =>
-                Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount).SelectMany(segment =>
-                    RopeMirrors.Select(mirror => RopeFrame(orientation, segment, mirror)))));
 }

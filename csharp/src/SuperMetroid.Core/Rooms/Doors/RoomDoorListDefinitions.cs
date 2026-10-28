@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// elevator pseudo-door and two the Maridia/Tourian one, which consume no physical door record.</remarks>
 public static class RoomDoorListDefinitions
 {
-    /// <summary>The bits of a type-$9 block's BTS byte that index its room's door list; bit seven is not part of the index.</summary>
-    public const int BtsIndexMask = 0x7f;
-
     /// <summary>Each retail room's door list, in the cartridge's list order.</summary>
     public static IReadOnlyDictionary<RoomHeaderDefinition, IReadOnlyList<DoorListEntry>> ByRoom { get; } =
         new Dictionary<RoomHeaderDefinition, IReadOnlyList<DoorListEntry>>

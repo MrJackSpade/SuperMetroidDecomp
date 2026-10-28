@@ -203,7 +203,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledInstructionListIndex = requested;
-        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.MetareeProgram(requested));
+        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareePrograms.MetareeProgram(requested));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

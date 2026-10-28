@@ -12,12 +12,12 @@ internal sealed class IntroEggParticle
     /// <summary>Spawns one of six shell fragments at its compiled native position with its selected instruction list.</summary>
     public IntroEggParticle(int index)
     {
-        CinematicActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
+        CinematicActorDefinition definition = IntroEggParticleActors.Particle(index);
         // $A958 indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
         // twelve native words so this physical spawn does not require a cartridge read.
         sprite = new IntroDiscoverySprite(
-            IntroEggMotionDefinitions.FragmentInitialPosition(index),
+            IntroEggMotion.FragmentInitialPosition(index),
             palette: IntroCinematicDefinitions.Objects.DiscoveryPalette,
             program: definition.Program)
         {
@@ -44,7 +44,7 @@ internal sealed class IntroEggParticle
     {
         if (!sprite.IsActive)
             return;
-        if (sprite.PreInstruction != IntroEggEffectDefinitions.Particle(Fragment).PreInstruction)
+        if (sprite.PreInstruction != IntroEggParticleActors.Particle(Fragment).PreInstruction)
         {
             throw new InvalidDataException(
                 $"Intro egg particle names invalid pre-instruction {sprite.PreInstruction}.");
@@ -53,8 +53,8 @@ internal sealed class IntroEggParticle
         // $A994 indexes the horizontal velocities by fragment and the gravity table by the
         // frames fallen. Each velocity is a signed 16.16 pair stored high-word first in ROM,
         // exactly matching the actor's whole/subposition addition order.
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotionDefinitions.FragmentX(Fragment));
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotionDefinitions.FragmentY(FramesFallen));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(Fragment));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen));
         if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler

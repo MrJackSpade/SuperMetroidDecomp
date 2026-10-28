@@ -16,7 +16,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;
     /// <summary>Installed map sprite compositions whose page the menu screen loads.</summary>
-    [NonSerialized] private MapSpriteCatalog? sprites;
+    [NonSerialized] private MapSpriteCompositions? sprites;
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
     [NonSerialized] private SpriteSheet? mapSheet;
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
@@ -31,7 +31,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
     /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background tiles.</param>
     public FileSelectRoomMapGraphics(SharedGameState system, AreaId area,
-        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? sheets = null)
+        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(system);
         if (mapPresentation is null)
@@ -75,7 +75,7 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    internal void BindMapPresentation(AreaMapPresentation? catalog)
     {
         icons.BindStations(catalog?.Stations);
         icons.BindLandmarks(catalog?.Landmarks);

@@ -25,7 +25,7 @@ public sealed class SamusXrayState
 {
     /// <summary>Host-owned visor colors, excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
-    public SamusVisorColorCatalog? PresentationColors { get; set; }
+    public InstalledSamusVisorColors? PresentationColors { get; set; }
 
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
@@ -164,9 +164,8 @@ public sealed class SamusXrayState
 
         // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
         // type is otherwise standing. The range comparisons are unsigned 16-bit compares.
-        if (samus.Pose is >= SamusPoseId.NormalLandingRightPose and
-            <= SamusPoseId.SpinLandingLeftPose or
-            >= SamusPoseId.LandingAimUpRightPose and <= SamusPoseId.FiringLandingLeftPose)
+        if (SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose) ||
+            SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.LandingAimUpRightPose, SamusPoseId.FiringLandingLeftPose))
             return false;
 
         if (conditions.GameState != SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
@@ -508,7 +507,7 @@ public sealed class SamusXrayState
     public bool UpdatePalette(
         SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? suitColors = null)
+        InstalledSamusSuitColors? suitColors = null)
     {
         Ensure.NotNull(colours);
 

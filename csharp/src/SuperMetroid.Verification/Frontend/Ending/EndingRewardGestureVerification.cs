@@ -39,7 +39,7 @@ internal static class EndingRewardGestureVerification
         {
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.SourceTable + chunk * sizeof(ushort)),
-                RewardIconStagingWord + EndingRewardGraphicsUploadDefinitions.ChunkOffset(chunk),
+                RewardIconStagingWord + EndingRewardGraphicsUploads.ChunkOffset(chunk),
                 $"reward graphics chunk {chunk}'s offset is its native source word's offset from the staging buffer");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
@@ -56,7 +56,7 @@ internal static class EndingRewardGestureVerification
         AssertEqual(0, uploadBus.ForbiddenReadAttempts,
             "reward icon upload no longer rereads either native address table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingRewardGraphicsUploadDefinitions.ChunkOffset(16),
+            () => EndingRewardGraphicsUploads.ChunkOffset(16),
             "reward icon source rejects the seventeenth transfer");
         AssertThrows<ArgumentOutOfRangeException>(
             () => SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(-1),
@@ -154,7 +154,7 @@ internal static class EndingRewardGestureVerification
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn.Load), "reward native spawn uses LDY immediate");
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn.Load + 1));
             AssertEqual(spawn.Pointer, pointer, "named reward record matches native spawn operand");
-            EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(
+            EndingRewardActorDefinition actual = EndingRewardActors.Get(
                 EndingRewardNativeWords.Actors.Decode(pointer, "reward actor definition"));
             int address = 0x8b0000 | pointer;
             ushort initializer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
@@ -165,7 +165,7 @@ internal static class EndingRewardGestureVerification
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)
                 AssertEqual((byte)0xa9, bus.ReadCartridgeByte(code + offset), "reward initializer uses LDA immediate");
-            var origin = EndingRewardActorDefinitions.GetInitialization(
+            var origin = EndingRewardActors.GetInitialization(
                 EndingRewardNativeWords.Initializations.Decode(initializer, "reward initialization"));
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 1)), origin.Position.X, "reward native initial X");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 7)), origin.Position.Y, "reward native initial Y");
@@ -174,9 +174,9 @@ internal static class EndingRewardGestureVerification
         AssertEqual(4, initializers.Count, "reward initializer domain");
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");
         foreach (int invalid in new[] { 0, 11, 0xef33, 0xffff })
-            AssertThrows<InvalidOperationException>(() => EndingRewardActorDefinitions.Get((EndingRewardActor)invalid), "reward record membership");
+            AssertThrows<InvalidOperationException>(() => EndingRewardActors.Get((EndingRewardActor)invalid), "reward record membership");
         foreach (int invalid in new[] { 0, 5, 0xf143, 0xffff })
-            AssertThrows<InvalidOperationException>(() => EndingRewardActorDefinitions.GetInitialization((EndingRewardInitialization)invalid), "reward initializer membership");
+            AssertThrows<InvalidOperationException>(() => EndingRewardActors.GetInitialization((EndingRewardInitialization)invalid), "reward initializer membership");
         Console.WriteLine(
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }
@@ -187,7 +187,7 @@ internal static class EndingRewardGestureVerification
         var forbidden = new HashSet<int>();
         foreach (ushort pointer in RewardActorPointers)
         {
-            int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
+            int address = EndingRewardActors.NativeDefinitionBank | pointer;
             for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
                 forbidden.Add(address + offset);
         }

@@ -19,7 +19,7 @@ internal static class EndingSheetFixtures
     private static readonly Lazy<string> stockIdentity = new(() => RepositoryInstallation.Installation.LoadEndingObjectArt().ContentIdentity);
 
     /// <summary>The installed ending palettes the composed sheets are coloured with.</summary>
-    private static readonly Lazy<EndingPaletteCatalog> palettes = new(() => RepositoryInstallation.Installation.LoadEndingPalettes());
+    private static readonly Lazy<EndingPaletteSet> palettes = new(() => RepositoryInstallation.Installation.LoadEndingPalettes());
 
     /// <summary>The ending's background tile sheets its object artwork composes (#1392).</summary>
     private static readonly SpriteSheetId[] EndingTileSheets = [SpriteSheetId.EndingLogoTiles, SpriteSheetId.EndingWaitingTiles,
@@ -29,7 +29,7 @@ internal static class EndingSheetFixtures
     private static readonly ConcurrentDictionary<string, InstalledSpriteSheets> composed = new();
 
     /// <summary>The installed sheets with the ending sheets <paramref name="objects"/> composes.</summary>
-    internal static InstalledSpriteSheets WithEnding(EndingObjectArtworkCatalog objects)
+    internal static InstalledSpriteSheets WithEnding(EndingObjectArtwork objects)
     {
         ArgumentNullException.ThrowIfNull(objects);
         string identity = objects.ContentIdentity;
@@ -38,7 +38,7 @@ internal static class EndingSheetFixtures
             var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
             foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
                 sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont),
-                    $"{SpriteSheetDefinitions.FileName(sheet)}-fixture-{key[..8]}");
+                    $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}");
             // The ending's background tiles are pre-coloured from these objects (#1392).
             var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork, () => objects, () => palettes.Value,
                 RepositoryInstallation.Installation.LoadEndingMode7Art);
@@ -46,14 +46,14 @@ internal static class EndingSheetFixtures
             {
                 ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(sheet, tileSources);
                 sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-                    $"{SpriteSheetDefinitions.FileName(sheet)}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+                    $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
             }
             return new InstalledSpriteSheets(sheets);
         });
     }
 
     /// <summary>The installed sheets with the ending Mode 7 sheets edited <paramref name="mode7"/> art composes (#1392).</summary>
-    internal static InstalledSpriteSheets WithEndingMode7(EndingFloorArtworkCatalog mode7)
+    internal static InstalledSpriteSheets WithEndingMode7(EndingFloorArtwork mode7)
     {
         ArgumentNullException.ThrowIfNull(mode7);
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
@@ -64,7 +64,7 @@ internal static class EndingSheetFixtures
         {
             ComposedSpriteSheet tiles = ScreenTileSheetComposer.ComposeMode7(sheet, tileSources);
             sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-                $"{SpriteSheetDefinitions.FileName(sheet)}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+                $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
         }
         return new InstalledSpriteSheets(sheets);
     }
@@ -83,7 +83,7 @@ internal static class EndingSheetFixtures
     extension(EndingArtwork self)
     {
         /// <summary>Binds <paramref name="objects"/> and the ending sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureObjectArtwork(EndingObjectArtworkCatalog objects)
+        internal void BindFixtureObjectArtwork(EndingObjectArtwork objects)
         {
             self.BindObjectArtwork(objects);
             self.BindSpriteSheets(WithEnding(objects));

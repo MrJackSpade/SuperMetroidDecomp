@@ -47,7 +47,7 @@ public sealed class AudioSession
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The session has already advanced without clips.</exception>
-    public void BindClips(ClipAudioCatalog clips)
+    public void BindClips(ClipAudioLibrary clips)
     {
         Ensure.NotNull(clips);
         if (clipState is null)

@@ -29,7 +29,7 @@ internal static class PowerBombFixedColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        PowerBombFixedColorCatalog catalog = PowerBombFixedColorFile.Read(
+        InstalledPowerBombFixedColors catalog = PowerBombFixedColorFile.Read(
             new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
         int compared = 0;
         foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
@@ -65,7 +65,7 @@ internal static class PowerBombFixedColorsVerification
 
     /// <summary>Compares native and guarded explosion phases, radii, completion, and fixed colors frame by frame.</summary>
     private static void VerifyPowerBombColorAnimation(ISnesAddressSpace rom,
-        PowerBombFixedColorCatalog catalog, bool crystalFlash)
+        InstalledPowerBombFixedColors catalog, bool crystalFlash)
     {
         // The source-color words above are checked against the import-only ROM reader.
         // The runtime no longer has a cartridge color fallback, so both timing owners
@@ -110,7 +110,7 @@ internal static class PowerBombFixedColorsVerification
 
     /// <summary>Checks an edited pre-explosion color reaches live state and removing the override restores stock identity.</summary>
     internal static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline)
+        AreaMapPresentation baseline)
     {
         string path = Path.Combine(overrides, PowerBombFixedColorFormat.FileName);
         PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
@@ -120,7 +120,7 @@ internal static class PowerBombFixedColorsVerification
         PaletteRgb5 original = document.PreExplosion[0];
         document.PreExplosion[0] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, PowerBombFixedColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Power Bomb color edit changes installed content identity");
         AssertTrue(edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
@@ -141,7 +141,7 @@ internal static class PowerBombFixedColorsVerification
             PreExplosion = [original with { Red = 32 }, .. document.PreExplosion.Skip(1)],
         }), "out-of-range Power Bomb color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing Power Bomb color override restores stock identity");
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");

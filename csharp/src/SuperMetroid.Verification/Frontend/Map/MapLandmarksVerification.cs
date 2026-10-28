@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapLandmarksVerification
 {
     /// <summary>Checks boss and elevator visibility across area state, then validates layout overrides and rebinds.</summary>
-    internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewLandmarkGuard(bus);
         var iconGuard = NewLandmarkGuard(bus, blockGunship: true);
@@ -52,7 +52,7 @@ internal static class MapLandmarksVerification
         var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = (ushort)(pair.Value.X + 8) });
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapLandmarkFormat.FileName);
-        using (var stream = File.Create(path)) MapLandmarkLayout.Write(stream, document with { Markers = points });
+        using (var stream = File.Create(path)) MapLandmarkPositions.Write(stream, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(path);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "landmark edit changes content identity");
@@ -97,7 +97,7 @@ internal static class MapLandmarksVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() => MapLandmarkLayout.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
+            AssertThrows<InvalidDataException>(() => MapLandmarkPositions.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
         File.WriteAllText(path, "{bad landmarks");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad landmark override cannot fall back");
         AssertEqual("{bad landmarks", File.ReadAllText(path), "bad landmark override preserved for repair");

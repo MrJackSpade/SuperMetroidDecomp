@@ -49,7 +49,7 @@ internal static class GameOptionsHeadingsVerification
             int list = 0x82f47e + 16 * page;
             AssertEqual(pointer, ReadVerificationWord(rom, list + 2), "initial native heading record");
             AssertEqual(pointer, ReadVerificationWord(rom, list + 10), "repeated native heading record");
-            string name = GameOptionsPresentationDefinitions.HeadingSpriteName(OriginalHeadingPage(page));
+            string name = GameOptionsNames.HeadingSpriteName(OriginalHeadingPage(page));
             AssertEqual(ReadVerificationWord(rom, 0x820000 | pointer), document.Sprites[name].Length,
                 "imported original heading part count");
         }
@@ -69,13 +69,13 @@ internal static class GameOptionsHeadingsVerification
             int setup = 0x82f34b + 8 * page;
             AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
-            AssertEqual(x, GameOptionsLayout.HeadingX((GameOptionsPage)page), "native heading X case");
-            Position16<SpritePixels> actual = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(OriginalHeadingPage(page))];
+            AssertEqual(x, GameOptionsPositions.HeadingX((GameOptionsPage)page), "native heading X case");
+            Position16<SpritePixels> actual = document.HeadingAnchors[GameOptionsNames.MenuName(OriginalHeadingPage(page))];
             AssertEqual((int)x, actual.X, "imported heading X");
             AssertEqual((int)y, actual.Y, "imported heading Y");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsLayout.HeadingX((GameOptionsPage)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPositions.HeadingX((GameOptionsPage)invalid),
                 "heading anchor selector bounds");
     }
 

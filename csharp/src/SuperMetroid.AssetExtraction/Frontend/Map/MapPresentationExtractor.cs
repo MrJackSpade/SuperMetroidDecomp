@@ -117,7 +117,7 @@ public static class MapPresentationExtractor
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
         using var labels = new MemoryStream();
-        WorldMapLabelLayout.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });
+        WorldMapLabelPositions.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });
         byte[] labelBytes = labels.ToArray();
         using (var file = new FileStream(Path.Combine(directory, WorldMapLabelFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(labelBytes);

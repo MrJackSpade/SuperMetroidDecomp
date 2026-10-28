@@ -25,24 +25,4 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
     internal const ushort WakeTargetX = 0x00f0;
     /// <summary>$84:B927-$B92F: Samus must be below Y $820 as well as right of the X threshold.</summary>
     internal const ushort WakeTargetY = 0x0820;
-
-    /// <summary>
-    /// $84:9283: a vertical run of three $00FF air words at the PLM, then another one block to
-    /// its right.
-    /// </summary>
-    internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        if (request != OpenWallDraw)
-        {
-            draw = default;
-            return false;
-        }
-        ushort[] column = [0x00ff, 0x00ff, 0x00ff];
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(0x8003, column, new(1, 0)),
-            new(0x8003, column, new(0, 0)),
-        });
-        return true;
-    }
 }

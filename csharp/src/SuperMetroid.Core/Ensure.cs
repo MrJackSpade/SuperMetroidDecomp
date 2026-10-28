@@ -34,6 +34,24 @@ public static class Ensure
         [CallerArgumentExpression(nameof(value))] string? parameterName = null) =>
         value >= 0 ? value : throw new ArgumentOutOfRangeException(parameterName, value, "Value must be at least zero.");
 
+    /// <summary>
+    /// Requires a key the table lists and returns its entry: the lookup a catalog's identity table answers, rejecting an
+    /// identity the table does not hold.
+    /// </summary>
+    public static TValue Listed<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> table, TKey key,
+        [CallerArgumentExpression(nameof(key))] string? parameterName = null)
+        where TKey : notnull =>
+        NotNull(table).TryGetValue(key, out TValue? value)
+            ? value
+            : throw new ArgumentOutOfRangeException(parameterName, key, "Value is not listed.");
+
+    /// <summary>Requires an index within <paramref name="items"/> and returns its element.</summary>
+    public static T Element<T>(IReadOnlyList<T> items, int index,
+        [CallerArgumentExpression(nameof(index))] string? parameterName = null) =>
+        (uint)index < (uint)NotNull(items).Count
+            ? items[index]
+            : throw new ArgumentOutOfRangeException(parameterName, index, $"Index must be below {items.Count}.");
+
     /// <summary>Requires a value between the two bounds, inclusive.</summary>
     public static int BetweenInclusive(int minimum, int maximum, int value,
         [CallerArgumentExpression(nameof(value))] string? parameterName = null)

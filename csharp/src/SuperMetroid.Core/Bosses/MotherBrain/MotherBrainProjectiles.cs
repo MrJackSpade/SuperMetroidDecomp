@@ -230,7 +230,7 @@ internal sealed class MotherBrainProjectiles
                     "$86:C550-C563.");
             }
 
-            acceleration = MotherBrainBombBounceDefinitions.YAcceleration(accelerationIndex);
+            acceleration = MotherBrainBombBounces.YAcceleration(accelerationIndex);
             if (acceleration == 0)
             {
                 ExpireMotherBrainBomb(bomb, state);
@@ -447,7 +447,7 @@ internal sealed class MotherBrainProjectiles
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics;
 
         MotherBrainGlassShardPlacement placement =
-            MotherBrainGlassShardDefinitions.Placement(request.Shard);
+            MotherBrainGlassShards.Placement(request.Shard);
         shard.Position = shard.Position.WithWhole(request.PlmBlock.ToRoomPixels() + placement.Offset);
 
         // Position jitter consumes two additional RNG samples in this order. It is not
@@ -788,7 +788,7 @@ internal sealed class MotherBrainProjectiles
         int currentDirection = unchecked((byte)turret.Position.Y.Fraction);
         int rotationDelta = TurretRotationDelta(turret.Position.Y.Fraction);
         int candidate = (currentDirection + rotationDelta) & 7;
-        bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
+        bool allowed = MotherBrainTurrets.IsRotationAllowed(
             turret.DirectionParameter,
             MotherBrainTurretDefinitions.Ring.At(candidate));
 
@@ -851,7 +851,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainTurretDirection direction =
             MotherBrainTurretDefinitions.Ring.At(unchecked((byte)turret.Position.Y.Fraction));
         MotherBrainTurretDirectionDefinition definition =
-            MotherBrainTurretDefinitions.ForDirection(direction);
+            MotherBrainTurrets.ForDirection(direction);
         int ringPosition = MotherBrainTurretDefinitions.Ring.PositionOf(direction);
         bullet.DirectionParameter = ringPosition;
         bullet.Variable0 = ringPosition * 2;

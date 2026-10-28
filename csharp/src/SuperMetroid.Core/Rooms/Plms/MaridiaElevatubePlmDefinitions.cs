@@ -26,25 +26,12 @@ internal static class MaridiaElevatubePlmDefinitions
         new(BlockDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { PhysicalWord.Raw }, new(0, 0)),
+                new(PlmRunDirection.Horizontal, new ushort[] { PhysicalWord.Raw }, new(0, 0)),
             });
 
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>
     internal const string VisualId = "elevatube-block";
 
     /// <summary>Exposes the sole elevatube draw list to artwork export.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws
-    {
-        get { yield return BlockDrawList; }
-    }
-
-    /// <summary>Maps the native elevatube draw pointer to its asset identity and rejects unrelated pointers.</summary>
-    internal static string DrawVisualId(PlmDraw request) => request == BlockDraw
-        ? VisualId
-        : throw new InvalidDataException($"Maridia elevatube draw {request} has no visual ID.");
-
-    /// <summary>Resolves the extracted elevatube artwork by its stable asset identity.</summary>
-    internal static bool TryGetDrawByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId([BlockDrawList], _ => VisualId, id, out draw);
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws => [BlockDrawList];
 }

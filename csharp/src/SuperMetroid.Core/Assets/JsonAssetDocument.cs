@@ -171,9 +171,9 @@ internal static class JsonAssetDocument
     }
 
     /// <summary>
-    /// The names seen in one object. Plain ASCII names are indexed by a case-folded FNV-1a hash
-    /// of their raw bytes, so large objects (named frame tables) check each name in constant
-    /// time; escaped or non-ASCII names, whose folding the hash cannot mirror, are compared
+    /// The names seen in one object. ASCII names, escaped or not, are indexed by a case-folded FNV-1a hash
+    /// of their text, so large objects (named frame tables) check each name in constant
+    /// time; non-ASCII names, whose folding the hash cannot mirror, are compared
     /// directly against every name.
     /// </summary>
     private sealed class ObjectNames
@@ -220,17 +220,31 @@ internal static class JsonAssetDocument
             else irregular.Add(names.Count - 1);
         }
 
-        /// <summary>Hashes an unescaped ASCII name with optional case folding; declines names requiring Unicode decoding.</summary>
+        /// <summary>
+        /// Hashes an ASCII name with optional case folding; declines names with non-ASCII text. An escaped name hashes its
+        /// decoded text, so its escaped and plain spellings share a hash: the serializer escapes characters such as '+',
+        /// and comparing every escaped name of a large frame table against all the others made validation quadratic.
+        /// </summary>
         private static bool TryHash(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase, out ulong hash)
         {
             hash = 14695981039346656037;
-            if (name.Decoded is not null) return false;
-            foreach (int value in json.Slice(name.Start, name.Length))
+            if (name.Decoded is { } decoded)
             {
-                if (value >= 0x80) return false; // cartridge-encoding: allow(Text) - first non-ASCII byte
-                int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value; // cartridge-encoding: allow(Text) - ASCII lower-case bit
-                hash = (hash ^ (uint)folded) * 1099511628211;
+                foreach (char value in decoded)
+                    if (!Mix(value, ignoreCase, ref hash)) return false;
+                return true;
             }
+            foreach (int value in json.Slice(name.Start, name.Length))
+                if (!Mix(value, ignoreCase, ref hash)) return false;
+            return true;
+        }
+
+        /// <summary>Folds one ASCII character into an FNV-1a hash; declines a non-ASCII character.</summary>
+        private static bool Mix(int value, bool ignoreCase, ref ulong hash)
+        {
+            if (value >= 0x80) return false; // cartridge-encoding: allow(Text) - first non-ASCII character
+            int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value; // cartridge-encoding: allow(Text) - ASCII lower-case bit
+            hash = (hash ^ (uint)folded) * 1099511628211;
             return true;
         }
     }

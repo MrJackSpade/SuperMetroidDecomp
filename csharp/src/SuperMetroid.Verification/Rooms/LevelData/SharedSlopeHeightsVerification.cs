@@ -17,18 +17,18 @@ internal static class SharedSlopeHeightsVerification
         byte[] native = new byte[512];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = rom.ReadCartridgeByte(SlopeHeightDefinitions.ReferenceAddress + i);
-            AssertEqual((byte)(native[i] & 31), SlopeHeightDefinitions.Read(i / 16, i % 16), "All native slope height samples");
+            native[i] = rom.ReadCartridgeByte(SlopeHeights.ReferenceAddress + i);
+            AssertEqual((byte)(native[i] & 31), SlopeHeights.Read(i / 16, i % 16), "All native slope height samples");
         }
         foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeightDefinitions.Read(invalid, 0), "invalid slope shape");
-            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeightDefinitions.Read(0, invalid), "invalid slope column");
+            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeights.Read(invalid, 0), "invalid slope shape");
+            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeights.Read(0, invalid), "invalid slope column");
         }
         for (int shape = 0; shape < 32; shape++)
-            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeightDefinitions.Read(shape, 16), "column cannot cross profile seam");
+            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeights.Read(shape, 16), "column cannot cross profile seam");
         for (int column = 0; column < 16; column++)
-            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeightDefinitions.Read(32, column), "shape cannot exceed catalog");
+            AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeights.Read(32, column), "shape cannot exceed catalog");
         var forbidden = NewSlopeHeightNoReadBus();
         var enemies = new RoomEnemySystem(new EnemySession());
         var enemy = enemies.SlotTable.Slots[0];

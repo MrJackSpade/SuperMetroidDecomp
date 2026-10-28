@@ -31,7 +31,7 @@ public static class SamusBombJumpMovement
         // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
         // frame-handler alpha, so this routine replaces only the launch speed/direction.
         samus.Kinematics.YSpeed =
-            SamusVerticalMotionDefinitions.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
+            SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;

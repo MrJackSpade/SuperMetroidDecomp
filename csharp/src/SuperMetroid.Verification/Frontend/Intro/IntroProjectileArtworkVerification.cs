@@ -38,7 +38,7 @@ internal static class IntroProjectileArtworkVerification
             var shot = projectiles.Slots[0];
             shot.Type = family; shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
-            AssertEqual(sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite))),
+            AssertEqual(sheet.Frame(ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite))),
                 Shown(intro, SpriteSourceKind.SamusProjectile).Image, $"Intro family ${family:X} shows its frame of the intro's projectile sheet");
         }
         projectiles.Reset();
@@ -46,7 +46,7 @@ internal static class IntroProjectileArtworkVerification
         var side = projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.InstructionTimer = WrappingCountdown.Start(100);
         side.Position = side.Position.WithX(100).WithY(100); side.ShownPose = frame;
-        AssertEqual(sheet.Frame(ProjectileSheetDefinitions.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,
+        AssertEqual(sheet.Frame(ProjectileSheetFrames.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,
             "Intro trail shows its pose's frame of the intro's projectile sheet");
         AssertEqual(99, side.InstructionTimer.RawValue, "Intro preparation advances trail exactly once per call");
         game.BindArtwork(game.Artwork with { SpriteSheets = null });

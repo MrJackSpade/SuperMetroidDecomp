@@ -36,7 +36,7 @@ internal static class PlmFixtures
 
     /// <summary>Binds <paramref name="fixture"/> to <paramref name="room"/> as a room load does, then loads the population.</summary>
     /// <returns>The number of records spawned.</returns>
-    internal static int LoadPopulation(ref RoomPlmSystem fixture, PlmRoom room, RoomPlmPopulationDefinition population, RoomPlmServices services)
+    internal static int LoadPopulation(ref RoomPlmSystem fixture, PlmRoom room, RoomPlmPopulation population, RoomPlmServices services)
     {
         fixture = Bound(room, services, fixture);
         return fixture.PopulationLoader.LoadRoomPopulation(room, population, services);
@@ -44,7 +44,7 @@ internal static class PlmFixtures
 
     /// <summary>Loads a population into a new room-bound copy of <paramref name="fixture"/> that the caller does not keep.</summary>
     /// <returns>The number of records spawned.</returns>
-    internal static int LoadPopulation(RoomPlmSystem fixture, PlmRoom room, RoomPlmPopulationDefinition population, RoomPlmServices services) =>
+    internal static int LoadPopulation(RoomPlmSystem fixture, PlmRoom room, RoomPlmPopulation population, RoomPlmServices services) =>
         LoadPopulation(ref fixture, room, population, services);
 
     /// <summary>The installed artwork a fixture draws with; editing it changes what the fixture draws.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Map;
 
 /// <summary>Temporary host-side visibility applied while presenting cartridge area maps.</summary>
-public enum MapRevealMode : byte
+public enum MapRevealMode
 {
     /// <summary>Use only persistent exploration and legitimately acquired area-map data.</summary>
     None = 0,

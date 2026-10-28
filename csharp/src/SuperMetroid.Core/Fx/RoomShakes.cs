@@ -1,0 +1,33 @@
+namespace SuperMetroid.Core.Fx;
+
+/// <summary>
+/// Decodes a rendered earthquake type into the displacement it applies to BG1, BG2 and projectiles.
+/// </summary>
+internal static class RoomShakes
+{
+    /// <summary>Returns the physical displacement record for earthquake type 0..35.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A0/86.asm.
+    /// Type encodes group=type/9, magnitude=(type/3)%3+1 and direction=type%3:
+    /// horizontal, vertical, diagonal. BG1 is enabled except group 3; BG2 except group 0;
+    /// projectiles only in groups 2/3. All 216 original words follow this Cartesian
+    /// product exactly. The three recipient vectors have separate complete-domain proofs.
+    /// Validate before division/modulo; types 36+ remain caller-owned non-rendered effects.
+    /// Timer-controlled sign alternation, freezing and lifetime updates remain in callers.
+    /// </remarks>
+    internal static RoomShakeDefinition ForType(int earthquakeType)
+    {
+        if (earthquakeType is < 0 or >= 36)
+            throw new InvalidDataException(
+                $"Earthquake type ${earthquakeType:X4} exceeds the 36 rendered definitions.");
+        int group = earthquakeType / 9;
+        int magnitude = (short)(earthquakeType / 3 % 3 + 1);
+        int direction = earthquakeType % 3;
+        Offset16<RoomPixels> shake = new(
+            checked((short)(direction == 1 ? 0 : magnitude)), checked((short)(direction == 0 ? 0 : magnitude)));
+        return new(
+            group == 3 ? Offset16<RoomPixels>.Zero : shake,
+            group == 0 ? Offset16<Bg2Pixels>.Zero : new(shake.X, shake.Y),
+            group < 2 ? Offset16<RoomPixels>.Zero : shake);
+    }
+}

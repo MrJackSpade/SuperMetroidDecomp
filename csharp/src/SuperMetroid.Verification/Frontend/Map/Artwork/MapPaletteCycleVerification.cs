@@ -28,7 +28,7 @@ internal static class MapPaletteCycleVerification
 {
     /// <summary>Compares native animation cadence and CGRAM, then checks override rebinding and visible palette isolation.</summary>
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
+        AreaMapPresentation original, ImportedAreaMap[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);
         var arrows = new FileSelectMapAnimations(original.Arrows);

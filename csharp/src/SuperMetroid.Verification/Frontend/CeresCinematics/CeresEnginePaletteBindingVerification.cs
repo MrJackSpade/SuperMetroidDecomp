@@ -28,8 +28,8 @@ internal static class CeresEnginePaletteBindingVerification
     internal static void VerifyCeresEnginePaletteBinding(string installationRoot)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
-        AreaMapPresentationCatalog stock = MapPresentationFiles.Load(installation.MapDirectory, null);
-        IntroCinematicArtworkCatalog artwork = installation.LoadIntroCinematicArt();
+        AreaMapPresentation stock = MapPresentationFiles.Load(installation.MapDirectory, null);
+        IntroCinematicArtwork artwork = installation.LoadIntroCinematicArt();
         InstalledSpriteSheets sheets = installation.LoadSpriteSheets();
         int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
@@ -77,7 +77,7 @@ internal static class CeresEnginePaletteBindingVerification
                 new JsonArray(new JsonObject { ["red"] = 31, ["green"] = 0, ["blue"] = 0 }),
                 new JsonArray(new JsonObject { ["red"] = 0, ["green"] = 31, ["blue"] = 0 }));
             File.WriteAllText(Path.Combine(edits, RoomPaletteFxPresentationFormat.FileName), document.ToJsonString());
-            AreaMapPresentationCatalog edited = MapPresentationFiles.Load(installation.MapDirectory, edits);
+            AreaMapPresentation edited = MapPresentationFiles.Load(installation.MapDirectory, edits);
             // Installed artwork is not saved state; the host rebinds all of it after a restore.
             restored.BindArtwork(restored.Artwork with
             {

@@ -56,29 +56,22 @@ public static class EscapeTypewriterDefinitions
     /// <summary>$A6:C4A0..C4C9: reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
     private const int ZebesLineCount = 2;
 
-    /// <summary>Ceres uses three warning lines while Zebes uses two.</summary>
-    internal static int LineCount(EscapeTypewriterProgramId id) => id switch
-    {
-        EscapeTypewriterProgramId.Ceres => CeresLineCount,
-        EscapeTypewriterProgramId.Zebes => ZebesLineCount,
-        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id)),
-        _ => throw new ArgumentOutOfRangeException(nameof(id)),
-    };
-
-    /// <summary>Builds one selected warning line and its first overlay cell from reviewed wording and line spacing.</summary>
-    internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
-    {
-        if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
-        string text = new EscapeTypewriterLineKey(id, index) switch
+    /// <summary>Each warning program's line count: Ceres uses three warning lines while Zebes uses two.</summary>
+    internal static readonly IReadOnlyDictionary<EscapeTypewriterProgramId, int> LineCounts =
+        new Dictionary<EscapeTypewriterProgramId, int>
         {
-            (EscapeTypewriterProgramId.Ceres, 0) => CeresSequenceWarning,
-            (EscapeTypewriterProgramId.Ceres, 1) => CeresEvacuationWarning,
-            (EscapeTypewriterProgramId.Ceres, 2) => CeresColonyWarning,
-            (EscapeTypewriterProgramId.Zebes, 0) => ZebesBombWarning,
-            (EscapeTypewriterProgramId.Zebes, 1) => ZebesEscapeWarning,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            [EscapeTypewriterProgramId.Ceres] = CeresLineCount,
+            [EscapeTypewriterProgramId.Zebes] = ZebesLineCount,
         };
-        return new((FirstRow + index * LineRowStep) * MaximumLineLength + FirstColumn, text);
-    }
 
+    /// <summary>The reviewed wording of each warning line, by program and line.</summary>
+    internal static readonly IReadOnlyDictionary<EscapeTypewriterLineKey, string> LineTexts =
+        new Dictionary<EscapeTypewriterLineKey, string>
+        {
+            [new(EscapeTypewriterProgramId.Ceres, 0)] = CeresSequenceWarning,
+            [new(EscapeTypewriterProgramId.Ceres, 1)] = CeresEvacuationWarning,
+            [new(EscapeTypewriterProgramId.Ceres, 2)] = CeresColonyWarning,
+            [new(EscapeTypewriterProgramId.Zebes, 0)] = ZebesBombWarning,
+            [new(EscapeTypewriterProgramId.Zebes, 1)] = ZebesEscapeWarning,
+        };
 }

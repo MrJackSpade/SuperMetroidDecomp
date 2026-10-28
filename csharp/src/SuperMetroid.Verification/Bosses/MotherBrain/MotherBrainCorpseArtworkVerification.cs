@@ -52,8 +52,8 @@ internal static class MotherBrainCorpseArtworkVerification
         byte[] stockCharacters = TransferMotherBrainCorpsePages(stock);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
-            int sourceOffset = MotherBrainCorpseArtworkDefinitions.PageOffset(page);
-            int shownOffset = MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(page) * RoomCharacterAtlasFormat.BytesPerTile;
+            int sourceOffset = MotherBrainCorpseSheet.PageOffset(page);
+            int shownOffset = MotherBrainCorpseSheet.PageFirstCharacter(page) * RoomCharacterAtlasFormat.BytesPerTile;
             AssertTrue(stockCharacters.AsSpan(shownOffset,
                     MotherBrainCorpseArtworkDefinitions.PageByteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset,
@@ -107,7 +107,7 @@ internal static class MotherBrainCorpseArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
-        int editedVramOffset = MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(0) * RoomCharacterAtlasFormat.BytesPerTile +
+        int editedVramOffset = MotherBrainCorpseSheet.PageFirstCharacter(0) * RoomCharacterAtlasFormat.BytesPerTile +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockCharacters[editedVramOffset] ^ 0x80),
             editedCharacters[editedVramOffset],
@@ -150,7 +150,7 @@ internal static class MotherBrainCorpseArtworkVerification
     private static byte[] StagedCorpseRows(CorpseStaging staged) =>
         [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount).SelectMany(row => staged.Upload(new CorpseRotRow(row,
             EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
-            MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0)))];
+            MotherBrainCorpseSheet.InitialCopyLength(row), 0)))];
 
     /// <summary>Compares the extraction's staged corpse rows with an independent native copy.</summary>
     private static void AssertMotherBrainCorpseStagingParity(NativeEnemyStaging expected, CorpseStaging actual)
@@ -159,7 +159,7 @@ internal static class MotherBrainCorpseArtworkVerification
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
             byte[] staged = actual.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
-                MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
+                MotherBrainCorpseSheet.InitialCopyLength(row), 0));
             for (int offset = 0; offset < staged.Length; offset++)
                 AssertEqual(expectedTiles[row * MotherBrainCorpseArtworkDefinitions.RowBytes + offset], staged[offset],
                     "installed Mother Brain corpse staging agrees with cartridge");

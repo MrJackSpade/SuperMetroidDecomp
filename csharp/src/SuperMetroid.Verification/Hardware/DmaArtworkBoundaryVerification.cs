@@ -34,7 +34,7 @@ internal static class DmaArtworkBoundaryVerification
         using var temporary = new TestScratchDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         InstalledEnemyArtwork art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas, BossArtworkBinding = { HudTileArtwork = maps.HudTiles } };

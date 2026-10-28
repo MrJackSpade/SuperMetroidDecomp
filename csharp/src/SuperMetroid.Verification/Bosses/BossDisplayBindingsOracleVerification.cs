@@ -86,14 +86,14 @@ internal static class BossDisplayBindingsOracleVerification
     /// <summary>Selects compiled component offsets and each component's hitbox records for the frame's boss family.</summary>
     private static BossPhysicalComponentsResult[] BossPhysicalComponents(EnemySpritemapDefinition frame) => frame.Bank switch
     {
-        CrocomireBg2FrameDefinitionsConstants.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
+        CrocomireBg2FrameDefinitionsConstants.Bank => CrocomireBodyCollision.ComponentsAt(frame.Pointer)
             .SelectToArray(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())),
-        PhantoonBg2FrameDefinitionsConstants.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
+        PhantoonBg2FrameDefinitionsConstants.Bank => PhantoonCollision.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
-        DraygonBg2FrameToolingDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
+        DraygonBg2FrameToolingDefinitions.Bank => DraygonCollision.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),

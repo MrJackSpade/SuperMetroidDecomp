@@ -42,7 +42,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
             PaletteFxColorKey key = program.Color(frame, index);
-            if (TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out RgbColor calculated) &&
+            if (TitleAmbientColors.TryCalculate(key, colors, animatedColors, out RgbColor calculated) &&
                 animatedColors[key] == calculated) animatedColors.Remove(key);
         }
         return new TitlePalettePresentation(colors, animatedColors, skipCopyrightWhite, skipCopyrightRed);
@@ -59,7 +59,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <returns>True when the key identifies an authored or matching calculated ambient color; false for other records.</returns>
     public bool TryReadColor(PaletteFxColorKey key, out RgbColor color) =>
         animatedColors.TryGetValue(key, out color) ||
-        TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out color);
+        TitleAmbientColors.TryCalculate(key, colors, animatedColors, out color);
 
     /// <summary>Replaces every colour of the screen with the authored palette.</summary>
     /// <param name="destination">The screen's colours; ambient animation and skip-only replacements are applied separately by the title state.</param>

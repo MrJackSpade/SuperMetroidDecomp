@@ -34,7 +34,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                  EnemyExtendedFrameDefinitions.Frames)
         {
             if (frame.Bank != DraygonBg2FrameToolingDefinitions.Bank ||
-                !SporeSpawnCollisionDefinitions.IsFrame(frame.Pointer))
+                !SporeSpawnCollision.IsFrame(frame.Pointer))
                 continue;
             AssertTrue(selected.Contains(frame.Pointer),
                 $"Spore Spawn program selects native frame {frame.Pointer:X4}");
@@ -42,7 +42,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 frame.Pointer;
             int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             ReadOnlySpan<SporeSpawnCollisionComponent> components =
-                SporeSpawnCollisionDefinitions.ComponentsAt(frame.Pointer);
+                SporeSpawnCollision.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Spore Spawn frame {frame.Pointer:X4} native component count");
             for (int component = 0; component < components.Length; component++)
@@ -84,16 +84,16 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         AssertEqual(SporeSpawnCollisionDefinitions.ListCount, seenLists.Count,
             "all compiled Spore Spawn hitbox lists are referenced");
         AssertThrows<InvalidDataException>(
-            () => SporeSpawnCollisionDefinitions.ComponentsAt(0xa2df),
+            () => SporeSpawnCollision.ComponentsAt(0xa2df),
             "Draygon frame cannot enter Spore Spawn collision data");
         foreach (ushort invalid in new ushort[] { 0xee64, 0xee66, 0xee70, 0xee7a, 0xeef7, 0xef01, 0xef33, 0xef62 })
         {
-            AssertTrue(!SporeSpawnCollisionDefinitions.IsFrame(invalid), "Spore component exact native root domain");
-            AssertThrows<InvalidDataException>(() => SporeSpawnCollisionDefinitions.ComponentsAt(invalid),
+            AssertTrue(!SporeSpawnCollision.IsFrame(invalid), "Spore component exact native root domain");
+            AssertThrows<InvalidDataException>(() => SporeSpawnCollision.ComponentsAt(invalid),
                 "Spore invalid or unused component root rejected");
         }
-        AssertEqual(1, SporeSpawnCollisionDefinitions.ComponentsAt(0xee6f).Length, "Spore closed frame has no inner point");
-        AssertEqual(2, SporeSpawnCollisionDefinitions.ComponentsAt(0xef3d).Length, "Spore open frame has exactly two components");
+        AssertEqual(1, SporeSpawnCollision.ComponentsAt(0xee6f).Length, "Spore closed frame has no inner point");
+        AssertEqual(2, SporeSpawnCollision.ComponentsAt(0xef3d).Length, "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
 
         // Compares one compiled hitbox list with the cartridge list its component names.

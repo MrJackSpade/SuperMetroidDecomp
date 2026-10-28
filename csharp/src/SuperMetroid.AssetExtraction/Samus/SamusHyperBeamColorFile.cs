@@ -13,7 +13,7 @@ public static class SamusHyperBeamColorFile
     /// <returns>Compiled packed-color catalog detached from the document arrays, with shared hue/shade relationships resolved on demand.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, dimensions other than ten rows of sixteen colors, null colors, or channels outside 0..31.</exception>
-    public static SamusHyperBeamColorCatalog Read(Stream json)
+    public static InstalledSamusHyperBeamColors Read(Stream json)
     {
         Ensure.NotNull(json);
         SamusHyperBeamColorDocument document;
@@ -24,7 +24,7 @@ public static class SamusHyperBeamColorFile
     }
 
     /// <summary>Validates independently supplied rows for either native view of the Hyper Beam palette.</summary>
-    internal static SamusHyperBeamColorCatalog FromFrames(PaletteRgb5[][]? frames)
+    internal static InstalledSamusHyperBeamColors FromFrames(PaletteRgb5[][]? frames)
     {
         if (!SamusHyperBeamColorFormat.Shape.HasRows(frames))
             throw new InvalidDataException("Samus Hyper Beam colors require ten frames.");

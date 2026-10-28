@@ -33,8 +33,8 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(0, slot.Timer.RawValue, "Bull loop timer");
             AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initial animation");
         }
-        AssertThrows<InvalidDataException>(() => BullMovementDefinitions.MaximumSpeed(8), "Bull unknown speed selector");
-        AssertThrows<InvalidDataException>(() => BullMovementDefinitions.Intervals(13), "Bull unknown interval selector");
+        AssertThrows<InvalidDataException>(() => BullMotion.MaximumSpeed(8), "Bull unknown speed selector");
+        AssertThrows<InvalidDataException>(() => BullMotion.Intervals(13), "Bull unknown interval selector");
         Console.WriteLine("Bull definitions: all 104 authored initializer combinations match native tables without a loaded bus; live timers and instruction setup preserved.");
     }
 }

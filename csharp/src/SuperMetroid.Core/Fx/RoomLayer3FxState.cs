@@ -32,7 +32,7 @@ public sealed class RoomLayer3FxState
     public RoomFixedColor FixedColors => _session.FixedColors;
 
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
-    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps => _session.Layer3Tilemaps;
+    public RoomFxLayer3Pages? Layer3Tilemaps => _session.Layer3Tilemaps;
 
     /// <summary>The effect whose authored page the room's BG3 plane shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
@@ -43,7 +43,7 @@ public sealed class RoomLayer3FxState
         : [];
 
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
-    public RoomFxPaletteBlendCatalog? PaletteBlendColors => _session.PaletteBlendColors;
+    public RoomFxBlendInks? PaletteBlendColors => _session.PaletteBlendColors;
     /// <summary>
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
     /// byte offsets BG3 scroll before the next velocity step.
@@ -58,6 +58,12 @@ public sealed class RoomLayer3FxState
     private Position16<RoomPixels> previousCamera;
     /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
     private const int TidePhasePeriod = 65536;
+
+    /// <summary>
+    /// The surface height a record that names none holds: below every room, so a base there shows no liquid and a target
+    /// there disables the motion.
+    /// </summary>
+    private const int UnnamedSurfaceY = ushort.MaxValue;
     /// <summary>
     /// Negative-cosine lookup phase for the liquid tide, 0 through 65535: its whole 1/256 turns select the sample, and
     /// it returns to zero after a full turn through <see cref="AdvanceTidePhase"/>.
@@ -180,7 +186,7 @@ public sealed class RoomLayer3FxState
     public static RoomLayer3FxState ForRoom(
         RoomFxSession session,
         BackgroundColourSets colours,
-        RoomFxDefinition? fx,
+        RoomFxHeader? fx,
         DoorDefinition? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
@@ -210,9 +216,9 @@ public sealed class RoomLayer3FxState
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
-        BaseY = BaseY.WithWhole(checked((ushort)definition.BaseYPosition));
-        TargetSurface = new(0, checked((ushort)definition.TargetYPosition));
-        YVelocity = new(checked((ushort)definition.PackedYVelocity));
+        BaseY = BaseY.WithWhole(checked((ushort)(definition.BaseYPosition ?? UnnamedSurfaceY)));
+        TargetSurface = new(0, checked((ushort)(definition.TargetYPosition ?? UnnamedSurfaceY)));
+        YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
         Surface = new(0, BaseY.Whole);
@@ -446,9 +452,9 @@ public sealed class RoomLayer3FxState
         RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
-        BaseY = BaseY.WithWhole(checked((ushort)definition.BaseYPosition));
-        TargetSurface = new(0, checked((ushort)definition.TargetYPosition));
-        YVelocity = new(checked((ushort)definition.PackedYVelocity));
+        BaseY = BaseY.WithWhole(checked((ushort)(definition.BaseYPosition ?? UnnamedSurfaceY)));
+        TargetSurface = new(0, checked((ushort)(definition.TargetYPosition ?? UnnamedSurfaceY)));
+        YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
         LayerBlendConfiguration = definition.Layer3LayerBlend;

@@ -107,7 +107,7 @@ internal sealed class BombSpreadTransitionScenario
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;
 
     /// <summary>The runtime's installed projectile list layout, whose instruction pointers the rows print.</summary>
-    private SamusProjectileListLayout Lists => (Runtime.Artwork.SamusOverreads ?? throw new InvalidOperationException(
+    private InstalledProjectileListPositions Lists => (Runtime.Artwork.SamusOverreads ?? throw new InvalidOperationException(
         "The bomb-spread trace needs the installed Samus overread catalog.")).ProjectileLists;
 
     /// <summary>One row per bomb slot. Inactive native slots retain scratch words that are overwritten

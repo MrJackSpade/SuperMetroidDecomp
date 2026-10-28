@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// What closes behind Samus on arrival through a door. The values are arbitrary; the import pipeline decodes the
 /// cartridge's orientation byte into them (#1414).
 /// </summary>
-public enum DoorClosingBehavior : byte
+public enum DoorClosingBehavior
 {
     /// <summary>Nothing closes.</summary>
     None = 1,

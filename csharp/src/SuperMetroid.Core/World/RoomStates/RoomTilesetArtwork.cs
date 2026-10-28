@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <param name="PaletteBytes">The tileset's little-endian BGR555 palette bytes.</param>
 /// <param name="Pictures">The installed pre-coloured room artwork: block sheets and library background images (#1392).</param>
 public sealed record RoomTilesetArtwork(TilesetDefinition Tileset, int CreCharacterCount, int TilesetCharacterCount, byte[] PaletteBytes,
-    RoomBlockSheetCatalog Pictures);
+    InstalledRoomArtwork Pictures);

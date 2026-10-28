@@ -19,7 +19,7 @@ public static class SamusProjectileSoundRoutingDefinitions
     internal static readonly SoundEffectId SuperMissileRequest = Library1Sound.SuperMissile;
 
     /// <summary>Each authored beam combination's uncharged firing sound.</summary>
-    private static readonly IReadOnlyDictionary<SamusBeamCombination, SoundEffectId> Uncharged = new Dictionary<SamusBeamCombination, SoundEffectId>
+    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SoundEffectId> Uncharged = new Dictionary<SamusBeamCombination, SoundEffectId>
     {
         [SamusBeamCombination.Power] = Library1Sound.UnchargedPowerBeam,
         [SamusBeamCombination.Ice] = Library1Sound.UnchargedIceBeam,
@@ -36,7 +36,7 @@ public static class SamusProjectileSoundRoutingDefinitions
     };
 
     /// <summary>Each authored beam combination's charged firing sound.</summary>
-    private static readonly Dictionary<SamusBeamCombination, SoundEffectId> Charged = new Dictionary<SamusBeamCombination, SoundEffectId>
+    internal static readonly Dictionary<SamusBeamCombination, SoundEffectId> Charged = new Dictionary<SamusBeamCombination, SoundEffectId>
     {
         [SamusBeamCombination.Power] = Library1Sound.ChargedPowerBeam,
         [SamusBeamCombination.Ice] = Library1Sound.ChargedIceBeam,
@@ -50,22 +50,5 @@ public static class SamusProjectileSoundRoutingDefinitions
         [SamusBeamCombination.PlasmaIce] = Library1Sound.ChargedPlasmaIce,
         [SamusBeamCombination.PlasmaIceWave] = Library1Sound.ChargedPlasmaIceWave,
         [SamusBeamCombination.PlasmaWave] = Library1Sound.ChargedPlasmaWave,
-    };
-
-    /// <summary>The library-one sound a shot of <paramref name="combination"/> fires with, or none.</summary>
-    public static SoundEffectId? Resolve(bool charged, SamusBeamCombination combination) => combination switch
-    {
-        SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
-            SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
-            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
-            SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave =>
-            (charged ? Charged : Uncharged)[combination],
-        // The uncharged overread reaches the first charged beam family. The
-        // charged overread reaches the non-beam no-sound/missile/super/no-sound row.
-        SamusBeamCombination.SpazerPlasma => charged ? null : Charged[SamusBeamCombination.Power],
-        SamusBeamCombination.SpazerPlasmaWave => charged ? MissileRequest : Charged[SamusBeamCombination.Wave],
-        SamusBeamCombination.SpazerPlasmaIce => charged ? SuperMissileRequest : Charged[SamusBeamCombination.Ice],
-        SamusBeamCombination.SpazerPlasmaIceWave => charged ? null : Charged[SamusBeamCombination.IceWave],
-        _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 }

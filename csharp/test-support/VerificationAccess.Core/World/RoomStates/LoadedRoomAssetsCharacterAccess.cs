@@ -14,15 +14,15 @@ internal static class LoadedRoomAssetsCharacterAccess
     extension(LoadedRoomAssets self)
     {
         /// <summary>The common room elements' characters the room binds, as <paramref name="characters"/> installs them.</summary>
-        internal ReadOnlyMemory<byte> CreCharactersIn(RoomCharacterAtlasCatalog characters) =>
+        internal ReadOnlyMemory<byte> CreCharactersIn(RoomCharacterAtlases characters) =>
             Bound(characters, RoomBgArtwork.CommonRoomElements, self.CreCharacterCount);
 
         /// <summary>The tileset's characters the room binds, as <paramref name="characters"/> installs them.</summary>
-        internal ReadOnlyMemory<byte> TilesetCharactersIn(RoomCharacterAtlasCatalog characters) =>
+        internal ReadOnlyMemory<byte> TilesetCharactersIn(RoomCharacterAtlases characters) =>
             Bound(characters, RoomBgArtwork.Tileset(self.Tileset.Characters), self.TilesetCharacterCount);
     }
 
     /// <summary>The first <paramref name="characterCount"/> tile characters <paramref name="artwork"/> names in the catalog.</summary>
-    private static ReadOnlyMemory<byte> Bound(RoomCharacterAtlasCatalog characters, BgArtworkIdentity artwork, int characterCount) =>
+    private static ReadOnlyMemory<byte> Bound(RoomCharacterAtlases characters, BgArtworkIdentity artwork, int characterCount) =>
         new BgArtworkBytes().WithRoomCharacters(characters).Of(new BgArtworkBinding(artwork, BgCharacterSet.Tiles, 0, characterCount));
 }

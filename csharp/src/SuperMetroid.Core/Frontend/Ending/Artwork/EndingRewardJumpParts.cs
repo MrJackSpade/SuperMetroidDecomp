@@ -10,7 +10,7 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses calculated parts only for the suited ending jump frame.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
-        shown == EndingRewardSpriteDefinitions.FramePose(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
+        shown == EndingRewardSpritePoses.FramePose(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
             ? supplied.CalculateIfMatching(new EndingRewardJumpParts()) : supplied;
 
     /// <summary>Twenty native limb and body sprite strips form the jumping pose.</summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// $90:AD12 loop at $9131. Subsequent animation records start later in this same
 /// window. Y advances by two through $FFFF, then wraps into live low WRAM and
 /// exits at $0021. The window's bytes are bank-$80 program observed through bank $00;
-/// the import pipeline reads them from the player's cartridge into <see cref="SamusOverreadCatalog"/>.
+/// the import pipeline reads them from the player's cartridge into <see cref="InstalledSamusOverreads"/>.
 /// </remarks>
 internal static class SpacetimeBeamCopyDefinitions
 {

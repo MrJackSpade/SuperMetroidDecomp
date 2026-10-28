@@ -26,7 +26,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         {
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
-                EscapeEtecoonDefinitions.Initialization(parameter);
+                EscapeEtecoons.Initialization(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
                 $"escape Etecoon role {role} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
@@ -43,10 +43,10 @@ internal static class EscapeEtecoonDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EscapeEtecoonDefinitions.Initialization(6),
+            () => EscapeEtecoons.Initialization(6),
             "escape Etecoon selector after authored roles");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EscapeEtecoonDefinitions.Initialization(0xffff),
+            () => EscapeEtecoons.Initialization(0xffff),
             "escape Etecoon wrapping restored selector");
 
         var guarded = NewEscapeEtecoonDefinitionGuard(rom);
@@ -62,7 +62,7 @@ internal static class EscapeEtecoonDefinitionsVerification
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
-                EscapeEtecoonDefinitions.Initialization(parameter);
+                EscapeEtecoons.Initialization(parameter);
             EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
                 throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
             AssertEqual(expected.Position.X, slot.Position.X.Whole,

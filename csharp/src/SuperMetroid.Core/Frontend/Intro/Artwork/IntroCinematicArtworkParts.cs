@@ -55,8 +55,8 @@ public sealed record IntroCinematicArtworkParts
     public required IntroCinematicPalette Palette { get; init; }
 
     /// <summary>Mode-7 and OBJ artwork used after the narration fades to Ceres.</summary>
-    public required CeresFlightArtworkCatalog CeresFlight { get; init; }
+    public required CeresFlightArtwork CeresFlight { get; init; }
 
     /// <summary>Ceres destruction artwork and subsequent Zebes reveal artwork.</summary>
-    public required CeresDestructionArtworkCatalog CeresDestruction { get; init; }
+    public required CeresDestructionArtwork CeresDestruction { get; init; }
 }

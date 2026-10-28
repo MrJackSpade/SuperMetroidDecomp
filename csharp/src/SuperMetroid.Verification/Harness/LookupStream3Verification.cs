@@ -264,15 +264,15 @@ internal static class LookupStream3Verification
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Primary, 0x82d24b, 34), new VerifyStream3OptionsBordersCase(GameOptionsPage.Controller, 0x82d2f7, 58), new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82d41b, 52),
         })
         {
-            string name = GameOptionsPresentationDefinitions.HeadingSpriteName(page);
+            string name = GameOptionsNames.HeadingSpriteName(page);
             var original = Read();
             var stock = Load(original)[page];
-            AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
+            AssertTrue(stock.parts is MenuHeadingBorder,
                 "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = GameOptionsPresentationDefinitions.MenuName(page);
+            string anchorKey = GameOptionsNames.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -333,15 +333,15 @@ internal static class LookupStream3Verification
             new VerifyStream3FileSelectBordersCase(FileSelectBorder.Main, 0x82d00b, 32), new VerifyStream3FileSelectBordersCase(FileSelectBorder.Copy, 0x82d0ad, 40), new VerifyStream3FileSelectBordersCase(FileSelectBorder.Clear, 0x82d177, 42),
         })
         {
-            string name = FileSelectPresentationDefinitions.BorderSpriteName(border);
+            string name = FileSelectParts.BorderSpriteName(border);
             var original = Read();
             var stock = Load(original)[border];
-            AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
+            AssertTrue(stock.parts is MenuHeadingBorder,
                 "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = FileSelectPresentationDefinitions.BorderName(border);
+            string anchorKey = FileSelectParts.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
@@ -458,7 +458,7 @@ internal static class LookupStream3Verification
                 ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
                 BackgroundTile glyphTile = BackgroundTileWordBytes.Tile(glyph);
-                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyphTile, glyphTile == IntroNarrationDefinitions.CompileGlyph(' ')));
+                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyphTile, glyphTile == IntroNarrationGlyphs.CompileGlyph(' ')));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
@@ -520,10 +520,10 @@ internal static class LookupStream3Verification
     {
         static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => new(
             [.. Enum.GetValues<GameOverBabyFrame>().Select(frame =>
-                KeyValuePair.Create(GameOverPresentationDefinitions.BabyFrameName(frame), presentation.babySprites[frame])),
+                KeyValuePair.Create(GameOverPresentationNames.BabyFrameName(frame), presentation.babySprites[frame])),
             KeyValuePair.Create(GameOverPresentationDefinitions.EggFrame, presentation.eggSprite),
             .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-                KeyValuePair.Create(GameOverPresentationDefinitions.CursorFrameName(frame), presentation.cursorSprites[frame]))]);
+                KeyValuePair.Create(GameOverPresentationNames.CursorFrameName(frame), presentation.cursorSprites[frame]))]);
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
             var expected = MenuSpriteCompiler.Compile(expectedParts, "native or independently edited menu composition");
@@ -545,11 +545,11 @@ internal static class LookupStream3Verification
         var presentation = Load(original);
         List<GameOverSpriteDraw> draws =
         [
-            .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationDefinitions.BabyFrameName(frame),
+            .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationNames.BabyFrameName(frame),
                 oam => presentation.DrawBaby(oam, GameOverSheet, frame), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
             new(GameOverPresentationDefinitions.EggFrame, oam => presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
             .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame => new GameOverSpriteDraw(
-                GameOverPresentationDefinitions.CursorFrameName(frame), oam => presentation.DrawCursor(oam, GameOverSheet, frame, false),
+                GameOverPresentationNames.CursorFrameName(frame), oam => presentation.DrawCursor(oam, GameOverSheet, frame, false),
                 original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
         ];
         foreach (GameOverSpriteDraw draw in draws)
@@ -565,7 +565,7 @@ internal static class LookupStream3Verification
         }
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
         {
-            if (name == GameOverPresentationDefinitions.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
+            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             for (int part = 0; part < original.Sprites[name].Length; part++)
@@ -607,7 +607,7 @@ internal static class LookupStream3Verification
             var presentation = load(new MemoryStream(json));
             for (int frame = 0; frame < 4; frame++)
             {
-                string name = GameOverPresentationDefinitions.CursorFrameName(frame);
+                string name = GameOverPresentationNames.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
                 AssertTrue(Calculated(presentation[frame]), "shared menu cursor caller uses calculated geometry");
@@ -661,14 +661,14 @@ internal static class LookupStream3Verification
             new VerifyStream3FileSelectPatchesCase(FileSelectPatch.NoData, 0x81b4ac, 11),
         })
         {
-            string name = FileSelectPresentationDefinitions.PatchName(patch);
+            string name = FileSelectParts.PatchName(patch);
             FileSelectCompiledPatch Compiled(FileSelectPresentation value) => value.patches[patch];
             AssertTrue(Compiled(stock).suppliedCells is null,
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectPresentationDefinitions.PatchCell(patch, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectParts.PatchCell(patch, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -738,8 +738,8 @@ internal static class LookupStream3Verification
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
         Confirm(Load());
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapTile(-1), "game-over text negative cell");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapTile(1024), "game-over text final cell boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(-1), "game-over text negative cell");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(1024), "game-over text final cell boundary");
 
         void Confirm(GameOverPresentation presentation)
         {
@@ -777,7 +777,7 @@ internal static class LookupStream3Verification
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
+                GameOptionsArtworkCells.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -793,7 +793,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsPresentationDefinitions.ControllerLabelTile(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(GameOptionsArtworkCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();
@@ -806,7 +806,7 @@ internal static class LookupStream3Verification
             for (int cell = 0; cell < label.Length; cell++)
                 label[cell] = label[cell] with { FlipX = !label[cell].FlipX, Palette = 1 };
         edited.LanguageRegions[0].Cells[0] = 0;
-        edited.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)].EnabledCells[0] = 0;
+        edited.SpecialToggles[GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
         {
             Position16<SpritePixels> old = edited.HeadingAnchors[page];
@@ -833,7 +833,7 @@ internal static class LookupStream3Verification
             foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
-                GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(toggle)];
+                GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];
                 byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.SpecialEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
@@ -849,7 +849,7 @@ internal static class LookupStream3Verification
                 Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
-                    MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(button))][cell];
+                    MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(button))][cell];
                     ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
                         (source.FlipX ? TileFlip.Horizontal : TileFlip.None) |
                         (source.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
@@ -860,17 +860,17 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
-                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsNames.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
                     AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock/edited cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
-                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsNames.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
-                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingSpriteName(page)], "heading oracle")
+                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsNames.HeadingSpriteName(page)], "heading oracle")
                     .DrawOnScreen(expected, new(checked(heading.X), unchecked((ushort)(heading.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
                 actual.FinishFrame(); expected.FinalizeFrame();
@@ -1117,8 +1117,8 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileDefinitions.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileDefinitions.TransferFor(asset).SourceAddress,
+            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle));
+            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
 
@@ -1140,14 +1140,14 @@ internal static class LookupStream3Verification
         {
             AssertEqual(expectedTransfers[index], actualTransfers[index],
                 "stream 3 grapple transfer index");
-            AssertEqual(expectedTransfers[index], GrappleTileDefinitions.TransferFor(expectedTransfers[index].Asset),
+            AssertEqual(expectedTransfers[index], GrappleTileSelection.TransferFor(expectedTransfers[index].Asset),
                 "stream 3 grapple transfer asset dispatch");
             AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = actualTransfers[invalid],
                 "stream 3 grapple transfer bounds");
-        AssertThrows<InvalidDataException>(() => GrappleTileDefinitions.TransferFor((InstalledArtworkId)(-1)),
+        AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
             "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter <= ushort.MaxValue; parameter++)
@@ -1155,7 +1155,7 @@ internal static class LookupStream3Verification
             int offset = 2 * (parameter & 3);
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
-            SparkMovementDefinition definition = SparkMovementDefinitions.InitialState((ushort)parameter);
+            SparkMovementDefinition definition = SparkStarts.InitialState((ushort)parameter);
             // Selector three's list word is the following main-AI function pointer, which starts no animation.
             AssertEqual(list, definition.Program is { } program
                     ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
@@ -1167,13 +1167,13 @@ internal static class LookupStream3Verification
         {
             ushort direction = (ushort)bucket;
             if ((bucket & 31) != 0 || bucket > 224)
-                AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.ForOrientationBucket(direction),
+                AssertThrows<InvalidDataException>(() => ShaktoolPrograms.ForOrientationBucket(direction),
                     "stream 3 invalid Shaktool orientation");
             else
             {
                 int address = 0xaadd15 + 2 * (bucket >> 5);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.ForOrientationBucket(direction)),
+                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(direction)),
                     "stream 3 native Shaktool orientation");
             }
         }
@@ -1181,12 +1181,12 @@ internal static class LookupStream3Verification
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.CollisionForSegment(segment)),
+            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(segment)),
                 "stream 3 native Shaktool collision program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.CollisionForSegment(invalid),
+            AssertThrows<InvalidDataException>(() => ShaktoolPrograms.CollisionForSegment(invalid),
                 "stream 3 invalid Shaktool collision segment");
         }
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
@@ -1205,7 +1205,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3DeathSelectors), () => VerifyStream3DeathSelectors(rom));
         Suite(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes());
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
-        var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
+        var grappleSprites = InstalledGrappleSprites.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
         AssertTrue(Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount)
                 .Select(SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress).SequenceEqual(GrappleSegmentAttributeAddresses),
@@ -1223,7 +1223,7 @@ internal static class LookupStream3Verification
                 var style = node.Required("segments").Required(frame);
                 if (field is "flipX" or "flipY") style[field] = !style.Required(field).GetValue<bool>();
                 else style[field] = style.Required(field).GetValue<int>() ^ 1;
-                var edited = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
+                var edited = InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 for (int check = 0; check < 4; check++)
                 {
                     SpritePart segment = grappleSprites.Segment(check);
@@ -1245,7 +1245,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
-        var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
+        var swingFrames = InstalledGrappleSwingFrames.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new ByteAngle((byte)angle)), "stream 3 native calculated swing art frame");
@@ -1255,7 +1255,7 @@ internal static class LookupStream3Verification
         {
             int original = editedFrames[editedAngle];
             editedFrames[editedAngle] = (original + 1) & 31;
-            var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
+            var edited = InstalledGrappleSwingFrames.Load(new MemoryStream(InstalledGrappleSwingFrames.Write(new()
             { Version = 1, Frames = editedFrames })));
             for (int angle = 0; angle < 256; angle++)
                 AssertEqual((byte)editedFrames[angle], edited.Resolve(new ByteAngle((byte)angle)), "stream 3 independently edited swing art frame");
@@ -1289,7 +1289,7 @@ internal static class LookupStream3Verification
             }
         }
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
-        AssertTrue(CreditsPresentationDefinitions.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
+        AssertTrue(CreditsRoles.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
         Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc")));
         byte[] creditsJson = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
@@ -1308,7 +1308,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
-            var regions = MotherBrainContactHitboxDefinitions.Get(part);
+            var regions = MotherBrainContacts.Get(part);
             foreach (int invalid in new[] { -1, regions.Count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
         }
@@ -1319,10 +1319,10 @@ internal static class LookupStream3Verification
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Program(parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Program(parameter)),
                 "stream 3 native death explosion variant");
         foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.Program(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosions.Program(invalid),
                 "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)
@@ -1374,15 +1374,15 @@ internal static class LookupStream3Verification
     {
         for (int stage = 0; stage < 8; stage++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalkingDefinitions.AnimationDelay(stage), "stream 3 native stagger animation delay");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalkingDefinitions.FunctionTimer(stage), "stream 3 native stagger pause timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalking.AnimationDelay(stage), "stream 3 native stagger animation delay");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalking.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalking.FunctionTimer(stage), "stream 3 native stagger pause timer");
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.AnimationDelay(invalid), "stream 3 stagger delay bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.FunctionTimer(invalid), "stream 3 stagger timer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.AnimationDelay(invalid), "stream 3 stagger delay bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.FunctionTimer(invalid), "stream 3 stagger timer bounds");
         }
         foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
@@ -1390,7 +1390,7 @@ internal static class LookupStream3Verification
             sequence.State.Body.Position = sequence.State.Body.Position.WithX(0);
             sequence.DrainedByBaby.PainfulWalkingStage = stage;
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
-            sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalkingDefinitions.AnimationDelay(Math.Min(stage, (ushort)7));
+            sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalking.AnimationDelay(Math.Min(stage, (ushort)7));
             sequence.DrainedByBaby.StepPainfulWalking();
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.DrainedByBaby.PainfulWalkingFunctionTimer.RawValue,
                 "stream 3 real stagger timer clamps terminal stages");
@@ -1432,14 +1432,14 @@ internal static class LookupStream3Verification
         }
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (EscapeTextArtworkDefinitions.TimerPageCount + page) * 7 + 2),
-                (int)EscapeSourceDefinitions.TextCharacters + EscapeTextArtworkDefinitions.PageOffset(page), "stream 3 escape text page source: the page's offset into the installed sheet");
+                (int)EscapeSourceDefinitions.TextCharacters + EscapeTextPages.PageOffset(page), "stream 3 escape text page source: the page's offset into the installed sheet");
         AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa9902f + 2),
             (uint)MotherBrainSourceDefinitions.SpecialSprites.Sources[MotherBrainSpritePageSheet.ExplodedDoor], "stream 3 exploded door source");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageOffset(invalid), "stream 3 text page offset bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 text page destination bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextPages.PageOffset(invalid), "stream 3 text page offset bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextPages.PageFirstCharacter(invalid), "stream 3 text page destination bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextPages.PageByteCount(invalid), "stream 3 text page size bounds");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, invalid), "stream 3 door page bounds");
@@ -1469,7 +1469,7 @@ internal static class LookupStream3Verification
                 rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
-            AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseArtworkDefinitions.PageOffset(row)),
+            AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
             SpriteArtworkPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
@@ -1478,7 +1478,7 @@ internal static class LookupStream3Verification
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)
-            AssertEqual(minimumY[column], MotherBrainCorpseArtworkDefinitions.ColumnMinimumY(column), "stream 3 corpse native outline gate");
+            AssertEqual(minimumY[column], MotherBrainCorpseSheet.ColumnMinimumY(column), "stream 3 corpse native outline gate");
         // Confirm the changed row/column geometry through the real pixel-copy path.
         for (ushort y = 0; y < 48; y++)
         foreach (bool move in new[] { false, true })
@@ -1490,8 +1490,8 @@ internal static class LookupStream3Verification
                 expectedTiles[offset] = (byte)(offset * 37 + 11);
             byte[] atlas = new byte[MotherBrainCorpseArtworkDefinitions.ByteCount];
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-                expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row))
-                    .CopyTo(atlas.AsSpan(MotherBrainCorpseArtworkDefinitions.InitialCopyOffset(row)));
+                expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseSheet.InitialCopyLength(row))
+                    .CopyTo(atlas.AsSpan(MotherBrainCorpseSheet.InitialCopyOffset(row)));
             CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
@@ -1525,15 +1525,15 @@ internal static class LookupStream3Verification
             {
                 int first = row * MotherBrainCorpseArtworkDefinitions.RowBytes;
                 byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + first,
-                    MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
+                    MotherBrainCorpseSheet.InitialCopyLength(row), 0));
                 for (int offset = 0; offset < staged.Length; offset++)
                     AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");
             }
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageOffset(invalid), "stream 3 corpse page offset bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 corpse page character bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseSheet.PageOffset(invalid), "stream 3 corpse page offset bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseSheet.PageFirstCharacter(invalid), "stream 3 corpse page character bounds");
         }
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
@@ -1585,13 +1585,13 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        var selectedSidehopper = stock.sidehopper;
+        var selectedSidehopper = stock.selection.Sidehopper;
         AssertEqual(0, selectedSidehopper.independentOrSupplied.Length,
             "stream 3 complete standalone Sidehopper target keeps no stock color array");
-        var selectedCorpse = stock.deadSidehopper;
+        var selectedCorpse = stock.selection.DeadSidehopper;
         AssertEqual(0, selectedCorpse.independentOrSupplied.Length,
             "stream 3 complete standalone corpse target keeps no stock color array");
-        var pulse = stock.normal;
+        var pulse = stock.selection.Normal;
         AssertTrue(pulse.supplied is null, "stream 3 Shitroid original pulse rows discarded");
         AssertTrue(!MetadataShape.Fields(pulse.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
@@ -1957,7 +1957,7 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var selectedInitial = stock.initial;
+        var selectedInitial = stock.selection.Initial;
         AssertTrue(selectedInitial.supplied is null,
             "stream 3 Baby initial calculates from reviewed paints without a stock color array");
         for (int color = 0; color < initial.Length; color++)
@@ -1968,7 +1968,7 @@ internal static class LookupStream3Verification
             Check(Load());
             initial[color] = original;
         }
-        var selectedFade = stock.fade;
+        var selectedFade = stock.selection.Fade;
         AssertTrue(selectedFade.supplied is null,
             "stream 3 original Baby fade discards its stored frame table");
         AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(RgbColor) || field.FieldType == typeof(RgbColor[])), "stream 3 Baby fade keeps no stock endpoint payload");
@@ -1981,12 +1981,12 @@ internal static class LookupStream3Verification
         }
         for (int color = 0; color < 14; color++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidCutsceneColorCatalog.ColorFade.Endpoint(color)).ToWord(), 6),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidFade.Endpoint(color)).ToWord(), 6),
                 "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
             int healthAddress = color < 4 ? 0xade870 + 2 * color :
                 color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
             ushort nativeHealth = CartridgeImportSource.Require(rom).ReadCartridgeWord(healthAddress);
-            AssertEqual(nativeHealth, BabyMetroidCutsceneColorCatalog.ColorFade.Endpoint(color), "stream 3 exact native final-health endpoint");
+            AssertEqual(nativeHealth, BabyMetroidFade.Endpoint(color), "stream 3 exact native final-health endpoint");
             for (int frame = 0; frame < fade.Length; frame++)
                 AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
                     "stream 3 native final health colors produce the exact seven-part fade");
@@ -2069,7 +2069,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertTrue(stock.explodedDoor is null,
+        AssertTrue(stock.selection.ExplodedDoor is null,
             "stream 3 exploded-door stock paint keeps no stored word array");
         for (int color = 0; color < door.Length; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -2082,13 +2082,13 @@ internal static class LookupStream3Verification
         Check(stock);
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ExplodedDoorColor(invalid), "stream 3 exploded-door color bounds");
-        foreach (var fade in new[] { stock.bodyFade, stock.legFade, stock.corpseFade })
+        foreach (var fade in new[] { stock.selection.BodyFade, stock.selection.LegFade, stock.selection.CorpseFade })
         {
             AssertTrue(fade.first is null,
                 "stream 3 death starts reuse calculated health state three without stored endpoint rows");
             AssertTrue(fade.supplied is null,
                 "stream 3 original death fade discards its stored frame table");
-            if (ReferenceEquals(fade, stock.corpseFade))
+            if (ReferenceEquals(fade, stock.selection.CorpseFade))
             {
                 var endpoint = fade.last ?? throw new InvalidOperationException("stream 3 corpse fade has a final gray endpoint");
                 AssertTrue(endpoint.Calculated, "stream 3 corpse final gray palette has no stored row");
@@ -2129,10 +2129,10 @@ internal static class LookupStream3Verification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
             AssertEqual(new ChootPatternDefinition(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
-                ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
+                ChootFalls.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
         }
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChootPatternDefinitions.ForIndex(invalid),
+            AssertThrows<InvalidDataException>(() => ChootFalls.ForIndex(invalid),
                 "stream 3 Choot rejects alias and invalid patterns");
     }
 
@@ -2141,19 +2141,19 @@ internal static class LookupStream3Verification
     {
         for (int kind = 0; kind < 6; kind++)
         {
-            EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation((EnemyPickupKind)kind);
+            EnemyPickupAnimationDefinition animation = EnemyPickups.Animation((EnemyPickupKind)kind);
             AssertEqual((ushort)(2 * kind), animation.TableOffset, "stream 3 pickup kind table offset");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
                 animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
         }
         for (ushort animation = 0; animation < 5; animation++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)),
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosionDefinitions.Program(animation)), "stream 3 death variant dispatch");
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(animation)), "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => EnemyPickupDefinitions.Animation((EnemyPickupKind)invalid),
+            AssertThrows<InvalidDataException>(() => EnemyPickups.Animation((EnemyPickupKind)invalid),
                 "stream 3 invalid pickup kind");
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosionDefinitions.Program(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosions.Program(invalid),
                 "stream 3 invalid death variant");
     }
 
@@ -2623,7 +2623,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var palette in new[] { stock.faceBlock, stock.deadSidehopper, stock.torizoBody, stock.torizoBelly })
+        foreach (var palette in new[] { stock.rows[EnemyAuxiliaryPalette.FaceBlock], stock.rows[EnemyAuxiliaryPalette.DeadSidehopper], stock.rows[EnemyAuxiliaryPalette.GoldenTorizoBody], stock.rows[EnemyAuxiliaryPalette.GoldenTorizoBelly] })
         {
             AssertTrue(palette.supplied is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");
@@ -2689,7 +2689,7 @@ internal static class LookupStream3Verification
             foreach (var frame in selected)
             {
                 AssertTrue(catalog.TryGet(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby view remains installed");
-                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "stream 3 exact supplied Baby part order and every visual field");
             }
             // The catalog names each frame by its identity (#1402), in identity-name order; every frame here shows itself.
@@ -2698,7 +2698,7 @@ internal static class LookupStream3Verification
                 foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
                     content.AppendName("frame", frame.Frame.ToString());
-                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                    content.AppendEnemyParts(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
                 foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
@@ -2743,7 +2743,7 @@ internal static class LookupStream3Verification
             original[upper] = upperPart with { OffsetY = upperPart.OffsetY + 1 };
             original[opposite] = oppositePart with { OffsetY = oppositePart.OffsetY + 1 };
             Check(Load());
-            AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(
+            AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(
                 original.Select((value, index) => index == upper ? upperPart : index == opposite ? oppositePart : value).ToArray(), frame.Name)),
                 "previous Baby component remains immutable after a symmetric supplied edit");
             original[upper] = upperPart;
@@ -2991,7 +2991,7 @@ internal static class LookupStream3Verification
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var initial = stock.initial;
+        var initial = stock.selection.Initial;
         AssertTrue(initial.supplied is null, "Baby stock initial has no stored color array");
         AssertEqual(0, MetadataShape.Fields(initial.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
         for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
@@ -3055,10 +3055,10 @@ internal static class LookupStream3Verification
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+            IntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
@@ -3114,7 +3114,7 @@ internal static class LookupStream3Verification
         var stock = Load(original);
         for (int frame = 0; frame < 8; frame++)
         {
-            string name = FileSelectPresentationDefinitions.HelmetSpriteName(frame);
+            string name = FileSelectParts.HelmetSpriteName(frame);
             var composition = Composition(stock, frame);
             AssertTrue(composition.parts is FileSelectHelmetParts,
                 "stock helmet retains semantic frame only");
@@ -3162,7 +3162,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("File-select sprites: 114 border parts/456 edits, 42 helmet parts/378 field cases, ordering/count edits and actual helmet OAM pass; cursor dependency previously confirmed.");
         void Confirm(FileSelectPresentation actual, FileSelectPresentationDocument expected, int frame)
         {
-            string name = FileSelectPresentationDefinitions.HelmetSpriteName(frame);
+            string name = FileSelectParts.HelmetSpriteName(frame);
             var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);
             var selected = Composition(actual, frame);
             AssertEqual(expectedParts.PartCount, selected.PartCount, "helmet part count");
@@ -3235,14 +3235,14 @@ internal static class LookupStream3Verification
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            IntroCinematicArtworkCatalog Copy(byte[] background)
+            IntroCinematicArtwork Copy(byte[] background)
             {
                 RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
                 return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             }
-            byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundTilemapDefinitions.Compile());
+            byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundPages.Compile());
             var mismatches = new List<string>();
             for (int cell = 0; cell < native.Length / 2; cell++)
             {
@@ -3380,10 +3380,10 @@ BranchesToSharedBody:true),
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+            IntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
             AssertTrue(stock.suppliedPortrait is null,
                 "native portrait stores no output word array");

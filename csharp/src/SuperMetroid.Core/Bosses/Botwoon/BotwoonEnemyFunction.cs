@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// the slot stores the member, not the routine's address. Members start at one so a cleared slot is
 /// never mistaken for a function.
 /// </summary>
-public enum BotwoonEnemyFunction : ushort
+public enum BotwoonEnemyFunction
 {
     /// <summary><c>$B3:9878 Function_Botwoon_Initial</c>: decrements the 256-update opening delay and selects hole traversal when it reaches zero.</summary>
     InitialDelay = 1,

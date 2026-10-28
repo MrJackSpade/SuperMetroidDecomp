@@ -42,8 +42,8 @@ internal static class GrowingShutterDefinitionsVerification
                 }
             }
         }
-        AssertThrows<InvalidDataException>(() => GrowingShutterDefinitions.InitialFunction(4), "Shutter invalid initial selector");
-        AssertThrows<InvalidDataException>(() => GrowingShutterDefinitions.Speed(24), "Shutter speed outside authored records");
+        AssertThrows<InvalidDataException>(() => GrowingShutters.InitialFunction(4), "Shutter invalid initial selector");
+        AssertThrows<InvalidDataException>(() => GrowingShutters.Speed(24), "Shutter speed outside authored records");
         Console.WriteLine("Growing shutter definitions: 52 native words, 24576 real initializers and wrapped section origins match without a bus.");
     }
 
@@ -56,11 +56,11 @@ internal static class GrowingShutterDefinitionsVerification
         {
             int address = 0xa2ea4e + 2 * index;
             ushort native = LittleEndianBytes.Word(GrowingShutterInitialSelectionRomByte(rom, address), GrowingShutterInitialSelectionRomByte(rom, address + 1));
-            AssertEqual(native, ShuttersNativeWords.GrowingShutterFunctions.Word(GrowingShutterDefinitions.InitialFunction(index)),
+            AssertEqual(native, ShuttersNativeWords.GrowingShutterFunctions.Word(GrowingShutters.InitialFunction(index)),
                 "growing shutter named initial case matches original pointer");
         }
         foreach (int index in new[] { int.MinValue, -1, 4, 5, 65536, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => GrowingShutterDefinitions.InitialFunction(index),
+            AssertThrows<InvalidDataException>(() => GrowingShutters.InitialFunction(index),
                 "growing shutter initial selector rejects invalid full-width inputs");
     }
 
@@ -84,7 +84,7 @@ internal static class GrowingShutterDefinitionsVerification
             ushort native = LittleEndianBytes.Word(GrowingShutterSpeedFieldRomByte(rom, address), GrowingShutterSpeedFieldRomByte(rom, address + 1));
             for (int high = 0; high < 256; high++)
             {
-                var speed = GrowingShutterDefinitions.Speed((ushort)((high << 8) | index));
+                var speed = GrowingShutters.Speed((ushort)((high << 8) | index));
                 if (fractional)
                     AssertEqual(native, speed.Fraction, "growing shutter native unsigned fraction and high-byte aliases");
                 else
@@ -93,7 +93,7 @@ internal static class GrowingShutterDefinitionsVerification
         }
         for (int high = 0; high < 256; high++)
             foreach (int low in new[] { 24, 25, 127, 255 })
-                AssertThrows<InvalidDataException>(() => GrowingShutterDefinitions.Speed((ushort)((high << 8) | low)),
+                AssertThrows<InvalidDataException>(() => GrowingShutters.Speed((ushort)((high << 8) | low)),
                     "growing shutter speed rejects out-of-domain low bytes regardless of high byte");
     }
 

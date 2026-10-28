@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// follow the sixteen-entry bank-$94 collision jump tables rather than describing only
 /// the subset currently translated by a particular caller.
 /// </summary>
-public enum RoomCollisionType : byte
+public enum RoomCollisionType
 {
     /// <summary>Empty air handled by dispatcher entry zero.</summary>
     Air = 0x0,

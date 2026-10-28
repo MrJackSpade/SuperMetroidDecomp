@@ -90,11 +90,11 @@ internal static class LookupRoomFxFieldsVerification
     /// <summary>Checks the door selector word at record offset zero.</summary>
     private static void VerifyRoomFxDoorPointer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 0, 2, record => record.DoorPointer);
     /// <summary>Checks the liquid base-height word at offset two.</summary>
-    private static void VerifyRoomFxBaseYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => record.BaseYPosition);
+    private static void VerifyRoomFxBaseYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => RoomFxRecordEncoding.SurfaceWord(record.BaseYPosition));
     /// <summary>Checks the liquid target-height word at offset four.</summary>
-    private static void VerifyRoomFxTargetYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => record.TargetYPosition);
+    private static void VerifyRoomFxTargetYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => RoomFxRecordEncoding.SurfaceWord(record.TargetYPosition));
     /// <summary>Checks the packed vertical velocity word at offset six.</summary>
-    private static void VerifyRoomFxPackedYVelocity(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.PackedYVelocity);
+    private static void VerifyRoomFxPackedYVelocity(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.YVelocity.RawValue);
     /// <summary>Checks the FX countdown byte at offset eight.</summary>
     private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
     /// <summary>Checks the effect discriminator byte at offset nine.</summary>

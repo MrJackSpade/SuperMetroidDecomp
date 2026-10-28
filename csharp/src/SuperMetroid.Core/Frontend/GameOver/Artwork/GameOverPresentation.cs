@@ -24,7 +24,7 @@ public sealed class GameOverPresentation
     /// <summary>The missile cursor's composition by animation frame.</summary>
     internal readonly SpriteComposition[] cursorSprites;
     /// <summary>Installed idle and crying color sets for the Baby's fixed CGRAM row.</summary>
-    private readonly GameOverBabyColorCatalog babyPalettes;
+    private readonly GameOverBabyPaint babyPalettes;
 
     /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
     private static SpriteComposition CompileSprite(GameOverPresentationDocument document, string name) =>
@@ -38,12 +38,12 @@ public sealed class GameOverPresentation
         Dictionary<GameOverBabyFrame, SpriteComposition> babySprites,
         SpriteComposition eggSprite,
         SpriteComposition[] cursorSprites,
-        GameOverBabyColorCatalog babyPalettes,
+        GameOverBabyPaint babyPalettes,
         GameOverPresentationDocument document,
         string contentIdentity)
     {
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            if (tilemap[cell] != GameOverPresentationDefinitions.TilemapTile(cell))
+            if (tilemap[cell] != GameOverText.TilemapTile(cell))
             {
                 this.tilemap = tilemap;
                 break;
@@ -93,7 +93,7 @@ public sealed class GameOverPresentation
         }
         Ensure.LengthEqual(destination, GameOverPresentationDefinitions.TilemapCellCount);
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            destination[cell] = GameOverPresentationDefinitions.TilemapTile(cell);
+            destination[cell] = GameOverText.TilemapTile(cell);
     }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
@@ -102,7 +102,7 @@ public sealed class GameOverPresentation
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame) =>
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.BabyFrameName(frame)), BabyAnchor);
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.BabyFrameName(frame)), BabyAnchor);
 
     /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
@@ -120,7 +120,7 @@ public sealed class GameOverPresentation
     {
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.CursorFrameName(frame)),
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.CursorFrameName(frame)),
             new Position16<SpritePixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))));
     }
 
@@ -130,7 +130,7 @@ public sealed class GameOverPresentation
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
     public void ApplyBabyPalette(ScreenPalette colours, GameOverBabyPalette palette)
     {
-        _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
+        _ = GameOverPresentationNames.BabyPaletteName(palette);
         ColourRun row = Ensure.NotNull(colours).SpriteRow(GameOverPresentationDefinitions.BabySpriteRow);
         for (int index = 0; index < row.Count; index++)
             row.Write(index, babyPalettes.Read(palette, index));
@@ -198,15 +198,15 @@ public sealed class GameOverPresentation
         }
 
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,
-            frame => GameOverSpriteParts.CalculateBabyIfMatching(frame, CompileSprite(document, GameOverPresentationDefinitions.BabyFrameName(frame))));
+            frame => GameOverSpriteParts.CalculateBabyIfMatching(frame, CompileSprite(document, GameOverPresentationNames.BabyFrameName(frame))));
         SpriteComposition eggSprite = GameOverSpriteParts.CalculateEggIfMatching(CompileSprite(document, GameOverPresentationDefinitions.EggFrame));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, GameOverPresentationDefinitions.CursorFrameName(frame))))];
+            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, GameOverPresentationNames.CursorFrameName(frame))))];
 
         var palettes = new Dictionary<GameOverBabyPalette, RgbColor[]>();
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         {
-            string name = GameOverPresentationDefinitions.BabyPaletteName(palette);
+            string name = GameOverPresentationNames.BabyPaletteName(palette);
             if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||
                 colors is null || colors.Length != GameOverMenuDefinitions.BabyPaletteColorCount ||
                 colors.Any(color => !RgbColor.IsColorWord(color)))
@@ -215,7 +215,7 @@ public sealed class GameOverPresentation
             palettes.Add(palette, Array.ConvertAll(colors, RgbColor.FromWord));
         }
 
-        return new(tilemap, babySprites, eggSprite, cursorSprites, new GameOverBabyColorCatalog(palettes), document,
+        return new(tilemap, babySprites, eggSprite, cursorSprites, new GameOverBabyPaint(palettes), document,
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 

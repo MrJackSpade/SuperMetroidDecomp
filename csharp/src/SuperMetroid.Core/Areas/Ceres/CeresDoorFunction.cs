@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres door's and wall's main behaviours.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1415).
 /// </summary>
-internal enum CeresDoorFunction : ushort
+internal enum CeresDoorFunction
 {
     /// <summary><c>$A6:F76B Function_CeresDoor_HandleEarthquakeDuringEscape</c>.</summary>
     HandleEarthquakeDuringEscape = 1,

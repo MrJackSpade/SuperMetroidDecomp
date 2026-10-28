@@ -1,11 +1,14 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Typed catalog for all five retail Speed Booster collision-block variants.</summary>
 internal static class SpeedBoosterBlockPlmDefinitions
 {
+    /// <summary>The behaviour of a Speed Booster block that grows back.</summary>
+    internal const int RespawningBts = 0x0e;
+    /// <summary>The behaviour of a Speed Booster block that stays broken.</summary>
+    internal const int PermanentBts = 0x0f;
+
     /// <summary>Brinstar BTS <c>$82</c>: respawning, slower crumble.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition BrinstarSlowRespawning = new(
         PlmHeaderId.SpeedBlockBrinstarSlowRespawning,
@@ -30,43 +33,4 @@ internal static class SpeedBoosterBlockPlmDefinitions
     public static readonly SpeedBoosterBlockPlmDefinition Permanent = new(
         PlmHeaderId.SpeedBlockPermanent,
         SpeedBoosterBlockProgram.Permanent);
-
-    /// <summary>
-    /// Resolves precisely the two area-independent and four Brinstar area-table entries
-    /// that point at setup <c>$84:CDEA</c>. Other areas' negative BTS entries are unrelated.
-    /// </summary>
-    public static bool TryResolve(
-        RoomBlockBehavior bts,
-        AreaId area,
-        out SpeedBoosterBlockPlmDefinition definition)
-    {
-        if (!bts.UsesAreaReactionTable)
-        {
-            if (bts.Value == 0x0e)
-            {
-                definition = Respawning;
-                return true;
-            }
-            if (bts.Value == 0x0f)
-            {
-                definition = Permanent;
-                return true;
-            }
-        }
-        else if (area == AreaId.Brinstar)
-        {
-            definition = bts.AreaReactionIndex switch
-            {
-                2 => BrinstarSlowRespawning,
-                3 => BrinstarSlowPermanent,
-                4 => DachoraRespawning,
-                5 => Permanent,
-                _ => default,
-            };
-            return bts.AreaReactionIndex is >= 2 and <= 5;
-        }
-
-        definition = default;
-        return false;
-    }
 }

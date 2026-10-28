@@ -81,7 +81,7 @@ internal static class BossSpriteEntriesVerification
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var resolver = new EnemyTileTransfers(artwork);
         ReadOnlyMemory<byte> evirTiles = artwork.Enemies.TilesOf(EnemyDefinitionId.Evir);
-        AssertTrue(evirTiles.Length == RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir).TileByteCount &&
+        AssertTrue(evirTiles.Length == RoomEnemyHeaders.Get(EnemyDefinitionId.Evir).TileByteCount &&
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
         var uploads = new SpriteArtworkPlacements();
@@ -152,11 +152,11 @@ internal static class BossSpriteEntriesVerification
         enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
         AssertEqual<SpriteArtworkSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
             "A corpse page selection shows its installed page");
-        AssertEqual(MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(1) * 32,
+        AssertEqual(MotherBrainCorpseSheet.PageFirstCharacter(1) * 32,
             uploads.Uploads.Single().FirstByte, "The corpse page shows from its sprite character");
         var resolver = new EnemyTileTransfers(artwork);
         AssertTrue((artwork.Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("The installation has no Mother Brain corpse tiles."))
-                .Characters.Span.Slice(MotherBrainCorpseArtworkDefinitions.PageOffset(1), corpseBytes)
+                .Characters.Span.Slice(MotherBrainCorpseSheet.PageOffset(1), corpseBytes)
                 .SequenceEqual(new MotherBrainCorpseCharacters(1).Resolve(resolver).Span),
             "The corpse page resolves to the installed corpse tiles");
 

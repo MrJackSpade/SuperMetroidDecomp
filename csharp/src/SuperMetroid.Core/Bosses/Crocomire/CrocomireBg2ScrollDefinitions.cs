@@ -17,7 +17,7 @@ internal static class CrocomireBg2ScrollDefinitions
     /// The body frames whose BG2 alignment needs a signed Y correction: steps 1 to 7 of the charge-forward step back and
     /// steps 1 to 4 of the moving claws. Every other frame, including mapped zero-offset poses, adds zero.
     /// </summary>
-    private static readonly Dictionary<EnemyFrameId, int> Corrections = new()
+    internal static readonly Dictionary<EnemyFrameId, int> Corrections = new()
     {
         [EnemyFrameId.CrocomireBody1] = -2,
         [EnemyFrameId.CrocomireBody2] = -2,
@@ -31,12 +31,4 @@ internal static class CrocomireBg2ScrollDefinitions
         [EnemyFrameId.CrocomireBody22] = -2,
         [EnemyFrameId.CrocomireBody23] = -1,
     };
-
-    /// <summary>The signed Y correction aligning BG2 to body frame <paramref name="frame"/>.</summary>
-    internal static int Correction(EnemyFrameId? frame) =>
-        frame is { } shown && Corrections.TryGetValue(shown, out int correction) ? correction : 0;
-
-    /// <summary>Applies the signed correction with native sixteen-bit wrapping.</summary>
-    internal static ushort VerticalScroll(int bodyY, EnemyFrameId? frame) =>
-        unchecked((ushort)(VerticalOrigin - bodyY + Correction(frame)));
 }

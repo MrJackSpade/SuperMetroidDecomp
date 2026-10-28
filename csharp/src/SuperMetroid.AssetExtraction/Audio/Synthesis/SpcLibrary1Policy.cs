@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Exclusive library-one policy identities used by the extracted audio manifest.</summary>
-internal enum SpcLibrary1Policy : byte
+internal enum SpcLibrary1Policy
 {
     /// <summary>SPC $2AAB, nSound1Voices_1_sound1Priority_0.</summary>
     OneVoiceLowPriority = 0,

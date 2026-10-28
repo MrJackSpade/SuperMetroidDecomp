@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Conventionally named values in the native room scroll-zone byte grid.</summary>
-public enum RoomScrollState : byte
+public enum RoomScrollState
 {
     /// <summary>An impassable camera boundary; camera motion may not enter this screen cell.</summary>
     RedBoundary = 0,

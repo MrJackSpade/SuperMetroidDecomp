@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// Even byte offsets used by both bank-$A2's spike spawn command and bank-$86's ten-entry
 /// instruction/movement tables. Values are not flags and must remain even.
 /// </summary>
-public enum CacatacSpikeDirection : ushort
+public enum CacatacSpikeDirection
 {
     /// <summary>Selector $00: moves left two pixels per projectile update with the upward-facing horizontal spike program at $86:D92E.</summary>
     LeftFacingUp = 0x00,

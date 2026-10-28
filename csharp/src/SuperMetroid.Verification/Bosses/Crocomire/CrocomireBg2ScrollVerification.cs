@@ -17,17 +17,17 @@ internal static class CrocomireBg2ScrollVerification
     /// <summary>Confirms all seventeen native BG2 spritemap pointers are unique and remain in authored order.</summary>
     private static void VerifyCrocomireBg2FramePositions(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(17, CrocomireBg2ScrollDefinitions.EntryCount, "all native BG2 frame pointers");
+        AssertEqual(17, CrocomireBg2Alignment.EntryCount, "all native BG2 frame pointers");
         var seen = new HashSet<ushort>();
         for (int index = 0; index < 17; index++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa48b79 + 2 * index));
-            ushort actual = CrocomireBg2ScrollDefinitions.Entry(index).SpritemapPointer;
+            ushort actual = CrocomireBg2Alignment.Entry(index).SpritemapPointer;
             AssertEqual(expected, actual, "Crocomire BG2 native pointer order");
             AssertTrue(seen.Add(actual), "Crocomire BG2 pointers are unique");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(-1), "negative BG2 entry");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(17), "BG2 entry past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2Alignment.Entry(-1), "negative BG2 entry");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2Alignment.Entry(17), "BG2 entry past end");
     }
 
     /// <summary>Compares per-pose offsets and wrapped body-Y scroll, including all unselected or misaligned pointers in the 16-bit domain.</summary>
@@ -39,11 +39,11 @@ internal static class CrocomireBg2ScrollVerification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa48b79 + 2 * index));
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | unchecked((ushort)(pointer + 0x1c))));
             originalOffsets[pointer] = offset;
-            AssertEqual(offset, CrocomireBg2ScrollDefinitions.Entry(index).Offset, "Crocomire BG2 native pose correction");
+            AssertEqual(offset, CrocomireBg2Alignment.Entry(index).Offset, "Crocomire BG2 native pose correction");
             foreach (ushort bodyY in new ushort[] { 0, 0x43, 0x90, 0xfffc })
             {
                 ushort expected = unchecked((ushort)(0x43 - bodyY + offset));
-                AssertEqual(expected, CrocomireBg2ScrollDefinitions.VerticalScroll(bodyY, pointer),
+                AssertEqual(expected, CrocomireBg2Alignment.VerticalScroll(bodyY, pointer),
                     "Crocomire BG2 mapped pose and wrapped body position");
             }
         }
@@ -51,7 +51,7 @@ internal static class CrocomireBg2ScrollVerification
         {
             ushort offset = originalOffsets.GetValueOrDefault((ushort)pointer);
             AssertEqual(unchecked((ushort)(0x43 - 0x90 + offset)),
-                CrocomireBg2ScrollDefinitions.VerticalScroll(0x90, (ushort)pointer),
+                CrocomireBg2Alignment.VerticalScroll(0x90, (ushort)pointer),
                 "Crocomire BG2 full pointer selection domain");
         }
     }

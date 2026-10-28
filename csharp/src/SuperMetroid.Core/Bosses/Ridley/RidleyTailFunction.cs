@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Indexes into Ridley's tail-controller table at $A6:CB21 that the translated AI installs.
 /// The native table's two trailing entries (7 and 8) have no translated producer.
 /// </summary>
-public enum RidleyTailFunction : ushort
+public enum RidleyTailFunction
 {
     /// <summary>$A6:CB21 -> CB20, an RTS: the tail retains its offsets.</summary>
     None = 0,

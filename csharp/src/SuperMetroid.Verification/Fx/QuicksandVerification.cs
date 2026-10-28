@@ -98,7 +98,7 @@ internal static class QuicksandVerification
             SamusInsideBlockReactions.PrepareFrame(
                 level, samus, AreaId.Maridia);
             QuicksandSurfacePhysics physics =
-                QuicksandDefinitions.SurfacePhysics(suit != 0);
+                QuicksandReactions.SurfacePhysics(suit != 0);
             AssertEqual(
                 direction == SamusVerticalDirection.None
                     ? physics.StationaryDisplacement
@@ -164,16 +164,16 @@ internal static class QuicksandVerification
         {
             ushort header = PlmNativeWords.Word(candidate);
             bool expected = headers.Contains(header);
-            bool found = QuicksandDefinitions.TryGetReaction(candidate, out var actual);
+            bool found = QuicksandReactions.TryGetReaction(candidate, out var actual);
             AssertEqual(expected, found, "quicksand header ownership");
             if (!expected)
             {
                 AssertEqual(default(QuicksandReactionDefinition), actual, "missing quicksand clears result");
-                AssertThrows<ArgumentOutOfRangeException>(() => QuicksandDefinitions.ResolveReaction(candidate),
+                AssertThrows<ArgumentOutOfRangeException>(() => QuicksandReactions.ResolveReaction(candidate),
                     "quicksand allocator rejects unsupported headers including clone gaps");
                 continue;
             }
-            AssertEqual(actual, QuicksandDefinitions.ResolveReaction(candidate), "quicksand allocator resolution");
+            AssertEqual(actual, QuicksandReactions.ResolveReaction(candidate), "quicksand allocator resolution");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             if (instruction)
                 AssertEqual(PlmProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
@@ -203,7 +203,7 @@ internal static class QuicksandVerification
     {
         for (int suit = 0; suit < 2; suit++)
             AssertEqual(SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
-                field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
+                field(QuicksandReactions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
     }
 
@@ -218,7 +218,7 @@ internal static class QuicksandVerification
         body.Position = body.Position.WithWhole(new(24, 24));
         body.Radius = body.Radius.WithY(8);
         body.YDirection = SamusVerticalDirection.Up;
-        SignedSixteenSixteen limit = QuicksandDefinitions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
+        SignedSixteenSixteen limit = QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
         body.YSpeed = new UnsignedSixteenSixteen(justAbove.WholeWord, justAbove.Fraction);
@@ -229,19 +229,19 @@ internal static class QuicksandVerification
 
     /// <summary>Checks the special-air inside-reaction header for each area and BTS index.</summary>
     private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, false));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveInside, 0x949b06, false));
 
     /// <summary>Checks the setup pointer selected by each special-air inside reaction.</summary>
     private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, true));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveInside, 0x949b06, true));
 
     /// <summary>Checks the special-air collision header for each area and BTS index.</summary>
     private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, false));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveCollision, 0x9492d9, false));
 
     /// <summary>Checks the setup pointer selected by each special-air collision reaction.</summary>
     private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, true));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveCollision, 0x9492d9, true));
 
     /// <summary>Follows native area tables while checking valid reactions and out-of-range selector behavior.</summary>
     private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,

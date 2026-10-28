@@ -7,9 +7,4 @@ internal readonly record struct ZebetiteGenerationDefinition(
     ZebetiteProgram Program,
     int XPosition,
     int PrimaryYPosition,
-    int LinkedYPosition)
-{
-    /// <summary>Returns the Y coordinate for the primary or linked physical half.</summary>
-    internal int YPosition(bool linkedHalf) =>
-        linkedHalf ? LinkedYPosition : PrimaryYPosition;
-}
+    int LinkedYPosition);

@@ -34,7 +34,7 @@ internal static class ProjectileSheetComposer
         SamusBeamCombination beams;
         if (sheet == SpriteSheetId.IntroProjectiles)
         {
-            IntroCinematicArtworkCatalog intro = inputs.Intro;
+            IntroCinematicArtwork intro = inputs.Intro;
             cgram = new ScreenPalette();
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
@@ -53,19 +53,19 @@ internal static class ProjectileSheetComposer
 
         var frames = new List<SheetFrameSource>();
         foreach (ProjectileSpriteId composition in ProjectileSpriteDefinitions.All)
-            frames.Add(new(ProjectileSheetDefinitions.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page));
+            frames.Add(new(ProjectileSheetFrames.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page));
         foreach (ProjectileSpriteId composition in ProjectileSheetDefinitions.FlareCompositions)
         {
-            int selector = checked((ushort)ChargeFlareSpriteDefinitions.Selectors.ToList().IndexOf(composition));
-            frames.Add(new(ProjectileSheetDefinitions.FlareFrame(composition), projectiles.FlareCompositions.Frame(selector), page));
+            int selector = checked((ushort)ChargeFlareSpriteSelection.Selectors.ToList().IndexOf(composition));
+            frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), projectiles.FlareCompositions.Frame(selector), page));
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
-            frames.Add(new(ProjectileSheetDefinitions.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
+            frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
         frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, SpritePartFrames.SmallObject(default, 0), page));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 
     /// <summary>The beam combination whose gameplay sheet <paramref name="sheet"/> is.</summary>
     private static SamusBeamCombination Combination(SpriteSheetId sheet) =>
-        ProjectileSheetDefinitions.Combinations.Single(beams => ProjectileSheetDefinitions.For(beams) == sheet);
+        ProjectileSheetDefinitions.Combinations.Single(beams => ProjectileSheetFrames.For(beams) == sheet);
 }

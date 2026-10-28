@@ -147,7 +147,7 @@ internal sealed class EndingFlyaway
 
     /// <summary>Fixed-color addition active only during visible planet flyaway phases.</summary>
     internal FixedColorAddRenderLayer? FlyawayFixedColor => flyawayWhite != 0
-        && _stage.Phase >= EndingCreditsPhase.PlanetEscapeFast && _stage.Phase <= EndingCreditsPhase.FadeOutToCredits
+        && EndingCreditsPhaseGroups.PlanetEscape.Contains(_stage.Phase)
         ? WhiteAddition(flyawayWhite) : null;
 
     /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>
@@ -169,7 +169,7 @@ internal sealed class EndingFlyaway
     /// Rebind only chunks already transferred by the native 16-NMI DMA sequence;
     /// future chunks must still arrive on their original scheduled frames.
     /// </summary>
-    internal void BindFlightArtwork(CeresFlightArtworkCatalog? value)
+    internal void BindFlightArtwork(CeresFlightArtwork? value)
     {
         FlightArtwork = value;
         screen.Invalidate();
@@ -187,7 +187,7 @@ internal sealed class EndingFlyaway
     /// <summary>Requires the Ceres flight artwork the native sixteen-NMI flyaway DMA sequence transfers.</summary>
     private void PrepareFlyawayStreams()
     {
-        CeresFlightArtworkCatalog artwork = FlightArtwork ?? throw new InvalidOperationException(
+        CeresFlightArtwork artwork = FlightArtwork ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
         EndingStage.RequireMinimum(artwork.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, EndingArtworkExtentDefinitions.FloorBytes,
             "flyaway characters");
@@ -199,5 +199,5 @@ internal sealed class EndingFlyaway
 
     /// <summary>The gunship flight's installed artwork.</summary>
     [field: NonSerialized]
-    internal CeresFlightArtworkCatalog? FlightArtwork { get; private set; }
+    internal CeresFlightArtwork? FlightArtwork { get; private set; }
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The routines Lower Norfair Rio's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum LowerNorfairRioEnemyFunction : ushort
+public enum LowerNorfairRioEnemyFunction
 {
     /// <summary>Native <c>Function_Holtz_Flames</c> at <c>$A2:C72E</c>; follows the immediately preceding parent twelve pixels below, mirrors its freeze state and flame visibility, and deletes the follower when the parent dies.</summary>
     FollowParent = 1,

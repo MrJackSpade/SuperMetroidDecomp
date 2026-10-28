@@ -10,10 +10,10 @@ internal static class PhantoonCollisionDefinitionsAccess
     private const byte NativeBank = 0xa7;
 
     /// <summary>Native views of the catalog.</summary>
-    extension(PhantoonCollisionDefinitions)
+    extension(PhantoonCollision)
     {
         /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
         internal static ImmutableArray<PhantoonCollisionComponent> ComponentsAt(ushort frame) =>
-            PhantoonCollisionDefinitions.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
+            PhantoonCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
     }
 }

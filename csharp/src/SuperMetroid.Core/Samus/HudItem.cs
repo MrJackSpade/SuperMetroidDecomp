@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus;
 /// WRAM <c>SelectedHUDItem</c>: the six entries of the bank-$90 HUD dispatchers (#1323). The selection ring at
 /// <c>$90:C51D</c>, the arm-cannon cover policy and every weapon handler index exactly this domain.
 /// </summary>
-public enum HudItem : ushort
+public enum HudItem
 {
     /// <summary>SelectedHUDItem $0000: no HUD weapon; beam fire.</summary>
     Beam = 0,

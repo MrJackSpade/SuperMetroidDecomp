@@ -19,7 +19,7 @@ internal static class RidleyMovementTargetsVerification
         ushort[] Facings(int address, Func<RidleyFacing, ushort> compiled)
         {
             AssertEqual(3, Enum.GetValues<RidleyFacing>().Length, "Ridley facing domain");
-            return Table(address, index => compiled((RidleyFacing)index));
+            return Table(address, index => compiled(RidleyNativeWords.Facings.Decode(index, "Ridley facing index")));
         }
         ushort[] Table(int address, Func<int, ushort> compiled, int count = 3)
         {

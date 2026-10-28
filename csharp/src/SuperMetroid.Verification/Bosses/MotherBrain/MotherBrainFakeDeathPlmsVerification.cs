@@ -35,11 +35,11 @@ internal static class MotherBrainFakeDeathPlmsVerification
         Suite(nameof(VerifyMotherBrainDoorVisuals), () => VerifyMotherBrainDoorVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();
+            MotherBrainFakeDeathDraws.All.ToArray();
         AssertEqual(22, draws.Length,
             "Mother Brain fake death owns twenty-two physical draws");
         foreach (MotherBrainFakeDeathProgram program in Enum.GetValues<MotherBrainFakeDeathProgram>())
-            AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out _),
+            AssertTrue(MotherBrainFakeDeathDraws.TryGet(PlmDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out _),
                 $"Mother Brain program {program} selects a compiled draw");
         Reachable[] reachable =
         [
@@ -89,8 +89,8 @@ internal static class MotherBrainFakeDeathPlmsVerification
             .ToArray();
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
             $"Mother Brain mutation {header} starts its typed program");
-        AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(
-                PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out var draw),
+        AssertTrue(MotherBrainFakeDeathDraws.TryGet(
+                PlmDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out var draw),
             $"Mother Brain mutation {header} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
@@ -99,7 +99,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
                 draw.Runs.Span[runIndex - 1].Next.X);
             int y = 3 + (runIndex == 0 ? 0 :
                 draw.Runs.Span[runIndex - 1].Next.Y);
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
+            bool vertical = run.Direction == PlmRunDirection.Vertical;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 expected[(y + (vertical ? block : 0)) * width +
                     x + (vertical ? 0 : block)] = run.LevelWords.Span[block];
@@ -126,7 +126,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
-                 MotherBrainFakeDeathPlmDrawDefinitions.All.Any(draw =>
+                 MotherBrainFakeDeathDraws.All.Any(draw =>
                      pointer >= PlmDrawAddressCodec.Of(draw.Draw) && pointer < PlmDrawAddressCodec.Of(draw.Draw) +
                          draw.Runs.Span.Sum(run =>
                              4 + run.LevelWords.Length * 2)));

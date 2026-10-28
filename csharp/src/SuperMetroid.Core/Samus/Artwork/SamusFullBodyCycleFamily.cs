@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Identifies one of the four full-body palette animation families.</summary>
-public enum SamusFullBodyCycleFamily : byte
+public enum SamusFullBodyCycleFamily
 {
     /// <summary>Running Speed Booster glow palettes.</summary>
     SpeedBooster,

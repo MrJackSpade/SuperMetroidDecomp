@@ -17,7 +17,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         {
             int byteOffset = parameter * 4;
             MotherBrainDoorFragmentDefinition definition =
-                MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
+                MotherBrainDoorFragments.ForParameter(parameter);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c992 + byteOffset))),
                 definition.Offset.X, $"Mother Brain door fragment X offset {parameter}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c994 + byteOffset))),
@@ -35,7 +35,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDoorFragment(parameter);
 
             MotherBrainDoorFragmentDefinition definition =
-                MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
+                MotherBrainDoorFragments.ForParameter(parameter);
             RoomEnemyProjectileSlot fragment =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
@@ -53,7 +53,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainDoorFragmentDefinitions.ForParameter(8),
+            () => MotherBrainDoorFragments.ForParameter(8),
             "Mother Brain door fragment parameter past table");
         Console.WriteLine(
             "Mother Brain door fragments: 32 native physical words and all eight real spawns pass with offset/velocity tables forbidden.");

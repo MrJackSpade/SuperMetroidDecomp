@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Enemies">The ordinary enemy sheets, palettes, spritemaps and enemy colors.</param>
 /// <param name="Bosses">The bosses' melts, skeletons, BG2 frames, special pages and colors.</param>
 /// <param name="Areas">The Ceres door and escape artwork and the Tourian statues' colors.</param>
-public sealed record InstalledEnemyArtwork(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkCatalog Areas)
+public sealed record InstalledEnemyArtwork(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkBundle Areas)
 {
     /// <summary>
     /// The selected presentation of the whole enemy directory: an edit to any of its enemy, boss or area artwork

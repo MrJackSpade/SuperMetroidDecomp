@@ -13,7 +13,7 @@ public static class SamusVisorColorFile
     /// <returns>Compiled visor colors detached from the document array, without changing X-ray or room-cycle timing.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, a length other than six, null colors, or RGB5 channels outside 0..31.</exception>
-    public static SamusVisorColorCatalog Read(Stream json)
+    public static InstalledSamusVisorColors Read(Stream json)
     {
         Ensure.NotNull(json);
         SamusVisorColorDocument document;
@@ -30,7 +30,7 @@ public static class SamusVisorColorFile
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");
             RgbColor packed = color.ToRgbColor();
-            if (packed != SamusVisorColorDefinitions.Color(index)) compiled.Add(new ColourCell(0, index), packed);
+            if (packed != SamusVisorColorSteps.Color(index)) compiled.Add(new ColourCell(0, index), packed);
         }
         return new(compiled);
     }

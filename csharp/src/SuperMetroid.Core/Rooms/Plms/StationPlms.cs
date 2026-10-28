@@ -154,7 +154,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slotTable.Slots
-            .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex)
+            .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.SaveStationNumber)
             .Select(slot => slot.Family as StationPlmState)
             .OfType<StationPlmState>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
@@ -828,7 +828,7 @@ internal sealed class StationPlms : IPlmFamilySource
             return true;
 
         StationAnimationProgramDefinitions.Frame frame =
-            StationAnimationProgramDefinitions.Resolve(
+            StationAnimationPrograms.Resolve(
                 station.AnimationList, station.AnimationFrame);
         WrappingCountdown timer = WrappingCountdown.FromRaw(frame.Duration);
         PlmDraw draw = frame.Draw;
@@ -875,7 +875,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 StationKind.Save,
                 GameplayMessageIds.SaveCompleted,
                 station.AreaIndex,
-                slot.RoomArgument,
+                StationNumber(slot),
                 slot.BlockIndex));
             return true;
         }
@@ -890,7 +890,7 @@ internal sealed class StationPlms : IPlmFamilySource
             ? StationAnimationList.SaveFirstFrame
             : StationAnimationList.SaveSecondFrame;
         StationAnimationProgramDefinitions.Frame frame =
-            StationAnimationProgramDefinitions.Resolve(list, 0);
+            StationAnimationPrograms.Resolve(list, 0);
         if (frame.Duration != 4)
         {
             throw new InvalidDataException(
@@ -946,9 +946,13 @@ internal sealed class StationPlms : IPlmFamilySource
             station.Kind,
             message,
             station.AreaIndex,
-            slot.RoomArgument,
+            (slot.Argument as StationArgument)?.Station,
             slot.BlockIndex));
     }
+
+    /// <summary>The number a station was placed with, which its activation events carry.</summary>
+    private static int StationNumber(PlmSlot slot) => (slot.Argument as StationArgument
+        ?? throw new InvalidDataException($"Station at block {slot.BlockIndex} was placed without its number.")).Station;
 
     /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
     private void DrawStationAccess(RoomLevelData level, StationPlmState station, StationAccessPose pose)
@@ -956,8 +960,8 @@ internal sealed class StationPlms : IPlmFamilySource
         StationAccessBehavior accessBehavior = station.AccessBehavior
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
-            StationAccessPlmDefinitions.Resolve(accessBehavior);
-        _drawing.Draw(level, station.AccessBlockIndex, definition.Draw(pose == StationAccessPose.Extended));
+            StationAccessPlms.Resolve(accessBehavior);
+        _drawing.Draw(level, station.AccessBlockIndex, PlmDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));
     }
 
     /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>
@@ -1004,7 +1008,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>Phases of the non-save station's access-arm PLM list.</summary>
-    internal enum StationOperationPhase : byte
+    internal enum StationOperationPhase
     {
         /// <summary>No access sequence is in progress.</summary>
         Idle,

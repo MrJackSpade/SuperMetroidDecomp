@@ -497,7 +497,7 @@ public static class EnemyTileArtworkFiles
         foreach ((int manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
-            RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
+            RoomEnemyDefinition definition = RoomEnemyHeaders.Get(definitionPointer);
             if (entry.NativeByteCount != definition.TileByteCount)
                 throw new InvalidDataException(
                     $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
@@ -769,13 +769,13 @@ public static class EnemyTileArtworkFiles
             }
         }
         var ceresEscapeTiles = new CeresEscapeTileArtwork(ceresEscapePages);
-        CeresEscapeOverlayTilemapCatalog ceresEscapeOverlay;
+        CeresEscapeOverlays ceresEscapeOverlay;
         try
         {
             byte[] selected = ReadStockOrOverride(
                 CeresEscapeOverlayTilemapDefinitions.FileName,
                 manifest.CeresEscapeOverlaySha256);
-            ceresEscapeOverlay = CeresEscapeOverlayTilemapCatalog.Load(
+            ceresEscapeOverlay = CeresEscapeOverlays.Load(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -887,7 +887,7 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 $"Invalid Kraid color file {KraidColorFormat.FileName}: {error.Message}", error);
         }
-        CeresDoorVisualCatalog ceresDoorVisual;
+        CeresDoorVisuals ceresDoorVisual;
         try
         {
             ceresDoorVisual = CeresDoorVisualFiles.Load(
@@ -1098,7 +1098,7 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Norfair Ridley colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
-        TourianStatueColorCatalog tourianStatueColors;
+        TourianStatuePalettes tourianStatueColors;
         try
         {
             byte[] selected = ReadStockOrOverride(TourianStatueColorFormat.FileName,
@@ -1136,7 +1136,7 @@ public static class EnemyTileArtworkFiles
                 ZebetiteColors = zebetiteColors, SporeSpawnColors = sporeSpawnColors, BotwoonColors = botwoonColors,
                 NorfairRidleyColors = norfairRidleyColors,
             }),
-            AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog
+            AreaArtworkBundle.FromInstalledArtwork(new AreaArtworkBundle
             {
                 CeresDoorVisual = ceresDoorVisual, CeresEscapeTiles = ceresEscapeTiles,
                 CeresEscapeOverlayTilemaps = ceresEscapeOverlay, TourianStatueColors = tourianStatueColors,

@@ -33,10 +33,10 @@ internal static class BossRoomPlmProgramsVerification
     /// <summary>The draw a Botwoon wall frame shows: the crumble frames are the shared single shot-block breakup.</summary>
     private static PlmDraw BotwoonWallDrawList(BotwoonWallDraw frame) => frame switch
     {
-        BotwoonWallDraw.CrumbleFirst => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0),
-        BotwoonWallDraw.CrumbleSecond => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 1),
-        BotwoonWallDraw.CrumbleThird => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 2),
-        BotwoonWallDraw.CrumbleFourth => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 3),
+        BotwoonWallDraw.CrumbleFirst => ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0),
+        BotwoonWallDraw.CrumbleSecond => ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 1),
+        BotwoonWallDraw.CrumbleThird => ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 2),
+        BotwoonWallDraw.CrumbleFourth => ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 3),
         BotwoonWallDraw.Clear => BotwoonWallPlmDrawDefinitions.Clear,
         _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonWallDraw)} {frame}."),
     };
@@ -294,7 +294,7 @@ internal static class BossRoomPlmProgramsVerification
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandPlmProgramDefinitions.Programs, BombTorizoHandEntries,
             draw => PlmDraw.Of(draw), BombTorizoHandCueAt, "Bomb Torizo hand");
-        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(BombTorizoHandProgram.Sleeping),
+        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramsAfterSleep[BombTorizoHandProgram.Sleeping],
             "the woken hand continues after its sleep");
         AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,
             "the crumble list follows the sleeping list's sleep");

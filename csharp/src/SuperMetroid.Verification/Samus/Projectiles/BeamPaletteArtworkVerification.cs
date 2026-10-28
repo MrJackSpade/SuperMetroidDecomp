@@ -43,7 +43,7 @@ internal static class BeamPaletteArtworkVerification
             SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, catalog);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             var document = RequiredJson.Parse(bytes);
-            var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
+            var red = document.Required("palettes").Required(BeamPaletteSources.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
             SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, edited);
@@ -56,16 +56,16 @@ internal static class BeamPaletteArtworkVerification
         string json = Encoding.UTF8.GetString(bytes);
         AssertThrows<InvalidDataException>(() => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
         var invalid = RequiredJson.Parse(bytes);
-        invalid.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 32;
+        invalid.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0)["red"] = 32;
         Reject(invalid, "Out-of-range RGB rejected");
         invalid = JsonNode.Parse(bytes);
-        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").AsObject().Remove(BeamPaletteDefinitions.Key(0));
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").AsObject().Remove(BeamPaletteSources.Key(0));
         Reject(invalid, "Missing beam selection rejected");
         invalid = JsonNode.Parse(bytes);
-        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteDefinitions.Key(0)).AsArray().RemoveAt(0);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteSources.Key(0)).AsArray().RemoveAt(0);
         Reject(invalid, "Incomplete palette rejected");
         invalid = JsonNode.Parse(bytes);
-        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["damage"] = 100;
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0)["damage"] = 100;
         Reject(invalid, "Presentation cannot introduce gameplay properties");
         Console.WriteLine("Beam palettes: twelve native full-CGRAM matches, exact isolated RGB edits, ROM-free queue path and strict JSON validation pass.");
 
@@ -74,7 +74,7 @@ internal static class BeamPaletteArtworkVerification
     }
 
     /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>
-    private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
+    private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, InstalledBeamPalettes palettes)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -114,7 +114,7 @@ internal static class BeamPaletteArtworkVerification
             "Stock debug grapple selection matches native beam palette index two");
 
         var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
-        var editedColor = editedDocument.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombination.Ice)).Required(3);
+        var editedColor = editedDocument.Required("palettes").Required(BeamPaletteSources.Key(SamusBeamCombination.Ice)).Required(3);
         editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
         var editedPalettes = BeamPaletteFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));

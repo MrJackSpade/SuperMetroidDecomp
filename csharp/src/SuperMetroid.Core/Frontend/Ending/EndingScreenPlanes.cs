@@ -14,7 +14,7 @@ internal static class EndingScreenPlanes
 
     /// <summary>The tiles <paramref name="plane"/> holds once <paramref name="uploads"/> have been made, in order.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
-    internal static BackgroundTile[] Of(EndingPlane plane, IReadOnlyList<EndingUpload> uploads, EndingObjectArtworkCatalog? objects)
+    internal static BackgroundTile[] Of(EndingPlane plane, IReadOnlyList<EndingUpload> uploads, EndingObjectArtwork? objects)
     {
         var tiles = new BackgroundTile[Cells];
         foreach (EndingUpload upload in uploads)
@@ -38,7 +38,7 @@ internal static class EndingScreenPlanes
                 case EndingPlane.Logo:
                     // The logo map's one transfer carries the whole installed map.
                     if (upload.Kind == EndingUploadKind.PostShotTransfer &&
-                        EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk).Source == EndingPostShotUploadSource.LogoMap)
+                        EndingPostShotUploads.Get(upload.As<EndingChunkUpload>().Chunk).Source == EndingPostShotUploadSource.LogoMap)
                         Load(Objects(objects).PostShotLogoMap.Tiles.Span, tiles);
                     break;
                 case EndingPlane.WavySamus:
@@ -58,7 +58,7 @@ internal static class EndingScreenPlanes
 
     /// <summary>The tiles the explosion's <paramref name="fragment"/> map holds once <paramref name="uploads"/> have been made.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
-    internal static BackgroundTile[] Explosion(EndingObjectFragmentId fragment, IReadOnlyList<EndingUpload> uploads, EndingObjectArtworkCatalog? objects)
+    internal static BackgroundTile[] Explosion(EndingObjectFragmentId fragment, IReadOnlyList<EndingUpload> uploads, EndingObjectArtwork? objects)
     {
         var tiles = new BackgroundTile[Cells];
         foreach (EndingUpload upload in uploads)
@@ -82,6 +82,6 @@ internal static class EndingScreenPlanes
         installed[..Math.Min(installed.Length, tiles.Length)].CopyTo(tiles);
 
     /// <summary>The bound OBJ artwork, which a plane's artwork uploads require.</summary>
-    private static EndingObjectArtworkCatalog Objects(EndingObjectArtworkCatalog? objects) =>
+    private static EndingObjectArtwork Objects(EndingObjectArtwork? objects) =>
         objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
 }

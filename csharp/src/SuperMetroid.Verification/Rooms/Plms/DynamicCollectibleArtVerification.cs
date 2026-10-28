@@ -34,10 +34,10 @@ internal static class DynamicCollectibleArtVerification
             RoomPlmDynamicCollectibleArtFiles.Extract(rom, stockDirectory,
                 SupportedCartridge.Sha256);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(stockDirectory);
-            RoomPlmDynamicCollectibleArtCatalog stock =
+            InstalledDynamicCollectibleArt stock =
                 RoomPlmDynamicCollectibleArtFiles.Load(stockDirectory, null);
             RoomPlmDynamicCollectibleGraphic nativeBombs =
-                RoomPlmDynamicCollectibleGraphicsDefinitions.Get(
+                DynamicCollectibleGraphics.Get(
                     InWorldCollectibleKind.Bombs);
             VerifyDynamicCollectibleStockMapping(rom, stock);
 
@@ -64,7 +64,7 @@ internal static class DynamicCollectibleArtVerification
             string paletteOverride = Path.Combine(overrideDirectory,
                 RoomPlmDynamicCollectibleArtFiles.PaletteFileName);
             File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
-            RoomPlmDynamicCollectibleArtCatalog edited =
+            InstalledDynamicCollectibleArt edited =
                 RoomPlmDynamicCollectibleArtFiles.Load(stockDirectory,
                     overrideDirectory);
             AssertTrue(!edited.Resolve(InWorldCollectibleKind.Bombs).Tiles.Span
@@ -91,7 +91,7 @@ internal static class DynamicCollectibleArtVerification
 
             File.Delete(Path.Combine(overrideDirectory, name));
             File.Delete(paletteOverride);
-            RoomPlmDynamicCollectibleArtCatalog restored =
+            InstalledDynamicCollectibleArt restored =
                 RoomPlmDynamicCollectibleArtFiles.Load(stockDirectory,
                     overrideDirectory);
             AssertTrue(restored.Resolve(InWorldCollectibleKind.Bombs).Tiles.Span
@@ -128,7 +128,7 @@ internal static class DynamicCollectibleArtVerification
 
     /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, the artwork bound over its slot, and pickup state.</summary>
     private static LoadRetailBombsWithArtResult
-        LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
+        LoadRetailBombsWithArt(InstalledDynamicCollectibleArt art)
     {
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]));

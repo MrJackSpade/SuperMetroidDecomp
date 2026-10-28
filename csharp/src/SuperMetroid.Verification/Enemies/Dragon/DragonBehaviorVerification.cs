@@ -20,7 +20,7 @@ internal static class DragonBehaviorVerification
     {
         foreach (DragonAnimationSelector selector in Enum.GetValues<DragonAnimationSelector>().Where(selector => selector != DragonAnimationSelector.ForceReinstall))
         {
-            DragonProgram program = DragonAnimationDefinitions.Program(selector);
+            DragonProgram program = DragonPhases.Program(selector);
             (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(selector);
             ushort[] poses = DragonAnimationsConstants.Spritemaps(program).ToArray();
             switch (selector)

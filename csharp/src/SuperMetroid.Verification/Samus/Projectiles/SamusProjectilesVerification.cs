@@ -82,19 +82,19 @@ internal static void VerifySamusPowerBeamProjectiles()
     const int width = 32;
     const int height = 16;
     var nativeProjectileRom = SeedNativeProjectileFixture(bus);
-    var fixtureTrails = ProjectileTrailCatalog.Load(
+    var fixtureTrails = InstalledProjectileTrails.Load(
         new MemoryStream(ProjectileTrailExtractor.Extract(bus)));
     var fixtureChargeColors = SamusChargeColorFile.Read(
         new MemoryStream(SamusChargeColorExtractor.Extract(bus)));
     var fixtureSuitColors = SamusSuitColorFile.Read(
         new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
-    var fixtureFlarePlacement = ChargeFlarePlacementCatalog.Load(
+    var fixtureFlarePlacement = ChargeFlarePlacements.Load(
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
-    var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
+    var fixtureFlareSprites = ChargeFlareSprites.Load(
         new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
-    var fixtureFrames = ProjectileFrameBindingCatalog.Load(
+    var fixtureFrames = InstalledProjectileFrameBindings.Load(
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
-    var fixtureSprites = ProjectileSpriteCatalog.Load(
+    var fixtureSprites = InstalledProjectileSprites.Load(
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles() => new(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = fixtureFrames } };
     SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
@@ -251,7 +251,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), spazerArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), spazerArtwork,
         new Position16<ScreenPixels>(spazerShot.Position.X.Whole, spazerShot.Position.Y.Whole), "Spazer shot");
     spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 2, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
@@ -768,7 +768,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertProjectileEntry(
         DrawnEntries(frame => chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, trailArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectileTrail, chargedTrailSlot * 2),
-        ProjectileSheetDefinitions.TrailFrame(chargedTrail.Left.ShownPose ?? throw new InvalidOperationException("The charged trail shows a pose.")),
+        ProjectileSheetFrames.TrailFrame(chargedTrail.Left.ShownPose ?? throw new InvalidOperationException("The charged trail shows a pose.")),
         trailArtwork, new Position16<ScreenPixels>(chargedTrail.Left.DisplayedPosition.X, chargedTrail.Left.DisplayedPosition.Y), "Charged trail");
     AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
     AssertTrue(!firstTrailObj.IsLarge, "projectile trail is an explicit small OBJ");
@@ -1050,7 +1050,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     ProjectileDrawArtwork missileArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
         DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, missileArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(missile.SpritemapPointer)), missileArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(missile.SpritemapPointer)), missileArtwork,
         new Position16<ScreenPixels>(missile.Position.X.Whole, missile.Position.Y.Whole), "Missile");
 
     // The firing alpha pass changed trail timer four to three. Exactly three further alpha
@@ -1526,7 +1526,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     ProjectileDrawArtwork superArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
         DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, superArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(super.SpritemapPointer)), superArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(super.SpritemapPointer)), superArtwork,
         new Position16<ScreenPixels>(super.Position.X.Whole, super.Position.Y.Whole), "Super missile owner");
 
     for (int frame = 0; frame < 3; frame++)

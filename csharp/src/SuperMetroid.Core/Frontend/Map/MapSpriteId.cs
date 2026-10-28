@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// The map screens' sprites: arrows, markers, station icons, the position indicator and the elevator and world labels.
 /// Values are arbitrary (#1416); extraction's <c>MapSpriteOrdinals</c> names the cartridge spritemap each one is read from.
 /// </summary>
-public enum MapSpriteId : ushort
+public enum MapSpriteId
 {
     /// <summary>The right scroll arrow.</summary>
     ArrowRight = 1,

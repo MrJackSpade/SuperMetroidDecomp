@@ -354,7 +354,7 @@ internal sealed class SamusPoseTransitionPhase
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
-                SamusProspectivePoseChangeCommand command = SamusPoseChangeCommandDefinitions.ForLookupFailure(
+                SamusProspectivePoseChangeCommand command = SamusPoseChangeCommands.ForLookupFailure(
                     SamusPoseMetadata.ReadMovementType(frame.PoseAtFrameStart));
                 if (command is not (SamusProspectivePoseChangeCommand.Decelerate or SamusProspectivePoseChangeCommand.Stop))
                     throw new InvalidDataException(

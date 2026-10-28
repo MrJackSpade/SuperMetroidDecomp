@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>The control words of an escape typewriter program between its lines' character bytes.</summary>
-internal enum EscapeTypewriterCommand : ushort
+internal enum EscapeTypewriterCommand
 {
     /// <summary>$A6:C2B7: the program ends.</summary>
     End = 0,

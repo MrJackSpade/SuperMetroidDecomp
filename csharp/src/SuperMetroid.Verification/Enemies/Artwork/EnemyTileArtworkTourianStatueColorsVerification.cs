@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
-        TourianStatueColorCatalog colors = stock.Areas.TourianStatueColors ??
+        TourianStatuePalettes colors = stock.Areas.TourianStatueColors ??
             throw new InvalidDataException("Installed enemy artwork lacks Tourian statue colors.");
         var forbidden = new HashSet<int>();
         for (int color = 0; color < TourianStatueColorDefinitions.BaseColorCount; color++)

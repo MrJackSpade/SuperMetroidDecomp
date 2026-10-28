@@ -33,7 +33,7 @@ internal static class BossDisplayBindingsResourcesVerification
         }
         var json = new EnemyIdentityFixture();
         var bad = new Dictionary<string, EnemyExtendedVisualComponent[]>(stock.Oam.Frames, StringComparer.Ordinal);
-        string ordinary = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameDefinitions.IsBg2Only(frame)).Name;
+        string ordinary = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameBounds.IsBg2Only(frame)).Name;
         bad[ordinary] = [];
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(stock.Oam with { Frames = bad })),
             "empty components are permitted only on declared BG2-only physical roots");
@@ -65,7 +65,7 @@ internal static class BossDisplayBindingsResourcesVerification
         foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames[EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount..])
         {
             AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited), "legacy file inherits each newly declared root");
-            if (EnemyExtendedFrameDefinitions.IsBg2Only(frame))
+            if (EnemyExtendedFrameBounds.IsBg2Only(frame))
                 AssertEqual(0, inherited.Length, "native BG2-only roots do not fabricate OAM during legacy merge");
             AssertEqual(frame.Pointer, merged.GetDisplayPointer(frame.Bank, frame.Pointer), "new stock binding remains identity");
         }

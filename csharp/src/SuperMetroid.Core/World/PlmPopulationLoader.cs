@@ -49,7 +49,7 @@ internal sealed class PlmPopulationLoader
     /// the next record can consequently reuse that same highest native slot. Retail
     /// loads require decoded records; no population or header can be read from a bus.
     /// </summary>
-    public int LoadRoomPopulation(PlmRoom room, RoomPlmPopulationDefinition population, RoomPlmServices services)
+    public int LoadRoomPopulation(PlmRoom room, RoomPlmPopulation population, RoomPlmServices services)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(population);
@@ -66,7 +66,7 @@ internal sealed class PlmPopulationLoader
                 throw new InvalidDataException(
                     $"Room PLM population {population.Name} record {recordIndex} ({header}) must carry a cannon-control word exactly when it is a Draygon cannon.");
             var record = new RoomPlmPopulationRecord(
-                recordIndex, header, placement.Block, placement.RoomArgument);
+                recordIndex, header, placement.Block, placement.Argument);
 
             int blockIndex;
             try
@@ -83,7 +83,7 @@ internal sealed class PlmPopulationLoader
                 throw new InvalidDataException(
                     $"Room PLM population {population.Name} record {recordIndex} " +
                     $"header {header} has block outside safe native allocation " +
-                    $"({record.Block.X},{record.Block.Y}) and argument ${record.RoomArgument:X4}.",
+                    $"({record.Block.X},{record.Block.Y}) and argument {record.Argument}.",
                     error);
             }
 
@@ -101,7 +101,7 @@ internal sealed class PlmPopulationLoader
                     $"Room PLM population {population.Name} record {recordIndex} " +
                     $"uses untranslated header " +
                     $"{header} at block ({record.Block.X},{record.Block.Y}) " +
-                    $"with argument ${record.RoomArgument:X4}.");
+                    $"with argument {record.Argument}.");
             }
 
             spawnedRecordCount++;
@@ -121,7 +121,7 @@ internal sealed class PlmPopulationLoader
         slot.Header = record.Header;
         slot.BlockIndex = blockIndex;
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        slot.RoomArgument = record.RoomArgument;
+        slot.Argument = record.Argument;
         return slot;
     }
 

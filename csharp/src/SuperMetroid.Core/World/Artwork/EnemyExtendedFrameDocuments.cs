@@ -29,7 +29,7 @@ public static class EnemyExtendedFrameDocuments
         bool legacyOverride = schema != EnemyExtendedFrameSchema.Current;
         if (document.Frames is null ||
             document.Frames.Count != expectedCount ||
-            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames.Count !=
+            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).selection.Frames.Count !=
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount))
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");
@@ -46,8 +46,8 @@ public static class EnemyExtendedFrameDocuments
                     : definition.Name;
             if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
-                visual is null || visual.Length > EnemyExtendedFrameDefinitions.MaximumSpriteComponents(definition) ||
-                (visual.Length == 0 && !EnemyExtendedFrameDefinitions.IsBg2Only(definition)))
+                visual is null || visual.Length > EnemyExtendedFrameBounds.MaximumSpriteComponents(definition) ||
+                (visual.Length == 0 && !EnemyExtendedFrameBounds.IsBg2Only(definition)))
                 throw new InvalidDataException(
                     $"Extended enemy frame {authoredName} is missing or exceeds component capacity.");
             var compiled = new EnemyExtendedDrawComponent[visual.Length];
@@ -60,7 +60,7 @@ public static class EnemyExtendedFrameDocuments
                     component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
-                SpritePart[] parts = EnemySpritemapCatalog.CompileParts(
+                SpritePart[] parts = EnemySpritemaps.CompileParts(
                     component.Parts, $"{definition.Name} component {index}");
                 totalParts += parts.Length;
                 if (totalParts > EnemySpritemapCatalog.MaximumParts)
@@ -68,7 +68,7 @@ public static class EnemyExtendedFrameDocuments
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
                     new((short)component.OffsetX, (short)component.OffsetY),
-                    GoldenTorizoStrideGeometryDefinitions.Compile(definition.Frame,
+                    GoldenTorizoStride.Compile(definition.Frame,
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
             if (!frames.TryAdd(definition.Frame, compiled))
@@ -97,10 +97,10 @@ public static class EnemyExtendedFrameDocuments
         if (!legacyOverride)
             return new EnemyExtendedFrameCatalog(frames, displayFrames);
         var merged = new Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]>(
-            (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames);
+            (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).selection.Frames);
         foreach ((EnemyFrameId identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.displayFrames);
+        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.selection.DisplayFrames);
         if (schema.OwnsDisplayBindings)
         {
             if (document.DisplayFrames is null ||

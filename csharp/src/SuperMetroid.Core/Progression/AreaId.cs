@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// The order is the cartridge ABI used by room headers, load-station tables, maps, and
 /// area-dependent gameplay tables. It is not a flags field.
 /// </remarks>
-public enum AreaId : byte
+public enum AreaId
 {
     /// <summary>The planetary surface and adjoining caverns, encoded as retail area index 0.</summary>
     Crateria = 0,

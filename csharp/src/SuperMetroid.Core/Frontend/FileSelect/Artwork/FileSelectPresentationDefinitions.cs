@@ -7,41 +7,26 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 public static class FileSelectPresentationDefinitions
 {
     /// <summary>$81:B4AC-B4C0, the literal small-font empty-slot label including its padding.</summary>
-    private const string NoDataLabel = " NO DATA   ";
+    internal const string NoDataLabel = " NO DATA   ";
     /// <summary>$81:B4B6: tile $6A is the small-font A; following alphabet glyphs are consecutive.</summary>
-    private static readonly BackgroundTile SmallLetterA = new(0x6a, 0, highPriority: true);
+    internal static readonly BackgroundTile SmallLetterA = new(0x6a, 0, highPriority: true);
     /// <summary>$81:B4B2 and B4BC-B4C0: the small-font space.</summary>
-    private static readonly BackgroundTile SmallSpace = new(0x0f, 0, highPriority: true);
+    internal static readonly BackgroundTile SmallSpace = new(0x0f, 0, highPriority: true);
     /// <summary>$81:B496-B49A: three consecutive tiles composing the ENERGY label.</summary>
-    private static readonly BackgroundTile EnergyLabelFirst = new(0x9d, 0, highPriority: true);
+    internal static readonly BackgroundTile EnergyLabelFirst = new(0x9d, 0, highPriority: true);
     /// <summary>$81:B49C: the separately placed final glyph of the ENERGY patch.</summary>
-    private static readonly BackgroundTile EnergyLabelFinal = new(0xcc, 0, highPriority: true);
+    internal static readonly BackgroundTile EnergyLabelFinal = new(0xcc, 0, highPriority: true);
     /// <summary>$81:B4A8: the time-field colon glyph.</summary>
-    private static readonly BackgroundTile TimeColonGlyph = new(0x8c, 0, highPriority: true);
+    internal static readonly BackgroundTile TimeColonGlyph = new(0x8c, 0, highPriority: true);
 
     /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
-    internal static int PatchCellCount(FileSelectPatch patch) => patch switch
-    {
-        FileSelectPatch.Energy => 4,
-        FileSelectPatch.TimeColon => 1,
-        FileSelectPatch.NoData => NoDataLabel.Length,
-        _ => throw new ArgumentOutOfRangeException(nameof(patch)),
-    };
-
-    /// <summary>Calculates text glyph selection and left-to-right cell placement for one native patch.</summary>
-    internal static FileSelectCompiledPatchCell PatchCell(FileSelectPatch patch, int index)
-    {
-        if ((uint)index >= PatchCellCount(patch)) throw new ArgumentOutOfRangeException(nameof(index));
-        return new(new Offset16<TilemapCells>(checked((short)index), 0), patch switch
+    internal static readonly IReadOnlyDictionary<FileSelectPatch, int> PatchCellCounts =
+        new Dictionary<FileSelectPatch, int>
         {
-            FileSelectPatch.Energy => index < 3 ? EnergyLabelFirst with { Tile = EnergyLabelFirst.Tile + index } : EnergyLabelFinal,
-            FileSelectPatch.TimeColon => TimeColonGlyph,
-            FileSelectPatch.NoData => index == 0 ? FileSelectLayout.BlankTile
-                : NoDataLabel[index] == ' ' ? SmallSpace
-                : SmallLetterA with { Tile = SmallLetterA.Tile + NoDataLabel[index] - 'A' },
-            _ => throw new ArgumentOutOfRangeException(nameof(patch)),
-        });
-    }
+            [FileSelectPatch.Energy] = 4,
+            [FileSelectPatch.TimeColon] = 1,
+            [FileSelectPatch.NoData] = NoDataLabel.Length,
+        };
 
     /// <summary>Supported file-select presentation JSON schema version.</summary>
     public const int Version = 1;
@@ -79,87 +64,71 @@ public static class FileSelectPresentationDefinitions
     /// <summary>The copy and clear pages' slot-letter anchors, in document order.</summary>
     public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Enum.GetValues<FileSelectAnchor>();
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
-    private static readonly string[] cursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
+    internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
     /// <summary>The JSON names of the helmet frame sprites, by frame.</summary>
-    private static readonly string[] helmetSpriteNames =
+    internal static readonly string[] HelmetSpriteNames =
         ["Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"];
 
     /// <summary>The JSON name of a foreground page.</summary>
-    public static string PageName(FileSelectPage page) => page switch
-    {
-        FileSelectPage.MainWithData => "Main.WithData",
-        FileSelectPage.MainEmpty => "Main.Empty",
-        FileSelectPage.CopySource => "Copy.Source",
-        FileSelectPage.CopyDestination => "Copy.Destination",
-        FileSelectPage.CopyConfirm => "Copy.Confirm",
-        FileSelectPage.CopyCompleted => "Copy.Completed",
-        FileSelectPage.ClearSelection => "Clear.Selection",
-        FileSelectPage.ClearConfirm => "Clear.Confirm",
-        FileSelectPage.ClearCompleted => "Clear.Completed",
-        _ => throw new ArgumentOutOfRangeException(nameof(page)),
-    };
+    internal static readonly IReadOnlyDictionary<FileSelectPage, string> PageNames =
+        new Dictionary<FileSelectPage, string>
+        {
+            [FileSelectPage.MainWithData] = "Main.WithData",
+            [FileSelectPage.MainEmpty] = "Main.Empty",
+            [FileSelectPage.CopySource] = "Copy.Source",
+            [FileSelectPage.CopyDestination] = "Copy.Destination",
+            [FileSelectPage.CopyConfirm] = "Copy.Confirm",
+            [FileSelectPage.CopyCompleted] = "Copy.Completed",
+            [FileSelectPage.ClearSelection] = "Clear.Selection",
+            [FileSelectPage.ClearConfirm] = "Clear.Confirm",
+            [FileSelectPage.ClearCompleted] = "Clear.Completed",
+        };
 
     /// <summary>The JSON name of a slot-field patch.</summary>
-    public static string PatchName(FileSelectPatch patch) => patch switch
-    {
-        FileSelectPatch.Energy => "Energy",
-        FileSelectPatch.NoData => "NoData",
-        FileSelectPatch.TimeColon => "TimeColon",
-        _ => throw new ArgumentOutOfRangeException(nameof(patch)),
-    };
+    internal static readonly IReadOnlyDictionary<FileSelectPatch, string> PatchNames =
+        new Dictionary<FileSelectPatch, string>
+        {
+            [FileSelectPatch.Energy] = "Energy",
+            [FileSelectPatch.NoData] = "NoData",
+            [FileSelectPatch.TimeColon] = "TimeColon",
+        };
 
     /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
-    public static string BorderName(FileSelectBorder border) => border switch
-    {
-        FileSelectBorder.Main => "Main",
-        FileSelectBorder.Copy => "Copy",
-        FileSelectBorder.Clear => "Clear",
-        _ => throw new ArgumentOutOfRangeException(nameof(border)),
-    };
+    internal static readonly IReadOnlyDictionary<FileSelectBorder, string> BorderNames =
+        new Dictionary<FileSelectBorder, string>
+        {
+            [FileSelectBorder.Main] = "Main",
+            [FileSelectBorder.Copy] = "Copy",
+            [FileSelectBorder.Clear] = "Clear",
+        };
 
     /// <summary>The JSON name of a bordered heading's sprite.</summary>
-    public static string BorderSpriteName(FileSelectBorder border) => border switch
-    {
-        FileSelectBorder.Main => "Border.Main",
-        FileSelectBorder.Copy => "Border.Copy",
-        FileSelectBorder.Clear => "Border.Clear",
-        _ => throw new ArgumentOutOfRangeException(nameof(border)),
-    };
+    internal static readonly IReadOnlyDictionary<FileSelectBorder, string> BorderSpriteNames =
+        new Dictionary<FileSelectBorder, string>
+        {
+            [FileSelectBorder.Main] = "Border.Main",
+            [FileSelectBorder.Copy] = "Border.Copy",
+            [FileSelectBorder.Clear] = "Border.Clear",
+        };
 
     /// <summary>The JSON name of a copy or clear page's slot-letter anchor.</summary>
-    public static string AnchorName(FileSelectAnchor anchor) => anchor switch
-    {
-        FileSelectAnchor.CopyDestinationSource => "Copy.Destination.Source",
-        FileSelectAnchor.CopyConfirmSource => "Copy.Confirm.Source",
-        FileSelectAnchor.CopyConfirmDestination => "Copy.Confirm.Destination",
-        FileSelectAnchor.ClearConfirmSource => "Clear.Confirm.Source",
-        _ => throw new ArgumentOutOfRangeException(nameof(anchor)),
-    };
-
-    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
-    public static string CursorSpriteName(int frame) =>
-        (uint)frame < cursorSpriteNames.Length ? cursorSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
-
-    /// <summary>The JSON name of a selected-slot helmet frame's sprite, for frames 0-7.</summary>
-    public static string HelmetSpriteName(int frame) =>
-        (uint)frame < helmetSpriteNames.Length ? helmetSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
-
-    /// <summary>Every sprite the document names: the three borders, the four cursor frames and the eight helmet frames.</summary>
-    public static IEnumerable<string> SpriteNames =>
-        [.. Borders.Select(BorderSpriteName), .. cursorSpriteNames, .. helmetSpriteNames];
-
-    /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
-    public static IEnumerable<string> SheetFrames =>
-        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
+    internal static readonly IReadOnlyDictionary<FileSelectAnchor, string> AnchorNames =
+        new Dictionary<FileSelectAnchor, string>
+        {
+            [FileSelectAnchor.CopyDestinationSource] = "Copy.Destination.Source",
+            [FileSelectAnchor.CopyConfirmSource] = "Copy.Confirm.Source",
+            [FileSelectAnchor.CopyConfirmDestination] = "Copy.Confirm.Destination",
+            [FileSelectAnchor.ClearConfirmSource] = "Clear.Confirm.Source",
+        };
 
     /// <summary>The menu heading a bordered heading draws.</summary>
-    internal static MenuHeading Heading(FileSelectBorder border) => border switch
-    {
-        FileSelectBorder.Main => MenuHeading.FileSelectMain,
-        FileSelectBorder.Copy => MenuHeading.FileSelectCopy,
-        FileSelectBorder.Clear => MenuHeading.FileSelectClear,
-        _ => throw new ArgumentOutOfRangeException(nameof(border)),
-    };
+    internal static readonly IReadOnlyDictionary<FileSelectBorder, MenuHeading> Headings =
+        new Dictionary<FileSelectBorder, MenuHeading>
+        {
+            [FileSelectBorder.Main] = MenuHeading.FileSelectMain,
+            [FileSelectBorder.Copy] = MenuHeading.FileSelectCopy,
+            [FileSelectBorder.Clear] = MenuHeading.FileSelectClear,
+        };
 
     /// <summary>$82:CAE9: the helmet's first 24x24 body block begins at menu atlas cell $D0.</summary>
     internal const int HelmetFirstBodyCell = 0xd0;

@@ -20,7 +20,7 @@ internal static class EndingSpriteSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What ending sheet <paramref name="sheet"/> composes.</summary>
-    internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtworkCatalog objects, EndingPaletteCatalog palettes,
+    internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
         EndingFontAtlas font)
     {
         Ensure.NotNull(objects);
@@ -34,8 +34,8 @@ internal static class EndingSpriteSheetComposer
         if (page.Stars)
             frames.AddRange(EndingShootingStarDefinitions.SheetFrames.Select(frame =>
             {
-                string name = EndingShootingStarDefinitions.SheetFrameName(frame);
-                return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarDefinitions.Appearance(frame).ToFramePart(0, sizes)]), characters,
+                string name = EndingShootingStarFrames.SheetFrameName(frame);
+                return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarFrames.Appearance(frame).ToFramePart(0, sizes)]), characters,
                     FrontendSheetPalette.FramePalette);
             }));
         var colours = new ScreenPalette();
@@ -44,12 +44,12 @@ internal static class EndingSpriteSheetComposer
     }
 
     /// <summary>The frames ending sheet <paramref name="sheet"/> holds.</summary>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, EndingObjectArtworkCatalog objects)
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, EndingObjectArtwork objects)
     {
         Ensure.NotNull(objects);
         EndingPage page = Page(sheet);
         IEnumerable<string> families = IntroSpriteSheetComposer.FrameNames(page.Families(objects));
-        return page.Stars ? families.Concat(EndingShootingStarDefinitions.SheetFrames.Select(EndingShootingStarDefinitions.SheetFrameName)) : families;
+        return page.Stars ? families.Concat(EndingShootingStarDefinitions.SheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : families;
     }
 
     /// <summary>The page ending sheet <paramref name="sheet"/> shows.</summary>
@@ -129,7 +129,7 @@ internal static class EndingSpriteSheetComposer
         int logo = 0;
         for (int index = 0; index < EndingPostShotUploadDefinitions.Count; index++)
         {
-            if (EndingPostShotUploadDefinitions.Get(index).Source == EndingPostShotUploadSource.LogoTiles && logo++ == logoQuarters)
+            if (EndingPostShotUploads.Get(index).Source == EndingPostShotUploadSource.LogoTiles && logo++ == logoQuarters)
                 break;
             transfers.Add(new EndingChunkUpload(EndingUploadKind.PostShotTransfer, index));
         }
@@ -139,11 +139,11 @@ internal static class EndingSpriteSheetComposer
     }
 
     /// <summary>The escape scenes' colours.</summary>
-    private static void EscapeColours(EndingPaletteCatalog palettes, ScreenPalette colours) =>
+    private static void EscapeColours(EndingPaletteSet palettes, ScreenPalette colours) =>
         palettes[EndingPaletteId.Escape].LoadTo(colours.All, 0);
 
     /// <summary>The post-credits colours: the credits' background half under the post-credits scenes' own.</summary>
-    private static void PostCreditsColours(EndingPaletteCatalog palettes, ScreenPalette colours)
+    private static void PostCreditsColours(EndingPaletteSet palettes, ScreenPalette colours)
     {
         palettes[EndingPaletteId.Credits].LoadTo(colours.Background, 0);
         ColourRun restored = colours.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
@@ -156,6 +156,6 @@ internal static class EndingSpriteSheetComposer
     /// order, the families it shows, whether the stars show on it, and how the scene loads its colours.
     /// </summary>
     private sealed record EndingPage(EndingObjectSheet ObjectSheet, EndingReward Reward, IReadOnlyList<EndingUpload> Transfers,
-        Func<EndingObjectArtworkCatalog, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars,
-        Action<EndingPaletteCatalog, ScreenPalette> LoadColours);
+        Func<EndingObjectArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars,
+        Action<EndingPaletteSet, ScreenPalette> LoadColours);
 }

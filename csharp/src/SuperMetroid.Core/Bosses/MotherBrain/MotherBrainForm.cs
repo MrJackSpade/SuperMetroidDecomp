@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// it; the encounter only ever moves forward through these stages, apart from the corpse interval that returns to
 /// <see cref="SecondPhase"/>. The backing values are the snapshot word the verification import decodes.
 /// </summary>
-public enum MotherBrainForm : ushort
+public enum MotherBrainForm
 {
     /// <summary>The brain is still inside its glass tank: only missiles and Super Missiles reach it, and bombs do nothing.</summary>
     Glass = 0,

@@ -15,7 +15,7 @@ internal readonly struct VerticalChargedSpazerSpreadParts(int phase) : IReadOnly
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int size = SpazerCompositionGeometryDefinitions.TileSize;
             int lane = index / ProjectileSpritePartDefinitions.ChargedSpazerVerticalCells;
-            int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase);
+            int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase);
             int x = lane == 0 ? distance : lane == 1 ? -size - distance : -size / 2;
             int y = (ProjectileSpritePartDefinitions.ChargedSpazerVerticalCells / 2 - 1 - index % ProjectileSpritePartDefinitions.ChargedSpazerVerticalCells) * size;
             return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,

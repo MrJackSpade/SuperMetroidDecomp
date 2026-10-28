@@ -31,58 +31,58 @@ internal interface IGameplayArtwork
     IGameplayPresentationContent? MapPresentation { get; }
 
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
-    GameplayBasePaletteCatalog? GameplayBasePalettes { get; }
+    GameplayBasePalette? GameplayBasePalettes { get; }
 
     /// <summary>Common gameplay sprite characters (standard objects).</summary>
     RoomCharacterAtlas? StandardObjectArt { get; }
 
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
-    SamusBodyArtworkCatalog? SamusBodyArt { get; }
+    InstalledSamusBodyArtwork? SamusBodyArt { get; }
 
     /// <summary>Room tileset characters.</summary>
-    RoomCharacterAtlasCatalog? RoomCharacterArt { get; }
+    RoomCharacterAtlases? RoomCharacterArt { get; }
 
     /// <summary>Room static palettes.</summary>
-    RoomStaticPaletteCatalog? RoomPaletteArt { get; }
+    RoomStaticPalettes? RoomPaletteArt { get; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    RoomBlockSheetCatalog? RoomBlockSheets { get; }
+    InstalledRoomArtwork? RoomBlockSheets { get; }
 
     /// <summary>Initial room foreground and background layouts.</summary>
-    RoomVisualLayoutCatalog? RoomVisualLayouts { get; }
+    RoomLevelArtworks? RoomVisualLayouts { get; }
 
     /// <summary>Stock native room-level allocations; not overridable.</summary>
-    RoomLevelStreamCatalog? RoomLevelStreams { get; }
+    InstalledRoomLevelStreams? RoomLevelStreams { get; }
 
     /// <summary>Room PLM shot block visuals.</summary>
-    RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; }
+    InstalledRoomPlmShotBlockVisuals? RoomPlmShotBlockVisuals { get; }
 
     /// <summary>Room PLM grapple block visuals.</summary>
-    RoomPlmGrappleBlockVisualCatalog? RoomPlmGrappleBlockVisuals { get; }
+    InstalledRoomPlmGrappleBlockVisuals? RoomPlmGrappleBlockVisuals { get; }
 
     /// <summary>Room PLM station visuals.</summary>
-    RoomPlmStationVisualCatalog? RoomPlmStationVisuals { get; }
+    InstalledRoomPlmStationVisuals? RoomPlmStationVisuals { get; }
 
     /// <summary>Room PLM blue door visuals.</summary>
-    RoomPlmBlueDoorVisualCatalog? RoomPlmBlueDoorVisuals { get; }
+    InstalledRoomPlmBlueDoorVisuals? RoomPlmBlueDoorVisuals { get; }
 
     /// <summary>Room PLM colored door visuals.</summary>
-    RoomPlmColoredDoorVisualCatalog? RoomPlmColoredDoorVisuals { get; }
+    InstalledRoomPlmColoredDoorVisuals? RoomPlmColoredDoorVisuals { get; }
 
     /// <summary>Room PLM grey door visuals.</summary>
-    RoomPlmGreyDoorVisualCatalog? RoomPlmGreyDoorVisuals { get; }
+    InstalledRoomPlmGreyDoorVisuals? RoomPlmGreyDoorVisuals { get; }
 
     /// <summary>Room PLM eye door visuals.</summary>
-    RoomPlmEyeDoorVisualCatalog? RoomPlmEyeDoorVisuals { get; }
+    InstalledRoomPlmEyeDoorVisuals? RoomPlmEyeDoorVisuals { get; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
     RoomPlmMotherBrainGlassVisualCatalog? RoomPlmMotherBrainGlassVisuals { get; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
-    RoomPlmNoobTubeVisualCatalog? RoomPlmNoobTubeVisuals { get; }
+    InstalledRoomPlmNoobTubeVisuals? RoomPlmNoobTubeVisuals { get; }
 
     /// <summary>Room PLM downward gate visuals.</summary>
-    RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals { get; }
+    InstalledRoomPlmDownwardGateVisuals? RoomPlmDownwardGateVisuals { get; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
     RoomPlmElevatorPlatformVisualCatalog? RoomPlmElevatorPlatformVisuals { get; }
@@ -100,28 +100,28 @@ internal interface IGameplayArtwork
     RoomPlmChozoStatueVisualCatalog? RoomPlmChozoStatueVisuals { get; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
-    RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals { get; }
+    InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
-    RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; }
+    RoomPlmTourianAccessVisuals? RoomPlmTourianAccessVisuals { get; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
-    RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals { get; }
+    InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; }
 
     /// <summary>Room PLM maridia elevatube visuals.</summary>
-    RoomPlmMaridiaElevatubeVisualCatalog? RoomPlmMaridiaElevatubeVisuals { get; }
+    InstalledRoomPlmMaridiaElevatubeVisuals? RoomPlmMaridiaElevatubeVisuals { get; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
     RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals { get; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
-    RoomPlmSamusEaterVisualCatalog? RoomPlmSamusEaterVisuals { get; }
+    InstalledRoomPlmSamusEaterVisuals? RoomPlmSamusEaterVisuals { get; }
 
     /// <summary>Room PLM botwoon wall visuals.</summary>
-    RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals { get; }
+    InstalledRoomPlmBotwoonWallVisuals? RoomPlmBotwoonWallVisuals { get; }
 
     /// <summary>Room PLM kraid visuals.</summary>
-    RoomPlmKraidVisualCatalog? RoomPlmKraidVisuals { get; }
+    InstalledRoomPlmKraidVisuals? RoomPlmKraidVisuals { get; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
     RoomPlmCrocomireVisualCatalog? RoomPlmCrocomireVisuals { get; }
@@ -130,31 +130,31 @@ internal interface IGameplayArtwork
     RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals { get; }
 
     /// <summary>Room PLM collectible visuals.</summary>
-    RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals { get; }
+    InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; }
 
     /// <summary>Room PLM dynamic collectible artwork.</summary>
-    RoomPlmDynamicCollectibleArtCatalog? RoomPlmDynamicCollectibleArt { get; }
+    InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
-    XrayRevealVisualCatalog? XrayRevealVisuals { get; }
+    InstalledXrayReveals? XrayRevealVisuals { get; }
 
     /// <summary>Room background tilemaps.</summary>
-    RoomBackgroundTilemapCatalog? RoomBackgroundTilemapArt { get; }
+    RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; }
 
     /// <summary>Room sky tilemaps.</summary>
-    RoomSkyTilemapCatalog? RoomSkyTilemapArt { get; }
+    RoomSkyTilemaps? RoomSkyTilemapArt { get; }
 
     /// <summary>Samus projectile sprite compositions.</summary>
-    ProjectileSpriteCatalog? ProjectileCompositions { get; }
+    InstalledProjectileSprites? ProjectileCompositions { get; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>
-    ProjectileFrameBindingCatalog? ProjectileFrameBindings { get; }
+    InstalledProjectileFrameBindings? ProjectileFrameBindings { get; }
 
     /// <summary>Projectile trail artwork.</summary>
-    ProjectileTrailCatalog? TrailArtwork { get; }
+    InstalledProjectileTrails? TrailArtwork { get; }
 
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
-    SamusOverreadCatalog? SamusOverreads { get; }
+    InstalledSamusOverreads? SamusOverreads { get; }
 
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     InstalledSpriteSheets? SpriteSheets { get; }
@@ -163,22 +163,22 @@ internal interface IGameplayArtwork
     InstalledEnemySheets? EnemySheets { get; }
 
     /// <summary>Charge-flare placement.</summary>
-    ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; }
+    ChargeFlarePlacements? ChargeFlarePlacement { get; }
 
     /// <summary>Charge-flare sprite compositions.</summary>
-    ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; }
+    ChargeFlareSprites? ChargeFlareCompositions { get; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
-    ChargeFlarePlacementCatalog? GrappleFlarePlacement { get; }
+    ChargeFlarePlacements? GrappleFlarePlacement { get; }
 
     /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
-    GrappleSwingFrameCatalog? GrappleSwingFrames { get; }
+    InstalledGrappleSwingFrames? GrappleSwingFrames { get; }
 
     /// <summary>The beam palettes, by beam combination.</summary>
-    BeamPaletteCatalog? BeamPalettes { get; }
+    InstalledBeamPalettes? BeamPalettes { get; }
 
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    HyperBeamFxColorCatalog? HyperBeamFxColors { get; }
+    InstalledHyperBeamFxColors? HyperBeamFxColors { get; }
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
@@ -187,5 +187,5 @@ internal interface IGameplayArtwork
     BossArtworkCatalog? BossArtwork { get; }
 
     /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
-    AreaArtworkCatalog? AreaArtwork { get; }
+    AreaArtworkBundle? AreaArtwork { get; }
 }

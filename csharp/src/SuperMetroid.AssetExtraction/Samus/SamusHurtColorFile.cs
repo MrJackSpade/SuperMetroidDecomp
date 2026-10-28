@@ -13,7 +13,7 @@ public static class SamusHurtColorFile
     /// <returns>A catalog with private compiled color state, independent of the input document's arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The JSON is malformed, null, has duplicate or unknown properties, uses an unsupported version, or does not supply two sixteen-color palettes with RGB channels from zero through 31.</exception>
-    public static SamusHurtColorCatalog Read(Stream json)
+    public static InstalledSamusHurtColors Read(Stream json)
     {
         Ensure.NotNull(json);
         SamusHurtColorDocument document;

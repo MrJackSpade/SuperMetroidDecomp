@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// cannon is destroyed; bank $A5 reads it before firing. The port keeps them in <c>DisabledCannonWords</c>. Room
 /// PLM data names each by its address; the room import decodes that into the word a cannon placement carries.
 /// </summary>
-public enum DraygonCannonControlWord : ushort
+public enum DraygonCannonControlWord
 {
     /// <summary>Pre-destroyed upper-left cannon word authored by PLM argument <c>$8802</c>.</summary>
     UpperLeft,

@@ -5,5 +5,5 @@ internal interface IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>The installed area artwork.</summary>
     /// <exception cref="InvalidOperationException">No area artwork is installed.</exception>
-    AreaArtworkCatalog AreaTiles { get; }
+    AreaArtworkBundle AreaTiles { get; }
 }

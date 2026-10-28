@@ -13,5 +13,7 @@ internal static class ChozoAndTubeColorCatalogAccess
 
         /// <summary>Selects Lower Norfair statue colors through the production palette branch.</summary>
         internal RgbColor ResolveLowerNorfair(int color) => self.ResolveStatue(ChozoStatuePalette.LowerNorfair, color);
+        /// <summary>Resolves a statue ink from an authored edit or the selected variant's calculated paint.</summary>
+        internal RgbColor ResolveStatue(ChozoStatuePalette palette, int color) => ChozoAndTubeColors.Statue(self, palette, color);
     }
 }

@@ -34,9 +34,9 @@ internal static class ClosedPresentationIdentityDefinitions
             GameplayMessageNoticeDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessageNoticePresentation", "ApplySelection", "messageId") =>
             [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
-        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "palette.Family") =>
+        ("InstalledSamusFullBodyCycleColors", "Apply" or "Resolve", "palette.Family") =>
             Enum.GetValues<SamusFullBodyCycleFamily>().Select(family => (int)family).ToArray(),
-        ("SamusSuitColorCatalog", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
+        ("InstalledSamusSuitColors", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
         ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
             .Select(definition => (int)definition.Id).ToArray(),
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
@@ -47,8 +47,8 @@ internal static class ClosedPresentationIdentityDefinitions
         ("IntroNarrationPresentation", "GetLines" or "Compile", "page") =>
             Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
-        ("MapSpriteSheet", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.Id).ToArray(),
-        ("PauseReserveTankPresentation", "Draw", "visual") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
+        ("MapSpriteSheet", "Draw", "id") => MapSpriteNames.Frames.Select(frame => (int)frame.Id).ToArray(),
+        ("PauseReserveTankPresentation", "Draw", "visual") => PauseReserveTankParts.Frames().Select(frame => (int)frame.Id).ToArray(),
         ("TitleGraphicsPresentation", "DrawSprite", "sprite") => TitleSpriteDefinitions.All.Select(sprite => (int)sprite).ToArray(),
         // A drawer does not reveal its family: a pose qualifies when some intro family owns it.
         ("CinematicSpriteSheet", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames
@@ -56,15 +56,15 @@ internal static class ClosedPresentationIdentityDefinitions
             .Concat(IntroDiscoveryActorSpriteDefinitions.Frames).Concat(IntroEggEffectSpriteDefinitions.Frames)
             .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
             .Select(frame => frame.Pose.Index).Distinct().ToArray(),
-        ("ProjectileTrailCatalog", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
-        ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
-        ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
-        ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>
+        ("InstalledProjectileTrails", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
+        ("RoomFxLayer3Pages", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
+        ("RoomFxBlendInks", "Apply", "selection") => RoomFxPaletteBlendRules.Ids.Select(id => (int)id).Append(0).ToArray(),
+        ("AreaMapPresentation" or "IGameplayPresentationContent", "Resolve", "asset") =>
             [(int)InstalledArtworkId.StandardHudTiles, (int)InstalledArtworkId.KraidBg3RestoreQuarter0,
              (int)InstalledArtworkId.KraidBg3RestoreQuarter1, (int)InstalledArtworkId.KraidBg3RestoreQuarter2,
              (int)InstalledArtworkId.KraidBg3RestoreQuarter3, (int)InstalledArtworkId.EscapeTimerFirstTiles,
              (int)InstalledArtworkId.EscapeTimerSecondTiles],
-        ("RoomBackgroundTilemapCatalog", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
+        ("RoomBackgroundTilemaps", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => (int)sheet.Sheet).ToArray(),
         ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All
@@ -81,7 +81,7 @@ internal static class ClosedPresentationIdentityDefinitions
     /// <summary>Returns audited finite named identities for a presentation call, or null when no closed set applies.</summary>
     internal static string[]? GetNames(string type, string method, string parameter) => new PresentationParameter(type, method, parameter) switch
     {
-        ("RoomVisualLayoutCatalog" or "RoomLevelStreamCatalog", "Get", "level.Name") =>
+        ("RoomLevelArtworks" or "InstalledRoomLevelStreams", "Get", "level.Name") =>
             RoomVisualLayoutSourceDefinitions.All.Select(level => level.Name).ToArray(),
         _ => null,
     };

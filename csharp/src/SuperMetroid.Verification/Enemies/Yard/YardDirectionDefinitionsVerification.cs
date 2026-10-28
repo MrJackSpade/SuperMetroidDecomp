@@ -23,7 +23,7 @@ internal static class YardDirectionDefinitionsVerification
         for (ushort direction = 0; direction < 8; direction++)
         {
             YardDirectionDefinition definition =
-                YardDirectionDefinitions.ForDirection(direction);
+                YardDirections.ForDirection(direction);
             int record = directionAddress + direction * 8;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
                 $"Yard direction {direction} crawling list");
@@ -46,7 +46,7 @@ internal static class YardDirectionDefinitionsVerification
         {
             int row = facing == YardAirborneFacing.Right ? 1 : 0;
             YardAirborneInstructionDefinition definition =
-                YardDirectionDefinitions.ForAirborneFacing(facing);
+                YardDirections.ForAirborneFacing(facing);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4)),
                 NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleProgram),
                 $"Yard airborne ${source:X6} facing {facing} visible list");
@@ -56,10 +56,10 @@ internal static class YardDirectionDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => YardDirectionDefinitions.ForDirection(8),
+            () => YardDirections.ForDirection(8),
             "Yard invalid direction definition");
         AssertThrows<InvalidDataException>(
-            () => YardDirectionDefinitions.ForAirborneFacing((YardAirborneFacing)2),
+            () => YardDirections.ForAirborneFacing((YardAirborneFacing)2),
             "Yard invalid airborne facing definition");
 
         var guarded = NewYardDirectionReadGuard(rom);
@@ -77,7 +77,7 @@ internal static class YardDirectionDefinitionsVerification
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
             YardDirectionDefinition initial =
-                YardDirectionDefinitions.ForDirection(direction);
+                YardDirections.ForDirection(direction);
             AssertYardDirectionState(slot, state, initial,
                 $"Yard initializer direction {direction}",
                 assertMovementFunction: false);
@@ -92,7 +92,7 @@ internal static class YardDirectionDefinitionsVerification
             bool turned = YardEnemyBehavior.TurnYardAround(slot, state);
             AssertTrue(turned, $"Yard direction {direction} production turn");
             YardDirectionDefinition opposite =
-                YardDirectionDefinitions.ForDirection(initial.OppositeDirection);
+                YardDirections.ForDirection(initial.OppositeDirection);
             AssertEqual(initial.OppositeDirection, state.Direction,
                 $"Yard direction {direction} production opposite");
             AssertYardDirectionState(slot, state, opposite,
@@ -111,7 +111,7 @@ internal static class YardDirectionDefinitionsVerification
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
             YardAirborneFacing facing = state.AirborneFacingDirection;
             YardAirborneInstructionDefinition expected =
-                YardDirectionDefinitions.ForAirborneFacing(facing);
+                YardDirections.ForAirborneFacing(facing);
 
             YardEnemyBehavior.DropYard(slot, state);
             AssertYardAirborneLists(state, expected,

@@ -42,8 +42,8 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         Suite(nameof(VerifyRoomFxLegacySheetSelection), () => VerifyRoomFxLegacySheetSelection());
         int mechanicsWordCount = 0;
         int frameCount = 0;
-        foreach (RoomFxAnimatedTileObjectDefinition definition in
-                 RoomFxAnimatedTileMechanicsDefinitions.All)
+        foreach (RoomFxAnimatedTileLoop definition in
+                 RoomFxAnimatedTiles.All)
         {
             mechanicsWordCount += 3;
 
@@ -82,7 +82,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 $"object {definition.AnimatedObject} reads no compiled artwork-source operands");
         }
 
-        AssertEqual(7, RoomFxAnimatedTileMechanicsDefinitions.All.Count(),
+        AssertEqual(7, RoomFxAnimatedTiles.All.Count(),
             "simple room-FX animated-tile object count");
         AssertEqual(30, frameCount, "simple room-FX animated-tile frame count");
         AssertEqual(65, mechanicsWordCount,
@@ -93,7 +93,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
 
     /// <summary>Rejects compiled mechanics reads and counts unexpected artwork operand reads in bank $87.</summary>
     private static CartridgeReadGuard NewRoomFxAnimatedTileMechanicsForbiddenBus(
-        ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
+        ISnesAddressSpace inner, RoomFxAnimatedTileLoop definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
             SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxNativeSources.AnimatedTilesBank);
@@ -122,7 +122,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     /// </summary>
     private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
     {
-        foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
+        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTiles.All)
         {
             var expected = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             int update = 0;

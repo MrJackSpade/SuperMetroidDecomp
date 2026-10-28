@@ -24,10 +24,10 @@ internal static class SquareSlopeDefinitionsVerification
         for (int i = 0; i < native.Length; i++)
         {
             native[i] = rom.ReadCartridgeByte(SamusProjectileRomDataCollision.SquareSlopeDefinitions + i);
-            AssertEqual(native[i], SquareSlopeDefinitions.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
+            AssertEqual(native[i], SquareSlopes.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopeDefinitions.ReadSamusQuadrant(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ReadSamusQuadrant(invalid),
                 $"Samus square quadrant rejects {invalid}");
 
         var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);
@@ -61,14 +61,14 @@ internal static class SquareSlopeDefinitionsVerification
     {
         for (int index = 0; index < 20; index++)
         {
-            byte actual = SquareSlopeDefinitions.ReadEnemyQuadrant(index);
+            byte actual = SquareSlopes.ReadEnemyQuadrant(index);
             AssertEqual(rom.ReadCartridgeByte(SquareSlopeDefinitions.EnemyReferenceAddress + index), actual,
                 $"enemy square quadrant byte {index}, including identity bits");
             AssertEqual(rom.ReadCartridgeByte(SquareSlopeDefinitions.ProjectileReferenceAddress + index), actual,
                 $"enemy-projectile square quadrant copy {index}");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopeDefinitions.ReadEnemyQuadrant(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ReadEnemyQuadrant(invalid),
                 $"enemy square quadrant rejects {invalid}");
         Console.WriteLine("Enemy square-slope algorithm: both twenty-byte native copies and bounds pass.");
     }

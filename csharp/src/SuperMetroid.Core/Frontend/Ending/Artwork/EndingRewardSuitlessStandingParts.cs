@@ -19,9 +19,9 @@ internal static class EndingRewardSuitlessStandingParts
     /// <summary>Applies the calculated composition only to the two supported standing frame pointers.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusStanding))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.SuitlessSamusStanding))
             return supplied.CalculateIfMatching(Standing);
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusStandingArmsStraight))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.SuitlessSamusStandingArmsStraight))
             return supplied.CalculateIfMatching(StandingArmsStraight);
         return supplied;
     }

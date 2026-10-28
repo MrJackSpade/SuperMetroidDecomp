@@ -19,7 +19,7 @@ internal static class ProjectileFrameBindingsVerification
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
-        var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockJson, writable: false));
+        var stock = InstalledProjectileFrameBindings.Load(new MemoryStream(stockJson, writable: false));
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
             SamusProjectileRecordDefinitions.TimedRecordAddresses.Count,
             "physical timed records and visual frame bindings have identical coverage");
@@ -90,7 +90,7 @@ internal static class ProjectileFrameBindingsVerification
         ushort editedPointer = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
         string frameName = ProjectileFrameBindingFormat.FrameNameAt(editedPointer);
         ushort originalSprite = stock.Resolve(editedPointer);
-        ProjectileSpriteCatalog compositions = ProjectileSpriteCatalog.Load(
+        InstalledProjectileSprites compositions = InstalledProjectileSprites.Load(
             new MemoryStream(ProjectileSpriteExtractor.Extract(rom)));
         var stockOam = new OamBuffer();
         compositions.Draw(originalSprite, stockOam, new(100, 100));
@@ -102,8 +102,8 @@ internal static class ProjectileFrameBindingsVerification
                 !comparison.HighTable.SequenceEqual(stockOam.HighTable);
         });
         document.Frames[frameName] = ProjectileSpriteDefinitions.Name(replacement);
-        byte[] editedJson = ProjectileFrameBindingCatalog.Write(document);
-        var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(editedJson));
+        byte[] editedJson = InstalledProjectileFrameBindings.Write(document);
+        var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(editedJson));
         var editedShot = new SamusProjectileSlot(0)
             { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
         new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = edited } }
@@ -146,10 +146,10 @@ internal static class ProjectileFrameBindingsVerification
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
         document.Frames.Remove(frameName);
-        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingCatalog.Write(document),
+        AssertThrows<InvalidDataException>(() => InstalledProjectileFrameBindings.Write(document),
             "missing timed frame fails before gameplay");
         document.Frames[frameName] = "sprite_0000";
-        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingCatalog.Write(document),
+        AssertThrows<InvalidDataException>(() => InstalledProjectileFrameBindings.Write(document),
             "uncatalogued sprite selection fails before gameplay");
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
     }

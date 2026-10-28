@@ -32,7 +32,7 @@ internal static class IntroRinkaDefinitionsVerification
 
         for (int parameter = 0; parameter < IntroRinkaDefinitions.RinkaCount; parameter++)
         {
-            IntroRinkaPhysicalDefinition actual = IntroRinkaDefinitions.Rinka(parameter);
+            IntroRinkaPhysicalDefinition actual = IntroRinkaLaunches.Rinka(parameter);
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialXReferenceAddress + parameter * 2)),
                 actual.Position.X, $"intro Rinka {parameter} initial X");
             AssertEqual(unchecked((ushort)(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialYReferenceAddress + parameter * 2)) - 8)),
@@ -41,7 +41,7 @@ internal static class IntroRinkaDefinitionsVerification
                 actual.XWholeVelocity, $"intro Rinka {parameter} signed X whole velocity");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroRinkaDefinitions.Rinka(IntroRinkaDefinitions.RinkaCount),
+            () => IntroRinkaLaunches.Rinka(IntroRinkaDefinitions.RinkaCount),
             "intro Rinka definition boundary");
 
         var guarded = NewIntroRinkaDefinitionGuard(retail);

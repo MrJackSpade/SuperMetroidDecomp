@@ -26,7 +26,7 @@ internal static class ZebetiteDefinitionsVerification
         for (ushort generation = 0; generation < 4; generation++)
         {
             ZebetiteGenerationDefinition definition =
-                ZebetiteDefinitions.Generation(generation);
+                Zebetites.Generation(generation);
             ushort[] actual =
             [
                 MotherBrainNativeWords.GenerationFlagsWord(definition.GenerationFlags),
@@ -45,7 +45,7 @@ internal static class ZebetiteDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ZebetiteDefinitions.Generation(4),
+            () => Zebetites.Generation(4),
             "Zebetite generation past active table");
 
         ushort[] healthSamples = [1000, 800, 799, 600, 599, 400, 399, 200, 199, 0];
@@ -65,7 +65,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             RoomEnemyPopulationRecord population =
-                ZebetiteDefinitions.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
+                Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
             ushort[] actual =
             [
                 SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
@@ -98,7 +98,7 @@ internal static class ZebetiteDefinitionsVerification
             enemies.ZebetiteBehavior.InitializeZebetite(slot);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
-            ZebetiteGenerationDefinition expected = ZebetiteDefinitions.Generation(generation);
+            ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
             AssertEqual(expected.GenerationFlags, state.GenerationFlags,
                 $"production Zebetite generation {generation} flags");
             AssertEqual(expected.YRadius, slot.Radius.Y,
@@ -107,7 +107,7 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} program");
             AssertEqual(expected.XPosition, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
-            AssertEqual(expected.YPosition(linkedHalf), slot.Position.Y.Whole,
+            AssertEqual(Zebetites.YPosition(expected, linkedHalf), slot.Position.Y.Whole,
                 $"production Zebetite generation {generation} Y");
 
             foreach (ushort health in healthSamples)
@@ -126,7 +126,7 @@ internal static class ZebetiteDefinitionsVerification
         {
             var enemies = NewZebetiteDefinitionSystem(0);
             RoomEnemySlot slot = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
-            AssertEqual(ZebetiteDefinitions.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), slot.Spawn.Population,
+            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf, slot.Spawn.Population.Parameter1 != 0,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");

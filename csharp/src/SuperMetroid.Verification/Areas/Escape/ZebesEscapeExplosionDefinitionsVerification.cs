@@ -18,7 +18,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         for (int index = 0; index < 8; index++)
         {
             ZebesEscapeExplosionDefinition definition =
-                ZebesEscapeExplosionDefinitions.ForIndex(index);
+                ZebesEscapeExplosions.ForIndex(index);
             AssertEqual(rom.ReadCartridgeByte(0x8fc1d6 + index), (byte)definition.SpriteKind,
                 $"Zebes escape explosion sprite {index}");
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, rom.ReadCartridgeByte(0x8fc1de + index)), definition.SoundEffect,
@@ -34,7 +34,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
 
             int selectedIndex = choice < 8 ? choice : inherited;
             ZebesEscapeExplosionDefinition expected =
-                ZebesEscapeExplosionDefinitions.ForIndex(selectedIndex);
+                ZebesEscapeExplosions.ForIndex(selectedIndex);
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects.Single(slot => slot.IsActive);
             AssertEqual(expected.SpriteKind, sprite.Kind,
                 $"production escape sprite choice {choice}, inherited {inherited}");
@@ -55,10 +55,10 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ZebesEscapeExplosionDefinitions.ForIndex(-1),
+            () => ZebesEscapeExplosions.ForIndex(-1),
             "negative Zebes escape explosion index");
         AssertThrows<InvalidDataException>(
-            () => ZebesEscapeExplosionDefinitions.ForIndex(8),
+            () => ZebesEscapeExplosions.ForIndex(8),
             "Zebes escape explosion index past table");
 
         Console.WriteLine(

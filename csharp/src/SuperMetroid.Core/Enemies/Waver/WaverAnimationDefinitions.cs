@@ -5,15 +5,13 @@ internal static class WaverAnimationDefinitions
 {
     /// <summary>
     /// The steady-left, steady-right, spinning-left and spinning-right animations the pointer table at
-    /// <c>$A3:86DB-$A3:86E2</c> selects, indexed by <see cref="WaverAnimationSelector"/>.
+    /// <c>$A3:86DB-$A3:86E2</c> selects, by <see cref="WaverAnimationSelector"/>.
     /// </summary>
-    internal static WaverProgram Program(WaverAnimationSelector selector) => selector switch
+    internal static readonly Dictionary<WaverAnimationSelector, WaverProgram> Programs = new()
     {
-        WaverAnimationSelector.None => WaverProgram.SteadyFacingLeft,
-        WaverAnimationSelector.FacingRight => WaverProgram.SteadyFacingRight,
-        WaverAnimationSelector.Spinning => WaverProgram.SpinningFacingLeft,
-        WaverAnimationSelector.Spinning | WaverAnimationSelector.FacingRight => WaverProgram.SpinningFacingRight,
-        _ => throw new InvalidDataException(
-            $"Waver animation selector {selector} exceeds its four-entry table."),
+        [WaverAnimationSelector.None] = WaverProgram.SteadyFacingLeft,
+        [WaverAnimationSelector.FacingRight] = WaverProgram.SteadyFacingRight,
+        [WaverAnimationSelector.Spinning] = WaverProgram.SpinningFacingLeft,
+        [WaverAnimationSelector.Spinning | WaverAnimationSelector.FacingRight] = WaverProgram.SpinningFacingRight,
     };
 }

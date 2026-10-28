@@ -43,12 +43,12 @@ internal static class ClosedPresentationContractChecks
                 void Inspect(GameplayHudPresentation hud, FileSelectPresentation menu,
                     MotherBrainRoomColorPresentation colors, GameOptionsPresentation options,
                     GameOverPresentation gameOver, PauseReserveUiPresentation reserve,
-                    BeamPaletteCatalog beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
+                    InstalledBeamPalettes beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
-                    TourianStatueColorCatalog statues,
+                    TourianStatuePalettes statues,
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
-                    ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
-                    SamusDeathPaletteArtworkCatalog samusDeath,
+                    ChozoAndTubeColorCatalog chozo, GameplayBasePalette basePalette,
+                    InstalledSamusDeathPalettes samusDeath,
                     SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.ApplyAmmo(cells, dynamicIndex, 123);
@@ -107,6 +107,7 @@ internal static class ClosedPresentationContractChecks
             platforms.Append(typeof(GameplayHudPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        FixtureConsumerBinding.Require(compilation, calls, "ClosedPresentationContractChecks");
         var exports = new ResourceIndex();
         var adapter = new ClosedPresentationAudit(compilation, exports);
         var before = new AuditReport();

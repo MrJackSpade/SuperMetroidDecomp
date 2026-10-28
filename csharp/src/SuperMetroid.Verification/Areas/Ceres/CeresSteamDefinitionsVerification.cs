@@ -23,7 +23,7 @@ internal static class CeresSteamDefinitionsVerification
         {
             var variant = (CeresSteamVariant)index;
             CeresSteamInitialization definition =
-                CeresSteamDefinitions.Initialization(variant);
+                CeresSteamInitializations.Initialization(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
                 NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Program),
                 $"Ceres steam {variant} instruction list");
@@ -49,7 +49,7 @@ internal static class CeresSteamDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => CeresSteamDefinitions.Initialization((CeresSteamVariant)6),
+            () => CeresSteamInitializations.Initialization((CeresSteamVariant)6),
             "Ceres steam variant past tables");
         Console.WriteLine(
             "Ceres steam definitions: twelve native words and all six production initialization paths pass with both selector tables forbidden.");

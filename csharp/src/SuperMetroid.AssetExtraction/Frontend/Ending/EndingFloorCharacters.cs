@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed escape, planet-explosion and reward-icon artwork as the import pipeline reads it (#1409), which names its
 /// content identity from each scene's map and characters and the reward icon's transfer.
 /// </summary>
-public sealed class EndingFloorCharacters : EndingFloorArtworkCatalog
+public sealed class EndingFloorCharacters : EndingFloorArtwork
 {
     /// <summary>Installs the three decoded backdrop pairs and the complete post-credits beam/icon transfer.</summary>
     /// <param name="escapeA">Zebes zoom-out map and character lanes for the first escape scene.</param>
@@ -23,7 +23,7 @@ public sealed class EndingFloorCharacters : EndingFloorArtworkCatalog
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">A scene or the reward icon was not read from installed artwork.</exception>
-    public override string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingFloorArtworkCatalog), content =>
+    public override string ContentIdentity => SelectedPresentationHash.Create("EndingFloorArtworkCatalog", content =>
     {
         content.Append("scene-count", 3);
         AppendScene(this[EndingFloorSceneId.EscapeA]);

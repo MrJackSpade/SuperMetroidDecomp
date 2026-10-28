@@ -26,10 +26,10 @@ internal static class RoomVisualLayoutsVerification
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
-        RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
+        RoomLevelArtworks stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailLevels.Count,
             "distinct pinned room levels");
-        RoomLevelStreamCatalog levelStreams = installed.LoadRoomLevelStreams();
+        InstalledRoomLevelStreams levelStreams = installed.LoadRoomLevelStreams();
         AssertEqual(RoomVisualLayoutFiles.RetailLevels.Count, levelStreams.Count,
             "installed room-level count");
         AssertTrue(!Directory.Exists(Path.Combine(installed.Root, "overrides",
@@ -48,7 +48,7 @@ internal static class RoomVisualLayoutsVerification
         }
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels)
         {
-            RoomVisualLayout layout = stock.Get(level);
+            RoomLevelArtwork layout = stock.Get(level);
             byte[] native = RomDataReader.Decompress(bus, RoomLevelSourceDefinitions.Addresses[level]);
             AssertTrue(native.SequenceEqual(File.ReadAllBytes(Path.Combine(
                     installed.RoomLevelStreamDirectory, RoomLevelStreamFiles.LevelFileName(level)))),
@@ -80,15 +80,15 @@ internal static class RoomVisualLayoutsVerification
         // Exercise the real room loader for every selectable state, not merely
         // representative addresses. Each state's compressed level source is
         // forbidden, so an accidental ROM fallback fails at its first read.
-        RoomCharacterAtlasCatalog characters = installed.LoadRoomCharacters();
-        RoomStaticPaletteCatalog palettes = installed.LoadRoomPalettes();
+        RoomCharacterAtlases characters = installed.LoadRoomCharacters();
+        RoomStaticPalettes palettes = installed.LoadRoomPalettes();
         int stateCount = 0;
         int slopeBlocks = 0;
         int spikeBlocks = 0;
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header);
-            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(header))
+            foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
                 int source = RoomLevelSourceDefinitions.Addresses[room.State.Level];

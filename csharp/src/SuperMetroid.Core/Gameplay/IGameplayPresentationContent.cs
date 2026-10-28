@@ -62,35 +62,35 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     RoomPaletteFxPresentation RoomPaletteFx { get; }
 
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    RoomFxLayer3TilemapCatalog RoomFxLayer3Tilemaps { get; }
+    RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
-    RoomFxPaletteBlendCatalog RoomFxPaletteBlends { get; }
+    RoomFxBlendInks RoomFxPaletteBlends { get; }
 
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
-    PowerBombFixedColorCatalog PowerBombFixedColors { get; }
+    InstalledPowerBombFixedColors PowerBombFixedColors { get; }
 
     /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    SamusHurtColorCatalog SamusHurtColors { get; }
+    InstalledSamusHurtColors SamusHurtColors { get; }
 
     /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
-    CrystalFlashColorCatalog CrystalFlashColors { get; }
+    InstalledCrystalFlashColors CrystalFlashColors { get; }
 
     /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    SamusVisorColorCatalog SamusVisorColors { get; }
+    InstalledSamusVisorColors SamusVisorColors { get; }
 
     /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    SamusSuitColorCatalog SamusSuitColors { get; }
+    InstalledSamusSuitColors SamusSuitColors { get; }
 
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    SamusFullBodyCycleColorCatalog SamusFullBodyCycleColors { get; }
+    InstalledSamusFullBodyCycleColors SamusFullBodyCycleColors { get; }
 
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    SamusChargeColorCatalog SamusChargeColors { get; }
+    InstalledSamusChargeColors SamusChargeColors { get; }
 
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
+    InstalledSamusHyperBeamColors SamusHyperBeamColors { get; }
 }

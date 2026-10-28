@@ -24,7 +24,7 @@ internal static class RidleyExplosionDefinitionsVerification
             0xc95d, 0xc964, 0xc96b, 0xc972, 0xc979, 0xc980,
         ];
         var spawnOrder = new List<int>();
-        RidleyExplosionDefinitions.SpawnInBreakupOrder(spawnOrder.Add);
+        RidleyBreakup.SpawnInBreakupOrder(spawnOrder.Add);
         AssertEqual(spawnPointerOperands.Length, spawnOrder.Count,
             "Ridley breakup spawn count");
         for (int index = 0; index < spawnPointerOperands.Length; index++)
@@ -49,14 +49,14 @@ internal static class RidleyExplosionDefinitionsVerification
             ushort parameter = unchecked((ushort)(tailIndex * 2));
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(fixedTailOperands[tailIndex]),
-                RidleyAnimationsVerification.BreakupList(RidleyExplosionDefinitions.SelectTailFrame(RidleyExplosionDefinitions.PartParameters.Decode(parameter), 0)),
+                RidleyAnimationsVerification.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionDefinitions.PartParameters.Decode(parameter), 0)),
                 $"Ridley tail fragment instruction ${parameter:X2}");
         }
         for (int orientation = 0; orientation < 16; orientation++)
         {
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2)),
-                RidleyAnimationsVerification.BreakupList(RidleyExplosionDefinitions.SelectTailFrame(
+                RidleyAnimationsVerification.BreakupList(RidleyBreakup.SelectTailFrame(
                     RidleyExplosionPart.TailTip,
                     orientation)),
                 $"Ridley tail-tip orientation {orientation}");
@@ -77,7 +77,7 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int facingIndex = 0; facingIndex < 2; facingIndex++)
         {
             RidleyExplosionBodyPartDefinition definition =
-                RidleyExplosionDefinitions.SelectBodyPart(
+                RidleyBreakup.SelectBodyPart(
                     bodyParameters[partIndex],
                     facingRight: facingIndex != 0);
             AssertEqual(

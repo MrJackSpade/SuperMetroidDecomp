@@ -23,7 +23,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
-            SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null,
+            SuperMetroid.Core.Assets.GameplayBasePalette? initialPaletteArt = null,
             SuperMetroid.Core.Progression.SharedRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt },
                 new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
@@ -52,7 +52,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
             SelectedRoom room = state is null ? self.RoomLoader.LoadSelectedRoom(definition)
-                : RoomStateSelectionDefinitions.GetStates(definition).Contains(state) ? new SelectedRoom(definition, state)
+                : RoomStateSelection.GetStates(definition).Contains(state) ? new SelectedRoom(definition, state)
                 : throw new ArgumentException($"{state.Name} is not a state of room {definition.Name}.", nameof(state));
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;

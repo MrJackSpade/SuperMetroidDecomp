@@ -19,8 +19,8 @@ public static class RoomPlmSporeSpawnCeilingVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Spore Spawn ceiling",
-            SporeSpawnCeilingPlmDrawDefinitions.All,
-            SporeSpawnCeilingPlmDrawDefinitions.VisualId);
+            SporeSpawnCeilingDraws.All,
+            SporeSpawnCeilingDraws.VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Spore Spawn ceiling override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Spore Spawn ceiling JSON.</param>
@@ -29,7 +29,7 @@ public static class RoomPlmSporeSpawnCeilingVisualFiles
     public static RoomPlmSporeSpawnCeilingVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", SporeSpawnCeilingPlmDrawDefinitions.All, SporeSpawnCeilingPlmDrawDefinitions.VisualId, entries => new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", SporeSpawnCeilingDraws.All, SporeSpawnCeilingDraws.VisualId, entries => new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Spore Spawn ceiling visuals.</summary>

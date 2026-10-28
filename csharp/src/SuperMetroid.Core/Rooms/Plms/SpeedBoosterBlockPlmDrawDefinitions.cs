@@ -20,10 +20,6 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     internal static PlmFrameDraw<Draw> BombRevealDraw { get; } = PlmDraw.Of(Draw.BombReveal);
 
 
-    /// <summary>The shared one-block crumble draw for crumble image <paramref name="frame"/> (0..3).</summary>
-    internal static PlmDraw CrumbleDrawList(int frame) =>
-        RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, frame);
-
     /// <summary>Physical type-B parent with the named Speed Booster visual block.</summary>
     internal static ushort BombRevealWord => 0xb000 | RoomPlmVisualBlockDefinitions.SpeedBoosterParent;
 
@@ -32,22 +28,9 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
         new(BombRevealDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { BombRevealWord }, new(0, 0)),
+                new(PlmRunDirection.Horizontal, new ushort[] { BombRevealWord }, new(0, 0)),
             });
 
     /// <summary>Enumerates the sole calculated bomb-reveal record for artwork import/export.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get { yield return BombReveal; }
-    }
-
-    /// <summary>Accepts only the bomb-reveal draw pointer and rejects unrelated PLM drawings.</summary>
-    internal static string VisualId(PlmDraw request) => request == BombRevealDraw
-        ? BombRevealVisualId
-        : throw new InvalidDataException($"Speed Booster draw {request} has no visual ID.");
-
-    /// <summary>Resolves the one exported visual identity to its calculated draw record.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId([BombReveal], _ => BombRevealVisualId, id, out list);
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => [BombReveal];
 }

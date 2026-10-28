@@ -58,7 +58,7 @@ internal sealed class EnemyDrawList
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
     [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
     /// <summary>The inclusive layer range <see cref="_prepared"/> covers.</summary>
-    [NonSerialized] private EnemyDrawLayerRange _preparedLayers;
+    [NonSerialized] private InclusiveRange _preparedLayers;
 
     /// <summary>
     /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in native slot order: each queued
@@ -151,7 +151,7 @@ internal sealed class EnemyDrawList
         int lastLayer)
     {
         Ensure.NotNull(sprites);
-        if (_prepared is not { } prepared || _preparedLayers != new EnemyDrawLayerRange(firstLayer, lastLayer))
+        if (_prepared is not { } prepared || _preparedLayers != new InclusiveRange(firstLayer, lastLayer))
             throw new InvalidOperationException($"Enemy layers {firstLayer}..{lastLayer} were not advanced before drawing.");
         _prepared = null;
 

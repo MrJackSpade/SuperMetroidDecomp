@@ -19,22 +19,22 @@ public static class RoomPresentationIdentity
     /// <param name="backgrounds">Non-null selected background tilemaps.</param>
     /// <param name="skies">Non-null selected compiled sky tilemap catalog.</param>
     /// <param name="layouts">Non-null selected initial foreground/background room visual layouts.</param>
-    /// <returns>A new ordinal-keyed dictionary of decoded-content identities, using installation directory names except the sky key <c>RoomSkyTilemapCatalog</c>.</returns>
+    /// <returns>A new ordinal-keyed dictionary of decoded-content identities, using installation directory names except the sky key <c>RoomSkyTilemaps</c>.</returns>
     /// <remarks>Includes already selected overrides, reads no files, and retains no catalog references. These component identities remain separate from cartridge/engine provenance, room collision, and active mutable room state.</remarks>
     public static IReadOnlyDictionary<string, string> Create(
-        RoomCharacterAtlasCatalog characters, RoomStaticPaletteCatalog palettes,
-        RoomBackgroundTilemapCatalog backgrounds,
-        RoomSkyTilemapCatalog skies, RoomVisualLayoutCatalog layouts) =>
+        RoomCharacterAtlases characters, RoomStaticPalettes palettes,
+        RoomBackgroundTilemaps backgrounds,
+        RoomSkyTilemaps skies, RoomLevelArtworks layouts) =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [GameInstallationLayout.RoomCharacterDirectoryName] = RoomTilesetSources.CharacterIdentity(characters),
             [GameInstallationLayout.RoomPaletteDirectoryName] = RoomTilesetSources.PaletteIdentity(palettes),
             [GameInstallationLayout.RoomBackgroundTilemapDirectoryName] = RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
-            [nameof(RoomSkyTilemapCatalog)] = SkyIdentity(skies),
+            [nameof(RoomSkyTilemaps)] = SkyIdentity(skies),
             [GameInstallationLayout.RoomVisualLayoutDirectoryName] = layouts.ContentIdentity,
         };
 
     /// <summary>The content identity of the seven selected sky pages, hashed as the cartridge's tilemap words in scrolling order.</summary>
-    public static string SkyIdentity(RoomSkyTilemapCatalog skies) => SelectedPresentationHash.Create(nameof(RoomSkyTilemapCatalog),
+    public static string SkyIdentity(RoomSkyTilemaps skies) => SelectedPresentationHash.Create(nameof(RoomSkyTilemaps),
         content => content.Append("pages", BackgroundTileWords.ToBytes(Ensure.NotNull(skies).Pages.Span)));
 }

@@ -39,7 +39,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
             }
             kinds++;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomSpriteObjectDefinitions.Program(RoomSpriteObjectKind.None),
+        AssertThrows<KeyNotFoundException>(() => _ = RoomSpriteObjectDefinitions.Programs[RoomSpriteObjectKind.None],
             "room sprite object none selector");
         Console.WriteLine($"Room sprite objects: {kinds} spawned kinds' programs match their native bank-$B4 lists over {updates} updates.");
     }

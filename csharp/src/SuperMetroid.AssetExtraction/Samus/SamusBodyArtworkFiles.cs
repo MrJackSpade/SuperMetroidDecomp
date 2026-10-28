@@ -52,22 +52,22 @@ public static class SamusBodyArtworkFiles
         Directory.CreateDirectory(directory);
         ushort[] topPointers = ReadPointers(bus,
             SamusSourceDefinitions.TopDefinitionListPointers.Value,
-            SamusBodyArtworkCatalog.TopSetCount);
+            InstalledSamusBodyArtwork.TopSetCount);
         ushort[] bottomPointers = ReadPointers(bus,
             SamusSourceDefinitions.BottomDefinitionListPointers.Value,
-            SamusBodyArtworkCatalog.BottomSetCount);
+            InstalledSamusBodyArtwork.BottomSetCount);
         ushort[] posePointers = ReadPointers(bus,
             SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
-            SamusBodyArtworkCatalog.PoseCount);
+            InstalledSamusBodyArtwork.PoseCount);
         int[] topSetStarts = [.. topPointers.Select(pointer => BodyRecord(pointer))];
         int[] bottomSetStarts = [.. bottomPointers.Select(pointer => BodyRecord(pointer))];
         int[] poseFirstFrames = [.. posePointers.Select(pointer => BodyFrame(pointer))];
-        sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
+        sbyte[] graphicsYOffsets = Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount)
             .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
             .ToArray();
-        var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
+        var frames = new SamusBodyFrameSelection[InstalledSamusBodyArtwork.FrameCount];
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
@@ -80,11 +80,11 @@ public static class SamusBodyArtworkFiles
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
         ushort[] spritemapTopBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodyArtworkCatalog.PoseCount);
+            SamusSourceDefinitions.SpritemapTopBases.Value, InstalledSamusBodyArtwork.PoseCount);
         ushort[] spritemapBottomBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodyArtworkCatalog.PoseCount);
+            SamusSourceDefinitions.SpritemapBottomBases.Value, InstalledSamusBodyArtwork.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapArtworkCatalog.EntryCount);
+            SamusSourceDefinitions.SpritemapPointers.Value, InstalledSamusSpritemaps.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
         ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
         SpriteVisualPart[][] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
@@ -123,7 +123,7 @@ public static class SamusBodyArtworkFiles
     /// <returns>A cartridge-free catalog owning selected split-DMA characters, visual pose/frame mappings, spritemaps, offsets, and linked artwork.</returns>
     /// <remarks>Body JSON overrides must retain stock PNG hashes, definition-set counts, native source addresses, and spritemap identities. Transfer sizes and references remain validated, and unused PNG-slot tiles must stay zero.</remarks>
     /// <exception cref="InvalidDataException">Stock validation fails or selected metadata, identities, hashes, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static SamusBodyArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static InstalledSamusBodyArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile stockFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
         Manifest stock = stockFile.Json<Manifest>(JsonOptions);
@@ -136,7 +136,7 @@ public static class SamusBodyArtworkFiles
         SamusArtworkFile selectedFile = stockFile.Select(overrideDirectory);
         return selectedFile.WithContext(() => LoadSelected(selectedFile.Json<Manifest>(JsonOptions)));
 
-        SamusBodyArtworkCatalog LoadSelected(Manifest selected)
+        InstalledSamusBodyArtwork LoadSelected(Manifest selected)
         {
             ValidateManifest(selected);
             if (selected.Hashes.Count != stock.Hashes.Count ||
@@ -184,7 +184,7 @@ public static class SamusBodyArtworkFiles
             if (start < SnesBusLayout.RomWindowStart || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;
-            byte[] planar = new byte[count * SamusBodyArtworkCatalog.BytesPerDefinitionSlot];
+            byte[] planar = new byte[count * InstalledSamusBodyArtwork.BytesPerDefinitionSlot];
             sets[set] = new DefinitionEntry[count];
             for (int position = 0; position < count; position++)
             {
@@ -195,12 +195,12 @@ public static class SamusBodyArtworkFiles
                 int secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
                 int byteCount = firstSize + secondSize;
                 if (sourceOffset < SnesBusLayout.RomWindowStart || firstSize == 0 || byteCount >
-                    SamusBodyArtworkCatalog.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
+                    InstalledSamusBodyArtwork.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
                     sourceOffset + byteCount > CartridgeFormatDefinitions.BankByteCount)
                     throw new InvalidDataException($"Invalid Samus body DMA at ${definitionAddress:X6}.");
                 int sourceAddress = ((int)SnesAddress.InBank(sourceBank, sourceOffset));
                 for (int i = 0; i < byteCount; i++)
-                    planar[position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot + i] =
+                    planar[position * InstalledSamusBodyArtwork.BytesPerDefinitionSlot + i] =
                         bus.ReadCartridgeByte(sourceAddress + i);
                 sets[set][position] = new DefinitionEntry(sourceAddress, firstSize, secondSize);
             }
@@ -217,35 +217,35 @@ public static class SamusBodyArtworkFiles
     }
 
     /// <summary>Combines selected body halves with spritemaps and all linked Samus artwork catalogs.</summary>
-    private static SamusBodyArtworkCatalog BuildCatalog(string stockDirectory, Manifest manifest,
+    private static InstalledSamusBodyArtwork BuildCatalog(string stockDirectory, Manifest manifest,
         string? overrideDirectory)
     {
-        SamusBodyTileDefinition[][] top = LoadHalf(stockDirectory, overrideDirectory,
+        SamusBodyTileTransfer[][] top = LoadHalf(stockDirectory, overrideDirectory,
             manifest, true);
-        SamusBodyTileDefinition[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
+        SamusBodyTileTransfer[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
             manifest, false);
-        var spritemaps = new SamusSpritemapArtworkCatalog(manifest.SpritemapTopBases,
+        var spritemaps = new InstalledSamusSpritemaps(manifest.SpritemapTopBases,
             manifest.SpritemapBottomBases,
             [.. manifest.SpritemapEntries.Select(entry => entry is { } ordinal ? new SamusSpritemapId(ordinal) : (SamusSpritemapId?)null)],
             [.. manifest.Spritemaps.Select(parts => new SamusSpritemapDefinition(
                 [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
-        SamusAtmosphericArtworkCatalog atmosphere = SamusAtmosphericArtworkFiles.Load(
+        InstalledSamusAtmosphericArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        SamusDeathPaletteArtworkCatalog deathPalettes = SamusDeathPaletteArtworkFiles.Load(
+        InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        SamusArmCannonArtworkCatalog armCannon = SamusArmCannonArtworkFiles.Load(
+        InstalledSamusArmCannonArtwork armCannon = SamusArmCannonArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
+        return new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
     }
 
     /// <summary>Re-encodes selected PNG sets into native planar bytes and rejects painted padding tiles.</summary>
-    private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
+    private static SamusBodyTileTransfer[][] LoadHalf(string stockDirectory,
         string? overrideDirectory, Manifest manifest, bool upperHalf)
     {
         DefinitionEntry[][] metadata = upperHalf ? manifest.Top : manifest.Bottom;
-        var result = new SamusBodyTileDefinition[metadata.Length][];
+        var result = new SamusBodyTileTransfer[metadata.Length][];
         for (int set = 0; set < metadata.Length; set++)
         {
             string name = FileName(upperHalf, set);
@@ -255,7 +255,7 @@ public static class SamusBodyArtworkFiles
             // manifest's context before reading any image that uses the sizes.
             foreach (DefinitionEntry entry in metadata[set])
                 if (entry is null || entry.FirstSize == 0 ||
-                    entry.FirstSize + entry.SecondSize > SamusBodyArtworkCatalog.BytesPerDefinitionSlot ||
+                    entry.FirstSize + entry.SecondSize > InstalledSamusBodyArtwork.BytesPerDefinitionSlot ||
                     (entry.FirstSize + entry.SecondSize) % 32 != 0)
                     throw new InvalidDataException($"Samus body definition {name} has invalid sizes.");
             SamusArtworkFile selected = SamusArtworkFile.Stock(Path.Combine(stockDirectory, name), expectedHash)
@@ -263,21 +263,21 @@ public static class SamusBodyArtworkFiles
             int height = checked(metadata[set].Length * DefinitionHeight);
             result[set] = selected.Compile(stream => DecodeSet(stream));
 
-            SamusBodyTileDefinition[] DecodeSet(Stream stream)
+            SamusBodyTileTransfer[] DecodeSet(Stream stream)
             {
                 IndexedPngImage image = IndexedPng.Read(stream, new(TileWidth, checked((ushort)height)));
                 byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(TileWidth, checked((ushort)height)), 4);
-                var definitions = new SamusBodyTileDefinition[metadata[set].Length];
+                var definitions = new SamusBodyTileTransfer[metadata[set].Length];
                 for (int position = 0; position < definitions.Length; position++)
                 {
                     DefinitionEntry entry = metadata[set][position];
                     int byteCount = entry.FirstSize + entry.SecondSize;
                     ReadOnlySpan<byte> slot = planar.AsSpan(
-                        position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot,
-                        SamusBodyArtworkCatalog.BytesPerDefinitionSlot);
+                        position * InstalledSamusBodyArtwork.BytesPerDefinitionSlot,
+                        InstalledSamusBodyArtwork.BytesPerDefinitionSlot);
                     if (slot[byteCount..].IndexOfAnyExcept((byte)0) >= 0)
                         throw new InvalidDataException($"Samus body PNG {name} paints unused tiles in definition {position}.");
-                    definitions[position] = new SamusBodyTileDefinition(
+                    definitions[position] = new SamusBodyTileTransfer(
                         checked((ushort)entry.FirstSize), checked((ushort)entry.SecondSize),
                         slot[..byteCount].ToArray());
                 }
@@ -300,9 +300,9 @@ public static class SamusBodyArtworkFiles
             manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
             manifest.LandingYOffsets is null || manifest.PostureYOffsets is null ||
             manifest.DrainedYOffsets is null ||
-            manifest.Hashes is null || manifest.Top.Length != SamusBodyArtworkCatalog.TopSetCount ||
-            manifest.Bottom.Length != SamusBodyArtworkCatalog.BottomSetCount ||
-            manifest.GraphicsYOffsets.Length != SamusBodyArtworkCatalog.PoseCount ||
+            manifest.Hashes is null || manifest.Top.Length != InstalledSamusBodyArtwork.TopSetCount ||
+            manifest.Bottom.Length != InstalledSamusBodyArtwork.BottomSetCount ||
+            manifest.GraphicsYOffsets.Length != InstalledSamusBodyArtwork.PoseCount ||
             manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Spritemaps.Any(entry => entry is null || entry.Any(part => part is null)))

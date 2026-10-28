@@ -163,7 +163,7 @@ internal sealed class KraidLimbs
         RoomEnemySlot body = _slotTable.Slots[0];
         RoomEnemySlot arm = _slotTable.Slots[1];
         int halfHealth = _access.RequireKraidState(body).HealthEighthThreshold(3);
-        return body.Health < halfHealth && KraidPartResidentProgram(arm) < KraidPartProgram.ArmSlow
+        return body.Health < halfHealth && KraidFunctionGroups.BeforeArmSlow.Contains(KraidPartResidentProgram(arm))
             ? KraidPartProgram.ArmSlow
             : null;
     }
@@ -296,7 +296,7 @@ internal sealed class KraidLimbs
         if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _slotTable.Slots[1];
-        if (KraidPartResidentProgram(arm) < KraidPartProgram.ArmNormalPause)
+        if (KraidFunctionGroups.BeforeArmNormalPause.Contains(KraidPartResidentProgram(arm)))
             return;
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
@@ -355,7 +355,7 @@ internal sealed class KraidLimbs
             return;
         if (unchecked((short)(body.Position.X.Whole - 176)) >= 0)
             body.Position = body.Position.WithWholeX(176);
-        if (KraidPartResidentProgram(foot) < KraidPartProgram.FootWalkingBackwardLoop)
+        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
             return;
         if (body.Position.X.Whole == 176)
         {
@@ -385,7 +385,7 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (KraidPartResidentProgram(foot) < KraidPartProgram.FootWalkingBackwardLoop)
+        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
             return;
         _access.Part(foot).Function = KraidAiFunction.HandleFunctionTimer;
         _access.Part(foot).FunctionTimer = 180;
@@ -434,7 +434,7 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (KraidPartResidentProgram(foot) >= KraidPartProgram.FootWalkingBackwardLoop)
+        if (!KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
         {
             _access.Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
             _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);

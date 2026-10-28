@@ -119,7 +119,7 @@ internal static class EndingObjectArtworkVerification
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
-        EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
+        EndingObjectArtwork stock = installation.LoadEndingObjectArt();
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingObjectFragmentMetadata), () => VerifyEndingObjectFragmentMetadata(bus));
         AssertSheet(stock.Clouds, EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
@@ -258,7 +258,7 @@ internal static class EndingObjectArtworkVerification
         using (var output = File.Create(cloudSpriteOverride))
             EndingCloudSpritePresentation.Write(output, cloudDocument);
         byte[] editedCloudSpriteBytes = File.ReadAllBytes(cloudSpriteOverride);
-        EndingObjectArtworkCatalog editedCloudSprites = installation.LoadEndingObjectArt();
+        EndingObjectArtwork editedCloudSprites = installation.LoadEndingObjectArt();
         var cloudAudio = new AudioQueues();
         var cloudScene = CreateRetailEndingFixture(cloudAudio, 0, 0);
         cloudScene.InstalledArtwork.BindFixtureObjectArtwork(stock);
@@ -361,7 +361,7 @@ internal static class EndingObjectArtworkVerification
                 // An explosion map's override places tile zero in every cell, as a zeroed transfer would.
                 File.WriteAllBytes(overridePath, SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapExtractor.Encode(new byte[byteCount]));
             }
-            EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             byte[] changedVram = scene.ShownVram();

@@ -28,7 +28,7 @@ internal static class LookupDachoraColorsVerification
 
         byte[] source = DachoraColorExtractor.Extract(rom);
         var stock = DachoraColorFile.Read(new MemoryStream(source));
-        AssertEqual(0, stock.speedEdits.Count + stock.shineEdits.Count,
+        AssertEqual(0, stock.selection.SpeedEdits.Count + stock.selection.ShineEdits.Count,
             "Stock Dachora speed and shine frames store no colors beyond the calculation");
         Check(stock, normal, speed, shine);
 
@@ -45,7 +45,7 @@ internal static class LookupDachoraColorsVerification
             ushort[][] expectedShine = shine.Select(values => (ushort[])values.Clone()).ToArray();
             (phase == DachoraPalettePhase.Speed ? expectedSpeed : expectedShine)[frame][color] ^= 1;
             Check(edited, normal, expectedSpeed, expectedShine);
-            AssertEqual(1, edited.speedEdits.Count + edited.shineEdits.Count,
+            AssertEqual(1, edited.selection.SpeedEdits.Count + edited.selection.ShineEdits.Count,
                 $"Dachora {phase} frame {frame} color {color} edit stores only that cell");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Speed, 4, 0), "Speed frame bound");

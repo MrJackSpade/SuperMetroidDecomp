@@ -28,7 +28,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapSpritesVerification
 {
     /// <summary>Compares native sprite bytes and clipping, then checks composition and PNG edits through rendered maps.</summary>
-    internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
@@ -108,7 +108,7 @@ internal static class MapSpritesVerification
         File.WriteAllBytes(pngPath, File.ReadAllBytes(Path.Combine(stock, MapSpriteFormat.PngFile)));
         Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity, guarded file-select lifecycle and authored visual fields verified.");
 
-        void VerifyRenderedEdit(AreaMapPresentationCatalog replacement)
+        void VerifyRenderedEdit(AreaMapPresentation replacement)
         {
             var guard = NewMapSpriteGuard(bus);
             var system = new SharedGameState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
@@ -154,7 +154,7 @@ internal static class MapSpritesVerification
         var forbidden = new HashSet<int>();
         Add(MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount);
         Add(MapSourceDefinitions.FileSelectMap.LabelSpritemaps, 2);
-        foreach (var frame in MapSpriteDefinitions.Frames)
+        foreach (var frame in MapSpriteNames.Frames)
         {
             int entry = MapSourceDefinitions.Menu.SpritemapPointers + (int)frame.Id * 2;
             int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);

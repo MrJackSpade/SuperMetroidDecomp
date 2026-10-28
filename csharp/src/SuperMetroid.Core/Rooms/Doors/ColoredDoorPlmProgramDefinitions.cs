@@ -23,67 +23,108 @@ internal static class ColoredDoorPlmProgramDefinitions
     private const int FlashBlueDuration = 3;
     /// <summary>How long the cap image of a hit flash shows.</summary>
     private const int FlashCapDuration = 4;
-    /// <summary>How many blue-and-cap pairs a hit flashes.</summary>
-    private const int FlashPairs = 3;
+    /// <summary>How long each opening image shows.</summary>
+    private const int OpeningFrameDuration = 6;
+    /// <summary>How long the yellow left cap shows each opening image: it opens slowly.</summary>
+    private const int YellowLeftOpeningFrameDuration = 4;
+    /// <summary>How long the opened cap's cleared image shows before the PLM deletes.</summary>
+    private const int OpenedDuration = 1;
+    /// <summary>How long the yellow left cap's cleared image shows: it lingers open.</summary>
+    private const int YellowLeftOpenedDuration = 92;
+    /// <summary>How long the waiting cap shows its closed image before it sleeps.</summary>
+    private const int WaitingDuration = 1;
+    /// <summary>How long the yellow downward cap shows its closed image before its second, ordinary one.</summary>
+    private const int YellowDownFirstWaitingDuration = 2;
 
-    /// <summary>Each colour and facing's program set.</summary>
-    private static readonly Dictionary<ColoredDoorVariant, AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>> Sets =
-        Enum.GetValues<ColoredDoorColor>()
-            .SelectMany(color => Enum.GetValues<ColoredDoorOrientation>().Select(orientation => new ColoredDoorVariant(color, orientation)))
-            .ToDictionary(variant => variant, variant => new AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>(
-                Build(variant.Color, variant.Orientation)));
-
-    /// <summary>The programs of the <paramref name="color"/> cap facing <paramref name="orientation"/>.</summary>
-    internal static AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue> ProgramsFor(
-        ColoredDoorColor color, ColoredDoorOrientation orientation) => Sets[new ColoredDoorVariant(color, orientation)];
-
-    /// <summary>The hits the <paramref name="color"/> cap takes before it opens.</summary>
-    internal static byte HitThresholdOf(ColoredDoorColor color) => color switch
+    /// <summary>
+    /// Each colour and facing's program set. Every cap runs the same shape; the yellow downward cap waits on its closed
+    /// image twice, the yellow left cap opens slowly and lingers open, and the red cap sounds each hit.
+    /// </summary>
+    internal static IReadOnlyDictionary<ColoredDoorVariant, AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>> Sets { get; } =
+        new Dictionary<ColoredDoorVariant, AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>>
     {
-        ColoredDoorColor.Red => RedHitThreshold,
-        ColoredDoorColor.Yellow or ColoredDoorColor.Green => HitThreshold,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {color}."),
+        [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left)] = new(Programs(Waiting(), Hit(), YellowLeftOpeningFrameDuration, YellowLeftOpenedDuration)),
+        [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right)] = new(Programs(Waiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Up)] = new(Programs(Waiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Down)] = new(Programs(YellowDownWaiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Left)] = new(Programs(Waiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Right)] = new(Programs(Waiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Up)] = new(Programs(Waiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Down)] = new(Programs(Waiting(), Hit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Left)] = new(Programs(Waiting(), RedHit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Right)] = new(Programs(Waiting(), RedHit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Up)] = new(Programs(Waiting(), RedHit(), OpeningFrameDuration, OpenedDuration)),
+        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Down)] = new(Programs(Waiting(), RedHit(), OpeningFrameDuration, OpenedDuration)),
     };
 
-    /// <summary>The shot-wake pre-instruction the <paramref name="color"/> cap installs.</summary>
-    internal static ColoredDoorPreInstruction WakeOf(ColoredDoorColor color) => color switch
+    /// <summary>The hits each colour's cap takes before it opens.</summary>
+    internal static IReadOnlyDictionary<ColoredDoorColor, byte> HitThresholds { get; } = new Dictionary<ColoredDoorColor, byte>
     {
-        ColoredDoorColor.Yellow => ColoredDoorPreInstruction.WakeOnPowerBomb,
-        ColoredDoorColor.Green => ColoredDoorPreInstruction.WakeOnSuperMissile,
-        ColoredDoorColor.Red => ColoredDoorPreInstruction.WakeOnMissile,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {color}."),
+        [ColoredDoorColor.Red] = RedHitThreshold,
+        [ColoredDoorColor.Yellow] = HitThreshold,
+        [ColoredDoorColor.Green] = HitThreshold,
     };
 
-    /// <summary>One colour and facing's five programs.</summary>
-    private static Dictionary<ColoredDoorProgram, Step[]> Build(ColoredDoorColor color, ColoredDoorOrientation orientation)
+    /// <summary>The shot-wake pre-instruction each colour's cap installs.</summary>
+    internal static IReadOnlyDictionary<ColoredDoorColor, ColoredDoorPreInstruction> Wakes { get; } =
+        new Dictionary<ColoredDoorColor, ColoredDoorPreInstruction>
     {
-        bool yellowDown = color == ColoredDoorColor.Yellow && orientation == ColoredDoorOrientation.Down;
-        bool yellowLeft = color == ColoredDoorColor.Yellow && orientation == ColoredDoorOrientation.Left;
-        List<Step> waiting =
-        [
-            Step.Publish(ColoredDoorCue.BranchIfOpened),
-            Step.Publish(ColoredDoorCue.LinkHit),
-            Step.Publish(ColoredDoorCue.ArmWake),
-            Step.Show(DoorCapFrame.Closed0, yellowDown ? 2 : 1),
-        ];
-        if (yellowDown)
-            waiting.Add(Step.Show(DoorCapFrame.Closed0, 1));
-        waiting.Add(Step.FallInto(ColoredDoorProgram.Sleep));
+        [ColoredDoorColor.Yellow] = ColoredDoorPreInstruction.WakeOnPowerBomb,
+        [ColoredDoorColor.Green] = ColoredDoorPreInstruction.WakeOnSuperMissile,
+        [ColoredDoorColor.Red] = ColoredDoorPreInstruction.WakeOnMissile,
+    };
 
-        List<Step> hit = [Step.Publish(ColoredDoorCue.CountHit)];
-        if (color == ColoredDoorColor.Red)
-            hit.Add(Step.Publish(ColoredDoorCue.QueueHitSound));
-        for (int pair = 0; pair < FlashPairs; pair++)
-        {
-            hit.Add(Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration));
-            hit.Add(Step.Show(DoorCapFrame.Closed0, FlashCapDuration));
-        }
-        hit.Add(Step.GoTo(ColoredDoorProgram.Sleep));
+    /// <summary>A waiting cap links its hit, arms its wake and sleeps.</summary>
+    private static Step[] Waiting() =>
+    [
+        Step.Publish(ColoredDoorCue.BranchIfOpened),
+        Step.Publish(ColoredDoorCue.LinkHit),
+        Step.Publish(ColoredDoorCue.ArmWake),
+        Step.Show(DoorCapFrame.Closed0, WaitingDuration),
+        Step.FallInto(ColoredDoorProgram.Sleep),
+    ];
 
-        // The yellow left cap opens slowly and lingers open; every other cap opens quickly and deletes at once.
-        int openingFrameDuration = yellowLeft ? 4 : 6;
-        int openedDuration = yellowLeft ? 92 : 1;
-        return new Dictionary<ColoredDoorProgram, Step[]>
+    /// <summary>The yellow downward cap waits on its closed image twice before it sleeps.</summary>
+    private static Step[] YellowDownWaiting() =>
+    [
+        Step.Publish(ColoredDoorCue.BranchIfOpened),
+        Step.Publish(ColoredDoorCue.LinkHit),
+        Step.Publish(ColoredDoorCue.ArmWake),
+        Step.Show(DoorCapFrame.Closed0, YellowDownFirstWaitingDuration),
+        Step.Show(DoorCapFrame.Closed0, WaitingDuration),
+        Step.FallInto(ColoredDoorProgram.Sleep),
+    ];
+
+    /// <summary>A hit counts and flashes the cap blue three times.</summary>
+    private static Step[] Hit() =>
+    [
+        Step.Publish(ColoredDoorCue.CountHit),
+        Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+        Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+        Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+        Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+        Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+        Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+        Step.GoTo(ColoredDoorProgram.Sleep),
+    ];
+
+    /// <summary>A hit on the red cap counts, sounds and flashes the cap blue three times.</summary>
+    private static Step[] RedHit() =>
+    [
+        Step.Publish(ColoredDoorCue.CountHit),
+        Step.Publish(ColoredDoorCue.QueueHitSound),
+        Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+        Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+        Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+        Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+        Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+        Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+        Step.GoTo(ColoredDoorProgram.Sleep),
+    ];
+
+    /// <summary>One colour and facing's five programs, from its waiting and hit programs and its opening timings.</summary>
+    private static Dictionary<ColoredDoorProgram, Step[]> Programs(Step[] waiting, Step[] hit, int openingFrameDuration, int openedDuration) =>
+        new()
         {
             [ColoredDoorProgram.Closing] =
             [
@@ -95,9 +136,9 @@ internal static class ColoredDoorPlmProgramDefinitions
                 Step.Show(DoorCapFrame.Closed0, 1),
                 Step.FallInto(ColoredDoorProgram.Waiting),
             ],
-            [ColoredDoorProgram.Waiting] = [.. waiting],
+            [ColoredDoorProgram.Waiting] = waiting,
             [ColoredDoorProgram.Sleep] = [Step.Hold],
-            [ColoredDoorProgram.Hit] = [.. hit],
+            [ColoredDoorProgram.Hit] = hit,
             [ColoredDoorProgram.Open] =
             [
                 Step.Publish(ColoredDoorCue.QueueOpenSound),
@@ -108,5 +149,4 @@ internal static class ColoredDoorPlmProgramDefinitions
                 Step.Stop,
             ],
         };
-    }
 }

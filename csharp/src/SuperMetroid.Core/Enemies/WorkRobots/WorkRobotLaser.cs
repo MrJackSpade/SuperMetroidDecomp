@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// signed X velocity for both directions.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-internal enum WorkRobotLaser : ushort
+internal enum WorkRobotLaser
 {
     /// <summary><c>EnemyProjectile_RobotLaser_UpLeft</c> at $86:D2A6.</summary>
     UpLeft = 1,

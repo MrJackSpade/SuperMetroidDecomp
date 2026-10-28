@@ -40,7 +40,7 @@ internal static class SamusVisorColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        SamusVisorColorCatalog catalog = SamusVisorColorFile.Read(
+        InstalledSamusVisorColors catalog = SamusVisorColorFile.Read(
             new MemoryStream(SamusVisorColorExtractor.Extract(rom)));
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
@@ -62,7 +62,7 @@ internal static class SamusVisorColorsVerification
     }
 
     /// <summary>Builds an independent color catalog from the six native visor table words.</summary>
-    private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
+    private static InstalledSamusVisorColors ReadOriginalVisorColors(ISnesAddressSpace rom)
     {
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)
@@ -82,7 +82,7 @@ internal static class SamusVisorColorsVerification
 
     /// <summary>Compares 32 room updates for timer, source offset, and CGRAM slot 196 without installed table reads.</summary>
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
-        SamusVisorColorCatalog catalog)
+        InstalledSamusVisorColors catalog)
     {
         var native = new SamusVisorPaletteState { PresentationColors = ReadOriginalVisorColors(rom) };
         var installed = new SamusVisorPaletteState { PresentationColors = catalog };
@@ -114,7 +114,7 @@ internal static class SamusVisorColorsVerification
 
     /// <summary>Compares widening and full-beam X-ray color cycles, including the offset-six restart.</summary>
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
-        SamusVisorColorCatalog catalog)
+        InstalledSamusVisorColors catalog)
     {
         var native = CreateXraySamus();
         native.Xray.PresentationColors = ReadOriginalVisorColors(rom);
@@ -170,8 +170,8 @@ internal static class SamusVisorColorsVerification
 
     /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
+        AreaMapPresentation baseline, ISnesAddressSpace rom,
+        GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
@@ -183,7 +183,7 @@ internal static class SamusVisorColorsVerification
         document.Colors[0] = originalXray with { Red = (originalXray.Red + 1) % 32 };
         document.Colors[3] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, SamusVisorColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -219,7 +219,7 @@ internal static class SamusVisorColorsVerification
             Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
         }), "out-of-range visor color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing visor override restores stock content identity");
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");

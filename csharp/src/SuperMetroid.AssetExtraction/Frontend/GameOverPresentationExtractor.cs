@@ -49,13 +49,13 @@ public static class GameOverPresentationExtractor
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
-            [GameOverPresentationDefinitions.BabyFrameName(GameOverBabyFrame.Closed)] =
+            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Closed)] =
                 MenuSpriteExtractor.Read(bus,
                     GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Closed)),
-            [GameOverPresentationDefinitions.BabyFrameName(GameOverBabyFrame.Middle)] =
+            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Middle)] =
                 MenuSpriteExtractor.Read(bus,
                     GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Middle)),
-            [GameOverPresentationDefinitions.BabyFrameName(GameOverBabyFrame.Open)] =
+            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Open)] =
                 MenuSpriteExtractor.Read(bus,
                     GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Open)),
             [GameOverPresentationDefinitions.EggFrame] =
@@ -63,8 +63,8 @@ public static class GameOverPresentationExtractor
         };
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
         {
-            sprites.Add(GameOverPresentationDefinitions.CursorFrameName(frame),
-                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
+            sprites.Add(GameOverPresentationNames.CursorFrameName(frame),
+                MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         }
 
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
@@ -74,7 +74,7 @@ public static class GameOverPresentationExtractor
             int pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = ReadBank82Word(unchecked((ushort)(pointer + color * 2)));
-            palettes.Add(GameOverPresentationDefinitions.BabyPaletteName(palette), colors);
+            palettes.Add(GameOverPresentationNames.BabyPaletteName(palette), colors);
         }
 
         using var output = new MemoryStream();

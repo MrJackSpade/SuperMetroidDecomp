@@ -36,10 +36,10 @@ internal static class CeresDestructionFrameCatalogVerification
             AssertThrows<IndexOutOfRangeException>(() => _ = frames[invalid], "destruction catalog bounds");
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpriteDefinitions.StationFrame(invalid), "station blast bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpriteDefinitions.StationPartCount(invalid), "station count bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpritePoses.StationFrame(invalid), "station blast bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpritePoses.StationPartCount(invalid), "station count bounds");
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpriteDefinitions.LargeFrame(invalid), "large blast bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpritePoses.LargeFrame(invalid), "large blast bounds");
     }
 }

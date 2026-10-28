@@ -37,7 +37,7 @@ public sealed class FileSelectMapAnimations
                 "Map arrows require installed animation definitions.");
             var direction = MapScrollControls.ArrowAt(index);
             MapArrowVisual visual = installed.Get(direction);
-            replacement = new Arrow(visual.Position, MapArrowDefinitions.SpriteBase(direction));
+            replacement = new Arrow(visual.Position, MapArrowSprites.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
             if (previous is not null)
                 replacement.ContinueFrom(previous, phaseCount);

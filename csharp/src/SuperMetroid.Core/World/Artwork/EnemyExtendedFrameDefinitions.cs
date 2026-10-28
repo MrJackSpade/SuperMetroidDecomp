@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.World.Artwork;
 
@@ -136,13 +133,4 @@ internal static class EnemyExtendedFrameDefinitions
 
     /// <summary>Indexed view spanning the complete schema-ordered visual catalog.</summary>
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
-
-    /// <summary>These frames contain BG2 streams only; stock legitimately has no OAM components.</summary>
-    internal static bool IsBg2Only(EnemySpritemapDefinition frame) =>
-        PhantoonBg2FrameDefinitions.IsFrame(frame.Frame) || DraygonBg2FrameDefinitions.IsFrame(frame.Frame);
-
-    /// <summary>Skeleton fragmentation needs thirteen components; all other sprite families retain their existing bound.</summary>
-    internal static int MaximumSpriteComponents(EnemySpritemapDefinition frame) =>
-        CrocomireSkeletonVisualDefinitions.IsFrame(frame.Frame)
-            ? CrocomireSkeletonVisualDefinitions.MaximumComponents : MaximumComponents;
 }

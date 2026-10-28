@@ -19,10 +19,10 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class MenuSheetFixtures
 {
     /// <summary>Sheets already composed, by presentation.</summary>
-    private static readonly ConditionalWeakTable<AreaMapPresentationCatalog, InstalledSpriteSheets> composed = new();
+    private static readonly ConditionalWeakTable<AreaMapPresentation, InstalledSpriteSheets> composed = new();
 
     /// <summary>The installed sheets with the menu sheets <paramref name="maps"/> composes.</summary>
-    internal static InstalledSpriteSheets For(AreaMapPresentationCatalog maps)
+    internal static InstalledSpriteSheets For(AreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
         return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets : composed.GetValue(maps, Compose);
@@ -55,10 +55,10 @@ internal static class MenuSheetFixtures
     }
 
     /// <summary>Map sprite sheets already composed, by catalog.</summary>
-    private static readonly ConditionalWeakTable<MapSpriteCatalog, SpriteSheet> mapSprites = new();
+    private static readonly ConditionalWeakTable<MapSpriteCompositions, SpriteSheet> mapSprites = new();
 
     /// <summary>The map sprite sheet <paramref name="catalog"/> composes, coloured with the installation's menus.</summary>
-    internal static SpriteSheet MapSprites(MapSpriteCatalog catalog)
+    internal static SpriteSheet MapSprites(MapSpriteCompositions catalog)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         return ReferenceEquals(catalog, InstalledFixtures.Maps.Sprites)
@@ -123,10 +123,10 @@ internal static class MenuSheetFixtures
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
         SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-            $"{SpriteSheetDefinitions.FileName(id)}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
 
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
-    private static InstalledSpriteSheets Compose(AreaMapPresentationCatalog maps)
+    private static InstalledSpriteSheets Compose(AreaMapPresentation maps)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         foreach ((SpriteSheetId id, SpriteSheetSources sources) in new[]
@@ -146,7 +146,7 @@ internal static class MenuSheetFixtures
                 RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
                 RepositoryInstallation.Installation.LoadEndingMode7Art));
             sheets[id] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-                $"{SpriteSheetDefinitions.FileName(id)}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
+                $"{SpriteSheetDefinitions.FileNames[id]}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
                 tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
         }
         return new InstalledSpriteSheets(sheets);
@@ -158,7 +158,7 @@ internal static class MenuSheetFixtures
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
         // A name of its own keeps its frames apart from the installed sheet's in the frame-source registry.
         SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false),
-            $"{SpriteSheetDefinitions.FileName(id)}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
         SheetFrameSources.Register(loaded, sources);
         return loaded;
     }

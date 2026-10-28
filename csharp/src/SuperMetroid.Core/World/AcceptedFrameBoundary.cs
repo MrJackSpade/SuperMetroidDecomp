@@ -325,7 +325,7 @@ internal sealed class AcceptedFrameBoundary
     {
         var hudRows = new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns];
         // Without installed HUD artwork the HUD shows the stock top row.
-        BackgroundTile[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
+        BackgroundTile[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudTiles.StockTopRow();
         topRow.CopyTo(hudRows, 0);
         _hud.MutableRows.CopyTo(hudRows.AsSpan(Layer3Plane.Columns));
         return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageTiles() ?? []);

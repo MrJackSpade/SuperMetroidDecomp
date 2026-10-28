@@ -69,7 +69,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int mountDirection = slot.Spawn.Population.Parameter2 & MorphBallEyeBeamDefinitions.MountDirectionBits;
-        var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
+        var mount = MorphBallEyeGeometry.Mount(mountDirection);
         slot.Position += mount.Offset;
         state.Function = MorphBallEyeAiFunction.MountNoOp;
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);
@@ -282,7 +282,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int colorIndex = MorphBallEyeBeam.ColorIndex & MorphBallEyeBeamDefinitions.ColorIndexBits;
-        MorphBallEyeBeam.Color = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
+        MorphBallEyeBeam.Color = MorphBallEyeGeometry.BeamColor(colorIndex);
         MorphBallEyeBeam.ColorIndex = (colorIndex + 1) & MorphBallEyeBeamDefinitions.ColorIndexBits;
     }
 

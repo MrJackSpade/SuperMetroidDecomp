@@ -62,7 +62,7 @@ internal sealed class RidleyInteractions
             return;
         if (state.FightMode != RidleyFightMode.NotFighting)
         {
-            if (RidleyCollisionDefinitions.IsOutsideInteractionWindow(body.Position.Whole, camera))
+            if (RidleyCollision.IsOutsideInteractionWindow(body.Position.Whole, camera))
             {
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 return;
@@ -113,7 +113,7 @@ internal sealed class RidleyInteractions
     {
         callback = null;
         if (!(RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId) &&
-            (RidleyCollisionDefinitions.HasFrame(enemy.Frame) ||
+            (RidleyCollision.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
             return null;
 
@@ -121,7 +121,7 @@ internal sealed class RidleyInteractions
         // Contact and shot collision instead use the eleven fixed cartridge
         // body frames and their engine-owned hitbox lists.
         foreach (RidleyCollisionComponent component in
-                 RidleyCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 RidleyCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)

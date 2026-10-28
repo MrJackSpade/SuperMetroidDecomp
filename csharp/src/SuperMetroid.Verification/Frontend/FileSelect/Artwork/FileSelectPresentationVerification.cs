@@ -21,7 +21,7 @@ internal static class FileSelectPresentationVerification
         ISnesAddressSpace bus,
         string stock,
         string overrides,
-        AreaMapPresentationCatalog original)
+        AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, FileSelectPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus);
@@ -84,19 +84,19 @@ internal static class FileSelectPresentationVerification
         document.HelmetAnchors[0] = document.HelmetAnchors[0] with
             { X = (ushort)(document.HelmetAnchors[0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
-            FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)][0x2b];
-        document.Pages[FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)][0x2b] =
+            FileSelectParts.PageName(FileSelectPage.MainWithData)][0x2b];
+        document.Pages[FileSelectParts.PageName(FileSelectPage.MainWithData)][0x2b] =
             pageCell with { FlipX = !pageCell.FlipX };
         FileSelectPatchCellDocument energyCell = document.Patches[
-            FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)].Cells[0];
-        document.Patches[FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)].Cells[0] =
+            FileSelectParts.PatchName(FileSelectPatch.Energy)].Cells[0];
+        document.Patches[FileSelectParts.PatchName(FileSelectPatch.Energy)].Cells[0] =
             energyCell with { Cell = energyCell.Cell with { FlipY = !energyCell.Cell.FlipY } };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides,
             FileSelectPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             FileSelectPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "file-select override changes selected catalog identity");
 
@@ -130,14 +130,14 @@ internal static class FileSelectPresentationVerification
             "file-select rejects invalid object palette");
         var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
-        missingPage.Pages.Remove(FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyCompleted));
+        missingPage.Pages.Remove(FileSelectParts.PageName(FileSelectPage.CopyCompleted));
         AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null, missingPage),
             "file-select rejects a missing named page");
         var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
         FileSelectPatchCellDocument duplicate = duplicatePatch.Patches[
-            FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)].Cells[0];
-        duplicatePatch.Patches[FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)] = new()
+            FileSelectParts.PatchName(FileSelectPatch.NoData)].Cells[0];
+        duplicatePatch.Patches[FileSelectParts.PatchName(FileSelectPatch.NoData)] = new()
         {
             Cells = [duplicate, duplicate],
         };

@@ -41,7 +41,7 @@ internal static class CeresRidleyPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(CeresEscapePageDefinitions.ObjectPages), "Ceres Ridley's getaway");
+        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(CeresEscapeObjectPages.ObjectPages), "Ceres Ridley's getaway");
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         RoomEnemySlot door = runtime.Enemies.SlotTable.Slots[1];

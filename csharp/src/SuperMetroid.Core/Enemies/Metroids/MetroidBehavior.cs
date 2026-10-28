@@ -59,7 +59,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case MetroidCueKind.PlayRandomCry:
                 // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
                 // cartridge-defined idle cries.
-                LastMetroidSoundEffectLibrary2 = MetroidBehaviorDefinitions.RandomCrySoundEffect(_room.Random.Generate());
+                LastMetroidSoundEffectLibrary2 = MetroidReactions.RandomCrySoundEffect(_room.Random.Generate());
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
@@ -217,7 +217,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        slot.Position += MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer.RawValue);
+        slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer.RawValue);
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 
@@ -288,7 +288,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             DrainSamusWithMetroid(state, samus);
         }
 
-        if (state.Function >= MetroidAiFunction.AttachedToSamus)
+        if (state.Function is MetroidAiFunction.AttachedToSamus or MetroidAiFunction.PowerBombEscape)
             return;
 
         state.Function = MetroidAiFunction.ClosingOnSamus;
@@ -522,8 +522,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
 
             int frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
-            int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(frozenVulnerability);
-            if (!EnemyVulnerabilityDefinitions.IsSentinel(frozenVulnerability) && frozenDamage != 0)
+            int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityEntries.Multiplier(frozenVulnerability);
+            if (!EnemyVulnerabilityEntries.IsSentinel(frozenVulnerability) && frozenDamage != 0)
             {
                 enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
                 enemy.AiStates |= EnemyAiStates.Hurt;

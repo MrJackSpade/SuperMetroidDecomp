@@ -86,7 +86,7 @@ public sealed class RoomPaletteFxSystem
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     public static RoomPaletteFxSystem ForRoom(
         PaletteFxSessionState session,
-        RoomFxDefinition? fx,
+        RoomFxHeader? fx,
         DoorDefinition? door,
         AreaId area,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
@@ -101,7 +101,7 @@ public sealed class RoomPaletteFxSystem
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
-    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxDefinition? fx, DoorDefinition? door,
+    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxHeader? fx, DoorDefinition? door,
         AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
@@ -111,7 +111,7 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>Spawns the selected or supplied FX record's area-specific palette bits.</summary>
-    private void SpawnRecordObjects(RoomFxDefinition? fx, DoorDefinition? door,
+    private void SpawnRecordObjects(RoomFxHeader? fx, DoorDefinition? door,
         AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
@@ -132,7 +132,7 @@ public sealed class RoomPaletteFxSystem
             if (!paletteFxSlots.Includes(bit))
                 continue;
 
-            PaletteFxObject definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);
+            PaletteFxObject definition = RoomPaletteFxSelection.GetAreaDefinition(areaIndex, bit);
             Spawn(definition, equippedItems, areaMiniBossDefeated);
         }
     }
@@ -197,7 +197,7 @@ public sealed class RoomPaletteFxSystem
         if (slot is null)
             return;
 
-        RoomPaletteFxDefinition compiled = RoomPaletteFxDefinitions.Get(definition);
+        RoomPaletteFxDefinition compiled = RoomPaletteFxSelection.Get(definition);
         slot.Object = definition;
         slot.Target = default;
         slot.PreInstruction = PaletteFxPreInstruction.Null;

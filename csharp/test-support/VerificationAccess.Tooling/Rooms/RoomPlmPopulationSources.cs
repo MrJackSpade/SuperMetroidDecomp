@@ -13,8 +13,8 @@ public static class RoomPlmPopulationSources
     public static IEnumerable<ushort> Pointers => RoomPlmPopulationSourceDefinitions.ByPointer.Keys.Order();
 
     /// <summary>The compiled population whose list is at <paramref name="pointer"/>.</summary>
-    public static RoomPlmPopulationDefinition Population(ushort pointer) =>
-        RoomPlmPopulationSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomPlmPopulationDefinition? found)
+    public static RoomPlmPopulation Population(ushort pointer) =>
+        RoomPlmPopulationSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomPlmPopulation? found)
             ? found
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 284 retail room PLM populations.");
 
@@ -22,7 +22,7 @@ public static class RoomPlmPopulationSources
     public static bool Contains(ushort pointer) => RoomPlmPopulationSourceDefinitions.ByPointer.ContainsKey(pointer);
 
     /// <summary>The list pointer of <paramref name="population"/>.</summary>
-    public static ushort PointerOf(RoomPlmPopulationDefinition population)
+    public static ushort PointerOf(RoomPlmPopulation population)
     {
         Ensure.NotNull(population);
         return RoomPlmPopulationSourceDefinitions.ByPointer.Single(pair => ReferenceEquals(pair.Value, population)).Key;

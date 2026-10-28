@@ -22,18 +22,18 @@ internal static class IntroEggMotionDefinitionsVerification
         }
         for (int index = 0; index < 6; index++)
         {
-            var actual = IntroEggMotionDefinitions.FragmentInitialPosition(index);
+            var actual = IntroEggMotion.FragmentInitialPosition(index);
             int address = IntroEggMotionDefinitions.InitialPositionReferenceAddress + index * 4;
             AssertEqual(unchecked((ushort)(Word(address) + 0x0010)), actual.X,
                 $"Egg fragment {index} initial X");
             AssertEqual(unchecked((ushort)(Word(address + 2) + 0x003b)), actual.Y,
                 $"Egg fragment {index} initial Y");
         }
-        Compare(0x8ba9ea, 6, IntroEggMotionDefinitions.FragmentX);
-        Compare(0x8baa02, 41, IntroEggMotionDefinitions.FragmentY);
-        Compare(0x8bab35, 5, IntroEggMotionDefinitions.SlimeX);
-        Compare(0x8bab49, 62, frame => IntroEggMotionDefinitions.SlimeY(frame, true));
-        Compare(0x8bac41, 69, frame => IntroEggMotionDefinitions.SlimeY(frame, false));
+        Compare(0x8ba9ea, 6, IntroEggMotion.FragmentX);
+        Compare(0x8baa02, 41, IntroEggMotion.FragmentY);
+        Compare(0x8bab35, 5, IntroEggMotion.SlimeX);
+        Compare(0x8bab49, 62, frame => IntroEggMotion.SlimeY(frame, true));
+        Compare(0x8bac41, 69, frame => IntroEggMotion.SlimeY(frame, false));
         var guarded = NewEggMotionGuard(rom);
         uint Move(uint position, int address) => unchecked(position + ((uint)Word(address) << 16) + Word(address + 2));
         int checkedFrames = 0;
@@ -72,10 +72,10 @@ internal static class IntroEggMotionDefinitionsVerification
                 AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.FragmentInitialPosition(6), "Fragment initial-position boundary");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.FragmentY(41), "Fragment curve boundary after native overread");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SlimeY(62, true), "Odd slime curve boundary");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SlimeY(69, false), "Even slime curve boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition(6), "Fragment initial-position boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentY(41), "Fragment curve boundary after native overread");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(62, true), "Odd slime curve boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(69, false), "Even slime curve boundary");
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 

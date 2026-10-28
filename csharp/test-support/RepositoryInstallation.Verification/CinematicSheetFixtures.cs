@@ -17,16 +17,16 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class CinematicSheetFixtures
 {
     /// <summary>Installed sheets with an intro sheet already composed, by intro artwork.</summary>
-    private static readonly ConditionalWeakTable<IntroCinematicArtworkCatalog, InstalledSpriteSheets> intros = new();
+    private static readonly ConditionalWeakTable<IntroCinematicArtwork, InstalledSpriteSheets> intros = new();
 
     /// <summary>Drawers already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<object, CinematicSpriteSheet> drawers = new();
 
     /// <summary>Ceres flight sheets already composed, by flight artwork.</summary>
-    private static readonly ConditionalWeakTable<CeresFlightArtworkCatalog, SpriteSheet> flights = new();
+    private static readonly ConditionalWeakTable<CeresFlightArtwork, SpriteSheet> flights = new();
 
     /// <summary>The Ceres flight sheet <paramref name="flight"/> composes.</summary>
-    internal static SpriteSheet CeresFlight(CeresFlightArtworkCatalog flight)
+    internal static SpriteSheet CeresFlight(CeresFlightArtwork flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
         return ReferenceEquals(flight, InstalledFixtures.IntroArtwork.CeresFlight)
@@ -38,7 +38,7 @@ internal static class CinematicSheetFixtures
     extension(CeresDestructionCinematicState self)
     {
         /// <summary>Binds <paramref name="intro"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureDestructionArtwork(IntroCinematicArtworkCatalog intro)
+        internal void BindFixtureDestructionArtwork(IntroCinematicArtwork intro)
         {
             self.BindArtwork(intro);
             self.BindSpriteSheets(WithIntro(intro));
@@ -48,7 +48,7 @@ internal static class CinematicSheetFixtures
     extension(IntroCeresFlightState self)
     {
         /// <summary>Binds <paramref name="flight"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureFlightArtwork(CeresFlightArtworkCatalog flight)
+        internal void BindFixtureFlightArtwork(CeresFlightArtwork flight)
         {
             self.BindArtwork(flight);
             self.BindSheets(WithFlight(flight));
@@ -56,10 +56,10 @@ internal static class CinematicSheetFixtures
     }
 
     /// <summary>Installed sheets with the Ceres flight's sprites and caption tiles composed, by flight artwork.</summary>
-    private static readonly ConditionalWeakTable<CeresFlightArtworkCatalog, InstalledSpriteSheets> flightSheets = new();
+    private static readonly ConditionalWeakTable<CeresFlightArtwork, InstalledSpriteSheets> flightSheets = new();
 
     /// <summary>The installed sheets with the Ceres flight sheet and caption tiles <paramref name="flight"/> composes.</summary>
-    internal static InstalledSpriteSheets WithFlight(CeresFlightArtworkCatalog flight)
+    internal static InstalledSpriteSheets WithFlight(CeresFlightArtwork flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
         return ReferenceEquals(flight, InstalledFixtures.IntroArtwork.CeresFlight) ? InstalledFixtures.SpriteSheets
@@ -78,10 +78,10 @@ internal static class CinematicSheetFixtures
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
         SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-            $"{SpriteSheetDefinitions.FileName(id)}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
 
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
-    internal static InstalledSpriteSheets WithIntro(IntroCinematicArtworkCatalog intro)
+    internal static InstalledSpriteSheets WithIntro(IntroCinematicArtwork intro)
     {
         ArgumentNullException.ThrowIfNull(intro);
         return ReferenceEquals(intro, InstalledFixtures.IntroArtwork) ? InstalledFixtures.SpriteSheets
@@ -110,7 +110,7 @@ internal static class CinematicSheetFixtures
     extension(IntroCinematicState self)
     {
         /// <summary>Binds <paramref name="intro"/> and the sheets with the intro sheet it composes, as the game rebinds both.</summary>
-        internal void BindFixtureIntroArtwork(IntroCinematicArtworkCatalog intro)
+        internal void BindFixtureIntroArtwork(IntroCinematicArtwork intro)
         {
             self.BindCharacterArtwork(intro);
             self.BindSpriteSheets(WithIntro(intro));

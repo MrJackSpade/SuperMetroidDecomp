@@ -10,7 +10,7 @@ internal static class LookupDynamicCollectibleStockVerification
 {
     /// <summary>Compares kinds four through twenty, mixed edits, ownership, and invalid imports.</summary>
     internal static void VerifyDynamicCollectibleStockMapping(SuperMetroidAddressSpace rom,
-        RoomPlmDynamicCollectibleArtCatalog installed)
+        InstalledDynamicCollectibleArt installed)
     {
         var original = new List<RoomPlmDynamicCollectibleGraphic>();
         for (int raw = 4; raw <= 20; raw++)
@@ -23,7 +23,7 @@ internal static class LookupDynamicCollectibleStockVerification
             original.Add(new((InWorldCollectibleKind)raw, palettes, tiles));
         }
         string Hash(IEnumerable<RoomPlmDynamicCollectibleGraphic> graphics) =>
-            SelectedPresentationHash.Create(nameof(RoomPlmDynamicCollectibleArtCatalog), content =>
+            SelectedPresentationHash.Create(nameof(InstalledDynamicCollectibleArt), content =>
             {
                 foreach (var graphic in graphics)
                 {
@@ -32,7 +32,7 @@ internal static class LookupDynamicCollectibleStockVerification
                     content.Append("palette selectors", graphic.PaletteOffsets.Span);
                 }
             });
-        void Compare(RoomPlmDynamicCollectibleArtCatalog catalog, IEnumerable<RoomPlmDynamicCollectibleGraphic> expected)
+        void Compare(InstalledDynamicCollectibleArt catalog, IEnumerable<RoomPlmDynamicCollectibleGraphic> expected)
         {
             AssertEqual(Hash(expected), catalog.ContentIdentity, "Dynamic artwork original content framing");
             foreach (var value in expected)
@@ -46,15 +46,15 @@ internal static class LookupDynamicCollectibleStockVerification
         }
         var entries = original.Select(value => new RoomPlmDynamicCollectibleArtEntry(
             value.Kind, value.Tiles.ToArray(), value.PaletteOffsets.ToArray())).ToArray();
-        var stock = RoomPlmDynamicCollectibleArtCatalog.Stock();
-        foreach (var catalog in new[] {stock, installed, new RoomPlmDynamicCollectibleArtCatalog(entries.Reverse())})
+        var stock = InstalledDynamicCollectibleArt.Stock();
+        foreach (var catalog in new[] {stock, installed, new InstalledDynamicCollectibleArt(entries.Reverse())})
             Compare(catalog, original);
         for (int raw = 0; raw <= byte.MaxValue; raw++)
             if (raw is < 4 or > 20)
                 AssertThrows<InvalidDataException>(() => stock.Resolve((InWorldCollectibleKind)raw), "Dynamic stock rejected byte kind");
         entries[0].Tiles[0] ^= 1;
         entries[1].PaletteOffsets[0] = 7;
-        var mixed = new RoomPlmDynamicCollectibleArtCatalog(entries);
+        var mixed = new InstalledDynamicCollectibleArt(entries);
         var expected = original.Select((value,index) => new RoomPlmDynamicCollectibleGraphic(
             value.Kind,entries[index].PaletteOffsets.ToArray(),entries[index].Tiles.ToArray())).ToArray();
         entries[0].Tiles[0] ^= 2;
@@ -62,8 +62,8 @@ internal static class LookupDynamicCollectibleStockVerification
         entries[2].Tiles[0] ^= 4;
         entries[2].PaletteOffsets[0] = 5;
         Compare(mixed, expected);
-        AssertThrows<InvalidDataException>(() => new RoomPlmDynamicCollectibleArtCatalog(entries[..1]), "Dynamic missing item");
-        AssertThrows<InvalidDataException>(() => new RoomPlmDynamicCollectibleArtCatalog(entries.Append(entries[0])), "Dynamic duplicate item");
+        AssertThrows<InvalidDataException>(() => new InstalledDynamicCollectibleArt(entries[..1]), "Dynamic missing item");
+        AssertThrows<InvalidDataException>(() => new InstalledDynamicCollectibleArt(entries.Append(entries[0])), "Dynamic duplicate item");
         foreach (RoomPlmDynamicCollectibleArtEntry bad in new RoomPlmDynamicCollectibleArtEntry[]
         {
             new((InWorldCollectibleKind)255,new byte[256],new byte[8]),
@@ -74,7 +74,7 @@ internal static class LookupDynamicCollectibleStockVerification
         {
             var invalid = entries.ToArray();
             invalid[0] = bad;
-            AssertThrows<InvalidDataException>(() => new RoomPlmDynamicCollectibleArtCatalog(invalid), "Dynamic invalid item artwork");
+            AssertThrows<InvalidDataException>(() => new InstalledDynamicCollectibleArt(invalid), "Dynamic invalid item artwork");
         }
     }
 

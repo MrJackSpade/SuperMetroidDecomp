@@ -95,7 +95,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     [NonSerialized] private ProjectileSheets? projectileSheets;
 
     /// <summary>Host-owned trail programs and appearances the flashback trails run.</summary>
-    [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork { get; set; }
+    [field: NonSerialized]     public InstalledProjectileTrails? TrailArtwork { get; set; }
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
 
@@ -104,9 +104,9 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
-    public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
+    public InstalledProjectileSprites? ProjectileCompositions { get; set; }
     /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
-    public ProjectileFrameBindingCatalog? ProjectileFrameBindings
+    public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {
         get => flashbackProjectiles.Animation.FrameBindings;
         set => flashbackProjectiles.Animation.FrameBindings = value;
@@ -115,15 +115,15 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Installed first-font transfer rebound after debugger restoration.</summary>
     [field: NonSerialized] internal IntroFontAtlas? IntroFont { get; private set; }
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
-    [field: NonSerialized] internal IntroCinematicArtworkCatalog? CharacterArtwork { get; private set; }
+    [field: NonSerialized] internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
-    [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
+    [NonSerialized] private InstalledSamusBodyArtwork? samusBodyArtwork;
     /// <summary>Host-owned hurt-flash colors consumed by the shared Samus palette handler.</summary>
-    [NonSerialized] private SamusHurtColorCatalog? samusHurtColors;
+    [NonSerialized] private InstalledSamusHurtColors? samusHurtColors;
     /// <summary>Editable suit-flash colors used by the cinematic's ordinary Samus hurt handler.</summary>
-    public void BindSamusHurtColors(SamusHurtColorCatalog? value) => samusHurtColors = value;
+    public void BindSamusHurtColors(InstalledSamusHurtColors? value) => samusHurtColors = value;
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
-    public void BindSamusBodyArtwork(SamusBodyArtworkCatalog? value)
+    public void BindSamusBodyArtwork(InstalledSamusBodyArtwork? value)
     {
         samusBodyArtwork = value;
         CurrentFlashbackSamus?.Presentation.BodyFrames.BindArtwork(value);
@@ -147,7 +147,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         IntroFont = value;
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
-    public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
+    public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
         CharacterArtwork = value;
         CurrentCeresFlight?.BindArtwork(value?.CeresFlight);
@@ -160,8 +160,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             baseline.Colors.CopyTo(introColours);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(palette);
-            if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
-                < IntroCinematicPhase.CeresFlight)
+            if (IntroCinematicPhaseGroups.NarrationPages.Contains(Phase))
             {
                 // The divider occupies only rows 24-27. Preserve live typewriter
                 // tiles and caret state in every other row on debugger rebind.
@@ -292,9 +291,9 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
-        IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamPaletteCatalog? beamPalettes = null,
-        SamusBodyArtworkCatalog? samusBodyArtwork = null,
+        IntroCinematicArtwork? characterArtwork = null,
+        InstalledBeamPalettes? beamPalettes = null,
+        InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
     {
 
@@ -340,12 +339,15 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// True until $8B:A66F replaces the initial BG3 card. The setup phases appended to the
-    /// enum precede it in time even though they follow it numerically.
+    /// True until $8B:A66F replaces the initial BG3 card: through the setup phases and the first narration, until
+    /// page one's music is queued.
     /// </summary>
     private bool InitialNarrationCardResident =>
         Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.SetupPageOne or
-        < IntroCinematicPhase.WaitForPageOneMusicQueue;
+            IntroCinematicPhase.WaitForInitialMusicQueue or IntroCinematicPhase.FadeInFirstNarration or
+            IntroCinematicPhase.LastMetroidIsInCaptivity or IntroCinematicPhase.GalaxyIsAtPeace or
+            IntroCinematicPhase.WaitForSecondMusicQueue or IntroCinematicPhase.FourSecondHold or
+            IntroCinematicPhase.FadeOutFirstNarration;
 
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
@@ -715,7 +717,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Retain the exact 224-word level-data copy as debugger-visible state. The later
         // $91:8784 demo movement/collision translation will consume this array; loading it
         // now proves the visual BG1 screen is not standing in for the collision contract.
-        MotherBrainLevelData = IntroMotherBrainCollisionDefinitions.CopySourceBytes();
+        MotherBrainLevelData = IntroMotherBrainCollision.CopySourceBytes();
         CurrentFlashbackLevel = CreateMotherBrainLevel(MotherBrainLevelData);
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();

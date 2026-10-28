@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// The routine the Wrecked Ship ghost's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum WreckedShipGhostAiFunction : ushort
+public enum WreckedShipGhostAiFunction
 {
     /// <summary>$A8:9B42 raises the palette toward white while advancing the flicker table.</summary>
     BrighteningAndFlickering = 1,

@@ -149,7 +149,7 @@ internal sealed class BlockReactionPlms
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        if (!SpeedBoosterBlockPlmDefinitions.TryResolve(
+        if (!SpeedBoosterBlocks.TryResolve(
                 bts,
                 _area,
                 out SpeedBoosterBlockPlmDefinition definition))

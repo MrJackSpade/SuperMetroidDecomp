@@ -29,14 +29,14 @@ internal static class LookupTreadmillMechanicsVerification
     }
 
     /// <summary>Resolves a native treadmill object header to its compiled direction definition.</summary>
-    internal static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
+    internal static WreckedShipTreadmillLoop TreadmillDefinition(ushort header)
     {
-        AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"), out var definition), "Native treadmill resolves");
+        AssertTrue(WreckedShipTreadmills.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"), out var definition), "Native treadmill resolves");
         return (definition ?? throw new InvalidOperationException("Verification requires definition."));
     }
 
     /// <summary>Checks that a compiled mechanics word is owned and equals the cartridge word.</summary>
-    private static void AssertTreadmillNativeWord(ISnesAddressSpace rom, WreckedShipTreadmillObjectDefinition definition, ushort pointer)
+    private static void AssertTreadmillNativeWord(ISnesAddressSpace rom, WreckedShipTreadmillLoop definition, ushort pointer)
     {
         AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort actual), "Native treadmill mechanics word is owned");
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Native treadmill field value");
@@ -53,23 +53,23 @@ internal static class LookupTreadmillMechanicsVerification
             var direction = index == 0 ? WreckedShipTreadmillDirection.Rightwards : WreckedShipTreadmillDirection.Leftwards;
             AssertEqual(header, FxNativeWords.AnimatedTileObjects.Word(all[index].AnimatedObject), "Original enumeration identity/order");
             AssertEqual(direction, all[index].Direction, "Original direction association");
-            AssertEqual(header, FxNativeWords.AnimatedTileObjects.Word(WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction).AnimatedObject), "Named direction selects header");
+            AssertEqual(header, FxNativeWords.AnimatedTileObjects.Word(WreckedShipTreadmills.ForDirection(direction).AnimatedObject), "Named direction selects header");
             AssertEqual(direction, TreadmillDefinition(header).Direction, "Header selects named direction");
         }
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
         {
             ushort value = FxNativeWords.AnimatedTileObjects.Word(header);
-            bool found = WreckedShipTreadmillMechanicsDefinitions.TryResolve(header, out var definition);
+            bool found = WreckedShipTreadmills.TryResolve(header, out var definition);
             AssertEqual(value is 0x8275 or 0x827b, found, "Complete header domain");
             if (found) AssertEqual(value, FxNativeWords.AnimatedTileObjects.Word((definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject), "Resolved identity");
             else AssertTrue(definition is null, "Unknown header returns null");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
             AssertThrows<InvalidOperationException>(
-                () => WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)undefined, out _),
+                () => WreckedShipTreadmills.TryResolve((AnimatedTileObject)undefined, out _),
                 "Undefined treadmill header is rejected at the typed boundary");
         foreach (int value in new[] { int.MinValue, -1, 2, 3, 255, 65535, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => WreckedShipTreadmillMechanicsDefinitions.ForDirection(
+            AssertThrows<InvalidDataException>(() => WreckedShipTreadmills.ForDirection(
                 (WreckedShipTreadmillDirection)value), "Unknown direction rejects");
     }
 

@@ -30,7 +30,7 @@ internal static class EndingLogoVerification
         var guarded = NewEndingLogoDefinitionReadGuard(bus);
         var cgram = new ScreenPalette();
         int landings = 0;
-        EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
+        EndingPaletteSet palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
         var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
         var logo = new EndingLogo(cgram, () => landings++, palettes);
         int frame = 0, fadeStart = 0;
@@ -178,7 +178,7 @@ internal static class EndingLogoVerification
 
         for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
         {
-            CinematicActorDefinition actual = EndingLogoDefinitions.Actor(index);
+            CinematicActorDefinition actual = EndingLogoActors.Actor(index);
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
@@ -190,18 +190,18 @@ internal static class EndingLogoVerification
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
-            var origin = EndingLogoDefinitions.Origin(index);
+            var origin = EndingLogoActors.Origin(index);
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)), origin.X, "native actor X origin");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)), origin.Y, "native actor Y origin");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Actor(invalid), "actor definition bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Origin(invalid), "actor origin bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoActors.Actor(invalid), "actor definition bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoActors.Origin(invalid), "actor origin bounds");
         }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingLogoDefinitions.Actor(4),
+            () => EndingLogoActors.Actor(4),
             "logo actor definition boundary");
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.PaletteSteps, 0),

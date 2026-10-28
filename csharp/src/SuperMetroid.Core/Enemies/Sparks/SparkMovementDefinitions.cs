@@ -17,12 +17,11 @@ internal static class SparkMovementDefinitions
     /// observes the first function word $E694, which is code rather than an animation
     /// list; its function lookup observes the following LDX opcode/operand word $54AE.
     /// </summary>
-    internal static SparkMovementDefinition InitialState(int populationParameter) =>
-        (populationParameter & 3) switch
-        {
-            0 => new(SparkProgram.Active, SparkEnemyFunction.AlwaysActive),
-            1 => new(SparkProgram.Active, SparkEnemyFunction.IntermittentActive),
-            2 => new(SparkProgram.Emitter, SparkEnemyFunction.EmitFallingSparks),
-            _ => new(null, SparkEnemyFunction.AdjacentCode),
-        };
+    internal static readonly SparkMovementDefinition[] InitialStates =
+    [
+        new(SparkProgram.Active, SparkEnemyFunction.AlwaysActive),
+        new(SparkProgram.Active, SparkEnemyFunction.IntermittentActive),
+        new(SparkProgram.Emitter, SparkEnemyFunction.EmitFallingSparks),
+        new(null, SparkEnemyFunction.AdjacentCode),
+    ];
 }

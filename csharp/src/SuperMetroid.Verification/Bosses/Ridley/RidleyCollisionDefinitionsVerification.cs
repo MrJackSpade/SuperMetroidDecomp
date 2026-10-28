@@ -44,7 +44,7 @@ internal static class RidleyCollisionDefinitionsVerification
                         selected.Pointer == frame),
                 $"Ridley collision frame $A6:{frame:X4} is selected artwork identity");
             var components =
-                RidleyCollisionDefinitions.ComponentsAt(frame);
+                RidleyCollision.ComponentsAt(frame);
             AssertEqual(rom.ReadCartridgeByte(0xa60000 | frame), components.Length,
                 $"Ridley frame $A6:{frame:X4} native component count");
             for (int componentIndex = 0; componentIndex < components.Length;
@@ -165,7 +165,7 @@ internal static class RidleyCollisionDefinitionsVerification
             }
         }
         AssertThrows<InvalidDataException>(
-            () => RidleyCollisionDefinitions.ComponentsAt(0x8000),
+            () => RidleyCollision.ComponentsAt(0x8000),
             "unknown Ridley body frame fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "both installed Ridley collision walkers never read cartridge bytes");

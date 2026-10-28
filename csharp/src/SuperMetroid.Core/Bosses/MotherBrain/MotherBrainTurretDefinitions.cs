@@ -18,48 +18,13 @@ internal static class MotherBrainTurretDefinitions
     internal const int TurretCount = 12;
     /// <summary>$86:BEB9/$C040 select eight turret poses in left-to-up-left octant order.</summary>
     /// <summary>$86:BE89 starts the first bay at X=$398; each later bay is 192 pixels left.</summary>
-    private const int FirstBayX = 0x398;
+    internal const int FirstBayX = 0x398;
     /// <summary>The native placement rows repeat three mounting positions every twelve tiles.</summary>
-    private const int BaySpacing = 192;
+    internal const int BaySpacing = 192;
     /// <summary>$86:BFBF/$BFCF use a 2.75-pixel 8.8 bullet speed, rounded in diagonal octants.</summary>
-    private const int BulletSpeed = 0x2c0;
+    internal const int BulletSpeed = 0x2c0;
     /// <summary>$86:BF9F samples a seventeen-pixel horizontal muzzle radius.</summary>
-    private const int MuzzleRadius = 17;
-
-    /// <summary>Returns one of the twelve physical turret definitions.</summary>
-    internal static MotherBrainTurretDefinition ForTurret(int parameter)
-    {
-        if (parameter is < 0 or >= TurretCount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(parameter), parameter, "Mother Brain turret parameter must be zero through eleven.");
-        }
-
-        int bay = parameter / 3;
-        int column = parameter % 3;
-        bool wideSector = (bay & 1) != 0;
-        int xInset = column == 0 ? 0 : 48 + column * 32;
-        MotherBrainTurretDirection initial = column switch
-        {
-            0 => MotherBrainTurretDirection.DownRight,
-            1 => MotherBrainTurretDirection.Right,
-            _ when bay == 3 => MotherBrainTurretDirection.DownLeft,
-            _ => MotherBrainTurretDirection.Down,
-        };
-        MotherBrainTurretDirection first = column switch
-        {
-            0 => MotherBrainTurretDirection.DownLeft,
-            1 => wideSector ? MotherBrainTurretDirection.DownLeft : MotherBrainTurretDirection.Down,
-            _ => MotherBrainTurretDirection.Left,
-        };
-        MotherBrainTurretDirection last = column switch
-        {
-            0 => MotherBrainTurretDirection.DownRight,
-            1 => MotherBrainTurretDirection.Right,
-            _ => wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down,
-        };
-        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)), initial, first, last);
-    }
+    internal const int MuzzleRadius = 17;
 
     /// <summary>
     /// The eight turret directions around the compass, from left through down to up-left; a direction's position on
@@ -70,30 +35,16 @@ internal static class MotherBrainTurretDefinitions
         MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.Right, MotherBrainTurretDirection.UpRight,
         MotherBrainTurretDirection.Up, MotherBrainTurretDirection.UpLeft);
 
-    /// <summary>Returns the bullet launch for one of the eight directions.</summary>
-    internal static MotherBrainTurretDirectionDefinition ForDirection(
-        MotherBrainTurretDirection direction)
+    /// <summary>The muzzle's vertical offset for each of the eight directions.</summary>
+    internal static readonly Dictionary<MotherBrainTurretDirection, int> MuzzleYs = new()
     {
-        int index = Ring.PositionOf(direction);
-        double angle = index * Math.PI / 4;
-        int muzzleY = direction switch
-        {
-            MotherBrainTurretDirection.Left or MotherBrainTurretDirection.Right => -9,
-            MotherBrainTurretDirection.DownLeft or MotherBrainTurretDirection.DownRight => 3,
-            MotherBrainTurretDirection.Down => 7,
-            MotherBrainTurretDirection.UpLeft or MotherBrainTurretDirection.UpRight => -19,
-            MotherBrainTurretDirection.Up => -21,
-            _ => throw new ArgumentOutOfRangeException(nameof(direction)),
-        };
-        return new(new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), (short)muzzleY),
-            new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
-    }
-
-    /// <summary>Whether turret <paramref name="turret"/> may rotate to <paramref name="direction"/>.</summary>
-    internal static bool IsRotationAllowed(int turret, MotherBrainTurretDirection direction)
-    {
-        MotherBrainTurretDefinition definition = ForTurret(turret);
-        int position = Ring.PositionOf(direction);
-        return position >= Ring.PositionOf(definition.FirstAllowedDirection) && position <= Ring.PositionOf(definition.LastAllowedDirection);
-    }
+        [MotherBrainTurretDirection.Left] = -9,
+        [MotherBrainTurretDirection.Right] = -9,
+        [MotherBrainTurretDirection.DownLeft] = 3,
+        [MotherBrainTurretDirection.DownRight] = 3,
+        [MotherBrainTurretDirection.Down] = 7,
+        [MotherBrainTurretDirection.UpLeft] = -19,
+        [MotherBrainTurretDirection.UpRight] = -19,
+        [MotherBrainTurretDirection.Up] = -21,
+    };
 }

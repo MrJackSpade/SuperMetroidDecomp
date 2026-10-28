@@ -3,17 +3,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Fixed Bomb Spread mechanics, not editable explosion artwork or animation.</summary>
 internal static class SamusBombSpreadLaunchDefinitions
 {
-    /// <summary>
-    /// $90:D8CF..D8F6 BombSpreadData: five symmetric launches. Fuse length increases
-    /// ten frames per step from center; outward X speed grows by half a pixel/frame.
-    /// Y rises two-and-a-half at center, one beside it, and zero at the edges.
-    /// </summary>
-    internal static BombSpreadLaunchDefinition ForSlot(int index)
-    {
-        if ((uint)index >= 5) throw new ArgumentOutOfRangeException(nameof(index));
-        int radius = Math.Abs(index - 2);
-        return new((ushort)(100 + radius * 10),
-            (ushort)((index < 2 ? 0x8000 : 0) | radius * 128),
-            new UnsignedSixteenSixteen(2 - radius, radius == 0 ? 0x8000 : 0));
-    }
+    /// <summary>The centre bomb's rise, two and a half pixels per update; the bombs beside it rise one pixel and the edge bombs none.</summary>
+    internal static UnsignedSixteenSixteen CentreRise { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(40);
 }

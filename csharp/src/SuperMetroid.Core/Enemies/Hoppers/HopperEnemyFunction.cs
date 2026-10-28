@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// identical motion.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum HopperEnemyFunction : ushort
+public enum HopperEnemyFunction
 {
     /// <summary>$A3:ABD6, Function_Hopper_Hop: consumes a shared RNG value and chooses small or big hop from its low bit without starting movement that update.</summary>
     ChooseHopSize = 1,

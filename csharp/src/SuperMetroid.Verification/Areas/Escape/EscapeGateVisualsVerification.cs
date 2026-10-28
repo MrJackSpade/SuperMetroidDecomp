@@ -31,10 +31,10 @@ internal static class EscapeGateVisualsVerification
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmVisualEntry[] entries =
-            MotherBrainEscapeGatePlmDrawDefinitions.All
+            MotherBrainEscapeGateDraws.All
                 .OrderBy(draw => PlmDrawAddressCodec.Of(draw.Draw))
                 .Select(draw => new RoomPlmVisualEntry(
-                    MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Draw),
+                    MotherBrainEscapeGateDraws.VisualId(draw.Draw),
                     draw.Runs.Span[0].LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord)))
                 .ToArray();

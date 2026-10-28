@@ -37,7 +37,7 @@ internal static class BossDisplayBindingsDocumentsVerification
             for (int index = 0; index < family.Length; index++)
             {
                 EnemySpritemapDefinition frame = family[index];
-                Oam.Frames[frame.Name] = !edited && EnemyExtendedFrameDefinitions.IsBg2Only(frame) ? [] :
+                Oam.Frames[frame.Name] = !edited && EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
                 [ new() { OffsetX = edited ? 6 : 0, OffsetY = edited ? -3 : 0,
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
                         TileColumn = index % 16, TileRow = index / 16, Palette = 1, Priority = 2,
@@ -58,7 +58,7 @@ internal static class BossDisplayBindingsDocumentsVerification
             tiles.ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null;
             return new(tiles,
                 new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
-                new AreaArtworkCatalog());
+                new AreaArtworkBundle());
         }
 
         /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>

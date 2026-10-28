@@ -27,7 +27,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapScreensVerification
 {
     /// <summary>Compares six areas' VRAM and pixels, then verifies independent JSON and PNG edits, restored menus, and strict resource validation.</summary>
-    internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewMapScreenGuard(bus);
         var system = new SharedGameState();
@@ -58,7 +58,7 @@ internal static class MapScreensVerification
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapScreenDocument>(File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)), options);
-        foreach (MapScreenPage definition in MapScreenDefinitions.Pages())
+        foreach (MapScreenPage definition in MapScreens.Pages())
         {
             string name = definition.Id.Name;
             var isolated = new Dictionary<string, MapPresentationCell[]>(document.Pages);
@@ -152,13 +152,13 @@ internal static class MapScreensVerification
         AssertEqual("broken JSON", File.ReadAllText(jsonPath), "invalid screen override never overwritten");
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 
-        static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog catalog, int area) =>
+        static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
             new(area, catalog.Tiles, catalog.Palettes, catalog.Screens,
                 catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.For(catalog));
     }
 
     /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>
-    private static void VerifyScreenMenuRebinding(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
+    private static void VerifyScreenMenuRebinding(AreaMapPresentation original, AreaMapPresentation edited)
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };

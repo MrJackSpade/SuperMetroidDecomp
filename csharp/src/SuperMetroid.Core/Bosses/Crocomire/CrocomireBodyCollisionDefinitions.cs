@@ -51,7 +51,7 @@ internal static class CrocomireBodyCollisionDefinitions
     private static readonly CrocomireBodyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.CountHit)];
 
     /// <summary>The fifty living-body frames' physical component lists, with presentation art excluded.</summary>
-    private static EnemyFrameCollision<CrocomireBodyCollisionComponent> Frames { get; } = new()
+    internal static EnemyFrameCollision<CrocomireBodyCollisionComponent> Frames { get; } = new()
     {
         { EnemyFrameId.CrocomireBody0, [new(new(3, 11), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, -1), CentralBody)] },
         { EnemyFrameId.CrocomireBody1, [new(new(1, 11), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
@@ -104,14 +104,4 @@ internal static class CrocomireBodyCollisionDefinitions
         { EnemyFrameId.CrocomireBody48, [new(new(0, 0), JawStrip)] },
         { EnemyFrameId.CrocomireBody49, [new(new(0, 0), JawStrip)] },
     };
-
-    /// <summary>Accepts a living-body frame or delegates defeated-body frames to the corpse catalog.</summary>
-    internal static bool HasFrame(EnemyFrameId? frame) => Frames.Contains(frame) ||
-        CrocomireCorpseCollisionDefinitions.HasFrame(frame);
-
-    /// <summary>Finds the physical components, each with its own hitbox list, for a living or defeated frame.</summary>
-    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        Frames.TryGet(frame, out CrocomireBodyCollisionComponent[] components)
-            ? components
-            : CrocomireCorpseCollisionDefinitions.ComponentsAt(frame);
 }

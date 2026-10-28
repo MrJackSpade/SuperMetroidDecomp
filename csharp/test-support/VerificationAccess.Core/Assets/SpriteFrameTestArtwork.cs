@@ -9,6 +9,6 @@ internal static class SpriteFrameTestArtwork
 
     /// <summary>Installed Samus spritemaps bound to <see cref="StandardObjects"/>, which holds every character any of them names.</summary>
     internal static SuperMetroid.Core.Samus.Drawing.SamusSpritemapArtwork Spritemaps(
-        SuperMetroid.Core.Samus.Artwork.SamusSpritemapArtworkCatalog spritemaps) =>
+        SuperMetroid.Core.Samus.Artwork.InstalledSamusSpritemaps spritemaps) =>
         new(spritemaps, StandardObjects, () => StandardObjects);
 }

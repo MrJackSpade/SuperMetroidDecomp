@@ -15,7 +15,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
 
     /// <inheritdoc/>
     private protected override AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue> Programs =>
-        ColoredDoorPlmProgramDefinitions.ProgramsFor(Color, Orientation);
+        ColoredDoorPlmProgramDefinitions.Sets[new(Color, Orientation)];
 
     /// <inheritdoc/>
     public void StartClosing() => Restart(ColoredDoorProgram.Closing);
@@ -23,12 +23,12 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(DoorCapFrame frame) => frame switch
     {
-        DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(Orientation),
-        DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 0),
-        DoorCapFrame.Closed1 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 1),
-        DoorCapFrame.Closed2 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 2),
-        DoorCapFrame.Closed3 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 3),
-        DoorCapFrame.BlueFlash => DoorPlmDrawListDefinitions.Blue(Orientation, 0),
+        DoorCapFrame.Clear => DoorCaps.Clear(Orientation),
+        DoorCapFrame.Closed0 => DoorCaps.Colored(Color, Orientation, 0),
+        DoorCapFrame.Closed1 => DoorCaps.Colored(Color, Orientation, 1),
+        DoorCapFrame.Closed2 => DoorCaps.Colored(Color, Orientation, 2),
+        DoorCapFrame.Closed3 => DoorCaps.Colored(Color, Orientation, 3),
+        DoorCapFrame.BlueFlash => DoorCaps.Blue(Orientation, 0),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
     };
 
@@ -42,14 +42,14 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
                 if (doors.IsDoorOpened(slot))
                 {
                     slot.Family = null;
-                    slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Orientation)));
+                    slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.ClosedPrograms[Orientation]));
                 }
                 return null;
             case ColoredDoorCue.LinkHit:
                 SetLink(ColoredDoorProgram.Hit);
                 return null;
             case ColoredDoorCue.ArmWake:
-                slot.PreInstruction = ColoredDoorPreInstructions.Of(ColoredDoorPlmProgramDefinitions.WakeOf(Color));
+                slot.PreInstruction = ColoredDoorPreInstructions.Of(ColoredDoorPlmProgramDefinitions.Wakes[Color]);
                 return null;
             case ColoredDoorCue.CountHit:
                 return doors.CountColoredDoorHit(slot) ? ColoredDoorProgram.Open : null;

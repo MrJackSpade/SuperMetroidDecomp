@@ -31,9 +31,9 @@ public static class PauseReserveUiFile
         var labelTiles = new Dictionary<PauseReserveLabel, BackgroundTile[]>();
         foreach (PauseReserveLabel expected in PauseReserveUiDefinitions.Labels)
         {
-            string name = PauseReserveUiDefinitions.Name(expected);
+            string name = PauseReserveUiTiles.Name(expected);
             if (!document.Labels.TryGetValue(name, out var label) || label is null || label.Cells is null ||
-                label.Cells.Length != PauseReserveUiDefinitions.StockLabelWords(expected))
+                label.Cells.Length != PauseReserveUiTiles.StockLabelWords(expected))
                 throw new InvalidDataException($"Pause reserve UI label {name} has the wrong shape.");
             labelCells.Add(expected, Cell(label.Anchor, name));
             labelTiles.Add(expected, PauseTileGrid.Compile(label.Cells, $"Reserve.{name}"));

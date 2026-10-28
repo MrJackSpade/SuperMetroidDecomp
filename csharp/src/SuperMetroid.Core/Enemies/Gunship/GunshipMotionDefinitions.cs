@@ -4,37 +4,22 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipMotionDefinitions
 {
 
-    /// <summary>Returns +1 for frames 0..5, zero for 6..10, and -1 for 11..16.</summary>
+    /// <summary>The landing brake's signed whole-pixel Y delta for each of its 17 frames: +1 for frames 0..5, zero for 6..10, and -1 for 11..16.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against all NTSC J/U v1.0 words and pinned
     /// bank_A2.asm. These are explicit six/five/six braking intervals, not a sampled
-    /// physical acceleration curve. A range switch expresses the authored schedule
-    /// more directly than the older clamp/truncated-division hypothesis.
-    /// Callers add the signed whole-pixel delta with word wrapping, then advance.
+    /// physical acceleration curve. Callers add the signed whole-pixel delta with word wrapping, then advance.
     /// </remarks>
-    internal static short LandingBrakeYDelta(int frameIndex)
-    {
-        if (frameIndex >= 17)
-            throw new InvalidDataException(
-                $"Gunship landing-brake frame {frameIndex} exceeds its 17-frame schedule.");
-        return frameIndex switch { < 6 => 1, < 11 => 0, _ => -1 };
-    }
+    internal static readonly short[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 
-    /// <summary>Returns timer 16 and signed delta +1,-1,-1,+1 for phases 0..3.</summary>
+    /// <summary>The idle bob's four phases: timer 16 and signed delta +1,-1,-1,+1.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against each of the two byte fields in
     /// NTSC J/U v1.0 and pinned ProcessShipHover. Timer and delta have separate
-    /// original-data proofs. Endpoint phases move down, middle phases move up;
-    /// this case policy is clearer than the older Gray-code sign expression.
-    /// Validate before selecting. The caller owns expiration and phase wrap.
+    /// original-data proofs. Endpoint phases move down, middle phases move up.
+    /// The caller owns expiration and phase wrap.
     /// </remarks>
-    internal static GunshipIdleBobDefinition IdleBob(int phase)
-    {
-        if (phase >= 4)
-            throw new InvalidDataException(
-                $"Gunship idle-bob phase {phase} exceeds its four-record cycle.");
-        return new(16, phase is 0 or 3 ? (sbyte)1 : (sbyte)-1);
-    }
+    internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
     /// <summary>Above this Y the descending ship moves $4.8000 pixels per call; below it, $2.8000.</summary>
     internal const ushort SlowDescentY = 0x0300;

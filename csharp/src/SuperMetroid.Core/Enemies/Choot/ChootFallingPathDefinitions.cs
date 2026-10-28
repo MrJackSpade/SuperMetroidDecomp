@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Enemies.Choot;
 internal static class ChootFallingPathDefinitions
 {
     /// <summary>First physical frame after the normal path's positive-X plateau sample.</summary>
-    private const int PositivePlateauIndex = 28;
+    internal const int PositivePlateauIndex = 28;
     /// <summary>First physical frame after the normal path's negative-X plateau sample.</summary>
-    private const int NegativePlateauIndex = 63;
+    internal const int NegativePlateauIndex = 63;
     /// <summary>Additional copies of each plateau sample in the slow native path.</summary>
     private const int SlowPlateauFrames = 10;
     /// <summary>Additional copies of each plateau sample in the very-slow native path.</summary>
@@ -82,59 +82,23 @@ internal static class ChootFallingPathDefinitions
         End,
     ];
 
-    /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
-    internal static ChootFallingPathPoint At(ChootFallingPath fallingPath, int frameIndex)
+    /// <summary>The authored samples each falling path follows; the slow paths follow the normal path.</summary>
+    internal static readonly Dictionary<ChootFallingPath, Offset16<RoomPixels>[]> Paths = new()
     {
-        Offset16<RoomPixels>[] path;
-        int expandedFrames = 0;
-        switch (fallingPath)
-        {
-            case ChootFallingPath.Normal:
-                path = Normal;
-                break;
-            case ChootFallingPath.Wide:
-                path = Wide;
-                break;
-            case ChootFallingPath.VeryWide:
-                path = VeryWide;
-                break;
-            case ChootFallingPath.Slow:
-                path = Normal;
-                expandedFrames = SlowPlateauFrames;
-                break;
-            case ChootFallingPath.VerySlow:
-                path = Normal;
-                expandedFrames = VerySlowPlateauFrames;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined ChootFallingPath {fallingPath}.");
-        }
+        [ChootFallingPath.Normal] = Normal,
+        [ChootFallingPath.Wide] = Wide,
+        [ChootFallingPath.VeryWide] = VeryWide,
+        [ChootFallingPath.Slow] = Normal,
+        [ChootFallingPath.VerySlow] = Normal,
+    };
 
-        int sourceFrame = CollapseExpandedPlateaus(frameIndex, expandedFrames);
-        if ((uint)sourceFrame >= (uint)path.Length)
-        {
-            throw new InvalidDataException(
-                $"Choot falling-pattern frame {frameIndex} exceeds stream {fallingPath}.");
-        }
-
-        return new ChootFallingPathPoint(path[sourceFrame]);
-    }
-
-    /// <summary>Maps a slow-path physical frame back to the normal stream, repeating the two authored plateau samples.</summary>
-    private static int CollapseExpandedPlateaus(int frameIndex, int expandedFrames)
+    /// <summary>How many extra frames each falling path holds each of the normal path's two plateau samples.</summary>
+    internal static readonly Dictionary<ChootFallingPath, int> PlateauHolds = new()
     {
-        if (frameIndex < 0)
-            return frameIndex;
-        if (frameIndex < PositivePlateauIndex)
-            return frameIndex;
-        if (frameIndex < PositivePlateauIndex + expandedFrames)
-            return PositivePlateauIndex - 1;
-
-        frameIndex -= expandedFrames;
-        if (frameIndex < NegativePlateauIndex)
-            return frameIndex;
-        if (frameIndex < NegativePlateauIndex + expandedFrames)
-            return NegativePlateauIndex - 1;
-        return frameIndex - expandedFrames;
-    }
+        [ChootFallingPath.Normal] = 0,
+        [ChootFallingPath.Wide] = 0,
+        [ChootFallingPath.VeryWide] = 0,
+        [ChootFallingPath.Slow] = SlowPlateauFrames,
+        [ChootFallingPath.VerySlow] = VerySlowPlateauFrames,
+    };
 }

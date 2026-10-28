@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Exact `$0A7A` values used by the six-entry bank-$88 X-ray dispatcher.</summary>
-public enum XrayBeamPhase : ushort
+public enum XrayBeamPhase
 {
     /// <summary>State zero, native <c>HandleXrayScope_State0_NoBeam</c> at <c>$88:8732</c>; after setup, held dash starts widening and released dash starts restoration.</summary>
     NoBeam = 0,

@@ -216,7 +216,7 @@ internal static class RoomPaletteFxPresentationVerification
         {
             ushort pointer = (ushort)raw;
             bool owned = coordinates.TryGetValue(pointer, out var expected);
-            AssertEqual(owned, EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color),
+            AssertEqual(owned, EndingGunshipPaletteColors.TryCoordinates(pointer, out int frame, out int color),
                 "gunship exact original color-word ownership");
             if (owned)
             {
@@ -224,7 +224,7 @@ internal static class RoomPaletteFxPresentationVerification
                 AssertEqual(expected.Color, color, "gunship original color column");
             }
             bool computed = owned && expected.Frame != 15 && expected != new Coordinate(7, 15);
-            AssertEqual(computed, EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, inputView, out RgbColor calculated),
+            AssertEqual(computed, EndingGunshipPaletteColors.TryCalculatedColor(pointer, inputView, out RgbColor calculated),
                 "gunship calculated color domain");
             if (computed) AssertEqual(original[pointer], calculated, "gunship calculated color matches original ROM");
         }
@@ -262,7 +262,7 @@ internal static class RoomPaletteFxPresentationVerification
             AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
                 "gunship preserves independent edits and unchanged samples");
         }
-        AssertTrue(!EndingGunshipPaletteColorDefinitions.TryCalculatedColor(0xd6e4, ToColors(new Dictionary<ushort, ushort>()), out _),
+        AssertTrue(!EndingGunshipPaletteColors.TryCalculatedColor(0xd6e4, ToColors(new Dictionary<ushort, ushort>()), out _),
             "gunship does not invent missing interpolation inputs");
     }
 
@@ -284,7 +284,7 @@ internal static class RoomPaletteFxPresentationVerification
         {
             ushort pointer = (ushort)raw;
             bool owned = coordinates.TryGetValue(pointer, out var expected);
-            AssertEqual(owned, LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color),
+            AssertEqual(owned, LogoGlarePaletteColors.TryCoordinates(pointer, out int frame, out int color),
                 "glare owns exact original color words, excluding controls and odd bytes");
             if (owned)
             {
@@ -292,7 +292,7 @@ internal static class RoomPaletteFxPresentationVerification
                 AssertEqual(expected.Color, color, "glare original color column");
             }
             bool computed = owned && expected.Frame < 13;
-            AssertEqual(computed, LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, ToColors(original), out RgbColor calculated),
+            AssertEqual(computed, LogoGlarePaletteColors.TryCalculatedColor(pointer, ToColors(original), out RgbColor calculated),
                 "glare intermediate-color calculation domain");
             if (computed) AssertEqual(original[pointer], calculated, "glare calculated word matches original ROM");
         }
@@ -318,7 +318,7 @@ internal static class RoomPaletteFxPresentationVerification
             AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
                 "glare preserves every independently supplied frame color");
         }
-        AssertTrue(!LogoGlarePaletteColorDefinitions.TryCalculatedColor(0xdf9a, ToColors(new Dictionary<ushort, ushort>()), out _),
+        AssertTrue(!LogoGlarePaletteColors.TryCalculatedColor(0xdf9a, ToColors(new Dictionary<ushort, ushort>()), out _),
             "glare does not invent a missing base color");
     }
 
@@ -422,17 +422,17 @@ internal static class RoomPaletteFxPresentationVerification
             int blueAdd = new[] { 20, 20, 10 }[shade];
             int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + greenAdd, 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + blueAdd, 0, 31) * 1024;
-            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.TintColor(RgbColor.FromWord(checked((ushort)rgb)), shade), "Every RGB5 tint input and saturation boundary");
+            AssertEqual((ushort)expected, LoadingPaletteColors.TintColor(RgbColor.FromWord(checked((ushort)rgb)), shade), "Every RGB5 tint input and saturation boundary");
             int variaGreen = new[] { 5, 0, 0 }[shade];
             int variaBlue = new[] { 30, 20, 10 }[shade];
             int variaExpected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + variaGreen, 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + variaBlue, 0, 31) * 1024;
-            AssertEqual((ushort)variaExpected, LoadingPaletteColorDefinitions.VariaTintColor(RgbColor.FromWord(checked((ushort)rgb)), shade), "Every RGB5 Varia tint input and saturation boundary");
+            AssertEqual((ushort)variaExpected, LoadingPaletteColors.VariaTintColor(RgbColor.FromWord(checked((ushort)rgb)), shade), "Every RGB5 Varia tint input and saturation boundary");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.TintColor(new RgbColor(0, 0, 0), invalid), "Tint shade rejects outside domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.TintColor(new RgbColor(0, 0, 0), invalid), "Tint shade rejects outside domain");
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.VariaTintColor(new RgbColor(0, 0, 0), invalid), "Varia tint shade rejects outside domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.VariaTintColor(new RgbColor(0, 0, 0), invalid), "Varia tint shade rejects outside domain");
         foreach (var (peak, plateau, brightGreen, middleGreen, brightBlue, middleBlue) in
             new[] { new VerifyExtractedSamusLoadingPaletteFxPresentationCase(15, true, 15, 5, 10, 10), new VerifyExtractedSamusLoadingPaletteFxPresentationCase(0, false, 0, 0, 10, 5), new VerifyExtractedSamusLoadingPaletteFxPresentationCase(5, false, 5, 0, 10, 5) })
         for (int rgb = 0; rgb < 32768; rgb++)
@@ -440,13 +440,13 @@ internal static class RoomPaletteFxPresentationVerification
         {
             int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + (shade == 0 ? brightGreen : middleGreen), 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + (shade == 0 ? brightBlue : middleBlue), 0, 31) * 1024;
-            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.BrightenDimColor(RgbColor.FromWord(checked((ushort)rgb)), shade, peak, plateau),
+            AssertEqual((ushort)expected, LoadingPaletteColors.BrightenDimColor(RgbColor.FromWord(checked((ushort)rgb)), shade, peak, plateau),
                 "Every RGB5 dim endpoint across each original brightening rule");
         }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.BrightenDimColor(new RgbColor(0, 0, 0), invalid, 0, false), "Dim brightening rejects invalid shade");
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.BrightenDimColor(new RgbColor(0, 0, 0), invalid, 0, false), "Dim brightening rejects invalid shade");
         foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.BrightenDimColor(new RgbColor(0, 0, 0), 0, invalid, false), "Dim brightening rejects invalid green peak");
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.BrightenDimColor(new RgbColor(0, 0, 0), 0, invalid, false), "Dim brightening rejects invalid green peak");
         for (int blue = 0; blue < 32; blue++)
         foreach (ushort normal in new ushort[] { 0, 0x7fff, 0x1234, 0x4321 })
         {
@@ -457,10 +457,10 @@ internal static class RoomPaletteFxPresentationVerification
             };
             foreach (ushort pointer in new ushort[] { 0xdc90, 0xdc92 })
             {
-                AssertTrue(LoadingPaletteColorDefinitions.TryCalculatedColor(pointer, ToColors(input), out RgbColor actual), "Dim shared-blue word resolves independently edited inputs");
+                AssertTrue(LoadingPaletteColors.TryCalculatedColor(pointer, ToColors(input), out RgbColor actual), "Dim shared-blue word resolves independently edited inputs");
                 AssertEqual((ushort)(normal % 1024 + blue * 1024), actual, "Dim blue source cannot overwrite normal red/green");
             }
-            AssertTrue(LoadingPaletteColorDefinitions.TryCalculatedColor(0xdc3f, ToColors(input), out RgbColor middle), "Middle shared-blue word resolves independently edited inputs");
+            AssertTrue(LoadingPaletteColors.TryCalculatedColor(0xdc3f, ToColors(input), out RgbColor middle), "Middle shared-blue word resolves independently edited inputs");
             int expected = (normal & 31) + Math.Min(31, (normal >> 5 & 31) + 5) * 32 + blue * 1024;
             AssertEqual((ushort)expected, middle, "Middle tint preserves independently selected bright blue");
         }
@@ -468,9 +468,9 @@ internal static class RoomPaletteFxPresentationVerification
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);
-            AssertEqual(expected, LoadingPaletteColorDefinitions.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
+            AssertEqual(expected, LoadingPaletteColors.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
             AssertEqual(canonical, actual, "Original earliest identical row or unowned zero");
-            bool calculated = LoadingPaletteColorDefinitions.TryCalculatedColor((ushort)address, inputView, out RgbColor tint);
+            bool calculated = LoadingPaletteColors.TryCalculatedColor((ushort)address, inputView, out RgbColor tint);
             AssertEqual(tinted.Contains((ushort)address), calculated, "Complete tint-only address domain");
             AssertEqual(calculated ? ReadVerificationWord(bus, 0x8d0000 | address) : (ushort)0, tint, "Original tint word or unowned zero");
         }
@@ -542,7 +542,7 @@ internal static class RoomPaletteFxPresentationVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool owned = expectedAliases.TryGetValue((ushort)pointer, out ushort expected);
-            AssertEqual(owned, HeatPaletteColorDefinitions.TryCanonicalPointer((ushort)pointer, out ushort actual),
+            AssertEqual(owned, HeatPaletteColors.TryCanonicalPointer((ushort)pointer, out ushort actual),
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
@@ -562,12 +562,12 @@ internal static class RoomPaletteFxPresentationVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool owned = baseSources.TryGetValue((ushort)pointer, out ushort expected);
-            AssertEqual(owned, HeatPaletteColorDefinitions.TryBasePalettePointer((ushort)pointer, out ushort actual), "Complete heat base-pointer domain");
+            AssertEqual(owned, HeatPaletteColors.TryBasePalettePointer((ushort)pointer, out ushort actual), "Complete heat base-pointer domain");
             AssertEqual(expected, actual, "Exact loading source or unowned zero");
         }
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
-            if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, inputs, out RgbColor calculated))
+            if (!HeatPaletteColors.TryCalculatedColor(pointer, inputs, out RgbColor calculated))
             {
                 AssertTrue(inputs.ContainsKey(pointer), "Independent endpoint input remains available");
                 continue;
@@ -588,7 +588,7 @@ internal static class RoomPaletteFxPresentationVerification
             for (int row = 1; row < 4; row++)
             {
                 ushort pointer = (ushort)(0xe46e + (2 * row - 1) * 34);
-                AssertTrue(HeatPaletteColorDefinitions.TryRedRamp(pointer, ToColors(endpoints), out RgbColor actual), "Interior ramp owned");
+                AssertTrue(HeatPaletteColors.TryRedRamp(pointer, ToColors(endpoints), out RgbColor actual), "Interior ramp owned");
                 ushort expected = (ushort)(0x3fe0 | (int)Math.Floor(startRed * (1.0 - row / 4.0) + endRed * row / 4.0));
                 AssertEqual(expected, actual, "Edited red endpoints preserve floor interpolation and base green/blue");
             }
@@ -605,7 +605,7 @@ internal static class RoomPaletteFxPresentationVerification
             for (int row = 1; row < 4; row++)
             {
                 ushort pointer = (ushort)(first + (2 * row - 1) * 34);
-                AssertTrue(HeatPaletteColorDefinitions.TrySecondaryRedRamp(pointer, ToColors(endpoints), out RgbColor actual), "Secondary red ramp owned");
+                AssertTrue(HeatPaletteColors.TrySecondaryRedRamp(pointer, ToColors(endpoints), out RgbColor actual), "Secondary red ramp owned");
                 double interpolated = startRed * (1.0 - row / 4.0) + endRed * row / 4.0;
                 int red = (int)(first == 0xe6a6 ? Math.Floor(interpolated) : Math.Round(interpolated, MidpointRounding.AwayFromZero));
                 AssertEqual((ushort)(0x3fe0 | red), actual, "All endpoint pairs preserve each gradient's original rounding convention");
@@ -621,7 +621,7 @@ internal static class RoomPaletteFxPresentationVerification
             };
             for (int row = 1; row < 4; row++)
             {
-                AssertTrue(HeatPaletteColorDefinitions.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), ToColors(endpoints), out RgbColor actual),
+                AssertTrue(HeatPaletteColors.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), ToColors(endpoints), out RgbColor actual),
                     "Mixed red interpolation owned");
                 int expected = (int)Math.Ceiling(startRed * (1.0 - row / 4.0) + endRed * row / 4.0);
                 AssertEqual(expected, actual.ToWord() & 31, "Every red endpoint pair uses upward rounding");
@@ -641,7 +641,7 @@ internal static class RoomPaletteFxPresentationVerification
                 int green = (int)Math.Round(startGreen * (1.0 - row / 4.0) + endGreen * row / 4.0, MidpointRounding.ToEven);
                 int blue = startBlue + green - startGreen;
                 bool accepted = blue is >= 0 and < 32;
-                AssertEqual(accepted, HeatPaletteColorDefinitions.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), ToColors(endpoints), out RgbColor actual),
+                AssertEqual(accepted, HeatPaletteColors.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), ToColors(endpoints), out RgbColor actual),
                     "Edited green/blue relation has exact RGB5 representability boundary");
                 AssertEqual(accepted ? (ushort)(green << 5 | blue << 10) : (ushort)0, actual,
                     "Nearest-even green and shared blue delta match independent oracle");
@@ -651,7 +651,7 @@ internal static class RoomPaletteFxPresentationVerification
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             var supplied = new Dictionary<ushort, ushort> { [source] = (ushort)rgb };
-            AssertTrue(HeatPaletteColorDefinitions.TryHighlightEndpoint(endpoint, ToColors(supplied), out RgbColor actual), "Highlight endpoint identity");
+            AssertTrue(HeatPaletteColors.TryHighlightEndpoint(endpoint, ToColors(supplied), out RgbColor actual), "Highlight endpoint identity");
             int red = (int)Math.Ceiling(((rgb & 31) + 31) / 2.0);
             AssertEqual((ushort)((rgb & 0x7fe0) | red), actual, "Every edited RGB5 base preserves halfway red highlight and other channels");
         }
@@ -663,7 +663,7 @@ internal static class RoomPaletteFxPresentationVerification
                 [0xe46e] = overflow ? (ushort)0 : (ushort)31,
                 [0xe490] = overflow ? (ushort)31 : (ushort)0,
             };
-            AssertTrue(!HeatPaletteColorDefinitions.TrySharedRed(0xe48a, ToColors(editedSeeds), out _),
+            AssertTrue(!HeatPaletteColors.TrySharedRed(0xe48a, ToColors(editedSeeds), out _),
                 "Edited red underflow/overflow requires an explicit supplied color, never clamping");
         }
         AssertTrue(expectedAliases.Keys.All(presentation.ColorPointers.Contains), "Audit enumeration includes removed aliases");

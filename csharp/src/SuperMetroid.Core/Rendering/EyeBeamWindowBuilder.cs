@@ -88,7 +88,7 @@ internal static class EyeBeamWindowBuilder
     /// <summary>Reads an absolute native tangent-table sample for a half-turn angle index.</summary>
     internal static int Tangent(int index)
     {
-        return AbsoluteTangentDefinitions.Sample(index);
+        return AbsoluteTangents.Sample(index);
     }
 
     /// <summary>Shifts an off-screen ray origin by one fixed-point span toward its entering edge.</summary>

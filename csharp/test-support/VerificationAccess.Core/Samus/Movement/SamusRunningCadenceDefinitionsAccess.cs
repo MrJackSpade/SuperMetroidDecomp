@@ -13,7 +13,7 @@ internal static class SamusRunningCadenceDefinitionsAccess
         {
             int offset = address - 0x91b5d1;
             if ((uint)offset < SamusRunningCadenceDefinitions.RegionByteCount)
-                return SamusRunningCadenceDefinitions.CompiledByte(offset, InstalledFixtures.SamusOverreads.AnimationWindows);
+                return SamusRunningCadenceBytes.CompiledByte(offset, InstalledFixtures.SamusOverreads.AnimationWindows);
             throw new ArgumentOutOfRangeException(
                 nameof(address), address, "Address is outside the compiled Samus running-cadence catalog.");
         }
@@ -23,12 +23,16 @@ internal static class SamusRunningCadenceDefinitionsAccess
 
         /// <summary>The bank-$91 start of the cadence a Speed Booster sound-queue selection picks.</summary>
         internal static ushort ReadSpeedBoostDelayListPointer(byte selection) =>
-            Start(SamusRunningCadenceDefinitions.SpeedBoostCadence(selection));
+            Start(SamusRunningCadenceBytes.SpeedBoostCadence(selection));
+    }
 
+    /// <summary>Reads cadence bytes by the bank-$91 address their cadence starts at.</summary>
+    extension(SamusRunningCadenceBytes)
+    {
         /// <summary>Reads a cadence byte from the cadence starting at bank-$91 <paramref name="pointer"/>.</summary>
         internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
             ushort pointer, int byteIndex) =>
-            SamusRunningCadenceDefinitions.ReadAnimationByte(floorUpdateResidue,
+            SamusRunningCadenceBytes.ReadAnimationByte(floorUpdateResidue,
                 Enum.GetValues<SamusRunningCadence>().Single(cadence => Start(cadence) == pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
     }
 

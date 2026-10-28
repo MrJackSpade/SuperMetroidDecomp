@@ -141,7 +141,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastCeresDoorSoundEffect { get; private set; }
 
     /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
-    private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
+    private CeresDoorVisuals SelectedCeresDoorVisual =>
         _areaArtwork.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
 
@@ -155,7 +155,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         int variant = checked((ushort)slot.Spawn.Population.Parameter1);
 
         CeresDoorInitializationDefinition initialization =
-            CeresDoorInitializationDefinitions.For(variant);
+            CeresDoorInitializations.For(variant);
 
         slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -292,7 +292,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         CountdownStep burst = WrappingCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
         state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Value;
 
-        Offset16<RoomPixels> burstOffset = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);
+        Offset16<RoomPixels> burstOffset = CeresDoorRumble.Offset(state.ExplosionPositionIndex);
         int xOffset = burstOffset.X;
         int yOffset = burstOffset.Y;
         Position16<RoomPixels> explosion = new(

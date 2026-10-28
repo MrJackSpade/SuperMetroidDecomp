@@ -8,13 +8,16 @@ namespace SuperMetroid.Core.Fx;
 /// blend they select (#1415).
 /// </summary>
 /// <remarks><c>Door</c> is the door the record applies to, or null for the list's default record or its terminator;
-/// <c>Terminates</c> ends the list without selecting FX.</remarks>
+/// <c>Terminates</c> ends the list without selecting FX. <c>BaseYPosition</c> is the liquid surface's starting height,
+/// or null when the record names none and the surface sits below every room; <c>TargetYPosition</c> is the height the
+/// surface moves to, or null when the record names none and the surface never moves; <c>YVelocity</c> is the signed
+/// speed it moves at.</remarks>
 public sealed record RoomFxRecordDefinition(
     DoorDefinition? Door,
     bool Terminates,
-    int BaseYPosition,
-    int TargetYPosition,
-    int PackedYVelocity,
+    int? BaseYPosition,
+    int? TargetYPosition,
+    SignedEightEight YVelocity,
     int Timer,
     RoomFxType Type,
     LayerBlendingConfiguration DefaultLayerBlend,

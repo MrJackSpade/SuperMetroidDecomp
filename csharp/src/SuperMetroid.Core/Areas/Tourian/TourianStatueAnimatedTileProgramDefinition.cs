@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -51,9 +49,4 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
 
     /// <summary>The statue's eight colours that receive the common grey colours.</summary>
     public required IColourSetRun GreyColours { get; init; }
-
-
-    /// <summary>The statue's typed animated-tile programs.</summary>
-    internal AnimationProgramSet<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Program =>
-        field ??= TourianStatueTileAnimations.Create(FirstFrameDuration);
 }

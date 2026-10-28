@@ -35,22 +35,22 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             LittleEndianBytes.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            GreyDoorPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            GreyDoorCaps.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                GreyDoorPlmDrawDefinitions.VisualId(draw.Draw),
+                GreyDoorCaps.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
-        RoomPlmGreyDoorVisualCatalog stock = RoomPlmGreyDoorVisualCatalog.Stock();
+        InstalledRoomPlmGreyDoorVisuals stock = InstalledRoomPlmGreyDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "grey-right-frame-0");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;
-        var edited = new RoomPlmGreyDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
         editedFrame.Blocks[0] = 0x0054;
-        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(0xa6d7), 0),
+        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "grey-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(0xa6d7), 0),
+        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "stock grey-door visual retains native tile choice");
         Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
         Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
@@ -90,10 +90,10 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 $"resident grey-door header {header} loads");
             ushort initial = ReadWord(rom, 0x840000 | (PlmNativeWords.Word(header) + 2));
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 12));
-            AssertTrue(GreyDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(firstDraw), out var selected),
+            AssertTrue(GreyDoorCaps.TryGet(NativePlmDraws.At<GreyDoorCaps.Draw>(firstDraw), out var selected),
                 $"resident grey-door header {header} selects compiled art");
             plms.Step(level);
-            bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
+            bool vertical = selected.Runs.Span[0].Direction == PlmRunDirection.Vertical;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
@@ -258,7 +258,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             entry.Id == "clear-right");
         ushort original = clear.Blocks[0];
         clear.Blocks[0] = 0x0054;
-        var edited = new RoomPlmGreyDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
         clear.Blocks[0] = original;
 
         const int width = 16;
@@ -300,7 +300,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 installation.RoomPlmGreyDoorVisualDirectory);
             var installed = installation.LoadRoomPlmGreyDoorVisuals();
             VerifyGreyDoorStockMapping(rom, installed);
-            ushort stock = installed.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(0xa6d7), 0);
+            ushort stock = installed.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0);
             string stockPath = Path.Combine(installation.RoomPlmGreyDoorVisualDirectory,
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
@@ -315,7 +315,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmGreyDoorVisuals().GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(0xa6d7), 0),
+                installation.LoadRoomPlmGreyDoorVisuals().GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
                 "installed grey-door override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -324,7 +324,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmGreyDoorVisualFiles.Load(refreshed,
                     installation.RoomPlmGreyDoorVisualOverrideDirectory)
-                    .GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(0xa6d7), 0),
+                    .GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
                 "grey-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf053;

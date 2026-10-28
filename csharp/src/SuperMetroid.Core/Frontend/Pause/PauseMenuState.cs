@@ -59,7 +59,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Host-bound map artwork, rebound after debugger state restoration.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
@@ -922,9 +922,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>
-    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentation? catalog)
     {
-        AreaMapPresentationCatalog? previousCatalog = mapPresentation;
+        AreaMapPresentation? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
         CurrentMapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
@@ -1000,7 +1000,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Only these palette bits are owned by the live menu. Carry them forward
         // word-by-word (including restored historical states) rather than inferring
         // a mode from ScreenMode, which lags the button highlight during fades.
-        foreach (var span in PauseMenuLayout.ButtonLabelSpans)
+        foreach (var span in PauseMenuButtonLabels.ButtonLabelSpans)
         for (int index = 0; index < span.Count; index++)
         {
             int tile = span.Word - PauseMenuLayout.ButtonSourceWordOrigin + index;
@@ -1081,7 +1081,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 remainder % PauseReserveEnergyDefinitions.EnergyPerFillStep != 0 &&
                 pauseFrameCounterByte / PauseReserveEnergyDefinitions.FlickerPhaseFrames % 2 == 0)
                 steps++;
-            Draw(PauseReserveTankDefinitions.FillLevel(steps), tank++);
+            Draw(PauseReserveTankParts.FillLevel(steps), tank++);
         }
         for (; tank < samus.MaxReserveEnergy / PauseReserveEnergyDefinitions.EnergyPerTank; tank++)
             Draw(PauseReserveTankVisual.Empty, tank);

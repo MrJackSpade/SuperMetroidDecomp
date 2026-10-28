@@ -32,7 +32,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
         {
             Position16<RoomPixels> position =
-                TourianStatueUnlockDefinitions.EyePosition(parameter);
+                TourianStatueUnlock.EyePosition(parameter);
             AssertEqual(rom.ReadCartridgeWord((0x86b90e + parameter)), position.X,
                 $"Tourian statue eye X parameter {parameter}");
             AssertEqual(rom.ReadCartridgeWord((0x86b916 + parameter)), position.Y,
@@ -50,7 +50,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             else enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
 
             Position16<RoomPixels> expected =
-                TourianStatueUnlockDefinitions.EyePosition(parameter);
+                TourianStatueUnlock.EyePosition(parameter);
             RoomEnemyProjectileSlot projectile =
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(expected.X, projectile.Position.X.Whole,
@@ -58,7 +58,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             AssertEqual(expected.Y, projectile.Position.Y.Whole,
                 $"production Tourian unlock Y {parameter}/{soul}");
             AssertEqual(soul ? TourianStatueNativeWords.Soul : TourianStatueNativeWords.EyeGlow,
-                (ushort)projectile.Kind,
+                EnemyProjectileNativeWords.Kinds.Word(projectile.Kind),
                 $"production Tourian unlock kind {parameter}/{soul}");
             AssertEqual(soul ? 0xfc00 : 0,
                 projectile.Velocity.Y.RawValue,
@@ -68,7 +68,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         foreach (ushort parameter in new ushort[] { 1, 3, 5, 7, ushort.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(
-                () => TourianStatueUnlockDefinitions.EyePosition(parameter),
+                () => TourianStatueUnlock.EyePosition(parameter),
                 $"invalid Tourian statue parameter {parameter}");
         }
 
@@ -90,7 +90,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
-                 TourianStatueAnimatedTileMechanicsDefinitions.All)
+                 TourianStatueAnimatedTiles.All)
         foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
             int source = AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture);
@@ -102,7 +102,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             pictureCount++;
         }
 
-        AssertEqual(4, TourianStatueAnimatedTileMechanicsDefinitions.All.Count(),
+        AssertEqual(4, TourianStatueAnimatedTiles.All.Count(),
             "Tourian statue animated-tile object count");
         AssertEqual(16, pictureCount, "Tourian statue installed picture count");
 

@@ -23,7 +23,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(checked((ushort)slot.Spawn.Population.Parameter1)));
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicSpins.InitialProgram(checked((ushort)slot.Spawn.Population.Parameter1)));
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.

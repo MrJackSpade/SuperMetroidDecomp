@@ -108,7 +108,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // expression is already the byte offset into the word table.
                 state.Velocity = new EightEightVector<RoomPixels>(
                     new SignedEightEight(RioLaunchDefinitions.NorfairXVelocity),
-                    new SignedEightEight(RioLaunchDefinitions.NorfairYVelocity(random)));
+                    new SignedEightEight(RioLaunches.NorfairYVelocity(random)));
                 if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 InstallNorfairRioInstructionList(

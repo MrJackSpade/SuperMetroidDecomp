@@ -130,7 +130,7 @@ internal sealed class KraidCombat
     /// Both passes return immediately once Kraid has begun sinking ($A7:AFAD/$B182).
     /// </summary>
     private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
-        _access.Part(body).Function >= KraidAiFunction.DeathSink;
+        !KraidFunctionGroups.BeforeSinking.Contains(_access.Part(body).Function);
 
     /// <summary>
     /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c> ($A7:AFAA). Projectile
@@ -165,7 +165,7 @@ internal sealed class KraidCombat
                 // A vulnerability entry's multiplier is its low nibble for charged beams and its low seven bits otherwise.
                 int multiplier = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilityDefinitions.Read(
+                    SamusProjectileFamily.Beam => EnemyVulnerabilityEntries.Read(
                         body.Definition.Vulnerability, EnemyVulnerabilityDefinitions.ChargedBeamOffset) & 15,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
@@ -206,7 +206,7 @@ internal sealed class KraidCombat
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
-                state.Parts[body.SlotIndex].Function < KraidAiFunction.DeathInitialize)
+                KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
                 BeginKraidDeath(body, state);
         }
 
@@ -258,7 +258,7 @@ internal sealed class KraidCombat
 
     /// <summary>Converts a mouth shape into wrapped world-space collision bounds.</summary>
     internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, KraidMouthHitbox shape) =>
-        LoadKraidCollisionScratch(body, KraidMouthHitboxDefinitions.ResolveCollision(shape));
+        LoadKraidCollisionScratch(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position, wrapping as the cartridge does.</summary>
     internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(
@@ -293,7 +293,7 @@ internal sealed class KraidCombat
     /// permanent intangible flag and lint's no-op touch callback do not suppress these private native paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
-        if (state.Parts[body.SlotIndex].Function >= KraidAiFunction.DeathInitialize)
+        if (!KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
             return;
         int relativeY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
         if (unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
@@ -315,7 +315,7 @@ internal sealed class KraidCombat
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-            KraidFootCollisionDefinitions.TryGetComponents(enemy.Frame, out var footComponents)))
+            KraidFootCollision.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
 
         // Kraid's foot art is replaceable, but each native extended frame
@@ -346,7 +346,7 @@ internal sealed class KraidCombat
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidArm &&
-            KraidArmCollisionDefinitions.TryGetComponents(enemy.Frame, out var kraidComponents)))
+            KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
 
         // Kraid's arm art is editable, but the native extended spritemap

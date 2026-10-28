@@ -26,7 +26,7 @@ internal static class RoomFxLayer3TilemapSources
     /// <exception cref="InvalidDataException"><paramref name="id"/> is not a retail blend.</exception>
     internal static SnesAddress PaletteBlend(RoomFxPaletteBlend id)
     {
-        if (!RoomFxPaletteBlendDefinitions.Ids.Contains(id))
+        if (!RoomFxPaletteBlendRules.Ids.Contains(id))
             throw new InvalidDataException($"Room-FX palette blend {id} is not a retail selector.");
         return RoomFxLayer3SourceDefinitions.PaletteBlendColors.AddWithinBank(RoomFxRecordWords.PaletteBlends.Word(id));
     }

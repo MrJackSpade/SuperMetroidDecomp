@@ -613,7 +613,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         int tableOffset,
         BombTorizoPostureMove move)
     {
-        Offset16<RoomPixels> displacement = BombTorizoMovementDefinitions.Posture(tableOffset);
+        Offset16<RoomPixels> displacement = BombTorizoMovement.Posture(tableOffset);
         torizo.Position += move == BombTorizoPostureMove.SitDown ? -displacement : displacement;
     }
 

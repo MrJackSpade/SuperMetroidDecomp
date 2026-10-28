@@ -19,46 +19,38 @@ internal static class GreyDoorPlmProgramDefinitions
     private const int FlashBlueDuration = 3;
     /// <summary>How long the cap image of the unlocked flash shows.</summary>
     private const int FlashCapDuration = 4;
-    /// <summary>How many blue-and-cap pairs one pass of the flash shows.</summary>
-    private const int FlashPairs = 3;
     /// <summary>How long each opening image shows.</summary>
     private const int OpeningFrameDuration = 4;
 
-    /// <summary>Each grey cap's program set.</summary>
-    private static readonly Dictionary<GreyDoorVariant, AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue>> Sets =
-        Enum.GetValues<ColoredDoorOrientation>().Select(orientation => new GreyDoorVariant(orientation, BombTorizo: false))
-            .Append(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true))
-            .ToDictionary(variant => variant, variant => new AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue>(Build(variant)));
-
-    /// <summary>The programs of grey cap <paramref name="variant"/>.</summary>
-    internal static AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue> ProgramsFor(GreyDoorVariant variant) => Sets[variant];
-
-    /// <summary>The unlock-check pre-instruction a door with <paramref name="condition"/> installs.</summary>
-    internal static GreyDoorPreInstruction UnlockCheckOf(GreyDoorCondition condition) => condition switch
+    /// <summary>Each grey cap's program set: Bomb Torizo's door closes only once Samus has Bombs.</summary>
+    internal static IReadOnlyDictionary<GreyDoorVariant, AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue>> Sets { get; } =
+        new Dictionary<GreyDoorVariant, AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue>>
     {
-        GreyDoorCondition.AreaBossDefeated => GreyDoorPreInstruction.WakeIfAreaBossDead,
-        GreyDoorCondition.AreaMiniBossDefeated => GreyDoorPreInstruction.WakeIfAreaMiniBossDead,
-        GreyDoorCondition.AreaTorizoDefeated => GreyDoorPreInstruction.WakeIfAreaTorizoDead,
-        GreyDoorCondition.EnemyDeathQuota => GreyDoorPreInstruction.WakeIfEnemiesDead,
-        GreyDoorCondition.Never => GreyDoorPreInstruction.PlayDudSound,
-        GreyDoorCondition.TourianStatueFinished => GreyDoorPreInstruction.WakeIfTourianStatueFinished,
-        GreyDoorCondition.CrittersEscaped => GreyDoorPreInstruction.WakeIfCrittersEscaped,
-        _ => throw new InvalidOperationException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
+        [new(ColoredDoorOrientation.Left, BombTorizo: false)] = new(Programs(Closing())),
+        [new(ColoredDoorOrientation.Right, BombTorizo: false)] = new(Programs(Closing())),
+        [new(ColoredDoorOrientation.Up, BombTorizo: false)] = new(Programs(Closing())),
+        [new(ColoredDoorOrientation.Down, BombTorizo: false)] = new(Programs(Closing())),
+        [new(ColoredDoorOrientation.Right, BombTorizo: true)] = new(Programs(BombTorizoClosing())),
     };
 
-    /// <summary>One grey cap's seven programs.</summary>
-    private static Dictionary<GreyDoorProgram, Step[]> Build(GreyDoorVariant variant)
+    /// <summary>The unlock-check pre-instruction a door with each condition installs.</summary>
+    internal static IReadOnlyDictionary<GreyDoorCondition, GreyDoorPreInstruction> UnlockChecks { get; } =
+        new Dictionary<GreyDoorCondition, GreyDoorPreInstruction>
     {
-        List<Step> flash = [];
-        for (int pair = 0; pair < FlashPairs; pair++)
+        [GreyDoorCondition.AreaBossDefeated] = GreyDoorPreInstruction.WakeIfAreaBossDead,
+        [GreyDoorCondition.AreaMiniBossDefeated] = GreyDoorPreInstruction.WakeIfAreaMiniBossDead,
+        [GreyDoorCondition.AreaTorizoDefeated] = GreyDoorPreInstruction.WakeIfAreaTorizoDead,
+        [GreyDoorCondition.EnemyDeathQuota] = GreyDoorPreInstruction.WakeIfEnemiesDead,
+        [GreyDoorCondition.Never] = GreyDoorPreInstruction.PlayDudSound,
+        [GreyDoorCondition.TourianStatueFinished] = GreyDoorPreInstruction.WakeIfTourianStatueFinished,
+        [GreyDoorCondition.CrittersEscaped] = GreyDoorPreInstruction.WakeIfCrittersEscaped,
+    };
+
+    /// <summary>One grey cap's seven programs, closing with <paramref name="closing"/>; the unlocked flash shows three blue-and-cap pairs per pass.</summary>
+    private static Dictionary<GreyDoorProgram, Step[]> Programs(Step[] closing) =>
+        new()
         {
-            flash.Add(Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration));
-            flash.Add(Step.Show(DoorCapFrame.Closed0, FlashCapDuration));
-        }
-        flash.Add(Step.GoTo(GreyDoorProgram.Flash));
-        return new Dictionary<GreyDoorProgram, Step[]>
-        {
-            [GreyDoorProgram.Closing] = variant.BombTorizo ? BombTorizoClosing() : Closing(),
+            [GreyDoorProgram.Closing] = closing,
             [GreyDoorProgram.Waiting] =
             [
                 Step.Publish(GreyDoorCue.BranchIfOpened),
@@ -74,7 +66,16 @@ internal static class GreyDoorPlmProgramDefinitions
                 Step.Publish(GreyDoorCue.ArmShotWake),
                 Step.FallInto(GreyDoorProgram.Flash),
             ],
-            [GreyDoorProgram.Flash] = [.. flash],
+            [GreyDoorProgram.Flash] =
+            [
+                Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+                Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+                Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+                Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+                Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration),
+                Step.Show(DoorCapFrame.Closed0, FlashCapDuration),
+                Step.GoTo(GreyDoorProgram.Flash),
+            ],
             [GreyDoorProgram.Hit] = [Step.Publish(GreyDoorCue.CountHit), Step.FallInto(GreyDoorProgram.Open)],
             [GreyDoorProgram.Open] =
             [
@@ -86,7 +87,6 @@ internal static class GreyDoorPlmProgramDefinitions
                 Step.Stop,
             ],
         };
-    }
 
     /// <summary>An ordinary grey cap closes behind Samus and runs into its waiting program.</summary>
     private static Step[] Closing() =>

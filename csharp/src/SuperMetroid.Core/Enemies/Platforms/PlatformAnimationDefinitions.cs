@@ -3,22 +3,16 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// <summary>Animation selection for the Tripper and Kamer platforms.</summary>
 internal static class PlatformAnimationDefinitions
 {
-    /// <summary>
-    /// Program choice at $A3:9E47-9EBA, called by the zero/nonzero direction branches at $A3:9ECB and $A3:9EF1.
-    /// Initialization uses the still cases. Every nonzero direction word selects the right-moving program.
-    /// </summary>
-    internal static PlatformProgram SelectProgram(bool isKamer, Axis axis, PlatformHorizontalMovement direction)
+    /// <summary>Program choice at $A3:9E47-9EBA for each platform pose; initialization uses the still poses.</summary>
+    internal static readonly Dictionary<PlatformPose, PlatformProgram> Programs = new()
     {
-        bool moving = axis == Axis.Vertical;
-        bool left = direction == PlatformHorizontalMovement.Left;
-        if (isKamer)
-        {
-            return moving
-                ? left ? PlatformProgram.KamerMovingLeft : PlatformProgram.KamerMovingRight
-                : left ? PlatformProgram.KamerStillLeft : PlatformProgram.KamerStillRight;
-        }
-        return moving
-            ? left ? PlatformProgram.TripperMovingLeft : PlatformProgram.TripperMovingRight
-            : left ? PlatformProgram.TripperStillMovingLeft : PlatformProgram.TripperStillMovingRight;
-    }
+        [new(true, Axis.Vertical, PlatformHorizontalMovement.Left)] = PlatformProgram.KamerMovingLeft,
+        [new(true, Axis.Vertical, PlatformHorizontalMovement.Right)] = PlatformProgram.KamerMovingRight,
+        [new(true, Axis.Horizontal, PlatformHorizontalMovement.Left)] = PlatformProgram.KamerStillLeft,
+        [new(true, Axis.Horizontal, PlatformHorizontalMovement.Right)] = PlatformProgram.KamerStillRight,
+        [new(false, Axis.Vertical, PlatformHorizontalMovement.Left)] = PlatformProgram.TripperMovingLeft,
+        [new(false, Axis.Vertical, PlatformHorizontalMovement.Right)] = PlatformProgram.TripperMovingRight,
+        [new(false, Axis.Horizontal, PlatformHorizontalMovement.Left)] = PlatformProgram.TripperStillMovingLeft,
+        [new(false, Axis.Horizontal, PlatformHorizontalMovement.Right)] = PlatformProgram.TripperStillMovingRight,
+    };
 }

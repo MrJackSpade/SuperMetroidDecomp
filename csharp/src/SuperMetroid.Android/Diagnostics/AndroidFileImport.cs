@@ -64,7 +64,7 @@ internal static class AndroidFileImport
     private static string StageRegularSaveCore(
         string root,
         string source,
-        AreaMapPresentationCatalog maps)
+        AreaMapPresentation maps)
     {
         // Validate the full schema and its translation to saves before publishing a pending
         // import. A separate file prevents ongoing gameplay persistence overwriting it.
@@ -77,7 +77,7 @@ internal static class AndroidFileImport
     /// Validates and atomically activates a staged save, retaining a backup of the previous save.
     /// </summary>
     /// <returns>The activated saves, or null when no save is staged.</returns>
-    public static SaveSlotStore? ActivatePendingSave(string root, string savePath, AreaMapPresentationCatalog maps)
+    public static SaveSlotStore? ActivatePendingSave(string root, string savePath, AreaMapPresentation maps)
     {
         string pending = PendingPath(root);
         if (!File.Exists(pending)) return null;

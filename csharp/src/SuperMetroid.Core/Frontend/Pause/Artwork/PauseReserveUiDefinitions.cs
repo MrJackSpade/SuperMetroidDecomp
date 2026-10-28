@@ -38,62 +38,14 @@ public static class PauseReserveUiDefinitions
     /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
     public const int HorizontalStartCell = 0x302 / 2, HorizontalCount = 2;
     /// <summary>$82:BF06-BF0A selects MODE at interface tiles $119-11B with palette one and priority.</summary>
-    private const int ModeGlyph = 0x119, ModePrefixWords = 3;
+    internal const int ModeGlyph = 0x119, ModePrefixWords = 3;
     /// <summary>$82:BF0C-BF12 and BF22-BF28 share MANUAL at tiles $146-149, palette seven and priority.</summary>
-    private const int ManualGlyph = 0x146;
+    internal const int ManualGlyph = 0x146;
     /// <summary>$82:BF2A-BF30 selects AUTO at tiles $156-159, palette seven and priority.</summary>
-    private const int AutoGlyph = 0x156;
+    internal const int AutoGlyph = 0x156;
     /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
-    private const int ReserveTankGlyph = 0x80;
+    internal const int ReserveTankGlyph = 0x80;
 
     /// <summary>Every reserve label, in document order.</summary>
     public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Enum.GetValues<PauseReserveLabel>();
-
-    /// <summary>The JSON key of a reserve label.</summary>
-    public static string Name(PauseReserveLabel label) => label switch
-    {
-        PauseReserveLabel.Mode => "Mode",
-        PauseReserveLabel.ReserveTank => "ReserveTank",
-        PauseReserveLabel.Manual => "Manual",
-        PauseReserveLabel.Auto => "Auto",
-        _ => throw new ArgumentOutOfRangeException(nameof(label)),
-    };
-
-    /// <summary>MODE and RESERVE TANK occupy seven cells; MANUAL and AUTO occupy four replacement cells.</summary>
-    internal static int StockLabelWords(PauseReserveLabel label) => label switch
-    {
-        PauseReserveLabel.Mode or PauseReserveLabel.ReserveTank => LabelWords,
-        PauseReserveLabel.Manual or PauseReserveLabel.Auto => ModeWords,
-        _ => throw new ArgumentOutOfRangeException(nameof(label)),
-    };
-
-    /// <summary>$82:C068/C06A places the seven-word labels on consecutive rows; replacement modes follow MODE.</summary>
-    internal static int StockLabelOffset(PauseReserveLabel label) => sizeof(ushort) * (label switch
-    {
-        PauseReserveLabel.Mode => ModeCell - ModePrefixWords,
-        PauseReserveLabel.ReserveTank => ModeCell - ModePrefixWords + TilemapColumns,
-        PauseReserveLabel.Manual or PauseReserveLabel.Auto => ModeCell,
-        _ => throw new ArgumentOutOfRangeException(nameof(label)),
-    });
-
-    /// <summary>Compose reserve text from named consecutive glyph runs. Independent glyph pixels remain artwork.</summary>
-    internal static BackgroundTile StockLabelTile(PauseReserveLabel label, int index)
-    {
-        if ((uint)index >= StockLabelWords(label)) throw new ArgumentOutOfRangeException(nameof(index));
-        return label switch
-        {
-            PauseReserveLabel.Mode => index < ModePrefixWords ? Glyph(ModeGlyph + index, 1)
-                : Glyph(ManualGlyph + index - ModePrefixWords, 7),
-            PauseReserveLabel.ReserveTank => Glyph(ReserveTankGlyph + index, 7),
-            PauseReserveLabel.Manual => Glyph(ManualGlyph + index, 7),
-            PauseReserveLabel.Auto => Glyph(AutoGlyph + index, 7),
-            _ => throw new ArgumentOutOfRangeException(nameof(label)),
-        };
-    }
-
-    /// <summary>Places a reserve UI glyph in <paramref name="palette"/> with priority.</summary>
-    private static BackgroundTile Glyph(int glyph, int palette) => new(glyph, palette, highPriority: true);
-
-    /// <summary>The tile of decimal digit <paramref name="digit"/>.</summary>
-    public static BackgroundTile DigitTile(int digit) => DigitZeroTile with { Tile = DigitZeroTile.Tile + digit };
 }

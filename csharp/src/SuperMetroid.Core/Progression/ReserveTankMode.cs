@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// write only one, the pause menu toggles between one and two, and AUTO is the only mode with bit zero set, so the
 /// cartridge's bit-zero tests are AUTO tests.
 /// </summary>
-public enum ReserveTankMode : ushort
+public enum ReserveTankMode
 {
     /// <summary>No reserve tank collected.</summary>
     None = 0,

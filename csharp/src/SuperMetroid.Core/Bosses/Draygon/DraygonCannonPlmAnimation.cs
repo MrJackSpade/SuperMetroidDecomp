@@ -17,7 +17,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
     /// <inheritdoc/>
     private protected override DraygonCannonProgram? Publish(DraygonCannonCue cue, PlmSlot slot, PlmStepContext context)
     {
-        bool right = DraygonCannonPlmProgramDefinitions.FacesRight(Cursor.Program);
+        bool right = DraygonCannonPrograms.FacesRight(Cursor.Program);
         switch (cue)
         {
             case DraygonCannonCue.LinkHit:

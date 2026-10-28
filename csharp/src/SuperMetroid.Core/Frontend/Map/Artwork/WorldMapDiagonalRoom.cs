@@ -8,5 +8,6 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// <param name="Right">The right.</param>
 /// <param name="DashLeft">The dash left.</param>
 /// <param name="DashBottom">The dash bottom.</param>
+/// <param name="WallJoin">Whether the slope continues as a wall down the left side to the dotted guide.</param>
 [IndependentFlag("independent drawing facts of a diagonal map tile, read from the tile number")]
-internal readonly record struct WorldMapDiagonalRoom(bool Mirror, int Offset, bool Below, bool Left, bool Right, bool DashLeft, bool DashBottom);
+internal readonly record struct WorldMapDiagonalRoom(bool Mirror, int Offset, bool Below, bool Left, bool Right, bool DashLeft, bool DashBottom, bool WallJoin);

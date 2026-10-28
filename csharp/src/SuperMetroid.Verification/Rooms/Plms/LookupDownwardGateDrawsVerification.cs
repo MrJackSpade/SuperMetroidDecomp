@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -28,7 +29,7 @@ internal static class LookupDownwardGateDrawsVerification
             "column-frame-4","column-frame-5","blue-left-trigger","blue-right-trigger",
             "green-left-trigger","green-right-trigger","red-left-trigger","red-right-trigger",
             "yellow-left-trigger","yellow-right-trigger"];
-        var exported = DownwardGatePlmDrawDefinitions.All.ToArray();
+        var exported = DownwardGatePlmDraws.All.ToArray();
         AssertEqual(14, exported.Length, "Gate draw export count");
         if (field == 0)
         {
@@ -36,18 +37,18 @@ internal static class LookupDownwardGateDrawsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, DownwardGatePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape), "Gate descriptor ownership");
-                AssertEqual(owned, DownwardGatePlmDrawDefinitions.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto), "Gate DTO ownership");
+                AssertEqual(owned, DownwardGatePlmDraws.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape), "Gate descriptor ownership");
+                AssertEqual(owned, DownwardGatePlmDraws.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto), "Gate DTO ownership");
                 if (!owned)
                 {
-                    AssertEqual(default(DownwardGatePlmDrawDefinitions.Draw), shape, "Gate missing descriptor");
+                    AssertEqual(default(DownwardGatePlmDraws.Draw), shape, "Gate missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Gate missing DTO");
-                    AssertThrows<InvalidDataException>(() => DownwardGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
+                    AssertThrows<InvalidDataException>(() => DownwardGatePlmDraws.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
                 }
             }
             foreach (string invalid in new[] { "column-frame-6", "column-frame-00", "Blue-left-trigger", "", "unknown" })
             {
-                AssertTrue(!DownwardGatePlmDrawDefinitions.TryGetByVisualId(invalid, out var missing), "Gate ID domain");
+                AssertTrue(!DownwardGatePlmDraws.TryGetByVisualId(invalid, out var missing), "Gate ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Gate missing ID output");
             }
         }
@@ -55,11 +56,11 @@ internal static class LookupDownwardGateDrawsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            DownwardGatePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape);
-            DownwardGatePlmDrawDefinitions.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto);
+            DownwardGatePlmDraws.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape);
+            DownwardGatePlmDraws.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto);
             AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Gate export order");
-            AssertEqual(ids[index], DownwardGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
-            AssertTrue(DownwardGatePlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
+            AssertEqual(ids[index], DownwardGatePlmDraws.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
+            AssertTrue(DownwardGatePlmDraws.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
             AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Gate reverse ID mapping");
             int cursor = pointer, run = 0;
             while (true)
@@ -69,11 +70,11 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertEqual(count, shape.DirectionAndCount(run), "Gate native count/direction");
+                    AssertRunHeader(count, shape.Direction, shape.WordCount(run), "Gate native count/direction");
                     AssertEqual(length, shape.WordCount(run), "Gate native run width");
                     AssertEqual((count & 0x8000) != 0, shape.Column, "Gate runtime direction");
-                    AssertEqual(count, dto.Runs.Span[run].DirectionAndCount, "Gate DTO count/direction");
-                    AssertEqual(count, exported[index].Runs.Span[run].DirectionAndCount, "Gate export count/direction");
+                    AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
+                    AssertRunHeader(count, exported[index].Runs.Span[run], "Gate export count/direction");
                     AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Gate DTO width");
                     AssertEqual(length, exported[index].Runs.Span[run].LevelWords.Length, "Gate export width");
                     foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
@@ -116,7 +117,7 @@ internal static class LookupDownwardGateDrawsVerification
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Gate run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Gate offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.DirectionAndCount(invalid), "Gate direction bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Gate run-width bounds");
                 }
             }
         }

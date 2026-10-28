@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Input;
 /// the bit order is the one recorded inputs, demo programs and saved bindings store.
 /// </summary>
 [Flags]
-public enum ControllerButton : ushort
+public enum ControllerButton
 {
     /// <summary>No controller buttons are held.</summary>
     None = 0,

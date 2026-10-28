@@ -20,8 +20,8 @@ public static class RoomPlmCrocomireVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Crocomire arena",
-            CrocomireArenaPlmDrawDefinitions.All,
-            CrocomireArenaPlmDrawDefinitions.VisualId);
+            CrocomireArenaDraws.All,
+            CrocomireArenaDraws.VisualId);
 
     /// <summary>Validates stock Crocomire art against its manifest and compiled layouts, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the arena JSON and its provenance/digest manifest.</param>
@@ -31,7 +31,7 @@ public static class RoomPlmCrocomireVisualFiles
     public static RoomPlmCrocomireVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", CrocomireArenaPlmDrawDefinitions.All, CrocomireArenaPlmDrawDefinitions.VisualId, entries => new RoomPlmCrocomireVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", CrocomireArenaDraws.All, CrocomireArenaDraws.VisualId, entries => new RoomPlmCrocomireVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Checks stock arena provenance, digest, schema, five-layout coverage, and equality with compiled visual words; ignores overrides.</summary>

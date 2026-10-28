@@ -15,7 +15,7 @@ internal readonly struct VerticalChargedWaveParts(int phase) : IReadOnlyList<Com
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int lobe = index / 4, quadrant = index % 4;
             int column = quadrant % 2, row = quadrant / 2;
-            int centerY = phase < 2 ? 0 : (lobe == 0 ? 1 : -1) * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance((phase - 2) / 2);
+            int centerY = phase < 2 ? 0 : (lobe == 0 ? 1 : -1) * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance((phase - 2) / 2);
             int tile = ProjectileSpritePartDefinitions.ChargedBeamTile + (phase < 2 ? 1 - phase : (phase + lobe) % 2);
             var flips = (column == 0 ? TileFlip.Horizontal : 0) |
                 (row == 0 ? TileFlip.Vertical : 0);

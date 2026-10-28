@@ -38,10 +38,10 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorK
     internal HeatPaletteInputView(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         this.colors = colors;
-        RgbColor red = colors[HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red)];
-        RgbColor mixed = colors[HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed)];
-        RgbColor redBase = ReadBase(HeatPaletteColorDefinitions.RedEndpointBase);
-        RgbColor mixedBase = ReadBase(HeatPaletteColorDefinitions.MixedEndpointBase);
+        RgbColor red = colors[HeatPaletteColors.Key(HeatPaletteEndpoint.Red)];
+        RgbColor mixed = colors[HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed)];
+        RgbColor redBase = ReadBase(HeatPaletteColors.RedEndpointBase);
+        RgbColor mixedBase = ReadBase(HeatPaletteColors.MixedEndpointBase);
         redTarget = red.Red;
         mixedRedTarget = mixed.Red;
         mixedGreenTarget = mixed.Green;
@@ -49,31 +49,31 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorK
         blueOverride = red.Blue == redBase.Blue ? null : red.Blue;
         int calculatedBlue = mixedBase.Blue + mixedGreenTarget - mixedBase.Green;
         mixedBlueOverride = mixed.Blue == calculatedBlue ? null : mixed.Blue;
-        colors.Remove(HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red));
-        colors.Remove(HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed));
+        colors.Remove(HeatPaletteColors.Key(HeatPaletteEndpoint.Red));
+        colors.Remove(HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed));
     }
 
     /// <summary>Resolves a base suit color from installed entries or its compiled loading-palette alias.</summary>
     private RgbColor ReadBase(PaletteFxColorKey key)
     {
         if (colors.TryGetValue(key, out RgbColor value)) return value;
-        if (HeatPaletteColorDefinitions.TryBasePalette(key, out PaletteFxColorKey source) &&
-            LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value)) return value;
+        if (HeatPaletteColors.TryBasePalette(key, out PaletteFxColorKey source) &&
+            LoadingPaletteColors.TryReadColor(source, colors, out value)) return value;
         throw new InvalidDataException($"Missing installed heat base {key}.");
     }
 
     /// <summary>Reconstructs the two endpoints from selected channels and live base colors, or reads another installed entry.</summary>
     public bool TryGetValue(PaletteFxColorKey key, out RgbColor value)
     {
-        if (key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red))
+        if (key == HeatPaletteColors.Key(HeatPaletteEndpoint.Red))
         {
-            RgbColor original = ReadBase(HeatPaletteColorDefinitions.RedEndpointBase);
+            RgbColor original = ReadBase(HeatPaletteColors.RedEndpointBase);
             value = new(redTarget, greenOverride ?? original.Green, blueOverride ?? original.Blue);
             return true;
         }
-        if (key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed))
+        if (key == HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed))
         {
-            RgbColor original = ReadBase(HeatPaletteColorDefinitions.MixedEndpointBase);
+            RgbColor original = ReadBase(HeatPaletteColors.MixedEndpointBase);
             int blue = mixedBlueOverride ?? (original.Blue + mixedGreenTarget - original.Green);
             value = new(mixedRedTarget, mixedGreenTarget, blue);
             return true;
@@ -87,8 +87,8 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorK
     public int Count => colors.Count + 2;
     /// <summary>Recognizes either calculated endpoint or a remaining installed color.</summary>
     public bool ContainsKey(PaletteFxColorKey key) =>
-        key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red) ||
-        key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed) ||
+        key == HeatPaletteColors.Key(HeatPaletteEndpoint.Red) ||
+        key == HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed) ||
         colors.ContainsKey(key);
     /// <summary>Enumerates installed colors followed by the two calculated endpoints.</summary>
     public IEnumerable<PaletteFxColorKey> Keys
@@ -96,8 +96,8 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorK
         get
         {
             foreach (PaletteFxColorKey key in colors.Keys) yield return key;
-            yield return HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red);
-            yield return HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed);
+            yield return HeatPaletteColors.Key(HeatPaletteEndpoint.Red);
+            yield return HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed);
         }
     }
     /// <summary>Resolves every current heat color in key-enumeration order.</summary>

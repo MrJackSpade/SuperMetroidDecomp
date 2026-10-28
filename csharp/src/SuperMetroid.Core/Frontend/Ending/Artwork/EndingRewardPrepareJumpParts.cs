@@ -10,7 +10,7 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
 {
     /// <summary>Uses calculated jump-preparation geometry only for the matching stock frame; supplied edits and other reward poses keep their parts.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
-        shown == EndingRewardSpriteDefinitions.FramePose(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
+        shown == EndingRewardSpritePoses.FramePose(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
             ? supplied.CalculateIfMatching(new EndingRewardPrepareJumpParts()) : supplied;
 
     /// <summary>The suited preparation pose has 22 parts spanning boundary strips and interior rows.</summary>

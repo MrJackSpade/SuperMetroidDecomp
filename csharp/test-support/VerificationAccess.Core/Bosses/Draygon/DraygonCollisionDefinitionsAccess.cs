@@ -25,15 +25,19 @@ internal static class DraygonCollisionDefinitionsAccess
     /// <summary><c>ExtendedSpritemap_Draygon_60</c> at $A5:A7F7: mirrored growing frames and terminal eight-component frame.</summary>
     private const ushort RightExpandingFrames = 0xa7f7;
 
+    /// <summary>Native views of the collision lookup.</summary>
+    extension(DraygonCollision)
+    {
+        /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
+        internal static ImmutableArray<DraygonCollisionComponent> ComponentsAt(ushort frame) =>
+            DraygonCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
+    }
+
     /// <summary>Native views of the catalog.</summary>
     extension(DraygonCollisionDefinitions)
     {
         /// <summary>Empty OAM frames across both mirrored Draygon body sequences.</summary>
         internal static int EmptyOamFrameCount => 2 * (6 + 4 + 7 + 7);
-
-        /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
-        internal static ImmutableArray<DraygonCollisionComponent> ComponentsAt(ushort frame) =>
-            DraygonCollisionDefinitions.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
 
         /// <summary>The cartridge's collision-free ordinary OAM frame roots, in fixed and expanding runs.</summary>
         internal static bool IsEmptyOamFrame(ushort pointer) =>

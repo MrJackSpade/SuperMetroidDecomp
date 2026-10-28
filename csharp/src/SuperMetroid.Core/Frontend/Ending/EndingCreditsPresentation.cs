@@ -45,7 +45,7 @@ internal static class EndingCreditsPresentation
         }
         else
         {
-            if (ending.Stage.Phase >= EndingCreditsPhase.PostCreditsBlank)
+            if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase))
             {
                 objectSheet = CurrentRewardObjectSheet(ending);
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
@@ -56,7 +56,7 @@ internal static class EndingCreditsPresentation
                     layers.Add(new TileAddRenderLayer(ending.Cells(EndingPlane.WavySamus, TileViewportRenderLayer.MapSize,
                             EndingTileLayer.WavySamus, BgBitDepth.TwoBpp),
                         PostCreditsLayer(ending))
-                        .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
+                        .WithScrolls(EndingWavySamus.ScrollsAtAge(
                             EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
             }
             else if (ending.EscapeBackgroundEnabled)
@@ -107,7 +107,7 @@ internal static class EndingCreditsPresentation
         }
 
     /// <summary>Selects the cloud sheet before the explosion and the explosion sheet afterward.</summary>
-    internal static EndingObjectSheet CurrentEscapeObjectSheet(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.FadeInZebesExplosion
+    internal static EndingObjectSheet CurrentEscapeObjectSheet(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase)
         ? EndingObjectSheet.Clouds : EndingObjectSheet.Explosion;
 
     /// <summary>The OBJ selection the render snapshot needs to draw actors from <paramref name="sheet"/>.</summary>
@@ -121,19 +121,19 @@ internal static class EndingCreditsPresentation
     };
 
     /// <summary>Whether atmospheric scenes use the Mode 7 wrap policy from SetupPpu_5_Mode7.</summary>
-    private static bool AtmosphericMapWraps(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.FadeInZebesExplosion;
+    private static bool AtmosphericMapWraps(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
     internal static bool ExplosionWhiteout(EndingCreditsState ending) => ending.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
     /// <summary>Whether flyaway Mode 7 places priority-zero OBJ behind the ship on BG1.</summary>
-    private static bool UsesFlyawayFloorPriority(EndingCreditsState ending) => ending.Stage.Phase is >= EndingCreditsPhase.PlanetEscapeFast and < EndingCreditsPhase.Credits;
+    private static bool UsesFlyawayFloorPriority(EndingCreditsState ending) => EndingCreditsPhaseGroups.PlanetEscape.Contains(ending.Stage.Phase);
     /// <summary>Whether the current ending phase draws object actors at all.</summary>
     private static bool EndingObjectsEnabled(EndingCreditsState ending) => !ExplosionWhiteout(ending) && ending.Stage.Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
     /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
-    private static Offset16<FloorPixels> CurrentFloorCenter(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
+    private static Offset16<FloorPixels> CurrentFloorCenter(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Stage.Phase)
         ? EndingMotionDefinitions.AtmosphericFloorCenter
         : EndingMotionDefinitions.FloorCenter;
 
@@ -144,8 +144,8 @@ internal static class EndingCreditsPresentation
         && ending.Stage.Phase != EndingCreditsPhase.PostCreditsJump
         && !(ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward == EndingReward.Armored);
     /// <summary>Whether to use the waiting scene's BG2 map and character base.</summary>
-    private static bool UsesWaitingBackground(EndingCreditsState ending) => ending.Stage.Phase is < EndingCreditsPhase.PostCreditsWaitingSamus
-        or EndingCreditsPhase.PostCreditsReward;
+    private static bool UsesWaitingBackground(EndingCreditsState ending) => !EndingCreditsPhaseGroups.FromWaitingSamus.Contains(ending.Stage.Phase)
+        || ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward;
     /// <summary>Whether native E1D2/E2DD subscreen settings add OBJ to BG2 and backdrop.</summary>
     private static bool RewardSubscreenAddition(EndingCreditsState ending) => ending.Explosion.ExplosionCrossfadeActive
         || ending.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars
@@ -195,7 +195,7 @@ internal static class EndingCreditsPresentation
                 wrapper.Sprite.Draw(objects, installedArt: new CinematicSpriteSheet(Sheet(), family));
             }
         }
-        if (ending.Stage.Phase >= EndingCreditsPhase.PostCreditsBlank) ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet());
+        if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase)) ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet());
         objects.FinishFrame();
         return objects;
 

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// Exclusive meanings of BTS $47-$4D after a special-solid block selects the station
 /// access dispatcher. Left/right describe the side of the station containing the block.
 /// </summary>
-public enum StationAccessBehavior : byte
+public enum StationAccessBehavior
 {
     /// <summary>BTS $47: the map-station access block on the station's right side.</summary>
     MapRight = 0x47,

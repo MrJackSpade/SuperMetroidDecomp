@@ -23,7 +23,7 @@ internal sealed class PlmVisualOverrides
     /// <param name="compiledCount">The number of compiled draws the entries must cover.</param>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or coverage is incomplete.</exception>
     internal PlmVisualOverrides(IEnumerable<RoomPlmVisualEntry> entries, string family,
-        RoomPlmShotBlockDrawDefinitions.VisualLookup lookup, int compiledCount)
+        ShotBlockPlmDraws.VisualLookup lookup, int compiledCount)
     {
         Ensure.NotNull(entries);
         Ensure.NotNull(lookup);

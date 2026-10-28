@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Semantic identities for the bank-$90 function pointers stored per slot.</summary>
-public enum SamusProjectilePreInstruction : byte
+public enum SamusProjectilePreInstruction
 {
     /// <summary>No pre-instruction is assigned.</summary>
     None,

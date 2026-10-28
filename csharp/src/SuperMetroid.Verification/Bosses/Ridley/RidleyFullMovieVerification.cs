@@ -502,10 +502,10 @@ internal static class RidleyFullMovieVerification
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
         AssertEqual((ushort)2, state.IntangibilityTimer.RawValue, "onscreen AI resumes release timer");
-        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
-        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
-        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
-        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 542), new(0, 287)), "last lower pixel is admitted");
+        AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
+        AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
+        AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
+        AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 542), new(0, 287)), "last lower pixel is admitted");
         Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
     }
 
@@ -1326,12 +1326,12 @@ internal static class RidleyFullMovieVerification
                 Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.IdealInterSegmentTailAngle), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
                 Check("Ridley HorizontalVelocity", ridleyState.Velocity.X.RawValue, NativeSnapshotMemory.RidleyHorizontalVelocity);
                 Check("Ridley VerticalVelocity", ridleyState.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
-                Check("Ridley FightMode", (ushort)ridleyState.FightMode, NativeSnapshotMemory.RidleyFightMode);
+                Check("Ridley FightMode", RidleyNativeWords.FightModes.Word(ridleyState.FightMode), NativeSnapshotMemory.RidleyFightMode);
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 Check("Ridley WingFrame", checked((ushort)ridleyState.WingFrame), NativeSnapshotMemory.RidleyWingFrame);
                 Check("Ridley WingAnimationTimerDelta", checked((ushort)ridleyState.WingAnimationTimerDelta), NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
                 Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer.RawValue, NativeSnapshotMemory.RidleyWingAnimationTimer);
-                Check("Ridley FacingDirection", (ushort)ridleyState.FacingDirection, NativeSnapshotMemory.RidleyFacingDirection);
+                Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", checked((ushort)ridleyState.HealthStage), NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
@@ -1516,7 +1516,7 @@ internal static class RidleyFullMovieVerification
             {
                 int index = projectile.SlotIndex * 2;
                 string owner = $"Enemy projectile {projectile.SlotIndex}";
-                Check(owner + " identity", (ushort)projectile.Kind, NativeSnapshotMemory.EnemyProjectileId + index);
+                Check(owner + " identity", EnemyProjectileNativeWords.Kinds.Word(projectile.Kind), NativeSnapshotMemory.EnemyProjectileId + index);
                 if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
@@ -1573,7 +1573,7 @@ internal static class RidleyFullMovieVerification
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
                         variableE = checked((ushort)projectile.RemainingAfterburns);
-                        variableF = (ushort)projectile.NextAfterburnKind;
+                        variableF = EnemyProjectileNativeWords.Kinds.Word(projectile.NextAfterburnKind);
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:

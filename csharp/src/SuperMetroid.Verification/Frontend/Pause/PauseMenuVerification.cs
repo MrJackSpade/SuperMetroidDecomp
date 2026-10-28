@@ -55,10 +55,10 @@ internal static class PauseMenuVerification
         const int publicMapX = 9;
         const int exploredSecretMapX = 10;
         const int revealTestMapY = 3;
-        int secretMapByte = AreaMapLayout.GetBitByteIndex(new(secretMapX, revealTestMapY));
+        int secretMapByte = AreaMapPages.GetBitByteIndex(new(secretMapX, revealTestMapY));
         byte secretAndExploredSecretMasks = (byte)(
-            AreaMapLayout.GetBitMask(secretMapX) |
-            AreaMapLayout.GetBitMask(exploredSecretMapX));
+            AreaMapPages.GetBitMask(secretMapX) |
+            AreaMapPages.GetBitMask(exploredSecretMapX));
         WriteRomByte(
             rom,
             0x828500 + secretMapByte,
@@ -67,7 +67,7 @@ internal static class PauseMenuVerification
         {
             WriteRomWord(
                 rom,
-                0xb59000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
+                0xb59000 + AreaMapPages.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
                 0x0403);
         }
 
@@ -198,7 +198,7 @@ internal static class PauseMenuVerification
         // Keep the fixture's distinctive Wave palette through the real installed binding.
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
-        var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
+        var beamPalettes = new InstalledBeamPalettes(ToColors(colors));
         resumeRuntime.Artwork.BeamPalettes = beamPalettes;
         resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
         resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);

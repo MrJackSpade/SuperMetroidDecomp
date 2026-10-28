@@ -20,7 +20,7 @@ internal readonly struct HorizontalChargedWaveParts(int phase) : IReadOnlyList<C
             // two orders is still a required source input, not a derived choice.
             int column = left ? corner / 2 : corner % 2;
             int row = left ? 1 - ((corner ^ (corner >> 1)) & 1) : corner / 2;
-            int centerX = (left ? -1 : 1) * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase / 2);
+            int centerX = (left ? -1 : 1) * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase / 2);
             int tile = ProjectileSpritePartDefinitions.ChargedBeamTile + 1 - (phase + lobe) % 2;
             var flips = (column == 0 ? TileFlip.Horizontal : 0) |
                 (row == 0 ? TileFlip.Vertical : 0);

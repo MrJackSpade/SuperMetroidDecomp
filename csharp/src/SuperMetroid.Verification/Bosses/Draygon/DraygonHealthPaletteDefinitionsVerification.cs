@@ -36,12 +36,12 @@ internal static class DraygonHealthPaletteDefinitionsVerification
                 threshold => unchecked((short)(health - threshold)) >= 0);
             AssertTrue(expectedIndex >= 0, $"Draygon health {health} matches a native band");
             AssertEqual(expectedIndex,
-                DraygonHealthPaletteDefinitions.BandForHealth(health),
+                DraygonHealthPalette.BandForHealth(health),
                 $"Draygon health {health} compiled palette band");
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonHealthPaletteDefinitions.BandForHealth(6001),
+            () => DraygonHealthPalette.BandForHealth(6001),
             "Draygon rejects health above its authored enemy-header maximum");
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
@@ -63,7 +63,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             state.HealthPaletteBand = null;
             update(state);
             AssertEqual(
-                DraygonHealthPaletteDefinitions.BandForHealth(health),
+                DraygonHealthPalette.BandForHealth(health),
                 state.HealthPaletteBand,
                 $"production Draygon health {health} palette band");
         }

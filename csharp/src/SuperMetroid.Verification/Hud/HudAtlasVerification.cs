@@ -33,8 +33,8 @@ internal static class HudAtlasVerification
     /// HUD was set up.
     /// </summary>
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, ImportedAreaMap[] rules,
-        GameplayBasePaletteCatalog initialPalettes,
+        AreaMapPresentation original, ImportedAreaMap[] rules,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);

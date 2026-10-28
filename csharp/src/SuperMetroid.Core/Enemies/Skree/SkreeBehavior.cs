@@ -147,7 +147,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
-        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.SkreeProgram(
+        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareePrograms.SkreeProgram(
             state.RequestedInstructionIndex));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

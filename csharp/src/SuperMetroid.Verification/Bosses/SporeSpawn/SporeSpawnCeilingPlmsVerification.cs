@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -48,7 +49,7 @@ internal static class SporeSpawnCeilingPlmsVerification
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            SporeSpawnCeilingPlmDrawDefinitions.All.ToArray();
+            SporeSpawnCeilingDraws.All.ToArray();
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
         ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
@@ -56,8 +57,8 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomLevelWord word), "Spore ceiling scalar ownership");
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomLevelWord word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {
                 AssertEqual((ushort)0, word.Raw, "missing Spore ceiling scalar zero");
@@ -78,7 +79,9 @@ internal static class SporeSpawnCeilingPlmsVerification
             int cursor = PlmDrawAddressCodec.Of(draw.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {
-                AssertDrawWord(checked((ushort)run.DirectionAndCount));
+                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
+                cursor += 2;
                 foreach (ushort word in run.LevelWords.Span)
                     AssertDrawWord(word);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),

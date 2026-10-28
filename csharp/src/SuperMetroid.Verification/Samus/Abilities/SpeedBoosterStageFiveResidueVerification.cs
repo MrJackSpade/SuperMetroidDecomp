@@ -37,7 +37,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         var residue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
         for (int index = 0; index < CadenceBytes; index++)
         {
-            AssertEqual((byte)0, SamusRunningCadenceDefinitions.ReadAnimationByte(residue, stageFive, (ushort)index),
+            AssertEqual((byte)0, SamusRunningCadenceBytes.ReadAnimationByte(residue, stageFive, (ushort)index),
                 "stage five reads boot-cleared queue bytes before any Ceres getaway");
         }
 
@@ -62,7 +62,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // The first NMI advances both: capsule phase one, then wing frame one.
         enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 0);
         byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.WingFrame1);
-        AssertTrue(SamusAnimationDelayDefinitions.IsCommand(expected[stageFiveQueueOffset]),
+        AssertTrue(SamusAnimationDelays.IsCommand(expected[stageFiveQueueOffset]),
             "the wing's fourth descriptor leaves a command byte, not a delay, at $0303");
         AssertStageFive(residue, stageFive, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
@@ -91,7 +91,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         foreach (CeresFloorAnimationFrame list in new[] { capsule, wing })
         {
             var source = new SnesAddress(0xa6, CeresNativeWords.FloorAnimationFrames.Word(list));
-            for (int descriptor = 0; descriptor < CeresFloorAnimationDefinitions.Get(list).Count; descriptor++, offset += descriptorBytes)
+            for (int descriptor = 0; descriptor < CeresFloorAnimation.Get(list).Count; descriptor++, offset += descriptorBytes)
             {
                 for (int index = 0; index < descriptorBytes; index++)
                     image[offset + index] = rom.ReadCartridgeByte((int)source.AddWithinBank(descriptor * descriptorBytes + index));
@@ -109,7 +109,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         for (int index = 0; index < CadenceBytes; index++)
         {
             AssertEqual(expected[queueOffset + index],
-                SamusRunningCadenceDefinitions.ReadAnimationByte(residue, stageFive, (ushort)index),
+                SamusRunningCadenceBytes.ReadAnimationByte(residue, stageFive, (ushort)index),
                 $"stage five cadence byte {index} {context}");
         }
     }

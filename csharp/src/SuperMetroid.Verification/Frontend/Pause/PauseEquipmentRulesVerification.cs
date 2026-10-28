@@ -96,7 +96,7 @@ internal static class PauseEquipmentRulesVerification
     }
 
     /// <summary>Checks real menu toggles, first-owned selection, rendered wireframes, Start+A ordering, and reserve transfer cadence.</summary>
-    internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
+    internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentation catalog)
     {
         Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));
         Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));

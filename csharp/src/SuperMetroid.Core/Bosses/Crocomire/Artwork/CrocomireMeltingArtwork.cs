@@ -97,7 +97,7 @@ public sealed class CrocomireMeltingArtwork
             using JsonDocument parsed = JsonDocument.Parse(json);
             // Preserve the schema's existing case-insensitive spelling, but reject aliases
             // of the same property before deserialization can silently overwrite them.
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement, StringComparer.OrdinalIgnoreCase);
+            EnemySpritemaps.RejectDuplicateProperties(parsed.RootElement, StringComparer.OrdinalIgnoreCase);
             document = parsed.RootElement.Deserialize<CrocomireMeltingTilemapDocument>(TilemapJsonOptions)
                 ?? throw new InvalidDataException("Crocomire melt tilemap JSON is null.");
         }

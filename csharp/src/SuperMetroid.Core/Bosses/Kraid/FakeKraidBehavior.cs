@@ -230,7 +230,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int projectile = 0; projectile < 2; projectile++)
         {
             EightEightVector<RoomPixels> launch =
-                FakeKraidProjectileDefinitions.SpitLaunch(direction == HorizontalDirection.Right, projectile);
+                FakeKraidProjectiles.SpitLaunch(direction == HorizontalDirection.Right, projectile);
             if (SpawnFakeKraidSpit(
                     slot,
                     xOffset,
@@ -283,7 +283,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             ? FakeKraidProjectilePose.SpikeLeft
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
-            source.Position.Whole + new Offset16<RoomPixels>(0, FakeKraidProjectileDefinitions.SpikeYOffset(row)));
+            source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;

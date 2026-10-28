@@ -150,7 +150,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
             DraygonCollisionComponent[] components =
-                [.. DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)];
+                [.. DraygonCollision.ComponentsAt(frame.Pointer)];
             AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Draygon {frame.Name} compiled collision component count");
             for (int index = 0; index < components.Length; index++)
@@ -217,7 +217,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonCollisionDefinitions.ComponentsAt(0x8000),
+            () => DraygonCollision.ComponentsAt(0x8000),
             "uncatalogued Draygon BG2 collision frame fails loudly");
         Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
     }

@@ -8,15 +8,15 @@ internal sealed class SpeedBoosterBlockPlmAnimation(SpeedBoosterBlockProgram pro
 {
     /// <inheritdoc/>
     private protected override AnimationProgramSet<SpeedBoosterBlockProgram, SpeedBoosterBlockFrame, SpeedBoosterBlockCue> Programs =>
-        SpeedBoosterBlockPlmProgramDefinitions.Programs;
+        SpeedBoosterBlockPrograms.Programs;
 
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(SpeedBoosterBlockFrame frame) => frame switch
     {
-        SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(0),
-        SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(1),
-        SpeedBoosterBlockFrame.Crumble2 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(2),
-        SpeedBoosterBlockFrame.Crumble3 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(3),
+        SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(0),
+        SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(1),
+        SpeedBoosterBlockFrame.Crumble2 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(2),
+        SpeedBoosterBlockFrame.Crumble3 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(3),
         SpeedBoosterBlockFrame.BombReveal => SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw,
         SpeedBoosterBlockFrame.RestoredBlock => throw new InvalidOperationException("The restored block draws its saved level word, not a draw list."),
         _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockFrame)} {frame}."),

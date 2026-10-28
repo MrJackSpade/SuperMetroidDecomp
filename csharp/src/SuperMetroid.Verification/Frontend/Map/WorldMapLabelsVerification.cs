@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class WorldMapLabelsVerification
 {
     /// <summary>Verifies stock output with ROM coordinates blocked, then checks editable anchors and override preservation.</summary>
-    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
@@ -49,7 +49,7 @@ internal static class WorldMapLabelsVerification
         areas["Crateria"] = areas["Crateria"] with { X = (ushort)(areas["Crateria"].X + 8) };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, WorldMapLabelFormat.FileName);
-        using (var stream = File.Create(replacement)) WorldMapLabelLayout.Write(stream, document with { Areas = areas });
+        using (var stream = File.Create(replacement)) WorldMapLabelPositions.Write(stream, document with { Areas = areas });
         byte[] bytes = File.ReadAllBytes(replacement);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "label edit invalidates content identity");
@@ -70,7 +70,7 @@ internal static class WorldMapLabelsVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },
             document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<System.IO.InvalidDataException>(() => WorldMapLabelLayout.Write(new MemoryStream(), invalid), "invalid label schema/area/coordinate rejected");
+            AssertThrows<System.IO.InvalidDataException>(() => WorldMapLabelPositions.Write(new MemoryStream(), invalid), "invalid label schema/area/coordinate rejected");
         File.WriteAllText(replacement, "{bad labels");
         AssertThrows<System.IO.InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad label override cannot silently fall back");
         AssertEqual("{bad labels", File.ReadAllText(replacement), "bad label override remains for repair");

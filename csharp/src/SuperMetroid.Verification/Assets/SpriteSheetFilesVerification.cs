@@ -45,10 +45,10 @@ internal static class SpriteSheetFilesVerification
             SpriteSheet timer = installed.Get(SpriteSheetId.EscapeTimer);
             AssertEqual(composed.Size, timer.Image.Size, "the installed timer image has the composed size");
             AssertTrue(timer.Image.Pixels.SequenceEqual(composed.Pixels), "the installed timer image holds the composed pixels");
-            AssertTrue(timer.HoldsExactly(EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName)),
+            AssertTrue(timer.HoldsExactly(EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName)),
                 "the installed timer sheet holds exactly the timer's frames");
 
-            string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileName(SpriteSheetId.EscapeTimer));
+            string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer]);
             RgbaPixel[] edited = [.. composed.Pixels];
             int opaque = Array.FindIndex(edited, pixel => pixel.A != 0);
             edited[opaque] = new RgbaPixel(1, 2, 3, 255);
@@ -73,7 +73,9 @@ internal static class SpriteSheetFilesVerification
             byte[] stockImage = File.ReadAllBytes(Path.Combine(stock, image));
             stockImage[^20] ^= 1;
             File.WriteAllBytes(Path.Combine(stock, image), stockImage);
-            AssertThrows<InvalidDataException>(() => SpriteSheetFiles.Load(stock, null), "a damaged stock sheet fails its manifest hash");
+            // A stock image is decoded when it is first drawn (#1430), so its manifest hash fails then, not at load.
+            SpriteSheet damaged = SpriteSheetFiles.Load(stock, null).Get(SpriteSheetId.EscapeTimer);
+            AssertThrows<InvalidDataException>(() => { _ = damaged.Image.Pixels.Length; }, "a damaged stock sheet fails its manifest hash when first decoded");
 
             using (var corrupt = new MemoryStream(stockImage, writable: false))
                 AssertThrows<InvalidDataException>(() => RgbaPng.Read(corrupt, out Extent16<ImagePixels> _), "a PNG chunk failing its CRC is rejected");

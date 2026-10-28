@@ -61,17 +61,17 @@ internal static class EndingScreenTiles
                     else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
                         Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.TextWaitingFirstTile, 0, EndingArtworkExtentDefinitions.WaitingCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.PostShotTransfer)
-                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.TextLogoFirstTile);
+                        PlacePostShot(EndingPostShotUploads.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.TextLogoFirstTile);
                     break;
                 case EndingTileLayer.Waiting:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
                         Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.WaitingFirstTile, 0, EndingArtworkExtentDefinitions.WaitingCharacterBytes);
                     else if (upload.Kind == EndingUploadKind.PostShotTransfer)
-                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.WaitingLogoFirstTile);
+                        PlacePostShot(EndingPostShotUploads.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.WaitingLogoFirstTile);
                     break;
                 case EndingTileLayer.Logo:
                     if (upload.Kind == EndingUploadKind.PostShotTransfer)
-                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.LogoFirstTile);
+                        PlacePostShot(EndingPostShotUploads.Get(upload.As<EndingChunkUpload>().Chunk), EndingTileSetDefinitions.LogoFirstTile);
                     break;
                 case EndingTileLayer.WavySamus:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)

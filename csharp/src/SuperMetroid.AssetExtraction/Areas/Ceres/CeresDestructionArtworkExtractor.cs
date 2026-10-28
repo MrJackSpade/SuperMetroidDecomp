@@ -35,7 +35,7 @@ internal static class CeresDestructionArtworkExtractor
                     CeresDestructionArtworkFormat.CellsPerView)
                 .SelectToArray(tile => (int)tile);
         using var mapJson = new MemoryStream();
-        CeresDestructionArtworkCatalog.WriteMap(mapJson, new CeresDestructionMapDocument
+        CeresDestructionArtwork.WriteMap(mapJson, new CeresDestructionMapDocument
         {
             Version = CeresDestructionArtworkFormat.Version,
             Width = CeresDestructionArtworkFormat.MapWidth,
@@ -89,7 +89,7 @@ internal static class CeresDestructionArtworkExtractor
             int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             CeresDestructionActorDefinition translatedActor =
-                CeresDestructionActorDefinitions.ZebesActor(index);
+                CeresDestructionActors.ZebesActor(index);
             if (x != translatedActor.Position.X || y != translatedActor.Position.Y)
                 throw new InvalidDataException(
                     $"Ceres reveal actor {source.Id} placement differs from pinned cartridge operands.");
@@ -99,7 +99,7 @@ internal static class CeresDestructionArtworkExtractor
             };
         }
         using var actorsJson = new MemoryStream();
-        CeresRevealActorLayout.Write(actorsJson, new CeresRevealActorLayoutDocument
+        CeresRevealActorPlacements.Write(actorsJson, new CeresRevealActorLayoutDocument
         {
             Version = CeresRevealActorLayoutFormat.Version,
             Actors = placements,
@@ -114,16 +114,16 @@ internal static class CeresDestructionArtworkExtractor
         for (int index = 0; index < destructionPlacements.Length; index++)
         {
             CeresDestructionActorDefinition actor =
-                CeresDestructionActorDefinitions.InitialActor(index);
+                CeresDestructionActors.InitialActor(index);
             destructionPlacements[index] = new CeresDestructionActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.InitialPlacementId(index),
+                Id = CeresDestructionActors.InitialPlacementId(index),
                 X = actor.Position.X,
                 Y = actor.Position.Y,
             };
         }
         using var destructionActorsJson = new MemoryStream();
-        CeresDestructionActorLayout.Write(destructionActorsJson,
+        CeresDestructionActorPlacements.Write(destructionActorsJson,
             new CeresDestructionActorLayoutDocument
             {
                 Version = CeresDestructionActorLayoutFormat.Version,
@@ -131,7 +131,7 @@ internal static class CeresDestructionArtworkExtractor
             });
         byte[] destructionActorsFile = destructionActorsJson.ToArray();
 
-        CeresDestructionArtworkCatalog compiled = CeresDestructionArtworkCatalog.Load(
+        CeresDestructionArtwork compiled = CeresDestructionArtwork.Load(
             new MemoryStream(mapJson.ToArray(), writable: false),
             new MemoryStream(zebesMapJson, writable: false),
             RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),

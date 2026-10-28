@@ -83,7 +83,7 @@ internal static class IntroNarrationPresentationVerification
         editedState.StartEnglishPageSix();
         editedState.Step(0);
         editedState.Step(0);
-        AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
+        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             editedTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "edited UTF-8 opening narration reaches the live tilemap");
 
@@ -95,7 +95,7 @@ internal static class IntroNarrationPresentationVerification
         rebound.Step(0);
         rebound.BindNarration(edited);
         rebound.Step(0);
-        AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
+        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             reboundTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "active opening narration accepts current replacement content");
 
@@ -187,7 +187,7 @@ internal static class IntroNarrationPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -202,9 +202,9 @@ internal static class IntroNarrationPresentationVerification
             overrideDirectory, IntroNarrationDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
+        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Tile,
             "catalog override changes installed opening narration");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
@@ -223,7 +223,7 @@ internal static class IntroNarrationPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -237,7 +237,7 @@ internal static class IntroNarrationPresentationVerification
         string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!IntroFontCharacters.Of(edited.IntroFont).Characters.Span.SequenceEqual(
             IntroFontCharacters.Of(stockCatalog.IntroFont).Characters.Span),

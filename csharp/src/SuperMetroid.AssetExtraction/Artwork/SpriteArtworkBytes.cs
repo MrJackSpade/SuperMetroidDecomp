@@ -43,10 +43,10 @@ internal static class SpriteArtworkBytes
                 "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk.Entry),
             MotherBrainCorpseCharacters corpse => (Bosses(installed).MotherBrainCorpse ?? throw new InvalidDataException(
                 "Installed enemy artwork is missing mother-brain-corpse-tiles.png.")).Characters.Slice(
-                MotherBrainCorpseArtworkDefinitions.PageOffset(corpse.Page), MotherBrainCorpseArtworkDefinitions.PageByteCount),
+                MotherBrainCorpseSheet.PageOffset(corpse.Page), MotherBrainCorpseArtworkDefinitions.PageByteCount),
             MotherBrainEscapeTextCharacters text => (Bosses(installed).MotherBrainEscapeText ?? throw new InvalidDataException(
                 "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.")).Characters.Slice(
-                EscapeTextArtworkDefinitions.PageOffset(text.Page), EscapeTextArtworkDefinitions.PageByteCount(text.Page)),
+                EscapeTextPages.PageOffset(text.Page), EscapeTextPages.PageByteCount(text.Page)),
             MotherBrainSpecialSpriteCharacters special => MotherBrainSpecialSprite(special, installed),
             TorizoArtworkSwapCharacters swap => TorizoSwap(swap, installed),
             EnemyTileCharacters tiles => Sprites(installed).EnemyTiles.TilesOf(tiles.Enemy),
@@ -59,7 +59,7 @@ internal static class SpriteArtworkBytes
     private static ReadOnlyMemory<byte> TourianStatue(TourianStatuePictureCharacters statue, IInstalledArtworkContent installed)
     {
         TourianStatueAnimatedTileProgramDefinition definition =
-            TourianStatueAnimatedTileMechanicsDefinitions.All.Single(candidate => candidate.AnimatedObject == statue.Statue);
+            TourianStatueAnimatedTiles.All.Single(candidate => candidate.AnimatedObject == statue.Statue);
         return Sprites(installed).AnimatedTiles.TourianStatuePicture(definition.AnimatedObject, statue.Picture, definition.FrameByteCount);
     }
 
@@ -94,7 +94,7 @@ internal static class SpriteArtworkBytes
 
     /// <summary>The installed area artwork <paramref name="installed"/> holds.</summary>
     /// <exception cref="InvalidOperationException">It holds no installed area artwork.</exception>
-    private static AreaArtworkCatalog Areas(IInstalledArtworkContent installed) =>
+    private static AreaArtworkBundle Areas(IInstalledArtworkContent installed) =>
         (installed as IInstalledAreaSpriteCharacterArtwork ?? throw new InvalidOperationException(
             $"{installed.GetType().Name} holds no installed area artwork to resolve a named sprite artwork source.")).AreaTiles;
 }

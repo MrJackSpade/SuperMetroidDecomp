@@ -209,7 +209,7 @@ public sealed class EscapeTimer
     /// <summary>Subtracts this NMI's BCD correction and reports expiration at exactly zero.</summary>
     private bool Decrement(int frameCounter)
     {
-        PackedDecimal correction = PackedDecimal.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(frameCounter));
+        PackedDecimal correction = PackedDecimal.FromDecimal(EscapeTimerCadence.Centiseconds(frameCounter));
         PackedDecimal one = PackedDecimal.FromDecimal(1);
         Centiseconds = Centiseconds.Subtract(correction, out bool borrowedCentiseconds);
 

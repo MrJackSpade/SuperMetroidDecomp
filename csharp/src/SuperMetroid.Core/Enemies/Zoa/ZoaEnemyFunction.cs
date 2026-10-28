@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// The routines Zoa's AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum ZoaEnemyFunction : ushort
+public enum ZoaEnemyFunction
 {
     /// <summary>$A3:B482, Function_Zoa_WaitForSamusToGetNear: remain hidden until Samus is fewer than 128 horizontal pixels away, then select the facing rise list.</summary>
     WaitForSamus = 1,

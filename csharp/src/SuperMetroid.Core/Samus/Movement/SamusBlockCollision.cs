@@ -876,7 +876,7 @@ public static class SamusBlockCollision
         // half; BTS orientation occupies the same two-bit quadrant coordinate. XOR is
         // literal native indexing, not a geometric simplification.
         int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 3));
-        bool selectedSolid = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant) != 0;
+        bool selectedSolid = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
         bool collide;
 
         if (remainingRows == 0)
@@ -890,7 +890,7 @@ public static class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 2) != 0;
+            collide = selectedSolid || SquareSlopes.ReadSamusQuadrant(quadrant ^ 2) != 0;
         }
         else
         {
@@ -905,7 +905,7 @@ public static class SamusBlockCollision
                 }
             }
 
-            collide = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 2) != 0;
+            collide = SquareSlopes.ReadSamusQuadrant(quadrant ^ 2) != 0;
         }
 
         if (!collide)
@@ -941,7 +941,7 @@ public static class SamusBlockCollision
         // hence >>2 yields zero or two. The horizontal counter is the native number of
         // physical blocks left: LTR counts span..0 while RTL counts 0..span.
         int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 2));
-        bool selectedSolid = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant) != 0;
+        bool selectedSolid = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
         bool collide;
 
         // $1A=0 always denotes the physical rightmost block, independent of which of the
@@ -955,7 +955,7 @@ public static class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+            collide = selectedSolid || SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
         }
         else
         {
@@ -968,7 +968,7 @@ public static class SamusBlockCollision
                 }
             }
 
-            collide = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+            collide = SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
         }
 
         if (!collide)
@@ -1188,7 +1188,7 @@ public static class SamusBlockCollision
             int depth;
             // The post-grapple table treats even vertical extensions as solid, without
             // following BTS. Ordinary movement's dispatcher is not interchangeable.
-            if (block.CollisionType >= RoomCollisionType.SolidBlock)
+            if (block.CollisionType.IsSolidBlockType())
                 depth = boundary & 15;
             else if (block.CollisionType != RoomCollisionType.Slope)
                 continue;
@@ -1206,14 +1206,14 @@ public static class SamusBlockCollision
             else
             {
                 int quadrant = 4 * block.Bts.SlopeShape + (block.Bts.SlopeOrientation ^ ((boundary & 8) >> 2));
-                bool selected = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant) != 0;
+                bool selected = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
                 bool collides;
                 if (column == lastColumn)
-                    collides = (right & 8) == 0 ? selected : selected || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                    collides = (right & 8) == 0 ? selected : selected || SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
                 else if (column != firstColumn || (left & 8) == 0)
-                    collides = selected || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                    collides = selected || SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
                 else
-                    collides = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                    collides = SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
                 depth = collides ? (direction == VerticalDirection.Down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
             }
             maximum = Math.Max(maximum, depth + 1);

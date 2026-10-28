@@ -33,7 +33,7 @@ internal sealed class QuicksandPlms
         PlmHeaderId header)
     {
         QuicksandReactionDefinition definition =
-            QuicksandDefinitions.ResolveReaction(header);
+            QuicksandReactions.ResolveReaction(header);
 
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;

@@ -66,7 +66,7 @@ public static class RoomPlmShotBlockVisualFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or visual bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmShotBlockVisualCatalog Load(
+    public static InstalledRoomPlmShotBlockVisuals Load(
         string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -83,7 +83,7 @@ public static class RoomPlmShotBlockVisualFiles
             throw new InvalidDataException($"Stock shot-block visuals {stockPath} failed their manifest hash.");
         VisualDocument stock = ReadJson<VisualDocument>(stockBytes, stockPath);
         ValidateDocument(stock, stockPath);
-        RoomPlmShotBlockVisualCatalog stockCatalog = CreateCatalog(stock, stockPath);
+        InstalledRoomPlmShotBlockVisuals stockCatalog = CreateCatalog(stock, stockPath);
         VerifyStockMatchesCompiled(stockCatalog, stockPath);
 
         string? overridePath = overrideDirectory is null ? null :
@@ -105,13 +105,13 @@ public static class RoomPlmShotBlockVisualFiles
     {
         var result = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmShotBlockDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 ShotBlockPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != run.DirectionAndCount)
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Shot-block draw list {list.Draw} has a different shape in the source cartridge.");
                 cursor = unchecked((ushort)(cursor + 2));
@@ -135,7 +135,7 @@ public static class RoomPlmShotBlockVisualFiles
                 visuals.Add(visualWords);
             }
 
-            result.Add(new RoomPlmVisualRunEntry(RoomPlmShotBlockDrawDefinitions.VisualId(list.Draw), visuals.ToArray()));
+            result.Add(new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return result.ToArray();
@@ -143,9 +143,9 @@ public static class RoomPlmShotBlockVisualFiles
 
     /// <summary>Rejects stock visual words that differ from the nineteen compiled draw lists.</summary>
     private static void VerifyStockMatchesCompiled(
-        RoomPlmShotBlockVisualCatalog catalog, string path)
+        InstalledRoomPlmShotBlockVisuals catalog, string path)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in RoomPlmShotBlockDrawDefinitions.All)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in ShotBlockPlmDraws.All)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
         {
@@ -165,12 +165,12 @@ public static class RoomPlmShotBlockVisualFiles
     }
 
     /// <summary>Builds the selected visual catalog and includes the source path in entry errors.</summary>
-    private static RoomPlmShotBlockVisualCatalog CreateCatalog(
+    private static InstalledRoomPlmShotBlockVisuals CreateCatalog(
         VisualDocument document, string path)
     {
         try
         {
-            return new RoomPlmShotBlockVisualCatalog(document.Entries);
+            return new InstalledRoomPlmShotBlockVisuals(document.Entries);
         }
         catch (InvalidDataException error)
         {

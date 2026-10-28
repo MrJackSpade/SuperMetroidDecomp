@@ -3,16 +3,16 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The event the metroids-cleared PLM marks once a room's metroids are all killed, selected by its room argument.
+/// The event the metroids-cleared PLM marks once a room's metroids are all killed, selected by its table entry.
 /// </summary>
 /// <remarks>
-/// The room argument is an even selector over thirteen entries, not an event number. The first nine entries are
-/// deliberate no-ops; the final four mark the four metroid rooms' cleared events. An odd or out-of-range argument is
-/// rejected so it cannot acquire a plausible meaning.
+/// The entry selects one of thirteen, not an event number. The first nine entries are deliberate no-ops; the final four
+/// mark the four metroid rooms' cleared events. An out-of-range entry is rejected so it cannot acquire a plausible
+/// meaning.
 /// </remarks>
 internal static class MetroidsClearedEvents
 {
-    /// <summary>The room argument's selectable entries.</summary>
+    /// <summary>The table's entries.</summary>
     private const int EntryCount = 13;
 
     /// <summary>The leading entries that mark nothing.</summary>
@@ -22,9 +22,9 @@ internal static class MetroidsClearedEvents
     /// Resolves the event written after the enemy death quota is met, or null for one of the nine intentional no-op
     /// entries.
     /// </summary>
-    public static EventNumber? ResolveEvent(int roomArgument)
+    public static EventNumber? ResolveEvent(int entry)
     {
-        int entry = ValidateAndGetEntry(roomArgument);
+        ValidateEntry(entry);
         return entry < NoOpEntryCount ? null : QuotaObserverEvents[entry - NoOpEntryCount];
     }
 
@@ -37,15 +37,10 @@ internal static class MetroidsClearedEvents
         EventNumber.SecondMetroidShaftCleared,
     ];
 
-    /// <summary>Converts a room argument into one of the thirteen entries, rejecting odd or out-of-range selectors.</summary>
-    private static int ValidateAndGetEntry(int roomArgument)
+    /// <summary>Rejects an entry outside the thirteen.</summary>
+    private static void ValidateEntry(int entry)
     {
-        if ((roomArgument & 1) != 0 || roomArgument / 2 >= EntryCount)
-        {
-            throw new InvalidDataException(
-                $"Metroids-cleared PLM room argument {roomArgument} is not an even selector of one of its {EntryCount} entries.");
-        }
-
-        return roomArgument / 2;
+        if ((uint)entry >= EntryCount)
+            throw new InvalidDataException($"Metroids-cleared entry {entry} is not one of its {EntryCount} entries.");
     }
 }

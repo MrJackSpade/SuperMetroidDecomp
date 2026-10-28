@@ -23,8 +23,8 @@ internal static class MotherBrainRoomColorsVerification
 {
     /// <summary>Compares installed colors with extracted retail rows through production enemy paths, then checks isolated edits, legacy migration, and malformed overrides.</summary>
     internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
-        string overrides, AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        string overrides, AreaMapPresentation original,
+        GameplayBasePalette initialPalettes)
     {
         var nativeCgram = new SamusColourRig();
         var installedCgram = new SamusColourRig();
@@ -101,7 +101,7 @@ internal static class MotherBrainRoomColorsVerification
             Change(document.RecoveryLights[0][MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors]);
         using (var file = File.Create(replacement))
             MotherBrainRoomColorFile.Write(file, document);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -144,7 +144,7 @@ internal static class MotherBrainRoomColorsVerification
             RecoveryLights = null,
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, previousVersion);
-        AreaMapPresentationCatalog migratedV2 = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation migratedV2 = MapPresentationFiles.Load(stock, overrides);
         var migratedRecovery = new SamusColourRig();
         var originalRecovery = new SamusColourRig();
         migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery.Gameplay, 0);
@@ -165,7 +165,7 @@ internal static class MotherBrainRoomColorsVerification
             RecoveryLights = null,
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
-        AreaMapPresentationCatalog migrated = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation migrated = MapPresentationFiles.Load(stock, overrides);
         var migratedFlash = new SamusColourRig();
         var originalFlash = new SamusColourRig();
         migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash.Gameplay, 0);
@@ -224,8 +224,8 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Checks edits in both recovery-light slices reach exactly two live CGRAM words.</summary>
-    private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
-        AreaMapPresentationCatalog edited)
+    private static void AssertRecoveryLightsEdited(AreaMapPresentation original,
+        AreaMapPresentation edited)
     {
         var stockCgram = new SamusColourRig();
         var editedCgram = new SamusColourRig();
@@ -246,8 +246,8 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Checks room-entry glass and tube edits change exactly their two selected CGRAM words.</summary>
-    private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
-        AreaMapPresentationCatalog edited)
+    private static void AssertRoomEntryEdited(AreaMapPresentation original,
+        AreaMapPresentation edited)
     {
         var stockCgram = new SamusColourRig();
         var editedCgram = new SamusColourRig();
@@ -269,8 +269,8 @@ internal static class MotherBrainRoomColorsVerification
 
     /// <summary>Checks a selected flash/final/phase-two color edit reaches CGRAM without changing body phase or palette-program timing.</summary>
     private static void AssertEdited(string methodName, Func<MotherBrainBehavior, Action<MotherBrainEnemyState>> select,
-        AreaMapPresentationCatalog original,
-        AreaMapPresentationCatalog edited, int expectedFirstColor, int expectedDifferences,
+        AreaMapPresentation original,
+        AreaMapPresentation edited, int expectedFirstColor, int expectedDifferences,
         bool flash = false)
     {
         var stockCgram = new SamusColourRig();

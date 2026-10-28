@@ -40,7 +40,7 @@ internal static class LookupChozoStockVerification
         var stock = RoomPlmChozoStatueVisualCatalog.Stock();
         var imported = new RoomPlmChozoStatueVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmChozoStatueVisualCatalog), words.ToDictionary(pair => ChozoStatuePlmDrawDefinitions.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmChozoStatueVisualCatalog), words.ToDictionary(pair => ChozoStatueDraws.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Chozo original flattened identity");

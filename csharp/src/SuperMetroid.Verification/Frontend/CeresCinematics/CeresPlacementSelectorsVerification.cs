@@ -25,12 +25,12 @@ internal static class CeresPlacementSelectorsVerification
         {
             var actual = CeresCinematicSourceDefinitions.RearViewPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original rear placement operands under the Core actor id");
-            var actor = CeresFlightActorDefinitions.RearViewActor(i);
+            var actor = CeresFlightActors.RearViewActor(i);
             VerifyPlacementOperand(rom, actual.FirstOperand, actor.Position.X);
             VerifyPlacementOperand(rom, actual.SecondOperand, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementId(i), "rear selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActors.RearViewPlacementId(i), "rear selector bounds");
     }
 
     /// <summary>Checks six Zebes reveal actors and their X and Y native placement words.</summary>
@@ -50,12 +50,12 @@ internal static class CeresPlacementSelectorsVerification
         {
             var actual = CeresCinematicSourceDefinitions.ZebesPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original reveal placement operands under the Core actor id");
-            var actor = CeresDestructionActorDefinitions.ZebesActor(i);
+            var actor = CeresDestructionActors.ZebesActor(i);
             VerifyPlacementOperand(rom, actual.FirstOperand, actor.Position.X);
             VerifyPlacementOperand(rom, actual.SecondOperand, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementId(i), "reveal selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.ZebesPlacementId(i), "reveal selector bounds");
     }
 
     /// <summary>Checks the three initial destruction actors before the reveal phase.</summary>
@@ -64,9 +64,9 @@ internal static class CeresPlacementSelectorsVerification
         string[] original = ["large-asteroid", "small-asteroid", "vortex"];
         AssertEqual(original.Length, CeresDestructionActorDefinitions.InitialActorCount, "initial placement count");
         for (int i = 0; i < original.Length; i++)
-            AssertEqual(original[i], CeresDestructionActorDefinitions.InitialPlacementId(i), "original initial placement selector");
+            AssertEqual(original[i], CeresDestructionActors.InitialPlacementId(i), "original initial placement selector");
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActorDefinitions.InitialPlacementId(i), "initial selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.InitialPlacementId(i), "initial selector bounds");
     }
 
     /// <summary>Requires an immediate LDA before the coordinate and compares its retail word.</summary>

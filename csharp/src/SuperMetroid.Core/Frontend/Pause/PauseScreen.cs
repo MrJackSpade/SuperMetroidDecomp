@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal sealed class PauseScreen
 {
     /// <summary>Installs the map, pause interface, HUD and menu sprite artwork, and the sheets its backgrounds draw from.</summary>
-    public PauseScreen(AreaMapPresentationCatalog artwork, InstalledSpriteSheets? sheets)
+    public PauseScreen(AreaMapPresentation artwork, InstalledSpriteSheets? sheets)
     {
         Artwork = Ensure.NotNull(artwork);
         Objects = new ScreenSprites();
@@ -45,7 +45,7 @@ internal sealed class PauseScreen
     /// <summary>The installed artwork the screen draws.</summary>
     [field: NonSerialized]
     [AllowNull]
-    public AreaMapPresentationCatalog Artwork
+    public AreaMapPresentation Artwork
     {
         get => field ?? throw new InvalidOperationException("The pause screen's artwork is rebound after debugger restoration.");
         private set;
@@ -61,7 +61,7 @@ internal sealed class PauseScreen
     public ScreenSprites Objects { get; }
 
     /// <summary>Rebinds the installed artwork, keeping tilemaps, palette and sprite entries.</summary>
-    public void BindArtwork(AreaMapPresentationCatalog artwork)
+    public void BindArtwork(AreaMapPresentation artwork)
     {
         Artwork = Ensure.NotNull(artwork);
     }

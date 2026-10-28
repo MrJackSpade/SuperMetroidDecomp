@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -12,48 +11,18 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// <summary>Fourteen imported rows; the native copy is448 bytes.</summary>
     internal const int SourceRows = 14;
     /// <summary>A solid block with no visual tile.</summary>
-    private static ushort Solid => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
+    internal static ushort Solid => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
     /// <summary>A slope block of shape zero with no visual tile: the platforms' top collision cells.</summary>
-    private static ushort PlatformTop => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
+    internal static ushort PlatformTop => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
     /// <summary>First and last nonzero full-width source rows.</summary>
-    private const int CeilingRow = 1, FloorRow = 13;
+    internal const int CeilingRow = 1, FloorRow = 13;
     /// <summary>Upper central formation spans rows2/3,centered on column9.</summary>
-    private const int UpperTipRow = 2, CentralColumn = 9;
+    internal const int UpperTipRow = 2, CentralColumn = 9;
     /// <summary>Lower central and right platforms start at row8;right platform starts column12.</summary>
-    private const int PlatformRow = 8, RightPlatformColumn = 12;
+    internal const int PlatformRow = 8, RightPlatformColumn = 12;
 
     /// <summary>Authored collision-mask widths on rows2..12: tank interior,upper notch and pipe base.
     /// These select blocking geometry independently of visible pixels; a fitted curve would
     /// restate or alter the chosen level mask. See introMotherBrainCollisionContourDisposition.</summary>
-    private static ReadOnlySpan<byte> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
-
-    /// <summary>Combines the authored left collision contour with geometric ceiling, floor, center, and right-platform blocks.</summary>
-    private static ushort Block(int row, int column)
-    {
-        if (row is CeilingRow or FloorRow) return Solid;
-        if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - UpperTipRow])
-            return Solid;
-        int upperRadius = row - UpperTipRow;
-        if (upperRadius is 0 or 1 && Math.Abs(column - CentralColumn) <= upperRadius)
-            return Solid;
-        bool centralPlatform = column == CentralColumn && row >= PlatformRow && row < FloorRow;
-        bool rightPlatform = column >= RightPlatformColumn && row >= PlatformRow && row <= PlatformRow + 1;
-        if (centralPlatform || rightPlatform) return row == PlatformRow ? PlatformTop : Solid;
-        if (row == FloorRow - 1 && column == CentralColumn + 1) return Solid;
-        return 0;
-    }
-
-    /// <summary>Construct the exact debugger-visible native bytes independently for each flashback.</summary>
-    internal static byte[] CopySourceBytes()
-    {
-        var bytes = new byte[Columns * SourceRows * sizeof(ushort)];
-        for (int row = 0; row < SourceRows; row++)
-            for (int column = 0; column < Columns; column++)
-            {
-                int word = Block(row, column);
-                int offset = (row * Columns + column) * sizeof(ushort);
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), checked((ushort)word));
-            }
-        return bytes;
-    }
+    internal static ReadOnlySpan<byte> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 }

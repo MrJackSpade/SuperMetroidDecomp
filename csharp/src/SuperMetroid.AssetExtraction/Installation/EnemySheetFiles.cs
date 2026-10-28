@@ -19,7 +19,7 @@ public static class EnemySheetFiles
     /// <summary>The provenance manifest's file name.</summary>
     public const string ProvenanceFileName = "enemy-sheets-provenance.json";
 
-    /// <summary>Composes and writes every enemy sheet and the set manifest, then validates the result.</summary>
+    /// <summary>Composes and writes every enemy sheet and the set manifest; the installer validates them with <see cref="ValidateStock"/>.</summary>
     /// <param name="content">Installed stock content holding the tiles, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
@@ -27,12 +27,10 @@ public static class EnemySheetFiles
     {
         EnemySheetComposition composition = EnemySheetComposer.Compose(EnemySheetInputs.Load(content));
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
-        foreach ((string name, ComposedSpriteSheet sheet) in composition.Sheets)
-            store.Write(name, sheet);
+        store.WriteAll([.. composition.Sheets.Select(entry => new NamedComposedSheet(entry.Key, entry.Value))]);
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, EnemySheetDefinitions.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, JsonOptions));
-        _ = Load(directory, null);
     }
 
     /// <summary>

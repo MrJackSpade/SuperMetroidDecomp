@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The seven indices returned by <c>EnemyGrappleBeamCollisionDetection</c> at $A0:9E9A.
 /// Values intentionally match bank-$9B's jump table rather than introducing host ordering.
 /// </summary>
-public enum GrappleEnemyReaction : ushort
+public enum GrappleEnemyReaction
 {
     /// <summary>The enemy does not react to the grapple endpoint.</summary>
     None = 0,

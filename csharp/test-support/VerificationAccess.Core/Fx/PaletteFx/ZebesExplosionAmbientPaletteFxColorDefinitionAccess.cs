@@ -8,5 +8,7 @@ internal static class ZebesExplosionAmbientPaletteFxColorDefinitionAccess
     {
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.Rows.Color(frame, color);
+        /// <summary>The number of timed records in the loop.</summary>
+        public int FrameCount => self.Rows.FrameCount;
     }
 }

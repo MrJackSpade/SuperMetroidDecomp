@@ -22,8 +22,8 @@ internal static class CeresRidleyMode7ColorsVerification
 {
     /// <summary>Compares native zoom rows, all getaway frames, override repair, and source-read blocking.</summary>
     internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes)
+        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom,
+        GameplayBasePalette initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
         CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(
@@ -62,7 +62,7 @@ internal static class CeresRidleyMode7ColorsVerification
         }
         string replacement = Path.Combine(overrideDirectory, CeresRidleyFloorColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyMode7ColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -83,7 +83,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {
-            CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromIndex(index);
+            CeresRidleyGetawayFrame frame = CeresRidleyGetawayCurve.FromIndex(index);
             int row = LittleEndianBytes.HighByte(frame.Zoom);
             visited.Add(row);
             select(checked((ushort)frame.Zoom));
@@ -110,7 +110,7 @@ internal static class CeresRidleyMode7ColorsVerification
             "ceres-mode7-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
+        AreaMapPresentation repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves Ceres Mode-7 override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),

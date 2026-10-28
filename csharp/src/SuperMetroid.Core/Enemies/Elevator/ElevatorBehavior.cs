@@ -205,7 +205,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         SamusProjectileSystem? samusProjectiles)
     {
         ControllerButton requiredInput =
-            ElevatorActorDefinitions.RequiredDirectionInput(state.DirectionTableByteOffset);
+            ElevatorTravel.RequiredDirectionInput(state.DirectionTableByteOffset);
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
             ElevatorFlags = ElevatorJourneyFlag.None;

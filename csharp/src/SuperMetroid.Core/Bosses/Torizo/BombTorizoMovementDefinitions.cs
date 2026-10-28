@@ -10,10 +10,10 @@ internal static class BombTorizoMovementDefinitions
     /// displacements are authored to the posture animation, including its uneven steps;
     /// right-facing movement reflects their horizontal sign rather than storing a second table.
     /// </summary>
-    private static readonly short[] LeftPostureX = [-9, -6, -7, 5, -16, -7, 0, 0];
+    internal static readonly short[] LeftPostureX = [-9, -6, -7, 5, -16, -7, 0, 0];
 
     /// <summary>Eight authored vertical posture offsets repeat for both Bomb Torizo facings.</summary>
-    private static readonly short[] PostureY =
+    internal static readonly short[] PostureY =
         [0, -6, -6, -7, 0, 0, 0, 0];
 
     /// <summary>
@@ -21,37 +21,8 @@ internal static class BombTorizoMovementDefinitions
     /// <c>$AA:C532-$AA:C559</c> by the normal and faceless walking instructions.
     /// These ten authored stride magnitudes share one table because facing only changes their sign.
     /// </summary>
-    private static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];
+    internal static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];
 
-    /// <summary>Returns the frame-relative posture displacement selected by an even byte offset.</summary>
-    internal static Offset16<RoomPixels> Posture(int tableOffset)
-    {
-        if (tableOffset < 0 || (tableOffset & 1) != 0 || tableOffset >= LeftPostureX.Length * 4)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo posture offset ${tableOffset:X4} exceeds " +
-                "its sixteen even cartridge selections.");
-        }
-
-        int xIndex = tableOffset >> 1;
-        int yIndex = (tableOffset & 0x000f) >> 1;
-        int horizontal = LeftPostureX[xIndex % LeftPostureX.Length];
-        return new Offset16<RoomPixels>(
-            (short)(xIndex < LeftPostureX.Length ? horizontal : -horizontal), PostureY[yIndex]);
-    }
-
-    /// <summary>Returns the walking velocity selected by an even byte offset.</summary>
-    internal static ushort WalkVelocity(int tableOffset)
-    {
-        if (tableOffset < 0 || (tableOffset & 1) != 0 || tableOffset >= LeftWalkVelocities.Length * 4)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo walk offset ${tableOffset:X4} exceeds " +
-                "its twenty even cartridge selections.");
-        }
-
-        int index = tableOffset >> 1;
-        int velocity = LeftWalkVelocities[index % LeftWalkVelocities.Length];
-        return unchecked((ushort)(index < LeftWalkVelocities.Length ? velocity : -velocity));
-    }
+    /// <summary>The posture byte offset bits that wrap the eight vertical offsets.</summary>
+    internal const int PostureYOffsetMask = 0x000f;
 }

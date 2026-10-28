@@ -20,7 +20,7 @@ public static class TourianStatueColorFile
     /// <summary>Loads version-1 <c>tourian-statue-colors.json</c>, validating sixteen-color base/statue bands, four four-color eye rows, eight grey inks, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
     /// <returns>Compiled selected colors retaining independent edits over calculated stock paint bands.</returns>
-    public static TourianStatueColorCatalog Read(Stream json)
+    public static TourianStatuePalettes Read(Stream json)
     {
         TourianStatueColorDocument document;
         document = JsonAssetDocument.Read<TourianStatueColorDocument>(json, Options, "Tourian statue color");

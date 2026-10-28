@@ -20,17 +20,5 @@ public static class EscapeTextArtworkDefinitions
     /// <summary>$A6:C4CB starts the two timer-number pages at OBJ character $1E0.</summary>
     public const int TimerFirstCharacter = 0x1e0;
     /// <summary>The bytes one four-bit OBJ character holds.</summary>
-    private const int CharacterBytes = 32;
-
-    /// <summary>Where text page <paramref name="page"/> starts within the installed sheet, from the native $A6:C4CB-$C4FC transfer list.</summary>
-    public static int PageOffset(int page) => (uint)page < PageCount
-        ? page * PageBytes : throw new ArgumentOutOfRangeException(nameof(page));
-
-    /// <summary>Four full $200-byte pages followed by the final $100-byte page.</summary>
-    public static ushort PageByteCount(int page) => (uint)page < PageCount
-        ? (ushort)Math.Min(PageBytes, ByteCount - page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
-
-    /// <summary>The OBJ character text page <paramref name="page"/> begins at, from the same native transfer list.</summary>
-    public static int PageFirstCharacter(int page) => (uint)page < PageCount
-        ? FirstCharacter + page * PageBytes / CharacterBytes : throw new ArgumentOutOfRangeException(nameof(page));
+    internal const int CharacterBytes = 32;
 }

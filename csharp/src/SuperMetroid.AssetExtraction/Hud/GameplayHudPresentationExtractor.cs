@@ -24,9 +24,9 @@ public static class GameplayHudPresentationExtractor
         {
             int width = item == 0 ? 3 : 2;
             int count = width * 2;
-            icons.Add(GameplayHudDefinitions.IconName(item), new()
+            icons.Add(GameplayHudTiles.IconName(item), new()
             {
-                Anchor = Point(GameplayHudDefinitions.ItemCell(item)),
+                Anchor = Point(GameplayHudTiles.ItemCell(item)),
                 Cells = ReadCells(bus, HudSourceDefinitions.Icons + sourceWord * sizeof(ushort), count),
             });
             sourceWord += count;
@@ -46,7 +46,7 @@ public static class GameplayHudPresentationExtractor
             EnergyTanks = new()
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.EnergyTankCount)
-                    .Select(tank => Point(GameplayHudDefinitions.EnergyTankCell(tank))).ToArray(),
+                    .Select(tank => Point(GameplayHudTiles.EnergyTankCell(tank))).ToArray(),
                 Filled = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.FilledEnergyTank)),
                 Empty = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.EmptyEnergyTank)),
             },
@@ -62,7 +62,7 @@ public static class GameplayHudPresentationExtractor
             AutoReserve = new()
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.AutoReserveCellCount)
-                    .Select(cell => Point(GameplayHudDefinitions.AutoReserveCellIndex(cell))).ToArray(),
+                    .Select(cell => Point(GameplayHudTiles.AutoReserveCellIndex(cell))).ToArray(),
                 ContainsEnergy = ReadCells(bus, HudSourceDefinitions.AutoReserve, 6),
                 Empty = ReadCells(bus, HudSourceDefinitions.AutoReserve + HudSourceDefinitions.AutoReserveEmptyOffset, 6),
             },

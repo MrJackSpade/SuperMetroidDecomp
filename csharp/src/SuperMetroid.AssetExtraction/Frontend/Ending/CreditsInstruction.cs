@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The bank-$8B commands the retail credits row stream uses, decoded once at import (#1416: moved out of Core).</summary>
-internal enum CreditsInstruction : ushort
+internal enum CreditsInstruction
 {
     /// <summary><c>Instruction_CreditsObject_TimerInY</c> at $8B:9A17.</summary>
     SetTimer = 0x9a17,

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -345,8 +345,8 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
 
         SharedGameState system = _system ??
             throw new InvalidOperationException("Eye-door setup has no persistence owner.");
-        if (unchecked((short)slot.RoomArgument) >= 0 &&
-            system.HasOpenedDoorBit(slot.RoomArgument))
+        if (slot.Argument is DoorBitArgument { Persists: true } openedEye &&
+            system.HasOpenedDoorBit(openedEye.DoorBit))
         {
             // Setup routines deliberately leave already-open terrain untouched. Their first
             // bytecode instruction takes the persistent branch and either deletes this
@@ -376,8 +376,8 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         switch (preInstruction)
         {
             case EyeDoorPreInstruction.WakeWhenDoorBitSet:
-                if (unchecked((short)slot.RoomArgument) >= 0 &&
-                    system.HasOpenedDoorBit(slot.RoomArgument))
+                if (slot.Argument is DoorBitArgument { Persists: true } wakingEye &&
+                    system.HasOpenedDoorBit(wakingEye.DoorBit))
                 {
                     slot.PreInstruction = PlmPreInstructions.Inert;
                     slot.WakeAtLink();
@@ -509,7 +509,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
             definition,
             facing,
             slot.BlockIndex,
-            slot.RoomArgument));
+            (slot.Argument as DoorBitArgument)?.DoorBit));
     }
 
     /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>

@@ -22,7 +22,7 @@ internal static class NuclearWaffleDefinitionsVerification
         for (byte direction = 0; direction < 2; direction++)
         {
             int offset = direction * 4;
-            NuclearWaffleSweepDefinition definition = NuclearWaffleDefinitions.Sweep(direction);
+            NuclearWaffleSweepDefinition definition = NuclearWaffleSweeps.Sweep(direction);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset)), definition.StartAngle,
                 $"Nuclear Waffle start angle {direction}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2)), definition.EndAngle,
@@ -72,9 +72,9 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle production sprite links {direction}");
         }
 
-        AssertThrows<InvalidDataException>(() => NuclearWaffleDefinitions.Sweep(2),
+        AssertThrows<InvalidDataException>(() => NuclearWaffleSweeps.Sweep(2),
             "Nuclear Waffle direction beyond authored table");
-        AssertThrows<InvalidDataException>(() => NuclearWaffleDefinitions.Sweep(byte.MaxValue),
+        AssertThrows<InvalidDataException>(() => NuclearWaffleSweeps.Sweep(byte.MaxValue),
             "Nuclear Waffle restored direction does not read adjacent enemy code");
 
         Console.WriteLine(

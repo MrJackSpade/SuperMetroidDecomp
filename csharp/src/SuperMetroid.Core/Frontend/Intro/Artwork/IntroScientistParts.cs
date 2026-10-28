@@ -10,7 +10,7 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 10; frame++)
-            if (IntroScientistSpriteDefinitions.FramePose(frame) == shown)
+            if (IntroScientistSpritePoses.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroScientistParts(frame));
         return supplied;
     }

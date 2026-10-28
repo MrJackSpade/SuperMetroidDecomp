@@ -37,7 +37,7 @@ internal sealed record CorpseRowGeometry(bool InHeap, int Rows, int TilesPerRow,
     /// </summary>
     internal static CorpseRowGeometry MotherBrain { get; } = new(InHeap: true, Rows: 8, MotherBrainCorpseArtworkDefinitions.ColumnCount,
         [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ColumnCount).Select(column => column * MotherBrainCorpseArtworkDefinitions.TileBytes / 2)],
-        [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ColumnCount).Select(MotherBrainCorpseArtworkDefinitions.ColumnMinimumY)],
+        [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ColumnCount).Select(MotherBrainCorpseSheet.ColumnMinimumY)],
         CopyLimit: MotherBrainCorpseRottingState.EntryCount - 2, Wrap: 212);
 
     /// <summary>Movers of a corpse staged in the enemy BG2 buffer, laid out as <paramref name="table"/> lays its rows.</summary>

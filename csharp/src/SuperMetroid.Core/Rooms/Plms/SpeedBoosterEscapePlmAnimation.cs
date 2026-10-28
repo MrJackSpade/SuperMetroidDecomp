@@ -12,7 +12,7 @@ internal sealed class SpeedBoosterEscapePlmAnimation()
 
     /// <inheritdoc/>
     private protected override SpeedBoosterEscapeProgram? ProgramAfterSleep(SpeedBoosterEscapeProgram program) =>
-        SpeedBoosterEscapePlmProgramDefinitions.PhaseAfter(program);
+        SpeedBoosterEscapePhases.PhaseAfter(program);
 
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(PlmNoDraw frame) =>

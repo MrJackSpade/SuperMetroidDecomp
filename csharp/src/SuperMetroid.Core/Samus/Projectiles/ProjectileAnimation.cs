@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class ProjectileAnimation
 {
     /// <summary>The installed cartridge bytes the charge flare reads below its programs.</summary>
-    internal SamusOverreadCatalog? Overreads { get; set; }
+    internal InstalledSamusOverreads? Overreads { get; set; }
 
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
     private readonly BeamChargeState _charge;
@@ -76,7 +76,7 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
+        SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
             slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")));
         sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY),
             SpriteMirror.None));
@@ -93,19 +93,19 @@ internal sealed class ProjectileAnimation
             return;
 
         int frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
-        int delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame, Overreads?.AnimationWindows);
-        if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
+        int delay = ChargeFlareAnimations.ReadDelay(component, frame, Overreads?.AnimationWindows);
+        if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
             switch (command)
             {
                 case ChargeFlareDelayCommand.Restart:
                     frame = 0;
-                    delay = ChargeFlareAnimationDefinitions.ReadDelay(component, 0, Overreads?.AnimationWindows);
+                    delay = ChargeFlareAnimations.ReadDelay(component, 0, Overreads?.AnimationWindows);
                     break;
                 case ChargeFlareDelayCommand.Rewind:
-                    int rewind = ChargeFlareAnimationDefinitions.ReadDelay(component, frame + 1, Overreads?.AnimationWindows);
+                    int rewind = ChargeFlareAnimations.ReadDelay(component, frame + 1, Overreads?.AnimationWindows);
                     frame = unchecked((ushort)(frame - rewind));
-                    delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame, Overreads?.AnimationWindows);
+                    delay = ChargeFlareAnimations.ReadDelay(component, frame, Overreads?.AnimationWindows);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {command}.");
@@ -161,10 +161,10 @@ internal sealed class ProjectileAnimation
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
-        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog.Contains(tableIndex))
+        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSprites.Contains(tableIndex))
             return;
-        SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetDefinitions.FlareFrame(
-            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
+        SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetFrames.FlareFrame(
+            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), image,
             Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
@@ -187,5 +187,5 @@ internal sealed class ProjectileAnimation
 
     /// <summary>Installed timed-frame sprite choices; null retains the cartridge diagnostic path.</summary>
     [field: NonSerialized]
-    public SuperMetroid.Core.Samus.Artwork.ProjectileFrameBindingCatalog? FrameBindings { get; set; }
+    public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
 }

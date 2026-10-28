@@ -29,8 +29,8 @@ public static class GameplayMessageNoticeExtractor
             int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
             int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            int rowCount = GameplayMessageNoticeDefinitions.ContentRows(id);
-            GameplayMessageRoutine expectedSetup = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
+            int rowCount = GameplayMessageNotices.ContentRows(id);
+            GameplayMessageRoutine expectedSetup = GameplayMessageNotices.IsSaveConfirmation(id)
                 ? GameplayMessageRoutine.SetupLarge
                 : GameplayMessageRoutine.SetupSmall;
             if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != expectedSetup ||
@@ -48,7 +48,7 @@ public static class GameplayMessageNoticeExtractor
 
             var regions = new List<GameplayMessageTextRegion>();
             foreach (GameplayMessageTextRegionDefinition region in
-                GameplayMessageNoticeDefinitions.StockTextRegions(id, template))
+                GameplayMessageNotices.StockTextRegions(id, template))
             {
                 BackgroundTile[] cells = template.AsSpan(
                     region.Row * GameplayMessageBoxDefinitions.Layout.TilemapWidth + region.Column,
@@ -77,7 +77,7 @@ public static class GameplayMessageNoticeExtractor
 
             BackgroundTile[]? yes = null;
             BackgroundTile[]? no = null;
-            if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
+            if (GameplayMessageNotices.IsSaveConfirmation(id))
             {
                 yes = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionYesSourceWord);
                 no = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionNoSourceWord);

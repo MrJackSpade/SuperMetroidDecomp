@@ -22,7 +22,7 @@ public sealed class PauseReserveTankPresentation
     /// <returns>The configured screen-pixel anchor for that strip position.</returns>
     public Position16<SpritePixels> Anchor(int index)
     {
-        var basis = PauseReserveTankDefinitions.StockAnchor(index);
+        var basis = PauseReserveTankParts.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
     /// <summary>The palette row every reserve-strip part draws in.</summary>
@@ -38,9 +38,9 @@ public sealed class PauseReserveTankPresentation
     {
         // The strip position is checked before the visual.
         Position16<SpritePixels> anchor = Anchor(index);
-        string name = PauseReserveTankDefinitions.Frames().Where(frame => frame.Id == visual).Select(frame => frame.Name)
+        string name = PauseReserveTankParts.Frames().Where(frame => frame.Id == visual).Select(frame => frame.Name)
             .SingleOrDefault() ?? throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}.");
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankDefinitions.SheetFrameName(name)), anchor);
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankParts.SheetFrameName(name)), anchor);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public sealed class PauseReserveTankPresentation
     /// </summary>
     internal SpriteFrame ToFrame(PauseReserveTankVisual visual, string frameName) =>
         Composition(visual) is { } composition ? composition.ToFrame(frameName, 0)
-            : new(frameName, [SpritePart.Single(PauseReserveTankDefinitions.StockTile(visual), 0, 3)
+            : new(frameName, [SpritePart.Single(PauseReserveTankParts.StockTile(visual), 0, 3)
                 .ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true)]);
 
     /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>
@@ -79,7 +79,7 @@ public sealed class PauseReserveTankPresentation
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank JSON.", error); }
         if (document.Version != PauseReserveTankDefinitions.Version || (uint)document.Palette > 7 ||
             document.Anchors is null || document.Anchors.Length != PauseReserveTankDefinitions.AnchorCount ||
-            document.Frames is null || document.Frames.Count != PauseReserveTankDefinitions.Frames().Count())
+            document.Frames is null || document.Frames.Count != PauseReserveTankParts.Frames().Count())
             throw new InvalidDataException("Reserve tanks require version 1, palette 0..7, six anchors and ten named frames.");
         foreach (var point in document.Anchors)
             if (point.X is < 0 or > 255 || point.Y is < 0 or > 223)
@@ -90,14 +90,14 @@ public sealed class PauseReserveTankPresentation
         {
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null)
                 throw new InvalidDataException($"Missing reserve tank frame {name}.");
-            return parts.Length == 1 && parts[0] == PauseReserveTankDefinitions.StockPart(identity)
+            return parts.Length == 1 && parts[0] == PauseReserveTankParts.StockPart(identity)
                 ? null : MenuSpriteCompiler.Compile(parts, name);
         }
         var anchorOverrides = new Dictionary<int, AnchorOverride>();
         for (int index = 0; index < document.Anchors.Length; index++)
         {
             var point = document.Anchors[index];
-            var basis = PauseReserveTankDefinitions.StockAnchor(index);
+            var basis = PauseReserveTankParts.StockAnchor(index);
             if (point.X != basis.X || point.Y != basis.Y)
                 anchorOverrides.Add(index, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }

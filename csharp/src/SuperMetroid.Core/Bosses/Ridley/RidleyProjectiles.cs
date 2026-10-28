@@ -97,7 +97,7 @@ internal sealed class RidleyProjectiles
         // EnemyMain binds live Samus before dispatch, including her current room
         // identity. Standalone fixtures without a room owner retain the default row.
         AreaId area = _deathsAndDrops.SamusForEnemyDrops?.LiquidPhysics.AreaIndex ?? AreaId.Crateria;
-        projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
+        projectile.Damage = RidleyProjectileDamage.ForArea(area);
     }
 
     /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>
@@ -112,7 +112,7 @@ internal sealed class RidleyProjectiles
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphics: default);
         dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(animation)));
+        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectiles.Program(animation)));
     }
 
     /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>

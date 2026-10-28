@@ -53,7 +53,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
     /// <summary>Overwrites one little-endian word field of the synthetic bank-$86 enemy-projectile definition.</summary>
     internal static void SeedEnemyProjectileDefinitionWord(
         TestAddressSpace bus, RoomEnemyProjectileKind kind, int fieldOffset, ushort value) =>
-        WriteTestWord(bus, 0x860000 | unchecked((ushort)((ushort)kind + fieldOffset)), value);
+        WriteTestWord(bus, 0x860000 | unchecked((ushort)(EnemyProjectileNativeWords.Kinds.Word(kind) + fieldOffset)), value);
 
     /// <summary>Overwrites one byte field of the synthetic bank-$A0 enemy definition.</summary>
     internal static void SeedEnemyDefinitionByte(TestAddressSpace bus, EnemyDefinitionId definition, int fieldOffset, byte value) =>

@@ -55,8 +55,8 @@ internal static class FileSelectSlotDestinationsVerification
                     int source = 0x810000 | ReadVerificationWord(rom, instruction - 2);
                     ushort firstTile = ReadVerificationWord(rom, source);
                     string[] pages = dataPage
-                        ? [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopySource), FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearSelection)]
-                        : [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData), FileSelectPresentationDefinitions.PageName(FileSelectPage.MainEmpty)];
+                        ? [FileSelectParts.PageName(FileSelectPage.CopySource), FileSelectParts.PageName(FileSelectPage.ClearSelection)]
+                        : [FileSelectParts.PageName(FileSelectPage.MainWithData), FileSelectParts.PageName(FileSelectPage.MainEmpty)];
                     foreach (string page in pages)
                     {
                         MapPresentationCell cell = document.Pages[page][expected / 2];

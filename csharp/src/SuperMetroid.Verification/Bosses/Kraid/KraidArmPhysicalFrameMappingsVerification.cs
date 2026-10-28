@@ -47,7 +47,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
             ushort record = (ushort)(frame + 2 + 8 * stationary);
             var expected = new Offset16<RoomPixels>(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                 unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))));
-            AssertTrue(KraidArmCollisionDefinitions.TryGetComponents(frame, out var components), "Stationary arm frame exists");
+            AssertTrue(KraidArmCollision.TryGetComponents(frame, out var components), "Stationary arm frame exists");
             KraidCollisionComponent actual = components[stationary];
             AssertEqual(expected, actual.Offset, "Native stationary arm component anchor");
             checkedPositions++;
@@ -64,7 +64,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         {
             ushort pointer = (ushort)raw;
             bool expectedMember = expectedPointers.Contains(pointer);
-            AssertEqual(expectedMember, KraidArmCollisionDefinitions.TryGetComponents(pointer, out var compiled),
+            AssertEqual(expectedMember, KraidArmCollision.TryGetComponents(pointer, out var compiled),
                 "Arm physical layout exact-pointer domain");
             if (!expectedMember) { AssertEqual(0, compiled.Length, "Rejected arm frame has no components"); continue; }
             AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length, "Native arm component count");

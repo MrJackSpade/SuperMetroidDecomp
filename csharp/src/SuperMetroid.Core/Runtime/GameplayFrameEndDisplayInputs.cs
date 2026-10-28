@@ -35,7 +35,7 @@ public sealed record GameplayFrameEndDisplayInputs(
     bool MotherBrainAscentShowing,
     MotherBrainRainbowBeamRenderSnapshot? RainbowBeam,
     CeresHazeRenderSnapshot? CeresHaze,
-    RoomFxPaletteBlendCatalog? RoomFxPaletteBlends,
+    RoomFxBlendInks? RoomFxPaletteBlends,
     PowerBombRenderSnapshot PowerBomb,
     MessageBoxRenderLayer? MessageBox,
     SamusSuitPickupBeam? SuitPickupBeam,

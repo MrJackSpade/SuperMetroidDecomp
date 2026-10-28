@@ -30,16 +30,16 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The artwork uploaded over the OBJ character table, which the Ceres Ridley arena's backgrounds show, and the gameplay base
 /// palettes, whose sprite rows every room load restores.
 /// </param>
-internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters, RoomMetatileCatalog Metatiles,
-    RoomStaticPaletteCatalog Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, RoomPlmDynamicCollectibleArtCatalog Collectibles,
-    BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemapCatalog BackgroundTilemaps, RoomSkyTilemapCatalog Skies,
-    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps, EnemySheetInputs Objects)
+internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
+    RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, InstalledDynamicCollectibleArt Collectibles,
+    BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
+    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentation Maps, EnemySheetInputs Objects)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        AreaMapPresentationCatalog maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
+        AreaMapPresentation maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
             RoomCharacterArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName), null),

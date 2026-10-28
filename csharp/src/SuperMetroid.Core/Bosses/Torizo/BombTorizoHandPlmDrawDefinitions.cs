@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -8,119 +8,38 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class BombTorizoHandPlmDrawDefinitions
 {
+    /// <summary>$84:989D: a cleared cell, air with blank tile FF.</summary>
+    private static readonly RoomLevelWord ClearedCell = RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air);
+
     /// <summary>
-    /// Intact is four horizontal strips: origin pair, left singleton, upper pair,
-    /// lower triple. Cleared splits the origin row into two halves then clears the
-    /// lower, top and upper rows of a four-by-four area. Original run order and
-    /// origin-relative continuations are preserved; all cleared words are air FF.
+    /// Each draw's horizontal strips in native run order. Intact ($84:9877) is four strips of solid blocks whose tiles are
+    /// consecutive within each spatial role: origin pair 65..66, left singleton 64, upper pair 45..46, lower triple
+    /// 47..49. Cleared ($84:989D) splits the origin row into two halves, then clears the lower, top and upper rows of a
+    /// four-by-four area.
     /// </summary>
-    internal readonly record struct Draw(BombTorizoHandDraw Frame)
+    internal static readonly Dictionary<BombTorizoHandDraw, BombTorizoHandStrip[]> Strips = new()
     {
-        /// <summary>Whether this list removes the hand's solid blocks instead of drawing intact stone.</summary>
-        internal bool IsCleared => Frame == BombTorizoHandDraw.Cleared;
-        /// <summary>Gets the number of horizontal strips in the selected native draw list.</summary>
-        internal int RunCount => IsCleared ? 5 : 4;
-        /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
-        internal int WordCount(int run)
-        {
-            CheckRun(run);
-            return IsCleared ? (run < 2 ? 2 : 4) : run switch { 1 => 1, 3 => 3, _ => 2 };
-        }
-        /// <summary>Gets a strip's horizontal origin relative to the hand PLM block.</summary>
-        internal sbyte OriginX(int run)
-        {
-            CheckRun(run);
-            return IsCleared ? (sbyte)(run == 0 ? 0 : -2) : (sbyte)-(run & 1);
-        }
-        /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
-        internal sbyte OriginY(int run)
-        {
-            CheckRun(run);
-            return (sbyte)(IsCleared ? run switch { 2 => 1, 3 => -2, 4 => -1, _ => 0 } :
-                run switch { 2 => -1, 3 => 1, _ => 0 });
-        }
-        /// <summary>Gets the next strip's relative X origin or zero at list termination.</summary>
-        internal sbyte NextX(int run)
-        {
-            CheckRun(run);
-            return run + 1 == RunCount ? (sbyte)0 : OriginX(run + 1);
-        }
-        /// <summary>Gets the next strip's relative Y origin or zero at list termination.</summary>
-        internal sbyte NextY(int run)
-        {
-            CheckRun(run);
-            return run + 1 == RunCount ? (sbyte)0 : OriginY(run + 1);
-        }
-        /// <summary>
-        /// $84:9877 intact strip tiles are consecutive within each spatial role:
-        /// origin 65..66, left 64, upper 45..46, lower 47..49, all solid type 8.
-        /// $84:989D clears sixteen cells to air with blank tile FF.
-        /// </summary>
-        internal ushort WordAt(int run, int word)
-        {
-            if ((uint)word >= WordCount(run)) throw new ArgumentOutOfRangeException(nameof(word));
-            if (IsCleared) return 0xff;
-            int firstTile = run switch { 0 => 0x65, 1 => 0x64, 2 => 0x45, _ => 0x47 };
-            return (ushort)(0x8000 | (firstTile + word));
-        }
-        /// <summary>Rejects strip indices outside the selected intact or cleared list.</summary>
-        private void CheckRun(int run)
-        {
-            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-        }
-    }
-
-    /// <summary>Recognizes one of the two native hand draw pointers and returns its calculated descriptor.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
-    {
-        bool owned = request is PlmFrameDraw<BombTorizoHandDraw>;
-        draw = owned ? new(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw")) : default;
-        return owned;
-    }
-
-    /// <summary>Enumerates temporary draw DTOs for intact and cleared hand artwork in native order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            TryGet(PlmDraw.Of(BombTorizoHandDraw.Intact), out var intact);
-            yield return intact;
-            TryGet(PlmDraw.Of(BombTorizoHandDraw.Cleared), out var cleared);
-            yield return cleared;
-        }
-    }
-
-    /// <summary>Expands a calculated hand draw into an import/export DTO; gameplay computes its strips directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(request, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var words = new ushort[draw.WordCount(run)];
-            for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
-            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(request, runs);
-        return true;
-    }
-
-    /// <summary>Gets the stable artwork ID for a supported native hand draw pointer.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        VisualId(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
-
-    /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
-    internal static string VisualId(BombTorizoHandDraw frame) => frame switch
-    {
-        BombTorizoHandDraw.Intact => "intact",
-        BombTorizoHandDraw.Cleared => "cleared",
-        _ => throw new InvalidOperationException($"Undefined BombTorizoHandDraw {frame}."),
+        [BombTorizoHandDraw.Intact] =
+        [
+            new(new(0, 0), [RoomLevelWord.Create(0x65, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x66, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(-1, 0), [RoomLevelWord.Create(0x64, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, -1), [RoomLevelWord.Create(0x45, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x46, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(-1, 1), [RoomLevelWord.Create(0x47, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x48, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x49, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+        ],
+        [BombTorizoHandDraw.Cleared] =
+        [
+            new(new(0, 0), [ClearedCell, ClearedCell]),
+            new(new(-2, 0), [ClearedCell, ClearedCell]),
+            new(new(-2, 1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
+            new(new(-2, -2), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
+            new(new(-2, -1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
+        ],
     };
 
-    /// <summary>Resolves an ordinal artwork ID to the corresponding temporary hand draw DTO.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
-
+    /// <summary>The intact and cleared hand draws' stable artwork identities.</summary>
+    internal static readonly Dictionary<BombTorizoHandDraw, string> VisualIds = new()
+    {
+        [BombTorizoHandDraw.Intact] = "intact",
+        [BombTorizoHandDraw.Cleared] = "cleared",
+    };
 }

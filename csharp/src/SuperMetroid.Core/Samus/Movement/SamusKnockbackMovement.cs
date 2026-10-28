@@ -206,7 +206,7 @@ level, targetPose, frameCounter, plms))
 
         // Hurt launch retains the native bottom-edge and Gravity-Suit selection.
         samus.Kinematics.YSpeed =
-            SamusVerticalMotionDefinitions.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
+            SamusVerticalMotion.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         if (humanoid)

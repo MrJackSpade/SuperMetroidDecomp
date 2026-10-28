@@ -146,6 +146,10 @@ internal static class ConsumerAudit
     /// <summary>Recognizes the artwork-layer and room presentation types that may consume installed resources.</summary>
     private static bool IsResourceType(ITypeSymbol type)
     {
+        // A type a reviewed contract or the installed-content declaration names is a resource type whatever its name.
+        string full = type.ToDisplayString();
+        if (ContractTypes.Contains(full) || InstalledContentTypes.Names.Contains(full))
+            return true;
         // Arrays, pointers and type parameters have no namespace and are not resource types.
         return type.ContainingNamespace?.ToDisplayString() is { } space &&
             (space == "SuperMetroid.Core.Assets" || space == "SuperMetroid.Core.Rooms" || space.StartsWith("SuperMetroid.Core.Rooms.", StringComparison.Ordinal) ||
@@ -157,6 +161,10 @@ internal static class ConsumerAudit
              // A family's drawer over its pre-coloured sheet selects a frame by identity (#1392).
              (type.Name.EndsWith("Sheet", StringComparison.Ordinal) && space.EndsWith(".Artwork", StringComparison.Ordinal)));
     }
+
+    /// <summary>The provider types the reviewed closed contracts name.</summary>
+    private static readonly HashSet<string> ContractTypes =
+        [.. ClosedContracts.ClosedPresentationContractDefinitions.All.Select(contract => contract.Type)];
 
     /// <summary>Whether a reviewed closed contract names <paramref name="method"/>'s static operation.</summary>
     private static bool ReviewedStaticOperation(IMethodSymbol method) =>
@@ -171,7 +179,7 @@ internal static class ConsumerAudit
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame") => ResourceDomains.EnemyProjectileProgram,
         ("EnemyProjectileSpritemapCatalog", "Get") => ResourceDomains.EnemyProjectileSprite,
         ("IPaletteFxColorSource" or "RoomPaletteFxPresentation", "TryReadColor") => ResourceDomains.PaletteFx,
-        ("ProjectileSpriteCatalog", "Frame") => ResourceDomains.SamusProjectile,
+        ("InstalledProjectileSprites", "Frame") => ResourceDomains.SamusProjectile,
         _ => null,
     };
 

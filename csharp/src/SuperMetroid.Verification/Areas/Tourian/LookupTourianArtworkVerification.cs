@@ -59,7 +59,7 @@ internal static class LookupTourianArtworkVerification
         int pictures = 0;
         foreach (ushort header in LookupTourianDescriptorsVerification.OriginalTourianObjects)
         {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"),
+            AssertTrue(TourianStatueAnimatedTiles.TryResolveObjectHeader(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"),
                 out var definition), "Original statue object resolves");
             TourianStatueAnimatedTileProgramDefinition resolved = definition ??
                 throw new InvalidOperationException("Verification requires definition.");

@@ -19,7 +19,7 @@ internal static class FrontendRenderCaptureTestsVerification
     /// <summary>Compares frame pixels, state, audio, and retained packet identity through the intro transition.</summary>
     internal static void VerifyFrontendRenderCapture()
     {
-        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
+        AreaMapPresentation presentation = RetailPresentationFixture();
         var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         legacy.BindArtwork(legacy.Artwork with

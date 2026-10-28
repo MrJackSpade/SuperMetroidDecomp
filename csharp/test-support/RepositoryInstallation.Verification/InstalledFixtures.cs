@@ -29,16 +29,16 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class InstalledFixtures
 {
     /// <summary>The installation's cartridge bytes Samus's glitch paths read, loaded once.</summary>
-    private static readonly Lazy<SamusOverreadCatalog> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
+    private static readonly Lazy<InstalledSamusOverreads> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
 
     /// <summary>The installation's cartridge bytes Samus's glitch paths read.</summary>
-    internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
+    internal static InstalledSamusOverreads SamusOverreads => samusOverreads.Value;
 
     /// <summary>The installation's starting and common sprite colours, loaded once.</summary>
-    private static readonly Lazy<GameplayBasePaletteCatalog> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
+    private static readonly Lazy<GameplayBasePalette> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
 
     /// <summary>The installation's starting and common sprite colours.</summary>
-    internal static GameplayBasePaletteCatalog GameplayBasePalettes => gameplayBasePalettes.Value;
+    internal static GameplayBasePalette GameplayBasePalettes => gameplayBasePalettes.Value;
 
     /// <summary>Lazy stock character, palette, visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
@@ -51,7 +51,7 @@ internal static class InstalledFixtures
         RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
 
     /// <summary>Lazy map and shared presentation resources.</summary>
-    private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
+    private static readonly Lazy<AreaMapPresentation> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
 
     /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
     private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
@@ -60,10 +60,10 @@ internal static class InstalledFixtures
     private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => RepositoryInstallation.Installation.LoadProjectiles());
 
     /// <summary>Lazy Samus body and arm-cannon artwork.</summary>
-    private static readonly Lazy<SamusBodyArtworkCatalog> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
+    private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
-    private static readonly Lazy<IntroCinematicArtworkCatalog> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
+    private static readonly Lazy<IntroCinematicArtwork> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
@@ -83,7 +83,7 @@ internal static class InstalledFixtures
         RoomBlockComposition.StockTiles(BlockCompositions, tileset.Blocks, ceres);
 
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
-    internal static AreaMapPresentationCatalog Maps => maps.Value;
+    internal static AreaMapPresentation Maps => maps.Value;
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileArtworkCatalog EnemyTiles => enemyArtwork.Value.Enemies;
@@ -95,7 +95,7 @@ internal static class InstalledFixtures
     internal static BossArtworkCatalog BossArtwork => enemyArtwork.Value.Bosses;
 
     /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
-    internal static AreaArtworkCatalog AreaArtwork => enemyArtwork.Value.Areas;
+    internal static AreaArtworkBundle AreaArtwork => enemyArtwork.Value.Areas;
 
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
@@ -138,10 +138,10 @@ internal static class InstalledFixtures
     }
 
     /// <summary>The installation's Samus body and arm-cannon artwork, loaded once per process.</summary>
-    internal static SamusBodyArtworkCatalog SamusBody => samusBody.Value;
+    internal static InstalledSamusBodyArtwork SamusBody => samusBody.Value;
 
     /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
-    internal static IntroCinematicArtworkCatalog IntroArtwork => introArtwork.Value;
+    internal static IntroCinematicArtwork IntroArtwork => introArtwork.Value;
 
     /// <summary>Creates a Samus projectile system with installed frame bindings.</summary>
     internal static SamusProjectileSystem CreateProjectileSystem() =>
@@ -173,14 +173,14 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>
         new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
-        IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamPaletteCatalog? beamPalettes = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
+        IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
+        InstalledBeamPalettes? beamPalettes = null, InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)

@@ -49,7 +49,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             for (int index = 0; index < RoomPaletteFxDefinitions.DefinitionByteCount; index++)
                 forbidden.Add(address + index);
 
-            RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
+            RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(pointer);
             if (definition.InitialProgram == PaletteFxProgram.HyperBeam0)
             {
                 specializedCompiledPrograms++;
@@ -98,7 +98,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition, (AreaId)area,
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
-                PaletteFxObjectAccess.NativeAddress(RoomPaletteFxDefinitions.GetAreaDefinition(area, bit)),
+                PaletteFxObjectAccess.NativeAddress(RoomPaletteFxSelection.GetAreaDefinition(area, bit)),
                 ActivePaletteFxSlot(system).Id,
                 $"area {area} bit {bit} production room load");
         }
@@ -115,14 +115,14 @@ internal static class RoomPaletteFxDefinitionsVerification
             () => PaletteFxObjectAccess.FromNative(0),
             "zero palette-FX definition is outside the authored domain");
         AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxDefinitions.Get(
+            () => RoomPaletteFxSelection.Get(
                 unchecked((ushort)(RoomPaletteFxDefinitions.RoomDefinitionsBegin + 1))),
             "unaligned palette-FX definition is outside the authored domain");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomPaletteFxDefinitions.GetAreaDefinition(-1, 0),
+            () => RoomPaletteFxSelection.GetAreaDefinition(-1, 0),
             "negative palette-FX area index");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomPaletteFxDefinitions.GetAreaDefinition(0, 8),
+            () => RoomPaletteFxSelection.GetAreaDefinition(0, 8),
             "out-of-range palette-FX bit index");
 
         Console.WriteLine(
@@ -137,7 +137,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     {
         foreach (ushort pointer in pointers)
         {
-            RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
+            RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(pointer);
             var systemSession = new PaletteFxSessionState();
             var system = new RoomPaletteFxSystem(systemSession);
             system.SpawnDefinition(pointer, equippedItems: 0);

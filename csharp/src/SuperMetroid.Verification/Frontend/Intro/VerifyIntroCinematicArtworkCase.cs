@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
-internal readonly record struct VerifyIntroCinematicArtworkCase(string First, int Second, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>> Third);
+internal readonly record struct VerifyIntroCinematicArtworkCase(string First, int Second, Func<IntroCinematicArtwork, ReadOnlyMemory<byte>> Third);

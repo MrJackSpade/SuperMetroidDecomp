@@ -32,21 +32,21 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         Suite(nameof(VerifyTubeVisuals), () => VerifyTubeVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            NoobTubePlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            NoobTubePlmDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                NoobTubePlmDrawDefinitions.VisualId(draw.Draw),
+                NoobTubePlmDraws.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         RoomPlmVisualEntry cleared = entries.Single(entry =>
             entry.Id == "cleared");
         ushort originalWord = cleared.Blocks[24];
         cleared.Blocks[24] = 0x0059;
-        var edited = new RoomPlmNoobTubeVisualCatalog(entries);
+        var edited = new InstalledRoomPlmNoobTubeVisuals(entries);
         cleared.Blocks[24] = 0x005a;
         AssertEqual((ushort)0x0059, edited.GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
             "n00b-tube catalog copies author data");
         AssertEqual(originalWord,
-            RoomPlmNoobTubeVisualCatalog.Stock().GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
+            InstalledRoomPlmNoobTubeVisuals.Stock().GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
             "stock n00b-tube catalog retains the native row tile");
         cleared.Blocks[24] = originalWord;
         AssertEqual(7, lists.Length,
@@ -67,7 +67,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
         RoomPlmShotBlockDrawDefinitions.DrawList selected,
-        RoomPlmNoobTubeVisualCatalog? visuals)
+        InstalledRoomPlmNoobTubeVisuals? visuals)
     {
         const int width = 16;
         const int height = 16;
@@ -94,7 +94,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         var expected = new Dictionary<int, ushort>();
         foreach (RoomPlmShotBlockDrawDefinitions.Run run in selected.Runs.Span)
         {
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
+            bool vertical = run.Direction == PlmRunDirection.Vertical;
             for (int block = 0; block < run.LevelWords.Length; block++)
             {
                 int x = entryX + (vertical ? 0 : block);

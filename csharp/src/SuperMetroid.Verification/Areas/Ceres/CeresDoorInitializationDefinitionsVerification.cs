@@ -28,7 +28,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
         for (ushort variant = 0; variant < 7; variant++)
         {
             CeresDoorInitializationDefinition definition =
-                CeresDoorInitializationDefinitions.For(variant);
+                CeresDoorInitializations.For(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + variant * 2)),
                 CeresNativeWords.DoorFunctions.Word(definition.MainFunction),
                 $"Ceres door function selector {variant}");
@@ -56,7 +56,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresDoorInitializationDefinitions.For(7),
+            () => CeresDoorInitializations.For(7),
             "Ceres door selector past definitions");
         Console.WriteLine(
             "Ceres door initialization definitions: all fourteen native selector words and seven production initializers pass with both source tables forbidden.");

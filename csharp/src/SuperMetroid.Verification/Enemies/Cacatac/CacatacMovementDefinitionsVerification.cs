@@ -22,7 +22,7 @@ internal static class CacatacMovementDefinitionsVerification
             {
                 int address = distanceTable + distanceIndex * 2;
                 ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(native, CacatacMovementDefinitions.TravelDistance(distanceIndex),
+                AssertEqual(native, CacatacPatrol.TravelDistance(distanceIndex),
                     $"compiled Cacatac travel distance {distanceIndex}");
 
                 slot.SetSpawnParameter1(0);
@@ -37,9 +37,9 @@ internal static class CacatacMovementDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(() => CacatacMovementDefinitions.TravelDistance(6),
+        AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(6),
             "Cacatac travel distance beyond authored table");
-        AssertThrows<InvalidDataException>(() => CacatacMovementDefinitions.TravelDistance(byte.MaxValue),
+        AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(byte.MaxValue),
             "Cacatac restored travel selector does not read adjacent code");
 
         Console.WriteLine(

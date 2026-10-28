@@ -9,7 +9,7 @@ internal static class RoomSkyTilemapFixtures
     internal static ushort NumberedWord(int page, int cell) => (ushort)(page * RoomBackgroundTilemapFormat.CellsPerPage + cell);
 
     /// <summary>Seven pages whose every tile word names its own page and cell, so a sky row shows where it was read.</summary>
-    internal static RoomSkyTilemapCatalog Numbered()
+    internal static RoomSkyTilemaps Numbered()
     {
         var pages = new RoomBackgroundTilemapAtlas[RoomSkyTilemapFormat.PageCount];
         for (int page = 0; page < pages.Length; page++)
@@ -19,6 +19,6 @@ internal static class RoomSkyTilemapFixtures
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * 2), NumberedWord(page, cell));
             pages[page] = new RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
         }
-        return new RoomSkyTilemapCatalog(pages);
+        return new RoomSkyTilemaps(pages);
     }
 }

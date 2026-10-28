@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// The routine a Metaree's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum MetareeEnemyFunction : ushort
+public enum MetareeEnemyFunction
 {
     /// <summary>$A3:8987, Function_Metaree_Idling: activates within 72 horizontal pixels, without checking that Samus is below, and fixes the unsigned downward speed for the attack.</summary>
     Idling = 1,

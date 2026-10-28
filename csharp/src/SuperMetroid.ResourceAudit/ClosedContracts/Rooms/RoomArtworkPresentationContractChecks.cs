@@ -22,8 +22,8 @@ internal static class RoomArtworkPresentationContractChecks
         string consumer = """
             using SuperMetroid.Core.Rooms.Artwork;
             class RoomArtConsumer {
-                void Inspect(RoomCharacterAtlasCatalog characters,
-                    RoomStaticPaletteCatalog colors, RoomSkyTilemapCatalog sky, RoomBackgroundTilemapCatalog library) {
+                void Inspect(RoomCharacterAtlases characters,
+                    RoomStaticPalettes colors, RoomSkyTilemaps sky, RoomBackgroundTilemaps library) {
                     sky.Page(0, RoomSkyTilemapFormat.PageTiles);
                     sky.Page(RoomSkyTilemapFormat.PageCount - 1, RoomSkyTilemapFormat.PageTiles);
                     sky.Page(0, 64);
@@ -38,7 +38,7 @@ internal static class RoomArtworkPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomArtworkProviderFixture", sources,
-            platforms.Append(typeof(RoomCharacterAtlasCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(RoomCharacterAtlases).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -51,13 +51,14 @@ internal static class RoomArtworkPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "RoomArtworkPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 7, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
         // The sky copies whole pages only; its rows are read from the pages, not transferred (#1347). So the first and
         // last whole pages qualify, and a partial page or a page outside the seven stays a finding (#1414).
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
             after.Consumers.Count == 7, "whole sky pages qualify, not partial pages or pages outside the sky" + " (" + after.Describe() + ")");
-        Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemapCatalog.Get"),
+        Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemaps.Get"),
             "an unowned background source must not borrow required graphics-set source closure");
     }
 

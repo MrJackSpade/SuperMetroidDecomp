@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// before dispatch, so touch collision must republish <see cref="TouchingSamus"/> every frame
 /// for the creature to remain latched on.
 /// </summary>
-public enum MochtroidMovementMode : ushort
+public enum MochtroidMovementMode
 {
     /// <summary>Uses proportional free flight toward Samus.</summary>
     NotTouchingSamus = 0,

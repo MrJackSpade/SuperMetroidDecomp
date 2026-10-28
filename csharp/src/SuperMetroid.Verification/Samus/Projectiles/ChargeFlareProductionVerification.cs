@@ -27,11 +27,11 @@ internal static class ChargeFlareProductionVerification
 {
     /// <summary>Compares normal and Hyper flare frames with native OAM, then checks visual edits leave projectile state intact.</summary>
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
-        ChargeFlareSpriteCatalog stock,
-        SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
-        AreaMapPresentationCatalog maps)
+        ChargeFlareSprites stock,
+        InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
+        AreaMapPresentation maps)
     {
-        var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
+        var placement = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         int ticks = 0;
         foreach (SamusPoseId pose in new[]
         {
@@ -141,7 +141,7 @@ internal static class ChargeFlareProductionVerification
     internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();
-        for (int i = 0; i < ChargeFlareSpriteDefinitions.Selectors.Count * 2; i++)
+        for (int i = 0; i < ChargeFlareSpriteSelection.Selectors.Count * 2; i++)
             forbidden.Add(ChargeFlareSpriteDefinitions.SelectorTable + i);
         foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
         {

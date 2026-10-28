@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 /// The routine a Mellow-family enemy's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum FlyEnemyFunction : ushort
+public enum FlyEnemyFunction
 {
     /// <summary>Native <c>Function_Flies_IdleMovement_ClockwiseCircle</c> at <c>$A2:B14E</c>; circles with increasing table offsets, switching direction on wrap or attacking when cooldown is zero and Samus is within 112 horizontal pixels.</summary>
     ClockwiseCircle = 1,

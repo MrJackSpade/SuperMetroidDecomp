@@ -177,8 +177,11 @@ public static class RoomScrollDefinitions
         new(nameof(UpperTourianSave), Convert.FromHexString("0100060C0D010370A0058BDF29E60171DFE6E546B8CD112D0646A18AE818920000000000001FE5BBC8D4E176C946B8CD1200")),
     ];
 
+    /// <summary>Every compiled scroll by its name.</summary>
+    private static readonly Dictionary<string, RoomScrollDefinition> ByName = Definitions.ToDictionary(scroll => scroll.Name);
+
     /// <summary>The compiled explicit allocation named <paramref name="name"/>.</summary>
-    private static RoomScrollDefinition Find(string name) => Definitions.Single(scroll => scroll.Name == name);
+    private static RoomScrollDefinition Find(string name) => ByName[name];
 
     /// <summary>The implicit layout whose bottom row is blue and every other row green.</summary>
     public static RoomScrollDefinition GreenWithBlueBottomRow { get; } = RoomScrollDefinition.Implicit(nameof(GreenWithBlueBottomRow), RoomScrollState.Blue);

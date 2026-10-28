@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -19,13 +18,4 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// <remarks>This materially determines visibility against background layers. Only the eight
     /// original attribute words are covered; independent tile pixels, RGB colors and timing are not exempt.</remarks>
     internal const int Priority = 2;
-
-    /// <summary>The native appearance of a bounded footstep or lava/dust frame, retaining palette and priority routing.</summary>
-    internal static SpritePart Attributes(bool footstep, int frame)
-    {
-        if ((uint)frame >= SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return SpritePart.Single((footstep ? FootstepFirstTile : LavaDustFirstTile) + frame,
-            Palette, Priority);
-    }
 }

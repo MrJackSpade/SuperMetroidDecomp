@@ -13,7 +13,7 @@ internal static class CrocomireCorpseCollisionDefinitions
     /// <summary>Physical component offsets and hitbox lists for each of the 33 corpse frames.</summary>
     /// <remarks>The hitbox lists precede the frames that reference them: static fields initialise in declaration
     /// order.</remarks>
-    private static readonly Dictionary<EnemyFrameId, CrocomireBodyCollisionComponent[]> Frames = new()
+    internal static readonly Dictionary<EnemyFrameId, CrocomireBodyCollisionComponent[]> Frames = new()
     {
         [EnemyFrameId.CrocomireSkeleton0] = [new(new(-16, 7), CorpseEmpty), new(new(-4, -47), CorpseBody), new(new(-25, -8), CorpseEmpty), new(new(-1, 5), CorpseEmpty), new(new(-28, 20), CorpseEmpty)],
         [EnemyFrameId.CrocomireSkeleton1] = [new(new(-16, 4), CorpseEmpty), new(new(-3, -49), CorpseBody), new(new(-25, -8), CorpseEmpty), new(new(-1, 3), CorpseEmpty), new(new(-30, 20), CorpseEmpty)],
@@ -49,10 +49,4 @@ internal static class CrocomireCorpseCollisionDefinitions
         [EnemyFrameId.CrocomireSkeleton31] = [new(new(0, 0), CorpseEmpty)],
         [EnemyFrameId.CrocomireSkeleton32] = [new(new(32, 32), CorpseEmpty)],
     };
-
-    /// <summary>Whether <paramref name="frame"/> is one of the corpse frames.</summary>
-    internal static bool HasFrame(EnemyFrameId? frame) => frame is { } shown && Frames.ContainsKey(shown);
-    /// <summary>Returns physical component placement for a compiled corpse frame.</summary>
-    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && Frames.TryGetValue(shown, out var parts) ? parts : throw new InvalidDataException($"Unknown Crocomire corpse frame {frame}.");
 }

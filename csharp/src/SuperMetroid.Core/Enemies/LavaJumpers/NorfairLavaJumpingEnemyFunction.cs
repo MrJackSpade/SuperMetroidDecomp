@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// <c>NorfairLavajumpingEnemy</c>; the ROM name record spells the internal name <c>SQUEEWPT</c>.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum NorfairLavaJumpingEnemyFunction : ushort
+public enum NorfairLavaJumpingEnemyFunction
 {
     /// <summary>$A2:BEDC, Function_Squeept_Flame: the immediately following cosmetic slot copies parent freeze/Y state, is visible only during unfrozen ascent, and deletes itself when parent health is zero.</summary>
     FollowParent = 1,

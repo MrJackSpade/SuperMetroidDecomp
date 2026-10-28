@@ -106,7 +106,7 @@ public static class IntroNarrationExtractor
             if (column != previousColumn + 1)
                 throw new InvalidDataException(
                     $"Opening-narration {page.Id} row {row} skips from column {previousColumn} to {column}.");
-            rows[row].Append(IntroNarrationDefinitions.DecodeGlyph(
+            rows[row].Append(IntroNarrationGlyphs.DecodeGlyph(
                 BackgroundTileWords.ToTile(ReadWord(bus, Add(dataPointer, 4)))));
             previousColumn = column;
             cursor = Add(cursor, 6);

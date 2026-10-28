@@ -326,7 +326,7 @@ internal sealed class NorfairRidleyCombat
         InitializeNorfairRidleyPogoVelocity(state);
         for (int index = 0; index < state.TailSegments.Length; index++)
         {
-            state.TailSegments[index].Distance = RidleyTailDefinitions.RestDistance(index);
+            state.TailSegments[index].Distance = RidleyTailReach.RestDistance(index);
             state.TailSegments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
         }
         state.TailFunctionIndex = RidleyTailFunction.Pogo;
@@ -374,7 +374,7 @@ internal sealed class NorfairRidleyCombat
     {
         // The native routine samples the current word; it does not advance shared RNG.
         int randomIndex = _room.Random.Read() & 3;
-        var definition = RidleyPogoDefinitions.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
+        var definition = RidleyPogo.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
         state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
@@ -532,7 +532,7 @@ internal sealed class NorfairRidleyCombat
         if (samus is null)
             return false;
         SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus);
-        return RidleySamusInteractionDefinitions.CanGrab(movement);
+        return RidleyGrabs.CanGrab(movement);
     }
 
     /// <summary>

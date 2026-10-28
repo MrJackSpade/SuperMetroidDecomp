@@ -142,7 +142,7 @@ internal sealed class CorpseRotSimulation
     private static CorpseRotSimulation Tourian(EnemyTileArtworkCatalog enemies, EnemyDefinitionId enemy, DeadTourianCorpseSpecies species, int variant)
     {
         DeadTourianCorpseVariant layout = DeadTourianCorpseStagingDefinitions.Variants(species)[variant];
-        DeadTourianCorpseDefinition definition = DeadTourianCorpseDefinitions.For(species, variant);
+        DeadTourianCorpseDefinition definition = DeadTourianCorpses.For(species, variant);
         CorpseStaging staged = CorpseStaging.Tourian(
             Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), layout);
         CorpseRowGeometry geometry = CorpseRowGeometry.Tourian(species, layout, definition.WrapOffset);

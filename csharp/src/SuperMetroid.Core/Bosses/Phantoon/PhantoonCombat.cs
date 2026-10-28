@@ -150,7 +150,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(body.Frame) ||
+            CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
@@ -170,7 +170,7 @@ internal sealed class PhantoonCombat
             // A0:9BE6..9BF6 excludes bombs and every family at/above beam
             // explosions. Lingering missile explosions must not reach shot AI.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
-                >= SamusProjectileFamily.BeamExplosion)
+                SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
             if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
@@ -198,7 +198,9 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShotAi == EnemyInteractionCallback.NoOp ||
-                Part(body).Function >= PhantoonAiFunction.DyingFadeInOut)
+                Part(body).Function is PhantoonAiFunction.DyingFadeInOut or PhantoonAiFunction.DyingExplosions or
+                    PhantoonAiFunction.BeginFinalWavyDeath or PhantoonAiFunction.DyingFadeOut or PhantoonAiFunction.AlmostDead or
+                    PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
             {
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,
@@ -659,7 +661,7 @@ internal sealed class PhantoonCombat
         // data. Preserve the native component and rectangle order from
         // the compiled bank-$A7 definitions, including point no-ops.
         foreach (PhantoonCollisionComponent component in
-                 PhantoonCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 PhantoonCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)

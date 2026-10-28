@@ -51,5 +51,5 @@ public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSett
     public static SelectedRoom LoadUsingCompiledSelection(
         RoomHeaderDefinition room,
         RoomStateSelectionContext selection = default) =>
-        new(Ensure.NotNull(room), RoomStateSelectionDefinitions.Select(room, selection));
+        new(Ensure.NotNull(room), RoomStateSelection.Select(room, selection));
 }

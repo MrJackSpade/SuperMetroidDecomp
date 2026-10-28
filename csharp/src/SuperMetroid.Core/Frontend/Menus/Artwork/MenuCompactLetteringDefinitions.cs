@@ -21,9 +21,4 @@ internal static class MenuCompactLetteringDefinitions
         new("SELECT", [new(0xa5, 0xa7)], new(0, 1), true),
         new("START", [new(0xa8, 0xaa)], new(2, 1), true),
     ];
-
-    /// <summary>The label strip spelling <paramref name="text"/>.</summary>
-    internal static MenuLetteringStrip Strip(string text) =>
-        Strips.FirstOrDefault(strip => strip.Text == text) ??
-        throw new ArgumentOutOfRangeException(nameof(text), text, "No compact-lettering label spells this text.");
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// The routine a Skree's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum SkreeEnemyFunction : ushort
+public enum SkreeEnemyFunction
 {
     /// <summary><c>$A3:C6D5</c>: waits until Samus is within 48 horizontal pixels.</summary>
     Idling = 1,

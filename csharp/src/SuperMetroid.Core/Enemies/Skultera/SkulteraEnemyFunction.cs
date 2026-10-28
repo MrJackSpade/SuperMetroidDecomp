@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// The routine a Skultera's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum SkulteraEnemyFunction : ushort
+public enum SkulteraEnemyFunction
 {
     /// <summary>$A3:9132, Function_Skultera_SwimmingLeft: applies signed 16.16 leftward displacement and whole-pixel sine-offset changes; either axis collision starts a right turn.</summary>
     SwimmingLeft = 1,

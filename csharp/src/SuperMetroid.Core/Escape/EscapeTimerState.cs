@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>Low-byte entries in the dispatch table at <c>$80:9DFB</c>.</summary>
-public enum EscapeTimerState : byte
+public enum EscapeTimerState
 {
     /// <summary>Dispatch state 0, native <c>ProcessTimer_Inactive</c> at <c>$80:9E1A</c>: leaves timer fields unchanged and reports no expiration.</summary>
     Inactive = 0,

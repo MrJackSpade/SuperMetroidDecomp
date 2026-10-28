@@ -37,13 +37,13 @@ internal static class GrappleFiringDefinitionsVerification
         var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         var stockFlare = grapple.FlarePlacement;
-        var editedFlare = ChargeFlarePlacementCatalog.Load(new MemoryStream(
-            ChargeFlarePlacementCatalog.Write(new()
+        var editedFlare = ChargeFlarePlacements.Load(new MemoryStream(
+            ChargeFlarePlacements.Write(new()
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
                 Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, 16)
                     .Select(direction => new EditedFlare(running, direction))).ToDictionary(
-                        entry => ChargeFlarePlacementDefinitions.Key(entry.Running, entry.Direction),
+                        entry => ChargeFlarePlacementOffsets.Key(entry.Running, entry.Direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),
             })));
         // Exercise each compiled movement family with a real pose instead of rewriting
@@ -227,11 +227,11 @@ internal static class GrappleFiringDefinitionsVerification
         {
             int source = address + 2 * direction;
             short expected = unchecked((short)(LittleEndianBytes.Word(GrappleOriginFieldRomByte(rom, source), GrappleOriginFieldRomByte(rom, source + 1))));
-            AssertEqual(expected, select(GrappleFiringDefinitions.Origin(direction, running)),
+            AssertEqual(expected, select(GrappleFiring.Origin(direction, running)),
                 $"Grapple origin {label} direction {direction}");
         }
         foreach (byte direction in new byte[] { 10, byte.MaxValue })
-            AssertThrows<InvalidDataException>(() => GrappleFiringDefinitions.Origin(direction, running),
+            AssertThrows<InvalidDataException>(() => GrappleFiring.Origin(direction, running),
                 $"Grapple origin {label} bounds");
     }
 
@@ -240,17 +240,17 @@ internal static class GrappleFiringDefinitionsVerification
     /// <summary>Checks launch X velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
-            direction => GrappleFiringDefinitions.Launch(direction).Velocity.X.RawValue, "X velocity"));
+            direction => GrappleFiring.Launch(direction).Velocity.X.RawValue, "X velocity"));
 
     /// <summary>Checks launch Y velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
-            direction => GrappleFiringDefinitions.Launch(direction).Velocity.Y.RawValue, "Y velocity"));
+            direction => GrappleFiring.Launch(direction).Velocity.Y.RawValue, "Y velocity"));
 
     /// <summary>Checks initial Grapple angle for every direction.</summary>
     internal static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
-            direction => GrappleFiringDefinitions.Launch(direction).Angle.RawValue, "angle"));
+            direction => GrappleFiring.Launch(direction).Angle.RawValue, "angle"));
 
     /// <summary>Compares one launch field with all native table entries and checks selector bounds.</summary>
     private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,

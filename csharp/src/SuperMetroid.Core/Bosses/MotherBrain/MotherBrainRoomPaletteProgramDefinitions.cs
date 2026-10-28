@@ -13,12 +13,5 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     internal const ushort FlashImageTicks = 2;
 
     /// <summary>Reviewed visual strength sequence in thirds for the fourteen events at $A9:D046-$D07C; each returns a paint image without gameplay callbacks.</summary>
-    internal static int FlashStrength(int frame) => frame switch
-    {
-        1 or 5 or 8 => 1,
-        2 or 11 or 13 => 2,
-        3 or 7 or 10 => 3,
-        0 or 4 or 6 or 9 or 12 => 0,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
-    };
+    internal static readonly int[] FlashStrengths = [0, 1, 2, 3, 0, 1, 0, 3, 1, 0, 3, 2, 0, 2];
 }

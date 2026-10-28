@@ -71,10 +71,10 @@ internal static class RoomSetupCodeCatalogVerification
             AssertTrue(retailSetupPointers.Contains(pointer),
                 $"catalogued room-setup callback $8F:{pointer:X4} occurs in a retail state");
         }
-        AssertTrue(RoomCallbackDefinitions.SpawnsCeresHaze(
+        AssertTrue(RoomCallbackDefinitions.CeresHazeSetups.Contains(
                 RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze),
             "Ceres solid-door setup declares haze side effect");
-        AssertTrue(!RoomCallbackDefinitions.SpawnsCeresHaze(
+        AssertTrue(!RoomCallbackDefinitions.CeresHazeSetups.Contains(
                 RoomSetupCallback.SetMediumHorizontalRoomShaking),
             "unrelated setup does not acquire Ceres haze");
 

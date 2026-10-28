@@ -31,7 +31,7 @@ internal static class TextAndMapPresentationContractChecks
             using SuperMetroid.Core.Rooms;
             class TextMapConsumer {
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
-                    EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites, SpriteSheet mapSheet,
+                    EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCompositions sprites, SpriteSheet mapSheet,
                     MapArrowPresentation arrows, MapScreenPresentation screen,
                     ScreenSprites objects, System.Span<BackgroundTile> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
@@ -77,6 +77,7 @@ internal static class TextAndMapPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "TextAndMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 23, "all twenty-three calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 14 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&

@@ -12,9 +12,9 @@ internal sealed class EndingRewardStandingParts(int armParts) : IReadOnlyList<Co
     /// <summary>Replaces matching stock standing poses with calculated parts while preserving edited compositions.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.LargeSamusFromEndingStanding))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.LargeSamusFromEndingStanding))
             return supplied.CalculateIfMatching(new EndingRewardStandingParts(armParts: 4));
-        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.HeadlessArmlessSuitedSamus))
+        if (shown == EndingRewardSpritePoses.FramePose(Pose.HeadlessArmlessSuitedSamus))
             return supplied.CalculateIfMatching(new EndingRewardStandingParts(armParts: 0));
         return supplied;
     }

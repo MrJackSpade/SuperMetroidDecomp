@@ -22,7 +22,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         for (ushort frame = 0; frame < 4; frame++)
         {
             Offset16<RoomPixels> actual =
-                MetroidBehaviorDefinitions.EscapeDisplacement(frame);
+                MetroidReactions.EscapeDisplacement(frame);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea3f + frame * 2))), actual.X,
                 $"Metroid escape X displacement {frame}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea47 + frame * 2))), actual.Y,
@@ -31,7 +31,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (ushort index = 0; index < 8; index++)
         {
-            SoundEffectId cry = MetroidBehaviorDefinitions.RandomCrySoundEffect(index);
+            SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(index);
             AssertEqual(SoundEffectCommands.Decode(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
                 cry,
                 $"Metroid random cry {index}");
@@ -64,7 +64,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             };
 
             Offset16<RoomPixels> expected =
-                MetroidBehaviorDefinitions.EscapeDisplacement((ushort)timer);
+                MetroidReactions.EscapeDisplacement((ushort)timer);
             MetroidBehavior.RunMetroidPowerBombEscape(slot, state);
             AssertEqual(unchecked((ushort)(1 + expected.X)), slot.Position.X.Whole,
                 $"production Metroid escape X timer {timer}");
@@ -105,7 +105,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, 0);
 
-            AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
+            AssertEqual((SoundEffectId?)MetroidReactions.RandomCrySoundEffect(random),
                 enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,
                 $"production Metroid random cry {random}");
             AssertEqual(16, slot.InstructionTimer.RawValue,

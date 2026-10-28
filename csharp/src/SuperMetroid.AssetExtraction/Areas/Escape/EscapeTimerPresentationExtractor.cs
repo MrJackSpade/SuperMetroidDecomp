@@ -16,10 +16,10 @@ public static class EscapeTimerPresentationExtractor
             DigitSpacing = 8,
             Anchors = new(StringComparer.Ordinal)
             {
-                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Label)] = new(0, 0),
-                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Minutes)] = new(-28, 0),
-                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Seconds)] = new(-4, 0),
-                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Centiseconds)] = new(20, 0),
+                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Label)] = new(0, 0),
+                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Minutes)] = new(-28, 0),
+                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Seconds)] = new(-4, 0),
+                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Centiseconds)] = new(20, 0),
             },
         });
         return output.ToArray();

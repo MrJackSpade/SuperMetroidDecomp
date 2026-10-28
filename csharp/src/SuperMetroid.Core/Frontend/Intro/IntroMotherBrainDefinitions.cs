@@ -27,23 +27,21 @@ internal static class IntroMotherBrainDefinitions
     /// <summary>Number of records in the <c>$8B:B9FD-$BA0E</c> small-explosion tables.</summary>
     public const int SmallExplosionCount = 3;
 
-    /// <summary>Returns one complete <c>$8B:B98D</c> large-explosion placement record.</summary>
-    public static IntroMotherBrainExplosionPlacement BigExplosion(int index) => index switch
-    {
-        0 => new(new(0, 0), 1),
-        1 => new(new(16, -16), 16),
-        2 => new(new(-16, 8), 32),
-        3 => new(new(-8, -16), 48),
-        4 => new(new(8, 8), 64),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    /// <summary>The values <see cref="IntroMotherBrainExplosionPlacements.BigExplosion"/> selects, in index order.</summary>
+    internal static readonly IntroMotherBrainExplosionPlacement[] BigExplosions =
+    [
+        new(new(0, 0), 1),
+        new(new(16, -16), 16),
+        new(new(-16, 8), 32),
+        new(new(-8, -16), 48),
+        new(new(8, 8), 64),
+    ];
 
-    /// <summary>Returns one complete <c>$8B:B9D4</c> small-explosion placement record.</summary>
-    public static IntroMotherBrainExplosionPlacement SmallExplosion(int index) => index switch
-    {
-        0 => new(new(16, 0), 1),
-        1 => new(new(-16, 4), 8),
-        2 => new(new(-16, -8), 16),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    /// <summary>The values <see cref="IntroMotherBrainExplosionPlacements.SmallExplosion"/> selects, in index order.</summary>
+    internal static readonly IntroMotherBrainExplosionPlacement[] SmallExplosions =
+    [
+        new(new(16, 0), 1),
+        new(new(-16, 4), 8),
+        new(new(-16, -8), 16),
+    ];
 }

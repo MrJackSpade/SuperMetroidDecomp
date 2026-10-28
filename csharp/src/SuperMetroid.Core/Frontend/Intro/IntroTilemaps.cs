@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rendering;
@@ -10,23 +10,23 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal sealed class IntroTilemaps
 {
-    /// <summary>The four scene pages' words, page after page.</summary>
-    private readonly ushort[] scenePages = new ushort[IntroCinematicArtworkFormat.BackgroundPageCount * ScreenGeometry.TilemapScreenCellCount];
+    /// <summary>The four scene pages' tiles, page after page.</summary>
+    private readonly BackgroundTile[] scenePages = new BackgroundTile[IntroCinematicArtworkFormat.BackgroundPageCount * ScreenGeometry.TilemapScreenCellCount];
 
-    /// <summary>The portrait tilemap's words.</summary>
-    private readonly ushort[] portrait = new ushort[ScreenGeometry.TilemapScreenCellCount];
+    /// <summary>The portrait tilemap's tiles.</summary>
+    private readonly BackgroundTile[] portrait = new BackgroundTile[ScreenGeometry.TilemapScreenCellCount];
 
-    /// <summary>The narration tilemap's words.</summary>
-    private readonly ushort[] narration = new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
+    /// <summary>The narration tilemap's tiles.</summary>
+    private readonly BackgroundTile[] narration = new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
 
     /// <summary>The portrait tilemap.</summary>
-    internal Span<ushort> Portrait => portrait;
+    internal Span<BackgroundTile> Portrait => portrait;
 
     /// <summary>The narration tilemap.</summary>
-    internal Span<ushort> Narration => narration;
+    internal Span<BackgroundTile> Narration => narration;
 
     /// <summary>The tilemap of one scene page.</summary>
-    internal ReadOnlySpan<ushort> ScenePage(IntroScenePage page) =>
+    internal ReadOnlySpan<BackgroundTile> ScenePage(IntroScenePage page) =>
         scenePages.AsSpan(PageSlot(page) * ScreenGeometry.TilemapScreenCellCount, ScreenGeometry.TilemapScreenCellCount);
 
     /// <summary>The installed scene pages in the order they are loaded.</summary>
@@ -40,21 +40,13 @@ internal sealed class IntroTilemaps
     }
 
     /// <summary>Loads the installed scene pages.</summary>
-    internal void LoadScenePages(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(scenePages, littleEndianWords[..(scenePages.Length * sizeof(ushort))]);
+    internal void LoadScenePages(ReadOnlySpan<BackgroundTile> tiles) => tiles[..scenePages.Length].CopyTo(scenePages);
 
     /// <summary>Loads the installed portrait image.</summary>
-    internal void LoadPortrait(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(portrait, littleEndianWords[..IntroCinematicDefinitions.Artwork.SamusHeadTilemapBytes]);
+    internal void LoadPortrait(ReadOnlySpan<BackgroundTile> tiles) =>
+        tiles[..IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells].CopyTo(portrait);
 
     /// <summary>Loads the installed first narration card.</summary>
-    internal void LoadNarration(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(narration, littleEndianWords[..IntroCinematicDefinitions.Artwork.NarrationTilemapBytes]);
-
-    /// <summary>Loads little-endian words into the start of <paramref name="destination"/>.</summary>
-    private static void Load(Span<ushort> destination, ReadOnlySpan<byte> littleEndianWords)
-    {
-        for (int word = 0; word < littleEndianWords.Length / sizeof(ushort); word++)
-            destination[word] = BinaryPrimitives.ReadUInt16LittleEndian(littleEndianWords[(word * sizeof(ushort))..]);
-    }
+    internal void LoadNarration(ReadOnlySpan<BackgroundTile> tiles) =>
+        tiles[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(narration);
 }

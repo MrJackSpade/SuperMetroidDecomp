@@ -86,7 +86,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             for (int index = 0; index < IntroEyeTilemapFormat.CellsPerFrame; index++)
                 AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(eyeWords.AsSpan((frame * IntroEyeTilemapFormat.CellsPerFrame + index) * 2)),
-                    catalog.FrameWords(frame)[index], "all eye rectangles retain ordered visual words");
+                    catalog.FrameTiles(frame)[index].PackedWord, "all eye rectangles retain ordered visual words, encoded through the codec");
         }
         LoadEyes(eyeJson);
         Reject("opening eyes (case-sensitive)", TilemapContractHistoricalCasing(eyeJson),

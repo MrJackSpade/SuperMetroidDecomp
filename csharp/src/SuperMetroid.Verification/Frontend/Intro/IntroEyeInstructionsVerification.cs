@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro;
@@ -28,7 +29,7 @@ internal static class IntroEyeInstructionsVerification
         var narration = IntroNarrationPresentation.Load(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
         var vram = new IntroTilemaps();
-        var objects = new IntroCinematicObjectSystem(vram, new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount],
+        var objects = new IntroCinematicObjectSystem(vram, new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount],
             new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration, eyeArtwork: artwork);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
@@ -51,7 +52,7 @@ internal static class IntroEyeInstructionsVerification
             native.Step();
             string at = $"intro eye {phase} update {update}";
             AssertEqual(native.Timer, objects.EyeInstructionTimer.RawValue, $"{at}: countdown");
-            ReadOnlySpan<ushort> expected = artwork.FrameWords(native.Frame);
+            ushort[] expected = BackgroundTileWordBytes.Words(artwork.FrameTiles(native.Frame));
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)
             {

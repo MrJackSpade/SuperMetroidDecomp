@@ -131,7 +131,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),
         ("PauseWireframePresentation", "ApplyTo", "kind") => new(0, PauseWireframeDefinitions.Count),
         ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),
-        ("IntroEyeTilemapPresentation", "FrameWords", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
+        ("IntroEyeTilemapPresentation", "FrameTiles", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisualCatalog", "LoadAnimationColors", "row") => new(0, CeresDoorVisualDefinitions.AnimationRowCount),
         ("CeresDoorVisualCatalog", "PlatformFrame", "frame") => new(0, CeresDoorVisualDefinitions.PlatformFrameCount),
         ("RoomSkyTilemapCatalog", "Row" or "Page", "page") => new(0, RoomSkyTilemapFormat.PageCount),

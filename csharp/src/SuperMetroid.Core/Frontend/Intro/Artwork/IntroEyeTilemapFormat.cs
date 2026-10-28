@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -27,7 +26,7 @@ public static class IntroEyeTilemapFormat
     /// <summary>$8C:D785-D7BF: selected portrait palette three, no priority or flips.</summary>
     private const int PortraitPalette = 3;
     /// <summary>Selects the native open, half-open, closed, or adjacent deadpan patch anchor.</summary>
-    internal static ushort FirstWord(int frame)
+    internal static BackgroundTile FirstTile(int frame)
     {
         int tile = frame switch
         {
@@ -37,7 +36,7 @@ public static class IntroEyeTilemapFormat
             3 => ClosedTile + Columns,
             _ => throw new ArgumentOutOfRangeException(nameof(frame)),
         };
-        return SnesBgTilemapWord.Create(tile, PortraitPalette, false, default).Raw;
+        return new BackgroundTile(tile, PortraitPalette, highPriority: false);
     }
     /// <summary>JSON filename containing the four editable eye rectangles.</summary>
     public const string FileName = "intro-samus-eye-frames.json";

@@ -21,7 +21,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSprite.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCards.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceDefinitions.cs")]),
-        new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
+        new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameTiles"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEyeTilemapPresentation.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteSheet", "intro-sheet-complete-owned-poses", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteSheet.cs"),

@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -23,46 +24,49 @@ public static class IntroNarrationDefinitions
     public const ushort InitialMarkerDelayFrames = 1;
     /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finish callback.</summary>
     public const ushort FinalPageHoldFrames = 128;
-    /// <summary>BG word $2000 for uppercase A, from <c>IndirectInstructions_IntroText_A</c> at <c>$8C:D685</c>; A-Z use consecutive tile indices with high BG priority.</summary>
-    public const ushort UppercaseAWord = 0x2000;
-    /// <summary>BG word $201A for digit zero, from the glyph record at <c>$8C:D721</c>; zero through nine use consecutive high-priority tile indices.</summary>
-    public const ushort DigitZeroWord = 0x201a;
-    /// <summary>Blank-space BG word $002F from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority bit.</summary>
-    private const ushort BlankWord = 0x002f;
-    /// <summary>High-priority period BG word $2024 from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
-    private const ushort PeriodWord = 0x2024;
-    /// <summary>High-priority comma BG word $2025 from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
-    private const ushort CommaWord = 0x2025;
-    /// <summary>High-priority apostrophe BG word $2027 from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
-    private const ushort ApostropheWord = 0x2027;
-    /// <summary>High-priority exclamation BG word $202A from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
-    private const ushort ExclamationWord = 0x202a;
+    /// <summary>Tile of uppercase A, from <c>IndirectInstructions_IntroText_A</c> at <c>$8C:D685</c>; A-Z use consecutive tiles in the upper priority tier.</summary>
+    public const int UppercaseATile = 0x000;
+    /// <summary>Tile of digit zero, from the glyph record at <c>$8C:D721</c>; zero through nine use consecutive upper-priority tiles.</summary>
+    public const int DigitZeroTile = 0x01a;
+    /// <summary>Blank-space tile from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority.</summary>
+    private const int BlankTile = 0x02f;
+    /// <summary>Period tile from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
+    private const int PeriodTile = 0x024;
+    /// <summary>Comma tile from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
+    private const int CommaTile = 0x025;
+    /// <summary>Apostrophe tile from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
+    private const int ApostropheTile = 0x027;
+    /// <summary>Exclamation tile from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
+    private const int ExclamationTile = 0x02a;
 
-    /// <summary>Compiles one supported narration character into its exact native BG tilemap word, preserving glyph priority bits.</summary>
+    /// <summary>Compiles one supported narration character into the exact tile that shows it, in the glyphs' priority tier.</summary>
     /// <param name="character">Space, uppercase A-Z, digit 0-9, period, comma, straight apostrophe, or exclamation mark; no case or punctuation normalization is performed.</param>
-    /// <returns>The corresponding complete sixteen-bit tilemap word, not a Unicode code point or glyph-record pointer.</returns>
+    /// <returns>The tile that shows the character, not a Unicode code point or glyph-record pointer.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="character"/> is outside the supported narration alphabet.</exception>
-    public static ushort CompileGlyph(char character) => character switch
+    public static BackgroundTile CompileGlyph(char character) => character switch
     {
-        ' ' => BlankWord,
-        >= 'A' and <= 'Z' => unchecked((ushort)(UppercaseAWord + character - 'A')),
-        >= '0' and <= '9' => unchecked((ushort)(DigitZeroWord + character - '0')),
-        '.' => PeriodWord,
-        ',' => CommaWord,
-        '\'' => ApostropheWord,
-        '!' => ExclamationWord,
+        ' ' => new(BlankTile, 0, highPriority: false),
+        >= 'A' and <= 'Z' => Glyph(UppercaseATile + character - 'A'),
+        >= '0' and <= '9' => Glyph(DigitZeroTile + character - '0'),
+        '.' => Glyph(PeriodTile),
+        ',' => Glyph(CommaTile),
+        '\'' => Glyph(ApostropheTile),
+        '!' => Glyph(ExclamationTile),
         _ => throw new ArgumentOutOfRangeException(nameof(character), character,
             "Opening narration supports space, A-Z, 0-9, period, comma, apostrophe and exclamation mark."),
     };
 
-    /// <summary>Decodes one exact native narration tilemap word to its editable text character.</summary>
-    /// <param name="word">Complete tilemap word; palette, priority, or flip variations outside the canonical glyph words are not accepted.</param>
-    /// <returns>The supported space, uppercase letter, digit, or punctuation character represented by the word.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="word"/> has no supported, exact narration glyph mapping.</exception>
-    public static char DecodeGlyph(int word) =>
-        word is >= 0 and <= ushort.MaxValue && GlyphsByWord.TryGetValue((ushort)word, out char character)
+    /// <summary>Decodes one exact narration tile to its editable text character.</summary>
+    /// <param name="cell">The placed tile; colour, priority, or mirroring variations outside the canonical glyph tiles are not accepted.</param>
+    /// <returns>The supported space, uppercase letter, digit, or punctuation character the tile shows.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="cell"/> has no supported, exact narration glyph mapping.</exception>
+    public static char DecodeGlyph(BackgroundTile cell) =>
+        GlyphsByTile.TryGetValue(cell, out char character)
             ? character
-            : throw new InvalidDataException($"${word:X4} is not an opening-narration glyph word.");
+            : throw new InvalidDataException($"{cell} is not an opening-narration glyph tile.");
+
+    /// <summary>A nonblank glyph's tile: colour variant zero, upper priority tier, unmirrored.</summary>
+    private static BackgroundTile Glyph(int tile) => new(tile, 0, highPriority: true);
 
     /// <summary>Checks whether a character can be compiled without changing case or substituting punctuation.</summary>
     /// <param name="character">The UTF-16 character from an editable narration line.</param>
@@ -72,7 +76,7 @@ public static class IntroNarrationDefinitions
     /// <summary>Every character the narration supports, which <see cref="CompileGlyph"/> accepts.</summary>
     private const string Alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,'!";
 
-    /// <summary>Each supported character keyed by the native tilemap word <see cref="CompileGlyph"/> gives it.</summary>
-    private static readonly FrozenDictionary<ushort, char> GlyphsByWord =
+    /// <summary>Each supported character keyed by the tile <see cref="CompileGlyph"/> gives it.</summary>
+    private static readonly FrozenDictionary<BackgroundTile, char> GlyphsByTile =
         Alphabet.ToFrozenDictionary(CompileGlyph, character => character);
 }

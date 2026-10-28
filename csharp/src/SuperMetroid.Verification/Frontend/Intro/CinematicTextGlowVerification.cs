@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Diagnostics.SaveStates;
 
@@ -10,10 +11,10 @@ internal static class CinematicTextGlowVerification
     internal static void VerifyCinematicTextGlow()
     {
         var glow = new CinematicTextGlowSystem();
-        var map = Enumerable.Repeat((ushort)0xe155, 1024).ToArray();
+        BackgroundTile[] map = Enumerable.Repeat(BackgroundTileWordBytes.Tile(0xe155), 1024).ToArray();
         glow.Spawn(new(1, 4), new(2, 2));
         CinematicTextGlowSystem? restored = null;
-        ushort[]? restoredMap = null;
+        BackgroundTile[]? restoredMap = null;
         for (int age = 0; age <= 20; age++)
         {
             glow.Step(map);
@@ -22,7 +23,7 @@ internal static class CinematicTextGlowVerification
             {
                 bool rectangle = index / 32 is 4 or 5 && index % 32 is 1 or 2;
                 ushort expected = (ushort)(0xe155 | (rectangle ? Math.Min(age / 5, 3) << 10 : 0));
-                AssertEqual(expected, map[index], $"glyph age {age} tile {index} preserves non-palette bits and exact rectangle");
+                AssertEqual(expected, map[index].PackedWord, $"glyph age {age} tile {index}, encoded through the codec, preserves non-palette bits and exact rectangle");
             }
             if (restored is not null)
                 AssertTrue(map.SequenceEqual(restoredMap), "mid-glow debugger restore retains all timers and rectangle state");
@@ -38,14 +39,14 @@ internal static class CinematicTextGlowVerification
         // Eight simultaneous allocations fit; the ninth has no slot. After final
         // palette application releases the slots, that same rectangle can allocate.
         glow = new CinematicTextGlowSystem();
-        Array.Fill(map, (ushort)0);
+        Array.Fill(map, BackgroundTileWordBytes.Tile(0));
         for (int i = 0; i < 9; i++) glow.Spawn(new(checked((ushort)i), 0), new(1, 1));
         for (int frame = 0; frame < 16; frame++) glow.Step(map);
-        for (int i = 0; i < 8; i++) AssertEqual((ushort)0x0c00, map[i], "eight native glow slots mature");
-        AssertEqual((ushort)0, map[8], "full pool declines ninth glow");
+        for (int i = 0; i < 8; i++) AssertEqual((ushort)0x0c00, map[i].PackedWord, "eight native glow slots mature");
+        AssertEqual((ushort)0, map[8].PackedWord, "full pool declines ninth glow");
         glow.Spawn(new(8, 0), new(1, 1));
         for (int frame = 0; frame < 16; frame++) glow.Step(map);
-        AssertEqual((ushort)0x0c00, map[8], "finished glow frees a native slot");
+        AssertEqual((ushort)0x0c00, map[8].PackedWord, "finished glow frees a native slot");
         Console.WriteLine("  Cinematic text glow: exact 0/5/10/15-frame palette changes, rectangle preservation, pool exhaustion/reuse, and debugger continuation pass.");
     }
 }

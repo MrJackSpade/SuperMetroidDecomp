@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -20,7 +20,7 @@ internal sealed class CinematicTextGlowSystem
     }
 
     /// <summary>Advances active glyph rectangles when their WRAM timers expire, rewriting palette bits while preserving tile identity and ending after the final palette.</summary>
-    public void Step(Span<ushort> tilemap)
+    public void Step(Span<BackgroundTile> tilemap)
     {
         for (int i = slots.Length - 1; i >= 0; i--)
         {
@@ -30,8 +30,8 @@ internal sealed class CinematicTextGlowSystem
             for (int column = 0; column < slot.Size.X; column++)
             {
                 int index = (slot.Cell.Y + row) * CinematicTextGlowDefinitions.RowWidth + slot.Cell.X + column;
-                // Only the palette changes: the glyph's character, priority and flips are kept.
-                tilemap[index] = new SnesBgTilemapWord(tilemap[index]).WithPaletteIndex(slot.Palette).Raw;
+                // Only the colour variant changes: the glyph's tile, priority and mirroring are kept.
+                tilemap[index] = tilemap[index] with { ColourVariant = slot.Palette };
             }
             if (slot.Palette == CinematicTextGlowDefinitions.FinalPalette)
                 slot.Active = false;

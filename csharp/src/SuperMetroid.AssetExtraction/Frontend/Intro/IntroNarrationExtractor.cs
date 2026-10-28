@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using System.Text;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -106,7 +107,7 @@ public static class IntroNarrationExtractor
                 throw new InvalidDataException(
                     $"Opening-narration {page.Id} row {row} skips from column {previousColumn} to {column}.");
             rows[row].Append(IntroNarrationDefinitions.DecodeGlyph(
-                ReadWord(bus, Add(dataPointer, 4))));
+                BackgroundTileWords.ToTile(ReadWord(bus, Add(dataPointer, 4)))));
             previousColumn = column;
             cursor = Add(cursor, 6);
         }

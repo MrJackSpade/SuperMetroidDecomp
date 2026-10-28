@@ -49,16 +49,4 @@ internal static class DraygonIntroDanceDefinitions
         "87878787778687868787777787877778787878897989898979797989897989898A898A8989898A89898999999989979797A7A79796A69796969695969696" +
         "95969595959585968777777879797A6A6B6A6B6A7B7C7B7B8B8B8B8B9B8A9B9A9A9AA9A9A9A898A797A797A7A6A6A69596959595848585858575867666766677" +
         "777879696A7A7B8B7A8A8B9A9AAA9AAA";
-
-    /// <summary>Decoded biased-nibble trajectory with the two delete sentinels excluded from the packed entries.</summary>
-    internal static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
-
-    /// <summary>A packed movement byte holds the X delta's nibble above the Y delta's.</summary>
-    internal const int MovementXShift = 4;
-
-    /// <summary>Keeps one packed movement nibble.</summary>
-    internal const int MovementComponentMask = 0x0f;
-
-    /// <summary>The bias a packed nibble carries above its signed delta.</summary>
-    internal const int MovementBias = 8;
 }

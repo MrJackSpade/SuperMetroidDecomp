@@ -44,10 +44,6 @@ internal static class DraygonIntroDance
 
         int index = streamOffset / StreamIndexAdvance;
         if (streamOffset > FirstDeleteOffset) index -= 2;
-        int packed = PackedMovement[index];
-
-        return new DraygonIntroMovement(
-            new((short)((packed >> MovementXShift) - MovementBias), (short)((packed & MovementComponentMask) - MovementBias)),
-            DeletesSprite: false);
+        return new DraygonIntroMovement(DraygonIntroMovementTrace.Delta(index), DeletesSprite: false);
     }
 }

@@ -65,9 +65,6 @@ internal static class ChozoStatueVisualsVerification
             // of compiled draw bytes, so the production dispatcher must reach
             // each extracted override without falling back to ROM data.
             const int width = 32;
-            var blockDefinitions = new BackgroundTile[0x400 * 4];
-            blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
-            blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             foreach ((PlmHeaderId header, ushort physical, ushort visual) in new[]
             {
@@ -76,8 +73,7 @@ internal static class ChozoStatueVisualsVerification
             })
             {
                 var level = CreateRoom(new(width, 16),
-                    new ushort[width * 16], new byte[width * 16],
-                    blockDefinitions: blockDefinitions);
+                    new ushort[width * 16], new byte[width * 16]);
                 var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmChozoStatueVisuals = selected });
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
@@ -88,15 +84,14 @@ internal static class ChozoStatueVisualsVerification
                     level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
                     $"edited Chozo art retains native physical word for {header}");
                 AssertEqual(visual,
-                    level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
+                    level.DisplayedVisualWord(origin),
                     $"edited Chozo art reaches streamed tilemap for {header}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo slope PLMs did not reread compiled program or draw bytes");
 
             var crumbleLevel = CreateRoom(new(width, 16),
-                new ushort[width * 16], new byte[width * 16],
-                blockDefinitions: blockDefinitions);
+                new ushort[width * 16], new byte[width * 16]);
             var crumblePlms = PlmFixtures.Unbound();
             AssertTrue(crumblePlms.ChozoStatue.TrySpawnChozoStatuePlm(crumbleLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
@@ -115,8 +110,7 @@ internal static class ChozoStatueVisualsVerification
                 "Chozo crumble PLM did not reread compiled program or draw bytes");
 
             var wreckedHandLevel = CreateRoom(new(width, 16),
-                new ushort[width * 16], new byte[width * 16],
-                blockDefinitions: blockDefinitions);
+                new ushort[width * 16], new byte[width * 16]);
             var wreckedHandPlms = PlmFixtures.Unbound();
             AssertTrue(wreckedHandPlms.ChozoStatue.TrySpawnChozoStatuePlm(wreckedHandLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,

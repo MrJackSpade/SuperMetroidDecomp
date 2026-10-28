@@ -65,7 +65,7 @@ internal static class YardTrajectoriesVerification
     {
         var words = new ushort[32 * 32];
         for (int x = 0; x < 32; x++) words[16 * 32 + x] = 0x8000;
-        var floor = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new BackgroundTile[4]);
+        var floor = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
         foreach (ushort direction in Enumerable.Range(0, 8).Select(x => (ushort)x))
         foreach (YardAirborneFacing facing in Enum.GetValues<YardAirborneFacing>())
         {

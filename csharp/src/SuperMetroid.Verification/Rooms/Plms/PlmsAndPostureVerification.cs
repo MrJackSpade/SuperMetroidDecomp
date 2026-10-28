@@ -27,19 +27,13 @@ internal static void VerifyBreakableGrapplePlms()
     const int width = 8;
     const int height = 8;
     const int blockIndex = 3 * width + 3;
-    var definitions = new BackgroundTile[0x400 * 4];
-    WriteDefinitionWord(definitions, 0xb7, 0, 0x1111);
-    WriteDefinitionWord(definitions, 0xb7, 1, 0x2222);
-    WriteDefinitionWord(definitions, 0xb7, 2, 0x3333);
-    WriteDefinitionWord(definitions, 0xb7, 3, 0x4444);
-
-    static RoomLevelData CreateLevel(byte behavior, BackgroundTile[] blockDefinitions)
+    static RoomLevelData CreateLevel(byte behavior)
     {
         var foreground = new ushort[width * height];
         var bts = new byte[foreground.Length];
         foreground[blockIndex] = 0xe123;
         bts[blockIndex] = behavior;
-        return CreateRoom(new(width, height), foreground, bts, blockDefinitions: blockDefinitions);
+        return CreateRoom(new(width, height), foreground, bts);
     }
 
     static void StepMany(
@@ -54,7 +48,7 @@ internal static void VerifyBreakableGrapplePlms()
     // BTS one waits 240 handler calls, breaks through four exact visual words, reverses
     // through the same words, restores both the saved level word and BTS one, then deletes
     // on the following pass because DrawPLMBlock deliberately seeded timer one.
-    RoomLevelData respawning = CreateLevel(1, definitions);
+    RoomLevelData respawning = CreateLevel(1);
     var respawningPlms = PlmFixtures.Unbound();
     AssertTrue(respawningPlms.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
         "respawning grapple PLM occupies a native slot");
@@ -66,8 +60,8 @@ internal static void VerifyBreakableGrapplePlms()
     respawningPlms.Step(respawning);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "connection-frame PLM pass draws grapple frame zero");
-    AssertEqual(0x1111, respawning.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
-        "the drawn block shows its ROM-selected visual block definition");
+    AssertEqual(0x00b7, respawning.DisplayedVisualWord(blockIndex),
+        "the drawn block shows its ROM-selected block, unmirrored");
 
     StepMany(respawningPlms,respawning, 239);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
@@ -101,7 +95,7 @@ internal static void VerifyBreakableGrapplePlms()
         "restored grapple PLM deletes on following handler pass");
 
     // BTS two uses the shorter 120-frame delay and never restores the saved word/BTS.
-    RoomLevelData permanent = CreateLevel(2, definitions);
+    RoomLevelData permanent = CreateLevel(2);
     var permanentPlms = PlmFixtures.Unbound();
     AssertTrue(permanentPlms.TrySpawnBreakableGrappleBlock(permanent, blockIndex, 2),
         "nonrespawning grapple PLM occupies a native slot");
@@ -123,16 +117,16 @@ internal static void VerifyBreakableGrapplePlms()
 
     SeedBombBlockPlmPrograms(bus);
 
-    static RoomLevelData CreateBombLevel(byte behavior, BackgroundTile[] blockDefinitions)
+    static RoomLevelData CreateBombLevel(byte behavior)
     {
         var foreground = new ushort[width * height];
         var bts = new byte[foreground.Length];
         foreground[blockIndex] = 0xf321;
         bts[blockIndex] = behavior;
-        return CreateRoom(new(width, height), foreground, bts, blockDefinitions: blockDefinitions);
+        return CreateRoom(new(width, height), foreground, bts);
     }
 
-    RoomLevelData respawning2x2 = CreateBombLevel(3, definitions);
+    RoomLevelData respawning2x2 = CreateBombLevel(3);
     var respawning2x2Plms = PlmFixtures.Unbound();
     AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
         respawning2x2, blockIndex, behavior: 3),
@@ -165,7 +159,7 @@ internal static void VerifyBreakableGrapplePlms()
     AssertEqual(0, respawning2x2Plms.SlotTable.ActiveCount,
         "BTS-3 deletes on the handler pass after linked-block restoration");
 
-    RoomLevelData permanent1x2 = CreateBombLevel(6, definitions);
+    RoomLevelData permanent1x2 = CreateBombLevel(6);
     var permanent1x2Plms = PlmFixtures.Unbound();
     AssertTrue(permanent1x2Plms.TrySpawnCollisionBombBlock(
         permanent1x2, blockIndex, behavior: 6),
@@ -186,10 +180,6 @@ internal static void VerifyBreakableGrapplePlms()
 
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
-
-/// <summary>Places the tile a cartridge tilemap word describes in a constructed block table.</summary>
-static void WriteDefinitionWord(BackgroundTile[] definitions, int block, int tile, ushort value) =>
-    definitions[block * 4 + tile] = BackgroundTileWordBytes.Tile(value);
 
 /// <summary>Checks native crouch and stand transition timing, collision radii, floor clipping, and grounded movement.</summary>
 internal static void VerifySamusPostureMovement()

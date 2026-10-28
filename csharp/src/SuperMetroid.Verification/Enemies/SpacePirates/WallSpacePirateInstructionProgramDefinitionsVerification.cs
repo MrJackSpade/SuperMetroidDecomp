@@ -204,7 +204,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         const int width = 32;
         const int height = 32;
         int blockCount = width * height;
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]), new BackgroundTile[4]);
+        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]));
     }
 
     /// <summary>Creates a solid row that triggers the wall Pirate's downward-climb reversal.</summary>
@@ -215,7 +215,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         var foreground = new ushort[width * height];
         for (int column = 0; column < width; column++)
             foreground[17 * width + column] = 0x8000;
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new BackgroundTile[4]);
+        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]));
     }
 
     /// <summary>Runs the standalone wall Space Pirate instruction verification command.</summary>

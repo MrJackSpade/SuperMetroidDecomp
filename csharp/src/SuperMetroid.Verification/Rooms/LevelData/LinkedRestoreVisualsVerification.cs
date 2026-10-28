@@ -176,9 +176,7 @@ internal static class LinkedRestoreVisualsVerification
         const int blockIndex = 27;
         var words = new ushort[width * width];
         words[blockIndex] = bomb ? (ushort)0xf321 : (ushort)0xb321;
-        var definitions = new BackgroundTile[0x400 * 4];
-        definitions[editedWord * 4] = BackgroundTileWordBytes.Tile((byte)editedWord);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmLinkedRestoreVisuals = visuals });
         bool spawned = bomb
             ? plms.TrySpawnCollisionBombBlock(level, blockIndex, 1)
@@ -191,7 +189,7 @@ internal static class LinkedRestoreVisualsVerification
         for (int frame = 0; frame < (bomb ? 420 : 100); frame++)
         {
             plms.Step(level);
-            sawImmediate |= level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord == editedWord;
+            sawImmediate |= level.DisplayedVisualWord(blockIndex) == editedWord;
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{editedId} does not reread compiled program or draw bytes");
@@ -201,7 +199,7 @@ internal static class LinkedRestoreVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"{editedId} preserves its native physical parent word");
         AssertEqual(editedWord,
-            level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+            level.DisplayedVisualWord(blockIndex),
             $"{editedId} survives later room streaming");
     }
 }

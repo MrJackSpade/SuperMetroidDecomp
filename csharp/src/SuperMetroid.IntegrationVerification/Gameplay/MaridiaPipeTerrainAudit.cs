@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
@@ -6,6 +7,9 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 
 /// <summary>Compares the displayed tube tilemap words with the authored room allocation.</summary>
@@ -21,6 +25,9 @@ internal static class MaridiaPipeTerrainAudit
         var level = runtime.Room.LoadedLevelData;
         // The frame no longer carries VRAM (#1403); the audit reads the tilemaps gameplay's VRAM holds now.
         byte[] vram = runtime.ComposedVram();
+        // The room's blocks as the cartridge composes them; extraction pictures them from the same compositions (#1431).
+        SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidOperationException("The tube audit observed no room.");
+        BackgroundTile[] blockTiles = InstalledFixtures.StockBlockTiles(RoomTilesetDefinitions.Get(room.State.GraphicsSet), ceres: false);
         foreach (bool background in new[] { false, true })
         {
             if (background && !(scroll.Layer2Scroll.Horizontal.Streams && scroll.Layer2Scroll.Vertical.Streams)) continue;
@@ -43,7 +50,7 @@ internal static class MaridiaPipeTerrainAudit
                 int worldY = unchecked((ushort)(registerY - offsetY + screenY + 1));
                 int blockX = worldX / 16, blockY = worldY / 16;
                 if (blockX >= level.Size.X || blockY >= level.Size.Y) continue;
-                var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.X + blockX], level.BlockDefinitions.Span);
+                var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.X + blockX], blockTiles);
                 ushort expected = BackgroundTileWords.ToWord((worldY & 8) == 0
                     ? (worldX & 8) == 0 ? tiles.TopLeft : tiles.TopRight
                     : (worldX & 8) == 0 ? tiles.BottomLeft : tiles.BottomRight);

@@ -502,12 +502,13 @@ existing override directory. Instrument, sample and sequence edits are not overr
 stock-content diagnostics in `game/audio` and are replaced by repair.
 
 Room tileset artwork is modded the same way: place an edited copy of a stock file in
-`overrides/room-characters`, `overrides/room-blocks` or `overrides/room-palettes` under the same name
+`overrides/room-characters` or `overrides/room-palettes` under the same name
 as the stock file. Files are named for the artwork, not its cartridge location: a character sheet
-is `room-characters-{set}.png` (for example `room-characters-upper-crateria.png`), a block table
-`room-blocks-{set}.json` and a palette `room-palette-{set}.json` (for example
-`room-palette-heated-norfair.json`); the common room elements stay `room-characters-cre.png` and
-`room-blocks-cre.json`. Library-background tilemaps and scrolling-sky pages go in
+is `room-characters-{set}.png` (for example `room-characters-upper-crateria.png`) and a palette
+`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`); the common room elements stay
+`room-characters-cre.png`. A room's 16x16 blocks are changed only through their pictures in the block sheets
+(below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
+override. Library-background tilemaps and scrolling-sky pages go in
 `overrides/room-backgrounds`: a tilemap is named for the background it pictures,
 `room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
 for its place among the seven, `scrolling-sky-page-{0-6}.json`. Overrides saved under the older names, which
@@ -555,11 +556,14 @@ palette, is rejected until it is rewritten.
 
 Room blocks are drawn from pre-coloured block sheets in `game/room-block-sheets`, one for each tileset
 (`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), in the same three files as a sprite
-sheet. Each 16x16 picture is one block as its definition gives it, before the level mirrors it, coloured with the
-tileset's background palette; its name lists the block's four tile words and, for each, the artwork its character
-shows. A block whose characters a room rebinds after loading (animated spikes, sand and treadmills, the Tourian statues,
-collectibles' graphics, library background transfers and Kraid's backdrop) has a picture for each artwork that can
-show there, and the room draws the one its bindings show now. X-ray's reveal draws its blocks from the same pictures.
+sheet. Each 16x16 picture is one whole block, before the level mirrors it, coloured with the tileset's background
+palette; its name is the block's index among those the room loads (three hex digits) followed, for each run of
+characters the block reads, by the artwork shown there and how far into it the run begins
+(`0A3|common room element characters+0810|...`). `{blocks}.block-characters.json` records, for every block of a block
+set, the runs of characters it reads. A block whose characters a room rebinds after loading (animated spikes, sand and
+treadmills, the Tourian statues, collectibles' graphics, library background transfers and Kraid's backdrop) has a
+picture for each artwork that can show there, and the room draws the one its bindings show now; a collectible slot's
+blocks are pictured once for each collectible that can be bound over the slot. X-ray's reveal draws its blocks from the same pictures.
 A room's library background is a full image in the same directory, one for each background, door variant and tileset
 (`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
 in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that

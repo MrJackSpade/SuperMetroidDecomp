@@ -20,7 +20,7 @@ internal static class BotwoonPlmIdentityVerification
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Botwoon.Pointer);
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
-            installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
+            installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
         var plms = PlmFixtures.Unbound();
         for (int i = 0; i < 40; i++)
         {

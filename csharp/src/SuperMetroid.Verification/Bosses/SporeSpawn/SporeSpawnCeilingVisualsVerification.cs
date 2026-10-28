@@ -171,9 +171,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         for (int x = 7; x <= 8; x++)
             words[y * width + x] = 0x0123;
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
-        level.SetBlockDefinitionTile(0x0058 * 4, BackgroundTileWordBytes.Tile(0x0058));
-        level.SetBlockDefinitionTile(0x0059 * 4, BackgroundTileWordBytes.Tile(0x0059));
+            new byte[words.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSporeSpawnCeilingVisuals = edited });
         AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
@@ -188,10 +186,10 @@ internal static class SporeSpawnCeilingVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited art retains physical word");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        AssertEqual(expectedVisual, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+        AssertEqual(expectedVisual, level.DisplayedVisualWord(blockIndex),
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit reaches immediate redraw");
         AssertEqual(expectedVisual,
-            level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+            level.DisplayedVisualWord(blockIndex),
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit survives streaming");
         int deletionFrame = -1;
         for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)

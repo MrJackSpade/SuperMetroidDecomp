@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>One 16x16 visual block composed of four independently attributed 8x8 background tiles.</summary>
 public sealed record RoomMetatileDefinition

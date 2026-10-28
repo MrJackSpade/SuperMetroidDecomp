@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>How a block the X-ray reveal shows lays out its definition's four tiles (#1392).</summary>
+/// <summary>How a block the X-ray reveal shows lays out its picture (#1392, #1431).</summary>
 public enum RevealedBlockArrangement
 {
     /// <summary>As the definition gives them: a reveal metatile, or a copied block the level does not mirror.</summary>

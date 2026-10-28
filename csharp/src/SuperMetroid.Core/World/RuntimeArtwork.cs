@@ -316,10 +316,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     /// <summary>Gets or binds the host-owned CRE and graphics-set character catalog used by subsequent room loads; the reference is excluded from debugger snapshots.</summary>
     [field: NonSerialized]
     public RoomCharacterAtlasCatalog? RoomCharacterArt { get; set; }
-    /// <summary>Host-selected visual block compositions, rebound after debugger-state restore.</summary>
-    [field: NonSerialized]
-    public RoomMetatileCatalog? RoomMetatileArt { get; set; }
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public RoomBlockSheetCatalog? RoomBlockSheets { get; set; }
     /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>

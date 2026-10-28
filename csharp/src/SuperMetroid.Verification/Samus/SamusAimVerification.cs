@@ -241,11 +241,7 @@ internal static void VerifySamusAimedAerialMovement()
         blocks[12 * width + x] = 0x8000;
     RoomLevelData level = CreateRoom(new(width, height),
         blocks,
-        new byte[blocks.Length],
-        // Visual block definitions are ROM-native eight-byte records. The collision
-        // test does not render them, but the room container deliberately enforces
-        // that physical format even for synthetic fixtures.
-        blockDefinitions: new BackgroundTile[12]);
+        new byte[blocks.Length]);
 
     var samus = new SamusState
     {
@@ -375,8 +371,7 @@ level, samus, ControllerButton.A, unchecked((ushort)index));
     halfPlatformBts[12 * width + 3] = 0x00;
     RoomLevelData halfPlatform = CreateRoom(new(width, height),
         halfPlatformWords,
-        halfPlatformBts,
-        blockDefinitions: new BackgroundTile[12]);
+        halfPlatformBts);
     var capturedCompactLanding = new SamusState
     {
         Pose = SamusPoseId.FallingAimDownRightPose,
@@ -450,8 +445,7 @@ level, compactLeftLanding, 0, index);
         boxedBlocks[9 * width + x] = 0x8000;
     RoomLevelData boxedLevel = CreateRoom(new(width, height),
         boxedBlocks,
-        new byte[boxedBlocks.Length],
-        blockDefinitions: new BackgroundTile[12]);
+        new byte[boxedBlocks.Length]);
     var boxedCompact = new SamusState
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,

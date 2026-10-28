@@ -52,20 +52,13 @@ internal static class StationVisualsVerification
             WriteStationVisualMapPopulation(bus, population);
             const int width = 16;
             const int block = 6 + 6 * width;
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-            {
-                definitions[0x10c * 4 + tile] = BackgroundTileWordBytes.Tile(0x0c);
-                definitions[0x053 * 4 + tile] = BackgroundTileWordBytes.Tile(0x53);
-            }
-
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
             PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             plms.Step(level);
             return new StationVisualsRenderResult(level.GetCollisionBlockByIndex(block).PackedWord.Raw,
-                level.DisplayedBlockTiles(block).TopLeft.PackedWord,
-                level.DisplayedBlockTiles(block).TopLeft.PackedWord);
+                level.DisplayedVisualWord(block),
+                level.DisplayedVisualWord(block));
         }
 
         var native = Render(stock);
@@ -74,8 +67,8 @@ internal static class StationVisualsVerification
             "stock map-station frame keeps its native physical level word");
         AssertEqual(native.Physical, changed.Physical,
             "station art cannot change collision or physical level data");
-        AssertEqual((ushort)0x000c, native.Immediate,
-            "stock station visual reaches the immediate redraw");
+        AssertEqual((ushort)0x010c, native.Immediate,
+            "stock station block reaches the immediate redraw");
         AssertEqual((ushort)0x0053, changed.Immediate,
             "edited station visual reaches the immediate redraw");
         AssertEqual((ushort)0x0053, changed.Streamed,

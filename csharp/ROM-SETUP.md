@@ -88,7 +88,8 @@ Within either platform's application-data root:
   `overrides/gameplay-palettes/` to edit it without altering stock content.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet. Copy it to `overrides/standard-objects/` for persistent edits.
-- `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
+- `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are
+  composed from. These files have no override directory: a block is changed through its picture in the block sheet.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
 - `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
   streaming baseline) for every room level source. These files have no override directory.
@@ -878,16 +879,15 @@ load the edit. Stock palette hashes and user overrides follow the same repair
 rules as the PNG sheets. Palette-FX scripts may animate or replace these base
 colors later in the room; this file does not edit those effects or their timing.
 
-Visual 16x16 blocks are installed as `game/room-blocks/*.json`. Each ordered
-`blocks` entry names its four 8x8 children (`topLeft`, `topRight`, `bottomLeft`,
-`bottomRight`), with `tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and
-`flipY`. Copy the desired file to the same filename under `overrides/room-blocks/`,
-edit it, and restart. Preserve block order and count: room level data refers to
-these indices. `room-blocks-cre.json` holds the common Zebes blocks; other filenames
-encode their graphics-set source. These files control visual tile composition only,
-not collision type, BTS behavior, room placement or palette animation. Stock hashes
-are verified and repaired; an invalid override fails with its path instead of
-silently reverting to stock.
+Visual 16x16 blocks are composed at installation from `game/room-blocks/*.json`. Each
+ordered `blocks` entry names its four 8x8 children (`topLeft`, `topRight`,
+`bottomLeft`, `bottomRight`), with `tileColumn`, `tileRow`, `palette`, `priority`,
+`flipX`, and `flipY`. `room-blocks-cre.json` holds the common Zebes blocks; other
+filenames name their block set. These files are stock extraction input with no
+override: a room draws each block as one 16x16 picture from its tileset's block
+sheet in `game/room-block-sheets`, so a block's appearance is changed by repainting
+its picture in an override of that sheet under `overrides/room-block-sheets/`.
+Stock hashes are verified and repaired.
 
 Library-background tilemaps are installed as `game/room-backgrounds/*.json`.
 Each file contains one or two ordered 32x32 pages of 8x8 tile references with
@@ -959,12 +959,12 @@ CRE/area block table. Stock content is hash-checked; an override survives stock
 repair and installation updates. Bomb blocks reuse the same 16 breakup-frame
 `drawPointer` entries, so these edits also change their break/reverse animation.
 Their three linked-block restoration lists retain fixed collision words and use
-visual block `$058`; edit that block's tile composition under `room-blocks/` to
+visual block `$058`; repaint that block's pictures in the block sheet to
 change its restored appearance. Neither route changes bomb-block collision,
 sounds, or respawn timing.
 Samus-contact crumble blocks use those same shared breakup frames. Their linked
 restoration lists keep compiled type-B parent/type-5 and type-D child words and
-display visual block `$0BC`; edit that block under `room-blocks/` to change its
+display visual block `$0BC`; repaint that block's pictures in the block sheet to change its
 restored appearance. Neither edit changes contact collision or crumble timing.
 
 Breakable Grapple-block appearances are installed separately as
@@ -983,8 +983,8 @@ Station PLM appearances are installed as
 (0..4095), then restart. Every entry has a semantic `id`, such as
 `map-frame-0`, `save-active-a`, or `resource-right-extended`; keep all 20
 IDs and each nested run/word count. The values select visual blocks from the
-active room's combined CRE/area definitions, whose tile compositions can be
-edited under `room-blocks/`. Do not put collision bits in a visual word.
+active room's common room elements and tileset, whose pictures can be
+repainted in the block sheet. Do not put collision bits in a visual word.
 Station timing, access selection, full physical level words, map
 rewards, refills, and save behavior stay compiled. Edited station art affects
 the immediate redraw and later camera streaming without changing those rules.

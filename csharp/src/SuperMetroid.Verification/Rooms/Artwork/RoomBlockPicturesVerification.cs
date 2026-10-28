@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core;
@@ -24,11 +24,14 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -425,7 +428,7 @@ internal static class RoomBlockPicturesVerification
                 $"{where}: the background paints index {sheet.Inks[pixel].PaletteIndex} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
         }
         int rebound = 0;
-        for (int cell = 0; cell < RoomBackgroundImage.Words / RoomBlockPictureNames.Tiles; cell++)
+        for (int cell = 0; cell < RoomBackgroundImage.Words / RoomBackgroundImage.CellTiles; cell++)
         {
             if (plane.Cell(cell) is not null)
                 rebound++;
@@ -477,9 +480,10 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Asserts each picture the displayed BG1 resolves paints, pixel for pixel, the palette index, priority and standard
-    /// colour its tiles paint over the characters the bindings compose into VRAM; returns the pictures checked and those
-    /// over artwork bound after the room's load.
+    /// Asserts each picture the displayed BG1 resolves by block identity (#1431) paints, pixel for pixel, the palette index,
+    /// priority and standard colour the block's tiles paint over the characters the bindings compose into VRAM: the tiles
+    /// the cartridge's block tables compose, or for a collectible slot's block, those the collectible bound over the slot
+    /// writes. Returns the pictures checked and those over artwork bound after the room's load.
     /// </summary>
     private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
@@ -493,19 +497,23 @@ internal static class RoomBlockPicturesVerification
         byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
             ? runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
-        ReadOnlySpan<byte> definitions = BackgroundTileWordBytes.Of(runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan());
+        RoomScope scope = RoomScopeOf(runtime);
+        bool ceres = scope.Room.AreaIndex == AreaId.Ceres;
+        ushort[] stock = BackgroundTileWordBytes.Words(InstalledFixtures.StockBlockTiles(scope.Assets.Tileset, ceres));
         int pictures = 0, uploaded = 0;
-        for (int definition = 0; definition < table.Definitions; definition++)
+        for (int block = 0; block < table.Blocks; block++)
         {
-            if (table.Picture(definition) is not { } picture)
+            if (table.Picture(block) is not { } picture)
                 continue;
             pictures++;
             SpriteImage sheet = picture.Sheet;
             bool overUpload = false;
-            for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
+            ushort[] blockWords = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is { } slot
+                ? CollectibleSlotWords(characters, slot, block)
+                : stock[(block * BlockTiles)..((block + 1) * BlockTiles)];
+            for (int tile = 0; tile < BlockTiles; tile++)
             {
-                int at = definition * RoomLevelPlaneDefinitionBytes + tile * sizeof(ushort);
-                var word = new SnesBgTilemapWord(LittleEndianBytes.Word(definitions[at], definitions[at + 1]));
+                var word = new SnesBgTilemapWord(blockWords[tile]);
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
                 bool animated = characters.Animated.TryShowing(word.CharacterIndex, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown);
                 if (!animated)
@@ -527,7 +535,7 @@ internal static class RoomBlockPicturesVerification
                         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
                         AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
                             && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel()),
-                            $"{where}: definition {definition}'s picture paints index {sheet.Inks[pixel].PaletteIndex} priority {sheet.Inks[pixel].Priority} " +
+                            $"{where}: block {block}'s picture paints index {sheet.Inks[pixel].PaletteIndex} priority {sheet.Inks[pixel].Priority} " +
                             $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected} over {shown.Artwork.Name}+{shown.WordOffset:X4}");
                     }
                 }
@@ -538,61 +546,26 @@ internal static class RoomBlockPicturesVerification
         return (pictures, uploaded);
     }
 
-    /// <summary>
-    /// Asserts the X-ray reveal the frame displays paints, pixel for pixel, the palette index, priority and standard colour
-    /// the reveal buffer's tile words paint over the characters the bindings compose into VRAM (#1392).
-    /// </summary>
-    internal static void AssertRevealPaintsWords(SuperMetroidRuntime runtime, ReadOnlySpan<BackgroundTile> tiles, string where)
-    {
-        ushort[] words = BackgroundTileWordBytes.Words(tiles);
-        XrayRevealPlane reveal = runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException($"{where}: no X-ray reveal is displayed.");
-        ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
-        for (int column = 0; column < XrayTilemapLayout.MetatileColumns; column++)
-        for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
-        for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
-        {
-            var word = new SnesBgTilemapWord(words[XrayRevealTilemap.FirstCellOf(column, row) + y / CharacterPixels * 32 + x / CharacterPixels]);
-            int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
-            int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
-            int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
-            int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
-                | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
-            int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-            RevealedBlock block = reveal.Blocks[row * XrayTilemapLayout.MetatileColumns + column]
-                ?? throw new InvalidOperationException($"{where}: the reveal shows no block at ({column}, {row}).");
-            SpriteSheetFrame picture = reveal.Pictures.Picture(block.Definition)
-                ?? throw new InvalidOperationException($"{where}: the reveal's block definition {block.Definition} has no picture.");
-            Position16<ImagePixels> picturePixel = ArrangedPixel(block.Arrangement, x, y);
-            SpriteImage sheet = picture.Sheet;
-            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
-            AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
-                && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel()),
-                $"{where}: reveal block ({column}, {row}) pixel ({x}, {y}) paints index {sheet.Inks[pixel].PaletteIndex} where its tile ${word.Raw:X4} paints {expected}");
-        }
-    }
+    /// <summary>Tiles a block's picture paints: top left, top right, bottom left, bottom right.</summary>
+    private const int BlockTiles = 4;
+
+    /// <summary>The installed collectible graphics, whose palette selectors colour a collectible slot's blocks.</summary>
+    private static readonly Lazy<RoomPlmDynamicCollectibleArtCatalog> CollectibleArt =
+        new(() => RepositoryInstallation.Installation.LoadRoomPlmDynamicCollectibleArt());
 
     /// <summary>
-    /// The pixel of a block definition's picture a revealed block shows at (<paramref name="x"/>, <paramref name="y"/>) of
-    /// its 16x16 square, laid out by <paramref name="arrangement"/>.
+    /// The tile words of collectible slot <paramref name="slot"/>'s block <paramref name="block"/>, as the collectible
+    /// <paramref name="characters"/> show bound over the slot writes them (#1431).
     /// </summary>
-    private static Position16<ImagePixels> ArrangedPixel(RevealedBlockArrangement arrangement, int x, int y)
+    private static ushort[] CollectibleSlotWords(RoomCharacterSource characters, int slot, int block)
     {
-        const int side = RoomBlockSheet.BlockPixels;
-        if (!Enum.IsDefined(arrangement))
-            throw new InvalidDataException($"Unknown revealed block arrangement {arrangement}.");
-        if (arrangement is RevealedBlockArrangement.MirroredHorizontally or RevealedBlockArrangement.MirroredBoth)
-            x = side - 1 - x;
-        if (arrangement is RevealedBlockArrangement.MirroredVertically or RevealedBlockArrangement.MirroredBoth)
-            y = side - 1 - y;
-        // Swapped rows show the lower tile row on top; neither row is flipped.
-        if (arrangement == RevealedBlockArrangement.RowsSwapped)
-            y = (y + side / 2) % side;
-        return new Position16<ImagePixels>((ushort)x, (ushort)y);
+        BgArtworkIdentity bound = characters.Artwork.Showing(
+            RoomTileCharacters.CollectiblesFirst + slot * RoomTileCharacters.CollectibleSlotCharacters, RoomTileCharacters.CollectibleSlotCharacters).Artwork;
+        InWorldCollectibleKind kind = RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds.Single(candidate => RoomBgArtwork.Collectible(candidate) == bound);
+        BackgroundTile[] tiles = CollectibleSlotBlocks.Tiles(slot, CollectibleArt.Value.Resolve(kind).PaletteOffsets.Span);
+        int first = (block - CollectibleSlotBlocks.FirstBlockOf(slot)) * BlockTiles;
+        return BackgroundTileWordBytes.Words(tiles.AsSpan(first, BlockTiles));
     }
-
-    /// <summary>Bytes per block definition.</summary>
-    private const int RoomLevelPlaneDefinitionBytes = SuperMetroid.Core.Rooms.Backgrounds.RoomLevelPlane.DefinitionTiles * sizeof(ushort);
 
     /// <summary>Runs the room block picture checks.</summary>
     [VerificationCommand("--room-block-pictures")]

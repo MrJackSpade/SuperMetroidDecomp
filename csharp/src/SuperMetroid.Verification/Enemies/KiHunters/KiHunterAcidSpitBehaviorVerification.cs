@@ -42,7 +42,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
 
         var blocks = new ushort[64];
         Array.Fill(blocks, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw, 32, 32);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]));
         left.Position = left.Position.WithWhole(new(64, 63));
         left.Radius = new(2, 2);
         left.Velocity = left.Velocity.WithY(SignedEightEight.FromSignedRaw(256));

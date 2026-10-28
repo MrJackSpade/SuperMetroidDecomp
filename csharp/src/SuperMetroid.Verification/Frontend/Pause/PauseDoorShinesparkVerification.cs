@@ -44,7 +44,7 @@ internal static class PauseDoorShinesparkVerification
                 bts[row * 32 + 10] = 3;
                 words[row * 32 + 12] = 0x8000;
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), new BackgroundTile[4], doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
             runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();

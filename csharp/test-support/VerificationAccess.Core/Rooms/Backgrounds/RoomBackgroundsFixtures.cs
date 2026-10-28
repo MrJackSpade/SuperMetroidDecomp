@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
-using System.Collections.Immutable;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -19,8 +18,11 @@ internal static class RoomBackgroundsFixtures
     /// <summary>Blocks along each side of a fixture room.</summary>
     private const int SideBlocks = 32;
 
-    /// <summary>Block definitions a fixture room loads: every ten-bit visual index.</summary>
+    /// <summary>Blocks a fixture room loads: every ten-bit visual index.</summary>
     private const int Definitions = 1024;
+
+    /// <summary>Tiles a fixture paints into each block picture: top left, top right, bottom left, bottom right.</summary>
+    private const int BlockTiles = 4;
 
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and a zero BG3 plane.</summary>
     internal static RoomBackgrounds Blank() => Uniform(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount], default);
@@ -43,14 +45,14 @@ internal static class RoomBackgroundsFixtures
     internal static RoomBackgrounds Uniform(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, SnesBgTilemapWord tile,
         params ReadOnlySpan<TilemapCell> cells)
     {
-        // Each block's four cells, top left, top right, bottom left, bottom right, as its definition stores them.
+        // Each block's four cells, top left, top right, bottom left, bottom right, as its picture is painted from them.
         var blockCells = new ushort[SideBlocks * SideBlocks][];
         for (int block = 0; block < blockCells.Length; block++)
             blockCells[block] = [tile.Raw, tile.Raw, tile.Raw, tile.Raw];
         foreach (var (column, row, cell) in cells)
             blockCells[row / 2 * SideBlocks + column / 2][row % 2 * 2 + column % 2] = cell.Raw;
         var definitionIndices = new Dictionary<BlockCellWords, ushort>();
-        var definitions = new BackgroundTile[Definitions * RoomLevelPlane.DefinitionTiles];
+        var definitions = new BackgroundTile[Definitions * BlockTiles];
         var blocks = new ushort[blockCells.Length];
         for (int block = 0; block < blocks.Length; block++)
         {
@@ -61,13 +63,13 @@ internal static class RoomBackgroundsFixtures
                 index = (ushort)definitionIndices.Count;
                 definitionIndices.Add(key, index);
                 for (int corner = 0; corner < words.Length; corner++)
-                    definitions[index * RoomLevelPlane.DefinitionTiles + corner] = BackgroundTileWordBytes.Tile(words[corner]);
+                    definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(words[corner]);
             }
             blocks[block] = index;
         }
         // BG2 shows the tilemap the fixture loaded at the gameplay BG2 tilemap, as a library background's image (#1403).
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks, [.. definitions]).Cells, default, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankBg3(),
+            blocks).Cells, default, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankBg3(),
             Bg2Image: RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord));
     }
 
@@ -79,8 +81,7 @@ internal static class RoomBackgroundsFixtures
     {
         RoomBlockPictureTable pictures = SeededPictures(random, scene);
         RevealedBlockArrangement[] arrangements = Enum.GetValues<RevealedBlockArrangement>();
-        var blocks = new RevealedBlock?[SuperMetroid.Core.Samus.Abilities.XrayTilemapLayout.MetatileColumns
-            * SuperMetroid.Core.Samus.Abilities.XrayTilemapLayout.MetatileRows];
+        var blocks = new RevealedBlock?[SuperMetroid.Core.Samus.Abilities.XrayRevealLayout.Cells];
         for (int block = 0; block < blocks.Length; block++)
             blocks[block] = new RevealedBlock(random.Next(Definitions), arrangements[random.Next(arrangements.Length)]);
         return new SuperMetroid.Core.Samus.Abilities.XrayRevealPlane(blocks, pictures);
@@ -120,10 +121,10 @@ internal static class RoomBackgroundsFixtures
             words[cell] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(SnesVramAddressingConstants.ByteOffsetOfWord(tilemapWord + cell), sizeof(ushort)));
         ushort[] distinct = [.. words.Distinct()];
         // Each distinct word painted as a block of four copies of itself; its top-left quarter pictures the word.
-        var definitions = new BackgroundTile[distinct.Length * RoomLevelPlane.DefinitionTiles];
+        var definitions = new BackgroundTile[distinct.Length * BlockTiles];
         for (int index = 0; index < distinct.Length; index++)
-        for (int corner = 0; corner < 4; corner++)
-            definitions[index * RoomLevelPlane.DefinitionTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
+        for (int corner = 0; corner < BlockTiles; corner++)
+            definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
         var pictureOf = new Dictionary<ushort, BgTilePicture>();
         for (int index = 0; index < distinct.Length; index++)
@@ -138,7 +139,7 @@ internal static class RoomBackgroundsFixtures
     internal static BossBodyPictures UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
         ReadOnlySpan<RgbColor> palette, int characterWord = 0)
     {
-        var definition = new BackgroundTile[RoomLevelPlane.DefinitionTiles];
+        var definition = new BackgroundTile[BlockTiles];
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
@@ -248,7 +249,7 @@ internal static class RoomBackgroundsFixtures
         var shown = new SpriteSheetFrame?[Definitions];
         for (int definition = 0; definition < shown.Length; definition++)
             shown[definition] = sheet.Frame($"{random.Next(SeededPictureCount)}");
-        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet), shown);
+        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, RoomBlockFixtures.Characters(Definitions)), shown);
     }
 
     /// <summary>
@@ -319,7 +320,7 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// A room of random blocks over random definitions, with a random BG3 plane. Each plane's offset places a random point of the room at the
+    /// A room of random blocks, with a random BG3 plane. Each plane's offset places a random point of the room at the
     /// given scroll, so the screen it is scrolled to shows mostly room and some edge. Optionally adds a door's source
     /// screen and words written over BG1.
     /// </summary>
@@ -335,9 +336,6 @@ internal static class RoomBackgroundsFixtures
     internal static RoomBackgrounds Seeded(Random random, Position16<BgPlanePixels> bg1Scroll,
         Position16<BgPlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
     {
-        var bytes = new byte[Definitions * RoomLevelPlane.DefinitionTiles * sizeof(ushort)];
-        random.NextBytes(bytes);
-        ImmutableArray<BackgroundTile> definitions = [.. BackgroundTileWordBytes.Tiles(bytes)];
         RoomBackgroundLayer Layer(Position16<BgPlanePixels> scroll)
         {
             var blocks = new ushort[SideBlocks * SideBlocks];
@@ -345,7 +343,7 @@ internal static class RoomBackgroundsFixtures
                 blocks[index] = (ushort)random.Next(ushort.MaxValue + 1);
             var inside = new Position16<BgPlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
-            return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks, definitions).Cells,
+            return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks).Cells,
                 scroll - inside, SeededPictures(random, pictureColours ?? new RgbColor[SnesCgram.ColorCount]));
         }
         RoomBackgroundLayer bg1 = Layer(bg1Scroll);

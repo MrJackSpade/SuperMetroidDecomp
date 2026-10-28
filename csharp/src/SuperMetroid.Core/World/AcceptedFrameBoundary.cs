@@ -138,7 +138,7 @@ internal sealed class AcceptedFrameBoundary
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
-        ImmutableArray<BackgroundTile>? reveal = CaptureXrayRevealTilemap(scene);
+        ImmutableArray<RevealedBlock?>? reveal = CaptureXrayReveal(scene);
         _display.Latched = new GameplayDisplayLatch(
             displayScroll,
             _screenLayers.Displayed,
@@ -238,12 +238,12 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// <paramref name="latched"/> with <paramref name="rooms"/>' BG1 and BG2 planes, and the X-ray reveal built from
-    /// <paramref name="reveal"/>'s tiles, showing the pictures their blocks show over what the bindings show now (#1392);
+    /// <paramref name="latched"/> with <paramref name="rooms"/>' BG1 and BG2 planes, and the X-ray reveal showing
+    /// <paramref name="reveal"/>'s blocks (#1431), showing the pictures their blocks show over what the bindings show now (#1392);
     /// unchanged while the planes draw from the object character page, where X-ray is never used.
     /// </summary>
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
-    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<BackgroundTile>? reveal)
+    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<RevealedBlock?>? reveal)
     {
         // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
         // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
@@ -252,13 +252,6 @@ internal sealed class AcceptedFrameBoundary
             floorMap.Tiles.AssertShownBy(_backgrounds, floorMap.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
-        RevealedBlock?[]? revealed = null;
-        if (reveal is { } revealTiles)
-        {
-            if (_revealIndex is null || _revealIndex.Definitions != scope.LevelData.ForegroundPlane.Definitions)
-                _revealIndex = new RevealedBlockIndex(scope.LevelData.ForegroundPlane.Definitions);
-            revealed = XrayRevealPlane.BlocksOf(revealTiles.AsSpan(), _revealIndex);
-        }
         // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
         RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.SpriteCharacters,
             scope.AnimatedCharacters, scope.ArtworkFrames);
@@ -267,7 +260,7 @@ internal sealed class AcceptedFrameBoundary
         // The planes the latch shows are the level data's, which nothing changes before this NMI's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
             rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, characters,
-            revealed?.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
+            reveal?.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
         // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's band HDMA; without it, BG2 shows the room's own background.
         SkyPictures? sky = null;
@@ -319,12 +312,9 @@ internal sealed class AcceptedFrameBoundary
                 Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
                     _backgrounds, latched.Scene.Layer3Characters, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
             },
-            XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
+            XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
         };
     }
-
-    /// <summary>The ways the X-ray reveal lays out the room's definitions, kept while they stand (#1392).</summary>
-    private RevealedBlockIndex? _revealIndex;
 
     /// <summary>
     /// The BG3 plane this NMI displays (#1348): the HUD's static top row and its three rows as gameplay last wrote them,
@@ -354,13 +344,13 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The reveal tilemap the X-ray setup calls queue for VRAM upload. It is copied while X-ray
-    /// is active; otherwise the displayed BG2 tilemap is the room's own.
+    /// The reveal's blocks the X-ray setup calls queue for display (#1431). They are copied while X-ray
+    /// is active; otherwise the displayed BG2 is the room's own.
     /// </summary>
-    private ImmutableArray<BackgroundTile>? CaptureXrayRevealTilemap(GameplayLatchedScene scene) =>
+    private ImmutableArray<RevealedBlock?>? CaptureXrayReveal(GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the tiles are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.BossId)
-            ? ImmutableArray.Create(_xray.RevealTilemap.ToArray())
+            ? ImmutableArray.Create(_xray.RevealedBlocks)
             : null;
 
     /// <summary>

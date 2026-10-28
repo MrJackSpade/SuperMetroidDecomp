@@ -6,8 +6,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>The composed pre-coloured room artwork (#1392): each tileset's block sheet and each library background's image.</summary>
+/// <summary>The composed pre-coloured room artwork (#1392): each tileset's block sheet with the characters its blocks read, and each library background's image.</summary>
 /// <param name="BlockSheets">The block sheets by tileset.</param>
+/// <param name="BlockCharacters">The runs of characters each block reads, by block set (#1431).</param>
 /// <param name="Backgrounds">The background images by name.</param>
 /// <param name="TileWords">The sheets of words written over BG1 and BG2, by tileset.</param>
 /// <param name="Bg3Words">The sheets of BG3 words, by tileset.</param>
@@ -16,6 +17,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="FloorTiles">The Mode 7 tiles, by Ceres tileset.</param>
 /// <param name="Animations">The characters each tileset's rooms' animations paint, by tileset (#1406).</param>
 internal sealed record RoomSheetComposition(IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> BlockSheets,
+    IReadOnlyDictionary<RoomBlockSet, RoomBlockCharacters> BlockCharacters,
     IReadOnlyDictionary<string, ComposedRoomBackground> Backgrounds, IReadOnlyDictionary<TilesetDefinition, ComposedTileWordSheet> TileWords,
     IReadOnlyDictionary<TilesetDefinition, ComposedTileWordSheet> Bg3Words, IReadOnlyDictionary<string, ImmutableArray<BackgroundTile>> Messages,
     IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> MessageBoxes, IReadOnlyDictionary<TilesetDefinition, ComposedMode7Tiles> FloorTiles,

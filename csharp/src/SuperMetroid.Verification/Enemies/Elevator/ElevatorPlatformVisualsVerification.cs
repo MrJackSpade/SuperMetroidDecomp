@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -51,14 +50,8 @@ internal static class ElevatorPlatformVisualsVerification
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();
             SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitionsConstants.InstructionLoop);
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-            {
-                definitions[0x085 * 4 + tile] = BackgroundTileWordBytes.Tile(0x15);
-                definitions[0x053 * 4 + tile] = BackgroundTileWordBytes.Tile(0x53);
-            }
             RoomLevelData level = CreateRoom(new(32, 16), new ushort[32 * 16],
-                new byte[32 * 16], blockDefinitions: definitions);
+                new byte[32 * 16]);
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmElevatorPlatformVisuals = visuals });
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
@@ -66,7 +59,7 @@ internal static class ElevatorPlatformVisualsVerification
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).PackedWord.Raw == 0x8085);
             return new RenderResult(level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                level.DisplayedBlockTiles(index).TopLeft.PackedWord);
+                level.DisplayedVisualWord(index));
         }
 
         var native = Render(stock);
@@ -75,8 +68,8 @@ internal static class ElevatorPlatformVisualsVerification
             "stock elevator keeps cartridge physical block");
         AssertEqual(native.Physical, changed.Physical,
             "edited elevator art cannot change platform collision");
-        AssertEqual((ushort)0x0015, native.Rendered,
-            "stock elevator streams its native tile");
+        AssertEqual((ushort)0x0085, native.Rendered,
+            "stock elevator streams its native block");
         AssertEqual((ushort)0x0053, changed.Rendered,
             "edited elevator art survives camera streaming");
 

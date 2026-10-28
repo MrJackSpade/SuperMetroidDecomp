@@ -269,16 +269,9 @@ internal static class DownwardGatePlmsVerification
         ]);
         SeedDownwardGateProjectileRom(bus);
 
-        var blockDefinitions = new BackgroundTile[0x400 * 4];
-        for (int tile = 0; tile < 4; tile++)
-        {
-            blockDefinitions[0x0ff * 4 + tile] = BackgroundTileWordBytes.Tile(0x0f);
-            blockDefinitions[0x053 * 4 + tile] = BackgroundTileWordBytes.Tile(0x53);
-        }
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new ushort[roomWidth * 16],
-            new byte[roomWidth * 16],
-            blockDefinitions: blockDefinitions);
+            new byte[roomWidth * 16]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDownwardGateVisuals = visuals });
         int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");

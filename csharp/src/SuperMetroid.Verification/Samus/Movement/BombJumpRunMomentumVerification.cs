@@ -22,7 +22,7 @@ internal static class BombJumpRunMomentumVerification
         var floorBlocks = new ushort[width * height];
         for (int x = 0; x < width; x++)
             floorBlocks[4 * width + x] = 0x8000;
-        var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]), new BackgroundTile[4]);
+        var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]));
 
         var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);

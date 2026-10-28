@@ -1,13 +1,12 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
-using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// Decompressed native room allocation: BG1 level words, one-byte BTS metadata, BG2 level
-/// words, and the combined CRE/area visual block definitions.
+/// Decompressed native room allocation: BG1 level words, one-byte BTS metadata and BG2 level
+/// words. Each visual word names a whole 16x16 block by its index; how a block looks is its
+/// picture in the room tileset's block sheet (#1431), not part of the level data.
 /// </summary>
 /// <remarks>
 /// Bank $82 installs these planes together, but their consumers are different: bank $80
@@ -27,8 +26,6 @@ public sealed class RoomLevelData
     internal readonly byte[] BehaviorBytes;
     /// <summary>Logical BG2 level words kept in the room's authored row-major dimensions.</summary>
     internal readonly ushort[] BackgroundEntries;
-    /// <summary>Combined CRE and area 8-by-8 tile definitions selected by visual block numbers, four tiles per block.</summary>
-    private readonly BackgroundTile[] _blockDefinitions;
     /// <summary>Native-sized BG1 allocation, including the decompressed tail used by streaming.</summary>
     internal readonly ushort[] StreamingForegroundAllocation;
     /// <summary>Native-sized BG2 allocation, including its decompressed tail.</summary>
@@ -43,24 +40,22 @@ public sealed class RoomLevelData
     internal readonly byte[] PlmBehaviorAllocation;
     /// <summary>The BG1 plane last published for display, until the next visual write; derived, never saved.</summary>
     [NonSerialized] private RoomLevelPlane? foregroundPlane;
-    /// <summary>The BG2 plane last published for display, until the next definition write; derived, never saved.</summary>
+    /// <summary>The BG2 plane last published for display; derived, never saved.</summary>
     [NonSerialized] private RoomLevelPlane? backgroundPlane;
 
-    /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
+    /// <summary>Copies the logical BG1/BTS/BG2 planes into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
     /// <param name="planes">The logical BG1, BTS and BG2 planes, each exactly width times height entries in row-major order.</param>
-    /// <param name="blockDefinitions">Combined CRE then area definitions: four 8-by-8 tiles per 16-pixel visual block; length must be divisible by four.</param>
     /// <param name="streaming">Optional copied native BG1/BG2 allocations including decompressed overread tails; an empty allocation uses its logical plane, and a supplied allocation cannot be shorter.</param>
     /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a type-$9 door collision.</param>
     /// <param name="visualLayout">Optional matching-sized initial BG1/BG2 artwork; collision words, BTS, and native allocation tails remain unchanged.</param>
     /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
-    /// <exception cref="ArgumentException">A logical plane, streaming allocation, or block-definition byte extent has an invalid size.</exception>
+    /// <exception cref="ArgumentException">A logical plane or streaming allocation has an invalid size.</exception>
     /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
     /// <exception cref="OverflowException">The logical dimension product exceeds the signed 32-bit range.</exception>
     public RoomLevelData(
         Extent16<RoomBlocks> size,
         RoomLevelPlanes planes,
-        ReadOnlySpan<BackgroundTile> blockDefinitions,
         RoomLevelStreaming streaming = default,
         IReadOnlyList<DoorListEntry>? doors = null,
         RoomVisualLayout? visualLayout = null)
@@ -82,15 +77,12 @@ public sealed class RoomLevelData
             throw new ArgumentException("BTS must contain exactly one byte per room block.", nameof(planes));
         if (backgroundEntries.Length != expectedBlocks)
             throw new ArgumentException("BG2 must contain exactly one word per room block.", nameof(planes));
-        if (blockDefinitions.Length % RoomLevelPlane.DefinitionTiles != 0)
-            throw new ArgumentException("Each visual block definition is exactly four tiles.", nameof(blockDefinitions));
 
         Size = size;
         Doors = doors;
         _foregroundEntries = foregroundEntries.ToArray();
         BehaviorBytes = behaviorBytes.ToArray();
         BackgroundEntries = backgroundEntries.ToArray();
-        _blockDefinitions = blockDefinitions.ToArray();
 
         // The cartridge's initial 17-column fill can read past logical BG1 into adjacent
         // decompressed planes at the room's bottom edge. LandingSiteStreamingData supplies
@@ -187,21 +179,14 @@ public sealed class RoomLevelData
     /// <summary>Read-only logical BG1 words, including collision type in bits 12–15.</summary>
     public ReadOnlyMemory<ushort> ForegroundEntries => _foregroundEntries;
 
-    /// <summary>CRE definitions followed by area definitions, four tiles per visual block.</summary>
-    public ReadOnlyMemory<BackgroundTile> BlockDefinitions => _blockDefinitions;
-
     /// <summary>
-    /// BG1 as the level data shows it (#1346). The same immutable plane is returned until a block or definition write,
-    /// so frames that change nothing share it.
+    /// BG1 as the level data shows it (#1346). The same immutable plane is returned until a block write, so frames that
+    /// change nothing share it.
     /// </summary>
-    public RoomLevelPlane ForegroundPlane => foregroundPlane ??= new(Size, VisualStreamingForegroundAllocation, PublishedDefinitions());
+    public RoomLevelPlane ForegroundPlane => foregroundPlane ??= new(Size, VisualStreamingForegroundAllocation);
 
-    /// <summary>The layer-2 plane as the level data shows it, shared until a definition write.</summary>
-    public RoomLevelPlane BackgroundPlane => backgroundPlane ??= new(Size, VisualStreamingBackgroundAllocation, PublishedDefinitions());
-
-    /// <summary>The block definitions both planes of a publication share.</summary>
-    private ImmutableArray<BackgroundTile> PublishedDefinitions() =>
-        foregroundPlane?.Definitions ?? backgroundPlane?.Definitions ?? [.. _blockDefinitions];
+    /// <summary>The layer-2 plane as the level data shows it.</summary>
+    public RoomLevelPlane BackgroundPlane => backgroundPlane ??= new(Size, VisualStreamingBackgroundAllocation);
 
     /// <summary>
     /// Converts a 16-pixel block coordinate using the same row-major multiplication as
@@ -495,25 +480,4 @@ public sealed class RoomLevelData
     /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>
     public void SetBehavior(int blockIndex, RoomBlockBehavior behavior) =>
         SetBehavior(blockIndex, behavior.ToBtsByte());
-
-    /// <summary>
-    /// Replaces one 8x8 child tile in the combined CRE/area block-definition table. Item
-    /// instruction <c>$84:8764</c> uses this exact mutable range to bind one of four rotating
-    /// item-GFX uploads to visual blocks <c>$08E-$095</c>.
-    /// </summary>
-    /// <remarks>
-    /// This is intentionally indexed in child tiles, matching native <c>TileTable,X</c>. It is
-    /// not a general level-block replacement: the room's level words continue to select
-    /// the same block while its four 8x8 children acquire cartridge-defined tiles and
-    /// colour variants.
-    /// </remarks>
-    public void SetBlockDefinitionTile(int tileIndex, BackgroundTile tile)
-    {
-        if ((uint)tileIndex >= (uint)_blockDefinitions.Length)
-            throw new ArgumentOutOfRangeException(nameof(tileIndex));
-
-        _blockDefinitions[tileIndex] = tile;
-        foregroundPlane = null;
-        backgroundPlane = null;
-    }
 }

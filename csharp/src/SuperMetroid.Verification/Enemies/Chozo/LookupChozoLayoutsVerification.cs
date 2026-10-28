@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
@@ -66,7 +65,7 @@ internal static class LookupChozoLayoutsVerification
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Chozo layout word run bounds");
                 }
             }
-            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512], blockDefinitions: new BackgroundTile[0x400 * 4]);
+            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
             var plms = PlmFixtures.Unbound();
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             if (field == 0)

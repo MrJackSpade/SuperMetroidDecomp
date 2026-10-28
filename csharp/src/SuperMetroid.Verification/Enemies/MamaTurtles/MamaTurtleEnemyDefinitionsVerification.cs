@@ -41,7 +41,7 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         var installation = RepositoryInstallation.Installation;
         LoadedRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
-            installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
+            installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SamusColourRig();
         assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram.Gameplay.BackgroundSets);

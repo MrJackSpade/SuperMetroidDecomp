@@ -30,8 +30,7 @@ internal static class DraygonCannonPlmsVerification
         SeedDraygonCannonFixture(bus);
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             new ushort[roomWidth * roomHeight],
-            new byte[roomWidth * roomHeight],
-            blockDefinitions: new BackgroundTile[0x400 * 4]);
+            new byte[roomWidth * roomHeight]);
         var disabledWords = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
 

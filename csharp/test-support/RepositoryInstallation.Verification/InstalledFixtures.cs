@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -37,11 +39,15 @@ internal static class InstalledFixtures
     /// <summary>The installation's starting and common sprite colours.</summary>
     internal static GameplayBasePaletteCatalog GameplayBasePalettes => gameplayBasePalettes.Value;
 
-    /// <summary>Lazy stock character, palette, metatile, visual-layout, level-stream and block-sheet catalogs.</summary>
+    /// <summary>Lazy stock character, palette, visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
-        RepositoryInstallation.Installation.LoadRoomMetatiles(), RepositoryInstallation.Installation.LoadRoomVisualLayouts(),
-        RepositoryInstallation.Installation.LoadRoomLevelStreams(), RepositoryInstallation.Installation.LoadRoomBlockSheets()));
+        RepositoryInstallation.Installation.LoadRoomVisualLayouts(), RepositoryInstallation.Installation.LoadRoomLevelStreams(),
+        RepositoryInstallation.Installation.LoadRoomBlockSheets()));
+
+    /// <summary>Lazy stock block compositions, which extraction composes the block sheets from (#1431).</summary>
+    private static readonly Lazy<RoomMetatileCatalog> blockCompositions = new(() =>
+        RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
 
     /// <summary>Lazy map and shared presentation resources.</summary>
     private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
@@ -64,6 +70,16 @@ internal static class InstalledFixtures
 
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>
     internal static RoomAssetCatalogs RoomAssets => roomAssets.Value;
+
+    /// <summary>The installation's stock block compositions, which extraction composes the block sheets from (#1431).</summary>
+    internal static RoomMetatileCatalog BlockCompositions => blockCompositions.Value;
+
+    /// <summary>
+    /// The stock tiles of every block a room of <paramref name="tileset"/> loads, four per block, as extraction composes
+    /// their pictures (#1431): a Zebes room's common room elements before its tileset's, or a Ceres room's tileset alone.
+    /// </summary>
+    internal static BackgroundTile[] StockBlockTiles(TilesetDefinition tileset, bool ceres) =>
+        RoomBlockComposition.StockTiles(BlockCompositions, tileset.Blocks, ceres);
 
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
     internal static AreaMapPresentationCatalog Maps => maps.Value;

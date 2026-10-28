@@ -230,14 +230,7 @@ internal static class ContactCrumbleProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xb321;
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-            {
-                definitions[0x53 * 4 + tile] = BackgroundTileWordBytes.Tile(0x17);
-                definitions[0x54 * 4 + tile] = BackgroundTileWordBytes.Tile(0x18);
-            }
-
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     new RoomBlockBehavior(0)),
@@ -248,8 +241,8 @@ internal static class ContactCrumbleProgramsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "contact-break draw avoids compiled source bytes");
             return new RenderBreakResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
+                level.DisplayedVisualWord(blockIndex),
+                level.DisplayedVisualWord(blockIndex));
         }
 
         var stock = RenderBreak(RoomPlmShotBlockVisualCatalog.Stock());
@@ -258,23 +251,21 @@ internal static class ContactCrumbleProgramsVerification
             "contact-crumble first frame installs native air collision");
         AssertEqual(stock.Physical, changed.Physical,
             "shared breakup-art edit leaves contact-crumble collision unchanged");
-        AssertEqual((ushort)0x0017, stock.Immediate,
-            "stock contact breakup reaches the immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.Immediate,
-            "edited contact breakup reaches the immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.Streamed,
-            "edited contact breakup persists through camera streaming");
+        // The block BG1 shows names its picture (#1431): the stock breakup frame's block, or the edited frame's.
+        AssertEqual((ushort)0x0053, stock.Immediate,
+            "stock contact breakup's block reaches the immediate redraw");
+        AssertEqual((ushort)0x0054, changed.Immediate,
+            "edited contact breakup's block reaches the immediate redraw");
+        AssertEqual((ushort)0x0054, changed.Streamed,
+            "edited contact breakup's block persists through camera streaming");
 
-        ContactCrumbleProgramsRenderRestoredParentResult RenderRestoredParent(byte tileIndex)
+        ContactCrumbleProgramsRenderRestoredParentResult RenderRestoredParent()
         {
             const int width = 8;
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xb321;
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-                definitions[0xbc * 4 + tile] = BackgroundTileWordBytes.Tile(tileIndex);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
             var plms = PlmFixtures.Unbound();
             AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     new RoomBlockBehavior(1)),
@@ -285,19 +276,16 @@ internal static class ContactCrumbleProgramsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
             return new ContactCrumbleProgramsRenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
+                level.DisplayedVisualWord(blockIndex));
         }
 
-        var stockParent = RenderRestoredParent(0x17);
-        var editedParent = RenderRestoredParent(0x18);
-        AssertEqual((ushort)0xb0bc, stockParent.Physical,
+        // A block's look is its picture in the block sheet (#1431), so the restored parent is checked as the block it
+        // shows: block $0BC unmirrored, whose picture a block sheet override repaints.
+        var restoredParent = RenderRestoredParent();
+        AssertEqual((ushort)0xb0bc, restoredParent.Physical,
             "linked contact block restores its native special parent word");
-        AssertEqual(stockParent.Physical, editedParent.Physical,
-            "editing block $0BC composition leaves special collision intact");
-        AssertEqual((ushort)0x0017, stockParent.Streamed,
-            "stock restored contact parent uses room-block composition");
-        AssertEqual((ushort)0x0018, editedParent.Streamed,
-            "edited block $0BC composition reaches later streaming");
+        AssertEqual((ushort)0x00bc, restoredParent.Streamed,
+            "restored contact parent shows block $0BC to later streaming");
     }
 
     /// <summary>Constructed room and PLM owner used for one contact-crumble BTS timeline.</summary>
@@ -315,7 +303,7 @@ internal static class ContactCrumbleProgramsVerification
         words[blockIndex] = 0xb321;
         var behaviors = new byte[words.Length];
         behaviors[blockIndex] = bts;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]), new BackgroundTile[0x400 * 4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]));
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                 new RoomBlockBehavior(bts)),

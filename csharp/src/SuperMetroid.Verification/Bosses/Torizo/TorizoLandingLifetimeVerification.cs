@@ -38,7 +38,7 @@ internal static class TorizoLandingLifetimeVerification
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
-        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), scope.LevelData.BlockDefinitions.Span);
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]));
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;

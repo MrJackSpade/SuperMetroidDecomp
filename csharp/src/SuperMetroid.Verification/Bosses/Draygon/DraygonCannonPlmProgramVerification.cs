@@ -51,12 +51,8 @@ internal static class DraygonCannonPlmProgramVerification
         ]);
         var guarded = NewDraygonCannonProgramReadGuard(source);
         const int width = 32;
-        var blockDefinitions = new BackgroundTile[0x400 * 4];
-        blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
-        blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
         var level = CreateRoom(new(width, 32),
-            new ushort[width * 32], new byte[width * 32],
-            blockDefinitions: blockDefinitions);
+            new ushort[width * 32], new byte[width * 32]);
         var disabled = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
@@ -82,13 +78,13 @@ internal static class DraygonCannonPlmProgramVerification
             level.GetCollisionBlockByIndex(rightShieldBlock).PackedWord.Raw,
             "edited right shield retains native physical collision and tile reference");
         AssertEqual((ushort)0x0053,
-            level.DisplayedBlockTiles(rightShieldBlock).TopLeft.PackedWord,
+            level.DisplayedVisualWord(rightShieldBlock),
             "edited right shield survives later room streaming");
         AssertEqual((ushort)0xc114,
             level.GetCollisionBlockByIndex(leftShieldBlock).PackedWord.Raw,
             "edited left shield retains native physical collision and tile reference");
         AssertEqual((ushort)0x0054,
-            level.DisplayedBlockTiles(leftShieldBlock).TopLeft.PackedWord,
+            level.DisplayedVisualWord(leftShieldBlock),
             "edited offscreen left shield enters later background streaming");
         AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");

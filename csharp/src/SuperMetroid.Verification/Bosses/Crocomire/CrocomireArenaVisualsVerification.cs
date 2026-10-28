@@ -109,10 +109,7 @@ internal static class CrocomireArenaVisualsVerification
         const int width = 32;
         ushort[] words = Enumerable.Repeat((ushort)0x8123, width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), words,
-            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
-        level.SetBlockDefinitionTile(0x0058 * 4, BackgroundTileWordBytes.Tile(0x0058));
-        level.SetBlockDefinitionTile(0x0059 * 4, BackgroundTileWordBytes.Tile(0x0059));
-        level.SetBlockDefinitionTile(0x0080 * 4, BackgroundTileWordBytes.Tile(0x0080));
+            new byte[words.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmCrocomireVisuals = visuals });
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire visual header {header} allocates");
@@ -122,7 +119,7 @@ internal static class CrocomireArenaVisualsVerification
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Crocomire visual header {header} retains physical block");
-        AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+        AssertEqual(visualWord, level.DisplayedVisualWord(blockIndex),
             $"Crocomire visual header {header} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Crocomire visual header {header} reads no compiled source");

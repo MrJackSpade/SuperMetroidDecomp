@@ -214,21 +214,14 @@ internal static class GrappleBlockProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xe123;
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-            {
-                definitions[0xb7 * 4 + tile] = BackgroundTileWordBytes.Tile(0x17);
-                definitions[0xb8 * 4 + tile] = BackgroundTileWordBytes.Tile(0x18);
-            }
-
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGrappleBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
             plms.Step(level);
             return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
+                level.DisplayedVisualWord(blockIndex),
+                level.DisplayedVisualWord(blockIndex));
         }
 
         var stock = Render(RoomPlmGrappleBlockVisualCatalog.Stock());
@@ -237,11 +230,11 @@ internal static class GrappleBlockProgramsVerification
             "native first Grapple frame installs Grapple collision");
         AssertEqual(stock.Physical, changed.Physical,
             "art edit does not change the physical Grapple collision word");
-        AssertEqual((ushort)0x0017, stock.Immediate,
+        AssertEqual((ushort)0x00b7, stock.Immediate,
             "stock visual block reaches immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.Immediate,
+        AssertEqual((ushort)0x00b8, changed.Immediate,
             "edited visual block reaches immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.Streamed,
+        AssertEqual((ushort)0x00b8, changed.Streamed,
             "edited visual block persists through later camera streaming");
         AssertThrows<InvalidDataException>(
             () => new RoomPlmGrappleBlockVisualCatalog(entries.Skip(1)),
@@ -321,7 +314,7 @@ internal static class GrappleBlockProgramsVerification
         const int blockIndex = 27;
         var words = new ushort[width * width];
         words[blockIndex] = 0xe123;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new BackgroundTile[0x400 * 4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");

@@ -3,19 +3,25 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Rooms;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-namespace SuperMetroid.Verification.Rooms.LevelData;
+namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
 
-/// <summary>Checks extracted room block artwork against compressed cartridge sources and installed room loading.</summary>
+/// <summary>
+/// Checks the extracted block compositions the block sheets are composed from (#1431) against the compressed cartridge
+/// sources and the installed stock compositions.
+/// </summary>
 internal static class RoomMetatilesVerification
 {
-    /// <summary>Roundtrips distinct CRE and area metatiles, then checks a visual edit leaves collision and BTS intact.</summary>
+    /// <summary>
+    /// Roundtrips distinct CRE and area metatiles, checks the installed compositions are the cartridge's, and checks an edited
+    /// composition document changes exactly its edited tile.
+    /// </summary>
     internal static void VerifyRoomMetatileExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -59,15 +65,16 @@ internal static class RoomMetatilesVerification
             RomDataReader.Decompress(bus,
                 (int)RoomTilesetSourceDefinitions.CreBlocks).Length);
         var stockCatalog = new RoomMetatileCatalog(stockCre, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
+        // The tiles of every block a room loads, which extraction pictures, are the cartridge's: the installed compositions
+        // a Zebes and a Ceres room's block sheets were composed from equal those freshly extracted.
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            LoadedRoomAssets native = LoadFixtureRoomAssets(header);
-            LoadedRoomAssets installed = LoadFixtureRoomAssets(header,
-                metatileArt: stockCatalog);
-            AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
-                    installed.LevelData.BlockDefinitions.Span),
-                $"room $8F:{roomPointer:X4} installs exact visual blocks without ROM source reads");
+            TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
+            bool ceres = header.AreaIndex == AreaId.Ceres;
+            AssertTrue(RoomBlockComposition.StockTiles(stockCatalog, tileset.Blocks, ceres).AsSpan().SequenceEqual(
+                    InstalledFixtures.StockBlockTiles(tileset, ceres)),
+                $"room $8F:{roomPointer:X4}'s blocks are composed from the cartridge's exact visual blocks");
         }
 
         byte[] cre = RomDataReader.Decompress(bus,
@@ -79,32 +86,12 @@ internal static class RoomMetatilesVerification
         topLeft["tileColumn"] = (originalColumn + 1) % RoomMetatileFormat.TileColumns;
         RoomMetatileAtlas modified = RoomMetatileAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)), cre.Length);
-        var levelWord = RoomLevelWord.Create(0, LevelBlockFlipFlags.None,
-            RoomCollisionType.SolidBlock);
-        byte[] bts = [0x46];
-        var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), BackgroundTileWordBytes.Tiles(cre));
-        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.BlockTiles.Span);
-        AssertTrue(originalLevel.ForegroundEntries.Span.SequenceEqual(modifiedLevel.ForegroundEntries.Span) &&
-            originalLevel.BehaviorBytes.AsSpan().SequenceEqual(modifiedLevel.BehaviorBytes.AsSpan()),
-            "visual metatile edit leaves room collision nibble and BTS unchanged");
-        ExpandedBlockTiles before = LevelBlockTilemapExpander.Expand(
-            levelWord, originalLevel.BlockDefinitions.Span);
-        ExpandedBlockTiles after = LevelBlockTilemapExpander.Expand(
-            levelWord, modifiedLevel.BlockDefinitions.Span);
+        ExpandedBlockTiles before = LevelBlockTilemapExpander.Expand(0, stockCre.BlockTiles.Span);
+        ExpandedBlockTiles after = LevelBlockTilemapExpander.Expand(0, modified.BlockTiles.Span);
         AssertTrue(before.TopLeft != after.TopLeft && before.TopRight == after.TopRight &&
-            before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight,
-            "edited JSON changes only the intended 8x8 visual child of a solid block");
-        RoomMetatileCatalog editedCatalog = new(modified, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
-        SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        LoadedRoomAssets nativeLanding = LoadFixtureRoomAssets(landing);
-        LoadedRoomAssets editedLanding = LoadFixtureRoomAssets(landing, metatileArt: editedCatalog);
-        AssertTrue(!nativeLanding.LevelData.BlockDefinitions.Span.SequenceEqual(
-                editedLanding.LevelData.BlockDefinitions.Span) &&
-            nativeLanding.LevelData.ForegroundEntries.Span.SequenceEqual(
-                editedLanding.LevelData.ForegroundEntries.Span) &&
-            nativeLanding.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
-                editedLanding.LevelData.BehaviorBytes.AsSpan()),
-            "real room loader applies the visual CRE edit without changing level placement or BTS");
+            before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight &&
+            stockCre.BlockTiles.Span[4..].SequenceEqual(modified.BlockTiles.Span[4..]),
+            "an edited composition document changes only its edited 8x8 tile");
 
         topLeft["palette"] = RoomMetatileFormat.PaletteCount;
         byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited);
@@ -112,7 +99,7 @@ internal static class RoomMetatilesVerification
                 new MemoryStream(invalid, writable: false), cre.Length),
             "metatile JSON rejects an invalid palette selector");
         Console.WriteLine($"  Room metatiles: {files.Count} distinct CRE/area resources roundtrip " +
-            "byte-exactly; a visual edit changes one child without changing collision/BTS.");
+            "byte-exactly and are the installed compositions the block sheets are composed from.");
     }
 
     /// <summary>Runs the focused metatile extraction and room-loader comparison.</summary>

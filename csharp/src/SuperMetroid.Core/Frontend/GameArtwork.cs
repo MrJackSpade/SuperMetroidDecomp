@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -68,9 +68,6 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>Room static palettes.</summary>
     public RoomStaticPaletteCatalog? RoomPaletteArt { get; init; }
-
-    /// <summary>Room metatiles.</summary>
-    public RoomMetatileCatalog? RoomMetatileArt { get; init; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public RoomBlockSheetCatalog? RoomBlockSheets { get; init; }

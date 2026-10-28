@@ -10,14 +10,24 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
-/// Turns a fixture's block definitions and memory image into the block pictures a room plane draws (#1403): each
-/// definition's four tile words painted from the four-bit characters in the image, mirrored, coloured and prioritised as
+/// Turns a fixture's block compositions and memory image into the block pictures a room plane draws (#1403): each
+/// block's four tile words painted from the four-bit characters in the image, mirrored, coloured and prioritised as
 /// each word says, as extraction paints a room's block sheet.
 /// </summary>
 internal static class RoomBlockFixtures
 {
+    /// <summary>Tiles a fixture paints into each block picture: top left, top right, bottom left, bottom right.</summary>
+    private const int BlockTiles = 4;
+
     /// <summary>
-    /// The picture of each of <paramref name="definitions"/>' blocks, its characters read from <paramref name="characterWord"/>
+    /// The characters each of <paramref name="count"/> fixture blocks reads (#1431): a fixture table names its pictures by
+    /// block, so each block records one run, which only satisfies the sheet's record of its blocks.
+    /// </summary>
+    internal static RoomBlockCharacters Characters(int count) => new(default(TilesetDefinition).Blocks,
+        Enumerable.Range(0, count).Select(_ => new[] { new RoomBlockCharacterRun(0, 1) }));
+
+    /// <summary>
+    /// The picture of each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from <paramref name="characterWord"/>
     /// in <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
     /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
@@ -25,9 +35,9 @@ internal static class RoomBlockFixtures
         int characterWord = 0)
     {
         const int columns = 16, side = RoomBlockSheet.BlockPixels, tile = 8, characterWords = 16;
-        if (definitions.IsEmpty || definitions.Length % RoomLevelPlane.DefinitionTiles != 0)
-            throw new ArgumentException("Block definitions are whole groups of four tiles.", nameof(definitions));
-        int count = definitions.Length / RoomLevelPlane.DefinitionTiles;
+        if (definitions.IsEmpty || definitions.Length % BlockTiles != 0)
+            throw new ArgumentException("Block compositions are whole groups of four tiles.", nameof(definitions));
+        int count = definitions.Length / BlockTiles;
         int rows = (count + columns - 1) / columns;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * side, checked((ushort)(rows * side))));
         RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
@@ -39,7 +49,7 @@ internal static class RoomBlockFixtures
             SpritePaletteRows coloured = SpritePaletteRows.None;
             for (int corner = 0; corner < 4; corner++)
             {
-                BackgroundTile word = definitions[block * RoomLevelPlane.DefinitionTiles + corner];
+                BackgroundTile word = definitions[block * BlockTiles + corner];
                 for (int part = 0; part < characterWords; part++)
                 {
                     int at = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.Tile * characterWords + part);
@@ -60,7 +70,7 @@ internal static class RoomBlockFixtures
         ComposedSpriteSheet composed = canvas.ToSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "blocks-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
-        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet),
+        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Characters(count)),
             [.. Enumerable.Range(0, count).Select(block => (SpriteSheetFrame?)sheet.Frame($"{block}"))]);
     }
 

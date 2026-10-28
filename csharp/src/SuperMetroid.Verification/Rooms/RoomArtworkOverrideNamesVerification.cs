@@ -15,17 +15,19 @@ internal static class RoomArtworkOverrideNamesVerification
 {
     /// <summary>
     /// An override under its old name moves to its set name with its bytes, a file the rename does not know stays, an
-    /// override already under its new name is kept, and one under both names is refused.
+    /// override already under its new name is kept, and one under both names is refused. Block compositions are no
+    /// override surface (#1431), so an old block-composition file is not renamed.
     /// </summary>
     internal static void VerifyRoomArtworkOverrideNames()
     {
         using var scratch = new TestScratchDirectory("room-artwork-override-names");
         var installation = new GameInstallation(scratch.Root);
         Directory.CreateDirectory(installation.RoomCharacterOverrideDirectory);
-        Directory.CreateDirectory(installation.RoomMetatileOverrideDirectory);
+        string blockCompositions = Directory.CreateDirectory(
+            Path.Combine(scratch.Root, "overrides", GameInstallationLayout.RoomMetatileDirectoryName)).FullName;
         Directory.CreateDirectory(installation.RoomPaletteOverrideDirectory);
         string oldCharacters = Path.Combine(installation.RoomCharacterOverrideDirectory, "room-characters-BAC629.png");
-        string oldBlocks = Path.Combine(installation.RoomMetatileOverrideDirectory, "room-blocks-C1D8DC.json");
+        string oldBlocks = Path.Combine(blockCompositions, "room-blocks-C1D8DC.json");
         string oldPalette = Path.Combine(installation.RoomPaletteOverrideDirectory, "room-palette-C2BC9C.json");
         string unknown = Path.Combine(installation.RoomCharacterOverrideDirectory, "notes.txt");
         string kept = Path.Combine(installation.RoomPaletteOverrideDirectory, RoomStaticPaletteFormat.FileName(RoomPaletteSet.Kraid));
@@ -41,8 +43,8 @@ internal static class RoomArtworkOverrideNamesVerification
             "a character sheet's file name is its hyphenated set name");
         AssertTrue(File.ReadAllBytes(Path.Combine(installation.RoomCharacterOverrideDirectory, "room-characters-upper-crateria.png"))
             .SequenceEqual(new byte[] { 1, 2, 3 }) && !File.Exists(oldCharacters), "the old character override moves to its set name with its bytes");
-        AssertTrue(File.Exists(Path.Combine(installation.RoomMetatileOverrideDirectory, "room-blocks-red-brinstar-kraid-statues-hall.json")) &&
-            !File.Exists(oldBlocks), "the old block override moves to its set name");
+        AssertTrue(File.Exists(oldBlocks) && !File.Exists(Path.Combine(blockCompositions, "room-blocks-red-brinstar-kraid-statues-hall.json")),
+            "an old block-composition file is not renamed: blocks change only through their pictures (#1431)");
         AssertTrue(File.Exists(Path.Combine(installation.RoomPaletteOverrideDirectory, "room-palette-map-statues.json")) &&
             !File.Exists(oldPalette), "the old palette override moves to its set name");
         AssertTrue(File.Exists(unknown) && File.ReadAllBytes(kept).SequenceEqual(new byte[] { 7 }),

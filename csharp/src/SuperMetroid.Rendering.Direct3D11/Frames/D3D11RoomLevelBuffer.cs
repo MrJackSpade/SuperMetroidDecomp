@@ -16,7 +16,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (layers 1
 /// and 2 and a door's source room), the door window, the layer-1 overlay, sky, layer-3 and layer-2 overlay offsets; then each plane's
-/// blocks (#1403), each plane's picture of each definition and the pictures themselves with their sheets' standard
+/// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
 /// colours (#1392), the layer-1 and layer-2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the layer-3 plane's pictures,
 /// a Mode 7 floor (#1349, #1403) and a boss body's pictures (#1352, #1403).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
@@ -26,7 +26,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 {
     /// <summary>
     /// Words per plane record: block offset, width, height, scroll offset X and Y, and the offset of the picture each
-    /// definition shows.
+    /// block shows.
     /// </summary>
     private const int RecordWords = 6;
 
@@ -181,7 +181,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             blockOffsets[slot] = words;
             words += layer.Blocks.Cells.Length;
         }
-        // Each plane's picture of each definition (#1392).
+        // Each plane's picture of each block (#1392, #1431).
         var pictureTables = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
         {
@@ -189,7 +189,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             pictureTables[slot] = words;
-            words += table.Definitions;
+            words += table.Blocks;
         }
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
@@ -261,9 +261,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record + 4] = unchecked((ushort)layer.ScrollOffset.Y);
             upload[record + 5] = (uint)pictureTables[slot];
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
-            for (int definition = 0; definition < table.Definitions; definition++)
-                upload[pictureTables[slot] + definition] = table.Picture(definition) is { } shown ? (uint)pictureWords[shown] : 0;
-            // Each block's definition, with its horizontal and vertical mirroring in bits ten and eleven, as Tiles.hlsl reads a block.
+            for (int block = 0; block < table.Blocks; block++)
+                upload[pictureTables[slot] + block] = table.Picture(block) is { } shown ? (uint)pictureWords[shown] : 0;
+            // Each block's index, with its horizontal and vertical mirroring in bits ten and eleven, as Tiles.hlsl reads a block.
             ImmutableArray<RoomBlockCell> cells = blocks.Cells;
             for (int block = 0; block < cells.Length; block++)
                 upload[blockOffsets[slot] + block] = (uint)cells[block].Definition
@@ -350,9 +350,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (table is null)
                 continue;
-            for (int definition = 0; definition < table.Definitions; definition++)
+            for (int block = 0; block < table.Blocks; block++)
             {
-                if (table.Picture(definition) is { } picture)
+                if (table.Picture(block) is { } picture)
                     yield return (picture, D3D11PictureColouring.Frame);
             }
         }

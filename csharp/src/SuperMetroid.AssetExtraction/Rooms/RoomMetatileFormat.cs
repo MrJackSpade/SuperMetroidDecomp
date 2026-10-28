@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Schema revision, native block geometry, logical character coordinates, and editable file identities for room metatile tables.</summary>
 public static class RoomMetatileFormat

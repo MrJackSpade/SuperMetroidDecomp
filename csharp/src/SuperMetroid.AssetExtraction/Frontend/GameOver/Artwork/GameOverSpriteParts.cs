@@ -1,7 +1,9 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>$82:CFE0-D00A: a centered sixteen-pixel Baby and four reflected specimen-container caps.
 /// Selected glyph identities and cap arrangement specify the exact pictured Baby/container. Only that display design is retained; geometry derives, while pixels, palettes and timing remain separate.</summary>
@@ -23,11 +25,11 @@ internal sealed class GameOverSpriteParts : IReadOnlyList<CompiledSpritePart>
 
 
     /// <summary>$82:CFF6: selected closed Baby sixteen-pixel tile90; the middle pose occupies the immediately adjacent two-tile-wide atlas region.</summary>
-    private const int ClosedBabyTile = GameOverPresentationDefinitions.ClosedBabyCell;
+    private const int ClosedBabyTile = GameOverSpriteDefinitions.ClosedBabyCell;
     /// <summary>$82:D004: selected open Baby sixteen-pixel tile9B.</summary>
-    private const int OpenBabyTile = GameOverPresentationDefinitions.OpenBabyCell;
+    private const int OpenBabyTile = GameOverSpriteDefinitions.OpenBabyCell;
     /// <summary>$82:CFE0: selected eight-pixel container-cap tile9A, reflected to form all four caps.</summary>
-    private const int ContainerCapTile = GameOverPresentationDefinitions.ContainerCapCell;
+    private const int ContainerCapTile = GameOverSpriteDefinitions.ContainerCapCell;
     /// <summary>Selects the four-cap container arrangement instead of a single Baby pose.</summary>
     private bool Shell => baby is null;
     /// <summary>Selects the authored tile identity for the requested Baby pose or shared cap.</summary>

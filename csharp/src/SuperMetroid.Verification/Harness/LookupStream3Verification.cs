@@ -71,6 +71,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -520,7 +521,7 @@ internal static class LookupStream3Verification
     /// <summary>Checks menu compositions against native OAM parts and preserves edited geometry and order.</summary>
     internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
-        static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => new(
+        static Dictionary<string, SpriteComposition> Sprites(GameOverSourcePresentation presentation) => new(
             [.. Enum.GetValues<GameOverBabyFrame>().Select(frame =>
                 KeyValuePair.Create(GameOverPresentationNames.BabyFrameName(frame), presentation.babySprites[frame])),
             KeyValuePair.Create(GameOverPresentationDefinitions.EggFrame, presentation.eggSprite),
@@ -538,7 +539,7 @@ internal static class LookupStream3Verification
 
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
-        GameOverPresentation Load(GameOverPresentationDocument document) => GameOverPresentation.Load(new MemoryStream(
+        GameOverSourcePresentation Load(GameOverPresentationDocument document) => GameOverSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var original = Read();
         var stock = Sprites(Load(original));
@@ -728,7 +729,7 @@ internal static class LookupStream3Verification
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
-        GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
+        GameOverSourcePresentation Load() => GameOverSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
         AssertTrue(stock.tilemap is null, "game-over stock text retains no tilemap row");

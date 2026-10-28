@@ -1,45 +1,28 @@
 using SuperMetroid.Core.Rendering;
-using System.Security.Cryptography;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// Immutable game-over artwork, static text layout, actor compositions, palettes and
-/// screen anchors. Menu control, answer semantics, music and Baby sequence dispatch stay
-/// compiled in the application.
+/// Immutable game-over artwork, static text layout, palettes and screen anchors the game binds. The actors are drawn
+/// from the installed game-over sheet, whose compositions belong to the import pipeline that reads the installed
+/// presentation (#1463). Menu control, answer semantics, music and Baby sequence dispatch stay compiled in the
+/// application.
 /// </summary>
-public sealed class GameOverPresentation
+public abstract class GameOverPresentation
 {
     /// <summary>Stores an authored tilemap only when it differs from the calculated stock game-over text page.</summary>
     internal readonly BackgroundTile[]? tilemap;
-    /// <summary>Each Baby frame's composition.</summary>
-    internal readonly Dictionary<GameOverBabyFrame, SpriteComposition> babySprites;
-    /// <summary>The egg's composition.</summary>
-    internal readonly SpriteComposition eggSprite;
-    /// <summary>The missile cursor's composition by animation frame.</summary>
-    internal readonly SpriteComposition[] cursorSprites;
     /// <summary>Installed idle and crying color sets for the Baby's fixed CGRAM row.</summary>
     private readonly GameOverBabyPaint babyPalettes;
 
-    /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
-    private static SpriteComposition CompileSprite(GameOverPresentationDocument document, string name) =>
-        document.Sprites.TryGetValue(name, out SpriteVisualPart[]? parts) && parts is not null
-            ? MenuSpriteCompiler.Compile(parts, $"game-over {name}")
-            : throw new InvalidDataException($"Game-over presentation is missing sprite {name}.");
-
     /// <summary>Retains compiled artwork and screen anchors, eliding an unchanged stock tilemap.</summary>
-    private GameOverPresentation(
-        BackgroundTile[] tilemap,
-        Dictionary<GameOverBabyFrame, SpriteComposition> babySprites,
-        SpriteComposition eggSprite,
-        SpriteComposition[] cursorSprites,
-        GameOverBabyPaint babyPalettes,
-        GameOverPresentationDocument document,
+    /// <param name="document">The validated layout.</param>
+    /// <param name="tilemap">The compiled game-over tilemap.</param>
+    /// <param name="babyPalettes">The Baby's idle and crying colours.</param>
+    /// <param name="contentIdentity">The identity of the selected presentation's bytes.</param>
+    internal GameOverPresentation(GameOverLayoutDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPalettes,
         string contentIdentity)
     {
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
@@ -48,9 +31,6 @@ public sealed class GameOverPresentation
                 this.tilemap = tilemap;
                 break;
             }
-        this.babySprites = babySprites;
-        this.eggSprite = eggSprite;
-        this.cursorSprites = cursorSprites;
         this.babyPalettes = babyPalettes;
         BabyAnchor = document.BabyAnchor;
         CursorX = document.CursorX;
@@ -134,120 +114,5 @@ public sealed class GameOverPresentation
         ColourRun row = Ensure.NotNull(colours).SpriteRow(GameOverPresentationDefinitions.BabySpriteRow);
         for (int index = 0; index < row.Count; index++)
             row.Write(index, babyPalettes.Read(palette, index));
-    }
-
-    /// <summary>Reads and validates game-over JSON, compiling its tilemap, sprite compositions, palette artwork, and screen layout.</summary>
-    /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
-    /// <returns>A presentation owning parsed and compiled content independently of the source stream.</returns>
-    /// <exception cref="InvalidDataException">The JSON, version, required artwork, colors, coordinates, palette selectors, or cursor duration are invalid.</exception>
-    public static GameOverPresentation Load(Stream source)
-    {
-        byte[] bytes;
-        using (var copy = new MemoryStream())
-        {
-            source.CopyTo(copy);
-            bytes = copy.ToArray();
-        }
-
-        GameOverPresentationDocument document;
-        try
-        {
-            document = JsonAssetDocument.Read<GameOverPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("Game-over presentation document is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid game-over presentation JSON.", error);
-        }
-
-        if (document.Version != GameOverPresentationDefinitions.Version)
-            throw new InvalidDataException(
-                $"Game-over presentation version must be {GameOverPresentationDefinitions.Version}.");
-        if (document.Tilemap is null ||
-            document.Tilemap.Length != GameOverPresentationDefinitions.TilemapCellCount)
-            throw new InvalidDataException("Game-over presentation requires a complete 32x32 tilemap.");
-        if (document.Sprites is null ||
-            document.Sprites.Count != GameOverPresentationDefinitions.SpriteNames.Length)
-            throw new InvalidDataException("Game-over presentation requires all eight named sprite compositions.");
-        if (document.BabyPalettes is null ||
-            document.BabyPalettes.Count != GameOverPresentationDefinitions.BabyPaletteNames.Length)
-            throw new InvalidDataException("Game-over presentation requires all four named Baby palettes.");
-        ValidatePoint(document.BabyAnchor, "Baby anchor");
-        ValidateCoordinate(document.CursorX, nameof(document.CursorX));
-        ValidateCoordinate(document.YesCursorY, nameof(document.YesCursorY));
-        ValidateCoordinate(document.NoCursorY, nameof(document.NoCursorY));
-        ValidatePaletteIndex(document.BabyPalette, nameof(document.BabyPalette));
-        ValidatePaletteIndex(document.EggPalette, nameof(document.EggPalette));
-        ValidatePaletteIndex(document.CursorPalette, nameof(document.CursorPalette));
-        if (document.CursorFrameDuration is < 1 or > ushort.MaxValue)
-            throw new InvalidDataException("Game-over cursor frame duration must be 1..65535.");
-
-        var tilemap = new BackgroundTile[GameOverPresentationDefinitions.TilemapCellCount];
-        for (int index = 0; index < document.Tilemap.Length; index++)
-        {
-            MapPresentationCell? cell = document.Tilemap[index];
-            if (cell is null ||
-                (uint)cell.TileColumn >= MapTileAtlasFormat.TileColumns ||
-                (uint)cell.TileRow >= MapPresentationFormat.AtlasRows ||
-                (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                throw new InvalidDataException(
-                    $"Game-over tilemap cell {index} has an invalid atlas coordinate or palette.");
-            tilemap[index] = new BackgroundTile(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn, cell.Palette,
-                cell.FlipX, cell.FlipY, cell.Priority);
-        }
-
-        var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,
-            frame => GameOverSpriteParts.CalculateBabyIfMatching(frame, CompileSprite(document, GameOverPresentationNames.BabyFrameName(frame))));
-        SpriteComposition eggSprite = GameOverSpriteParts.CalculateEggIfMatching(CompileSprite(document, GameOverPresentationDefinitions.EggFrame));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, GameOverPresentationNames.CursorFrameName(frame))))];
-
-        var palettes = new Dictionary<GameOverBabyPalette, RgbColor[]>();
-        foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
-        {
-            string name = GameOverPresentationNames.BabyPaletteName(palette);
-            if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||
-                colors is null || colors.Length != GameOverMenuDefinitions.BabyPaletteColorCount ||
-                colors.Any(color => !RgbColor.IsColorWord(color)))
-                throw new InvalidDataException(
-                    $"Game-over Baby palette {name} requires sixteen SNES BGR555 colors.");
-            palettes.Add(palette, Array.ConvertAll(colors, RgbColor.FromWord));
-        }
-
-        return new(tilemap, babySprites, eggSprite, cursorSprites, new GameOverBabyPaint(palettes), document,
-            Convert.ToHexString(SHA256.HashData(bytes)));
-    }
-
-    /// <summary>Serializes an authored document and validates it with the loader before writing any output bytes.</summary>
-    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
-    /// <param name="document">Caller-owned artwork and layout; its collections are not modified.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails game-over presentation validation.</exception>
-    public static void Write(Stream output, GameOverPresentationDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
-    }
-
-    /// <summary>Checks both coordinates of a game-over screen anchor fit the native OAM byte range.</summary>
-    private static void ValidatePoint(Position16<SpritePixels> point, string name)
-    {
-        ValidateCoordinate(point.X, $"{name} X");
-        ValidateCoordinate(point.Y, $"{name} Y");
-    }
-
-    /// <summary>Rejects a screen coordinate outside the 0–255 range used by authored menu layout.</summary>
-    private static void ValidateCoordinate(int value, string name)
-    {
-        if ((uint)value > byte.MaxValue)
-            throw new InvalidDataException($"{name} must be 0..255.");
-    }
-
-    /// <summary>Rejects an OBJ palette selector outside the eight hardware rows.</summary>
-    private static void ValidatePaletteIndex(int value, string name)
-    {
-        if ((uint)value > 7)
-            throw new InvalidDataException($"{name} must be 0..7.");
     }
 }

@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
 
@@ -25,7 +26,7 @@ internal static class GameOverBabyColorsVerification
         var catalog = new GameOverBabyPaint(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
         byte[] json = GameOverPresentationExtractor.Extract(rom);
         using var stream = new MemoryStream(json);
-        GameOverPresentation presentation = GameOverPresentation.Load(stream);
+        GameOverPresentation presentation = GameOverSourcePresentation.Load(stream);
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
             presentation.ContentIdentity, "Baby presentation preserves content identity");
         var cgram = new ScreenPalette();

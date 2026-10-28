@@ -8,7 +8,9 @@ internal static class EnemyArtworkClosedContractDefinitions
     [
         new("SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog", "installed-enemy-sheets-and-palettes", ["LoadTo", "LoadPaletteTo"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileSourceDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileSources.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSets.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyDefinitionCatalog.cs"),

@@ -23,12 +23,12 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(DoorCapFrame frame) => frame switch
     {
-        DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(Orientation),
-        DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 0),
-        DoorCapFrame.Closed1 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 1),
-        DoorCapFrame.Closed2 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 2),
-        DoorCapFrame.Closed3 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 3),
-        DoorCapFrame.BlueFlash => DoorPlmDrawListDefinitions.Blue(Orientation, 0),
+        DoorCapFrame.Clear => DoorCaps.Clear(Orientation),
+        DoorCapFrame.Closed0 => DoorCaps.Colored(Color, Orientation, 0),
+        DoorCapFrame.Closed1 => DoorCaps.Colored(Color, Orientation, 1),
+        DoorCapFrame.Closed2 => DoorCaps.Colored(Color, Orientation, 2),
+        DoorCapFrame.Closed3 => DoorCaps.Colored(Color, Orientation, 3),
+        DoorCapFrame.BlueFlash => DoorCaps.Blue(Orientation, 0),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
     };
 

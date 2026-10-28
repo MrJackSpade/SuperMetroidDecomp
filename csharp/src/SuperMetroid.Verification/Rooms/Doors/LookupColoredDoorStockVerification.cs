@@ -32,21 +32,21 @@ internal static class LookupColoredDoorStockVerification
         var stock = RoomPlmColoredDoorVisualCatalog.Stock();
         var imported = new RoomPlmColoredDoorVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmColoredDoorVisualCatalog), words.ToDictionary(pair => ColoredDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmColoredDoorVisualCatalog), words.ToDictionary(pair => ColoredDoorCaps.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Colored door original stock identity");
             foreach (var frame in frames)
             {
                 for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(frame.Pointer),row), "Colored door native stock visual");
+                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door native stock visual");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(frame.Pointer),bad), "Colored door stock row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),bad), "Colored door stock row bounds");
             }
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>((ushort)raw),0), "Colored door unknown stock pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>((ushort)raw),0), "Colored door unknown stock pointer");
         entries[47].Blocks[1] = 0xc58;
         entries[16].Blocks[3] = 0x59;
         var mixed = new RoomPlmColoredDoorVisualCatalog(entries);
@@ -57,7 +57,7 @@ internal static class LookupColoredDoorStockVerification
         entries[0].Blocks[0] = 0x5b;
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(frame.Pointer),row), "Colored door custom clone and stock isolation");
+            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door custom clone and stock isolation");
         AssertThrows<InvalidDataException>(() => new RoomPlmColoredDoorVisualCatalog(entries[..47]), "Colored door missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmColoredDoorVisualCatalog(entries.Append(entries[0])), "Colored door duplicate frame");
         var invalid = entries.ToArray();

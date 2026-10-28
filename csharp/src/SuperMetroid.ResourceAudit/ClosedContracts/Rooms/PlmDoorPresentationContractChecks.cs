@@ -43,16 +43,16 @@ internal static class PlmDoorPresentationContractChecks
                     RoomPlmGreyDoorVisualCatalog grey, RoomPlmEyeDoorVisualCatalog eye,
                     RoomPlmEscapeGateVisualCatalog escape, RoomPlmCollectibleVisualCatalog item,
                     RoomPlmGrappleBlockVisualCatalog grapple, PlmDraw dynamicDraw) {
-                    blue.GetWord(BlueDoorPlmDrawDefinitions.Alias(ColoredDoorOrientation.Left), 3);
-                    blue.GetWord(BlueDoorPlmDrawDefinitions.Alias(ColoredDoorOrientation.Left), 4);
+                    blue.GetWord(BlueDoorCaps.Alias(ColoredDoorOrientation.Left), 3);
+                    blue.GetWord(BlueDoorCaps.Alias(ColoredDoorOrientation.Left), 4);
                     color.GetWord(dynamicDraw, 3);
                     color.GetWord(PlmDraw.Of(StationDraw.MapFrame0), 0);
                     grey.GetWord(dynamicDraw, 3);
                     grey.GetWord(dynamicDraw, 4);
                     eye.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, 3);
                     eye.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, 4);
-                    eye.GetWord(EyeDoorPlmDrawDefinitions.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 1);
-                    eye.GetWord(EyeDoorPlmDrawDefinitions.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 2);
+                    eye.GetWord(EyeDoorDraws.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 1);
+                    eye.GetWord(EyeDoorDraws.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 2);
                     escape.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 3);
                     escape.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 4);
                     item.GetWord(draw: RoomPlmCollectibleDrawDefinitions.Empty);
@@ -90,17 +90,17 @@ internal static class PlmDoorPresentationContractChecks
     /// <summary>Checks each PLM catalog constructor and authored alias against the production word lookup.</summary>
     private static void ConfirmConstructorCoverage()
     {
-        ConfirmCoverage(BlueDoorPlmDrawDefinitions.Editable, frame =>
-            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
+        ConfirmCoverage(BlueDoorCaps.Editable, frame =>
+            new RoomPlmVisualEntry(BlueDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmBlueDoorVisualCatalog(entries));
-        ConfirmCoverage(ColoredDoorPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
+        ConfirmCoverage(ColoredDoorCaps.All, frame =>
+            new RoomPlmVisualEntry(ColoredDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmColoredDoorVisualCatalog(entries));
-        ConfirmCoverage(GreyDoorPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
+        ConfirmCoverage(GreyDoorCaps.All, frame =>
+            new RoomPlmVisualEntry(GreyDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmGreyDoorVisualCatalog(entries));
-        ConfirmCoverage(EyeDoorPlmDrawDefinitions.Editable, frame =>
-            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
+        ConfirmCoverage(EyeDoorDraws.Editable, frame =>
+            new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEyeDoorVisualCatalog(entries));
         ConfirmCoverage(MotherBrainEscapeGatePlmDrawDefinitions.All, frame =>
             new RoomPlmVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
@@ -118,17 +118,17 @@ internal static class PlmDoorPresentationContractChecks
 
         // Confirm the reviewed reuse mappings against production GetWord, not
         // just the source adapter. The constructed catalog contains no ROM art.
-        var blue = new RoomPlmBlueDoorVisualCatalog(BlueDoorPlmDrawDefinitions.Editable.Select(frame =>
-            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0])));
-        foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorPlmDrawDefinitions.VisualSource(frame.Draw) != frame.Draw))
+        var blue = new RoomPlmBlueDoorVisualCatalog(BlueDoorCaps.Editable.Select(frame =>
+            new RoomPlmVisualEntry(BlueDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0])));
+        foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorCaps.VisualSource(frame.Draw) != frame.Draw))
             Require(Enumerable.Range(0, frame.Runs.Span[0].LevelWords.Length).All(word =>
-                blue.GetWord(frame.Draw, word) == blue.GetWord(BlueDoorPlmDrawDefinitions.VisualSource(frame.Draw), word)),
+                blue.GetWord(frame.Draw, word) == blue.GetWord(BlueDoorCaps.VisualSource(frame.Draw), word)),
                 "each compiled closed cap resolves to its required opening artwork");
-        var eye = new RoomPlmEyeDoorVisualCatalog(EyeDoorPlmDrawDefinitions.Editable.Select(frame =>
-            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0])));
+        var eye = new RoomPlmEyeDoorVisualCatalog(EyeDoorDraws.Editable.Select(frame =>
+            new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0])));
         PlmDraw mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
         Require(Enumerable.Range(0, 4).All(word => eye.GetWord(mirrored, word) ==
-            (eye.GetWord(EyeDoorPlmDrawDefinitions.VisualSource(mirrored), word) ^ (ushort)LevelBlockFlipFlags.Horizontal)),
+            (eye.GetWord(EyeDoorDraws.VisualSource(mirrored), word) ^ (ushort)LevelBlockFlipFlags.Horizontal)),
             "mirrored clear uses the required authored clear with horizontal flip");
     }
 

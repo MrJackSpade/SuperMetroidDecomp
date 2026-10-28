@@ -238,7 +238,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(linkedRestore.Vertical ? 0 : block)), checked((short)(linkedRestore.Vertical ? block : run))), linkedRestore.WordAt(run, block), LinkedRestoreVisuals?.GetWord(draw, run, block));
             return;
         }
-        if (BlueDoorPlmDrawDefinitions.TryDescribe(draw, out var blueDoor))
+        if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))
         {
             for (int cell = 0; cell < 4; cell++)
             {
@@ -247,7 +247,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (ColoredDoorPlmDrawDefinitions.TryDescribe(draw, out var coloredDoor))
+        if (ColoredDoorCaps.TryDescribe(draw, out var coloredDoor))
         {
             for (int cell = 0; cell < 4; cell++)
             {
@@ -256,13 +256,13 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (GreyDoorPlmDrawDefinitions.TryDescribe(draw, out var greyDoor))
+        if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
         {
             for (int cell = 0; cell < 4; cell++)
                 DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(greyDoor.Vertical ? 0 : cell)), checked((short)(greyDoor.Vertical ? cell : 0))), greyDoor.WordAt(cell), GreyDoorVisuals?.GetWord(draw, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
             return;
         }
-        if (EyeDoorPlmDrawDefinitions.TryDescribe(draw, out var eyeDoor))
+        if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
         {
             for (int cell = 0; cell < eyeDoor.WordCount; cell++)
                 DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.WordAt(cell), EyeDoorVisuals?.GetWord(draw, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);

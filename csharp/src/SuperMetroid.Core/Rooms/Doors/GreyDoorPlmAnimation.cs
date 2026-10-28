@@ -21,12 +21,12 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(DoorCapFrame frame) => frame switch
     {
-        DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(Variant.Orientation),
-        DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Grey(Variant.Orientation, 0),
-        DoorCapFrame.Closed1 => DoorPlmDrawListDefinitions.Grey(Variant.Orientation, 1),
-        DoorCapFrame.Closed2 => DoorPlmDrawListDefinitions.Grey(Variant.Orientation, 2),
-        DoorCapFrame.Closed3 => DoorPlmDrawListDefinitions.Grey(Variant.Orientation, 3),
-        DoorCapFrame.BlueFlash => DoorPlmDrawListDefinitions.Blue(Variant.Orientation, 0),
+        DoorCapFrame.Clear => DoorCaps.Clear(Variant.Orientation),
+        DoorCapFrame.Closed0 => DoorCaps.Grey(Variant.Orientation, 0),
+        DoorCapFrame.Closed1 => DoorCaps.Grey(Variant.Orientation, 1),
+        DoorCapFrame.Closed2 => DoorCaps.Grey(Variant.Orientation, 2),
+        DoorCapFrame.Closed3 => DoorCaps.Grey(Variant.Orientation, 3),
+        DoorCapFrame.BlueFlash => DoorCaps.Blue(Variant.Orientation, 0),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
     };
 

@@ -39,9 +39,9 @@ internal static class PlmVisualDomainDefinitions
         // All includes the supported closed/mirrored aliases, not just the
         // authored keys required by construction. Aliases retain exact widths.
         "SuperMetroid.Core.Rooms.Plms.RoomPlmBlueDoorVisualCatalog" => BlueDoorPlmDrawDefinitionsTooling.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmColoredDoorVisualCatalog" => ColoredDoorPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmGreyDoorVisualCatalog" => GreyDoorPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmEyeDoorVisualCatalog" => EyeDoorPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.RoomPlmColoredDoorVisualCatalog" => ColoredDoorCaps.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.RoomPlmGreyDoorVisualCatalog" => GreyDoorCaps.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.RoomPlmEyeDoorVisualCatalog" => EyeDoorDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmEscapeGateVisualCatalog" => MotherBrainEscapeGatePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleVisualCatalog" => RoomPlmCollectibleDrawDefinitions.All
             .Select(frame => SingleWord(PlmDraw.Of(frame.Draw), frame.LevelWord.Raw)).ToArray(),

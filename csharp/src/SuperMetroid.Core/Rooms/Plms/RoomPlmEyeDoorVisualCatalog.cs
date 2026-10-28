@@ -14,10 +14,10 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmEyeDoorVisualCatalog), content =>
     {
         Span<ushort> buffer = stackalloc ushort[4];
-        foreach (var frame in EyeDoorPlmDrawDefinitions.Editable.OrderBy(item => EyeDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
+        foreach (var frame in EyeDoorDraws.Editable.OrderBy(item => EyeDoorDraws.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            EyeDoorPlmDrawDefinitions.TryDescribe(frame.Draw, out var shape);
-            content.AppendName("frame", EyeDoorPlmDrawDefinitions.VisualId(frame.Draw));
+            EyeDoorDraws.TryDescribe(frame.Draw, out var shape);
+            content.AppendName("frame", EyeDoorDraws.VisualId(frame.Draw));
             content.Append("runs", 1);
             for (int cell = 0; cell < shape.WordCount; cell++) buffer[cell] = GetWord(frame.Draw, cell);
             content.AppendWords("words", buffer[..shape.WordCount]);
@@ -37,8 +37,8 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves editable frame coverage incomplete.</exception>
     public RoomPlmEyeDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        customBlocks = new PlmVisualOverrides(entries, "Eye-door", EyeDoorPlmDrawDefinitions.TryGetByVisualId,
-            EyeDoorPlmDrawDefinitions.Editable.Count());
+        customBlocks = new PlmVisualOverrides(entries, "Eye-door", EyeDoorDraws.TryGetByVisualId,
+            EyeDoorDraws.Editable.Count());
     }
 
     /// <summary>Resolves an eye-door visual block, sharing and horizontally mirroring the selected clearing artwork for the native opening-clear alias.</summary>
@@ -49,8 +49,8 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the selected component's draw shape.</exception>
     internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        PlmDraw visualSource = EyeDoorPlmDrawDefinitions.VisualSource(draw);
-        if (!EyeDoorPlmDrawDefinitions.TryDescribe(visualSource, out var shape))
+        PlmDraw visualSource = EyeDoorDraws.VisualSource(draw);
+        if (!EyeDoorDraws.TryDescribe(visualSource, out var shape))
             throw new InvalidDataException($"Eye-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= (uint)shape.WordCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));

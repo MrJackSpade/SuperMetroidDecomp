@@ -17,8 +17,8 @@ public static class RoomPlmBlueDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.Editable,
-            BlueDoorPlmDrawDefinitions.VisualId);
+            VisualFileName, "Blue-door", BlueDoorCaps.Editable,
+            BlueDoorCaps.VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable blue-door override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and blue-door JSON.</param>
@@ -27,7 +27,7 @@ public static class RoomPlmBlueDoorVisualFiles
     public static RoomPlmBlueDoorVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmBlueDoorVisualCatalog>(VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.Editable, BlueDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmBlueDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmBlueDoorVisualCatalog>(VisualFileName, "Blue-door", BlueDoorCaps.Editable, BlueDoorCaps.VisualId, entries => new RoomPlmBlueDoorVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled blue-door visuals.</summary>

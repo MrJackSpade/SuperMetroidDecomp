@@ -14,10 +14,10 @@ public sealed class RoomPlmGreyDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmGreyDoorVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in GreyDoorPlmDrawDefinitions.All.OrderBy(item => GreyDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
+        foreach (var frame in GreyDoorCaps.All.OrderBy(item => GreyDoorCaps.VisualId(item.Draw), StringComparer.Ordinal))
         {
             for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
-            content.AppendName("frame", GreyDoorPlmDrawDefinitions.VisualId(frame.Draw));
+            content.AppendName("frame", GreyDoorCaps.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
@@ -32,8 +32,8 @@ public sealed class RoomPlmGreyDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
     public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        customBlocks = new PlmVisualOverrides(entries, "Grey-door", GreyDoorPlmDrawDefinitions.TryGetByVisualId,
-            GreyDoorPlmDrawDefinitions.All.Count());
+        customBlocks = new PlmVisualOverrides(entries, "Grey-door", GreyDoorCaps.TryGetByVisualId,
+            GreyDoorCaps.All.Count());
     }
 
     /// <summary>Resolves one selected cap block without changing its physical collision word or door mechanics.</summary>
@@ -44,7 +44,7 @@ public sealed class RoomPlmGreyDoorVisualCatalog
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside 0..3.</exception>
     internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!GreyDoorPlmDrawDefinitions.TryDescribe(draw, out var shape))
+        if (!GreyDoorCaps.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
                 $"Grey-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)

@@ -87,7 +87,6 @@ internal static class LookupStream1Verification
         0xe888];
 
     /// <summary>Checks world-map BG3 primitives and residual pixels against native tiles, including edited full uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldBackgroundRomByte(rom, address + i)).ToArray();
@@ -459,7 +458,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads the native centisecond correction table in bank $80.</summary>
     private static byte LookupStream1TimerCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks escape timer glyph geometry, independently edited pixels, and encoded VRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
@@ -610,7 +608,7 @@ internal static class LookupStream1Verification
         {
             int next = Array.IndexOf(starts, pointer) + 1;
             int end = next == starts.Length ? 0xd7d3 : starts[next];
-            return Enumerable.Range(0, (end - pointer) / 7).Select(_ => new SamusBodyTileDefinition(0x9a8000, 32, 0, new byte[32])).ToArray();
+            return Enumerable.Range(0, (end - pointer) / 7).Select(_ => new SamusBodyTileDefinition(32, 0, new byte[32])).ToArray();
         }).ToArray();
         var upper = Groups(top); var lower = Groups(bottom);
         var template = CreateSamusIdentityFixture();
@@ -922,7 +920,7 @@ internal static class LookupStream1Verification
                 .Concat(lower.SelectMany((pointer, set) => lowerGroups[set].Select((definition, position) => new LookupStream1Definition(Address:SamusBodyNative.Record(pointer) + position, Definition:definition))));
             foreach (var item in definitions.OrderBy(item => item.Address))
             {
-                content.Append("definition record", item.Address); content.Append("source address", item.Definition.SourceAddress);
+                content.Append("definition record", item.Address);
                 content.Append("first transfer size", item.Definition.FirstSize); content.Append("second transfer size", item.Definition.SecondSize);
                 content.Append("characters", item.Definition.Planar.Span);
             }
@@ -1071,11 +1069,11 @@ internal static class LookupStream1Verification
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.DrainedYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
             .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
-                new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
+                new SamusBodyTileDefinition(definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.DrainedYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
         SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
@@ -1139,11 +1137,11 @@ internal static class LookupStream1Verification
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.PostureYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
             .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
-                new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
+                new SamusBodyTileDefinition(definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.PostureYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
         SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
@@ -1245,7 +1243,7 @@ internal static class LookupStream1Verification
         // Marker parts confirm selected supplied payload identity, not native artwork: every bit of the pointer lands in
         // the marker's character, palette row, priority or mirroring, so distinct pointers give distinct markers.
         static SpritePart Marker(ushort pointer) =>
-            SpritePart.Create(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8)), (pointer & 1) != 0, pointer & 511,
+            SpritePart.Create(Offset16<ScreenPixels>.Of(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8))), (pointer & 1) != 0, pointer & 511,
                 (pointer >> 9) & 7, (pointer >> 12) & 3,
                 ((pointer & 0x4000) != 0 ? TileFlip.Horizontal : TileFlip.None) | ((pointer & 0x8000) != 0 ? TileFlip.Vertical : TileFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
@@ -1474,7 +1472,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the escape timer's anchors, its sheet draws against the native sprites, and independent anchor and spacing edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
@@ -1536,7 +1533,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads native escape timer OAM layout bytes.</summary>
     private static byte LookupStream1TimerLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks flare origin words, independent placement edits, and emitted OAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1FlarePlacementRomByte(rom, address), LookupStream1FlarePlacementRomByte(rom, address + 1))));
@@ -1925,7 +1921,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks charge-flare sprite selectors and extracted visual records against native pointers.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1VisualCatalogsRomByte(rom, address), LookupStream1VisualCatalogsRomByte(rom, address + 1));
@@ -2429,7 +2424,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1AtmosphericAttributesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks extracted escape typewriter glyph and placement data against native text drawing.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
@@ -2572,7 +2566,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1VisorColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks world-map foreground pixels and independently edited tile uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldForegroundRomByte(rom, address + i)).ToArray();
@@ -2828,7 +2821,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads native projectile program words for control and hold comparison.</summary>
     private static byte LookupStream1ProjectileProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks cannon placement relative to Samus body poses and edited artwork geometry.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -2871,7 +2863,7 @@ internal static class LookupStream1Verification
         var empty = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var zero = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.EntryCount], []);
         var shifted = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(
                 map.Parts.Select(part => part with { Offset = Offset16<ScreenPixels>.Of(SpritePart.WrapX(part.Offset.X + 1), unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray())).ToArray());
@@ -3000,7 +2992,6 @@ internal static class LookupStream1Verification
     /// Checks that a zero OAM pointer-table entry draws nothing: it would dereference $92:0000 direct-page scratch,
     /// which the port exempts (owner decision on #1318).
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySamusZeroOamSelectorDrawsNothing(SamusSpritemapArtworkCatalog stock)
     {
         OamBuffer oam = SamusSpritemapDrawsAccess.SamusSpritemapOam(3, new Position16<ScreenPixels>(127, 131),
@@ -3096,7 +3087,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads planar Samus body tile bytes before derived pixel expansion.</summary>
     private static byte LookupStream1BodyPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks body tile DMA definitions and actual native-sized VRAM transfer output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -3121,7 +3111,6 @@ internal static class LookupStream1Verification
                 ushort first = Word(address + 3), second = Word(address + 5);
                 AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out int calculated), "Every native record has a direct row calculation");
                 AssertEqual(first, calculated, $"Direct native row geometry {upper}/{set:X}/{position:X}");
-                AssertEqual(source, value.SourceAddress, "Installed native source");
                 AssertEqual(first, value.FirstSize, "Installed native first row");
                 AssertEqual(second, value.SecondSize, "Installed native remaining row");
                 AssertTrue(value.firstSizeOverride is null, "Zero stock metadata overrides");
@@ -3129,11 +3118,10 @@ internal static class LookupStream1Verification
                 for (int index = 0; index < pixels.Length; index++) AssertEqual(LookupStream1BodyTransfersRomByte(rom, source + index), pixels[index], "Separate native pixel payload preserved");
                 // Preserve schema-valid non-tile-aligned individual row splits too.
                 ushort editedFirst = (ushort)(second == 0 ? first - 1 : first + 1);
-                var supplied = new SamusBodyTileDefinition(source ^ 0x123456, editedFirst,
+                var supplied = new SamusBodyTileDefinition(editedFirst,
                     (ushort)(pixels.Length - editedFirst), pixels);
                 (upper ? changedTop : changedBottom)[set][position] = supplied;
                 var edited = supplied.WithTransferGeometry(body, upper, set, position);
-                AssertEqual(supplied.SourceAddress, edited.SourceAddress, "Independent source identity edit");
                 AssertEqual(supplied.FirstSize, edited.FirstSize, "Independent row split edit");
                 AssertEqual(supplied.SecondSize, edited.SecondSize, "Edited complementary row");
                 AssertTrue(edited.Planar.Span.SequenceEqual(pixels), "Metadata edit preserves every pixel");

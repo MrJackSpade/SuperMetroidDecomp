@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 
@@ -12,7 +11,6 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// the words <c>GameState_13</c> uploads them to, and the BG1, BG2 and BG3 tilemaps over them. The screen keeps no such
 /// image; verification composes it to compare against native VRAM.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: the pause screen's characters and tilemaps at their native words")]
 internal static class PauseScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>

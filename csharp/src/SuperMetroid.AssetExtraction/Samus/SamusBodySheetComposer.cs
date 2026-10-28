@@ -60,7 +60,7 @@ internal static class SamusBodySheetComposer
                 : [body.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)];
             foreach (int index in new[] { spritemaps.TopBase(pose) + animationFrame, spritemaps.BottomBase(pose) + animationFrame })
             {
-                if (index >= SamusSpritemapArtworkCatalog.PointerCount ||
+                if (index >= SamusSpritemapArtworkCatalog.EntryCount ||
                     !spritemaps.TryGetComposition(index, out SamusSpritemapId composition) ||
                     !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
                     continue;

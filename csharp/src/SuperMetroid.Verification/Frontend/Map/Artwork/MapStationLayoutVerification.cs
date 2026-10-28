@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
@@ -19,7 +18,6 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 internal static class MapStationLayoutVerification
 {
     /// <summary>Compares every discovery subset and confirms edited positions change pixels without changing exploration.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewStationLayoutGuard(bus);

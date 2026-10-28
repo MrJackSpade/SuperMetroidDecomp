@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// A boss body as BG2 shows it in a frame (#1403): the picture of each of its tilemap's cells, in the body sheet over what
 /// the cell's character shows (#1392), sampled with the tilemap's wrap.
 /// </summary>
-[PpuLayoutBoundary("backend: samples a boss body's cells in the hardware's screen order")]
 public sealed class BossBodyPictures
 {
 

@@ -29,7 +29,6 @@ internal static class ChainsawFiringVerification
 {
     /// <summary>Checks the production firing and collision path against native-chainsaw-fire-probe, including bomb-owned slot ordering and the unstable charged callback.</summary>
     /// <remarks>This remains separately invokable for focused diagnostics and also runs in the default suite.</remarks>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -264,7 +263,7 @@ internal static class ChainsawFiringVerification
         AssertTrue(chargedFault.Message.Contains("$90:0A0A", StringComparison.Ordinal) &&
             chargedFault.Message.Contains("$7E:0A0A", StringComparison.Ordinal),
             "charged Chainsaw diagnostic identifies dispatcher and WRAM mirror");
-        AssertEqual(SamusProjectilePreInstruction.ChargedChainsawLowWramExecution,
+        AssertEqual(SamusProjectilePreInstruction.ChargedChainsawOverrun,
             chargedProjectiles.Slots[0].PreInstruction,
             "charged Chainsaw retains its native unstable callback identity");
         AssertEqual(0x901d, chargedProjectiles.Slots[0].Type,

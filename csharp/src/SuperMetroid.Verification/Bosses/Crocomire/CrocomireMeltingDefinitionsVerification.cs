@@ -166,7 +166,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Loads one installed BG2 melt tilemap and compares its working copy and shown words with native words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork artwork,
         CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)

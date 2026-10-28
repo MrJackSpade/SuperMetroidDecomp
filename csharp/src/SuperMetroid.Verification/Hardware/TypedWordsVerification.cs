@@ -27,7 +27,6 @@ internal static class TypedWordsVerification
 /// Proves that the semantic enums and packed-word views decode verified fields without
 /// normalizing, discarding, or assigning meaning to any other native bits.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
 internal static void VerifyTypedNativeWords()
 {
     // Equipment helpers must mutate only the requested independent bits. The unassigned item

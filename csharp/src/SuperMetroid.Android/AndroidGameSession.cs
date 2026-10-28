@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Android.Input;
 using System.Diagnostics;
 using SuperMetroid.Core.Audio;

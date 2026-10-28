@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Hud;
@@ -29,7 +28,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class SamusHyperBeamColorsVerification
 {
     /// <summary>Checks extracted RGB5 endpoint sharing, native CGRAM rows and guarded rainbow playback against the supported cartridge.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusHyperBeamColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -399,7 +397,6 @@ internal static class SamusHyperBeamColorsVerification
     }
 
     /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,

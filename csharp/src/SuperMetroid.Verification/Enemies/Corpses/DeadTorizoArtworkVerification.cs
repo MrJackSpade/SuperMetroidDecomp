@@ -25,7 +25,6 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadTorizoArtworkVerification
 {
     /// <summary>Checks installed corpse staging, native OAM, and the visible effect of an edited sheet pixel.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledDeadTorizoArtwork(
         string directory, InstalledEnemyArtwork stock)
     {
@@ -95,7 +94,6 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>Matches the installed stationary frame's 25 OAM parts against the native spritemap.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyDeadTorizoStationaryVisual(
         EnemyTileArtworkCatalog stock)
     {

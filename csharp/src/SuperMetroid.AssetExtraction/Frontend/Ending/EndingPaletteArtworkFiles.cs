@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;

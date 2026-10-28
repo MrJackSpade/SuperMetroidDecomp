@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Assets;
@@ -11,7 +10,6 @@ namespace SuperMetroid.Verification.Hardware;
 internal static class FramePaintTestsVerification
 {
     /// <summary>Confirms CGRAM order, immutable capture of colours and draws, and size validation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFramePaintOwnership()
     {
         var cgram = new SnesCgram();

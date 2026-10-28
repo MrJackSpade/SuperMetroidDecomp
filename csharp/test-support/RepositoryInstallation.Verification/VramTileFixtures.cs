@@ -26,7 +26,6 @@ internal static class VramTileFixtures
     /// <paramref name="characterWord"/> in <paramref name="image"/>, read as VRAM addresses wrap and coloured from
     /// <paramref name="palette"/>; the set shows nothing for the other indices.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: decodes a fixture's VRAM characters into the tile set a frontend layer shows")]
     internal static ScreenLayerPictures Tiles(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord, BgBitDepth depth,
         IReadOnlyCollection<int> characters)
     {

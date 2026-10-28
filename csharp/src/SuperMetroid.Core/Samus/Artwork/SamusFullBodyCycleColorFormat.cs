@@ -16,7 +16,7 @@ public static class SamusFullBodyCycleColorFormat
     /// <summary>Number of ordered palette shades in each family and suit.</summary>
     public const int ShadesPerSuit = 4;
     /// <summary>Number of RGB5 entries in each complete Samus OBJ palette.</summary>
-    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
+    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColoursPerRow;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
 

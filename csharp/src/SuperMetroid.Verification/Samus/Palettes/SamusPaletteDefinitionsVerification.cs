@@ -20,7 +20,7 @@ internal static class SamusPaletteDefinitionsVerification
     internal static void VerifySamusPaletteRomData()
     {
         AssertEqual(
-            SamusPaletteDefinitions.Common.SamusObjPaletteStart +
+            SamusPaletteDefinitions.Common.SuitFirstColour +
                 SamusPaletteDefinitions.Common.VisorColorOffset,
             XrayScopeDefinitionsPaletteConstants.VisorCgramIndex,
             "shared visor destination agrees with X-ray catalog");
@@ -48,10 +48,10 @@ internal static class SamusPaletteDefinitionsVerification
         TouchRange(bus, SamusPaletteDefinitions.Common.NormalSuitPointers,
             3 * sizeof(ushort), "normal suit palette pointers");
         TouchRange(bus, SamusSourceDefinitions.HurtFlashColors.Value,
-            SamusPaletteDefinitions.Common.ColorsPerObjPalette * sizeof(ushort),
+            SamusPaletteDefinitions.Common.ColoursPerRow * sizeof(ushort),
             "Samus hurt-flash colors");
         TouchRange(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value,
-            SamusPaletteDefinitions.Common.ColorsPerObjPalette * sizeof(ushort),
+            SamusPaletteDefinitions.Common.ColoursPerRow * sizeof(ushort),
             "intro Samus colors");
         TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
             SamusPaletteDefinitions.Visor.CycleEndByteOffset,

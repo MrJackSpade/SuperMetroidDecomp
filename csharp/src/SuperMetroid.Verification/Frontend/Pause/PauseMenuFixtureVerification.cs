@@ -21,7 +21,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseMenuFixtureVerification
 {
     /// <summary>Translates constructed cartridge visuals into the installed pause contract without mutating shared retail catalog data.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static AreaMapPresentationCatalog CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)
     {

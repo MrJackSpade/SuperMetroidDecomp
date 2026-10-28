@@ -94,7 +94,7 @@ internal static class ProjectileDamageVerification
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {
             var slot = new SamusBombProjectileSlot(0) { Type = type };
-            SamusBombProjectileSystem.InitializeBombFromRom(slot);
+            SamusBombProjectileSystem.InitializeBomb(slot);
             AssertEqual((ushort)(type == 0x0300 ? 200 : 30), slot.Damage, "Power/ordinary/spread bomb damage");
         }
         bool rejectedMarker = false;

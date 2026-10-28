@@ -516,7 +516,6 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Checks item-message tilemap, fanfare wait, input dismissal, and PPU restoration timing.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
@@ -689,7 +688,6 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Checks suit-pickup window staging, beam curve, palette reveal, input release, and Gravity priority.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySuitPickupTransformation()
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();

@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Fx;
@@ -38,7 +37,6 @@ internal static class AnimatedTileFrameArtwork
     /// Writes the frame <paramref name="animatedObject"/> shows in <paramref name="frames"/>, if any, into <paramref name="vram"/>
     /// where the cartridge copies it, for checks that render a layer from VRAM.
     /// </summary>
-    [PpuLayoutBoundary("test fixture: an animated-tile object's native VRAM destination")]
     internal static void ShowIn(SnesVram vram, ArtworkFrameSelections frames, RoomFxAnimatedTileAtlas atlas, AnimatedTileObject animatedObject)
     {
         if (!frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown))

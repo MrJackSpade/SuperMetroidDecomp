@@ -29,7 +29,6 @@ internal static class SamusMorphBallVerification
 {
 
 /// <summary>Checks morph entry, bomb spread and jump timing, reaction PLMs, bounce, and tunnel collision.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 internal static void VerifySamusMorphBallMovement()
 {
     var bus = new TestAddressSpace();

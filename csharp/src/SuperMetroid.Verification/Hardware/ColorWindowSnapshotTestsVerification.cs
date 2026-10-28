@@ -16,7 +16,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ColorWindowSnapshotTestsVerification
 {
     /// <summary>Checks captured window layers keep their windows through later phases and own their input.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyColorWindowSnapshots()
     {
         var cgram = new SnesCgram();

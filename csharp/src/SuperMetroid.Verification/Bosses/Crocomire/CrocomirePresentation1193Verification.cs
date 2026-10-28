@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
@@ -26,7 +25,6 @@ using SuperMetroid.Verification.Harness;
 internal static class CrocomirePresentation1193Verification
 {
     /// <summary>Runs the retail Crocomire room and checks either NMI spike uploads or displayed BG1 rumble ordering.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());

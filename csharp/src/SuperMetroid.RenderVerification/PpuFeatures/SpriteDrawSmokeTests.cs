@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
@@ -19,7 +18,6 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 internal static class SpriteDrawSmokeTests
 {
     /// <summary>Checks the ordering contract on exact colors, then compares seeded draw scenes across backends.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM records, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         int cases = 0;

@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// at the sprite characters, so its blocks show the artwork placed there. A placement shows under the name of its source.
 /// </summary>
 /// <param name="placements">The sprite characters' artwork placements.</param>
-[PpuLayoutBoundary("codec: the sprite characters' artwork as background characters")]
 public sealed class SpriteArtworkBackground(SpriteArtworkPlacements placements) : IBgCharacterArtwork
 {
     /// <inheritdoc />

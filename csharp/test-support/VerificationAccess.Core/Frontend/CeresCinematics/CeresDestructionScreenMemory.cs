@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -11,7 +10,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Replays the Ceres destruction scene's graphics transfers over the bound artwork into the memory image the backends
 /// draw (#1358), and names the OBJ characters they leave as the scene's sprite page.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: the Ceres destruction transfers at their native words")]
 internal static class CeresDestructionScreenMemory
 {
     /// <summary>The image <paramref name="uploads"/> leave over <paramref name="artwork"/>, in order.</summary>

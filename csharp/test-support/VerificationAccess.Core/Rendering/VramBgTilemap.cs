@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Rendering;
 /// A fixture's background tilemap in VRAM, read by scroll position with the tilemap's wrap: the tilemap the X-ray
 /// reveal's copy reads in place of a room's BG1 plane.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: reads a fixture's BG tilemap (BGnSC) from VRAM")]
 internal sealed class VramBgTilemap(SnesVram vram, int tilemapWord, Extent16<TilemapCells> mapSize) : IBgTileSource
 {
     /// <summary>The tilemap's screen arrangement.</summary>

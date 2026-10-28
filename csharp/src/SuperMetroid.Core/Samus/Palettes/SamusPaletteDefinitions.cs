@@ -15,10 +15,10 @@ public static class SamusPaletteDefinitions
     /// <summary>Shared full-body OBJ palette layout and suit selection table.</summary>
     public static class Common
     {
-        /// <summary>First CGRAM color of Samus OBJ palette four.</summary>
-        public const int SamusObjPaletteStart = 192;
-        /// <summary>Number of colors in one complete SNES palette.</summary>
-        public const int ColorsPerObjPalette = 16;
+        /// <summary>The gameplay colour position of the first colour of Samus's suit row, sprite colour set four.</summary>
+        public const int SuitFirstColour = 192;
+        /// <summary>The colours in one colour row.</summary>
+        public const int ColoursPerRow = 16;
         /// <summary>Samus-palette-relative visor color index.</summary>
         public const int VisorColorOffset = 4;
     }

@@ -31,7 +31,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyRoomArtworkInstallation(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("room-character-installation");
@@ -61,13 +60,14 @@ internal static class RoomCharacterInstallationVerification
             VerifyXrayRevealVisualInstallation(installed);
             LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
             LoadedRoomAssets installedRoom = LoadFixtureRoomAssets(landing, stock);
-            AssertTrue(installedRoom.CreCharacters.SequenceEqual(native.CreCharacters) &&
-                installedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
+            ReadOnlyMemory<byte> nativeCharacters = native.TilesetCharactersIn(FixtureRoomCharacters);
+            AssertTrue(installedRoom.CreCharactersIn(stock).Span.SequenceEqual(native.CreCharactersIn(FixtureRoomCharacters).Span) &&
+                installedRoom.TilesetCharactersIn(stock).Span.SequenceEqual(nativeCharacters.Span),
                 "installed stock room PNGs retain Landing Site character bytes");
 
             int source = native.Tileset.CharacterAddress;
             string name = RoomCharacterAtlasFormat.SourceFileName(source);
-            int tileCount = native.RoomCharacters.Length / RoomCharacterAtlasFormat.BytesPerTile;
+            int tileCount = nativeCharacters.Length / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
             int rows = (tileCount + columns - 1) / columns;
             IndexedPngImage image;
@@ -80,9 +80,9 @@ internal static class RoomCharacterInstallationVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             RoomCharacterAtlasCatalog edited = installed.LoadRoomCharacters();
             LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing, edited);
-            AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
+            AssertTrue(!editedRoom.TilesetCharactersIn(edited).Span.SequenceEqual(nativeCharacters.Span),
                 "installed PNG override changes the real room-loader output");
-            AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(native.RoomCharacters),
+            AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
                 "room override does not mutate stock artwork already loaded");
 
             int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
@@ -310,9 +310,9 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(File.Exists(skyOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
                 "scrolling-sky stock is restored while its override survives repair");
-            LoadedRoomAssets repairedEdited = LoadFixtureRoomAssets(landing,
-                repaired.LoadRoomCharacters());
-            AssertTrue(repairedEdited.RoomCharacters.SequenceEqual(editedRoom.RoomCharacters),
+            RoomCharacterAtlasCatalog repairedCharacters = repaired.LoadRoomCharacters();
+            LoadedRoomAssets repairedEdited = LoadFixtureRoomAssets(landing, repairedCharacters);
+            AssertTrue(repairedEdited.TilesetCharactersIn(repairedCharacters).Span.SequenceEqual(editedRoom.TilesetCharactersIn(edited).Span),
                 "repaired installation retains the selected user room artwork");
             LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: repaired.LoadRoomPalettes());
@@ -374,7 +374,7 @@ internal static class RoomCharacterInstallationVerification
         LibraryBackgroundReplay.Execute(vram, program,
             activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: artwork with { Backgrounds = bindings });
         byte[] image = vram.Bytes.ToArray();
-        bindings.ComposeOver(image);
+        bindings.ComposeOver(image, artwork.HudArt is { } hud ? new BgArtworkBytes().WithHud(hud) : new BgArtworkBytes());
         var shown = new SnesVram();
         shown.LoadBytes(0, image);
         return shown;

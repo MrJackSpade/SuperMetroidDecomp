@@ -13,7 +13,6 @@ internal static class ScreenTileMapConstants
     /// memory image <paramref name="image"/>, each showing one of <paramref name="tiles"/>.
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image.</exception>
-    [PpuLayoutBoundary("capture: a frontend layer's tilemap words, read from the screen's memory image into cells")]
     public static ScreenTileMap Capture(ReadOnlySpan<byte> image, int tilemapWord, Extent16<TilemapCells> size, ScreenLayerPictures tiles)
     {
         Ensure.LengthEqual(image, SnesPpuLayout.VramByteCount);

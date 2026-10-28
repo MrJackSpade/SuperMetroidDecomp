@@ -49,7 +49,6 @@ internal static class NativeSnapshotImportVerification
     /// <param name="memory">The 128 KiB native WRAM image at the movie's first input boundary.</param>
     /// <param name="saveRam">The movie's starting 8 KiB cartridge SRAM.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static ImportNativeSnapshotResult
         ImportNativeSnapshot(byte[] memory, byte[] saveRam, SuperMetroidGameHostServices? hostServices = null)
     {

@@ -16,7 +16,6 @@ internal static class EnemyPresentationNativeDrawAccess
     extension(RoomEnemySystem self)
     {
         /// <summary>Writes the installed frame at the native bank and word of <paramref name="draw"/> into <paramref name="oam"/>.</summary>
-        [PpuLayoutBoundary("exact hardware test: writes native OAM records of an installed enemy frame")]
         internal void DrawEnemySpritemap(OamBuffer oam, NativeEnemySpritemapDraw draw)
         {
             EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(draw.Bank, draw.Pointer)

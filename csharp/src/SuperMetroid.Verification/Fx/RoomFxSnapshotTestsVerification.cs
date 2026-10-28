@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Fx;
 internal static class RoomFxSnapshotTestsVerification
 {
     /// <summary>Draws liquid and weather effects while checking HUD exclusion and scroll ownership.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void VerifyRoomFxSnapshots()
     {
         var random = new Random(32108);

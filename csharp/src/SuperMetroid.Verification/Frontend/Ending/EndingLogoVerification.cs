@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingLogoVerification
 {
     /// <summary>Steps the logo, comparing its crossfade palettes with the cartridge tables and its timing with the native scene.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));

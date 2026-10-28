@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;

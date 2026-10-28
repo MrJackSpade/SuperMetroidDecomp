@@ -3,7 +3,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -26,7 +25,6 @@ internal static class CeresEnginePaletteBindingVerification
     /// Reproduces #1150 at the Ceres-to-Zebes palette handoff, without replaying
     /// the escape or giving production simulation access to a cartridge.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresEnginePaletteBinding(string installationRoot)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));

@@ -18,7 +18,6 @@ internal static class PauseHudPlaneVerification
     /// A constructed HUD plane reaches pause's four retained HUD rows at entry; a later accepted plane replaces only the
     /// three mutable rows, keeping the static top row.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks the pause image's retained BG3 tilemap words")]
     internal static void VerifyPauseHudFromLayer3Plane()
     {
         var entered = Hud(0x2100);

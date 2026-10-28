@@ -39,25 +39,25 @@ public readonly record struct SpritePart(
     public const int PlaneWidth = MaximumX - MinimumX + 1;
 
     /// <summary>A validated piece.</summary>
-    /// <param name="x">Left edge relative to the sprite origin, <see cref="MinimumX"/> through <see cref="MaximumX"/>.</param>
-    /// <param name="y">Top edge relative to the sprite origin, <see cref="MinimumY"/> through <see cref="MaximumY"/>.</param>
+    /// <param name="offset">Top-left corner relative to the sprite origin: X from <see cref="MinimumX"/> through
+    /// <see cref="MaximumX"/> and Y from <see cref="MinimumY"/> through <see cref="MaximumY"/> pixels.</param>
     /// <param name="large">Whether the piece draws at the screen's large sprite size.</param>
     /// <param name="character">First character on the sheet, 0 through <see cref="MaximumCharacter"/>.</param>
     /// <param name="palette">Palette row, 0 through <see cref="MaximumPalette"/>.</param>
     /// <param name="priority">Priority against the backgrounds, 0 through <see cref="MaximumPriority"/>.</param>
     /// <param name="flip">The piece's own mirroring.</param>
     /// <exception cref="ArgumentOutOfRangeException">A field is outside its range.</exception>
-    public static SpritePart Create(int x, int y, bool large, int character, int palette, int priority,
+    public static SpritePart Create(Offset16<ScreenPixels> offset, bool large, int character, int palette, int priority,
         TileFlip flip = TileFlip.None)
     {
-        Ensure.BetweenInclusive(MinimumX, MaximumX, x);
-        Ensure.BetweenInclusive(MinimumY, MaximumY, y);
+        Ensure.BetweenInclusive(MinimumX, MaximumX, offset.X);
+        Ensure.BetweenInclusive(MinimumY, MaximumY, offset.Y);
         Ensure.BetweenInclusive(0, MaximumCharacter, character);
         Ensure.BetweenInclusive(0, MaximumPalette, palette);
         Ensure.BetweenInclusive(0, MaximumPriority, priority);
         if ((flip & ~(TileFlip.Horizontal | TileFlip.Vertical)) != TileFlip.None)
             throw new ArgumentOutOfRangeException(nameof(flip));
-        return new(Offset16<ScreenPixels>.Of(x, y), large, character, flip, palette, priority);
+        return new(offset, large, character, flip, palette, priority);
     }
 
     /// <summary>A single small piece at the sprite origin.</summary>
@@ -67,7 +67,7 @@ public readonly record struct SpritePart(
     /// <param name="flip">The piece's own mirroring.</param>
     /// <exception cref="ArgumentOutOfRangeException">A field is outside its range.</exception>
     public static SpritePart Single(int character, int palette, int priority, TileFlip flip = TileFlip.None) =>
-        Create(0, 0, false, character, palette, priority, flip);
+        Create(Offset16<ScreenPixels>.Zero, false, character, palette, priority, flip);
 
     /// <summary>Whether the piece's pixels are drawn in reverse horizontal order.</summary>
     public bool FlipsHorizontally => (Flip & TileFlip.Horizontal) != TileFlip.None;
@@ -81,9 +81,9 @@ public readonly record struct SpritePart(
     /// </summary>
     public static int WrapX(int x) => ((x - MinimumX) % PlaneWidth + PlaneWidth) % PlaneWidth + MinimumX;
 
-    /// <summary>The piece moved to start at <paramref name="x"/>, <paramref name="y"/>, validated as <see cref="Create"/> validates.</summary>
+    /// <summary>The piece moved to start at <paramref name="offset"/>, validated as <see cref="Create"/> validates.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The new corner is outside the range a piece may start at.</exception>
-    public SpritePart At(int x, int y) => Create(x, y, Large, Character, Palette, Priority, Flip);
+    public SpritePart At(Offset16<ScreenPixels> offset) => Create(offset, Large, Character, Palette, Priority, Flip);
 
     /// <summary>The piece drawn in palette row <paramref name="palette"/> instead of its own.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside 0 through <see cref="MaximumPalette"/>.</exception>

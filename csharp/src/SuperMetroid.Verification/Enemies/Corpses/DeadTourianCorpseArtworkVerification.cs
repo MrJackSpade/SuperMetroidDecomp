@@ -98,7 +98,6 @@ internal static class DeadTourianCorpseArtworkVerification
     }
 
     /// <summary>Matches the installed OAM compositions of every corpse pose the typed programs show to retail spritemaps.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {

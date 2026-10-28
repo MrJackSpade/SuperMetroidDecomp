@@ -24,7 +24,6 @@ internal static class SingleFrameEnemyVisualsVerification
     /// Checks the single-operand omissions identified in #1166, including OAM compositions
     /// consumed immediately after instruction selection and edits preserved from older schemas.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifySingleFrameEnemyVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

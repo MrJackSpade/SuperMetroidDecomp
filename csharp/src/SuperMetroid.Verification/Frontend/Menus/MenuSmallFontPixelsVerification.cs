@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Menus.MenuFontEvidenceVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
@@ -16,7 +15,6 @@ internal static class MenuSmallFontPixelsVerification
 {
     /// <summary>Compares every small-font pixel with bank-$B6 tiles and checks
     /// isolated and full-sheet edits preserve adjacent glyph boundaries.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

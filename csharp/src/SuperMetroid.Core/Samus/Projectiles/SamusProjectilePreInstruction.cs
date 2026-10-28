@@ -37,8 +37,8 @@ public enum SamusProjectilePreInstruction : byte
     SpacetimePaletteCopyTail,
     /// <summary>Represents the chainsaw window-store path before Power Bomb execution.</summary>
     ChainsawPowerBomb,
-    /// <summary>Represents charged chainsaw execution through low WRAM.</summary>
-    ChargedChainsawLowWramExecution,
+    /// <summary>Represents the charged chainsaw combination's callback overrun past the callback table.</summary>
+    ChargedChainsawOverrun,
     /// <summary>Represents the Murder Beam's misaligned native execution path.</summary>
     MurderBeamMisalignedExecution,
 }

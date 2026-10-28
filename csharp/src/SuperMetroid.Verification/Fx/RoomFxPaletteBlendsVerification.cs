@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Areas.Ceres.LookupCeresDefaultTintsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxBlendBlackColorsVerification;
@@ -25,7 +24,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class RoomFxPaletteBlendsVerification
 {
     /// <summary>Compares compiled FX palettes with the retail source and checks guarded load and reload paths.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRoomFxPaletteBlends()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -150,7 +148,6 @@ internal static class RoomFxPaletteBlendsVerification
     }
 
     /// <summary>Installs a color override, verifies its CGRAM and haze effects, then checks identity restoration after removal.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
@@ -197,7 +194,6 @@ internal static class RoomFxPaletteBlendsVerification
     }
 
     /// <summary>Loads a selected compiled FX record into CGRAM through a bus that forbids bank-$89 reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static ConstructBlendLoadResult
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
             RoomFxLayer3TilemapCatalog tilemaps, RoomFxPaletteBlend selection)

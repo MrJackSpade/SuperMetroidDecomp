@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -24,7 +23,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {

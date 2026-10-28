@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileVisualPartsVerification
 {
     /// <summary>Exhausts X/size words across wrapped origins while preserving Y, attributes, and OAM high bits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileVisualParts()
     {
         var parts = new OamBuffer();

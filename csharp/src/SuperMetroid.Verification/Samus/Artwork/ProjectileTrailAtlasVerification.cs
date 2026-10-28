@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Artwork;
@@ -10,7 +9,6 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 internal static class ProjectileTrailAtlasVerification
 {
     /// <summary>Confirms stock atlas parity and isolation of each of twelve edited trail characters.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);

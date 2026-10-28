@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Escape.Artwork;
 
@@ -11,7 +10,6 @@ internal static class EscapeTimerTileAtlasAccess
     extension(EscapeTimerTileAtlas self)
     {
         /// <summary>Shows one native page in the OBJ character table for the Mother Brain sequence's synchronous transfer owner.</summary>
-        [PpuLayoutBoundary("codec: a matched native escape-timer transfer record's encoded VRAM destination")]
         public bool TryRecordNativeTransfer(SpriteArtworkPlacements uploads, int sourceAddress, ushort byteCount,
             ushort destinationWord)
         {

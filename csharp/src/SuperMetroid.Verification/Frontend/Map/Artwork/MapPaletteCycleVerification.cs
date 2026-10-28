@@ -27,7 +27,6 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 internal static class MapPaletteCycleVerification
 {
     /// <summary>Compares native animation cadence and CGRAM, then checks override rebinding and visible palette isolation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {

@@ -78,7 +78,6 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Compares installed Pirate and boss extended frames to native OAM, then checks overrides, collision separation, and schema upgrades.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)

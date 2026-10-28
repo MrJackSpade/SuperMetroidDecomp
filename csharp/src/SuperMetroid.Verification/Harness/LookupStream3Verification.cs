@@ -88,7 +88,6 @@ internal static class LookupStream3Verification
         Console.WriteLine("Falling-tube layout: five typed pieces match their native records; production spawns and independent fixture behavior pass.");
     }
     /// <summary>Compares all 256 intro colors with ROM and checks edited RGB5 channels through transfer bytes and live CGRAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)
@@ -129,7 +128,6 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Checks four eye rectangles against ROM and their actual portrait tilemap writes, including independent cell edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
@@ -724,7 +722,6 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Checks game-over text words in VRAM for native and edited tilemap cells, including index bounds.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
@@ -1210,7 +1207,8 @@ internal static class LookupStream3Verification
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
-        AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(GrappleSegmentAttributeAddresses),
+        AssertTrue(Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount)
+                .Select(SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress).SequenceEqual(GrappleSegmentAttributeAddresses),
             "stream 3 segment address enumeration");
         for (int frame = 0; frame < 4; frame++)
         {
@@ -1244,7 +1242,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = GrappleSpriteDefinitions.SegmentAttributeAddresses[invalid], "stream 3 rope operand address bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
@@ -1662,7 +1660,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks rainbow, drain, fake-death, and revival palette frames against their native rows and edited colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3DrainFades(ISnesAddressSpace rom)
     {
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
@@ -2161,7 +2158,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks six four-color Work Robot palette frames against ROM and edited RGB5 source colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)
     {
         var words = new ushort[6][];
@@ -2235,7 +2231,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Mother Brain's health tint from paint anchors without retaining native intermediate rows.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
@@ -2310,7 +2305,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks recovery-light colors and room-palette routing against ROM and independent edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2405,7 +2399,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks timed room-flash colors and mirrors without storing native output rows.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2538,7 +2531,6 @@ internal static class LookupStream3Verification
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
             $"${opcode:X2} at ${SnesAddressMath.BankNumber(opcodeAddress):X2}:{SnesAddressMath.OffsetInBank(opcodeAddress):X4}.");
     /// <summary>Checks the phase-two rear-leg palette's CGRAM output against ROM and its calculated health basis.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2776,7 +2768,6 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2827,7 +2818,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks final-room paint colors and dependent palette isolation against native and edited inputs.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2893,7 +2883,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks room-entry glass and tube colors, recovery independence, and legacy palette inheritance.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -3055,7 +3044,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks the first narration tilemap against decompressed ROM words and the intro upload path.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyStream3InitialNarrationMap()
     {
         using var rootScratch = new TestScratchDirectory("initial-narration");
@@ -3236,7 +3224,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks intro background map pages against decompressed ROM and loaded presentation edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyStream3BackgroundMaps()
     {
         using var rootScratch = new TestScratchDirectory("background-maps");
@@ -3382,7 +3369,6 @@ BranchesToSharedBody:true),
     }
 
     /// <summary>Checks the opening portrait tilemap against decompressed ROM and the actual VRAM upload.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyStream3PortraitMap()
     {
         using var rootScratch = new TestScratchDirectory("portrait-map");

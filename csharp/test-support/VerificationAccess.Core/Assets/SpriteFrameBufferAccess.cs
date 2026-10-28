@@ -53,7 +53,6 @@ internal static class SpriteFrameBufferAccess
     /// + character, its coordinates wrapped to OAM's nine-bit X and eight-bit Y, 16-pixel parts large. Unused records
     /// stay zero, or are parked at Y=$F0 as `$80:896E` leaves them.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: rebuilds native OAM tables from whole-frame draws")]
     internal static OamBuffer Assemble(IReadOnlyList<CharacterSpriteDraw> compositions, bool parkUnused)
     {
         {

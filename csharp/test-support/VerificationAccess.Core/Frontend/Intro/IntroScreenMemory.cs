@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -11,7 +10,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// OBJ sheets, and the portrait and narration tilemaps, at the words `$8B:A469-$A529` upload them to. The cinematic keeps
 /// no such image; verification composes it to compare against native VRAM.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: the intro's characters, background pages and tilemaps at their native words")]
 internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>

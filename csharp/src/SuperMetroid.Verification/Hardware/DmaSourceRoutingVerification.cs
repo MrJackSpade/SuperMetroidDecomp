@@ -11,7 +11,6 @@ internal static class DmaSourceRoutingVerification
     /// Checks the actual PPU transfer paths, including a fixed-bank DMA wrap that changes
     /// mapped source type between consecutive bytes. A generic bus read throws here.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyDmaSourceRouting()
     {
         var source = new DmaReadRoutingBus();

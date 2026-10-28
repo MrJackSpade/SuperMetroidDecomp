@@ -29,7 +29,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapSpritesVerification
 {
     /// <summary>Compares native sprite bytes and clipping, then checks composition and PNG edits through rendered maps.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var native = new OamBuffer();

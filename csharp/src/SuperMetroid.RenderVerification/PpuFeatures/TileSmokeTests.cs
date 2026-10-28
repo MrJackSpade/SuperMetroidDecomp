@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
@@ -12,7 +11,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class TileSmokeTests
 {
     /// <summary>Checks background geometry, priority, scrolling, transparency, brightness, and plane selection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         VerifyFourthPlaneByteSelection(device, renderer);
@@ -55,7 +53,6 @@ internal static class TileSmokeTests
     /// Checks a flipped tile's fourth-plane byte reaches its picture (#1403): the byte an earlier shader decode misread,
     /// selecting the wrong palette color.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyFourthPlaneByteSelection(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new byte[SnesPpuLayout.VramByteCount];

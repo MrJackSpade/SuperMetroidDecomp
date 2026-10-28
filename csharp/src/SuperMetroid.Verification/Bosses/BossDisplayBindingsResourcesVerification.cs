@@ -1,7 +1,6 @@
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsVerification;
@@ -16,7 +15,6 @@ namespace SuperMetroid.Verification.Bosses;
 internal static class BossDisplayBindingsResourcesVerification
 {
     /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes, then checks schema-26 merge behavior.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())

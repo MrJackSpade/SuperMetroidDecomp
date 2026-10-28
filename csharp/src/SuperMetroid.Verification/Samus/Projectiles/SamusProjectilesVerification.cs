@@ -54,7 +54,6 @@ static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, 
     rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
 /// <summary>Checks beam and missile records, charge, impact, OAM, sound, and cartridge-timed projectile lifecycles.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
 internal static void VerifySamusPowerBeamProjectiles()
 {
     VerifyPlasmaEnemyPenetration();

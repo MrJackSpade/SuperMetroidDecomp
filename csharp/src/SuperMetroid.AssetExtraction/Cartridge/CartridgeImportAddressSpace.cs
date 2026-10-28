@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.AssetExtraction.Cartridge;

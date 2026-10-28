@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx;
@@ -23,7 +22,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class XrayNoFxDarkeningVerification
 {
     /// <summary>Confirms opaque BG3 halving, transparent fixed-color fallback, and Fireflea subtraction.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyXrayNoFxDarkening()
     {
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());

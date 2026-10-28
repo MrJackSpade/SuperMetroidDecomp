@@ -51,10 +51,10 @@ internal sealed class GameplayHudSetup
     /// <exception cref="InvalidOperationException">The HUD artwork is not installed.</exception>
     internal void ShowHudCharacters()
     {
-        HudTileAtlas hud = (_artwork.MapPresentation ?? throw new InvalidOperationException(
-            "Showing the HUD's characters requires installed HUD artwork.")).HudTiles;
+        if (_artwork.MapPresentation is null)
+            throw new InvalidOperationException("Showing the HUD's characters requires installed HUD artwork.");
         _backgrounds.Bind(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0,
-            hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
+            BgCharacterSet.Layer3.CharactersIn(HudTileAtlasFormat.CharacterByteCount));
     }
 
     /// <summary>

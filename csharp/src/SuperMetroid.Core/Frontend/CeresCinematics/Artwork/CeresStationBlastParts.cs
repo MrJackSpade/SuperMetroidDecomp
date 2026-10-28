@@ -86,7 +86,7 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
             }
             var flips = (x >= 0 ? TileFlip.Horizontal : 0)
                 | (y >= 0 ? TileFlip.Vertical : 0);
-            return new(SpritePart.Create(x, y, size == 16,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), size == 16,
                 tile, 0, 3, flips), true);
         }
     }

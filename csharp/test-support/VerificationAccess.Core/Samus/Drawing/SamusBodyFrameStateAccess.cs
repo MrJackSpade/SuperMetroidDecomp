@@ -14,7 +14,6 @@ internal static class SamusBodyFrameStateAccess
         /// Loads the body characters the shown definitions make (<see cref="SamusBodyArtworkCatalog.BodyArtwork"/>) at
         /// the start of the sprite characters, which the body's draws name from character zero.
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: lays the shown body characters into the emulated sprite characters")]
         internal void LoadShownInto(SnesVram vram)
         {
             Ensure.NotNull(vram);

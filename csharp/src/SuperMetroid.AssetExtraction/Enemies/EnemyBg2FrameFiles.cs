@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;

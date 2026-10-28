@@ -47,7 +47,8 @@ internal static class DmaArtworkBoundaryVerification
             KraidSourceDefinitions.RoomBackgroundTiles,
             KraidSourceDefinitions.RoomBackgroundTileBytes,
             KraidBackgroundDefinitions.RoomBackgroundTileVramWord);
-        AssertTrue(BgArtworkFixtures.ComposedVram(background).ImageEquals(expected),
+        AssertTrue(BgArtworkFixtures.ComposedVram(background, new BgArtworkBytes().WithKraidBackground(art.Bosses.KraidBackground
+                ?? throw new InvalidOperationException("Verification requires installed Kraid background characters."))).ImageEquals(expected),
             "Kraid background characters use installed art with exact native VRAM placement");
         enemies.BossArtwork = null;
         AssertThrows<InvalidDataException>(upload,
@@ -68,7 +69,7 @@ internal static class DmaArtworkBoundaryVerification
                     KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress + quarter * KraidHudRestoration.QuarterBytes,
                     KraidHudRestoration.QuarterBytes,
                     (ushort)(KraidBackgroundDefinitions.StandardBg3VramWord + quarter * KraidHudRestoration.QuarterBytes / 2));
-                AssertTrue(BgArtworkFixtures.ComposedVram(actual).ImageEquals(expected),
+                AssertTrue(BgArtworkFixtures.ComposedVram(actual, new BgArtworkBytes().WithHud(maps.HudTiles)).ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference");
                 AssertEqual(quarter + 1, state.RestoredBg3Quarters, "Kraid retains the four-frame restoration cadence");
                 AssertEqual(KraidAiFunction.DeathFadeInBackground, state.Parts[0].Function,

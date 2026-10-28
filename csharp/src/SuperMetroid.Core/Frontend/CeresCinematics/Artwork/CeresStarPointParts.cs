@@ -39,7 +39,7 @@ internal sealed class CeresStarPointParts(StarfieldPoint[] points, TileFlip flip
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var point = points[index];
-            return new(SpritePart.Create(point.Offset.X, point.Offset.Y, false, point.Tile, 0, 0, flips), true);
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(point.Offset.X, point.Offset.Y), false, point.Tile, 0, 0, flips), true);
         }
     }
     /// <summary>Enumerates the calculated star parts in source order.</summary>

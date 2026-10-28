@@ -20,7 +20,6 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 {
     /// <summary>Compares transfer sources, destinations, and bytes, then checks
     /// a selected pixel override reaches pending and legacy queued uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyInstalledGunshipLiftoffArtwork(
         SuperMetroidAddressSpace bus, string directory, InstalledEnemyArtwork stock)
     {

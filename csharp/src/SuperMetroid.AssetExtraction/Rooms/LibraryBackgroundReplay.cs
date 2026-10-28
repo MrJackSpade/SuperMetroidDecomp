@@ -15,7 +15,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// fills pages with the blank tile, and binds the characters the list brings through the runtime's own decision. The BG2
 /// pages the replay leaves are pictured as the background's image, which the runtime selects by name instead.
 /// </summary>
-[PpuLayoutBoundary("codec: the VRAM words and work-RAM staging a library-background command list writes")]
 internal static class LibraryBackgroundReplay
 {
     /// <summary>

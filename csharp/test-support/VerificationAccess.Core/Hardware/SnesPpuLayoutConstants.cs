@@ -4,13 +4,10 @@ namespace SuperMetroid.Core.Hardware;
 internal static class SnesPpuLayoutConstants
 {
     /// <summary>Size of OAM's two-bits-per-OBJ high table.</summary>
-    [PpuLayoutAccess]
     public const int OamHighTableByteCount = SnesPpuLayout.OamSpriteCount / 4;
     /// <summary>Complete low-plus-high OAM DMA payload.</summary>
-    [PpuLayoutAccess]
     public const int OamUploadByteCount = SnesPpuLayoutConstants.OamLowTableByteCount + OamHighTableByteCount;
     /// <summary>Size of OAM's four-byte-per-OBJ low table.</summary>
-    [PpuLayoutAccess]
     public const int OamLowTableByteCount = SnesPpuLayout.OamSpriteCount * 4;
     /// <summary>The last VRAM word a render layer may name as a tilemap or character base.</summary>
     public const int MaximumVramWord = SnesPpuLayout.VramWordCount - 1;

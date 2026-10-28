@@ -21,7 +21,6 @@ internal static class AreaMapPresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Frontend.Map.Artwork;
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             class MapConsumer {

@@ -19,8 +19,30 @@ internal static class SuperMetroidRuntimeVramAccess
         /// <summary>The test's VRAM image of the runtime, which nothing in gameplay writes.</summary>
         internal SnesVram Vram => Images.GetValue(self, _ => new SnesVram());
 
-        /// <summary>A copy of the runtime's VRAM image with its background character artwork composed over it (#1350).</summary>
-        [PpuLayoutBoundary("exact hardware test: reads gameplay's VRAM image with its bound background artwork")]
-        internal byte[] ComposedVram() => BgArtworkFixtures.Composed(self.Vram, self.BgArtwork);
+        /// <summary>
+        /// A copy of the runtime's VRAM image with its background character artwork composed over it (#1350), each
+        /// binding's bytes read from the artwork the runtime has installed (#1422).
+        /// </summary>
+        internal byte[] ComposedVram() => BgArtworkFixtures.Composed(self.Vram, self.BgArtwork, self.BackgroundArtwork());
+
+        /// <summary>
+        /// The bytes of the background artwork the runtime binds, from what it has installed: its room characters, HUD,
+        /// Kraid backdrop and permanent-item graphics, and the graphics the loaded room's PLM population supplies. A name
+        /// the runtime installs nothing for stays unregistered, and composing a binding of it fails.
+        /// </summary>
+        internal BgArtworkBytes BackgroundArtwork()
+        {
+            var artwork = new BgArtworkBytes();
+            if (self.Artwork.RoomCharacterArt is { } characters)
+                artwork.WithRoomCharacters(characters);
+            if (self.Artwork.MapPresentation is { } presentation)
+                artwork.WithHud(presentation.HudTiles);
+            if (self.BossArtwork.Artwork?.KraidBackground is { } kraid)
+                artwork.WithKraidBackground(kraid);
+            artwork.WithCollectibles(self.ShotBlockVisuals.RoomPlmDynamicCollectibleArt);
+            if (self.Room.Scope is { } scope)
+                artwork.WithSuppliedCollectibles(scope.Assets.Header.State.PlmPopulation);
+            return artwork;
+        }
     }
 }

@@ -22,7 +22,6 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 internal static class EnemyTileArtworkCeresDoorVerification
 {
     /// <summary>Compares native VRAM and CGRAM, then checks independent PNG, palette, and Mode 7 edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, InstalledEnemyArtwork stock)
     {

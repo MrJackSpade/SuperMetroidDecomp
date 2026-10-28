@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingLifetimeVerification;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -16,7 +15,6 @@ using SuperMetroid.Core.World;
 internal static class TorizoPaletteShakeVerification
 {
     /// <summary>Checks shake duration, masked fades, save-state continuation, and palette catalog bytes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static int VerifyTorizoPaletteShake()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -87,7 +85,6 @@ internal static class TorizoPaletteShakeVerification
     }
 
     /// <summary>Compares the faded body colors and every cataloged Torizo palette row with bank $AA.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SamusColourRig cgram)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

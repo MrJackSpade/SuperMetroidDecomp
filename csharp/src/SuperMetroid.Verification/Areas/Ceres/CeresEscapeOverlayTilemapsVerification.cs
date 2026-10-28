@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
@@ -24,7 +23,6 @@ internal static class CeresEscapeOverlayTilemapsVerification
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
 
     /// <summary>Compares five native overlays, then checks live override, reload, and missing-resource behavior.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

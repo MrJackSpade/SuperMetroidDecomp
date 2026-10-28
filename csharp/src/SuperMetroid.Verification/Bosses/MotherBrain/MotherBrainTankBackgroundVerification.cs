@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainAscentCaptureVerification;
 using SuperMetroid.Core.Enemies;
@@ -22,7 +21,6 @@ using SuperMetroid.Core.Rooms.Doors;
 internal static class MotherBrainTankBackgroundVerification
 {
     /// <summary>Verifies pipe-room VRAM survives initialization and the crouched body updates only its authored BG2 words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
         var installation = RepositoryInstallation.Installation;

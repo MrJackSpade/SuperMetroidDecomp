@@ -41,7 +41,7 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         get
         {
             var point = placements[index];
-            return new(SpritePart.Create(point.Cell.X * 8, point.Cell.Y * 8, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(point.Cell.X * 8, point.Cell.Y * 8), false,
                 point.Tile, 0, 0), true);
         }
     }

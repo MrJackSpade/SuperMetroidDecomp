@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Hardware;
 /// and 3 at four bits per pixel) follows. A pixel's color index takes one bit from each plane, the
 /// leftmost pixel in each byte's most significant bit, plane <c>n</c> contributing <c>2^n</c>.
 /// </summary>
-[PpuLayoutAccess]
 [EncodingOwner("planar background character format")]
 public sealed class BgCharacterFormat
 {

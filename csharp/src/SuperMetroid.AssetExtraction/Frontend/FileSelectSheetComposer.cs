@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -26,7 +25,6 @@ internal static class FileSelectSheetComposer
         Sources(Ensure.NotNull(maps).FileSelect, maps);
 
     /// <summary>What the file-select sheet composes from <paramref name="fileSelect"/>, over the menus of <paramref name="maps"/>.</summary>
-    [PpuLayoutBoundary("codec: the menu's sprite colours, read from its CGRAM image")]
     internal static SpriteSheetSources Sources(FileSelectPresentation fileSelect, AreaMapPresentationCatalog maps)
     {
         Ensure.NotNull(fileSelect);

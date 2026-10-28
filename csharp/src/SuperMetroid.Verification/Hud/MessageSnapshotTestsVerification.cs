@@ -17,7 +17,6 @@ namespace SuperMetroid.Verification.Hud;
 internal static class MessageSnapshotTestsVerification
 {
     /// <summary>Captures every retail message's changing overlay and checks the image shown, retained packets and malformed layers.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void VerifyMessageSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -23,7 +23,6 @@ internal static class PauseScreenPublicationVerification
     /// tilemaps at their native words over the bound characters, its palette and its sprite entries. A debugger round
     /// trip keeps that screen state and, once the artwork is rebound, shows the same frame.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks the pause tilemaps' native VRAM words")]
     internal static void VerifyPauseScreenPublication()
     {
         var pause = CreateRetailPauseFixture(new PauseMenuEntry

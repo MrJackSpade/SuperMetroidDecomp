@@ -31,7 +31,6 @@ internal static class LookupFxPairColorsVerification
     internal static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 10);
 
     /// <summary>Checks one RGB5 channel wherever the native blend rule derives it.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxPairComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
     {
         foreach (byte id in OriginalFxBlendIds())

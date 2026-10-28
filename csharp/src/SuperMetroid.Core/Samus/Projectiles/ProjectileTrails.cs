@@ -22,12 +22,12 @@ internal sealed class ProjectileTrails
     /// <summary>Selects native trail lists and positions both sides from the shot's current animation record.</summary>
     internal void SpawnTrail(SamusProjectileSlot projectile)
     {
-        int pointerIndex;
+        int trailEntry;
         if (projectile.PackedType.IsFamily(SamusProjectileFamily.Beam))
         {
             // Beam indices retain charge/SBA bits in the low six bits. Charged plain power
             // therefore selects entry $10, not ordinary-power entry zero.
-            pointerIndex = projectile.Type & 63;
+            trailEntry = projectile.Type & 63;
         }
         else
         {
@@ -36,11 +36,11 @@ internal sealed class ProjectileTrails
             int family = SamusProjectileFamilies.IndexOf(projectile.PackedType.Raw);
             if (family >= 3)
                 return;
-            pointerIndex = family + 31;
+            trailEntry = family + 31;
         }
 
-        ProjectileTrailProgram? leftProgram = ProjectileTrailDefinitions.Select(pointerIndex, HorizontalDirection.Left);
-        ProjectileTrailProgram? rightProgram = ProjectileTrailDefinitions.Select(pointerIndex, HorizontalDirection.Right);
+        ProjectileTrailProgram? leftProgram = ProjectileTrailDefinitions.Select(trailEntry, HorizontalDirection.Left);
+        ProjectileTrailProgram? rightProgram = ProjectileTrailDefinitions.Select(trailEntry, HorizontalDirection.Right);
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.

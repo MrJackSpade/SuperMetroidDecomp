@@ -22,7 +22,6 @@ namespace SuperMetroid.Verification.Rooms.Backgrounds;
 internal static class RoomSkyTilemapsVerification
 {
     /// <summary>Checks page roundtrips, land and ocean rows, Landing Site page uploads, and one edited visible tile.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomSkyTilemaps()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

@@ -127,7 +127,7 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         }
         int size = large ? 16 : 8;
         if (rotate) { x = -x - size; y = -y - size; }
-        part = new(SpritePart.Create(x, y, large,
+        part = new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
             tile, 0, 3, rotate
                 ? TileFlip.Horizontal | TileFlip.Vertical : 0), true);
         return true;

@@ -117,7 +117,6 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();

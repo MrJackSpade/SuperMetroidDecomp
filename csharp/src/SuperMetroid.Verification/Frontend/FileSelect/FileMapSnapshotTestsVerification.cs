@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -98,7 +97,6 @@ internal static class FileMapSnapshotTestsVerification
     }
 
     /// <summary>Checks window replacement pixels and malformed nested-scene rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;

@@ -56,7 +56,6 @@ public static class EnemyTileArtworkFiles
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
     /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage and native pixel/color roundtrips. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate. Does not read or modify player overrides.</remarks>
     /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, palette representation, or resource roundtrip validation are invalid.</exception>
-    [PpuLayoutBoundary("codec: native enemy palette CGDATA stream compared with the compiled sheet")]
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);

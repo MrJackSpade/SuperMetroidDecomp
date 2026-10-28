@@ -53,7 +53,6 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// A character a block reads shows bytes no binding names, or the sheet holds no picture of a block over what its
     /// characters show.
     /// </exception>
-    [PpuLayoutBoundary("codec: the BG characters a block's tile words name, from the room's character base")]
     public RoomBlockPictureTable Resolve(RoomLevelPlane bg1, RoomLevelPlane? bg2, RoomCharacterSource characters, IEnumerable<int> alsoShown)
     {
         Ensure.NotNull(bg1);

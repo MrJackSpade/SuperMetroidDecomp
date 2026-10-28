@@ -20,7 +20,6 @@ internal static class EvirVisualsVerification
     /// Checks every pose the Evir's programs show against editable stock spritemaps with cartridge-equivalent OAM, and
     /// that running each program with the stock artwork shows exactly its authored poses.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEvirVisuals(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {

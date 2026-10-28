@@ -84,7 +84,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
                 else if (column >= 12) { x = (column - 14) * 8; y = 32; }
                 else { y = -24; large = true; }
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 0), true);
         }
     }

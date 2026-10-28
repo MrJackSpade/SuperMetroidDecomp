@@ -617,7 +617,6 @@ internal static class PaletteFxInstructionCodesVerification
 
 
     /// <summary>Checks the beacon palette cycle from setup through its loop operand.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBeaconPaletteFxColorDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -670,7 +669,6 @@ internal static class PaletteFxInstructionCodesVerification
     }
 
     /// <summary>Checks the Tourian glow clone and loop mechanics at their word-aligned native addresses.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyTourianGlowPaletteFxColorDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {

@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;

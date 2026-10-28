@@ -159,7 +159,6 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Checks queued, direct, and restored BG3 tile uploads against installed HUD pixels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
     {
@@ -248,12 +247,11 @@ internal static class EnemyTileArtworkKraidVerification
             AssertEqual(quarter + 1, state.RestoredBg3Quarters,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
         }
-        // The restored characters are bound (#1352); the image a capture shows composes them.
-        return BgArtworkFixtures.ComposedVram(vram);
+        // The restored characters are bound (#1352); the image a capture shows composes them from the HUD installed.
+        return BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes().WithHud(hud));
     }
 
     /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyInstalledKraidRoomBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -310,7 +308,8 @@ internal static class EnemyTileArtworkKraidVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         Action upload = enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles;
         upload();
-        return BgArtworkFixtures.ComposedVram(vram);
+        return BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes().WithKraidBackground(artwork.Bosses.KraidBackground
+            ?? throw new InvalidOperationException("Verification requires installed Kraid background characters.")));
     }
 
     /// <summary>The BG2 tilemap a selected installed head frame shows over blank pages.</summary>

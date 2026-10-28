@@ -37,7 +37,7 @@ internal static class BackgroundTransferClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinition.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IInstalledArtworkContent.cs")]),
+             new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),
     ];
 
     /// <summary>Includes the common BG2 sources and the named boss's catalog and frame definitions, which live in its boss's Artwork module.</summary>

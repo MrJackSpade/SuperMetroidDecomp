@@ -52,7 +52,6 @@ internal static class IntroCinematicArtworkVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
@@ -593,7 +592,6 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>Compares installed eye tilemap frames and instruction timing with native VRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -661,7 +659,6 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>Compares caret sprite compositions and blink behavior with native OAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -802,7 +799,6 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>Compares installed Mother Brain flashback sprite frames with the cartridge's OAM layout.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -882,7 +878,6 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>Checks explosion sprite compositions and rejects missing named override frames.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
         GameInstallation installation)
@@ -982,7 +977,6 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>The failure message for a cinematic read of migrated artwork, or null when the read is allowed.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static string? IntroArtworkForbiddenRead(int address, IntroArtworkSources blocked)
     {
         if (blocked.HasFlag(IntroArtworkSources.CeresFlightSprites))

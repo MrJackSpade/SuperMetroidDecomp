@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 internal static class YardVisualsVerification
 {
     /// <summary>Checks every pose the Yard's programs show against editable stock OAM equal to the cartridge's.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledYardVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

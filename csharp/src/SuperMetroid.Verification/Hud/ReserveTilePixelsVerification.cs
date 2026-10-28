@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -12,7 +11,6 @@ namespace SuperMetroid.Verification.Hud;
 internal static class ReserveTilePixelsVerification
 {
     /// <summary>Compares reserve tiles $47-$4F with retail planar art and preserves every pixel edit.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyReserveTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

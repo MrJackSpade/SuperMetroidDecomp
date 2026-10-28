@@ -27,6 +27,6 @@ internal static class IntroEggEffectParts
             int slime = frame - 6;
             tile = IntroEggEffectCellDefinitions.SlimeStart + (slime < 3 ? slime : 16 * (slime - 2));
         }
-        return [new(SpritePart.Create(-4, -4, false, tile, 0, 3, 0), true)];
+        return [new(SpritePart.Create(Offset16<ScreenPixels>.Of(-4, -4), false, tile, 0, 3, 0), true)];
     }
 }

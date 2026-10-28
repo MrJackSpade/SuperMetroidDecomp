@@ -19,7 +19,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileTrailArtworkVerification
 {
     /// <summary>Compares stock and edited trail appearance through production drawing while keeping timing, movement, and program control cartridge-owned.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));

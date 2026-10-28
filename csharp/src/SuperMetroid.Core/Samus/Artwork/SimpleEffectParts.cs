@@ -19,7 +19,7 @@ internal readonly struct SimpleEffectParts(int phase, bool quad) : IReadOnlyList
             int tile = (quad ? ProjectileSpritePartDefinitions.BeamExplosionQuadGlyphStart : ProjectileSpritePartDefinitions.BombGlyphStart) + phase;
             var flips = quad ? (column == 0 ? TileFlip.Horizontal : 0) |
                 (row == 0 ? TileFlip.Vertical : 0) : 0;
-            return new(SpritePart.Create(x, y, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 tile, quad ? ProjectileSpritePartDefinitions.BeamExplosionPalette : ProjectileSpritePartDefinitions.BombPalette, ProjectileSpritePartDefinitions.EffectPriority, flips), false);
         }
     }

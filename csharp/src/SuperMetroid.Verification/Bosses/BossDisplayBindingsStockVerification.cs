@@ -29,7 +29,6 @@ internal static class BossDisplayBindingsStockVerification
     /// Import-only oracle for the declared native roots. It never passes its ROM
     /// source to the production draw/collision/instruction paths.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyBossDisplayStock()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

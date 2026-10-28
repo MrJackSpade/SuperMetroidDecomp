@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationArtworkVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
@@ -34,7 +33,6 @@ internal static class EnemyAnimationIsolationVerification
     }
 
     /// <summary>Tracks Boyon's proximity bounce across a moving arc while its replacement changes every OAM draw.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyBoyonAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
         var heights = new HashSet<ushort>();
@@ -67,7 +65,6 @@ internal static class EnemyAnimationIsolationVerification
     }
 
     /// <summary>Checks Torizo's orb attack, hit windows, RNG use, and death publication against alternate art.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyTorizoAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
         // The fixed right-orb program has 24 startup frames, six 6-frame firing

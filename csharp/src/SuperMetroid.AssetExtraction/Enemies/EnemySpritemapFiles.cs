@@ -3,7 +3,6 @@ using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 

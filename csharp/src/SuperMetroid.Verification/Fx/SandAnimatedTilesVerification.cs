@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
@@ -13,7 +12,6 @@ using SuperMetroid.Core.Progression;
 internal static class SandAnimatedTilesVerification
 {
     /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifySandAnimatedTiles()
     {
         var bus = new TestAddressSpace();

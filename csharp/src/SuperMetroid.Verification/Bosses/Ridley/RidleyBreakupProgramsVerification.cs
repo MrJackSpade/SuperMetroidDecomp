@@ -27,7 +27,6 @@ internal static class RidleyBreakupProgramsVerification
 {
 
     /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyRidleyBreakupPrograms()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

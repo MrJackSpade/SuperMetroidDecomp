@@ -19,7 +19,6 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainEscapeTextArtworkVerification
 {
     /// <summary>Compares stock art with the cartridge and checks an edited PNG changes only its intended live VRAM byte.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyInstalledMotherBrainEscapeTextArtwork(
         string directory, InstalledEnemyArtwork stock)
     {

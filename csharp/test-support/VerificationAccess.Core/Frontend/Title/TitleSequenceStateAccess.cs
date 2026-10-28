@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend.Title;
 
@@ -13,7 +12,6 @@ internal static class TitleSequenceStateAccess
         internal byte Brightness => (byte)self.Brightness;
 
         /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
-        [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
         internal ReadOnlySpan<RgbColor> PaletteColors => self.palette.Colors;
 
         /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>

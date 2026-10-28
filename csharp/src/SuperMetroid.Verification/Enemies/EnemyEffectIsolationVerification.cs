@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
@@ -20,7 +19,6 @@ internal static class EnemyEffectIsolationVerification
     /// Checks that replacement melt artwork changes neither Crocomire's mechanics nor which picture each band of his melt
     /// image shows on each update (#1406).
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCrocomireEffectIsolation()
     {
         var baseline = new CrocomireEffectFixture(MeltEffectArtwork(0x55));
@@ -78,7 +76,6 @@ internal static class EnemyEffectIsolationVerification
     }
 
     /// <summary>Compares two corpse images through all 118 rot calls, checking row completion and RAM-to-VRAM transfers.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainRotIsolation()
     {
         var baselineEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

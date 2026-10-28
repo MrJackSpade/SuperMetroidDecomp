@@ -19,7 +19,7 @@ internal readonly struct HorizontalChargedSpazerParts(int phase) : IReadOnlyList
             int size = SpazerCompositionGeometryDefinitions.TileSize;
             int x = (ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells / 2 - 1 - index % ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells) * size;
             int y = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + direction * distance;
-            return new(SpritePart.Create(x, y, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 ProjectileSpritePartDefinitions.ChargedSpazerHorizontalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
         }
     }

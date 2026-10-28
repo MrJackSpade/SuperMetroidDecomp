@@ -118,7 +118,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 tile = EndingRewardArmCellDefinitions.ShoulderCap + (large ? 16 : column);
                 position = shoulder + new Offset16<SpritePixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
             }
-            return new(SpritePart.Create(position.X, position.Y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(position.X, position.Y), large,
                 tile, 0, 3, 0), true);
         }
     }

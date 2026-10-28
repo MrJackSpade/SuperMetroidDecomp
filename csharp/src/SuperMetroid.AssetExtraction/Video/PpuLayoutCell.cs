@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -15,7 +14,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// <param name="Count">The number of units (one for a single colour).</param>
 /// <param name="Encoding">How the units encode the domain value, e.g. "BG tilemap words" or "RgbColor palette".</param>
 /// <param name="AliasOf">The cell this one intentionally shares storage with under a different meaning, if any.</param>
-[PpuLayoutAccess]
 public sealed record PpuLayoutCell(string Name, PpuLayoutRegion Region, int Offset, int Count, string Encoding,
     PpuLayoutCell? AliasOf = null)
 {

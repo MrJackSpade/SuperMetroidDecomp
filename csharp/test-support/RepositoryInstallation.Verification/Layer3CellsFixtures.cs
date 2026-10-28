@@ -29,7 +29,6 @@ internal static class Layer3CellsFixtures
     /// The plane the gameplay BG3 tilemap in <paramref name="image"/> shows, its words' characters read from
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: reads a fixture's BG3 tilemap")]
     internal static Layer3Cells FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord)
     {
         var words = new ushort[Layer3Plane.Columns * Layer3Plane.Rows];
@@ -45,7 +44,6 @@ internal static class Layer3CellsFixtures
     /// The plane <paramref name="words"/> show, their characters read from <paramref name="characterWord"/> in
     /// <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: decodes a BG3 plane's two-bit characters into the cells a frame shows")]
     internal static Layer3Cells FromWords(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = GameplayVramLayout.HudCharacterWord)
     {

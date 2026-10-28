@@ -20,6 +20,6 @@ internal static class IntroConfusedBabyParts
     {
         int tile = frame == 0 ? IntroConfusedBabyCellDefinitions.FirstPose
             : IntroConfusedBabyCellDefinitions.LowerPair + 2 * (frame - 1);
-        return [new(SpritePart.Create(-8, -8, true, tile, 0, 3, 0), true)];
+        return [new(SpritePart.Create(Offset16<ScreenPixels>.Of(-8, -8), true, tile, 0, 3, 0), true)];
     }
 }

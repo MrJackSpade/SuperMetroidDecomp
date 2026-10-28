@@ -3,7 +3,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
@@ -13,7 +12,6 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 internal static class TitleArtworkReferencesVerification
 {
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyTitleArtworkReferences()
     {
         var frames = TitleSpriteDefinitions.All

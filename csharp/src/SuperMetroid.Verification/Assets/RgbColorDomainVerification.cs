@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -15,7 +14,6 @@ internal static class RgbColorDomainVerification
     /// construction is bounded, RGBA expansion replicates bits, channel operations compose, and
     /// older debugger payloads of color words restore through the shape-preserving rule.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRgbColorDomain()
     {
         for (int word = 0; word <= 0x7fff; word++)

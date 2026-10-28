@@ -25,7 +25,6 @@ using SuperMetroid.Core.Progression;
 internal static class BeamPaletteArtworkVerification
 {
     /// <summary>Compares every beam selection's CGRAM with native output and checks isolated JSON color edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
@@ -75,7 +74,6 @@ internal static class BeamPaletteArtworkVerification
     }
 
     /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
         var runtime = CreateRetailRuntimeFixture();

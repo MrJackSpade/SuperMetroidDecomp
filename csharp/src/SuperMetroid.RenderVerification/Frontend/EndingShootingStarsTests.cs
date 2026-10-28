@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -19,7 +18,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class EndingShootingStarsTests
 {
     /// <summary>Compares native star records and trajectory before exercising their actual ending scene owner.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

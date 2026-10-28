@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using System.Reflection;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.Artwork;
@@ -25,7 +24,6 @@ internal static class LookupFxBlendBlackColorsVerification
     internal static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
 
     /// <summary>Checks one five-bit channel for all six liquid blends in native words and CGRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxBlendBlackComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
     {
         foreach (byte id in OriginalBlackBlendIds())

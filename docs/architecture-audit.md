@@ -97,7 +97,7 @@ The seams that broke the cycle follow a few shapes, and a new dependency should 
 - A schema that enumerates every family (the enemy-bank frame definitions, the room-state catalogs) is composition
   and lives in `World`; a lower domain reads it through a lookup the binding carries (`IEnemyFrameWords`).
 - A small vocabulary type (a projectile type word, a message identity, a definition record) lives in the lowest
-  module that uses it, or in `Hardware` when it is shared math.
+  module that uses it.
 
 Installed artwork follows the same rule. The enemy directory is read once, but it is published as three catalogs, one
 per owning domain: `EnemyTileArtworkCatalog` (ordinary enemies), `BossArtworkCatalog` (bosses) and
@@ -320,7 +320,7 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Runtime` | the gameplay frame loop that composes the simulation, with `Attract` (demo playback), door transitions, checkpoint autosaves and the runtime's renderer and audio publication |
 | `Frontend/<Screen>` | the game-state dispatcher and host options, and one module per screen or cinematic (title, intro, `CeresCinematics`, file select, pause map, options, game over, ending, recordings) |
 | `Assets` | artwork infrastructure every domain shares: PNG and JSON documents (`ArtworkJson`), tile encoders, base palettes |
-| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models and host colors, renderers, SPC driver, spatial and fixed-point types, and controller input. `Hardware` shrinks as the machine is removed; its destination is the handful of stubs that reproduce gameplay-observable timing and idiosyncrasies (`manifesto.md`), not a model of the console |
+| `Rendering`, `Audio`, `Spatial`, `Input` | renderers, the SPC driver, spatial and fixed-point types, and controller input. Hardware behaviour the game needs survives only as named compatibility services in `Compatibility` (`manifesto.md`), not as a model of the console |
 
 A domain's installed-artwork layer (catalogs, presentations, formats and documents of extracted artwork) lives in
 its `Artwork` module, so gameplay code and the artwork it draws stay separable. The resource audit uses that layer
@@ -342,7 +342,7 @@ Every project receives the map as an additional file, and the build enforces it:
 | **SME6405** | a Verification file lives in the module of the Core domain it exercises, or in the shared `Harness` |
 | **SME6406** | every top-level Core module is assigned a layer |
 
-Core's layers, lowest first, are Geometry (`Spatial`), Hardware, Foundation (`Input`, `Audio`, `Programs`,
+Core's layers, lowest first, are Geometry (`Spatial`), Foundation (`Compatibility`, `Input`, `Audio`, `Programs`,
 `Assets`), Simulation (`Gameplay`, `Map` and the gameplay domains), Presentation (`Rendering`), Runtime and Frontend.
 Code below the frontend reads frontend-owned content through narrow contracts that the frontend implements, never
 through the frontend's types; documentation crefs are not dependencies.
@@ -353,7 +353,7 @@ commands species only through `RoomEnemySystem`'s capability interfaces (`Elevat
 `*Behavior` or `*Encounter` property.
 
 **SME6351**, **SME6352** and **SME6353** keep Core's numeric vocabulary in its named types (#1326). Outside
-`Hardware/` and `[EncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
+`[EncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
 or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SignedSixteenSixteen`,
 `UnsignedSixteenSixteen` or `FixedCoordinate` (SME6351). An angle, heading or bearing is never a raw byte or
 word: it is a `RotationAngle` (8.8 turn), `ByteAngle` (trigonometry-table index) or `Bearing` (the

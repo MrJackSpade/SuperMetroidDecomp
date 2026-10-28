@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Collections;
 using System.Reflection;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -152,7 +151,6 @@ internal static class PaletteDefinitionAudit
     }
 
     /// <summary>Serves zero for every palette-FX bank or title initial-palette byte and records the read order.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static SyntheticCartridge ColorAddressRecorder()
     {
         var recorder = new SyntheticCartridge(

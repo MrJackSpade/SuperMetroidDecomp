@@ -238,7 +238,6 @@ internal static class ScreenTilePicturesVerification
     /// The character base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
     /// <see cref="CharacterBaseStep"/> words, the one whose characters match the most of the tiles the cells show.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: finds the VRAM character base a frontend layer's tiles were loaded at")]
     private static int CharacterBase(ReadOnlySpan<byte> vram, ScreenTileMap cells, string name)
     {
         ScreenLayerPictures tiles = cells.Tiles;
@@ -273,7 +272,6 @@ internal static class ScreenTilePicturesVerification
     private const int CharacterBaseStep = 0x1000;
 
     /// <summary>Whether <paramref name="tiles"/>' tile <paramref name="tile"/> pictures, under its first palette row, the VRAM character it names from <paramref name="characterBase"/>.</summary>
-    [PpuLayoutBoundary("exact hardware test: decodes a VRAM character's bitplanes to compare it with its picture")]
     private static bool ShowsCharacter(ReadOnlySpan<byte> vram, int characterBase, int tile, ScreenLayerPictures tiles)
     {
         ScreenTilePicture picture = tiles.Tiles[tile] ?? throw new ArgumentException($"Tile {tile} shows nothing.", nameof(tile));

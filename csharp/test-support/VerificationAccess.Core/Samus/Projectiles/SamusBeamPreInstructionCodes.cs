@@ -39,7 +39,7 @@ internal static class SamusBeamPreInstructionCodes
     /// $7E:0A0A, whose word is Samus's cached previous Super-Missile count. Native
     /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
     /// </summary>
-    public const ushort ChargedChainsawLowWramExecution = 0x0a0a;
+    public const ushort ChargedChainsawOverrun = 0x0a0a;
     /// <summary>
     /// <c>$0DC2</c>, the non-routine word observed when uncharged combination fifteen
     /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
@@ -67,7 +67,7 @@ internal static class SamusBeamPreInstructionCodes
         SamusBeamCallback.UnchargedCombinationTwelveAdjacentWord => UnchargedCombinationTwelveAdjacentWord,
         SamusBeamCallback.SpacetimePaletteCopyTail => SpacetimePaletteCopyTail,
         SamusBeamCallback.ChainsawPowerBomb => ChainsawPowerBomb,
-        SamusBeamCallback.ChargedChainsawLowWramExecution => ChargedChainsawLowWramExecution,
+        SamusBeamCallback.ChargedChainsawOverrun => ChargedChainsawOverrun,
         SamusBeamCallback.UnchargedCombinationFifteenAdjacentWord => UnchargedCombinationFifteenAdjacentWord,
         SamusBeamCallback.ChargedCombinationTwelveAdjacentWord => ChargedCombinationTwelveAdjacentWord,
         SamusBeamCallback.MurderBeamMisalignedExecution => MurderBeamMisalignedExecution,

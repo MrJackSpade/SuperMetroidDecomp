@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite;
@@ -24,7 +23,6 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     /// <summary>
     /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {

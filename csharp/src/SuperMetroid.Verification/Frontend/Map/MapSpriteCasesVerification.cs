@@ -93,7 +93,6 @@ internal static class MapSpriteCasesVerification
     }
 
     /// <summary>Compares native and installed OAM across anchors, palettes, and nearly full sprite buffers.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
         OamBuffer native; var installed = ScreenSpritesFixtures.Blank();

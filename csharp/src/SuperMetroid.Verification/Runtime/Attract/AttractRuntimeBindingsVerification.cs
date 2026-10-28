@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
@@ -17,7 +16,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 internal static class AttractRuntimeBindingsVerification
 {
     /// <summary>Reproduces missing-palette construction failure and verifies cartridge-free attract runtime bindings.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyAttractRuntimeBindings()
     {
         var palettes = GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(

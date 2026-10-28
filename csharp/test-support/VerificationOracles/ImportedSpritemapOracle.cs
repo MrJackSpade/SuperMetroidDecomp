@@ -12,7 +12,6 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 internal static class ImportedSpritemapOracle
 {
     /// <summary>Decodes packed five-byte parts with native bank wrap into on-screen or off-screen OAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     public static void DrawGeneric(IImportCartridgeSource source, OamBuffer oam,
         int address, Position16<SpritePixels> origin, ushort paletteBits,
         bool originIsOnScreen = true)

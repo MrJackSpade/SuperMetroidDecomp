@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
@@ -13,7 +12,6 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupFxWeatherBlueVerification
 {
     /// <summary>Confirms weather green is calculated from ROM data without persisting an override and leaves liquid selectors independent.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxWeatherThirdGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })
@@ -39,7 +37,6 @@ internal static class LookupFxWeatherBlueVerification
         }
     }
     /// <summary>Confirms weather blue reaches CGRAM slot 27, remains uncached, and permits all RGB5 third-color edits to round-trip.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })

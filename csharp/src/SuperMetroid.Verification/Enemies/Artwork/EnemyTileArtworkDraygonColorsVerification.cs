@@ -24,7 +24,6 @@ internal static class EnemyTileArtworkDraygonColorsVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Compares 105 RGB5 words with ROM, edits selected palette cells, and checks production Draygon color writes under a source-read guard.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledDraygonColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

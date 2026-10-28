@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -24,7 +23,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseTileAtlasVerification
 {
     /// <summary>Compares stock VRAM bytes, three-area menu transitions, live and captured edits, restore rebinding, and malformed resources.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));

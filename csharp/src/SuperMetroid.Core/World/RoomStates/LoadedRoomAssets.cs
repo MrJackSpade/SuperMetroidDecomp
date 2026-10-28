@@ -30,8 +30,8 @@ public sealed class LoadedRoomAssets
         Header = header;
         LevelData = levelData;
         Scrolls = scrolls;
-        CreCharacters = tileset.CreCharacters;
-        RoomCharacters = tileset.RoomCharacters;
+        CreCharacterCount = tileset.CreCharacterCount;
+        TilesetCharacterCount = tileset.TilesetCharacterCount;
         PaletteBytes = tileset.PaletteBytes;
         Tileset = tileset.Tileset;
         Pictures = tileset.Pictures;
@@ -43,10 +43,10 @@ public sealed class LoadedRoomAssets
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
-    /// <summary>Installed common-room-element planar BG character bytes, uploaded first at VRAM byte $5000; Ceres's later full-size area upload intentionally overwrites this region.</summary>
-    public byte[] CreCharacters { get; }
-    /// <summary>Installed graphics-set planar BG character bytes uploaded after CRE at VRAM byte $0000; the Ceres tileset spans the full $8000-byte BG character allocation.</summary>
-    public byte[] RoomCharacters { get; }
+    /// <summary>The installed common room elements' characters the room binds first; a Ceres tileset binds over them all.</summary>
+    public int CreCharacterCount { get; }
+    /// <summary>The installed tileset's characters the room binds over the common room elements' (#1422).</summary>
+    public int TilesetCharacterCount { get; }
     /// <summary>Installed graphics-set little-endian BGR555 palette bytes; <see cref="LoadGraphics"/> copies the first $0100 bytes into CGRAM colors 0..127, preserving OBJ palettes.</summary>
     public byte[] PaletteBytes { get; }
     /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed metatiles, characters, and palette artwork.</summary>
@@ -115,7 +115,8 @@ public sealed class LoadedRoomAssets
             header,
             levelData,
             scrolls,
-            new RoomTilesetArtwork(tileset, characterArt.Cre.Characters.ToArray(), characterArt.Get(tileset.Characters).Characters.ToArray(),
+            new RoomTilesetArtwork(tileset, BgCharacterSet.Tiles.CharactersIn(characterArt.Cre.Characters.Length),
+                BgCharacterSet.Tiles.CharactersIn(characterArt.Get(tileset.Characters).Characters.Length),
                 paletteArt.Get(tileset.Palette).PackedColours.ToArray(), catalogs.BlockSheets));
     }
 
@@ -134,15 +135,18 @@ public sealed class LoadedRoomAssets
     /// The two character sets a room of <paramref name="tileset"/> binds as it loads, in order: the common room elements,
     /// then the tileset's characters over them (#1350).
     /// </summary>
-    public static IReadOnlyList<BgCharacterPlacement> CharacterPlacements(TilesetDefinition tileset, ReadOnlyMemory<byte> creCharacters,
-        ReadOnlyMemory<byte> roomCharacters) =>
+    /// <param name="tileset">The tileset the room loads.</param>
+    /// <param name="commonRoomElementCharacters">The common room elements' characters.</param>
+    /// <param name="tilesetCharacters">The tileset's characters.</param>
+    public static IReadOnlyList<BgCharacterPlacement> CharacterPlacements(TilesetDefinition tileset, int commonRoomElementCharacters,
+        int tilesetCharacters) =>
     [
         // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
         // area art ends before the common room elements' characters, but Ceres tileset $11 holds all
         // 1024 tile characters. The tileset must therefore bind over the common room elements;
         // reversing these produces the vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        new(RoomBgArtwork.CommonRoomElements, BgCharacterSet.Tiles, RoomTileCharacters.CommonRoomElementsFirst, creCharacters),
-        new(RoomBgArtwork.Tileset(tileset.Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, roomCharacters),
+        new(RoomBgArtwork.CommonRoomElements, BgCharacterSet.Tiles, RoomTileCharacters.CommonRoomElementsFirst, commonRoomElementCharacters),
+        new(RoomBgArtwork.Tileset(Ensure.NotNull(tileset).Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, tilesetCharacters),
     ];
 
     /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
@@ -151,7 +155,7 @@ public sealed class LoadedRoomAssets
         Ensure.NotNull(backgrounds);
         Ensure.NotNull(colours);
 
-        foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacters, RoomCharacters))
+        foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacterCount, TilesetCharacterCount))
             placement.BindTo(backgrounds);
         if (PaletteBytes.Length < RoomStaticPaletteFormat.ByteCount)
         {

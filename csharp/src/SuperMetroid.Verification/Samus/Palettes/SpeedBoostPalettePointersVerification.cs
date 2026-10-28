@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
@@ -15,7 +14,6 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class SpeedBoostPalettePointersVerification
 {
     /// <summary>Matches four equipment selections to native pointers and live palette output, including failure without installed colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -51,7 +49,7 @@ internal static class SpeedBoostPalettePointersVerification
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
-                    installedColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                    installedColors.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(2, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");

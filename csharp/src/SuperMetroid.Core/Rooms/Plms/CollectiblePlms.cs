@@ -237,7 +237,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Binds two animation frames to the next collectible character slot (#1350) and updates live block-definition words.</summary>
-    [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
     private int LoadDynamicCollectibleGraphics(
         RoomLevelData level,
         BgArtworkBindings backgrounds,
@@ -247,9 +246,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         // Retail's presentation lists share one installed upload per kind. A
         // constructed population may supply an explicitly decoded graphic; neither
         // source grants the handler a bank-$84/$89 reader.
-        RoomPlmDynamicCollectibleGraphic definition = suppliedGraphic ??
-            _drawing.DynamicCollectibleArt?.Resolve(kind) ??
-            RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
+        RoomPlmDynamicCollectibleGraphic definition = suppliedGraphic ?? GraphicOf(_drawing.DynamicCollectibleArt, kind);
         ReadOnlyMemory<byte> graphics = definition.Tiles;
         ReadOnlyMemory<byte> paletteOffsets = definition.PaletteOffsets;
 
@@ -257,8 +254,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
 
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
-        SlotCharacters(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot, graphics)
-            .BindTo(backgrounds);
+        SlotCharacters(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot,
+            BgCharacterSet.Tiles.CharactersIn(graphics.Length)).BindTo(backgrounds);
 
         int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords;
         ushort[] words = SlotDefinitions(graphicsSlot, paletteOffsets.Span);
@@ -273,9 +270,19 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>The collectible graphic slots instruction <c>$84:8764</c> rotates through.</summary>
     internal const int GraphicsSlots = 4;
 
-    /// <summary>Binds <paramref name="graphics"/>, a collectible's two frames, over the characters of slot <paramref name="graphicsSlot"/> (#1350).</summary>
-    internal static BgCharacterPlacement SlotCharacters(BgArtworkIdentity identity, int graphicsSlot, ReadOnlyMemory<byte> graphics) =>
-        new(identity, BgCharacterSet.Tiles, RoomTileCharacters.CollectiblesFirst + graphicsSlot * RoomTileCharacters.CollectibleSlotCharacters, graphics);
+    /// <summary>
+    /// A collectible's two frames, <paramref name="characterCount"/> characters of <paramref name="identity"/>, over the
+    /// characters of slot <paramref name="graphicsSlot"/> (#1350).
+    /// </summary>
+    internal static BgCharacterPlacement SlotCharacters(BgArtworkIdentity identity, int graphicsSlot, int characterCount) =>
+        new(identity, BgCharacterSet.Tiles, RoomTileCharacters.CollectiblesFirst + graphicsSlot * RoomTileCharacters.CollectibleSlotCharacters, characterCount);
+
+    /// <summary>
+    /// The graphics a permanent item of <paramref name="kind"/> shows when its population supplies none: the installed
+    /// selection's, or the compiled stock graphics where no selection is installed.
+    /// </summary>
+    internal static RoomPlmDynamicCollectibleGraphic GraphicOf(RoomPlmDynamicCollectibleArtCatalog? installed, InWorldCollectibleKind kind) =>
+        installed?.Resolve(kind) ?? RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
 
     /// <summary>
     /// The block definition words a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight

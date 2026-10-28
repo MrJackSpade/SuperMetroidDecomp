@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -17,7 +16,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingSnapshotTestsVerification
 {
     /// <summary>Compares sampled packet pixels with the live ending while checking native palettes, OAM, phase timing, and later packet stability.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
@@ -364,7 +362,6 @@ internal static class EndingSnapshotTestsVerification
     }
 
     /// <summary>Whether <paramref name="cells"/> are the cells of the tilemap at <paramref name="tilemapWord"/> in the scene's memory image <paramref name="vram"/>.</summary>
-    [PpuLayoutBoundary("exact hardware test: compares a layer's cells with the native tilemap the cartridge selects")]
     private static bool ShowsTilemap(byte[] vram, ScreenTileMap cells, int tilemapWord) =>
         ScreenTileMapConstants.Capture(vram, tilemapWord, cells.Size, cells.Tiles).Equals(cells);
 

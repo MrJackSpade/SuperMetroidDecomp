@@ -27,7 +27,6 @@ internal static class RoomFxLayer3TilemapsVerification
     private static readonly JsonSerializerOptions CamelCaseCaseInsensitiveJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true };
 
     /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxLayer3Tilemaps()
     {
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -64,7 +63,6 @@ internal static class RoomFxLayer3TilemapsVerification
     }
 
     /// <summary>Checks a lava tile edit reaches production VRAM and removing the override restores stock art.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxLayer3TilemapOverride(
         string stock, string overrides, AreaMapPresentationCatalog baseline)
     {

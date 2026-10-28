@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -18,7 +18,6 @@ internal static class BgArtworkBindingsVerification
     /// A loaded room binds its CRE and tileset characters, and a library background its character transfer, at their
     /// VRAM words; VRAM itself holds none of them, and the published memory image shows them composed in bind order.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks the room characters' native VRAM words")]
     internal static void VerifyRoomCharacterBindings()
     {
         var runtime = CreateRetailRuntimeFixture();
@@ -34,8 +33,11 @@ internal static class BgArtworkBindingsVerification
         byte[] published = runtime.ComposedVram().ToArray();
         int area = RoomGraphicsLayout.AreaCharacters.Offset * 2, cre = RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * 2;
         var expected = new byte[RoomGraphicsLayout.AreaCharacters.Count * 2];
-        assets.CreCharacters.CopyTo(expected.AsSpan(cre - area));
-        assets.RoomCharacters.AsSpan(0, Math.Min(assets.RoomCharacters.Length, expected.Length)).CopyTo(expected);
+        RoomCharacterAtlasCatalog characters = runtime.Artwork.RoomCharacterArt
+            ?? throw new InvalidOperationException("Verification requires installed room characters.");
+        assets.CreCharactersIn(characters).Span.CopyTo(expected.AsSpan(cre - area));
+        ReadOnlySpan<byte> tileset = assets.TilesetCharactersIn(characters).Span;
+        tileset[..Math.Min(tileset.Length, expected.Length)].CopyTo(expected);
         // Kraid's library background binds its own characters from word $2000, over the tileset.
         int library = 0x2000 * 2 - area;
         AssertTrue(published.AsSpan(area, library).SequenceEqual(expected.AsSpan(0, library)),

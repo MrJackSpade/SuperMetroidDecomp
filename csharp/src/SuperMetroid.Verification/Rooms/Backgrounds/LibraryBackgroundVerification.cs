@@ -76,7 +76,6 @@ internal static void VerifyLibraryBackgroundSourceInventory()
 }
 
 /// <summary>Confirms installed Kraid HUD pixels reproduce the native upload and that an edit reaches VRAM.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundNativeOperand> romTransfers)
 {
@@ -129,7 +128,6 @@ static void VerifyKraidLibraryHudArtwork(
 }
 
 /// <summary>Exercises Ceres BG2 transfers, typed ROM/WRAM reads, command wrapping, and native clearing.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyLibraryBackgroundLoader()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -208,7 +206,7 @@ private static (SnesVram Shown, LibraryBackgroundExecutionResult Result) ReplayS
     LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program, FixtureRoomHeaders.UnmatchedDoor,
         artwork with { Backgrounds = bindings });
     byte[] image = vram.Bytes.ToArray();
-    bindings.ComposeOver(image);
+    bindings.ComposeOver(image, artwork.HudArt is { } hud ? new BgArtworkBytes().WithHud(hud) : new BgArtworkBytes());
     var shown = new SnesVram();
     shown.LoadBytes(0, image);
     return (shown, result);

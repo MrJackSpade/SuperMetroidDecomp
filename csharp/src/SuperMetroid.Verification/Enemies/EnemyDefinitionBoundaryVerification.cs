@@ -42,7 +42,6 @@ internal static class EnemyDefinitionBoundaryVerification
     }
 
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEnemyDefinitionBoundary(string sourceRom)
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);

@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -88,7 +87,6 @@ internal static class IntroContentIdentityVerification
     }
 
     /// <summary>Builds a complete synthetic opening asset bundle with one selected edit or encoding-only change.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
         // Serialize a fixture document, optionally changing only whitespace formatting.

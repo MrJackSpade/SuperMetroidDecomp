@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -10,7 +9,6 @@ namespace SuperMetroid.Verification.Bosses;
 internal static class BossDisplayBindingsClippingVerification
 {
     /// <summary>Newly authored OAM on BG2-only roots keeps wrapped coordinates and clips whole components off the window.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyBossDisplayClipping()
     {
         int checks = 0;

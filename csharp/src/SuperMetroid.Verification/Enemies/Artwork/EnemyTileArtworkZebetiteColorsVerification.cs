@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -23,7 +22,6 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
 {
     /// <summary>Compares live pulse frames with cartridge colors, then checks
     /// one edited channel, override persistence, and malformed asset rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

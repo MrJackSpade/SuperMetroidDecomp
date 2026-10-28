@@ -80,7 +80,6 @@ internal static class MotherBrainFakeDeathPaletteVerification
     }
 
     /// <summary>Captures one production fake-death fade update for palette and state comparisons.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static CaptureFakeDeathPaletteFrameResult
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {

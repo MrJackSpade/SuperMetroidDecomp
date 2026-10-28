@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -18,7 +17,6 @@ internal static class MapMarkerPixelsVerification
     internal static void VerifyDefeatedBossPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9f]);
 
     /// <summary>Compares stock pixels and VRAM uploads, then checks edited tiles and coordinate bounds.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMapMarkerPixelFamily(ISnesAddressSpace rom, int[] tiles)
     {
         var files = MapSpriteExtractor.Extract(rom);

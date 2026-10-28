@@ -19,7 +19,6 @@ using SuperMetroid.Core.Assets;
 internal static class PauseMapAreaLabelsVerification
 {
     /// <summary>Checks five mapped areas through map acquisition, pause transitions, and debugger restore.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static void VerifyPauseMapAreaLabels()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

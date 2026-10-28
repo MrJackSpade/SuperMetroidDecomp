@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -198,15 +197,14 @@ internal static class FullBodyPalettePointerListsVerification
     }
 
     /// <summary>Compares the sixteen Samus OBJ palette colors with one native palette source.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SamusColourRig actual, int pointer, string context)
     {
-        for (int color = 0; color < SamusPaletteDefinitions.Common.ColorsPerObjPalette; color++)
+        for (int color = 0; color < SamusPaletteDefinitions.Common.ColoursPerRow; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(rom),
                     SamusSourceDefinitions.PaletteBank.Value | (pointer + color * sizeof(ushort))) & 0x7fff),
-                actual.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                actual.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                 $"{context} CGRAM color {color} matches ROM");
     }
 

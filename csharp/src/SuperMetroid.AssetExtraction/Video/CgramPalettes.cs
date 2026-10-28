@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
 using SuperMetroid.Core.Assets;
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// background and OBJ banks and their 16-colour rows. Domain code reaches its own named ranges
 /// through its catalog's view instead.
 /// </summary>
-[PpuLayoutBoundary("rendering view: whole-CGRAM banks and rows")]
 public readonly struct CgramPalettes(IPaletteColors cgram)
 {
     /// <summary>Views a frontend screen's own colours, which it addresses by palette position.</summary>
@@ -24,11 +22,9 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public const int ColorCount = SnesCgram.ColorCount;
 
     /// <summary>Bytes in a complete CGRAM image of little-endian colour words.</summary>
-    [PpuLayoutAccess]
     public const int ByteCount = ColorCount * RgbColor.ByteCount;
 
     /// <summary>All 256 colours.</summary>
-    [PpuLayoutAccess]
     public CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);
 
     /// <summary>The 128 background colours.</summary>

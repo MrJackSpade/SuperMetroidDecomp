@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;
@@ -20,7 +19,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class PostCreditsCharacterArtworkVerification
 {
     /// <summary>Checks native versus installed VRAM and rendered pixels across the suitless post-shot handoff and all four logo actors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();

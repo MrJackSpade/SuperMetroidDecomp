@@ -227,7 +227,6 @@ internal static class TitleGradientVerification
     }
 
     /// <summary>Checks extracted title colors, skip colors, ambient loops, overrides, and installed CGRAM reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteExtractor.Extract(bus);

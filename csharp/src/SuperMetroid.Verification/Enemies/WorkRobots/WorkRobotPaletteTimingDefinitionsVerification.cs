@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
@@ -21,7 +20,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {

@@ -26,7 +26,7 @@ internal static class KraidHudRestoration
     internal static InstalledArtworkId AssetForQuarter(int quarter) => QuarterAssets[quarter];
 
     /// <summary>Quarter <paramref name="quarter"/> of the HUD characters, placed from its first character.</summary>
-    internal static BgCharacterPlacement Placement(int quarter, ReadOnlyMemory<byte> characters) =>
+    internal static BgCharacterPlacement Placement(int quarter) =>
         new(BgArtworkIdentity.Asset(AssetForQuarter(quarter)), BgCharacterSet.Layer3,
-            quarter * (QuarterBytes / BgCharacterSet.Layer3.CharacterBytes()), characters);
+            quarter * BgCharacterSet.Layer3.CharactersIn(QuarterBytes), BgCharacterSet.Layer3.CharactersIn(QuarterBytes));
 }

@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -41,7 +40,6 @@ internal static class PaletteJsonContractsFixturesVerification
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
     /// <summary>Supplies one valid document per supported palette family, including native frame and CGRAM dimensions.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {
         yield return new("room static", PaletteContractDocument(new RoomStaticPaletteDocument

@@ -37,7 +37,6 @@ internal static class MotherBrainCorpseArtworkVerification
             MotherBrainCorpseArtworkDefinitions.ByteCount);
 
     /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyInstalledMotherBrainCorpseArtwork(
         string directory, InstalledEnemyArtwork stock)
     {

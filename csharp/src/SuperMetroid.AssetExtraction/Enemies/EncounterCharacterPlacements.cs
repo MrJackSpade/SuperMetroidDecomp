@@ -6,7 +6,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

@@ -70,7 +70,7 @@ internal sealed class CeresSmallAsteroidParts(Offset16<SpritePixels>[] anchors) 
                 // need an additional eight-pixel displacement.
                 if (flip) y = -y - (large ? 8 : 0);
             }
-            return new(SpritePart.Create(anchors[group].X + x, anchors[group].Y + y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(anchors[group].X + x, anchors[group].Y + y), large,
                 tile, 0, 0, flip ? TileFlip.Vertical : 0), true);
         }
     }

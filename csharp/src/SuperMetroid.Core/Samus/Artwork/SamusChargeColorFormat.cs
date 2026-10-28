@@ -43,5 +43,5 @@ public static class SamusChargeColorFormat
     /// <summary>Ten Hyper-shot playback frames in the native $91:D82B–$D83D reverse palette sequence.</summary>
     public const int HyperFrameCount = 10;
     /// <summary>Sixteen RGB5 words per Samus OBJ palette row, including the retained transparent-slot word and fifteen visible inks.</summary>
-    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
+    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColoursPerRow;
 }

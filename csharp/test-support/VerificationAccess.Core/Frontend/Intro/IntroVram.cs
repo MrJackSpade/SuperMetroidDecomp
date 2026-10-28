@@ -1,9 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Typed view of the opening cinematic's VRAM (#630).</summary>
-[PpuLayoutBoundary("rendering view: opening cinematic VRAM")]
 internal readonly struct IntroVram(SnesVram vram)
 {
     /// <summary>Scene characters.</summary>

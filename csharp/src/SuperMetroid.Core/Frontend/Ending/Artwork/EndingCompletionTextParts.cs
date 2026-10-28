@@ -56,7 +56,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 x = start + column * 8;
                 tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
             }
-            return new(SpritePart.Create(x, bottom ? bottomY : bottomY - 8, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, bottom ? bottomY : bottomY - 8), false,
                 tile, 0, 3, flips), true);
         }
     }

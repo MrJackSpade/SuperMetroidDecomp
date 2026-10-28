@@ -3,7 +3,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Plms;
@@ -20,7 +19,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 internal static class CollectibleMessageTimingVerification
 {
     /// <summary>Confirms $84:8968 grants energy before the bank-$85 message, while empty PLM draw and HUD update wait for return (#1255).</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCollectibleMessageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

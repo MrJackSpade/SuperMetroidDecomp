@@ -57,7 +57,7 @@ internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
                 int row = 13 - index;
                 x = -38; y = -23 + 16 * row; tile = CharacterSheetGrid.Cell(4, 0) + 32 * row;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3, 0), true);
         }
     }

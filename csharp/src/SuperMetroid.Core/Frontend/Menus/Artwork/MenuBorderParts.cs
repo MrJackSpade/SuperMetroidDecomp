@@ -102,7 +102,7 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
                 row = side % (rows - 2) + 1;
             }
             Appearance appearance = appearances[Role(column, row)];
-            return new(appearance.Piece.At(left + column * 8, top + row * 8), appearance.InheritPalette);
+            return new(appearance.Piece.At(Offset16<ScreenPixels>.Of(left + column * 8, top + row * 8)), appearance.InheritPalette);
         }
     }
     /// <summary>Enumerates calculated border parts in the original draw order.</summary>

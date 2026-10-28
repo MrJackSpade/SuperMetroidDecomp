@@ -93,7 +93,6 @@ internal static class EndingPlanetBoundaryVerification
     /// The probe's input (csharp/test-fixtures/ending-native-ppu/probe.c): VRAM, CGRAM as little-endian words, the
     /// screen's 544-byte OAM upload, then OBSEL and brightness.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: dumps native VRAM, CGRAM and OAM tables for the pinned native PPU")]
     private static byte[] NativeProbeInput(LayeredScene snapshot, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
     {
         var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);

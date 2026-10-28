@@ -278,7 +278,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
-    [PpuLayoutBoundary("codec: pause render packet layers")]
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();

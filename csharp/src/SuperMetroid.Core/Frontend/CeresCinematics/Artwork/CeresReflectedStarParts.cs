@@ -26,7 +26,7 @@ internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadO
             var part = source.Part(index + 2);
             int size = part.Part.Large ? 16 : 8;
             int x = SpritePart.WrapX(-part.Part.Offset.X - size);
-            return new(part.Part.At(x, part.Part.Offset.Y) with { Flip = part.Part.Flip ^ TileFlip.Horizontal },
+            return new(part.Part.At(Offset16<ScreenPixels>.Of(x, part.Part.Offset.Y)) with { Flip = part.Part.Flip ^ TileFlip.Horizontal },
                 part.InheritPalette);
         }
     }

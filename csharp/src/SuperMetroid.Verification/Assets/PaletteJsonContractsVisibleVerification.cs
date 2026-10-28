@@ -30,7 +30,6 @@ namespace SuperMetroid.Verification.Assets;
 internal static class PaletteJsonContractsVisibleVerification
 {
     /// <summary>Real compiled FX/animation and drawn pixels use only installed color data and live RAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyPaletteContractVisibleIsolation()
     {
         var documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);
@@ -123,7 +122,6 @@ internal static class PaletteJsonContractsVisibleVerification
     /// Loads both palettes and observes the exact RGB5 replacement: a background colour as the loaded colour itself, a
     /// sprite colour as the pixels the display renderer draws of a sprite whose characters select it.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void AssertPaletteContractPixels(ScreenPalette stockColours, ScreenPalette editedColours, int color)
     {
         var stock = new SnesCgram();

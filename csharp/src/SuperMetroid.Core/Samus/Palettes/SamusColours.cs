@@ -109,8 +109,8 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     /// </summary>
     private Place? Locate(int position) => position switch
     {
-        >= SamusPaletteDefinitions.Common.SamusObjPaletteStart and < SamusPaletteDefinitions.Common.SamusObjPaletteStart + SamusColourDefinitions.RowColours
-            => new Place(suit, position - SamusPaletteDefinitions.Common.SamusObjPaletteStart),
+        >= SamusPaletteDefinitions.Common.SuitFirstColour and < SamusPaletteDefinitions.Common.SuitFirstColour + SamusColourDefinitions.RowColours
+            => new Place(suit, position - SamusPaletteDefinitions.Common.SuitFirstColour),
         >= SamusColourDefinitions.BeamFirstColour and < SamusColourDefinitions.BeamFirstColour + SamusColourDefinitions.RowColours
             => new Place(beam, position - SamusColourDefinitions.BeamFirstColour),
         _ => null,

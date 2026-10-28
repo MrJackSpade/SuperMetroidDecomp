@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -18,7 +17,6 @@ namespace SuperMetroid.Verification.Runtime;
 internal static class GameplayHudPresentationVerification
 {
     /// <summary>Compares stock HUD tiles with native data and checks override propagation without live ROM reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)

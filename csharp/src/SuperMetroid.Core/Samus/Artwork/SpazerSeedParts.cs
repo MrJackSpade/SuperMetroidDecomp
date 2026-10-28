@@ -41,7 +41,7 @@ internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSprit
                 y = vertical ? along : SpazerCompositionGeometryDefinitions.HorizontalStripOriginY;
                 tile = vertical ? ProjectileSpritePartDefinitions.SpazerVerticalGlyph : ProjectileSpritePartDefinitions.SpazerHorizontalGlyph;
             }
-            return new(SpritePart.Create(x, y, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }

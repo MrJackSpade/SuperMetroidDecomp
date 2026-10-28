@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Enemies.WorkRobots;
 internal static class WorkRobotVisualsVerification
 {
     /// <summary>Checks every pose the Work Robot's programs show against editable stock OAM equal to the cartridge's.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledWorkRobotVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

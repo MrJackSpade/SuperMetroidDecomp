@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Escape;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -11,7 +10,6 @@ internal static class EscapeTypewriterStateAccess
     extension(EscapeTypewriterState state)
     {
         /// <summary>Steps the typewriter and writes the glyph it types, if any, into <paramref name="vram"/>'s word at its overlay cell.</summary>
-        [PpuLayoutBoundary("test fixture: a word image indexed by overlay cell")]
         internal bool StepInto(SnesVram vram)
         {
             bool completed = state.Step(out EscapeTypewriterGlyph? glyph);

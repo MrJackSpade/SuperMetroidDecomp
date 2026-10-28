@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -31,7 +31,16 @@ public static class GrappleSpriteExtractor
         {
             Version = GrappleSpriteDefinitions.Version,
             Endpoint = Read(SamusSourceDefinitions.GrappleEndpointAttributes.Value),
-            Segments = GrappleSpriteDefinitions.SegmentAttributeAddresses.Select(Read).ToArray(),
+            Segments = Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount).Select(frame => Read(SegmentAttributeAddress(frame))).ToArray(),
         });
     }
+
+    /// <summary>
+    /// The cartridge address of rope frame <paramref name="frame"/>'s attribute word, past the duration word of its timed
+    /// record.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The rope has no such frame.</exception>
+    internal static int SegmentAttributeAddress(int frame) =>
+        SamusSourceDefinitions.GrappleSegmentAttributes.Value
+        + Ensure.BetweenInclusive(0, GrappleSpriteDefinitions.SegmentFrameCount - 1, frame) * SamusSourceDefinitions.GrappleSegmentRecordBytes;
 }

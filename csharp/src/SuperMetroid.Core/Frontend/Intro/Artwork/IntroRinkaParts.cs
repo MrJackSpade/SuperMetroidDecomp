@@ -26,7 +26,7 @@ internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpriteP
             int column = index % 2, row = index / 2;
             TileFlip flips = (column == 0 ? TileFlip.Horizontal : 0)
                 | (row == 0 ? TileFlip.Vertical : 0);
-            return new(SpritePart.Create(-8 * column, -8 * row, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-8 * column, -8 * row), false,
                 IntroRinkaCellDefinitions.FirstQuadrant + frame, 0, 3, flips), true);
         }
     }

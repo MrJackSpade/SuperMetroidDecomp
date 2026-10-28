@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 internal static class VramDmaDestinationConstants
 {
     /// <summary>The destination <paramref name="wordOffset"/> words into the VRAM described by <paramref name="cell"/>.</summary>
-    [PpuLayoutAccess]
     internal static VramDmaDestination At(PpuLayoutCell cell, int wordOffset = 0, VramIncrement increment = VramIncrement.Row)
     {
         Ensure.NotNull(cell);

@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -24,7 +23,6 @@ internal static class MapSpriteSheetComposer
     internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
 
     /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
-    [PpuLayoutBoundary("codec: the menu's sprite colours, read from its CGRAM image")]
     internal static SpriteSheetSources Sources(MapSpriteCatalog sprites, AreaMapPresentationCatalog maps)
     {
         Ensure.NotNull(sprites);

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Reads the OBJ characters a memory image holds through OBSEL's name base and name-select displacement (#1358), as the
 /// page a screen's sprite entries draw from when its characters come from its own transfers rather than one artwork sheet.
 /// </summary>
-[PpuLayoutBoundary("codec: OBSEL-addressed OBJ characters of a composed memory image")]
 internal static class ObjCharacterImage
 {
     /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>

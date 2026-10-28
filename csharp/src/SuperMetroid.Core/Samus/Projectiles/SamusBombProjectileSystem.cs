@@ -416,7 +416,7 @@ public sealed class SamusBombProjectileSystem
         slot.Direction = 0;
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         slot.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
-        InitializeBombFromRom(slot);
+        InitializeBomb(slot);
         CooldownTimer = WrappingCountdown.FromRaw(placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
             : MorphBallBombDefinitions.NormalBombCooldown);
@@ -492,7 +492,7 @@ public sealed class SamusBombProjectileSystem
             slot.Type = MorphBallBombDefinitions.BombSpreadType;
             slot.IsBombSpread = true;
             slot.Position = slot.Position.WithWhole(samus.Position.Whole);
-            InitializeBombFromRom(slot);
+            InitializeBomb(slot);
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
             slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
@@ -551,8 +551,8 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
-    /// <summary>Loads damage and starting instruction pointer from the compiled non-beam projectile data for the slot's family.</summary>
-    internal static void InitializeBombFromRom(
+    /// <summary>Starts a bomb: its damage and its program, from the compiled non-beam projectile data for the slot's family.</summary>
+    internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the

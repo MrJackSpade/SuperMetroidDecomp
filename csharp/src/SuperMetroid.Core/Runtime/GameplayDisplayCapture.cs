@@ -78,7 +78,6 @@ public static class GameplayDisplayCapture
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
     /// </summary>
-    [PpuLayoutBoundary("codec: ordinary gameplay render packet (BG base registers)")]
     public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
@@ -221,7 +220,6 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>Captures the latched perspective floor and the HUD, adding the layer-2 band below the floor during Ridley's getaway.</summary>
-    [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
     {
         GameplayDisplayLatch latched = frame.Latched;
@@ -264,7 +262,6 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
-    [PpuLayoutBoundary("codec: X-ray render packet, reveal tilemap written into the snapshot BG2 image")]
     private static LayeredScene? CaptureXray(GameplayDisplayFrame frame, LayeredScene basis)
     {
         if (frame.FrameEnd.Xray is not { } xray) return null;

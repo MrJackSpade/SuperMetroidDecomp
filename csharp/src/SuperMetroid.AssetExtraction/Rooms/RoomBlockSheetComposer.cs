@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -42,7 +43,7 @@ internal static class RoomBlockSheetComposer
         }
         // BG3's characters outlive the room that binds them: an effect's frames and Kraid's restoration stay bound in the
         // rooms after, until something binds over them again, so every room's BG3 words are pictured over all of them.
-        BgCharacterPlacement[] bg3Uploads = [.. tilesets.Values.SelectMany(uploads => uploads.Bg3Uploads)
+        BgCharacterUpload[] bg3Uploads = [.. tilesets.Values.SelectMany(uploads => uploads.Bg3Uploads)
             .DistinctBy(placement => new BoundArtwork(placement.Identity, placement.Set, placement.FirstCharacter))];
         IReadOnlyDictionary<string, ImmutableArray<ushort>> messages = MessageBoxSheetComposer.Messages(inputs);
         return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds,
@@ -77,8 +78,7 @@ internal static class RoomBlockSheetComposer
     private static ComposedRoomBackground ComposeBackground(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
         RoomBlockUploads.TilesetUploads uploads, RoomBlockUploads.RoomBackgroundMap background)
     {
-        IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
-            inputs.Characters.Get(tileset.Characters).Characters);
+        IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
@@ -113,13 +113,12 @@ internal static class RoomBlockSheetComposer
     private static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
         byte[] definitions = LoadedRoomAssets.BlockDefinitions(inputs.Metatiles, tileset, uploads.Ceres);
-        IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
-            inputs.Characters.Get(tileset.Characters).Characters);
+        IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         var loaded = new BgArtworkBindings();
-        foreach (BgCharacterPlacement placement in load)
+        foreach (BgCharacterUpload placement in load)
             placement.BindTo(loaded);
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
-        foreach (BgCharacterPlacement placement in load.Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Characters))
+        foreach (BgCharacterUpload placement in load.Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Characters))
             .Concat(uploads.ObjectPages.SelectMany(page => page)))
             bytes[placement.Identity] = placement.Bytes;
         // A room whose blocks read the OBJ character table shows them over what its load uploads there, and over what its
@@ -127,14 +126,14 @@ internal static class RoomBlockSheetComposer
         BgArtworkBindings[] objectPages = [.. uploads.ObjectPages.Select(page =>
         {
             var bound = new BgArtworkBindings();
-            foreach (BgCharacterPlacement placement in page)
+            foreach (BgCharacterUpload placement in page)
                 placement.BindTo(bound);
             return bound;
         })];
         RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
-        BgCharacterPlacement[] all = [.. uploads.Uploads.Concat(uploads.Collectibles.Select(slot => slot.Characters))
+        BgCharacterUpload[] all = [.. uploads.Uploads.Concat(uploads.Collectibles.Select(slot => slot.Characters))
             .Where(placement => placement.Set == BgCharacterSet.Tiles)];
         int[] bounds = [.. all.SelectMany(placement => new[] { placement.FirstCharacter, placement.FirstCharacter + placement.CharacterCount }).Distinct().Order()];
         var tiles = new ushort[RoomBlockPictureNames.Tiles];
@@ -205,19 +204,19 @@ internal static class RoomBlockSheetComposer
         // Adds a picture of the block for each combination of what the upload regions its tiles read can show: the
         // room's load, when given, or each of `candidates` covering the region. Tiles in one region show the same
         // artwork, as one binding covers them all. A block one of whose characters shows nothing is not pictured.
-        void AddEach(ushort[] words, IReadOnlyList<BgCharacterPlacement> candidates, bool withLoad)
+        void AddEach(ushort[] words, IReadOnlyList<BgCharacterUpload> candidates, bool withLoad)
         {
             int[] firsts = [.. words.Select(CharacterOf)];
             int[] regions = [.. firsts.Select(first => Region(bounds, first))];
-            IEnumerable<BgCharacterPlacement?[]> combinations = [new BgCharacterPlacement?[RoomBlockPictureNames.Tiles]];
+            IEnumerable<BgCharacterUpload?[]> combinations = [new BgCharacterUpload?[RoomBlockPictureNames.Tiles]];
             foreach (int region in regions.Distinct())
             {
                 int first = firsts[Array.IndexOf(regions, region)];
-                BgCharacterPlacement?[] options = [.. (withLoad ? [null] : Array.Empty<BgCharacterPlacement?>()),
+                BgCharacterUpload?[] options = [.. (withLoad ? [null] : Array.Empty<BgCharacterUpload?>()),
                     .. candidates.Where(placement => placement.Covers(BgCharacterSet.Tiles, first))];
                 combinations = [.. combinations.SelectMany(earlier => options.Select(option =>
                 {
-                    BgCharacterPlacement?[] chosen = [.. earlier];
+                    BgCharacterUpload?[] chosen = [.. earlier];
                     for (int tile = 0; tile < chosen.Length; tile++)
                     {
                         if (regions[tile] == region)
@@ -226,7 +225,7 @@ internal static class RoomBlockSheetComposer
                     return chosen;
                 }))];
             }
-            foreach (BgCharacterPlacement?[] chosen in combinations)
+            foreach (BgCharacterUpload?[] chosen in combinations)
             {
                 var shown = new BgArtworkShown[RoomBlockPictureNames.Tiles];
                 bool pictured = true;

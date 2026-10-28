@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -25,7 +24,6 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Compares native colors and selectors, edits one channel, and checks strict override failures.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledBabyMetroidCutsceneColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

@@ -122,7 +122,6 @@ internal static class DynamicCollectibleArtVerification
     }
 
     /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, block word, and pickup state.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static LoadRetailBombsWithArtResult
         LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
     {
@@ -132,7 +131,8 @@ internal static class DynamicCollectibleArtVerification
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDynamicCollectibleArt = art });
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(vram), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         CollectiblePlmSnapshot item = plms.CollectiblePlms.Collectibles.Single();
-        byte[] tiles = BgArtworkFixtures.Composed(vram).AsSpan(0x3e00 * 2, 0x100).ToArray();
+        byte[] tiles = BgArtworkFixtures.Composed(vram, new BgArtworkBytes().WithCollectibles(art)
+            .WithSuppliedCollectibles(RoomPlmPopulationDefinitions.Get(0x83fe))).AsSpan(0x3e00 * 2, 0x100).ToArray();
         ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(
             level.BlockDefinitions.Span.Slice(0x0470));
         return new LoadRetailBombsWithArtResult(tiles, firstWord, item);

@@ -672,7 +672,6 @@ internal static class RidleyFullMovieVerification
     }
 
     /// <summary>Checks the selected Ridley palette's CGRAM destination and color words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRidleyPaletteSelection()
     {
         var random = new SharedRandom();
@@ -726,7 +725,6 @@ internal static class RidleyFullMovieVerification
     }
 
     /// <summary>Checks door-entry setup, queued HDMA and palette state at the Ridley room boundary.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -895,7 +893,6 @@ internal static class RidleyFullMovieVerification
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     /// <summary>Replays the complete supplied Ridley movie through production gameplay and compares accepted update state with native checkpoints.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyRidleyFullMovie(string directory)
     {
         var ridleyMovie = ReplayMovie.Load("Ridley", RidleyMoviePath, RidleyMovieSha256);
@@ -1503,7 +1500,7 @@ internal static class RidleyFullMovieVerification
                         SamusProjectilePreInstruction.ShinesparkEcho or
                         SamusProjectilePreInstruction.SpacetimePaletteCopyTail or
                         SamusProjectilePreInstruction.ChainsawPowerBomb or
-                        SamusProjectilePreInstruction.ChargedChainsawLowWramExecution or
+                        SamusProjectilePreInstruction.ChargedChainsawOverrun or
                         SamusProjectilePreInstruction.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
                     _ => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
                 };

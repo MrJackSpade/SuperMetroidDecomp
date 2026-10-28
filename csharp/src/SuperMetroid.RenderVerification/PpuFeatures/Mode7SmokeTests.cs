@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
@@ -14,7 +13,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class Mode7SmokeTests
 {
     /// <summary>Compares scale, offset, overflow, ordered-layer, HUD, and floor-band cases with the WARP reference's exact pixels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32113);

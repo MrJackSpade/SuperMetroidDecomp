@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -19,7 +18,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class EscapeTypewriterPresentationVerification
 {
     /// <summary>Runs extracted programs to completion and checks live edits, debugger restore, and invalid glyph rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -100,7 +98,6 @@ internal static class EscapeTypewriterPresentationVerification
     }
 
     /// <summary>Checks deterministic stock extraction and that a catalog override changes rendered text and content identity.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyEscapeTypewriterAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -19,7 +18,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class RetailRidleyCaptureTests
 {
     /// <summary>Compares native HUD/floor scenes across scale, tilt, and scroll, then replays saved packets after replacing live GPU resources.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime();

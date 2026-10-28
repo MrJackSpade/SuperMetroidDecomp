@@ -12,7 +12,6 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -59,7 +58,7 @@ internal static class RoomBlockUploads
                     tilesets.Add(tileset, uploads = new TilesetUploads(ceres, inputs));
                 else if (uploads.Ceres != ceres)
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
-                foreach (BgCharacterPlacement placement in Of(inputs, state).Where(OverTiles))
+                foreach (BgCharacterUpload placement in Of(inputs, state).Where(OverTiles))
                     uploads.Add(placement);
                 foreach (AnimatedCharacterPlacement frame in AnimatedFrames(inputs, room, state).Where(frame => frame.Set == BgCharacterSet.Tiles))
                     uploads.AddAnimated(frame);
@@ -68,10 +67,10 @@ internal static class RoomBlockUploads
                     foreach (AnimatedCharacterPlacement frame in CrocomireMeltBandFrames(inputs))
                         uploads.AddAnimated(frame);
                 }
-                foreach (BgCharacterPlacement placement in LibraryPlacements(inputs, state))
+                foreach (BgCharacterUpload placement in LibraryPlacements(inputs, state))
                     uploads.Add(placement);
                 RoomBackgroundCharacters characters = RoomScope.CharactersOf(new SelectedRoom(room, state));
-                BgCharacterPlacement[] loadedObjects = [], encounterObjects = [];
+                BgCharacterUpload[] loadedObjects = [], encounterObjects = [];
                 if (characters == RoomBackgroundCharacters.ObjectCharacterPage)
                 {
                     loadedObjects = [.. ObjectPageUploads(inputs, state)];
@@ -94,9 +93,9 @@ internal static class RoomBlockUploads
                 {
                     // Words written over a room whose backgrounds read the OBJ character table show over what its load and
                     // its encounters upload there.
-                    BgCharacterPlacement[] written = [.. loadedObjects, .. encounterObjects];
+                    BgCharacterUpload[] written = [.. loadedObjects, .. encounterObjects];
                     var content = new BgArtworkBindings();
-                    foreach (BgCharacterPlacement placement in written)
+                    foreach (BgCharacterUpload placement in written)
                         placement.BindTo(content);
                     uploads.AddWriters(writers, content, characters, written);
                 }
@@ -124,11 +123,11 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>What one state of a room binds after it loads, collectibles and animations aside: Kraid's backdrop.</summary>
-    private static IEnumerable<BgCharacterPlacement> Of(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> Of(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
-            yield return new BgCharacterPlacement(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
+            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
                 (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                     .RoomBackgroundTiles.Characters);
         }
@@ -138,7 +137,6 @@ internal static class RoomBlockUploads
     /// The frames one state of a room's animations paint over the block characters (#1406): its room effects' animated
     /// tiles and the Tourian statues' pictures.
     /// </summary>
-    [PpuLayoutBoundary("codec: the VRAM words a room's animated tiles and the Tourian statues' pictures land on")]
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedFrames(RoomBlockSheetInputs inputs, RoomHeaderDefinition room,
         RoomStateSettings state)
     {
@@ -197,7 +195,7 @@ internal static class RoomBlockUploads
     /// ones.
     /// </summary>
     /// <exception cref="InvalidDataException">It copies other artwork among the block characters.</exception>
-    private static IEnumerable<BgCharacterPlacement> LibraryPlacements(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> LibraryPlacements(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
@@ -207,7 +205,7 @@ internal static class RoomBlockUploads
                 || transfer.ByteCount != HudTileAtlasFormat.CharacterByteCount)
                 throw new InvalidDataException(
                     $"{state.Name}'s library background transfers {transfer.Source} over the block characters, which no installed character artwork names.");
-            yield return new BgCharacterPlacement(RoomBgArtwork.Library(transfer.Source), BgCharacterSet.KraidLayer3, 0,
+            yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.Source), BgCharacterSet.KraidLayer3, 0,
                 inputs.Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
         }
     }
@@ -221,7 +219,6 @@ internal static class RoomBlockUploads
     /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
     /// runs it, over the characters the room loads: the BG2 pages it leaves and what shows at each character then.
     /// </summary>
-    [PpuLayoutBoundary("codec: the BG2 tilemap pages a library background loads")]
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
         LibraryBackgroundProgram program, DoorDefinition? door)
     {
@@ -264,12 +261,12 @@ internal static class RoomBlockUploads
     /// blocks show: each enemy's tiles its graphics set loads, named as the table records them.
     /// </summary>
     /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
-    private static IEnumerable<BgCharacterPlacement> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
-            yield return new BgCharacterPlacement(new BgArtworkIdentity($"{new GraphicsSetTileCharacters(entry.DefinitionId)}"), BgCharacterSet.Tiles,
+            yield return new BgCharacterUpload(new BgArtworkIdentity($"{new GraphicsSetTileCharacters(entry.DefinitionId)}"), BgCharacterSet.Tiles,
                 EnemyGraphicsSet.EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteArtworkPlacements.CharacterByteCount, tiles);
         }
     }
@@ -278,13 +275,13 @@ internal static class RoomBlockUploads
     /// What <paramref name="state"/>'s encounters upload over the OBJ character table after its room loads, in the order
     /// they make them, each named as the table records it: Ceres Ridley's getaway its escape timer and its warning.
     /// </summary>
-    private static IEnumerable<BgCharacterPlacement> EncounterObjectUploads(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
-        SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterPlacement(
+    private static IEnumerable<BgCharacterUpload> EncounterObjectUploads(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
+        SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterUpload(
             new BgArtworkIdentity($"{upload.Source}"), BgCharacterSet.Tiles, upload.FirstCharacter,
             SpriteArtworkBytes.Of(upload.Source, inputs.Objects)));
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
-    internal static BgCharacterPlacement HudCharacters(RoomBlockSheetInputs inputs) =>
+    internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>
         new(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0, Ensure.NotNull(inputs).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
 
     /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
@@ -293,7 +290,6 @@ internal static class RoomBlockUploads
             .Where(RoomLayer3FxState.ShowsPage).Distinct();
 
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
-    [PpuLayoutBoundary("codec: the VRAM words a room effect's animated tiles land on")]
     internal static IEnumerable<AnimatedCharacterPlacement> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)
     {
         AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
@@ -311,8 +307,7 @@ internal static class RoomBlockUploads
     /// characters to his base.
     /// </summary>
     /// <exception cref="InvalidDataException">A transfer over BG3's characters names no installed character artwork.</exception>
-    [PpuLayoutBoundary("codec: the VRAM words a room's library background transfers BG3 characters to")]
-    private static IEnumerable<BgCharacterPlacement> Bg3LibraryUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> Bg3LibraryUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
@@ -333,12 +328,12 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>What <paramref name="state"/>'s bosses bind over BG3's characters: the HUD's, which Kraid's death restores.</summary>
-    private static IEnumerable<BgCharacterPlacement> Bg3BossUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> Bg3BossUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         if (!state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
             yield break;
         for (int quarter = 0; quarter < HudTileAtlasFormat.RestoreQuarterCount; quarter++)
-            yield return KraidHudRestoration.Placement(quarter, inputs.Hud.KraidRestoreQuarter(quarter));
+            yield return BgCharacterUpload.Of(KraidHudRestoration.Placement(quarter), inputs.Hud.KraidRestoreQuarter(quarter));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>
@@ -346,14 +341,25 @@ internal static class RoomBlockUploads
     {
         var content = new BgArtworkBindings();
         HudCharacters(inputs).BindTo(content);
-        foreach (BgCharacterPlacement placement in LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
-            inputs.Characters.Get(tileset.Characters).Characters))
+        foreach (BgCharacterUpload placement in LoadUploads(inputs, tileset))
             placement.BindTo(content);
         return content;
     }
 
+    /// <summary>
+    /// The common room elements' and the tileset's characters a room of <paramref name="tileset"/> binds as it loads, in
+    /// the order Core binds them, with the bytes the installed artwork holds for each.
+    /// </summary>
+    internal static IReadOnlyList<BgCharacterUpload> LoadUploads(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
+    {
+        Ensure.NotNull(inputs);
+        ReadOnlyMemory<byte> cre = inputs.Characters.Cre.Characters;
+        ReadOnlyMemory<byte> characters = inputs.Characters.Get(tileset.Characters).Characters;
+        return [.. LoadedRoomAssets.CharacterPlacements(tileset, BgCharacterSet.Tiles.CharactersIn(cre.Length), BgCharacterSet.Tiles.CharactersIn(characters.Length))
+            .Select(placement => BgCharacterUpload.Of(placement, placement.Identity == RoomBgArtwork.CommonRoomElements ? cre : characters))];
+    }
+
     /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
-    [PpuLayoutBoundary("codec: the VRAM words an animated-tile object's frames land on")]
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
     {
         if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))
@@ -389,13 +395,14 @@ internal static class RoomBlockUploads
             RoomPlmDynamicCollectibleGraphic graphic = inputs.Collectibles.Resolve(kind);
             for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
                 yield return new CollectibleSlotCharacters(
-                    CollectiblePlms.SlotCharacters(RoomBgArtwork.Collectible(graphic.Kind), slot, graphic.Tiles),
+                    BgCharacterUpload.Of(CollectiblePlms.SlotCharacters(RoomBgArtwork.Collectible(graphic.Kind), slot,
+                        BgCharacterSet.Tiles.CharactersIn(graphic.Tiles.Length)), graphic.Tiles),
                     CollectiblePlms.SlotDefinitions(slot, graphic.PaletteOffsets.Span));
         }
     }
 
     /// <summary>Whether <paramref name="placement"/> binds among the characters a block's tile words name.</summary>
-    private static bool OverTiles(BgCharacterPlacement placement) => placement.Set == BgCharacterSet.Tiles;
+    private static bool OverTiles(BgCharacterUpload placement) => placement.Set == BgCharacterSet.Tiles;
 
     /// <summary>What one tileset's rooms bind.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
@@ -403,7 +410,7 @@ internal static class RoomBlockUploads
     internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
     {
         /// <summary>The placements by identity and place, each once.</summary>
-        private readonly List<BgCharacterPlacement> uploads = [];
+        private readonly List<BgCharacterUpload> uploads = [];
 
         /// <summary>The collectibles' placements.</summary>
         private readonly List<CollectibleSlotCharacters> collectibles = [];
@@ -424,16 +431,16 @@ internal static class RoomBlockUploads
         /// What a room whose blocks read the OBJ character table shows there: the uploads its load makes, and those with its
         /// encounters' uploads after, when it makes any; none when none of the tileset's rooms read it.
         /// </summary>
-        internal IReadOnlyList<IReadOnlyList<BgCharacterPlacement>> ObjectPages { get; private set; } = [];
+        internal IReadOnlyList<IReadOnlyList<BgCharacterUpload>> ObjectPages { get; private set; } = [];
 
         /// <summary>
         /// Records what a room whose blocks read the OBJ character table uploads there: <paramref name="loaded"/> as it
         /// loads, then <paramref name="encounters"/>.
         /// </summary>
         /// <exception cref="InvalidDataException">Another such room of the tileset uploads otherwise.</exception>
-        internal void AddObjectPage(IReadOnlyList<BgCharacterPlacement> loaded, IReadOnlyList<BgCharacterPlacement> encounters)
+        internal void AddObjectPage(IReadOnlyList<BgCharacterUpload> loaded, IReadOnlyList<BgCharacterUpload> encounters)
         {
-            IReadOnlyList<BgCharacterPlacement>[] pages = encounters.Count == 0 ? [loaded] : [loaded, [.. loaded, .. encounters]];
+            IReadOnlyList<BgCharacterUpload>[] pages = encounters.Count == 0 ? [loaded] : [loaded, [.. loaded, .. encounters]];
             if (ObjectPages.Count > 0 && !ObjectPages.SelectMany(page => page).Select(PagePlacement.Of)
                 .SequenceEqual(pages.SelectMany(page => page).Select(PagePlacement.Of)))
                 throw new InvalidDataException("Two rooms of one tileset read different OBJ character tables.");
@@ -457,14 +464,14 @@ internal static class RoomBlockUploads
         internal HashSet<BgCharacterSet> Bg3CharacterSets { get; } = [BgCharacterSet.Layer3];
 
         /// <summary>What the tileset's rooms bind over BG3's characters after loading: their effects' frames and library transfers.</summary>
-        internal List<BgCharacterPlacement> Bg3Uploads { get; } = [];
+        internal List<BgCharacterUpload> Bg3Uploads { get; } = [];
 
         /// <summary>
         /// Records a room showing BG3 over <paramref name="content"/>'s <paramref name="set"/>, with
         /// <paramref name="effects"/>' pages and <paramref name="library"/>'s transfers over BG3's characters.
         /// </summary>
         internal void AddBg3(BgArtworkBindings content, BgCharacterSet set, IEnumerable<RoomFxType> effects,
-            IEnumerable<BgCharacterPlacement> library)
+            IEnumerable<BgCharacterUpload> library)
         {
             if (Bg3Content is null)
             {
@@ -479,7 +486,7 @@ internal static class RoomBlockUploads
                 foreach (AnimatedCharacterPlacement frame in EffectCharacters(Inputs, effect))
                     AddBg3Animated(frame);
             }
-            foreach (BgCharacterPlacement placement in library)
+            foreach (BgCharacterUpload placement in library)
                 AddOnce(Bg3Uploads, placement);
         }
 
@@ -490,7 +497,7 @@ internal static class RoomBlockUploads
         internal RoomBackgroundCharacters WordCharacters { get; private set; }
 
         /// <summary>The placements <see cref="WordContent"/> binds beyond the room's load, whose characters the words show.</summary>
-        internal IReadOnlyList<BgCharacterPlacement> WordUploads { get; private set; } = [];
+        internal IReadOnlyList<BgCharacterUpload> WordUploads { get; private set; } = [];
 
         /// <summary>
         /// Records that a room's <paramref name="writers"/> write words naming <paramref name="characters"/> over
@@ -498,7 +505,7 @@ internal static class RoomBlockUploads
         /// </summary>
         /// <exception cref="InvalidDataException">Another room of the tileset writes words naming other characters.</exception>
         internal void AddWriters(IEnumerable<TileWordWriter> writers, BgArtworkBindings content, RoomBackgroundCharacters characters,
-            IReadOnlyList<BgCharacterPlacement> uploads)
+            IReadOnlyList<BgCharacterUpload> uploads)
         {
             if (WordContent is not null && WordCharacters != characters)
                 throw new InvalidDataException("Two rooms of one tileset write words naming different characters.");
@@ -518,16 +525,16 @@ internal static class RoomBlockUploads
         private RoomBlockSheetInputs Inputs { get; } = inputs;
 
         /// <summary>The placements, each once.</summary>
-        internal IReadOnlyList<BgCharacterPlacement> Uploads => uploads;
+        internal IReadOnlyList<BgCharacterUpload> Uploads => uploads;
 
         /// <summary>The collectibles' placements.</summary>
         internal IReadOnlyList<CollectibleSlotCharacters> Collectibles => collectibles;
 
         /// <summary>Adds a placement unless the same artwork is already bound at the same place.</summary>
-        internal void Add(BgCharacterPlacement placement) => AddOnce(uploads, placement);
+        internal void Add(BgCharacterUpload placement) => AddOnce(uploads, placement);
 
         /// <summary>Adds <paramref name="placement"/> to <paramref name="placements"/> unless the same artwork is already there at the same place.</summary>
-        private static void AddOnce(List<BgCharacterPlacement> placements, BgCharacterPlacement placement)
+        private static void AddOnce(List<BgCharacterUpload> placements, BgCharacterUpload placement)
         {
             if (!placements.Any(known => known.Identity == placement.Identity && known.Set == placement.Set && known.FirstCharacter == placement.FirstCharacter))
                 placements.Add(placement);
@@ -576,7 +583,7 @@ internal static class RoomBlockUploads
     /// <summary>A collectible's graphics bound in one slot and the block definitions it writes there.</summary>
     /// <param name="Characters">The graphics bound.</param>
     /// <param name="Words">The tile words written, four per definition.</param>
-    internal sealed record CollectibleSlotCharacters(BgCharacterPlacement Characters, ushort[] Words);
+    internal sealed record CollectibleSlotCharacters(BgCharacterUpload Characters, ushort[] Words);
 
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>
@@ -584,6 +591,6 @@ internal static class RoomBlockUploads
     private readonly record struct PagePlacement(BgArtworkIdentity Identity, int FirstCharacter)
     {
         /// <summary>Where <paramref name="placement"/> places its artwork.</summary>
-        internal static PagePlacement Of(BgCharacterPlacement placement) => new(placement.Identity, placement.FirstCharacter);
+        internal static PagePlacement Of(BgCharacterUpload placement) => new(placement.Identity, placement.FirstCharacter);
     }
 }

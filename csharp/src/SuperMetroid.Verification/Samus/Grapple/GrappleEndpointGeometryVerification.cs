@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 internal static class GrappleEndpointGeometryVerification
 {
     /// <summary>Checks endpoint visibility and attributes across pose, camera, and coordinate boundaries.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleEndpointGeometry()
     {
         // $94:B093 chooses by pose, not grapple connection phase. Keep the
@@ -64,7 +63,6 @@ internal static class GrappleEndpointGeometryVerification
     }
 
     /// <summary>Checks the endpoint pose gate through the full gameplay actor drawing pass.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleEndpointActor()
     {
         var runtime = CreateRetailRuntimeFixture();

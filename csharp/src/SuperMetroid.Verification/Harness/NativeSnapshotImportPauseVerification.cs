@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Video;
@@ -20,7 +19,6 @@ internal static class NativeSnapshotImportPauseVerification
     /// since: map scroll, animation phases and the delayed-held input filter. Gameplay colors
     /// come from <c>BackupOfPalettesDuringMenu</c>, where pausing moved them.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {

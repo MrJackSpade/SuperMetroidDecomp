@@ -34,7 +34,7 @@ internal enum SamusBeamCallback
     /// $7E:0A0A, whose word is Samus's cached previous Super-Missile count. Native
     /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
     /// </summary>
-    ChargedChainsawLowWramExecution,
+    ChargedChainsawOverrun,
     /// <summary>
     /// <c>$0DC2</c>, the non-routine word observed when uncharged combination fifteen
     /// indexes beyond the retail callback table. It remains untranslated and fails loudly.

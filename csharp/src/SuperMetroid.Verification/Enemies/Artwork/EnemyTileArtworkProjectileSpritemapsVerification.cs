@@ -97,7 +97,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
         ISnesAddressSpace bus, string directory, InstalledEnemyArtwork stock)
     {

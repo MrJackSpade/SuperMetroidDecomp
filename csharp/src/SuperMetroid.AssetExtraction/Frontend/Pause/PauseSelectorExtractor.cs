@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;

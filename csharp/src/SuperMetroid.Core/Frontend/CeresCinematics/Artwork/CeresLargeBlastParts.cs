@@ -29,5 +29,5 @@ internal static class CeresLargeBlastParts
     }
     /// <summary>Each blast frame's one 16-pixel sprite: the supplied cloud tile at X=-8 and a frame-dependent rising Y offset.</summary>
     private static CompiledSpritePart[] Parts(int frame, int tile) =>
-        [new(SpritePart.Create(-8, -10 - 2 * frame, true, tile, 0, 3, 0), true)];
+        [new(SpritePart.Create(Offset16<ScreenPixels>.Of(-8, -10 - 2 * frame), true, tile, 0, 3, 0), true)];
 }

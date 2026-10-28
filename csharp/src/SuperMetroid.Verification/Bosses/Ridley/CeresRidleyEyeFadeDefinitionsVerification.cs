@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -14,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class CeresRidleyEyeFadeDefinitionsVerification
 {
     /// <summary>Compares all 64 rows and the terminator while forbidding live schedule reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresRidleyEyeFadeDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0;

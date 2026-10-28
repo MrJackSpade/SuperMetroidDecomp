@@ -11,5 +11,5 @@ public static class SamusHurtColorFormat
     /// <summary>Supported schema version, requiring both complete sixteen-color RGB5 arrays.</summary>
     public const int Version = 1;
     /// <summary>Number of colors in one SNES OBJ palette: sixteen, including the transparent first slot.</summary>
-    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
+    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColoursPerRow;
 }

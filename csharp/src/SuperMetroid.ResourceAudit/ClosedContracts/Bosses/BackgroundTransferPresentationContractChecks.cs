@@ -30,7 +30,6 @@ internal static class BackgroundTransferPresentationContractChecks
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Fx;
             using SuperMetroid.Core.Fx.Artwork;
-            using SuperMetroid.Core.Hardware;
             class BackgroundConsumer {
                 void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
                     CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain,

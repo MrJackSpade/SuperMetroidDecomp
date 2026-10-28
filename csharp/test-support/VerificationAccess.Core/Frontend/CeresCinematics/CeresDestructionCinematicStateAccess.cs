@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
@@ -21,7 +20,6 @@ internal static class CeresDestructionCinematicStateAccess
         /// <summary>
         /// Reads the low-byte Mode-7 map selected by the cinematic's current native transfers.
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal byte ReadMode7MapByte(int mapByteIndex)
         {
             if ((uint)mapByteIndex >= AffineFloor.CellCount)

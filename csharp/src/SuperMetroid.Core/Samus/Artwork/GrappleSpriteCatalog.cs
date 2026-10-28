@@ -53,7 +53,7 @@ public sealed class GrappleSpriteCatalog
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple sprite JSON.", error); }
         if (document.Version != GrappleSpriteDefinitions.Version || document.Segments is null ||
-            document.Segments.Length != GrappleSpriteDefinitions.SegmentAttributeAddresses.Length)
+            document.Segments.Length != GrappleSpriteDefinitions.SegmentFrameCount)
             throw new InvalidDataException("Grapple sprites require version 1 and exactly four segment appearances.");
         return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
     }

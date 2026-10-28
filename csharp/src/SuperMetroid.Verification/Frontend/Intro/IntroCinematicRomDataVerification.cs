@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
@@ -19,7 +18,6 @@ internal static class IntroCinematicRomDataVerification
     /// byte-aligned/in-range, and actor sounds retain their library-qualified identities. Since #1416 the
     /// sources are the import's (IntroCinematicSourceDefinitions) and the extents Core's definitions.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     internal static void VerifyIntroCinematicRomData()
     {
         int[] resources =
@@ -132,7 +130,6 @@ internal static class IntroCinematicRomDataVerification
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that a cinematic palette span is aligned, nonempty, and inside CGRAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertIntroPaletteSpans(
         IReadOnlyList<IntroPaletteSpan> spans,
         string context)

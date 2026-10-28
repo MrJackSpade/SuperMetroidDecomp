@@ -24,7 +24,6 @@ internal static class XraySetupVerification
     private const int CommonRoomElementBlocks = 0x100;
 
     /// <summary>Checks stage-four reveal construction from the shown BG1 plane with edited art and overlays (#1351).</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXraySetupBuffers()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

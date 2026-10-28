@@ -26,7 +26,6 @@ internal static class GameplayVramLayoutConstants
     public static readonly PpuLayoutCell Bg1Tilemap = new(nameof(Bg1Tilemap), PpuLayoutRegion.Vram,
         GameplayVramLayout.Bg1TilemapWord, 0x0800, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
     /// <summary>VMADD of <see cref="HudTilemap"/>, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
     public const ushort HudTilemapWord = 0x5800;
     /// <summary>VMADD $5800-$5FFF: BG3's tilemap (BG3SC=$5A): the four HUD rows followed by the layer-3 FX screen.</summary>
     public static readonly PpuLayoutCell HudTilemap = new(nameof(HudTilemap), PpuLayoutRegion.Vram,

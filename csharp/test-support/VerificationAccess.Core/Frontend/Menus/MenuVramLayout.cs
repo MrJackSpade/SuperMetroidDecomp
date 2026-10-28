@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.FileSelect;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -8,15 +7,12 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// The shared menu VRAM allocation installed by <c>LoadInitialMenuTiles</c> ($81:8DDB) and used
 /// by file select, options and game over (#630).
 /// </summary>
-[PpuLayoutBoundary("catalog: shared menu VRAM")]
 internal static class MenuVramLayout
 {
     /// <summary>VMADD of the menu BG1 32x32 tilemap, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
     public const ushort Bg1TilemapWord = 0x5000;
 
     /// <summary>VMADD of the menu BG2 32x32 tilemap, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
     public const ushort Bg2TilemapWord = 0x5800;
 
     /// <summary>VMADD $3000-$3FFF: the shared map characters file select and the room map draw with.</summary>

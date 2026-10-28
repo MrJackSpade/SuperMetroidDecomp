@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 

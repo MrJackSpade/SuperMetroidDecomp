@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Enemies.Metroids;
 internal static class MochtroidVisualsVerification
 {
     /// <summary>Checks the six frames the two loops show are editable and draw pixel-identically to the cartridge.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledMochtroidVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

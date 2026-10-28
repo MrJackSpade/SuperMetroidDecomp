@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// <c>LoadInitialMenuTiles</c> ($81:8DDB) loads them to, and the tilemaps from <see cref="MenuVramLayout.Bg1TilemapWord"/>.
 /// The screen keeps no such image; verification composes it to compare against native VRAM.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: the shared menu screen's characters and tilemaps at their native words")]
 internal static class MenuScreenMemory
 {
     /// <summary>The character image of <paramref name="screen"/>'s bound artwork.</summary>

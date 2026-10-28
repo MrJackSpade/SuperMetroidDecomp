@@ -114,7 +114,7 @@ internal sealed class MenuHeadingBorderDefinitions(MenuHeading heading) : IReadO
                 ? column == 0 ? CornerStrip + (row == 0 ? 0 : 3)
                 : column == Columns - 1 ? CornerStrip + (row == 0 ? 2 : 4) : CornerStrip + 1
                 : VerticalEdge;
-            return new(SpritePart.Create(-Columns * 8 / 2 + column * 8, -Rows * 8 / 2 + row * 8, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-Columns * 8 / 2 + column * 8, -Rows * 8 / 2 + row * 8), false,
                 tile, 0, 3, default), true);
         }
     }

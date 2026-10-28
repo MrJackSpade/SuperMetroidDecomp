@@ -2,7 +2,6 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;

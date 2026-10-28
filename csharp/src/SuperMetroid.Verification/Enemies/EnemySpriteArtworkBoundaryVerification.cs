@@ -29,7 +29,6 @@ using SuperMetroid.Core.World.Artwork;
 internal static class EnemySpriteArtworkBoundaryVerification
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
         using var temporary = new TestScratchDirectory("map-catalog");

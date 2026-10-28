@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using System.Diagnostics;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.TestSupport.FrameRendering;

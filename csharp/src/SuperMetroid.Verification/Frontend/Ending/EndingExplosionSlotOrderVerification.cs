@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
@@ -14,7 +13,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingExplosionSlotOrderVerification
 {
     /// <summary>Confirms native descending actor slots give all 37 afterglow pieces OAM space before the starfields and preserve ship occlusion.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingExplosionSlotOrder()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

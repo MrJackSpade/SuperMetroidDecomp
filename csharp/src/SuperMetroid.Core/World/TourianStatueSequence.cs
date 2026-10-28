@@ -177,7 +177,6 @@ public sealed class TourianStatueSequence
     /// Runs AnimtilesHandler in native spawn order: each live statue counts its frame down and, when it expires,
     /// advances its typed program to the next shown picture, running the program's cues on the way.
     /// </summary>
-    [PpuLayoutBoundary("codec: animated-tile instruction CGRAM index operand")]
     public void StepTiles()
     {
         if (!Enabled) return;

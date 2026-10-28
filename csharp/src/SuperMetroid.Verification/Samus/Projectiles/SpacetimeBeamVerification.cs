@@ -300,7 +300,6 @@ internal static class SpacetimeBeamVerification
         }
     }
     /// <summary>Checks direct and queued beam uploads while the aliased WRAM palette changes between runs.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

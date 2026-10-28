@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -25,7 +24,6 @@ internal static class RoomArtworkRenderParityVerification
     /// overlapping full-size room-character/CRE transfers; Landing Site exercises the
     /// real door-selected sky page and ordinary room-art upload in one frame.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     internal static void VerifyRoomArtworkRenderParity(
         GameInstallation installation, string sourceRom)
     {
@@ -46,7 +44,7 @@ internal static class RoomArtworkRenderParityVerification
                     "Landing Site enters through its real landing door with its scrolling sky");
             }
             else
-                AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.RoomCharacters.Length >
+                AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.TilesetCharacterCount * BgCharacterSet.Tiles.CharacterBytes() >
                     RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.ComposedVram().AsSpan().SequenceEqual(installed.ComposedVram()),

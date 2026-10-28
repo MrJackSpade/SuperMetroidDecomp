@@ -21,7 +21,6 @@ internal static class RoomBlockFixtures
     /// in <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
     /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
-    [PpuLayoutBoundary("exact hardware test: decodes a fixture's block definitions and four-bit characters into block pictures")]
     internal static RoomBlockPictureTable Pictures(ReadOnlySpan<byte> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = 0)
     {
@@ -72,7 +71,6 @@ internal static class RoomBlockFixtures
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>, as extraction paints a room's
     /// background image.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: decodes a fixture's BG2 tilemap and four-bit characters into a background image")]
     internal static RoomBackgroundImagePlane LoadedBackground(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
         int characterWord = 0)
     {

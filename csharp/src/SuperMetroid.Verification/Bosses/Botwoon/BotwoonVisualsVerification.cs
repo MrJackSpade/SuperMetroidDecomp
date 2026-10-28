@@ -19,7 +19,6 @@ internal static class BotwoonVisualsVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Compares sixteen installed head frames to native OAM and confirms pre-Botwoon edits survive schema upgrade.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

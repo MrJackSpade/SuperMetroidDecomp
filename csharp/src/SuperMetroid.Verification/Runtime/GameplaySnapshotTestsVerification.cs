@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -17,7 +16,6 @@ internal static class GameplaySnapshotTestsVerification
 {
     /// <summary>Checks a gameplay packet's retained per-line scrolls and its layer rules, then that a captured retail
     /// room frame's pixels do not follow later live-memory changes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyGameplaySnapshots()
     {
         var random = new Random(32105);

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -17,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal sealed record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacterSet Set, int FirstCharacter, ReadOnlyMemory<byte> Bytes)
 {
     /// <summary>The frame's characters as artwork bound under the frame's identity, which the layer's pictures are composed over.</summary>
-    internal BgCharacterPlacement Placement => new(Frame.Artwork, Set, FirstCharacter, Bytes);
+    internal BgCharacterUpload Placement => new(Frame.Artwork, Set, FirstCharacter, Bytes);
 
     /// <summary>The run of characters the frame's animation paints.</summary>
     /// <exception cref="InvalidDataException">The frame does not cover whole characters of the set.</exception>
@@ -28,7 +27,7 @@ internal sealed record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacte
     /// <summary>Frame <paramref name="frame"/>, whose characters the cartridge copies to <paramref name="firstWord"/>.</summary>
     internal static AnimatedCharacterPlacement At(ArtworkFrame frame, int firstWord, ReadOnlyMemory<byte> bytes)
     {
-        BgCharacterPlacement placement = BgCharacterWords.Place(frame.Artwork, firstWord, bytes);
+        BgCharacterUpload placement = BgCharacterWords.Place(frame.Artwork, firstWord, bytes);
         return new AnimatedCharacterPlacement(frame, placement.Set, placement.FirstCharacter, bytes);
     }
 }

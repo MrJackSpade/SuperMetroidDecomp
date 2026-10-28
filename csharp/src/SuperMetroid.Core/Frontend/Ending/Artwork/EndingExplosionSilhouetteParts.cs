@@ -39,7 +39,7 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
                 tile = rightTile - column * 2;
                 y = top;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3), true);
         }
     }

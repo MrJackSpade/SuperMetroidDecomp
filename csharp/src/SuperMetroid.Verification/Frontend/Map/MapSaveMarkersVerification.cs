@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -87,7 +86,6 @@ internal static class MapSaveMarkersVerification
     }
 
     /// <summary>Checks marker OAM, edited Maridia position, snapshot rebind, and load handoff timing.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewSaveMarkerGuard(bus);

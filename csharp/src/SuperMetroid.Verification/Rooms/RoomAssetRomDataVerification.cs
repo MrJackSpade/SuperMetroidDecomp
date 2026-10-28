@@ -127,8 +127,8 @@ internal static class RoomAssetRomDataVerification
             LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
-            AssertTrue(native.CreCharacters.SequenceEqual(guarded.CreCharacters) &&
-                native.RoomCharacters.SequenceEqual(guarded.RoomCharacters) &&
+            AssertTrue(native.CreCharactersIn(characters).Span.SequenceEqual(guarded.CreCharactersIn(characters).Span) &&
+                native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
                 native.PaletteBytes.SequenceEqual(guarded.PaletteBytes) &&
                 native.LevelData.BlockDefinitions.Span.SequenceEqual(guarded.LevelData.BlockDefinitions.Span),
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
@@ -149,7 +149,6 @@ internal static class RoomAssetRomDataVerification
     }
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomCharacterAtlases()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -199,8 +198,8 @@ internal static class RoomAssetRomDataVerification
             SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             LoadedRoomAssets native = LoadFixtureRoomAssets(room);
             LoadedRoomAssets installed = LoadFixtureRoomAssets(room, catalog);
-            AssertTrue(installed.CreCharacters.SequenceEqual(native.CreCharacters) &&
-                installed.RoomCharacters.SequenceEqual(native.RoomCharacters),
+            AssertTrue(installed.CreCharactersIn(catalog).Span.SequenceEqual(native.CreCharactersIn(FixtureRoomCharacters).Span) &&
+                installed.TilesetCharactersIn(catalog).Span.SequenceEqual(native.TilesetCharactersIn(FixtureRoomCharacters).Span),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();
@@ -231,7 +230,7 @@ internal static class RoomAssetRomDataVerification
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
-        AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(landingNative),
+        AssertTrue(!editedRoom.TilesetCharactersIn(editedCatalog).Span.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
 
         // A painted pixel must change the runtime character transfer, while edits in

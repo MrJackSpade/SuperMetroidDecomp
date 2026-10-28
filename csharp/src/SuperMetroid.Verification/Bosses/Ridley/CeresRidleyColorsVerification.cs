@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -24,7 +23,6 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class CeresRidleyColorsVerification
 {
     /// <summary>Verifies extracted colors, edited palette effects, legacy override migration, and guarded ROM access.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,

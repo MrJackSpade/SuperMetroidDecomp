@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -11,7 +10,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Composes the Ceres flight's published artwork and caption into the memory image the backends draw (#1358): the Mode 7
 /// characters, the blank-filled map with the front or rear view's slice, the OBJ characters and the SPACE COLONY caption.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: the Ceres flight's Mode 7 view, OBJ characters and caption at their native words")]
 internal static class CeresFlightScreenMemory
 {
     /// <summary>The image of <paramref name="artwork"/>'s front view, or its rear view once <c>$BE22</c> has queued it.</summary>

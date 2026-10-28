@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>The VRAM words the cartridge places OBJ characters at, for checks against its native transfers.</summary>
-[PpuLayoutBoundary("test fixture: OBJ characters' native VRAM words")]
 internal static class ObjCharacterNativeWords
 {
     /// <summary>The VRAM words one four-bit OBJ character occupies.</summary>

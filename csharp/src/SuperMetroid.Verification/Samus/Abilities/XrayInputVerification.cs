@@ -24,7 +24,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class XrayInputVerification
 {
     /// <summary>Exercises ordinary Select/Run X-ray activation, beam display, release, and excluded-room behavior.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayInput()
     {
         var runtime = CreateRetailRuntimeFixture();

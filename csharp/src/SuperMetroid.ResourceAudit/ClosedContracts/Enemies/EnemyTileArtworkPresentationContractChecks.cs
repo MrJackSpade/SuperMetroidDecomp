@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -31,7 +30,6 @@ internal static class EnemyTileArtworkPresentationContractChecks
     }
 
     /// <summary>Exercises complete identity admission, copied source aliases, and exact VRAM/CGRAM upload boundaries with constructed artwork.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void ConfirmInstalledData()
     {
         var cached = new Dictionary<int, RoomCharacterAtlas>();

@@ -33,7 +33,6 @@ public static class IntroCinematicArtworkFiles
     /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, palette representation, and artwork roundtrips. Scene timing and dispatch remain compiled, and player overrides are not read or modified.</remarks>
     /// <exception cref="InvalidDataException">Native artwork, geometry, palettes, or an encoded resource fails validation.</exception>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
-    [PpuLayoutBoundary("codec: native 512-byte CGRAM image of the opening palette")]
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);

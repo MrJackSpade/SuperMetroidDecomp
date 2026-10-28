@@ -29,7 +29,6 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     /// <summary>Checks entrance, eye, and grey-room palette writes, isolated edits, override persistence, and invalid file rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -264,7 +263,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
     }
 
     /// <summary>Requires an edited CGRAM image to differ only at the specified RGB5 channel bits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CheckOnlyDifferences(SamusColourRig reference, IPaletteColors edited,
         IReadOnlyList<Difference> differences, string context)
     {

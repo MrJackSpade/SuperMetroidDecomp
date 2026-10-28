@@ -26,13 +26,13 @@ internal static class SamusBeamCallbackDefinitions
             ? Untranslated(SamusBeamCallback.ChargedCombinationTwelveAdjacentWord)
             : Untranslated(SamusBeamCallback.UnchargedCombinationTwelveAdjacentWord),
         SamusBeamCombination.SpazerPlasmaWave => charged
-            ? Translated(SamusBeamCallback.ChargedChainsawLowWramExecution,
-                SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
+            ? Translated(SamusBeamCallback.ChargedChainsawOverrun,
+                SamusProjectilePreInstruction.ChargedChainsawOverrun)
             : Translated(SamusBeamCallback.ChainsawPowerBomb,
                 SamusProjectilePreInstruction.ChainsawPowerBomb),
         SamusBeamCombination.SpazerPlasmaIce => charged
-            ? Translated(SamusBeamCallback.ChargedChainsawLowWramExecution,
-                SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
+            ? Translated(SamusBeamCallback.ChargedChainsawOverrun,
+                SamusProjectilePreInstruction.ChargedChainsawOverrun)
             : Translated(SamusBeamCallback.SpacetimePaletteCopyTail,
                 SamusProjectilePreInstruction.SpacetimePaletteCopyTail),
         SamusBeamCombination.SpazerPlasmaIceWave => charged

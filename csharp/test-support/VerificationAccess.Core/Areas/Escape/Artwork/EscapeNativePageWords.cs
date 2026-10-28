@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>The VRAM words the cartridge copies the escape timer's and text's pages to, for checks against its native transfers.</summary>
-[PpuLayoutBoundary("test fixture: the escape pages' native OBJ VRAM words")]
 internal static class EscapeNativePageWords
 {
     /// <summary>The VRAM words one four-bit OBJ character occupies.</summary>

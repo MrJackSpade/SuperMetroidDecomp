@@ -15,7 +15,6 @@ using SuperMetroid.Verification.Harness;
 internal static class PowerBombDeathDrawingVerification
 {
     /// <summary>Reproduces issue #1168's queue, damage, and draw order for lethal and surviving enemies.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyPowerBombDeathDrawing()
     {
         EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;

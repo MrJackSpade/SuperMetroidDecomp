@@ -164,7 +164,6 @@ internal static class CoreAccess
     extension(OamBuffer oam)
     {
         /// <summary>Concatenates OAM low and high tables into the native DMA upload order.</summary>
-        [PpuLayoutBoundary("codec: OAM low/high-table DMA upload payload")]
         internal byte[] CreateUploadPayload()
         {
             var payload = new byte[OamBufferConstants.UploadByteCount];

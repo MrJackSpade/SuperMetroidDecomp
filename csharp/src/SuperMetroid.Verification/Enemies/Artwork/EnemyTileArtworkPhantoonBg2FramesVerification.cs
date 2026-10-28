@@ -227,7 +227,6 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     }
 
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawPhantoonBg2(InstalledEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
     {

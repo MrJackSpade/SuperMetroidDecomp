@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -6,7 +5,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The opening cinematic's VRAM allocation (#630), the literal VMADD values of
 /// <c>$8B:A469-$A529</c>. The intro takes over the whole store.
 /// </summary>
-[PpuLayoutBoundary("catalog: opening cinematic VRAM")]
 internal static class IntroVramLayout
 {
     /// <summary>VMADD $0000-$3FFF: the decompressed BG1/BG2 scene characters.</summary>

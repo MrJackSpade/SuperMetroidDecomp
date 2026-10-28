@@ -125,7 +125,7 @@ public class TitleGraphicsPresentation
                     part.TileRow > TitleGraphicsFormat.ObjectTileRows - part.Size / 8)
                     throw new InvalidDataException($"Title frame {frame.Sprite} part {index} is invalid.");
                 int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
-                parts[index] = new(SpritePart.Create(part.OffsetX, part.OffsetY, part.Size == 16, tile, 0, part.Priority,
+                parts[index] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16, tile, 0, part.Priority,
                     (part.FlipX ? TileFlip.Horizontal : 0) |
                     (part.FlipY ? TileFlip.Vertical : 0)), InheritPalette: true);
             }

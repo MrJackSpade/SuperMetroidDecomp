@@ -10,16 +10,16 @@ namespace SuperMetroid.Core.Gameplay;
 internal sealed class TesterTools
 {
     /// <summary>Destination for the suit palette after test inventory is granted.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Current Samus actor receiving tester inventory once per initialization.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Persistent item, event, boss, and door bits adjusted by tester options.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Connects tester options to the current player, system state, and palette owners.</summary>
-    internal TesterTools(GameplayColours cgram, SamusFrameState player, SharedGameState system)
+    internal TesterTools(GameplayColours colours, SamusFrameState player, SharedGameState system)
     {
-        _cgram = cgram;
+        _colours = colours;
         _player = player;
         _system = system;
     }

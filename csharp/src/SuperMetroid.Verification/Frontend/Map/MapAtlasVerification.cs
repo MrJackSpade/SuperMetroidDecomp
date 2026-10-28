@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Pause;
@@ -20,7 +19,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapAtlasVerification
 {
     /// <summary>Compares stock tile bytes with ROM, then verifies override pixels, identity, rebind, and invalid asset handling.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {

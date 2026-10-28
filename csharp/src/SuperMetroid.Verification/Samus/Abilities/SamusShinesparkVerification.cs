@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -37,7 +36,6 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 }
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusStoredShineAndShinespark()
 {
     var bus = new TestAddressSpace();

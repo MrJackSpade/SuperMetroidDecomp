@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -18,7 +17,6 @@ public static class RoomStaticPaletteExtractor
     /// <remarks>Discards the unused high color bit and trailing source data, then verifies equivalent CGRAM colors after recompilation. Shared sources are deduplicated; files are not written.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A source is invalid, contains fewer than 256 palette bytes, or fails palette or CGRAM roundtrip validation.</exception>
-    [PpuLayoutBoundary("codec: native room palette CGDATA stream compared with the compiled palette")]
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

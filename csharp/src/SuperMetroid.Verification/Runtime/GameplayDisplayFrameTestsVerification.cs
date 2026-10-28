@@ -9,7 +9,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -53,7 +52,6 @@ internal static class GameplayDisplayFrameTestsVerification
     }
 
     /// <summary>Publishing twice without stepping, and capturing one frame twice, yield identical pictures that later simulation cannot change.</summary>
-    [PpuLayoutBoundary("exact hardware test: replaces PPU memory after publication")]
     private static void VerifyRepaintAndImmutability(SuperMetroidRuntime runtime)
     {
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
@@ -89,7 +87,6 @@ internal static class GameplayDisplayFrameTestsVerification
     }
 
     /// <summary>Kraid's body on BG2 (#1352) and Mother Brain's BG2 register shadows publish with the accepted NMI's latch.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyBossBackgroundTiming(SuperMetroidRuntime runtime)
     {
         // Each boss's body shows in its own room, whose artwork pictures it (#1392).
@@ -122,7 +119,6 @@ internal static class GameplayDisplayFrameTestsVerification
     }
 
     /// <summary>The FX blend selectors and the scrolling sky's BG2 shadows publish with the accepted NMI's latch.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifySceneRegisterTiming(SuperMetroidRuntime runtime)
     {
         OrdinaryGameplayView before = Registers(runtime);
@@ -152,7 +148,6 @@ internal static class GameplayDisplayFrameTestsVerification
     }
 
     /// <summary>COLDATA shadows publish at the accepted NMI while the same effect's window table is read live.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime)
     {
         // Fireflea darkness: FX selector and the shared COLDATA shadows.
@@ -209,7 +204,6 @@ internal static class GameplayDisplayFrameTestsVerification
     }
 
     /// <summary>Door setup shows the shaft's floor with its transform; room setup's characters and Ridley's floor follow the accepted frame.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyCeresModeTiming(SuperMetroidRuntime runtime)
     {
         GameplayDisplayLatch shaft = runtime.PublishDisplayFrame().Latched;
@@ -251,7 +245,6 @@ internal static class GameplayDisplayFrameTestsVerification
     }
 
     /// <summary>Asserts an accepted NMI publishes the write.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void AssertPublished(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> published, string input)
     {
 

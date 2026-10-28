@@ -25,7 +25,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class PauseSnapshotTestsVerification
 {
     /// <summary>Compares captured packets to direct retail-frame rendering and verifies snapshot ownership.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyPauseRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

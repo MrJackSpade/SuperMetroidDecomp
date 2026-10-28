@@ -33,7 +33,7 @@ internal static class TextAndMapPresentationContractChecks
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
                     EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites, SpriteSheet mapSheet,
                     MapArrowPresentation arrows, MapScreenPresentation screen,
-                    ScreenSprites objects, System.Span<ushort> tilemap, AreaId area) {
+                    ScreenSprites objects, System.Span<BackgroundTile> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
                     escape.Get(EscapeTypewriterProgramId.Zebes);
                     escape.Get(EscapeTypewriterProgramId.None);

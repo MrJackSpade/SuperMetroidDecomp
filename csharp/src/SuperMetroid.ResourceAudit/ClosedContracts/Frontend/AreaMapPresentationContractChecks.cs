@@ -19,6 +19,7 @@ internal static class AreaMapPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
+            using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Frontend.Map.Artwork;
             using SuperMetroid.Core.Progression;

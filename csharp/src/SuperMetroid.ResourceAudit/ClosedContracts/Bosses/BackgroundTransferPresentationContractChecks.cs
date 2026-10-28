@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,6 +21,7 @@ internal static class BackgroundTransferPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
+            using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;
             using SuperMetroid.Core.Bosses.Draygon.Artwork;
             using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -51,9 +51,6 @@ internal static class BackgroundTransferPresentationContractChecks
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFifthTiles);
                     ship.Resolve(InstalledArtworkId.BeamPowerTiles);
-                    ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount, out _);
-                    ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);
-                    ship.TryResolve(0, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);
                 }
             }
             """, path: "fixture-bg-transfer-consumer.cs");
@@ -74,12 +71,6 @@ internal static class BackgroundTransferPresentationContractChecks
                 }
                 """, path: "fixture-bg-transfer-consumer.cs");
         trees.Add(calls);
-        // The first page's source is the import's knowledge, not a language constant.
-        // Materialize its actual value so the negative case tests constant correlation.
-        calls = CSharpSyntaxTree.ParseText(calls.GetText().ToString().Replace(
-            "GunshipLiftoffTransferDefinitions.First.SourceAddress", EnemySourceDefinitions.GunshipLiftoffPageSource(0)
-                .ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal), path: calls.FilePath);
-        trees[^1] = calls;
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
             platforms.Append(typeof(GunshipLiftoffArtworkCatalog).Assembly.Location).Distinct()
@@ -96,12 +87,9 @@ internal static class BackgroundTransferPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == (bg2Only ? 4 : 19), "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == (bg2Only ? 4 : 13) && after.UnresolvedCount == (bg2Only ? 0 : 6) && after.MissingCount == 0 &&
-            after.Consumers.Count == (bg2Only ? 4 : 19), "complete owned sets/false queries qualify; bad selections and owned lengths fail" + " (" + after.Describe() + ")");
-        Require(bg2Only || after.Findings.Any(item => item.Owner == "GunshipLiftoffArtworkCatalog.TryResolve" &&
-            item.Message.Contains("requires 1024 bytes", StringComparison.Ordinal)),
-            "an owned source with a short length cannot borrow unsupported-source false behavior");
+        Require(before.UnresolvedCount == (bg2Only ? 4 : 16), "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == (bg2Only ? 4 : 11) && after.UnresolvedCount == (bg2Only ? 0 : 5) && after.MissingCount == 0 &&
+            after.Consumers.Count == (bg2Only ? 4 : 16), "complete owned sets/false queries qualify; bad selections and owned lengths fail" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Fails the contract fixture with the specific classification mismatch.</summary>

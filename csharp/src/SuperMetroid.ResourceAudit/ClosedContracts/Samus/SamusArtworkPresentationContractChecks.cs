@@ -40,12 +40,9 @@ internal static class SamusArtworkPresentationContractChecks
                     arm.PoseDescriptor(253);
                     arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
                     arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
-                    arm.SpriteAttributes(9);
-                    arm.SpriteAttributes(10);
                     arm.CoverTileIndex(9, 3);
                     arm.CoverTileIndex(9, 4);
                     arm.CoverTileIndex(10, 0);
-                    arm.TryResolveTile(0, 0, out _);
                 }
             }
             """, path: "fixture-samus-art-consumer.cs");
@@ -66,9 +63,9 @@ internal static class SamusArtworkPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 23, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 13 && after.UnresolvedCount == 10 && after.MissingCount == 0 &&
-            after.Consumers.Count == 23, "complete table indices and false queries qualify; invalid indices and editable Frame do not" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 20, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 11 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
+            after.Consumers.Count == 20, "complete table indices and false queries qualify; invalid indices and editable Frame do not" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "SamusBodyArtworkCatalog.Frame"),
             "offset closure must not imply DMA frame-selector closure");
 
@@ -77,9 +74,9 @@ internal static class SamusArtworkPresentationContractChecks
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);
-            Require(revoked.Classifications.Count == 8 && revoked.UnresolvedCount == 15 &&
+            Require(revoked.Classifications.Count == 8 && revoked.UnresolvedCount == 12 &&
                 revoked.Findings.Count(item => item.Owner.StartsWith("SamusArmCannonArtworkCatalog.", StringComparison.Ordinal) &&
-                    item.Message.Contains("stale", StringComparison.Ordinal)) == 10,
+                    item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
                 "unvalidated placement construction must revoke the arm proof" + " (" + revoked.Describe() + ")");
         }
         AuditReport partial = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText("""
@@ -87,7 +84,7 @@ internal static class SamusArtworkPresentationContractChecks
                 public sealed partial class SamusBodyArtworkCatalog { void Change() { graphicsYOffsets[0] = 0; } }
             }
             """, path: "fixture-extra-body-partial.cs"))), true);
-        Require(partial.Classifications.Count == 9 && partial.UnresolvedCount == 14,
+        Require(partial.Classifications.Count == 7 && partial.UnresolvedCount == 13,
             "an unreviewed partial provider declaration must revoke access to the private offset state" + " (" + partial.Describe() + ")");
     }
 

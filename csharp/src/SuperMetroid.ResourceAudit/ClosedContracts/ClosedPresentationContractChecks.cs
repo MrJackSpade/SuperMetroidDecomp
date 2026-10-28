@@ -63,9 +63,9 @@ internal static class ClosedPresentationContractChecks
                         : GameOptionsToggle.Moonwalk, false);
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
-                    reserve.ApplyLabel(bytes, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
+                    reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
                     reserve.ApplyArrowColors(screen.BackgroundRow(0), true, dynamicIndex);
-                    reserve.ApplyDigit(bytes, 0, 10);
+                    reserve.ApplyDigit(cells, 0, 10);
                     beam.LoadTo(screen.SpriteRow(6), 0);
                     beam.LoadTo(screen.SpriteRow(6), (SuperMetroid.Core.Progression.SamusBeamCombination)12);
                     ridley.ApplyHealth(cgram, 0);

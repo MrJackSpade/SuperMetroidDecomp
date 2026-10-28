@@ -12,7 +12,7 @@ internal static class EnemySpritemapCatalogAccess
         internal bool TryGet(byte bank, ushort pointer, out EnemySpritemapParts parts)
         {
             if (EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, pointer) is { } frame &&
-                self.frames.TryGetValue(frame, out EnemySpritemapParts? found))
+                self.selection.Frames.TryGetValue(frame, out EnemySpritemapParts? found))
             {
                 parts = found;
                 return true;

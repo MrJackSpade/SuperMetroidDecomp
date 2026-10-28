@@ -21,18 +21,18 @@ internal static class BombTorizoHandPlmDrawDefinitions
     {
         [BombTorizoHandDraw.Intact] =
         [
-            new(0, 0, [RoomLevelWord.Create(0x65, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x66, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(-1, 0, [RoomLevelWord.Create(0x64, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(0, -1, [RoomLevelWord.Create(0x45, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x46, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(-1, 1, [RoomLevelWord.Create(0x47, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x48, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x49, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 0), [RoomLevelWord.Create(0x65, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x66, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(-1, 0), [RoomLevelWord.Create(0x64, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, -1), [RoomLevelWord.Create(0x45, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x46, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(-1, 1), [RoomLevelWord.Create(0x47, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x48, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x49, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
         ],
         [BombTorizoHandDraw.Cleared] =
         [
-            new(0, 0, [ClearedCell, ClearedCell]),
-            new(-2, 0, [ClearedCell, ClearedCell]),
-            new(-2, 1, [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
-            new(-2, -2, [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
-            new(-2, -1, [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
+            new(new(0, 0), [ClearedCell, ClearedCell]),
+            new(new(-2, 0), [ClearedCell, ClearedCell]),
+            new(new(-2, 1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
+            new(new(-2, -2), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
+            new(new(-2, -1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
         ],
     };
 

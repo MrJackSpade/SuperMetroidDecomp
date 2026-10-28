@@ -20,7 +20,7 @@ internal static class KraidPaint
             KraidPaletteSource.RoomBackdrop => RoomBackdrop[index],
             KraidPaletteSource.InitialTarget => InitialTarget[index],
             KraidPaletteSource.Health or KraidPaletteSource.Secondary => Health(index),
-            KraidPaletteSource.DeathArm => DeathArmInks.TryGetValue(index, out RgbColor ink) ? ink : FirstBand(index),
+            KraidPaletteSource.DeathArm => index < DeathArmInks.Length ? DeathArmInks[index] : FirstBand(index),
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
     }
@@ -52,6 +52,8 @@ internal static class KraidPaint
     /// <summary>Builds the first normal band from hull inks and the nearest-rounded hide ramp.</summary>
     private static RgbColor FirstBand(int color)
     {
+        if ((uint)color < RampFirst)
+            return FirstBandLeadingInks[color];
         if (color is >= RampFirst and <= RampLast)
         {
             int step = color - RampFirst;
@@ -60,15 +62,15 @@ internal static class KraidPaint
                 Nearest(RampLight.Green, RampDark.Green, step, steps),
                 Nearest(RampLight.Blue, RampDark.Blue, step, steps));
         }
-        return FirstBandInks.TryGetValue(color, out RgbColor ink) ? ink : HullColor(color);
+        int trailing = color - RampLast - 1;
+        return (uint)trailing < (uint)FirstBandTrailingInks.Length
+            ? FirstBandTrailingInks[trailing]
+            : throw new ArgumentOutOfRangeException(nameof(color));
     }
 
-    /// <summary>Supplies the painted final health band's colors over the shared hull.</summary>
-    private static RgbColor FinalBand(int color) => FinalBandInks.TryGetValue(color, out RgbColor ink) ? ink : HullColor(color);
-
-    /// <summary>Hull colors one to three, unchanged across every normal health band.</summary>
-    private static RgbColor HullColor(int color) =>
-        Hull.TryGetValue(color, out RgbColor hull) ? hull : throw new ArgumentOutOfRangeException(nameof(color));
+    /// <summary>Supplies the painted final health band's colors, its hull shared with every normal band.</summary>
+    private static RgbColor FinalBand(int color) =>
+        (uint)color < FinalBandInks.Length ? FinalBandInks[color] : throw new ArgumentOutOfRangeException(nameof(color));
 
     /// <summary>Rounds an RGB channel to the nearest step between two painted ramp endpoints.</summary>
     private static int Nearest(int start, int end, int step, int steps)

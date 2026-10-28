@@ -7,26 +7,27 @@ public static class YardKickDefinitions
     internal const int FastestKickSpeed = 15;
 
     /// <summary>
-    /// The upward launch each whole horizontal speed selects: three pixels per frame at rest, two thirds of a pixel
-    /// more for each further whole pixel of speed, rounded to the sixteenth.
+    /// The upward launch each whole horizontal speed selects, in sixteenths of a pixel per frame. The cartridge authors
+    /// each launch as a whole pixel count, three at rest and one more every third speed, with a fraction of zero, five
+    /// eighths or one quarter of a pixel added toward zero; these are the resulting signed launches.
     /// </summary>
     internal static readonly SignedSixteenSixteen[] Kicks =
     [
-        SignedSixteenSixteen.FromParts(-3, 0),
-        SignedSixteenSixteen.FromParts(-3, 0xa000),
-        SignedSixteenSixteen.FromParts(-3, 0x4000),
-        SignedSixteenSixteen.FromParts(-4, 0),
-        SignedSixteenSixteen.FromParts(-4, 0xa000),
-        SignedSixteenSixteen.FromParts(-4, 0x4000),
-        SignedSixteenSixteen.FromParts(-5, 0),
-        SignedSixteenSixteen.FromParts(-5, 0xa000),
-        SignedSixteenSixteen.FromParts(-5, 0x4000),
-        SignedSixteenSixteen.FromParts(-6, 0),
-        SignedSixteenSixteen.FromParts(-6, 0xa000),
-        SignedSixteenSixteen.FromParts(-6, 0x4000),
-        SignedSixteenSixteen.FromParts(-7, 0),
-        SignedSixteenSixteen.FromParts(-7, 0xa000),
-        SignedSixteenSixteen.FromParts(-7, 0x4000),
-        SignedSixteenSixteen.FromParts(-8, 0),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-48),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-38),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-44),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-64),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-54),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-60),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-80),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-70),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-76),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-96),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-86),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-92),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-112),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-102),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-108),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-128),
     ];
 }

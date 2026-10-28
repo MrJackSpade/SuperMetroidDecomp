@@ -15,7 +15,7 @@ internal static class SporeSpawnColors
             content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
             content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorDefinitions.HealthFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
-                    .Select(color => colors.health.Resolve(frame, color)).ToArray()).ToArray());
+                    .Select(color => colors.selection.Health.Resolve(frame, color)).ToArray()).ToArray());
             content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
                     .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());
@@ -89,7 +89,7 @@ internal static class SporeSpawnColors
     {
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return colors.spores.TryGetValue(new ColourCell(0, color), out RgbColor selected) ? selected : colors.health.Resolve(0, color);
+        return colors.selection.Spores.TryGetValue(new ColourCell(0, color), out RgbColor selected) ? selected : colors.selection.Health.Resolve(0, color);
     }
 
     /// <summary>A health row's colour.</summary>
@@ -107,11 +107,11 @@ internal static class SporeSpawnColors
         _ = CheckFrame(frame, SporeSpawnColorDefinitions.DeathSpriteFrameCount);
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (colors.deathSprite.TryGetValue(new ColourCell(frame, color), out RgbColor selected))
+        if (colors.selection.DeathSprite.TryGetValue(new ColourCell(frame, color), out RgbColor selected))
             return selected;
-        RgbColor first = colors.deathSprite.TryGetValue(new ColourCell(0, color), out RgbColor suppliedFirst)
-            ? suppliedFirst : colors.health.Resolve(SporeSpawnColorDefinitions.HealthFrameCount - 1, color);
-        return CalculateDeathSpriteColor(first, colors.deathSprite[new ColourCell((SporeSpawnColorDefinitions.DeathSpriteFrameCount - 1), color)], frame);
+        RgbColor first = colors.selection.DeathSprite.TryGetValue(new ColourCell(0, color), out RgbColor suppliedFirst)
+            ? suppliedFirst : colors.selection.Health.Resolve(SporeSpawnColorDefinitions.HealthFrameCount - 1, color);
+        return CalculateDeathSpriteColor(first, colors.selection.DeathSprite[new ColourCell((SporeSpawnColorDefinitions.DeathSpriteFrameCount - 1), color)], frame);
     }
 
     /// <summary>

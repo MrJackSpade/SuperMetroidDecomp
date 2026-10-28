@@ -8,21 +8,21 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => EnemyAuxiliaryColors.ContentIdentity(this);
 
-    /// <summary>The mirrored eight-row face-block glow sequence.</summary>
-    internal readonly EnemyAuxiliaryPaletteRows faceBlock;
-    /// <summary>Sidehopper drain stages and its separate corpse colors.</summary>
-    internal readonly EnemyAuxiliaryPaletteRows deadSidehopper;
-    /// <summary>Golden Torizo's eight body health-band palettes.</summary>
-    internal readonly EnemyAuxiliaryPaletteRows torizoBody;
-    /// <summary>Golden Torizo's eight rear-belly health-band palettes.</summary>
-    internal readonly EnemyAuxiliaryPaletteRows torizoBelly;
+    /// <summary>
+    /// Each family's rows: the mirrored eight-row face-block glow sequence, the Sidehopper drain stages with its separate
+    /// corpse colors, and Golden Torizo's eight body and eight rear-belly health-band palettes.
+    /// </summary>
+    internal readonly IReadOnlyDictionary<EnemyAuxiliaryPalette, EnemyAuxiliaryPaletteRows> rows;
+
     /// <summary>Recognizes each supplied family's stock paint relationship while retaining unmatched edits.</summary>
     internal EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, RgbColor[][]> frames) =>
-        (faceBlock, deadSidehopper, torizoBody, torizoBelly) =
-            (new(frames[EnemyAuxiliaryPalette.FaceBlock], AuxiliaryPaint.FaceGlow),
-                new(frames[EnemyAuxiliaryPalette.DeadSidehopper], AuxiliaryPaint.SidehopperDrain),
-                new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], AuxiliaryPaint.TorizoFront),
-                new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], AuxiliaryPaint.TorizoRear));
+        rows = new Dictionary<EnemyAuxiliaryPalette, EnemyAuxiliaryPaletteRows>
+        {
+            [EnemyAuxiliaryPalette.FaceBlock] = new(frames[EnemyAuxiliaryPalette.FaceBlock], AuxiliaryPaint.FaceGlow),
+            [EnemyAuxiliaryPalette.DeadSidehopper] = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], AuxiliaryPaint.SidehopperDrain),
+            [EnemyAuxiliaryPalette.GoldenTorizoBody] = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], AuxiliaryPaint.TorizoFront),
+            [EnemyAuxiliaryPalette.GoldenTorizoBelly] = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], AuxiliaryPaint.TorizoRear),
+        };
 
     /// <summary>Resolves one selected RGB5 word from the face-block glow, sidehopper drain/corpse, or Golden Torizo health rows without advancing timers, choosing health bands, or writing CGRAM.</summary>
     /// <param name="palette">One of the four installed auxiliary-palette identities.</param>

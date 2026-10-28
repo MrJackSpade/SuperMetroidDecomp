@@ -37,7 +37,7 @@ public static class EnemySpritemapDocuments
             throw new InvalidDataException("Enemy compositions require the current version and every named frame.");
         ReadOnlySpan<EnemySpritemapDefinition> expected = EnemySpritemapDefinitions.Frames[..schema.FrameCount];
         if (document.Frames is null || document.Frames.Count != expected.Length ||
-            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames.Count !=
+            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).selection.Frames.Count !=
                 EnemySpritemapDefinitions.Frames.Length))
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
@@ -85,10 +85,10 @@ public static class EnemySpritemapDocuments
         }
         if (!legacyOverride)
             return new EnemySpritemapCatalog(frames, displayFrames);
-        var merged = new Dictionary<EnemyFrameId, EnemySpritemapParts>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames);
+        var merged = new Dictionary<EnemyFrameId, EnemySpritemapParts>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).selection.Frames);
         foreach ((EnemyFrameId identity, EnemySpritemapParts parts) in frames)
             merged[identity] = parts;
-        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.displayFrames);
+        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.selection.DisplayFrames);
         foreach ((EnemyFrameId identity, EnemyFrameId selected) in displayFrames)
             mergedBindings[identity] = selected;
         return new EnemySpritemapCatalog(merged, mergedBindings);

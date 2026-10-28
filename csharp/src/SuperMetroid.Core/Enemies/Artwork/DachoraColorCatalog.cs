@@ -12,17 +12,12 @@ public sealed class DachoraColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => DachoraColors.ContentIdentity(this);
 
-    /// <summary>The sixteen supplied normal colors used as the basis of both animated phases.</summary>
-    internal readonly RgbColor[] normal;
-    /// <summary>Speed-frame colors that differ from the normal palette's calculated blue ramp.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> speedEdits;
-    /// <summary>Shine-frame colors that differ from the calculated fade toward white.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> shineEdits;
+    /// <summary>The selected normal palette and its speed and shine deviations.</summary>
+    internal readonly DachoraColorSelection selection;
 
     /// <summary>Retains the normal palette and only deviations from calculated speed and shine frames.</summary>
     internal DachoraColorCatalog(RgbColor[] normal, RgbColor[][] speed, RgbColor[][] shine) =>
-        (this.normal, speedEdits, shineEdits) =
-            (normal, DachoraColors.SpeedEdits(normal, speed), DachoraColors.ShineEdits(normal, shine));
+        selection = new(normal, DachoraColors.SpeedEdits(normal, speed), DachoraColors.ShineEdits(normal, shine));
 
     /// <summary>$A7:F245 speed-boost sequence's flash backdrop in its first frame, authored paint.</summary>
     internal static readonly RgbColor SpeedFlashBackdrop = new(0, 12, 5);

@@ -27,7 +27,7 @@ internal static class EncounterUploads
     /// <summary>The uploads the encounters of graphics set <paramref name="set"/>'s members make, in catalogue order.</summary>
     internal static IReadOnlyList<SpriteArtworkPlacement> Of(EncounterCharacterCatalog catalog, RoomEnemyGraphicsSetDefinition set) =>
         [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()
-            .Where(catalog.byEnemy.ContainsKey).SelectMany(enemy => catalog.byEnemy[enemy]).Distinct().OrderBy(catalog.all.IndexOf)];
+            .Where(catalog.uploadsByEnemy.ContainsKey).SelectMany(enemy => catalog.uploadsByEnemy[enemy]).Distinct().OrderBy(catalog.all.IndexOf)];
 
     /// <summary>
     /// The name of the picture of layer <paramref name="layer"/> of <paramref name="frame"/> whose regions each show what

@@ -46,7 +46,7 @@ internal static class MotherBrainTurrets
     {
         int index = Ring.PositionOf(direction);
         double angle = index * Math.PI / 4;
-        int muzzleY = MuzzleYs.TryGetValue(direction, out short y) ? y : throw new ArgumentOutOfRangeException(nameof(direction));
+        int muzzleY = MuzzleYs.TryGetValue(direction, out int y) ? y : throw new ArgumentOutOfRangeException(nameof(direction));
         return new(new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), (short)muzzleY),
             new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
     }

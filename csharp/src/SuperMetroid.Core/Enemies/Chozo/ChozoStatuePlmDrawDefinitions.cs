@@ -18,15 +18,15 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// final run level. Clearing leaves slope endpoints on the ledge, the fill and the final stair; blocking makes the
     /// access solid, with spikes across the ledge except its final cell.
     /// </summary>
-    internal static readonly Dictionary<ChozoStatueDraw, ChozoStatueStrip[]> Strips = new()
+    internal static readonly Dictionary<ChozoStatueDraw, PlmBlockStrip[]> Strips = new()
     {
         [ChozoStatueDraw.LowerNorfairClearedHand] =
         [
-            new(0, 0, [RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air)]),
+            new(new(0, 0), [RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air)]),
         ],
         [ChozoStatueDraw.ClearSlopeAccess] =
         [
-            new(0, 5,
+            new(new(0, 5),
             [
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
@@ -43,7 +43,7 @@ internal static class ChozoStatuePlmDrawDefinitions
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
             ]),
-            new(5, 6,
+            new(new(5, 6),
             [
                 RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
                 RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
@@ -55,23 +55,23 @@ internal static class ChozoStatuePlmDrawDefinitions
                 RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Air),
                 RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
             ]),
-            new(5, 7,
+            new(new(5, 7),
             [
                 RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.Air),
                 RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Air),
             ]),
-            new(5, 8,
+            new(new(5, 8),
             [
                 RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.Air),
             ]),
-            new(0, 0,
+            new(new(0, 0),
             [
                 RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
             ]),
         ],
         [ChozoStatueDraw.BlockSlopeAccess] =
         [
-            new(0, 5,
+            new(new(0, 5),
             [
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
@@ -88,7 +88,7 @@ internal static class ChozoStatuePlmDrawDefinitions
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
                 RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
             ]),
-            new(5, 6,
+            new(new(5, 6),
             [
                 RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
                 RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
@@ -100,16 +100,16 @@ internal static class ChozoStatuePlmDrawDefinitions
                 RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
                 RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
             ]),
-            new(5, 7,
+            new(new(5, 7),
             [
                 RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
                 RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
             ]),
-            new(5, 8,
+            new(new(5, 8),
             [
                 RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
             ]),
-            new(0, 0,
+            new(new(0, 0),
             [
                 RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
             ]),

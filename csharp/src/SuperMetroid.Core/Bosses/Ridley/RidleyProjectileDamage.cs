@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyProjectileDamage
 {
     /// <summary>The fireball and afterburn damage in <paramref name="area"/>.</summary>
-    internal static ushort ForArea(AreaId area) =>
-        RidleyProjectileDamageDefinitions.DamageByArea.TryGetValue(area, out ushort damage)
+    internal static int ForArea(AreaId area) =>
+        RidleyProjectileDamageDefinitions.DamageByArea.TryGetValue(area, out int damage)
             ? damage
             : throw new InvalidOperationException($"Undefined AreaId {area}.");
 }

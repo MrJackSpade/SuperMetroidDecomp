@@ -11,29 +11,24 @@ public sealed class PhantoonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => PhantoonColors.ContentIdentity(this);
 
-    /// <summary>Health-band colors that differ from the calculated material and damage shades.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> healthEdits;
-    /// <summary>Nonblack targets supplied for Phantoon's fade-out palette.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> fadeOutEdits;
-    /// <summary>Powered-ship colors that differ from the calculated paint palette.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> powerEdits;
+    /// <summary>The selected health, fade-out and ship-power deviations.</summary>
+    internal readonly PhantoonColorSelection selection;
 
     /// <summary>Retains only authored deviations from the calculated health, fade, and ship-power colors.</summary>
     internal PhantoonColorCatalog(RgbColor[][] healthBands, RgbColor[] fadeOut, RgbColor[] powerOn) =>
-        (healthEdits, fadeOutEdits, powerEdits) =
-            (PhantoonColors.HealthEdits(healthBands), PhantoonColors.FadeOutEdits(fadeOut), PhantoonColors.PowerEdits(powerOn));
+        selection = new(PhantoonColors.HealthEdits(healthBands), PhantoonColors.FadeOutEdits(fadeOut), PhantoonColors.PowerEdits(powerOn));
 
     /// <summary>
     /// $A7:CB41..CC40 health targets, selected by $A7:DC0F. All healthy material
     /// shades and red-tinted bands calculate; supplied edits remain independent
     /// across every ink and band, including the healthy endpoints.
     /// </summary>
-    public RgbColor ResolveHealth(int band, int color) => PhantoonColors.Health(healthEdits, band, color);
+    public RgbColor ResolveHealth(int band, int color) => PhantoonColors.Health(selection.HealthEdits, band, color);
     /// <summary>
     /// $A7:CA41..CA60, Palette_Phantoon_FadeOutTarget: $A7:DBB1 fades every
     /// body palette component to black. Independent supplied target edits override it.
     /// </summary>
-    public RgbColor ResolveFadeOut(int color) => PhantoonColors.FadeOut(fadeOutEdits, color);
+    public RgbColor ResolveFadeOut(int color) => PhantoonColors.FadeOut(selection.FadeOutEdits, color);
     /// <summary>$A7:CA61-CB40: all seven powered ship material palettes calculate; supplied words remain independently editable.</summary>
-    public RgbColor ResolvePowerOn(int color) => PhantoonColors.PowerOn(powerEdits, color);
+    public RgbColor ResolvePowerOn(int color) => PhantoonColors.PowerOn(selection.PowerEdits, color);
 }

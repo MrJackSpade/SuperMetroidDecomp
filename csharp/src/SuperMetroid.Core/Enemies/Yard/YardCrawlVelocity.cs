@@ -7,11 +7,12 @@ public static class YardCrawlVelocity
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is outside the eight sign records.</exception>
     public static EightEightVector<RoomPixels> Apply(int magnitude, int direction)
     {
-        if ((uint)direction >= (uint)YardVelocityDefinitions.XSigns.Length)
+        if ((uint)direction >= (uint)YardVelocityDefinitions.Headings.Length)
             throw new InvalidDataException($"Yard direction ${direction:X4} exceeds the eight native sign records.");
         var positive = new SignedEightEight(checked((ushort)magnitude));
         var negative = new SignedEightEight(unchecked((ushort)-magnitude));
-        return new(YardVelocityDefinitions.XSigns[direction] < 0 ? negative : positive,
-            YardVelocityDefinitions.YSigns[direction] < 0 ? negative : positive);
+        YardCrawlHeading heading = YardVelocityDefinitions.Headings[direction];
+        return new(heading.Horizontal == HorizontalDirection.Left ? negative : positive,
+            heading.Vertical == VerticalDirection.Up ? negative : positive);
     }
 }

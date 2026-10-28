@@ -14,13 +14,13 @@ internal static class DraygonPalette
         SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
         {
             Span<RgbColor> introWords = stackalloc RgbColor[DraygonColorDefinitions.IntroCount];
-            for (int color = 0; color < introWords.Length; color++) introWords[color] = colors.intro.Color(color);
+            for (int color = 0; color < introWords.Length; color++) introWords[color] = colors.selection.Intro.Color(color);
             content.AppendColors("intro", introWords);
             Span<RgbColor> backgroundWords = stackalloc RgbColor[DraygonColorDefinitions.BackgroundCount];
-            for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = colors.background.Color(color);
+            for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = colors.selection.Background.Color(color);
             content.AppendColors("background", backgroundWords);
             Span<RgbColor> spriteWords = stackalloc RgbColor[DraygonColorDefinitions.SpriteCount];
-            for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = colors.sprite.Color(color);
+            for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = colors.selection.Sprite.Color(color);
             content.AppendColors("sprite", spriteWords);
             Span<RgbColor> flash = stackalloc RgbColor[DraygonColorDefinitions.WhiteFlashCount];
             for (int color = 0; color < flash.Length; color++) flash[color] = colors.ResolveWhiteFlash(color);

@@ -12,24 +12,24 @@ internal static class ChozoStatueDraws
     internal readonly record struct Draw(ChozoStatueDraw Frame) : IPlmRunDrawShape
     {
         /// <summary>The draw's runs in native order.</summary>
-        private ChozoStatueStrip[] Strips => ChozoStatuePlmDrawDefinitions.Strips[Frame];
+        private PlmBlockStrip[] Strips => ChozoStatuePlmDrawDefinitions.Strips[Frame];
         /// <summary>One run for the hand cell, five for the Wrecked Ship slope layout.</summary>
         public int RunCount => Strips.Length;
         /// <summary>The cells in one run, rejecting an invalid run index.</summary>
         public int WordCount(int run) => Strip(run).Cells.Length;
         /// <summary>The next run's horizontal offset.</summary>
-        public sbyte NextX(int run) => Strip(run).NextX;
+        public sbyte NextX(int run) => checked((sbyte)Strip(run).Next.X);
         /// <summary>The next run's vertical offset.</summary>
-        public sbyte NextY(int run) => Strip(run).NextY;
+        public sbyte NextY(int run) => checked((sbyte)Strip(run).Next.Y);
         /// <summary>One cell's complete level word.</summary>
         public ushort WordAt(int run, int cell)
         {
-            ChozoStatueStrip strip = Strip(run);
+            PlmBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
             return strip.Cells[cell].Raw;
         }
         /// <summary>Selects a run, rejecting indexes outside the selected hand or slope geometry.</summary>
-        private ChozoStatueStrip Strip(int run) =>
+        private PlmBlockStrip Strip(int run) =>
             (uint)run < (uint)RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
     }
 

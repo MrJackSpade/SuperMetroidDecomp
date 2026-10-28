@@ -21,8 +21,8 @@ internal static class FakeKraidProjectiles
     /// offsets0/2/4; the managed boundary divides that selector by two.
     /// $86:9E4E adds this signed integer offset with16-bit wrap, independently of
     /// animation and facing.</summary>
-    internal static short SpikeYOffset(int row) => (uint)row < (uint)FakeKraidProjectileDefinitions.Rows.Length
-        ? FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(FakeKraidProjectileDefinitions.Rows[row], out short offset)
+    internal static int SpikeYOffset(int row) => (uint)row < (uint)FakeKraidProjectileDefinitions.Rows.Length
+        ? FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(FakeKraidProjectileDefinitions.Rows[row], out int offset)
             ? offset
             : throw new InvalidDataException($"Fake Kraid spike row {FakeKraidProjectileDefinitions.Rows[row]} is not a body launch port.")
         : throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port.");

@@ -19,7 +19,7 @@ internal static class FakeKraidProjectileDefinitions
     /// The fixed body launch offsets from $86:9E7D..9E82: the top, middle and bottom ports are 2 pixels above, 12 below
     /// and 24 below body Y. This is port selection, not an interpolated motion curve.
     /// </summary>
-    internal static readonly Dictionary<FakeKraidSpikeRow, short> SpikeYOffsets = new()
+    internal static readonly Dictionary<FakeKraidSpikeRow, int> SpikeYOffsets = new()
     {
         [FakeKraidSpikeRow.Top] = -2,
         [FakeKraidSpikeRow.Middle] = 12,

@@ -8,6 +8,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
     [
         new("SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog", "installed-simple-enemy-display-frames", ["TryGetDisplay"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapSelection.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemaps.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStrideGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStride.cs"),
@@ -19,6 +20,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCompositions.cs")]),
         new("SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog", "installed-extended-enemy-display-frames", ["TryGetDisplay"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameSelection.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrames.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/GoldenTorizoStrideGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/GoldenTorizoStride.cs"),
@@ -28,6 +30,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Artwork/BossSpriteFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCompositions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapSelection.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemaps.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStrideGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStride.cs"),

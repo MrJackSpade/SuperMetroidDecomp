@@ -36,7 +36,7 @@ internal static class MotherBrainTurretDefinitions
         MotherBrainTurretDirection.Up, MotherBrainTurretDirection.UpLeft);
 
     /// <summary>The muzzle's vertical offset for each of the eight directions.</summary>
-    internal static readonly Dictionary<MotherBrainTurretDirection, short> MuzzleYs = new()
+    internal static readonly Dictionary<MotherBrainTurretDirection, int> MuzzleYs = new()
     {
         [MotherBrainTurretDirection.Left] = -9,
         [MotherBrainTurretDirection.Right] = -9,

@@ -283,7 +283,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             ? FakeKraidProjectilePose.SpikeLeft
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
-            source.Position.Whole + new Offset16<RoomPixels>(0, FakeKraidProjectiles.SpikeYOffset(row)));
+            source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;

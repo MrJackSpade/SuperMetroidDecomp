@@ -1585,13 +1585,13 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        var selectedSidehopper = stock.sidehopper;
+        var selectedSidehopper = stock.selection.Sidehopper;
         AssertEqual(0, selectedSidehopper.independentOrSupplied.Length,
             "stream 3 complete standalone Sidehopper target keeps no stock color array");
-        var selectedCorpse = stock.deadSidehopper;
+        var selectedCorpse = stock.selection.DeadSidehopper;
         AssertEqual(0, selectedCorpse.independentOrSupplied.Length,
             "stream 3 complete standalone corpse target keeps no stock color array");
-        var pulse = stock.normal;
+        var pulse = stock.selection.Normal;
         AssertTrue(pulse.supplied is null, "stream 3 Shitroid original pulse rows discarded");
         AssertTrue(!MetadataShape.Fields(pulse.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
@@ -1957,7 +1957,7 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var selectedInitial = stock.initial;
+        var selectedInitial = stock.selection.Initial;
         AssertTrue(selectedInitial.supplied is null,
             "stream 3 Baby initial calculates from reviewed paints without a stock color array");
         for (int color = 0; color < initial.Length; color++)
@@ -1968,7 +1968,7 @@ internal static class LookupStream3Verification
             Check(Load());
             initial[color] = original;
         }
-        var selectedFade = stock.fade;
+        var selectedFade = stock.selection.Fade;
         AssertTrue(selectedFade.supplied is null,
             "stream 3 original Baby fade discards its stored frame table");
         AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(RgbColor) || field.FieldType == typeof(RgbColor[])), "stream 3 Baby fade keeps no stock endpoint payload");
@@ -2069,7 +2069,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertTrue(stock.explodedDoor is null,
+        AssertTrue(stock.selection.ExplodedDoor is null,
             "stream 3 exploded-door stock paint keeps no stored word array");
         for (int color = 0; color < door.Length; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -2082,13 +2082,13 @@ internal static class LookupStream3Verification
         Check(stock);
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ExplodedDoorColor(invalid), "stream 3 exploded-door color bounds");
-        foreach (var fade in new[] { stock.bodyFade, stock.legFade, stock.corpseFade })
+        foreach (var fade in new[] { stock.selection.BodyFade, stock.selection.LegFade, stock.selection.CorpseFade })
         {
             AssertTrue(fade.first is null,
                 "stream 3 death starts reuse calculated health state three without stored endpoint rows");
             AssertTrue(fade.supplied is null,
                 "stream 3 original death fade discards its stored frame table");
-            if (ReferenceEquals(fade, stock.corpseFade))
+            if (ReferenceEquals(fade, stock.selection.CorpseFade))
             {
                 var endpoint = fade.last ?? throw new InvalidOperationException("stream 3 corpse fade has a final gray endpoint");
                 AssertTrue(endpoint.Calculated, "stream 3 corpse final gray palette has no stored row");
@@ -2623,7 +2623,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var palette in new[] { stock.faceBlock, stock.deadSidehopper, stock.torizoBody, stock.torizoBelly })
+        foreach (var palette in new[] { stock.rows[EnemyAuxiliaryPalette.FaceBlock], stock.rows[EnemyAuxiliaryPalette.DeadSidehopper], stock.rows[EnemyAuxiliaryPalette.GoldenTorizoBody], stock.rows[EnemyAuxiliaryPalette.GoldenTorizoBelly] })
         {
             AssertTrue(palette.supplied is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");
@@ -2991,7 +2991,7 @@ internal static class LookupStream3Verification
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var initial = stock.initial;
+        var initial = stock.selection.Initial;
         AssertTrue(initial.supplied is null, "Baby stock initial has no stored color array");
         AssertEqual(0, MetadataShape.Fields(initial.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
         for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)

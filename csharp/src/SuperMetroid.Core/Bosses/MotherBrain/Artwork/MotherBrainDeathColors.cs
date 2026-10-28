@@ -12,9 +12,9 @@ internal static class MotherBrainDeathColors
             Span<RgbColor> door = stackalloc RgbColor[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
             for (int color = 0; color < door.Length; color++) door[color] = colors.ExplodedDoorColor(color);
             content.AppendColors("explodedDoor", door);
-            colors.bodyFade.AppendIdentity(content, "bodyFade");
-            colors.legFade.AppendIdentity(content, "legFade");
-            colors.corpseFade.AppendIdentity(content, "corpseFade");
+            colors.selection.BodyFade.AppendIdentity(content, "bodyFade");
+            colors.selection.LegFade.AppendIdentity(content, "legFade");
+            colors.selection.CorpseFade.AppendIdentity(content, "corpseFade");
         });
 
     /// <summary>The supplied door colours when they are edits, or null when they match the reviewed paint.</summary>

@@ -573,7 +573,7 @@ internal static class LookupStream4Verification
                     AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
                     AssertEqual(golden, GoldenTorizoHealthPaint.Color(0, color + 1, rear: false), "Shared immutable stock endpoint and clipped armor ramp");
                 }
-            var definition = eyes ? stock.eyeFade : stock.bodyFade;
+            var definition = eyes ? stock.selection.EyeFade : stock.selection.BodyFade;
             AssertEqual(0, definition.overrides.Count, "stock fade never hides residual samples as edit overrides");
             for (int row = 0; row < 16; row++)
             for (int color = 0; color < count; color++)
@@ -632,7 +632,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var definition = stock.alarm;
+        var definition = stock.selection.Alarm;
         var inputs = definition.edits;
         AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
         for (int row = 0; row < 16; row++)
@@ -837,7 +837,7 @@ internal static class LookupStream4Verification
 
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var rows = stock.health;
+        var rows = stock.selection.Health;
         var edits = rows.intermediateEdits;
         AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
         Check(stock, native);
@@ -854,7 +854,7 @@ internal static class LookupStream4Verification
             // Every supplied cell resolves exactly; cells that no longer follow the (edited)
             // endpoints are kept as stored deviations rather than recalculated.
             Check(edited, expected);
-            var editedRows = edited.health;
+            var editedRows = edited.selection.Health;
             int deviations = ((System.Collections.IDictionary)editedRows.intermediateEdits).Count;
             int expectedDeviations = 0;
             for (int step = 1; step <= 2; step++)
@@ -879,7 +879,7 @@ internal static class LookupStream4Verification
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.spores;
+        var values = stock.selection.Spores;
         AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
         for (int color = 0; color < 16; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), "Original separate spore and healthy-body rows have identical coloring");
@@ -933,7 +933,7 @@ internal static class LookupStream4Verification
         AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.deathLevel;
+        var values = stock.selection.DeathLevel;
         AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
         for (int color = 0; color < 16; color++)
         {
@@ -1009,7 +1009,7 @@ internal static class LookupStream4Verification
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.deathBackground;
+        var values = stock.selection.DeathBackground;
         AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
         for (int frame = 0; frame < 7; frame++)
             for (int color = 0; color < 16; color++)
@@ -1068,7 +1068,7 @@ internal static class LookupStream4Verification
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.deathSprite;
+        var values = stock.selection.DeathSprite;
         AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
         for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 16; color++)
@@ -2375,7 +2375,7 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var intro = stock.intro;
+        var intro = stock.selection.Intro;
         var primary = intro.primary;
         var surface = intro.surface;
         AssertEqual(0,primary.edits.Count,"Intro primary zero native overrides");
@@ -2441,7 +2441,7 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var material = stock.sprite;
+        var material = stock.selection.Sprite;
         AssertEqual(0,material.edits.Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
         {
@@ -2502,7 +2502,7 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var material = stock.background;
+        var material = stock.selection.Background;
         AssertEqual(0,material.edits.Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
         {
@@ -2629,8 +2629,8 @@ internal static class LookupStream4Verification
         byte[] original = DraygonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = DraygonColorFile.Read(new MemoryStream(original));
-        AssertEqual(0, stock.whiteFlash.Count, "Draygon stock flash is calculated without stored colors");
-        var health = stock.healthBands;
+        AssertEqual(0, stock.selection.WhiteFlash.Count, "Draygon stock flash is calculated without stored colors");
+        var health = stock.selection.HealthBands;
         AssertEqual(0, health.edits.Count, "All native Draygon health colors calculate without overrides");
         for (int variation = -1; variation < 4; variation++)
         {
@@ -2685,7 +2685,7 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
-        var definition = stock.reveal;
+        var definition = stock.selection.Reveal;
         AssertEqual(0, definition.edits.Count,
             "All210 native reveal words calculate without residual samples");
         byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesets.Get(9).PaletteAddress);
@@ -2778,7 +2778,7 @@ internal static class LookupStream4Verification
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
-        var initial = stock.initial;
+        var initial = stock.selection.Initial;
         var armor = initial.armor;
         var organ = initial.organ;
         NoEdits(initial.edits); NoEdits(armor.edits); NoEdits(organ.edits);
@@ -3159,7 +3159,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6F4EC + color * 2)), stock.ResolveStart(color), "Native normal door material occurrence");
         for (int color = 0; color < 15; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)), stock.ResolveStart(17 + color), "Native Baby initial identity");
-        var definition = stock.start;
+        var definition = stock.selection.Start;
         var edits = definition.edits;
         AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
         for (int channel = 0; channel < 3; channel++)
@@ -3212,7 +3212,7 @@ internal static class LookupStream4Verification
             int a = 0xa6e1f1 + (row * 15 + color) * 2;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
-        var definition = stock.baby;
+        var definition = stock.selection.Baby;
         var overrides = definition.edits;
         AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
         for (int color = 0; color < 3; color++)
@@ -3297,7 +3297,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var stored = stock.retreatShared;
+        var stored = stock.selection.RetreatShared;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
         {
@@ -3374,7 +3374,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var retreatEdits = stock.retreatBg;
+        var retreatEdits = stock.selection.RetreatBg;
         AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
         {
@@ -3420,7 +3420,7 @@ internal static class LookupStream4Verification
             int a = 0xa6e46a + (row * 14 + color) * 2;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
-        var definition = stock.health;
+        var definition = stock.selection.Health;
         var overrides = definition.edits;
         AssertEqual(0, overrides.Count, "All42 native health colors calculate");
         static PaletteRgb5 Change(PaletteRgb5 value, int channel) => channel switch

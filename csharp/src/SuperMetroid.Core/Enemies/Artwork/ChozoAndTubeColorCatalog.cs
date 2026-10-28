@@ -11,22 +11,15 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => ChozoAndTubeColors.ContentIdentity(this);
 
-    /// <summary>Eight authored crack inks from which the unedited stock halves and shade ramp are calculated.</summary>
-    internal readonly RgbColor[] tubeColorSeeds;
-    /// <summary>Supplied crack colors that differ from the stock seed and repeated ramp.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> tubeColorEdits;
-    /// <summary>Wrecked Ship statue inks that differ from the calculated Chozo paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> wreckedShipEdits;
-    /// <summary>Lower Norfair statue inks that differ from the calculated Chozo paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> lowerNorfairEdits;
+    /// <summary>The selected crack seeds and the tube and statue deviations from calculated paint.</summary>
+    internal readonly ChozoAndTubeColorSelection selection;
 
     /// <summary>Preserves authored crack seeds and only deviations from calculated stock tube and statue colors.</summary>
     internal ChozoAndTubeColorCatalog(RgbColor[] tubeCracks, RgbColor[] wreckedShip,
         RgbColor[] lowerNorfair) =>
-        (tubeColorSeeds, tubeColorEdits, wreckedShipEdits, lowerNorfairEdits) =
-            (ChozoAndTubeColors.TubeSeeds(tubeCracks), ChozoAndTubeColors.TubeEdits(tubeCracks),
-                ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.WreckedShip, wreckedShip),
-                ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.LowerNorfair, lowerNorfair));
+        selection = new(ChozoAndTubeColors.TubeSeeds(tubeCracks), ChozoAndTubeColors.TubeEdits(tubeCracks),
+            ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.WreckedShip, wreckedShip),
+            ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.LowerNorfair, lowerNorfair));
 
     /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public RgbColor ResolveTubeCracks(int color) => ChozoAndTubeColors.TubeCrack(this, color);

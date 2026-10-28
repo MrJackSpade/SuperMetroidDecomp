@@ -13,15 +13,13 @@ public sealed class EnemySpritemapCatalog
     /// <summary>Character-sheet height in eight-pixel tiles for composition tile references.</summary>
     internal const int TileRows = 32;
 
-    /// <summary>Compiled OAM parts of each authored frame.</summary>
-    internal readonly Dictionary<EnemyFrameId, EnemySpritemapParts> frames;
-    /// <summary>Visual-only mapping from each frame an enemy shows to the frame displayed for it.</summary>
-    internal readonly Dictionary<EnemyFrameId, EnemyFrameId> displayFrames;
+    /// <summary>The compiled frame compositions and display selections.</summary>
+    internal readonly EnemySpritemapSelection selection;
 
     /// <summary>Retains validated frame compositions and display selections.</summary>
     internal EnemySpritemapCatalog(Dictionary<EnemyFrameId, EnemySpritemapParts> frames,
         Dictionary<EnemyFrameId, EnemyFrameId> displayFrames) =>
-        (this.frames, this.displayFrames) = (frames, displayFrames);
+        selection = new(frames, displayFrames);
 
     /// <summary>
     /// Resolves an editable presentation binding without changing the frame retained by enemy AI, hitbox selection, or

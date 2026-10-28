@@ -9,7 +9,7 @@ internal static class MotherBrainGlassShards
     /// applies independent -8..7 jitter on each axis.
     /// </summary>
     internal static MotherBrainGlassShardPlacement Placement(MotherBrainGlassShard shard) =>
-        MotherBrainGlassShardDefinitions.EmitterXs.TryGetValue(shard, out short x)
-            ? new(new Offset16<RoomPixels>(x, MotherBrainGlassShardDefinitions.EmitterY))
+        MotherBrainGlassShardDefinitions.EmitterXs.TryGetValue(shard, out int x)
+            ? new(Offset16<RoomPixels>.Of(x, MotherBrainGlassShardDefinitions.EmitterY))
             : throw new ArgumentOutOfRangeException(nameof(shard), shard, "Undefined Mother Brain glass emitter.");
 }

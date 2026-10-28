@@ -10,13 +10,13 @@ internal static class ShitroidColors
         SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
         {
             Span<RgbColor> selectedSidehopper = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-            for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.sidehopper.Resolve(color);
+            for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.selection.Sidehopper.Resolve(color);
             content.AppendColors("sidehopper", selectedSidehopper);
             Span<RgbColor> selectedShitroid = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
             for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = colors.TargetColor(ShitroidColorTarget.Shitroid, color);
             content.AppendColors("shitroid", selectedShitroid);
             Span<RgbColor> selectedCorpse = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-            for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.deadSidehopper.Resolve(color);
+            for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.selection.DeadSidehopper.Resolve(color);
             content.AppendColors("deadSidehopper", selectedCorpse);
             content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
             for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
@@ -40,10 +40,10 @@ internal static class ShitroidColors
         if (target == ShitroidColorTarget.Shitroid)
         {
             if ((uint)color >= ShitroidColorDefinitions.TargetColorCount) throw new ArgumentOutOfRangeException(nameof(color));
-            return color == 0 ? colors.shitroidTransparentSlot : colors.shitroid.Resolve(color - 1);
+            return color == 0 ? colors.selection.ShitroidTransparentSlot : colors.selection.Shitroid.Resolve(color - 1);
         }
-        if (target == ShitroidColorTarget.Sidehopper) return colors.sidehopper.Resolve(color);
-        return target == ShitroidColorTarget.DeadSidehopper ? colors.deadSidehopper.Resolve(color) :
+        if (target == ShitroidColorTarget.Sidehopper) return colors.selection.Sidehopper.Resolve(color);
+        return target == ShitroidColorTarget.DeadSidehopper ? colors.selection.DeadSidehopper.Resolve(color) :
             throw new ArgumentOutOfRangeException(nameof(target));
     }
 }

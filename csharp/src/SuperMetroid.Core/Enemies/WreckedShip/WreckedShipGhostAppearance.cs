@@ -9,7 +9,7 @@ public static class WreckedShipGhostAppearance
     /// <summary>One of the sixteen Palette_Coven colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the sixteen colours.</exception>
     public static RgbColor PaletteColor(int index) =>
-        (uint)index < (uint)PaletteColors.Length ? PaletteColors[index] : throw new ArgumentOutOfRangeException(nameof(index));
+        (uint)index < (uint)CovenColors.Length ? CovenColors[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>The spawn offset of grid position <paramref name="index"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the nine positions.</exception>

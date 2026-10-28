@@ -8,17 +8,14 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// divide the characters into, and the picture of a frame drawn over them that shows (#1392). The encounters' own module
 /// supplies the uploads; the installed sheets carry the catalogue to the enemies drawing from them.
 /// </summary>
-public sealed class EncounterCharacterCatalog
+/// <param name="byEnemy">Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</param>
+public sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy)
 {
     /// <summary>Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    internal readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy;
+    internal readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> uploadsByEnemy = Ensure.NotNull(byEnemy);
 
     /// <summary>Every catalogued upload, once, in a fixed order whose index names it in picture names.</summary>
-    internal readonly ImmutableArray<SpriteArtworkPlacement> all;
-
-    /// <summary>Catalogues each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    public EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy) =>
-        (this.byEnemy, all) = (Ensure.NotNull(byEnemy), EncounterUploads.InCatalogueOrder(byEnemy));
+    internal readonly ImmutableArray<SpriteArtworkPlacement> all = EncounterUploads.InCatalogueOrder(byEnemy);
 
     /// <summary>The catalogued placement that shows <paramref name="source"/>.</summary>
     /// <exception cref="InvalidDataException">No catalogued encounter shows the source, or several place it differently.</exception>

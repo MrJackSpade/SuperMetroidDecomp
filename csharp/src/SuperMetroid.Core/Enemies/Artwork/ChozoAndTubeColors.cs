@@ -52,9 +52,9 @@ internal static class ChozoAndTubeColors
     {
         if ((uint)color >= ChozoAndTubeColorDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return colors.tubeColorEdits.TryGetValue(new ColourCell(0, color), out RgbColor edited)
+        return colors.selection.TubeColorEdits.TryGetValue(new ColourCell(0, color), out RgbColor edited)
             ? edited
-            : TubeColor(colors.tubeColorSeeds, color);
+            : TubeColor(colors.selection.TubeColorSeeds, color);
     }
 
     /// <summary>$AA:E2DD: two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
@@ -74,7 +74,7 @@ internal static class ChozoAndTubeColors
     {
         if ((uint)color >= ChozoAndTubeColorDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        Dictionary<ColourCell, RgbColor> edits = palette == ChozoStatuePalette.WreckedShip ? colors.wreckedShipEdits : colors.lowerNorfairEdits;
+        Dictionary<ColourCell, RgbColor> edits = palette == ChozoStatuePalette.WreckedShip ? colors.selection.WreckedShipEdits : colors.selection.LowerNorfairEdits;
         return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : ChozoStatuePaint.Color(palette, color);
     }
 

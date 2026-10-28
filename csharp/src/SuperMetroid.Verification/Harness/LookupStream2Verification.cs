@@ -1528,11 +1528,11 @@ internal static class LookupStream2Verification
             ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
-        AssertEqual(8, stock.tubeColorSeeds.Length,
+        AssertEqual(8, stock.selection.TubeColorSeeds.Length,
             "tube stores only its eight authored seed colors");
-        foreach (var (statue, edits) in new[] { new VerifyLookupStream2TubeRampCase("wreckedShipEdits", stock.wreckedShipEdits), new VerifyLookupStream2TubeRampCase("lowerNorfairEdits", stock.lowerNorfairEdits) })
+        foreach (var (statue, edits) in new[] { new VerifyLookupStream2TubeRampCase("wreckedShipEdits", stock.selection.WreckedShipEdits), new VerifyLookupStream2TubeRampCase("lowerNorfairEdits", stock.selection.LowerNorfairEdits) })
             AssertEqual(0, edits.Count, $"stock {statue} store no colors beyond the calculated statue paint");
-        AssertEqual(0, stock.tubeColorEdits.Count,
+        AssertEqual(0, stock.selection.TubeColorEdits.Count,
             "stock tube ramp and repeated half need no residuals");
         for (int color = 0; color < 32; color++)
         {
@@ -1547,8 +1547,8 @@ internal static class LookupStream2Verification
                 var statueDocument = wrecked ? original with { WreckedShip = statue } : original with { LowerNorfair = statue };
                 var edited = Load(statueDocument);
                 Check(edited, statueDocument);
-                int stored = edited.wreckedShipEdits.Count
-                    + edited.lowerNorfairEdits.Count;
+                int stored = edited.selection.WreckedShipEdits.Count
+                    + edited.selection.LowerNorfairEdits.Count;
                 AssertEqual(1, stored, "a statue edit stores only that color");
             }
         }
@@ -1975,11 +1975,11 @@ internal static class LookupStream2Verification
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
         var stock = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(document)));
-        object health = stock.health;
-        object secondary = stock.secondary;
+        object health = stock.sources[KraidPaletteSource.Health];
+        object secondary = stock.sources[KraidPaletteSource.Secondary];
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
         foreach (var (name, band) in new VerifyLookupStream2KraidRampsCase[]
-                 { new VerifyLookupStream2KraidRampsCase("health", stock.health), new VerifyLookupStream2KraidRampsCase("roomBackdrop", stock.roomBackdrop), new VerifyLookupStream2KraidRampsCase("initialTarget", stock.initialTarget), new VerifyLookupStream2KraidRampsCase("deathArm", stock.deathArm) })
+                 { new VerifyLookupStream2KraidRampsCase("health", stock.sources[KraidPaletteSource.Health]), new VerifyLookupStream2KraidRampsCase("roomBackdrop", stock.sources[KraidPaletteSource.RoomBackdrop]), new VerifyLookupStream2KraidRampsCase("initialTarget", stock.sources[KraidPaletteSource.InitialTarget]), new VerifyLookupStream2KraidRampsCase("deathArm", stock.sources[KraidPaletteSource.DeathArm]) })
         {
             int deviations = band switch
             {

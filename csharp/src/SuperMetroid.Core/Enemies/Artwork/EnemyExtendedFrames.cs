@@ -13,7 +13,7 @@ internal static class EnemyExtendedFrames
     internal static string ContentIdentity(EnemyExtendedFrameCatalog catalog) =>
         SelectedPresentationHash.Create("enemy-extended-oam-v2", content =>
         {
-            foreach ((EnemyFrameId frame, EnemyExtendedDrawComponent[] components) in catalog.frames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
+            foreach ((EnemyFrameId frame, EnemyExtendedDrawComponent[] components) in catalog.selection.Frames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
                 content.AppendName("frame", EnemyFrameSheetKeys.Of(frame));
                 content.Append("components", components.Length);
@@ -24,7 +24,7 @@ internal static class EnemyExtendedFrames
                     content.AppendEnemyParts(component.Parts);
                 }
             }
-            foreach ((EnemyFrameId stock, EnemyFrameId selected) in catalog.displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
+            foreach ((EnemyFrameId stock, EnemyFrameId selected) in catalog.selection.DisplayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
                 content.AppendName("native-binding", EnemyFrameSheetKeys.Of(stock));
                 content.AppendName("selected-binding", EnemyFrameSheetKeys.Of(selected));
@@ -41,7 +41,7 @@ internal static class EnemyExtendedFrames
             components = ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty;
             return true;
         }
-        if (catalog.frames.TryGetValue(frame, out EnemyExtendedDrawComponent[]? found))
+        if (catalog.selection.Frames.TryGetValue(frame, out EnemyExtendedDrawComponent[]? found))
         {
             components = found;
             return true;
@@ -53,8 +53,8 @@ internal static class EnemyExtendedFrames
     /// <summary>Maps the frame gameplay shows to the editable draw components displayed for it.</summary>
     internal static bool TryGetDisplay(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {
-        if (catalog.displayFrames.TryGetValue(frame, out EnemyFrameId selected) &&
-            catalog.frames.TryGetValue(selected, out EnemyExtendedDrawComponent[]? found))
+        if (catalog.selection.DisplayFrames.TryGetValue(frame, out EnemyFrameId selected) &&
+            catalog.selection.Frames.TryGetValue(selected, out EnemyExtendedDrawComponent[]? found))
         {
             components = found;
             return true;
@@ -64,5 +64,5 @@ internal static class EnemyExtendedFrames
 
     /// <summary>The frame displayed for <paramref name="frame"/>, whose BG2 half accompanies the displayed components.</summary>
     internal static EnemyFrameId GetDisplayFrame(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame) =>
-        catalog.displayFrames.TryGetValue(frame, out EnemyFrameId selected) ? selected : frame;
+        catalog.selection.DisplayFrames.TryGetValue(frame, out EnemyFrameId selected) ? selected : frame;
 }

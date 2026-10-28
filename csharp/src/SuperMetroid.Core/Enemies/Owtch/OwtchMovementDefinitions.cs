@@ -23,6 +23,6 @@ internal static class OwtchMovementDefinitions
     /// </remarks>
     internal static readonly ushort[] UndergroundTimers = [32, 64, 96, 128, 160, 192];
 
-    /// <summary>The random bit that selects the Owtch's behaviour.</summary>
-    internal const ushort BehaviorRandomBit = 0x0100;
+    /// <summary>The random bit that sends a surfacing Owtch right rather than left: bit eight.</summary>
+    internal static readonly RandomSampleField MoveRightChoice = new(8, 1);
 }

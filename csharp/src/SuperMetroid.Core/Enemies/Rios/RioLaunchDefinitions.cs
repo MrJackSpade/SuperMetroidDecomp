@@ -19,6 +19,15 @@ public static class RioLaunchDefinitions
     /// <summary>$A2:C1C1: the slower Norfair Rio downward velocity, chosen when RNG bit two is set.</summary>
     internal const ushort NorfairSlowYVelocity = 0x5c0;
 
-    /// <summary>The two random bits ($0101) of which at least one must be set for a Norfair or Lower Norfair Rio to attack.</summary>
-    internal const ushort AttackRandomBits = 0x0101;
+    /// <summary>
+    /// One of the two random bits, bit zero, of which at least one must be set for a Norfair or Lower Norfair Rio to
+    /// attack.
+    /// </summary>
+    internal static readonly RandomSampleField AttackChanceLowBit = new(0, 1);
+
+    /// <summary>
+    /// The other of the two random bits, bit eight, of which at least one must be set for a Norfair or Lower Norfair
+    /// Rio to attack.
+    /// </summary>
+    internal static readonly RandomSampleField AttackChanceHighBit = new(8, 1);
 }

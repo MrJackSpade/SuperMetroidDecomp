@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 public static class PolypLaunchDefinitions
 {
     /// <summary>The RNG bits 1..3 that select the cooldown; bit zero and the upper bits do not select a record.</summary>
-    internal const int CooldownSelectorMask = 0x0e;
+    internal static readonly RandomSampleField CooldownSelector = new(1, 3);
 
     /// <summary>The RNG bits 1..4 that select the launch speed and the horizontal velocity.</summary>
-    internal const int LaunchSelectorMask = 0x1e;
+    internal static readonly RandomSampleField LaunchSelector = new(1, 4);
 
     /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>
     internal static readonly ushort[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];

@@ -341,7 +341,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        int upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
+        int random = ReadKagoRandomNumber();
+        int upwardMagnitude = (KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStep) + 2048;
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
         RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
@@ -354,9 +355,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // Inside that band the cartridge reuses bit $0100 of the chosen vertical speed
+            // Inside that band the cartridge reuses the low jump height bit of the chosen vertical speed
             // as a direction bit instead of requesting a second random sample.
-            jumpLeft = (upwardMagnitude & KagoDefinitions.LeftJumpBit) != 0;
+            jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
         }
 
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(jumpLeft

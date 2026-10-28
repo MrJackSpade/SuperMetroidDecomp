@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// <summary>Native falling-spark horizontal 16.16 deltas, not initial X/Y positions.</summary>
 public static class FallingSparkLaunchDefinitions
 {
-    /// <summary>The random bits that choose a launch: bits two through four.</summary>
-    internal const int LaunchSelectorMask = 0x1c;
+    /// <summary>The random field that chooses a launch: bits two through four.</summary>
+    internal static readonly RandomSampleField LaunchSelector = new(2, 3);
 
     /// <summary>
     /// $86:F3D4 distance / F3D6 subdistance, seven interleaved authored records, by launch selector, as signed 16.16

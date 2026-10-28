@@ -262,7 +262,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
             (half == QuadraticSpeedHalf.Negative ? 4 : 0);
-        int fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
+        int fraction = EnemyQuadraticSpeeds.ReadWord(record);
         projectile.Variable1 = fraction;
         // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
         int fractionalSum = projectile.Position.Y.Fraction + fraction;
@@ -270,7 +270,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         if (fractionalSum > ushort.MaxValue)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
-        int whole = EnemyQuadraticSpeedDefinitions.ReadWord(record + 2);
+        int whole = EnemyQuadraticSpeeds.ReadWord(record + 2);
         projectile.Variable1 = whole;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }

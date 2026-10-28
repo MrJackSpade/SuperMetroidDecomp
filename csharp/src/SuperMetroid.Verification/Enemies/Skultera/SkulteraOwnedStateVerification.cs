@@ -25,8 +25,8 @@ internal static class SkulteraOwnedStateVerification
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 
-        SignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
-        SignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        SignedSixteenSixteen right = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SignedSixteenSixteen left = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
         AssertEqual(right, state.RightVelocity, "rightward speed");
         AssertEqual(left, state.LeftVelocity, "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");

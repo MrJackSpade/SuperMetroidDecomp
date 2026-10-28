@@ -82,8 +82,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         var travel = new Offset16<RoomPixels>(checked((short)CacatacPatrol.TravelDistance((byte)distanceIndex)), 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
-        var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
+        var right = EnemyLinearSpeeds.Read(speedRecord);
+        var left = EnemyLinearSpeeds.Read(speedRecord + 4);
         var state = new CacatacEnemyState
         {
             RightVelocity = right,

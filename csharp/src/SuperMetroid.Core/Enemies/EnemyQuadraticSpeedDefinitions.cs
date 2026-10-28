@@ -1,5 +1,3 @@
-using System.Buffers.Binary;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Exact NTSC shared enemy quadratic-speed records, including their authored truncation.</summary>
@@ -24,35 +22,5 @@ public static class EnemyQuadraticSpeedDefinitions
     public const int RecordSize = 8;
 
     /// <summary>Native fractional multiplier $0109 applied only to the triangle number's low byte.</summary>
-    private const int FractionMultiplier = 0x0109;
-
-    /// <summary>Reads a native word, including odd-byte windows used by initial hop estimates.</summary>
-    public static ushort ReadWord(int byteOffset)
-    {
-        if (byteOffset is < 0 or > (RecordCount * RecordSize - 2))
-            throw new InvalidDataException($"Enemy quadratic-speed word offset ${byteOffset:X} is outside the authored NTSC records.");
-        return BinaryPrimitives.ReadUInt16LittleEndian([ReadByte(byteOffset), ReadByte(byteOffset + 1)]);
-    }
-
-    /// <summary>Reads a fraction-first signed 16.16 displacement without rounding or aligned-index coercion.</summary>
-    public static int ReadDisplacement(int byteOffset)
-    {
-        int fraction = ReadWord(byteOffset);
-        int whole = unchecked((short)ReadWord(byteOffset + 2));
-        return (SixteenSixteen.FromWhole(whole)) | fraction;
-    }
-
-    /// <summary>Reconstructs a byte of the shared positive/negative 16.16 record, preserving the native discarded fractional carry.</summary>
-    private static byte ReadByte(int offset)
-    {
-        int record = offset / RecordSize;
-        int triangle = record * (record + 1) / 2;
-        // The original values match discarded fractional carry. Preserve that
-        // observed discontinuity without claiming provenance for its generator.
-        int velocity = (triangle >> 8 << 16) | ((triangle & 255) * FractionMultiplier & 65535);
-        int component = offset % RecordSize;
-        if (component >= 4)
-            velocity = -velocity;
-        return unchecked((byte)(velocity >> ((component & 3) * 8)));
-    }
+    internal const int FractionMultiplier = 0x0109;
 }

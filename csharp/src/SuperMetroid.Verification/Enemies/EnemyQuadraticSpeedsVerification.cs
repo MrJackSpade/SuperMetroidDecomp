@@ -16,15 +16,15 @@ internal static class EnemyQuadraticSpeedsVerification
     internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int offset = 0; offset <= 758; offset++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic projectile table mirror");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset), EnemyQuadraticSpeeds.ReadWord(offset), "quadratic projectile table mirror");
         for (int offset = 0; offset <= 758; offset++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic native word window");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), EnemyQuadraticSpeeds.ReadWord(offset), "quadratic native word window");
         for (int offset = 0; offset <= 756; offset++)
             AssertEqual(unchecked((int)SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))),
-                EnemyQuadraticSpeedDefinitions.ReadDisplacement(offset), "quadratic native displacement window");
-        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(-1), "quadratic negative offset");
-        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
-        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadDisplacement(757), "quadratic partial displacement");
+                EnemyQuadraticSpeeds.ReadDisplacement(offset), "quadratic native displacement window");
+        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.ReadWord(-1), "quadratic negative offset");
+        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.ReadWord(759), "quadratic partial word");
+        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.ReadDisplacement(757), "quadratic partial displacement");
         if (definitionsOnly) return;
         var shared = new Func<int, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
         var addRock = new Action<RoomEnemyProjectileSlot, int, QuadraticSpeedHalf>(PolypBehavior.AddPolypRockQuadraticStep);

@@ -99,7 +99,7 @@ internal static class EnemyMath
     /// positive/negative half selector used by several enemy parameter formats.
     /// </summary>
     internal static SignedSixteenSixteen ReadLinearEnemySpeed(int byteOffset) =>
-        EnemyLinearSpeedDefinitions.Read(byteOffset);
+        EnemyLinearSpeeds.Read(byteOffset);
 
     /// <summary>
     /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_QuadraticallyIncreasing</c>.
@@ -108,7 +108,7 @@ internal static class EnemyMath
     /// negating the positive host integer.
     /// </summary>
     internal static int ReadQuadraticEnemySpeed(int tableIndex, bool negative) =>
-        EnemyQuadraticSpeedDefinitions.ReadDisplacement(
+        EnemyQuadraticSpeeds.ReadDisplacement(
             tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0));
 
     /// <summary>

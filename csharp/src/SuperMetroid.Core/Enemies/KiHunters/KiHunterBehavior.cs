@@ -622,7 +622,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.DetachedSpeedReset += DetachedSpeedStep;
             int index = EightEight.WholeOf(state.DetachedSpeedReset);
-            state.AccumulateDetachedSpeed(EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + 1));
+            state.AccumulateDetachedSpeed(EnemyQuadraticSpeeds.ReadWord(index * 8 + 1));
         }
         while (unchecked((short)(state.DetachedSpeedAccumulator - KiHunterMotionDefinitions.DetachedSpeedThreshold)) < 0);
     }
@@ -656,7 +656,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // These deliberately unaligned reads are literal: F7DB reads at record +5 and
         // F8AD at record +1, combining adjacent bytes instead of consuming a normal 16.16
         // table component. Replacing this with ReadQuadraticEnemySpeed changes the orbit.
-        return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (half == QuadraticSpeedHalf.Negative ? 5 : 1));
+        return EnemyQuadraticSpeeds.ReadWord(index * 8 + (half == QuadraticSpeedHalf.Negative ? 5 : 1));
     }
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>

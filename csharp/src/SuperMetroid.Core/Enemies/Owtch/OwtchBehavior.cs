@@ -75,8 +75,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         OwtchProgram initialProgram = (initialState & 1) == 0 ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
 
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
-        var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
+        var right = EnemyLinearSpeeds.Read(speedRecord);
+        var left = EnemyLinearSpeeds.Read(speedRecord + 4);
         var state = new OwtchEnemyState
         {
             RightVelocity = right,

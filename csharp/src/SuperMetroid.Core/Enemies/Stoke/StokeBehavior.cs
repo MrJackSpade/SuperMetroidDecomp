@@ -83,8 +83,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The parameter is an entry number. ASL three times converts it to the byte offset
         // of {positive whole, positive fraction, negative whole, negative fraction}.
         int speedOffset = slot.Spawn.Population.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeedDefinitions.Read(speedOffset);
-        var left = EnemyLinearSpeedDefinitions.Read(speedOffset + 4);
+        var right = EnemyLinearSpeeds.Read(speedOffset);
+        var left = EnemyLinearSpeeds.Read(speedOffset + 4);
         var state = new StokeEnemyState
         {
             RightVelocity = right,

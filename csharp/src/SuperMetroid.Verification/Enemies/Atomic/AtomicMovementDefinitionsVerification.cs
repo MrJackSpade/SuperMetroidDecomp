@@ -44,8 +44,8 @@ internal static class AtomicMovementDefinitionsVerification
                 $"Atomic initializer animation {selector}");
 
             ushort speedOffset = (ushort)(slot.Spawn.Population.Parameter2 * 8);
-            SignedSixteenSixteen positive = EnemyLinearSpeedDefinitions.Read(speedOffset);
-            SignedSixteenSixteen negative = EnemyLinearSpeedDefinitions.Read((ushort)(speedOffset + 4));
+            SignedSixteenSixteen positive = EnemyLinearSpeeds.Read(speedOffset);
+            SignedSixteenSixteen negative = EnemyLinearSpeeds.Read((ushort)(speedOffset + 4));
             AssertEqual(positive, state.Speed, $"Atomic positive speed {selector}");
             AssertEqual(negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 

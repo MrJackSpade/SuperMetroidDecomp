@@ -174,7 +174,7 @@ internal static class LookupStream2Verification
         for (int color = 0; color < native.Length; color++)
         {
             native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
-            AssertEqual(native[color], WreckedShipGhostAppearanceDefinitions.PaletteColor(color), "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], WreckedShipGhostAppearance.PaletteColor(color), "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
             cgram.SetColor(128 + color, RgbColor.FromWord(0x7fff));
@@ -222,8 +222,8 @@ internal static class LookupStream2Verification
             kagoUsage[color]++;
         }
         AssertTrue(kagoUsage.SequenceEqual(expectedKagoUsage), "Exact native Kago pixel-label usage supports each shared paint role; slot0 is transparent");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.PaletteColor(-1), "Ghost color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.PaletteColor(16), "Ghost color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.PaletteColor(-1), "Ghost color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.PaletteColor(16), "Ghost color upper bound");
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 
@@ -1810,7 +1810,7 @@ internal static class LookupStream2Verification
         {
             short originalX = unchecked((short)ReadVerificationWord(rom, 0xa89aa8 + 4 * index));
             short originalY = unchecked((short)ReadVerificationWord(rom, 0xa89aaa + 4 * index));
-            var calculated = WreckedShipGhostAppearanceDefinitions.SpawnOffset(index);
+            var calculated = WreckedShipGhostAppearance.SpawnOffset(index);
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
             state.SpawnColumn = index % 3;
@@ -1825,7 +1825,7 @@ internal static class LookupStream2Verification
         for (int offset = 0; offset < 34; offset++)
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
-            AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
+            AssertEqual(original, WreckedShipGhostAppearance.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = WrappingCountdown.Start(1);
             state.FlickerTableOffset = offset;
@@ -1851,10 +1851,10 @@ internal static class LookupStream2Verification
         state.SpawnColumn = 3;
         state.SpawnRow = 0;
         AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(-1), "Ghost spawn lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(17), "Ghost flicker upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(-1), "Ghost spawn lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(9), "Ghost spawn upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.FlickerDuration(-1), "Ghost flicker lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.FlickerDuration(17), "Ghost flicker upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");

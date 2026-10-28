@@ -229,7 +229,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 "do not select a retail spawn offset.");
         }
 
-        slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearanceDefinitions.SpawnOffset(
+        slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearance.SpawnOffset(
             state.SpawnRow * WreckedShipGhostMovementClassCount + state.SpawnColumn));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
         state.StablePositionTimer = WrappingCountdown.Start(WreckedShipGhostStablePositionDuration);
@@ -263,7 +263,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
         for (int color = 0; color < state.MutableTargetColours.Length; color++)
-            state.MutableTargetColours[color] = WreckedShipGhostAppearanceDefinitions.PaletteColor(color);
+            state.MutableTargetColours[color] = WreckedShipGhostAppearance.PaletteColor(color);
     }
 
     /// <summary>Ports $A8:9BAD, including the simultaneous flicker and per-component fade.</summary>
@@ -350,7 +350,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                     $"Wrecked Ship ghost flicker offset ${state.FlickerTableOffset:X4} exceeds $A8:9ACC.");
             }
 
-            int duration = WreckedShipGhostAppearanceDefinitions.FlickerDuration(tableIndex);
+            int duration = WreckedShipGhostAppearance.FlickerDuration(tableIndex);
             if (duration < 0)
             {
                 state.PhaseTimer = WrappingCountdown.Start(0);

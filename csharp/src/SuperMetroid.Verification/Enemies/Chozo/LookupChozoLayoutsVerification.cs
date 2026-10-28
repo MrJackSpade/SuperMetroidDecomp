@@ -23,7 +23,7 @@ internal static class LookupChozoLayoutsVerification
     {
         ushort[] pointers = [0xa2b5,0x9cc5,0x9d0f];
         string[] ids = ["lower-norfair-cleared-hand","wrecked-ship-clear-slope-access","wrecked-ship-block-slope-access"];
-        var exported = ChozoStatuePlmDrawDefinitions.All.ToArray();
+        var exported = ChozoStatueDraws.All.ToArray();
         AssertEqual(3, exported.Length, "Chozo layout export count");
         if (field == 0)
         {
@@ -31,18 +31,18 @@ internal static class LookupChozoLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ChozoStatuePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape), "Chozo layout shape domain");
-                AssertEqual(owned, ChozoStatuePlmDrawDefinitions.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto), "Chozo layout DTO domain");
+                AssertEqual(owned, ChozoStatueDraws.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape), "Chozo layout shape domain");
+                AssertEqual(owned, ChozoStatueDraws.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto), "Chozo layout DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(ChozoStatuePlmDrawDefinitions.Draw), shape, "Chozo layout missing shape");
+                    AssertEqual(default(ChozoStatueDraws.Draw), shape, "Chozo layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Chozo layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => ChozoStatuePlmDrawDefinitions.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout missing ID");
+                    AssertThrows<InvalidDataException>(() => ChozoStatueDraws.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout missing ID");
                 }
             }
             foreach (string id in new[] { "LOWER-NORFAIR-CLEARED-HAND", "broken", "", "unknown" })
             {
-                AssertTrue(!ChozoStatuePlmDrawDefinitions.TryGetByVisualId(id, out var missing), "Chozo layout ordinal ID domain");
+                AssertTrue(!ChozoStatueDraws.TryGetByVisualId(id, out var missing), "Chozo layout ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Chozo layout rejected ID output");
             }
         }
@@ -50,13 +50,13 @@ internal static class LookupChozoLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ChozoStatuePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape);
-            ChozoStatuePlmDrawDefinitions.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto);
-            ChozoStatuePlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
+            ChozoStatueDraws.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape);
+            ChozoStatueDraws.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto);
+            ChozoStatueDraws.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Chozo layout original export order");
-                AssertEqual(ids[index], ChozoStatuePlmDrawDefinitions.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout published ID");
+                AssertEqual(ids[index], ChozoStatueDraws.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout published ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Chozo layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {

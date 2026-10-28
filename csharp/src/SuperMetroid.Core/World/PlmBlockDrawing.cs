@@ -388,7 +388,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (ChozoStatuePlmDrawDefinitions.TryDescribe(draw, out var chozoStatue))
+        if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
         {
             Position16<RoomBlocks> chozo = origin;
             for (int run = 0; run < chozoStatue.RunCount; run++)

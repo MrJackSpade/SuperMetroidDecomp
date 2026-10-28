@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
@@ -11,102 +11,115 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoStatuePlmDrawDefinitions
 {
     /// <summary>
-    /// The two slope-access states share five horizontal runs and identical art.
-    /// Clearing leaves slope endpoints; blocking makes the access solid, with
-    /// spikes across the long row except its final cell. The hand is one air cell.
+    /// Each draw's horizontal runs. Lower Norfair's cleared hand is one air cell with the blank tile. The two Wrecked Ship
+    /// slope-access states share five runs and identical art: a fourteen-cell ledge, a nine-cell fill, a two-cell
+    /// transition and two single-cell stair runs, each run after the first five cells right and each run lower, the
+    /// final run level. Clearing leaves slope endpoints on the ledge, the fill and the final stair; blocking makes the
+    /// access solid, with spikes across the ledge except its final cell.
     /// </summary>
-    internal readonly record struct Draw(ChozoStatueDraw Frame) : IPlmRunDrawShape
+    internal static readonly Dictionary<ChozoStatueDraw, ChozoStatueStrip[]> Strips = new()
     {
-        /// <summary>Lower Norfair hand clearing is one air cell; Wrecked Ship slope access has five runs.</summary>
-        private bool Hand => Frame == ChozoStatueDraw.LowerNorfairClearedHand;
-        /// <summary>Distinguishes the single hand cell from the five-run Wrecked Ship slope layout.</summary>
-        public int RunCount => Hand ? 1 : 5;
-        /// <summary>Rejects run indexes outside the selected hand or slope geometry.</summary>
-        private void CheckRun(int run)
-        {
-            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-        }
-        /// <summary>Uses a fourteen-cell ledge, nine-cell fill, two-cell transition, and two single-cell stair runs.</summary>
-        public int WordCount(int run)
-        {
-            CheckRun(run);
-            return Hand ? 1 : run switch { 0 => 14, 1 => 9, 2 => 2, _ => 1 };
-        }
-        /// <summary>Moves five cells right between interior slope-access runs.</summary>
-        public sbyte NextX(int run)
-        {
-            CheckRun(run);
-            return !Hand && run is > 0 and < 4 ? (sbyte)5 : (sbyte)0;
-        }
-        /// <summary>Offsets each slope-access run downward from the draw origin; the final run stays level.</summary>
-        public sbyte NextY(int run)
-        {
-            CheckRun(run);
-            return !Hand && run < 4 ? (sbyte)(run + 5) : (sbyte)0;
-        }
-        /// <summary>Combines shared visual tiles with air, slope-endpoint, spike, or solid collision words for the selected statue state.</summary>
-        public ushort WordAt(int run, int cell)
-        {
-            int count = WordCount(run);
-            if ((uint)cell >= (uint)count) throw new ArgumentOutOfRangeException(nameof(cell));
-            if (Hand) return 0x00ff;
-            // Horizontal ledge, lower fill/transition, then the narrow stair wall.
-            int tile = run switch
-            {
-                0 => 0x12b,
-                1 => cell < 5 ? 0x111 : cell == 5 ? 0x19b : 0x129,
-                2 => cell == 0 ? 0x1bb : 0x129,
-                _ => 0x1bb,
-            };
-            bool endpoint = cell == count - 1;
-            int collision = Frame == ChozoStatueDraw.BlockSlopeAccess
-                ? run == 0 && !endpoint ? 10 : 8
-                : (run is 0 or 1 or 4) && endpoint ? 1 : 0;
-            return (ushort)(collision << 12 | tile);
-        }
-    }
+        [ChozoStatueDraw.LowerNorfairClearedHand] =
+        [
+            new(0, 0, [RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air)]),
+        ],
+        [ChozoStatueDraw.ClearSlopeAccess] =
+        [
+            new(0, 5,
+            [
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+            ]),
+            new(5, 6,
+            [
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x19b, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+            ]),
+            new(5, 7,
+            [
+                RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+            ]),
+            new(5, 8,
+            [
+                RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+            ]),
+            new(0, 0,
+            [
+                RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+            ]),
+        ],
+        [ChozoStatueDraw.BlockSlopeAccess] =
+        [
+            new(0, 5,
+            [
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0x12b, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            ]),
+            new(5, 6,
+            [
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x111, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x19b, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            ]),
+            new(5, 7,
+            [
+                RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x129, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            ]),
+            new(5, 8,
+            [
+                RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            ]),
+            new(0, 0,
+            [
+                RoomLevelWord.Create(0x1bb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            ]),
+        ],
+    };
 
-    /// <summary>Accepts the two Wrecked Ship slope-access draws and Lower Norfair's cleared hand.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    /// <summary>The cleared hand's and the blocked and clear slope layouts' published visual identities.</summary>
+    internal static readonly Dictionary<ChozoStatueDraw, string> VisualIds = new()
     {
-        bool found = PlmDraw.TryFrame(request, out ChozoStatueDraw frame);
-        draw = found ? new(frame) : default;
-        return found;
-    }
-    /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
-    private static IEnumerable<PlmDraw> Draws()
-    {
-        yield return PlmDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand);
-        yield return PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess);
-        yield return PlmDraw.Of(ChozoStatueDraw.BlockSlopeAccess);
-    }
-    /// <summary>Projects calculated statue cells into temporary artwork-interface draw records.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (PlmDraw draw in Draws())
-            {
-                TryGet(draw, out var list);
-                yield return list;
-            }
-        }
-    }
-    /// <summary>Builds a temporary run record from calculated cells; runtime evaluates the physical cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
-    /// <summary>Finds a compiled statue draw by its published visual resource identity.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
-
-    /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        PlmDraw.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID") switch
-        {
-            ChozoStatueDraw.LowerNorfairClearedHand => "lower-norfair-cleared-hand",
-            ChozoStatueDraw.ClearSlopeAccess => "wrecked-ship-clear-slope-access",
-            ChozoStatueDraw.BlockSlopeAccess => "wrecked-ship-block-slope-access",
-            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {request}."),
-        };
-
+        [ChozoStatueDraw.LowerNorfairClearedHand] = "lower-norfair-cleared-hand",
+        [ChozoStatueDraw.ClearSlopeAccess] = "wrecked-ship-clear-slope-access",
+        [ChozoStatueDraw.BlockSlopeAccess] = "wrecked-ship-block-slope-access",
+    };
 }

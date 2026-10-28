@@ -195,8 +195,8 @@ internal static class PlmPresentationContractChecks
             new RoomPlmVisualEntry(DraygonCannonDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmDraygonCannonVisualCatalog(entries));
-        ConfirmCoverage(ChozoStatuePlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(ChozoStatuePlmDrawDefinitions.VisualId(frame.Draw),
+        ConfirmCoverage(ChozoStatueDraws.All, frame =>
+            new RoomPlmVisualEntry(ChozoStatueDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmChozoStatueVisualCatalog(entries));
         ConfirmCoverage(RoomPlmLinkedRestoreDrawDefinitions.All, frame =>

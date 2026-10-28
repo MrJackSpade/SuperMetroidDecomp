@@ -12,78 +12,60 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class ChozoStatuePaintDefinitions
 {
     /// <summary>Each statue palette contains two sixteen-color material halves.</summary>
-    private const int HalfColors = 16;
+    internal const int HalfColors = 16;
 
-    /// <summary>Chooses a shared shade or calculates the selected area's half-palette material paint.</summary>
-    internal static RgbColor Color(ChozoStatuePalette palette, int color)
-    {
-        if ((uint)color >= HalfColors * 2) throw new ArgumentOutOfRangeException(nameof(color));
-        int local = color % HalfColors;
-        bool second = color >= HalfColors;
-        if (Shared(local) is RgbColor shared) return shared;
-        return palette switch
-        {
-            ChozoStatuePalette.WreckedShip => WreckedShip(local, second),
-            ChozoStatuePalette.LowerNorfair => LowerNorfair(local, second),
-            _ => throw new ArgumentOutOfRangeException(nameof(palette)),
-        };
-    }
+    /// <summary>The shades between each ramp's two endpoints.</summary>
+    internal const int RampSteps = 3;
 
-    /// <summary>Calculates skin and gold colors common to all four statue halves.</summary>
-    private static RgbColor? Shared(int local) => local switch
+    /// <summary>The skin and gold colors every statue half shares outside the gold ramp.</summary>
+    internal static readonly Dictionary<int, RgbColor> SharedColors = new()
     {
-        0 => Pack(0, 0, 14),
-        1 => Pack(31, 25, 24),
-        2 => Pack(31, 20, 18),
-        3 => Pack(31, 14, 11),
-        >= 8 and <= 11 => Ramp(new RgbColor(31, 31, 9), new RgbColor(6, 6, 0), local - 8, 3),
-        12 => Pack(31, 31, 15),
-        13 => Pack(25, 25, 10),
-        _ => null,
+        [0] = new(0, 0, 14),
+        [1] = new(31, 25, 24),
+        [2] = new(31, 20, 18),
+        [3] = new(31, 14, 11),
+        [12] = new(31, 31, 15),
+        [13] = new(25, 25, 10),
     };
 
-    /// <summary>Calculates first- and second-half grey ramps and their distinct highlight.</summary>
-    private static RgbColor WreckedShip(int local, bool second) => local switch
+    /// <summary>The gold ramp every statue half shares, from its brightest color at <see cref="GoldRampFirst"/>.</summary>
+    internal const int GoldRampFirst = 8;
+    /// <summary>The gold ramp's brightest color.</summary>
+    internal static readonly RgbColor GoldRampStart = new(31, 31, 9);
+    /// <summary>The gold ramp's darkest color.</summary>
+    internal static readonly RgbColor GoldRampEnd = new(6, 6, 0);
+
+    /// <summary>The Wrecked Ship statue's grey ramp, from its brightest color at <see cref="GreyRampFirst"/>.</summary>
+    internal const int GreyRampFirst = 4;
+    /// <summary>The first half's grey ramp's brightest color.</summary>
+    internal static readonly RgbColor FirstHalfGreyStart = new(25, 25, 25);
+    /// <summary>The first half's grey ramp's darkest color.</summary>
+    internal static readonly RgbColor FirstHalfGreyEnd = new(6, 6, 6);
+    /// <summary>The second half's grey ramp's brightest color.</summary>
+    internal static readonly RgbColor SecondHalfGreyStart = new(16, 16, 16);
+    /// <summary>The second half's grey ramp's darkest color.</summary>
+    internal static readonly RgbColor SecondHalfGreyEnd = new(4, 4, 4);
+
+    /// <summary>The Wrecked Ship statue's color 14 highlight in its first and second halves, and its black color 15.</summary>
+    internal static readonly Dictionary<ChozoStatueShade, RgbColor> WreckedShipPaint = new()
     {
-        >= 4 and <= 7 => second
-            ? Ramp(new RgbColor(16, 16, 16), new RgbColor(4, 4, 4), local - 4, 3)
-            : Ramp(new RgbColor(25, 25, 25), new RgbColor(6, 6, 6), local - 4, 3),
-        14 => second ? Pack(20, 20, 20) : Pack(31, 31, 31),
-        15 => RgbColor.Black,
-        _ => throw new ArgumentOutOfRangeException(nameof(local)),
+        [new(14, false)] = new(31, 31, 31),
+        [new(14, true)] = new(20, 20, 20),
+        [new(15, false)] = RgbColor.Black,
+        [new(15, true)] = RgbColor.Black,
     };
 
-    /// <summary>Uses retained Lower Norfair paint, including second-half shades that repeat the first half one step darker.</summary>
-    private static RgbColor LowerNorfair(int local, bool second)
+    /// <summary>The Lower Norfair statue's authored paint; its second-half colors 4..6 repeat the first half's 5..7.</summary>
+    internal static readonly Dictionary<ChozoStatueShade, RgbColor> LowerNorfairPaint = new()
     {
-        if (second && local is >= 4 and <= 6) return LowerNorfair(local + 1, false);
-        return new ChozoStatueShade(local, second) switch
-        {
-            (4, false) => Pack(28, 27, 11),
-            (5, false) => Pack(21, 20, 8),
-            (6, false) => Pack(13, 12, 4),
-            (7, false) => Pack(8, 7, 2),
-            (7, true) => Pack(5, 4, 0),
-            (14, false) => Pack(31, 30, 28),
-            (14, true) => Pack(20, 20, 20),
-            (15, false) => Pack(3, 2, 0),
-            (15, true) => Pack(1, 0, 0),
-            _ => throw new ArgumentOutOfRangeException(nameof(local)),
-        };
-    }
-
-    /// <summary>Interpolates each RGB5 channel between authored material endpoints with nearest-integer rounding.</summary>
-    private static RgbColor Ramp(RgbColor start, RgbColor end, int step, int steps) =>
-        Pack(Nearest(start.Red, end.Red, step, steps), Nearest(start.Green, end.Green, step, steps),
-            Nearest(start.Blue, end.Blue, step, steps));
-
-    /// <summary>Rounds one signed shade step to its nearest channel value.</summary>
-    private static int Nearest(int start, int end, int step, int steps)
-    {
-        int delta = end - start;
-        return start + Math.Sign(delta) * ((Math.Abs(delta) * step + steps / 2) / steps);
-    }
-
-    /// <summary>Forms one typed five-bit statue color from its selected channels.</summary>
-    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
+        [new(4, false)] = new(28, 27, 11),
+        [new(5, false)] = new(21, 20, 8),
+        [new(6, false)] = new(13, 12, 4),
+        [new(7, false)] = new(8, 7, 2),
+        [new(7, true)] = new(5, 4, 0),
+        [new(14, false)] = new(31, 30, 28),
+        [new(14, true)] = new(20, 20, 20),
+        [new(15, false)] = new(3, 2, 0),
+        [new(15, true)] = new(1, 0, 0),
+    };
 }

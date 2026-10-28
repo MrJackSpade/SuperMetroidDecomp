@@ -149,12 +149,12 @@ internal static class LookupStream2Verification
                 Check(Load());
                 visual[index] = original;
                 // Gameplay geometry must not follow an independently edited display anchor.
-                AssertEqual(ChozoCarryMotionDefinitions.Read(5).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
-                AssertEqual(ChozoCarryMotionDefinitions.Read(6).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
+                AssertEqual(ChozoCarry.Read(5).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
+                AssertEqual(ChozoCarry.Read(6).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
             }
         }
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.SupportFootX(4), "Chozo support-phase upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStride.SupportFootX(4), "Chozo support-phase upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }

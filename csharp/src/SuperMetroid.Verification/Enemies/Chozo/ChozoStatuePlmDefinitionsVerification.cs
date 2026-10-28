@@ -44,10 +44,10 @@ internal static class ChozoStatuePlmDefinitionsVerification
         {
             ushort header = PlmNativeWords.Word(candidate);
             if (!headers.Contains(header))
-                AssertThrows<InvalidDataException>(() => ChozoStatuePlmDefinitions.Resolve(candidate), "Chozo full unsupported header domain");
+                AssertThrows<InvalidDataException>(() => ChozoStatuePlmHeaders.Resolve(candidate), "Chozo full unsupported header domain");
             else
             {
-                var selected = ChozoStatuePlmDefinitions.Resolve(candidate);
+                var selected = ChozoStatuePlmHeaders.Resolve(candidate);
                 AssertEqual(candidate, selected.Header, "Chozo dispatch header identity");
                 AssertEqual(PlmProgramStartOracle.ForNativeList(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)))), selected.Program,
                     "Chozo dispatch original initial list");
@@ -97,7 +97,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ChozoStatuePlmDefinitions.Resolve(PlmHeaderId.CollisionWreckedShipChozoHandCheck),
+            () => ChozoStatuePlmHeaders.Resolve(PlmHeaderId.CollisionWreckedShipChozoHandCheck),
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
     }
 }

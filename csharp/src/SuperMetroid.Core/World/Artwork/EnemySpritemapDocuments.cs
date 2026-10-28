@@ -53,7 +53,7 @@ public static class EnemySpritemapDocuments
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
             EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
                 EnemySpritemapCatalog.CompileParts(visual, frame.Name), ref sharedBabyBody);
-            parts = ChozoStrideGeometryDefinitions.Compile(frame.Frame, parts);
+            parts = ChozoStride.Compile(frame.Frame, parts);
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");

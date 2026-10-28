@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Constructed scrolling-sky pages for sky tests (#1347).</summary>
@@ -15,7 +17,7 @@ internal static class RoomSkyTilemapFixtures
             var bytes = new byte[RoomSkyTilemapFormat.PageByteCount];
             for (int cell = 0; cell < bytes.Length / sizeof(ushort); cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * 2), NumberedWord(page, cell));
-            pages[page] = new RoomBackgroundTilemapAtlas(bytes);
+            pages[page] = new RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
         }
         return new RoomSkyTilemapCatalog(pages);
     }

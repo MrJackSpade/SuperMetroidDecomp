@@ -163,7 +163,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
     private bool usesFloor = true;
     /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
-    private ScreenLayers mainScreenLayers = ScreenLayers.Bg1 | ScreenLayers.Sprites;
+    private ScreenLayers mainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
@@ -702,7 +702,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         "Ceres destruction rendering requires installed cinematic artwork."), Uploads, WithSamus);
 
     /// <summary>The Zebes reveal's tilemap, once its upload is made.</summary>
-    private ushort[] ZebesTilemap() => CeresDestructionScenery.ZebesTilemap(Artwork ?? throw new InvalidOperationException(
+    private BackgroundTile[] ZebesTilemap() => CeresDestructionScenery.ZebesTilemap(Artwork ?? throw new InvalidOperationException(
         "Ceres destruction rendering requires installed cinematic artwork."), Uploads);
 
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
@@ -914,7 +914,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         PrepareRenderSprites();
         RenderLayer[] layers;
-        if (usesFloor && (mainScreenLayers & ScreenLayers.Bg1) == ScreenLayers.None)
+        if (usesFloor && (mainScreenLayers & ScreenLayers.Foreground) == ScreenLayers.None)
         {
             layers = [new SpritePriorityRenderLayer(0), new SpritePriorityRenderLayer(1),
                 new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];

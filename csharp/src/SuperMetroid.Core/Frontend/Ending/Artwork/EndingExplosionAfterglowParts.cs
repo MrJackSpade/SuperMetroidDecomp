@@ -60,7 +60,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         for (int index = 0; index < tiles.Length; index++)
         {
             int tile = supplied.Part(index).Attributes.TileNumber;
-            if (tile < SnesCharacterGrid.Cell(24, 0) || tile > SnesCharacterGrid.Cell(30, 15)) return supplied;
+            if (tile < CharacterSheetGrid.Cell(24, 0) || tile > CharacterSheetGrid.Cell(30, 15)) return supplied;
             tiles[index] = tile;
         }
         return supplied.CalculateIfMatching(new EndingExplosionAfterglowParts(tiles));

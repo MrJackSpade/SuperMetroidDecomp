@@ -78,7 +78,7 @@ internal sealed class DeathSequenceRunner
         _player.Samus.Presentation.Draw(_player.Samus, 
             _sprites,
             _room.Camera.PixelPosition,
-            mode7Transform: _display.ActiveSamusMode7Transform);
+            turningFloor: _display.ActiveTurningFloor);
         _sprites.FinalizeFrame();
     }
 
@@ -104,7 +104,7 @@ internal sealed class DeathSequenceRunner
             _player.Samus.Presentation.Draw(_player.Samus, 
                 _sprites,
                 _room.Camera.PixelPosition,
-                mode7Transform: _display.ActiveSamusMode7Transform);
+                turningFloor: _display.ActiveTurningFloor);
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {

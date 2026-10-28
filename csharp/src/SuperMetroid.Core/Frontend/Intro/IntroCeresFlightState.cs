@@ -27,7 +27,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Optional edited rear-view actor positions.</summary>
     [NonSerialized] private CeresFlightActorLayout? actorLayout;
     /// <summary>Mode 1 caption tiles progressively written during the SPACE COLONY title.</summary>
-    internal ushort[] SpaceColonyTilemap { get; } = new ushort[32 * 32];
+    internal BackgroundTile[] SpaceColonyTilemap { get; } = new BackgroundTile[32 * 32];
     /// <summary>Front-view star actor whose timer also drives the diagonal background rush.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
@@ -381,15 +381,15 @@ internal sealed class IntroCeresFlightState
     /// <summary>Writes one authored title glyph to the caption tilemap.</summary>
     private void WriteNextSpaceColonyLetter()
     {
-        (int column, int tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
+        (int column, BackgroundTile tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 24;
-        SpaceColonyTilemap[CaptionRow * 32 + column] = checked((ushort)tile);
+        SpaceColonyTilemap[CaptionRow * 32 + column] = tile;
     }
 
     /// <summary>Writes the alternate Japanese caption below the English title.</summary>
     private void WriteSpaceColonyJapaneseCaption()
     {
-        ReadOnlySpan<ushort> tiles = SpaceColonyCaptionDefinitions.JapaneseTiles;
+        ReadOnlySpan<BackgroundTile> tiles = SpaceColonyCaptionDefinitions.JapaneseTiles;
         for (int index = 0; index < tiles.Length; index++)
             SpaceColonyTilemap[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * 32 +
                 SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = tiles[index];

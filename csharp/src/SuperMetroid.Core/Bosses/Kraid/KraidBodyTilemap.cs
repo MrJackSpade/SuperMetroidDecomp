@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -48,7 +49,7 @@ internal static class KraidBodyTilemap
             working[KraidBackgroundDefinitions.LowerPageFirstCell + word] = WithoutPriority(working[word]);
         for (int word = 0; word < KraidBackgroundDefinitions.PageCells; word++)
             working[word] = WithoutPriority(SnesLittleEndian.Word(upper[word * 2], upper[word * 2 + 1]));
-        working.AsSpan(KraidBackgroundDefinitions.BlankRowFirstCell, SnesPpuLayout.TilemapPageWidthInTiles)
+        working.AsSpan(KraidBackgroundDefinitions.BlankRowFirstCell, ScreenGeometry.TilemapScreenWidthInTiles)
             .Fill(KraidBackgroundDefinitions.BlankTile);
         return working;
     }

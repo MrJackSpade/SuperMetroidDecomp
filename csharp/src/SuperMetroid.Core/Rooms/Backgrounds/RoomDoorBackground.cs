@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
@@ -14,5 +16,5 @@ public sealed record RoomDoorBackground(RoomBackgroundLayer SourceRoom, Position
     /// <param name="sourceScroll">The source room's BG1 scroll registers when the door began.</param>
     public static RoomDoorBackground Begin(RoomBackgroundLayer sourceRoom, Position16<BgPlanePixels> sourceScroll) =>
         new(sourceRoom, sourceScroll + new Offset16<BgPlanePixels>(0,
-            SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels));
+            ScreenGeometry.BackgroundRowOffset + ScreenGeometry.GameplayHudHeightPixels));
 }

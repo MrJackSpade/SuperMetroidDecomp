@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.LevelData;
 using System.Collections.Immutable;
 
@@ -89,8 +90,8 @@ public sealed class RoomLevelPlane
         }
         ExpandedBlockTiles tiles = BlockTiles(new Position16<RoomBlocks>(
             (ushort)(level.X / BlockPixels), (ushort)(level.Y / BlockPixels)));
-        bool right = level.X % BlockPixels >= SnesPpuLayout.BackgroundTileSizePixels;
-        bool bottom = level.Y % BlockPixels >= SnesPpuLayout.BackgroundTileSizePixels;
+        bool right = level.X % BlockPixels >= ScreenGeometry.BackgroundTileSizePixels;
+        bool bottom = level.Y % BlockPixels >= ScreenGeometry.BackgroundTileSizePixels;
         tile = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
         return true;
     }

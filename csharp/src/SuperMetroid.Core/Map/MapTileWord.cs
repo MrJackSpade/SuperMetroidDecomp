@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Map.MapTileWordMasks;
 namespace SuperMetroid.Core.Map;
 
@@ -47,6 +48,10 @@ public readonly record struct MapTileWord(ushort Raw)
     /// Applies the alternating Samus-location palette bits used by the HUD minimap blink.
     /// </summary>
     public MapTileWord WithLocationBlink() => new((ushort)(Raw | HudLocationBlinkAttributes));
+
+    /// <summary>The background tile the cell places: its character, palette, mirroring and priority.</summary>
+    public BackgroundTile ToTile() =>
+        new(CharacterIndex, PaletteIndex, (Raw & HorizontalFlipMask) != 0, (Raw & VerticalFlipMask) != 0, HasPriority);
 
     /// <summary>Returns the complete native BG word without stripping map palette meaning or display attributes.</summary>
     /// <param name="word">Typed map cell whose stored bits are to be published or transferred.</param>

@@ -306,7 +306,7 @@ public static class GameplayEffectCapture
         if (liquid && unchecked((short)fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
         var scrolls = new Position16<BgPlanePixels>[Height];
-        int firstSurfaceLine = fx.WaterSurfaceScreenY - (SnesPpuLayout.BackgroundTileSizePixels - 1);
+        int firstSurfaceLine = fx.WaterSurfaceScreenY - (ScreenGeometry.BackgroundTileSizePixels - 1);
         for (int y = HudHeight; y < Height; y++)
         {
             int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY

@@ -453,7 +453,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Pose = SamusPoseId.FacingRightNormalPose;
     samus.AnimationFrame = 0;
     samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));
-    var quarterTurn = new SamusMode7Transform(
+    var quarterTurn = new TurningFloorTransform(
         MatrixA: 0x0000,
         MatrixB: 0x0100,
         MatrixC: -0x0100,
@@ -463,7 +463,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Presentation.Draw(samus, 
         oamFrame,
         layer1: new(0x0400, 0),
-        mode7Transform: quarterTurn);
+        turningFloor: quarterTurn);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x007a, samus.Presentation.SpritemapPosition.X,
         "Mode 7 quarter-turn rotates Samus render X around M7X");
@@ -477,7 +477,7 @@ internal static void VerifySamusRenderingSlice()
     // Exercise negative products and a coordinate wrap independently of the convenient
     // quarter-turn result. The explicit reference operations mirror `$8B:8A52`'s two
     // word-sized accumulators and catch a host implementation that retains extra precision.
-    var wrappedMatrix = new SamusMode7Transform(
+    var wrappedMatrix = new TurningFloorTransform(
         MatrixA: -0x0080,
         MatrixB: 0x0180,
         MatrixC: -0x0180,

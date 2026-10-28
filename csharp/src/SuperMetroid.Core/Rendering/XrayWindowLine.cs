@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 public readonly record struct XrayWindowLine(int Left, int Right)
 {
     /// <summary>The rightmost screen column a window edge names.</summary>
-    public const int MaximumColumn = SnesPpuLayout.ScreenWidthPixels - 1;
+    public const int MaximumColumn = ScreenGeometry.ScreenWidthPixels - 1;
 
     /// <summary>Inclusive left screen column.</summary>
     public int Left

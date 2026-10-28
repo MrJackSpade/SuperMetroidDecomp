@@ -50,7 +50,7 @@ public sealed class EnemySession
     /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
     internal EnemyStagingSurfaces Staging { get; } = new();
 
-    /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
+    /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; set; }
 
     /// <summary>

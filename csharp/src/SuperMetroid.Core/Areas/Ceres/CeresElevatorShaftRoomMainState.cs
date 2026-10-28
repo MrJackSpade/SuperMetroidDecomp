@@ -39,7 +39,7 @@ public sealed class CeresElevatorShaftRoomMainState
     public bool DepartureRequestedThisFrame { get; private set; }
 
     /// <summary>Most recently published Mode 7 matrix.</summary>
-    public SamusMode7Transform Transform { get; private set; } = CreateInitialTransform();
+    public TurningFloorTransform Transform { get; private set; } = CreateInitialTransform();
 
     /// <summary>
     /// Builds one room's shaft owner, selecting whether the room owns <c>$89:ACC3</c>. An active entry is the elevator
@@ -124,7 +124,7 @@ public sealed class CeresElevatorShaftRoomMainState
         RotationTimer = WrappingCountdown.FromRaw(record.Timer);
         int sine = record.Sine;
         int cosine = record.Cosine;
-        Transform = new SamusMode7Transform(
+        Transform = new TurningFloorTransform(
             MatrixA: unchecked((short)cosine),
             MatrixB: unchecked((short)sine),
             MatrixC: unchecked((short)-sine),
@@ -170,7 +170,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
-    private static SamusMode7Transform CreateInitialTransform() => new(
+    private static TurningFloorTransform CreateInitialTransform() => new(
         MatrixA: (short)EightEight.FromWhole(1),
         MatrixB: 0,
         MatrixC: 0,

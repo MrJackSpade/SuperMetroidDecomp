@@ -120,25 +120,14 @@ public sealed class LoadedRoomAssets
     }
 
     /// <summary>
-    /// The perspective floor a Ceres room shows (#1349): its 128 by 128 tile numbers are the low byte of each of the
-    /// first $4000 VRAM words, which the room's two character uploads fill, the area tileset over the CRE.
+    /// The perspective floor a Ceres room shows (#1349): the 128 by 128 tile numbers its tileset's installed floor map
+    /// starts from, which extraction imports with the tileset's floor tiles (#1422).
     /// </summary>
-    [PpuLayoutBoundary("codec: the Mode 7 map shares VRAM words with the room tileset's character upload")]
+    /// <exception cref="InvalidDataException">No floor tiles are installed for the room's tileset.</exception>
     public FloorMap CreateFloorMap()
     {
-        var words = new byte[FloorMap.Cells * 2];
-        CopyAt(CreCharacters, RoomTileCharacters.CommonRoomElementsFirst * BgCharacterSet.Tiles.CharacterBytes());
-        CopyAt(RoomCharacters, RoomTileCharacters.TilesetFirst * BgCharacterSet.Tiles.CharacterBytes());
-        var cells = new byte[FloorMap.Cells];
-        for (int cell = 0; cell < cells.Length; cell++)
-            cells[cell] = words[cell * 2];
-        return new FloorMap(cells, Tileset, Pictures.FloorTilesOf(Tileset));
-
-        void CopyAt(byte[] source, int byteOffset)
-        {
-            int length = Math.Min(source.Length, words.Length - byteOffset);
-            source.AsSpan(0, length).CopyTo(words.AsSpan(byteOffset));
-        }
+        FloorTileSheet tiles = Pictures.FloorTilesOf(Tileset);
+        return new FloorMap(tiles.Map, Tileset, tiles);
     }
 
     /// <summary>

@@ -98,7 +98,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
 
-    /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
+    /// <summary>The session's floor update residue, bound into the flashback Samus.</summary>
     public SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; init; }
 
     /// <summary>Current timed-projectile composition selected by the host.</summary>

@@ -13,14 +13,14 @@ internal readonly struct Mode7Vram(SnesVram vram)
     public void LoadMap(ReadOnlySpan<byte> tileNumbers, int cell = 0)
     {
         Check(cell, tileNumbers.Length);
-        vram.LoadMode7MapBytes(tileNumbers, (ushort)(Mode7VramLayout.Map.Offset + cell));
+        vram.LoadFloorMapBytes(tileNumbers, (ushort)(Mode7VramLayout.Map.Offset + cell));
     }
 
     /// <summary>Writes character pixels starting at pixel <paramref name="pixel"/> (64 per character) through the high-byte port.</summary>
     public void LoadCharacters(ReadOnlySpan<byte> pixels, int pixel = 0)
     {
         Check(pixel, pixels.Length);
-        vram.LoadMode7CharacterBytes(pixels, (ushort)(Mode7VramLayout.Characters.Offset + pixel));
+        vram.LoadFloorCharacterBytes(pixels, (ushort)(Mode7VramLayout.Characters.Offset + pixel));
     }
 
     /// <summary>Rejects writes whose start or length would leave a $4000-entry Mode 7 plane.</summary>

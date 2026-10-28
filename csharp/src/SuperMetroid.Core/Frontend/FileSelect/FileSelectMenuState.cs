@@ -712,7 +712,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             throw new InvalidOperationException("File-select presentation is not bound.");
         // The page shows from the moment it is selected: file select selects pages only where the cartridge also
         // uploads them in the same dispatch.
-        Span<ushort> bg1Tilemap = screen.Tilemaps.Bg1;
+        Span<BackgroundTile> bg1Tilemap = screen.Tilemaps.Bg1;
         presentation.CopyPage(currentPresentationPage, bg1Tilemap);
         bool main = currentPresentationPage is
             FileSelectPage.MainWithData or
@@ -763,7 +763,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         FileSelectPresentation presentation = mapPresentation?.FileSelect ??
             throw new InvalidOperationException("File-select presentation is not bound.");
-        Span<ushort> bg1Tilemap = screen.Tilemaps.Bg1;
+        Span<BackgroundTile> bg1Tilemap = screen.Tilemaps.Bg1;
         if (slot is null)
         {
             presentation.ApplyPatch(bg1Tilemap,
@@ -781,13 +781,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;
         int filledTanks = slot.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
         int palette = bg1Tilemap[layout.HealthAnchor.Y * FileSelectPresentationDefinitions.Width +
-            layout.HealthAnchor.X] & FileSelectEnergyTankDefinitions.PaletteMask;
+            layout.HealthAnchor.X].ColourVariant;
         for (int tank = 0; tank < slot.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank; tank++)
         {
             if ((uint)tankCell >= bg1Tilemap.Length)
                 throw new InvalidDataException("File-select energy tanks escaped the menu tilemap.");
-            bg1Tilemap[tankCell++] = (ushort)(palette | (tank < filledTanks
-                ? FileSelectEnergyTankDefinitions.FilledTile : FileSelectEnergyTankDefinitions.EmptyTile));
+            bg1Tilemap[tankCell++] = new BackgroundTile(tank < filledTanks
+                ? FileSelectEnergyTankDefinitions.FilledTile : FileSelectEnergyTankDefinitions.EmptyTile, palette, highPriority: false);
             if (--rowRemaining == 0)
             {
                 tankCell -= FileSelectEnergyTankDefinitions.RowRewindCells;

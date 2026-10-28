@@ -71,11 +71,11 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             switch (stage)
             {
                 case 0:
-                    if (index < 2) tile = SnesCharacterGrid.Cell(25, 3) + 16 * index; // right head edge
-                    else if (index < 4) tile = SnesCharacterGrid.Cell(24, 2) - (index - 2); // top cap
+                    if (index < 2) tile = CharacterSheetGrid.Cell(25, 3) + 16 * index; // right head edge
+                    else if (index < 4) tile = CharacterSheetGrid.Cell(24, 2) - (index - 2); // top cap
                     else if (index == 4) tile = EndingRewardHairCellDefinitions.InitialHeadCenter;
-                    else if (index < 7) tile = SnesCharacterGrid.Cell(26, 9) - 3 * (index - 5); // outer lower edges
-                    else tile = SnesCharacterGrid.Cell(24, 8) - 2 * (index - 7); // lower pair
+                    else if (index < 7) tile = CharacterSheetGrid.Cell(26, 9) - 3 * (index - 5); // outer lower edges
+                    else tile = CharacterSheetGrid.Cell(24, 8) - 2 * (index - 7); // lower pair
                     originX = index < 5 ? -15 : -64;
                     originY = index < 5 ? -232 : -208;
                     large = index is 4 or >= 7;
@@ -83,10 +83,10 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 case >= 1 and <= 3:
                     if (index < 2) tile = index == (stage == 2 ? 0 : 1)
                         ? EndingRewardHairCellDefinitions.TiedHeadRightEdge : EndingRewardHairCellDefinitions.TiedHead;
-                    else if (index < 4) tile = SnesCharacterGrid.Cell(27, 6) + 2 * (index - 2); // paired forearms
+                    else if (index < 4) tile = CharacterSheetGrid.Cell(27, 6) + 2 * (index - 2); // paired forearms
                     else if (index == 4) tile = EndingRewardHairCellDefinitions.TiedHeadTopRight;
-                    else if (index < 7) tile = SnesCharacterGrid.Cell(16, 0) + 2 * (index - 5); // upper-body pair
-                    else tile = SnesCharacterGrid.Cell(18, 3) - (index - 7); // lower edge, right to left
+                    else if (index < 7) tile = CharacterSheetGrid.Cell(16, 0) + 2 * (index - 5); // upper-body pair
+                    else tile = CharacterSheetGrid.Cell(18, 3) - (index - 7); // lower edge, right to left
                     originX = -16; originY = -152;
                     large = tile == EndingRewardHairCellDefinitions.TiedHead || index is 2 or 3 or 5 or 6;
                     break;
@@ -94,50 +94,50 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                     if (index == 0) tile = EndingRewardHairCellDefinitions.ReleaseLeftEdge;
                     else if (index == 1) tile = EndingRewardHairCellDefinitions.ReleaseRightOuter;
                     else if (index == 2) tile = EndingRewardHairCellDefinitions.ReleaseTopRight;
-                    else if (index < 6) tile = SnesCharacterGrid.Cell(18, 7) - (index - 3); // lower edge
+                    else if (index < 6) tile = CharacterSheetGrid.Cell(18, 7) - (index - 3); // lower edge
                     else if (index == 6) tile = EndingRewardHairCellDefinitions.ReleaseLowerLeft;
-                    else tile = SnesCharacterGrid.Cell(16, 5) - 32 * (index - 7); // central column
+                    else tile = CharacterSheetGrid.Cell(16, 5) - 32 * (index - 7); // central column
                     originX = -48; originY = -152;
                     large = index is 1 or 2 or >= 6;
                     break;
                 case 5:
-                    if (index < 3) tile = SnesCharacterGrid.Cell(18, 9) - 16 * index; // lower-left edge
-                    else if (index < 5) tile = SnesCharacterGrid.Cell(16, 12) - 32 * (index - 3); // right column
-                    else if (index < 7) tile = SnesCharacterGrid.Cell(15, 9) - 16 * (index - 5); // upper-left edge
+                    if (index < 3) tile = CharacterSheetGrid.Cell(18, 9) - 16 * index; // lower-left edge
+                    else if (index < 5) tile = CharacterSheetGrid.Cell(16, 12) - 32 * (index - 3); // right column
+                    else if (index < 7) tile = CharacterSheetGrid.Cell(15, 9) - 16 * (index - 5); // upper-left edge
                     else if (index == 7) tile = EndingRewardHairCellDefinitions.LooseTop;
-                    else tile = SnesCharacterGrid.Cell(16, 10) - 32 * (index - 8); // central column
+                    else tile = CharacterSheetGrid.Cell(16, 10) - 32 * (index - 8); // central column
                     originX = -88; originY = -144;
                     large = index is 3 or 4 or >= 7;
                     break;
                 default:
                     if (index < 4)
                     {
-                        tile = SnesCharacterGrid.Cell(21, 13) - 16 * index; // shared separately packed arm strip
+                        tile = CharacterSheetGrid.Cell(21, 13) - 16 * index; // shared separately packed arm strip
                         originX = -120; originY = -144;
                         large = false;
                     }
                     else if (stage == 6)
                     {
                         if (index == 4) tile = EndingRewardHairCellDefinitions.SweepLowerEdge;
-                        else if (index < 8) tile = SnesCharacterGrid.Cell(22, 6) - 16 * (index - 5); // far-right edge
-                        else if (index < 10) tile = SnesCharacterGrid.Cell(21, 4) - 32 * (index - 8); // right column
+                        else if (index < 8) tile = CharacterSheetGrid.Cell(22, 6) - 16 * (index - 5); // far-right edge
+                        else if (index < 10) tile = CharacterSheetGrid.Cell(21, 4) - 32 * (index - 8); // right column
                         else if (index == 10) tile = EndingRewardHairCellDefinitions.SweepTop;
                         else
                         {
                             int cell = index - 11;
-                            tile = SnesCharacterGrid.Cell(22, 2) - 32 * (cell / 2) - 2 * (cell % 2);
+                            tile = CharacterSheetGrid.Cell(22, 2) - 32 * (cell / 2) - 2 * (cell % 2);
                         }
                         originX = -16; originY = -192;
                         large = index >= 8;
                     }
                     else
                     {
-                        if (index < 7) tile = SnesCharacterGrid.Cell(19, 10) - (index - 4); // top edge
-                        else if (index < 9) tile = SnesCharacterGrid.Cell(22, 11) - 32 * (index - 7); // right column
+                        if (index < 7) tile = CharacterSheetGrid.Cell(19, 10) - (index - 4); // top edge
+                        else if (index < 9) tile = CharacterSheetGrid.Cell(22, 11) - 32 * (index - 7); // right column
                         else
                         {
                             int cell = index - 9;
-                            tile = SnesCharacterGrid.Cell(22, 9) - 32 * (cell / 2) - 2 * (cell % 2);
+                            tile = CharacterSheetGrid.Cell(22, 9) - 32 * (cell / 2) - 2 * (cell % 2);
                         }
                         originX = -72; originY = -192;
                         large = index >= 7;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
@@ -135,7 +136,7 @@ public static class GameOptionsPresentationDefinitions
     private const int ButtonAtlasRowStride = 16;
 
     /// <summary>Builds the native button glyph from its letter, atlas rows and geometric reflections.</summary>
-    internal static ushort ControllerLabelWord(ControllerButton label, int cell)
+    internal static BackgroundTile ControllerLabelTile(ControllerButton label, int cell)
     {
         if ((uint)cell >= ControllerLabelCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / ControllerLabelWidth;
@@ -175,7 +176,7 @@ public static class GameOptionsPresentationDefinitions
             default:
                 throw new ArgumentOutOfRangeException(nameof(label));
         }
-        return SnesBgTilemapWord.Create(tile, 0, false, flips).Raw;
+        return new BackgroundTile(tile, 0, highPriority: false, flips);
     }
     /// <summary>$82:F639 controller label boxes: three tile rows per action.</summary>
     internal static Position16<TilemapCells> ControllerAnchor(int action) => GameOptionsLayout.ControllerLabelAnchor(action);

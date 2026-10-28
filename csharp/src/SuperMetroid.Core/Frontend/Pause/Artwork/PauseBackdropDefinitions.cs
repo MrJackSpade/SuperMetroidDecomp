@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -24,11 +25,15 @@ public static class PauseBackdropDefinitions
     /// <summary>$82:966F-9716 area letters use the contiguous uppercase font beginning at $30.</summary>
     private const int LetterA = 0x30;
     /// <summary>$B6:E000 and label padding use blank glyph one, palette two and BG priority.</summary>
-    private const ushort BlankWord = 0x2801;
+    private static readonly BackgroundTile BlankTile = new(0x01, 2, highPriority: true);
     /// <summary>$B6:E140/E142/E152/E180: frame corner $BF, bar $BE, title end $BD and side $CF.</summary>
     private const int Corner = 0xbf, Bar = 0xbe, TitleEnd = 0xbd, Side = 0xcf;
     /// <summary>$B6:E182: repeated inset background uses glyph $12, palette two without priority.</summary>
-    private const ushort InsetWord = 0x0812;
+    private static readonly BackgroundTile InsetTile = new(0x12, 2, highPriority: false);
+    /// <summary>$82:966F-9716: area letters use palette six with BG priority.</summary>
+    private const int LetterPalette = 6;
+    /// <summary>The frame, title and control glyphs use palette two with BG priority.</summary>
+    private const int FramePalette = 2;
     /// <summary>$B6:E642/E64A/E658/E660/E66C: L, MAP, EXIT, START and SAMUS control artwork origins.</summary>
     private const int ShoulderButton = 0x56, MapButton = 0x99, ExitButton = 0xb8, StartButton = 0x95, SamusButton = 0x79;
     /// <summary>$B6:E654/E66A: repeated vertical control separator character $7F.</summary>
@@ -49,37 +54,37 @@ public static class PauseBackdropDefinitions
 
     /// <summary>Centered text and shared rectangular backdrop geometry, with independent selected differences kept by the presentation.</summary>
     /// <remarks>Chosen frame/control placement, glyph origins and style inputs remain required under the original backdrop entries.</remarks>
-    internal static ushort StockAreaWord(AreaId area, int cell)
+    internal static BackgroundTile StockAreaTile(AreaId area, int cell)
     {
         string name = AreaName(area);
         if ((uint)cell >= Cells) throw new ArgumentOutOfRangeException(nameof(cell));
         int letter = cell - LabelCell - (LabelWords - name.Length) / 2;
         if ((uint)(cell - LabelCell) < LabelWords)
             return (uint)letter < name.Length && name[letter] != ' '
-                ? (ushort)(0x3800 | LetterA + name[letter] - 'A') : BlankWord;
-        return StockFrameWord(cell);
+                ? new BackgroundTile(LetterA + name[letter] - 'A', LetterPalette, highPriority: true) : BlankTile;
+        return StockFrameTile(cell);
     }
 
     /// <summary>$B6:E400-E7FF is the lower sixteen rows of the same backdrop template.</summary>
-    internal static ushort StockButtonWord(int cell)
+    internal static BackgroundTile StockButtonTile(int cell)
     {
         if ((uint)cell >= ButtonCells) throw new ArgumentOutOfRangeException(nameof(cell));
-        return StockFrameWord(cell + (Rows - ButtonRows) * Columns);
+        return StockFrameTile(cell + (Rows - ButtonRows) * Columns);
     }
 
     /// <summary>Calculates a pause BG2 frame, inset, title, or bottom control cell from its row and column.</summary>
-    private static ushort StockFrameWord(int cell)
+    private static BackgroundTile StockFrameTile(int cell)
     {
         int row = cell / Columns, column = cell % Columns;
         if (row is >= 6 and <= 23)
-            return column is 0 or 31 ? Styled(Side, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None)) : InsetWord;
+            return column is 0 or 31 ? Styled(Side, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None)) : InsetTile;
         if (row == 24)
             return Styled(column is 0 or 31 ? Corner : Bar, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None) | TileFlip.Vertical);
         if (row == 5)
         {
             if (column is 0 or 31) return Styled(Corner, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None));
             if (column is 9 or 22) return Styled(TitleEnd, flips: (column == 9 ? TileFlip.Horizontal : TileFlip.None));
-            return column is >= 10 and <= 21 ? BlankWord : Styled(Bar);
+            return column is >= 10 and <= 21 ? BlankTile : Styled(Bar);
         }
         if (row is 25 or 26)
         {
@@ -95,10 +100,10 @@ public static class PauseBackdropDefinitions
             if (column is 27 or 30) return Styled(ShoulderButton + column - 27 + lower);
             if (column is 28 or 29) return Styled(RightButtonText + column - 28 + lower);
         }
-        return BlankWord;
+        return BlankTile;
     }
 
-    /// <summary>Applies stock palette and priority bits with optional tile flips to a frame glyph.</summary>
-    private static ushort Styled(int glyph, TileFlip flips = TileFlip.None) =>
-        new SnesBgTilemapWord(unchecked((ushort)(0x2800 | glyph))).ToggleFlips(flips).Raw;
+    /// <summary>Places a frame glyph in the frame's palette with priority, mirrored by <paramref name="flips"/>.</summary>
+    private static BackgroundTile Styled(int glyph, TileFlip flips = TileFlip.None) =>
+        new(glyph, FramePalette, highPriority: true, flips);
 }

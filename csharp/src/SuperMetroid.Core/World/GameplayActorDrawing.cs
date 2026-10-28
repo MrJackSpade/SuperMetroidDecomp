@@ -195,7 +195,7 @@ internal sealed class GameplayActorDrawing
                 _player.Samus.Presentation.Draw(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,
-                    mode7Transform: _display.ActiveSamusMode7Transform);
+                    turningFloor: _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
                 _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.BodyFrames.Sheets);
@@ -228,7 +228,7 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.Presentation.Draw(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition,
-                        mode7Transform: _display.ActiveSamusMode7Transform);
+                        turningFloor: _display.ActiveTurningFloor);
                 }
             }
             else if (_player.Samus.Shinespark.Phase is
@@ -244,7 +244,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     _clock.Counter,
-                    _display.ActiveSamusMode7Transform);
+                    _display.ActiveTurningFloor);
                 _player.Samus.Presentation.DrawShinesparkCrashEchoes(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,
@@ -280,7 +280,7 @@ internal sealed class GameplayActorDrawing
                         _player.Samus,
                         _room.Camera.PixelPosition,
                         flare,
-                        _display.ActiveSamusMode7Transform,
+                        _display.ActiveTurningFloor,
                         new ChargeFlareArtwork
                         {
                             Placement = _artwork.ChargeFlarePlacement,
@@ -313,7 +313,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     _clock.Counter,
-                    _display.ActiveSamusMode7Transform);
+                    _display.ActiveTurningFloor);
                 if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.AfterBody)
                 {
                     _player.Samus.ArmCannon.Draw(

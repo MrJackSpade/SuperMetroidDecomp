@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -8,10 +9,10 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroTilemaps
 {
     /// <summary>The four scene pages' words, page after page.</summary>
-    private readonly ushort[] scenePages = new ushort[IntroCinematicArtworkFormat.BackgroundPageCount * SnesPpuLayout.TilemapPageWordCount];
+    private readonly ushort[] scenePages = new ushort[IntroCinematicArtworkFormat.BackgroundPageCount * ScreenGeometry.TilemapScreenCellCount];
 
     /// <summary>The portrait tilemap's words.</summary>
-    private readonly ushort[] portrait = new ushort[SnesPpuLayout.TilemapPageWordCount];
+    private readonly ushort[] portrait = new ushort[ScreenGeometry.TilemapScreenCellCount];
 
     /// <summary>The narration tilemap's words.</summary>
     private readonly ushort[] narration = new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
@@ -24,7 +25,7 @@ internal sealed class IntroTilemaps
 
     /// <summary>The tilemap of one scene page.</summary>
     internal ReadOnlySpan<ushort> ScenePage(IntroScenePage page) =>
-        scenePages.AsSpan(PageSlot(page) * SnesPpuLayout.TilemapPageWordCount, SnesPpuLayout.TilemapPageWordCount);
+        scenePages.AsSpan(PageSlot(page) * ScreenGeometry.TilemapScreenCellCount, ScreenGeometry.TilemapScreenCellCount);
 
     /// <summary>The installed scene pages in the order they are loaded.</summary>
     private static readonly IntroScenePage[] InstalledPageOrder = Enum.GetValues<IntroScenePage>();

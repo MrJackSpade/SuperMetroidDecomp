@@ -74,23 +74,23 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
             if (pose == Pose.SuitlessSamusLowerBody)
             {
                 if (index == 0) tile = EndingRewardSuitlessCellDefinitions.InnerHipEdge;
-                else if (index < 3) tile = SnesCharacterGrid.Cell(13, 0) + 5 * (index - 1); // outer foot tips, left then right
-                else if (index < 5) tile = SnesCharacterGrid.Cell(12, 1) + 2 * (index - 3); // foot pair, left then right
-                else if (index < 8) tile = SnesCharacterGrid.Cell(8, 3) - 16 * (index - 5); // inner edge, bottom to top
-                else if (index < 10) tile = SnesCharacterGrid.Cell(11, 3) - 32 * (index - 8); // right leg
-                else tile = SnesCharacterGrid.Cell(11, 1) - 32 * (index - 10); // left leg and hip
+                else if (index < 3) tile = CharacterSheetGrid.Cell(13, 0) + 5 * (index - 1); // outer foot tips, left then right
+                else if (index < 5) tile = CharacterSheetGrid.Cell(12, 1) + 2 * (index - 3); // foot pair, left then right
+                else if (index < 8) tile = CharacterSheetGrid.Cell(8, 3) - 16 * (index - 5); // inner edge, bottom to top
+                else if (index < 10) tile = CharacterSheetGrid.Cell(11, 3) - 32 * (index - 8); // right leg
+                else tile = CharacterSheetGrid.Cell(11, 1) - 32 * (index - 10); // left leg and hip
                 x = 8 * (tile & 15) - 16; y = 8 * (tile / 16) - 40;
                 large = index is 3 or 4 or >= 8;
             }
             else if (pose == Pose.SuitlessSamusPreparingToJump)
             {
-                if (index < 5) tile = SnesCharacterGrid.Cell(5, 6) - 16 * index; // left edge, bottom to top
+                if (index < 5) tile = CharacterSheetGrid.Cell(5, 6) - 16 * index; // left edge, bottom to top
                 else if (index == 5) tile = EndingRewardSuitlessCellDefinitions.CrouchRightCap;
                 else if (index == 6) tile = EndingRewardSuitlessCellDefinitions.CrouchLeftLegEdge;
-                else if (index < 10) tile = SnesCharacterGrid.Cell(12, 8) - 32 * (index - 7); // right leg
-                else if (index < 12) tile = SnesCharacterGrid.Cell(6, 9) - 4 * (index - 10); // outer hips, right then left
-                else if (index < 14) tile = SnesCharacterGrid.Cell(4, 9) - 32 * (index - 12); // right upper edge
-                else tile = SnesCharacterGrid.Cell(10, 7) - 32 * (index - 14); // central column, bottom to top
+                else if (index < 10) tile = CharacterSheetGrid.Cell(12, 8) - 32 * (index - 7); // right leg
+                else if (index < 12) tile = CharacterSheetGrid.Cell(6, 9) - 4 * (index - 10); // outer hips, right then left
+                else if (index < 14) tile = CharacterSheetGrid.Cell(4, 9) - 32 * (index - 12); // right upper edge
+                else tile = CharacterSheetGrid.Cell(10, 7) - 32 * (index - 14); // central column, bottom to top
                 x = 8 * ((tile & 15) - 6) - 16; y = 8 * (tile / 16) - 32;
                 large = index >= 7;
             }
@@ -98,17 +98,17 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
             {
                 bool right = index < 4;
                 int row = right ? index : index - 4;
-                tile = (right ? SnesCharacterGrid.Cell(11, 11) : SnesCharacterGrid.Cell(2, 11)) - 16 * row;
+                tile = (right ? CharacterSheetGrid.Cell(11, 11) : CharacterSheetGrid.Cell(2, 11)) - 16 * row;
                 x = right ? 16 : -24; y = (right ? -16 : -24) - 8 * row;
                 large = false;
             }
             else
             {
-                if (index < 9) tile = SnesCharacterGrid.Cell(12, 14) - 32 * (index - 7); // lower right leg
+                if (index < 9) tile = CharacterSheetGrid.Cell(12, 14) - 32 * (index - 7); // lower right leg
                 else
                 {
                     int cell = index - 9;
-                    tile = SnesCharacterGrid.Cell(8, 14) - 32 * (cell / 2) - 2 * (cell % 2); // paired body rows
+                    tile = CharacterSheetGrid.Cell(8, 14) - 32 * (cell / 2) - 2 * (cell % 2); // paired body rows
                 }
                 x = 8 * ((tile & 15) - 12) - 16; y = 8 * (tile / 16) - 40;
                 large = true;

@@ -18,11 +18,11 @@ internal sealed class GameplayDisplayState
         LayerBlendingConfiguration.NormalGameplay;
 
     /// <summary>
-    /// Ceres's current shadow Mode 7 matrix. The shaft room main publishes it after the
+    /// The Ceres elevator shaft's current turning floor. The shaft room main publishes it after the
     /// drawing pass, and sprite producers use it only while calculating their temporary
     /// rendered origins. The translated consumer never moves physical coordinates.
     /// </summary>
-    public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
+    public TurningFloorTransform? ActiveTurningFloor { get; set; }
 
     /// <summary>
     /// The scene the most recent accepted (or forced-blank) frame shows. A lag frame leaves it unchanged. Door setup
@@ -46,7 +46,7 @@ internal sealed class GameplayDisplayState
     /// precedence over the shaft's. Later room-main changes reach the display only through the frame latch.
     /// </summary>
     /// <param name="transform">The shaft's transform, or null to remove the floor.</param>
-    internal void PublishDoorElevatorFloor(SamusMode7Transform? transform) =>
+    internal void PublishDoorElevatorFloor(TurningFloorTransform? transform) =>
         Latched = Latched with
         {
             PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } getaway ? getaway

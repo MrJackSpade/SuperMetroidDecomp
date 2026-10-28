@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -15,7 +16,7 @@ public readonly record struct FrontendFrame(
     int FrameNumber)
 {
     /// <summary>Visible frame width in pixels: 256 columns in row-major screen order.</summary>
-    public const int Width = SnesPpuLayout.ScreenWidthPixels;
+    public const int Width = ScreenGeometry.ScreenWidthPixels;
     /// <summary>Visible non-overscan frame height in pixels: 224 scanlines.</summary>
-    public const int Height = SnesPpuLayout.ScreenHeightPixels;
+    public const int Height = ScreenGeometry.ScreenHeightPixels;
 }

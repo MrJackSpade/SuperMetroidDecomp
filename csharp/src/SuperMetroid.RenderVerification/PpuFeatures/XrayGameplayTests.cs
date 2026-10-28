@@ -48,7 +48,7 @@ internal static class XrayGameplayTests
             Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
             bg1 = bg1 with { Bg3 = plane };
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop
                 | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
@@ -89,7 +89,7 @@ internal static class XrayGameplayTests
                         : bg1;
                     var additive = new GameplayColorMathRenderLayer(new(registers with
                     {
-                        MainScreenLayers = ScreenLayers.Bg1 | ScreenLayers.Sprites,
+                        MainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
                     }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = RgbColor.Black;
@@ -160,7 +160,7 @@ internal static class XrayGameplayTests
             ushort Fine() => (ushort)random.Next(16);
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
                 new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
-                ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new OrdinaryGameplayRenderLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();

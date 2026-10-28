@@ -61,7 +61,7 @@ internal static class SamusRunningCadenceDefinitions
     /// <summary>
     /// Resolves the speed-stage cadence selected by `$90:853E`. Selection five is the
     /// native sound-queue clobber: bytes three/three at the first cadence frames become
-    /// a stream starting in the Mode 7 transfer queue residue.
+    /// a stream starting in the floor update residue.
     /// </summary>
     internal static SamusRunningCadence SpeedBoostCadence(int selection) => selection switch
     {

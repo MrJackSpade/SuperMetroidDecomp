@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
@@ -73,7 +74,7 @@ internal static class RoomBackgroundsVerification
             new Offset16<BgPlanePixels>(0, 0), sourcePictures);
         var sourceScroll = new Position16<BgPlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
-        var top = new Position16<BgPlanePixels>(0x18, SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels);
+        var top = new Position16<BgPlanePixels>(0x18, ScreenGeometry.BackgroundRowOffset + ScreenGeometry.GameplayHudHeightPixels);
         AssertTrue(door.Covers(top) && ReferenceEquals(door.SourceRoom.Pictures, sourcePictures),
             "the door window's first gameplay line shows the source room");
         AssertTrue(!door.Covers(top + new Offset16<BgPlanePixels>(0, -1)),

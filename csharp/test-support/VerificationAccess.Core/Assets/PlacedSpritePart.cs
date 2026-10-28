@@ -39,7 +39,7 @@ internal readonly record struct PlacedSpritePart(SpriteArtworkId Artwork, Sprite
         {
             OamEntry entry = oam.GetEntry(index);
             int x = entry.Position.X >= 256 ? entry.Position.X - 512 : entry.Position.X;
-            int y = entry.Position.Y >= SnesPpuLayout.ScreenHeightPixels ? entry.Position.Y - 256 : entry.Position.Y;
+            int y = entry.Position.Y >= ScreenGeometry.ScreenHeightPixels ? entry.Position.Y - 256 : entry.Position.Y;
             parts[index] = new(artwork, new SpriteScreenPart(new Offset16<ScreenPixels>((short)x, (short)y),
                 entry.IsLarge ? sizes.Large : sizes.Small, entry.TileNumber, entry.FlipX, entry.FlipY, entry.Palette, entry.Priority));
         }

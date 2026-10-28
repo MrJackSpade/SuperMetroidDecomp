@@ -38,11 +38,11 @@ public static class RoomBlockSheetFiles
     /// <summary>The message box manifest's schema revision.</summary>
     private const int MessageManifestVersion = 1;
 
-    /// <summary>The manifest naming each Ceres tileset's Mode 7 tiles and what each was pictured over.</summary>
+    /// <summary>The manifest naming each Ceres tileset's Mode 7 tiles, what each was pictured over and the tileset's floor map.</summary>
     public const string Mode7ManifestFileName = "mode7-tiles.json";
 
-    /// <summary>The Mode 7 manifest's schema revision.</summary>
-    private const int Mode7ManifestVersion = 1;
+    /// <summary>The Mode 7 manifest's schema revision: revision 2 adds each tileset's imported floor map (#1422).</summary>
+    private const int Mode7ManifestVersion = 2;
 
     /// <summary>The manifest naming the characters each tileset's rooms' animations paint (#1406).</summary>
     public const string AnimationManifestFileName = "animated-characters.json";
@@ -72,7 +72,9 @@ public static class RoomBlockSheetFiles
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new Mode7Manifest(Mode7ManifestVersion, composition.FloorTiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
-                tiles => tiles.Shown.Select(shown => shown is { } bound ? new ShownDocument(bound.Artwork.Name, bound.WordOffset) : null).ToArray(),
+                tiles => new FloorTilesDocument(
+                    tiles.Shown.Select(shown => shown is { } bound ? new ShownDocument(bound.Artwork.Name, bound.WordOffset) : null).ToArray(),
+                    tiles.Map),
                 StringComparer.Ordinal)),
             JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, MessageManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
@@ -141,8 +143,10 @@ public static class RoomBlockSheetFiles
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)),
             mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
-                    store.Read(FloorTileSheet.NameOf(tileset)), [.. entry.Value.Select(shown => shown is null ? (BgArtworkShown?)null
-                        : new BgArtworkShown(new BgArtworkIdentity(shown.Artwork), shown.Offset))])
+                    store.Read(FloorTileSheet.NameOf(tileset)), [.. (entry.Value.Shown ?? throw new InvalidDataException(
+                        $"Mode 7 manifest {mode7Path} records no tiles for {entry.Key}.")).Select(shown => shown is null ? (BgArtworkShown?)null
+                        : new BgArtworkShown(new BgArtworkIdentity(shown.Artwork), shown.Offset))],
+                    entry.Value.Map ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} has no floor map for {entry.Key}."))
                 : throw new InvalidDataException($"Mode 7 manifest {mode7Path} names unknown tileset {entry.Key}."))
                 .ToDictionary(tiles => tiles.Tileset))
         {
@@ -177,10 +181,15 @@ public static class RoomBlockSheetFiles
     /// <param name="Words">Each image's tilemap words, page by page.</param>
     private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words);
 
-    /// <summary>The Mode 7 manifest: what each Ceres tileset's tiles were pictured over, by tileset and tile.</summary>
+    /// <summary>The Mode 7 manifest: what each Ceres tileset's tiles were pictured over and the tileset's floor map, by tileset.</summary>
     /// <param name="Version">The schema revision.</param>
-    /// <param name="Tiles">Each tile's artwork, by tileset; null for a tile not pictured.</param>
-    private sealed record Mode7Manifest(int Version, Dictionary<string, ShownDocument?[]> Tiles);
+    /// <param name="Tiles">Each tileset's tiles and floor map, by its installed name.</param>
+    private sealed record Mode7Manifest(int Version, Dictionary<string, FloorTilesDocument> Tiles);
+
+    /// <summary>One Ceres tileset's floor tiles and floor map.</summary>
+    /// <param name="Shown">Each tile's artwork, by tile; null for a tile not pictured.</param>
+    /// <param name="Map">The floor map a room of the tileset starts from: 16384 tile numbers, row-major.</param>
+    private sealed record FloorTilesDocument(ShownDocument?[] Shown, byte[] Map);
 
     /// <summary>The animated character manifest: the characters each tileset's rooms' animations paint, by tileset (#1406).</summary>
     /// <param name="Version">The schema revision.</param>

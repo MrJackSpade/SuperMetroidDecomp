@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Editable reserve-label, digit and arrow presentation sources and dimensions.</summary>
@@ -23,8 +25,8 @@ public static class PauseReserveUiDefinitions
     public const int ModeCell = 327;
     /// <summary>$82:8FCE destination for the three reserve-supply digits.</summary>
     public const int DigitCell = 392;
-    /// <summary>$82:8F70 native zero tilemap word; digits zero through nine are consecutive.</summary>
-    public const ushort DigitZeroWord = 0x0804;
+    /// <summary>$82:8F70: the zero digit's tile, glyph 4 in palette two; digits zero through nine are consecutive.</summary>
+    public static BackgroundTile DigitZeroTile { get; } = new(0x04, 2, highPriority: false);
     /// <summary>$82:ADE4/$ADF6 solid-arrow color six.</summary>
     public const ushort SolidColor6 = 0x0156;
     /// <summary>$82:ADDD/$ADEF solid-arrow color eleven.</summary>
@@ -75,20 +77,23 @@ public static class PauseReserveUiDefinitions
     });
 
     /// <summary>Compose reserve text from named consecutive glyph runs. Independent glyph pixels remain artwork.</summary>
-    internal static ushort StockLabelWord(PauseReserveLabel label, int index)
+    internal static BackgroundTile StockLabelTile(PauseReserveLabel label, int index)
     {
         if ((uint)index >= StockLabelWords(label)) throw new ArgumentOutOfRangeException(nameof(index));
         return label switch
         {
-            PauseReserveLabel.Mode => index < ModePrefixWords ? Word(ModeGlyph + index, 1)
-                : Word(ManualGlyph + index - ModePrefixWords, 7),
-            PauseReserveLabel.ReserveTank => Word(ReserveTankGlyph + index, 7),
-            PauseReserveLabel.Manual => Word(ManualGlyph + index, 7),
-            PauseReserveLabel.Auto => Word(AutoGlyph + index, 7),
+            PauseReserveLabel.Mode => index < ModePrefixWords ? Glyph(ModeGlyph + index, 1)
+                : Glyph(ManualGlyph + index - ModePrefixWords, 7),
+            PauseReserveLabel.ReserveTank => Glyph(ReserveTankGlyph + index, 7),
+            PauseReserveLabel.Manual => Glyph(ManualGlyph + index, 7),
+            PauseReserveLabel.Auto => Glyph(AutoGlyph + index, 7),
             _ => throw new ArgumentOutOfRangeException(nameof(label)),
         };
     }
 
-    /// <summary>Combines a reserve UI character index with native priority and BG palette bits.</summary>
-    private static ushort Word(int glyph, int palette) => (ushort)(0x2000 | palette << 10 | glyph);
+    /// <summary>Places a reserve UI glyph in <paramref name="palette"/> with priority.</summary>
+    private static BackgroundTile Glyph(int glyph, int palette) => new(glyph, palette, highPriority: true);
+
+    /// <summary>The tile of decimal digit <paramref name="digit"/>.</summary>
+    public static BackgroundTile DigitTile(int digit) => DigitZeroTile with { Tile = DigitZeroTile.Tile + digit };
 }

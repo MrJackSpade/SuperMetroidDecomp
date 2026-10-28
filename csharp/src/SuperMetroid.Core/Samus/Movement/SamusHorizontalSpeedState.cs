@@ -270,7 +270,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
-    /// <param name="mode7Residue">The session's Mode 7 transfer queue residue, which stage five's delay list aliases.</param>
+    /// <param name="floorUpdateResidue">The session's floor update residue, which stage five's delay list aliases.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
     /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
     /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
@@ -283,7 +283,7 @@ public sealed class SamusHorizontalSpeedState
     /// standalone callers can omit it when no cartridge audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
-        SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
+        SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
         SamusMovementType movementType,
         ControllerButton controllerInput,
         int animationFrameBuffer,
@@ -336,7 +336,7 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadence cadence = SamusRunningCadenceDefinitions.SpeedBoostCadence(stage);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, cadence, 0, windows: null)));
+            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(floorUpdateResidue, cadence, 0, windows: null)));
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -344,11 +344,11 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex,
+    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
         SamusAnimationWindows? windows)
     {
         int stage = checked((byte)SpeedBoostCounter.Stage);
-        return SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue,
+        return SamusRunningCadenceDefinitions.ReadAnimationByte(floorUpdateResidue,
             SamusRunningCadenceDefinitions.SpeedBoostCadence(stage), byteIndex, windows);
     }
 

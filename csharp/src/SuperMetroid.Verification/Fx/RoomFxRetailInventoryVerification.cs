@@ -435,7 +435,7 @@ internal static class RoomFxRetailInventoryVerification
         RgbaPixel[] first = RenderRoomFx(vram, cgram, firstSnapshot, plane);
         RgbaPixel[] backdrop = RenderRoomFxBackdrop(cgram);
         int surfaceFirstRow = firstSnapshot.WaterSurfaceScreenY -
-            (SnesPpuLayout.BackgroundTileSizePixels - 1);
+            (ScreenGeometry.BackgroundTileSizePixels - 1);
         RgbaPixel[] firstSurface = ReadRows(
             first,
             surfaceFirstRow,

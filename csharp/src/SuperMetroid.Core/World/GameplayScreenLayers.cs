@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.World;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class GameplayScreenLayers
 {
     /// <summary>The layers an ordinary room shows: both backgrounds and the sprites.</summary>
-    private const ScreenLayers OrdinaryLayers = ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites;
+    private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites;
 
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
@@ -35,10 +36,10 @@ internal sealed class GameplayScreenLayers
     internal void Choose(RoomScope room)
     {
         Chosen = _room.DoorTransitionMainScreenLayers ??
-            (ScreenLayers.Bg1 | ScreenLayers.Sprites |
+            (ScreenLayers.Foreground | ScreenLayers.Sprites |
                 (room.Enemies.DisplaySources.MotherBrain?.DeathBg2Hidden == true
                     ? ScreenLayers.None
-                    : ScreenLayers.Bg2));
+                    : ScreenLayers.Background));
         if (_room.DoorTransitionMainScreenLayers is null &&
             room.Layer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
         {

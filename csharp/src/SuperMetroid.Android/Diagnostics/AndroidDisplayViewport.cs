@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Android.Diagnostics;
 
@@ -28,9 +28,9 @@ internal readonly record struct AndroidDisplayViewport(Offset16<DisplayPixels> O
     /// </summary>
     public static AndroidDisplayViewport IntegerPixels(Extent16<DisplayPixels> client)
     {
-        int scale = Math.Min(client.X / SnesPpuLayout.ScreenWidthPixels, client.Y / SnesPpuLayout.ScreenHeightPixels);
-        var picture = new Extent16<DisplayPixels>(checked((ushort)(SnesPpuLayout.ScreenWidthPixels * scale)),
-            checked((ushort)(SnesPpuLayout.ScreenHeightPixels * scale)));
+        int scale = Math.Min(client.X / ScreenGeometry.ScreenWidthPixels, client.Y / ScreenGeometry.ScreenHeightPixels);
+        var picture = new Extent16<DisplayPixels>(checked((ushort)(ScreenGeometry.ScreenWidthPixels * scale)),
+            checked((ushort)(ScreenGeometry.ScreenHeightPixels * scale)));
         return new(new Offset16<DisplayPixels>(checked((short)((client.X - picture.X) / 2)), checked((short)((client.Y - picture.Y) / 2))),
             picture);
     }

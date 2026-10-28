@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Equipment-page base artwork and the compiled footprints owned by live menu state.</summary>
@@ -137,7 +139,7 @@ public static class PauseEquipmentBaseDefinitions
     /// <summary>Shared stock text, rectangular borders, title bars and reserve-arrow primitives.</summary>
     /// <remarks>The exact panel/header/arrow/gauge/guide composition and bounded metadata are retained choices;
     /// the presentation stores exact independent differences rather than dropping them.</remarks>
-    internal static ushort StockWord(int cell)
+    internal static BackgroundTile StockTile(int cell)
     {
         if ((uint)cell >= Cells) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / Columns, column = cell % Columns;
@@ -146,10 +148,10 @@ public static class PauseEquipmentBaseDefinitions
             int first = PauseEquipmentLabelDefinitions.StockPageByte(label.Label) / sizeof(ushort);
             int index = cell - first;
             if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Label)) continue;
-            int word = PauseEquipmentLabelDefinitions.StockWord(label.Label, index);
+            BackgroundTile tile = PauseEquipmentLabelDefinitions.StockTile(label.Label, index);
             bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
                 (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);
-            return (ushort)(grayTemplate ? (word & ~0x1c00) | PauseEquipmentLabelDefinitions.DisabledPalette << 10 : word);
+            return grayTemplate ? tile with { ColourVariant = PauseEquipmentLabelDefinitions.DisabledPalette } : tile;
         }
         // Copied transparent edge metadata and guide-layer policy are separately accounted
         // composition inputs, not unexplained full-word fallbacks.
@@ -202,10 +204,10 @@ public static class PauseEquipmentBaseDefinitions
             if (column is 12 or 19) return Tile(1, 2);
             return Tile(SamusTitle + column - 13, 2);
         }
-        return 0;
+        return default;
     }
 
-    /// <summary>Packs a SNES tilemap word from its glyph, palette, priority, and reflection bits.</summary>
-    private static ushort Tile(int character, int palette, bool priority = true, TileFlip flips = TileFlip.None) =>
-        SnesBgTilemapWord.Create(character, palette, priority, flips).Raw;
+    /// <summary>Places a glyph in <paramref name="palette"/>, prioritised and mirrored as given.</summary>
+    private static BackgroundTile Tile(int character, int palette, bool priority = true, TileFlip flips = TileFlip.None) =>
+        new(character, palette, priority, flips);
 }

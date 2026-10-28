@@ -5,16 +5,28 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
-/// <summary>Editable room BG tile references, preserving each native 32x32 page's word order.</summary>
+/// <summary>Editable room background tile placements, preserving each 32x32 page's cell order.</summary>
 public sealed class RoomBackgroundTilemapAtlas
 {
-    /// <summary>Owned little-endian BG tile words in native page and row order.</summary>
-    private readonly byte[] bytes;
-    /// <summary>Retains a validated one- or two-page native tilemap independent of JSON arrays.</summary>
-    internal RoomBackgroundTilemapAtlas(byte[] bytes) => this.bytes = bytes;
+    /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
+    private readonly BackgroundTile[] tiles;
+    /// <summary>Retains a validated one- or two-page tilemap independent of JSON arrays.</summary>
+    internal RoomBackgroundTilemapAtlas(BackgroundTile[] tiles) => this.tiles = tiles;
 
-    /// <summary>Owned compiled tilemap bytes: complete little-endian SNES BG words in page order, with row-major cells inside each 32-by-32 page.</summary>
-    public ReadOnlyMemory<byte> Bytes => bytes;
+    /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
+    public ReadOnlyMemory<BackgroundTile> Tiles => tiles;
+
+    /// <summary>The tiles as little-endian tilemap words, for the code #1422 has not yet moved off them.</summary>
+    public ReadOnlyMemory<byte> Bytes
+    {
+        get
+        {
+            var bytes = new byte[tiles.Length * sizeof(ushort)];
+            for (int index = 0; index < tiles.Length; index++)
+                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), BackgroundTileWords.ToWord(tiles[index]));
+            return bytes;
+        }
+    }
 
     /// <summary>Compiles an editable tile-reference document into one or two native BG tilemap pages.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
@@ -35,7 +47,7 @@ public sealed class RoomBackgroundTilemapAtlas
                 $"Room background tilemap requires version {RoomBackgroundTilemapFormat.Version} " +
                 $"and {pageCount} ordered 32x32 pages.");
 
-        var bytes = new byte[expectedByteCount];
+        var tiles = new BackgroundTile[expectedByteCount / sizeof(ushort)];
         for (int page = 0; page < pageCount; page++)
         {
             RoomBackgroundTilemapCell[]? cells = document.Pages[page]?.Cells;
@@ -52,17 +64,12 @@ public sealed class RoomBackgroundTilemapAtlas
                     (uint)definition.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
                     throw new InvalidDataException(
                         $"Room background page {page} cell {cell} has an invalid tile or palette.");
-                TileFlip flips =
-                    (definition.FlipX ? TileFlip.Horizontal : 0) |
-                    (definition.FlipY ? TileFlip.Vertical : 0);
-                BinaryPrimitives.WriteUInt16LittleEndian(
-                    bytes.AsSpan((page * RoomBackgroundTilemapFormat.CellsPerPage + cell) * 2),
-                    SnesBgTilemapWord.Create(
-                        definition.TileRow * RoomBackgroundTilemapFormat.TileColumns +
-                        definition.TileColumn, definition.Palette, definition.Priority, flips).Raw);
+                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = new BackgroundTile(
+                    definition.TileRow * RoomBackgroundTilemapFormat.TileColumns + definition.TileColumn,
+                    definition.Palette, definition.FlipX, definition.FlipY, definition.Priority);
             }
         }
-        return new RoomBackgroundTilemapAtlas(bytes);
+        return new RoomBackgroundTilemapAtlas(tiles);
     }
 
     /// <summary>Serializes a tilemap document, validating the serialized form against its required native size before writing to the destination.</summary>

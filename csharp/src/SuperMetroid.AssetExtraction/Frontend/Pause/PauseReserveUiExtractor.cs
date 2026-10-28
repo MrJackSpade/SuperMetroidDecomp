@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -26,7 +27,7 @@ public static class PauseReserveUiExtractor
         {
             Anchor = Point(PauseReserveUiDefinitions.DigitCell),
             Cells = Enumerable.Range(0, PauseReserveUiDefinitions.DigitCount)
-                .Select(value => PauseTileGrid.FromWord((ushort)(PauseReserveUiDefinitions.DigitZeroWord + value), $"Reserve.Digit{value}"))
+                .Select(value => PauseTileGrid.FromWord(BackgroundTileWords.ToWord(PauseReserveUiDefinitions.DigitTile(value)), $"Reserve.Digit{value}"))
                 .ToArray(),
         };
         PauseGridPoint[] arrowCells =

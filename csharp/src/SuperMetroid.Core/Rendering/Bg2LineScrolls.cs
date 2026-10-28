@@ -32,7 +32,7 @@ public readonly struct Bg2LineScrolls
     }
 
     /// <summary>The number of gameplay lines a scrolled axis covers.</summary>
-    public static int GameplayLines => SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
+    public static int GameplayLines => ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels;
 
     /// <summary>Whether a room effect scrolls BG2 horizontally line by line.</summary>
     public bool HorizontalShown { get; }

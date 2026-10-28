@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
@@ -96,7 +97,7 @@ public sealed class ScreenSprites
         int index = next % Capacity;
         // An object's Y wraps above the screen exactly where the off-screen loader reads an origin.
         placed[index] = new ScreenObject(position, frame, 1, null,
-            (byte)position.Y >= SnesPpuLayout.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen);
+            (byte)position.Y >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen);
         next = index + 1;
     }
 

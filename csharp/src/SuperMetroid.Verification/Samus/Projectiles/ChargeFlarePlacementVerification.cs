@@ -48,7 +48,7 @@ internal static class ChargeFlarePlacementVerification
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
-        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork objects = InstalledFixtures.ProjectileArtwork();
         int cases = 0;
         foreach (SamusPoseId pose in new[]
@@ -58,7 +58,7 @@ internal static class ChargeFlarePlacementVerification
         })
         for (byte direction = 0; direction < 16; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
-        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, -16, new Position16<RoomPixels>(128, 112)) })
+        foreach (TurningFloorTransform? transform in new TurningFloorTransform?[] { null, new(240, 16, -16, new Position16<RoomPixels>(128, 112)) })
         for (int component = 0; component < 3; component++)
         {
             // Exercise all original low-nibble operands at the renderer's metadata
@@ -136,7 +136,7 @@ internal static class ChargeFlarePlacementVerification
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
     internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,
-        Position16<RoomPixels> layer1, int component, SamusMode7Transform? transform,
+        Position16<RoomPixels> layer1, int component, TurningFloorTransform? transform,
         ChargeFlareArtwork artwork, ChargeFlarePose pose);
 
     /// <summary>Overlays a chosen pose and direction while rejecting reads from the migrated flare-origin table.</summary>

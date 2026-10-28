@@ -526,8 +526,8 @@ internal static void VerifyFrameRuntime()
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
     // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
-    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, -0x0010, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.Display.ActiveSamusMode7Transform = firstMode7;
+    var firstMode7 = new TurningFloorTransform(0x00f0, 0x0010, -0x0010, new Position16<RoomPixels>(0x0080, 0x03f0));
+    runtime.Display.ActiveTurningFloor = firstMode7;
 
     runtime.StepFrame(ControllerButton.Start);
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
@@ -536,8 +536,8 @@ internal static void VerifyFrameRuntime()
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll),
         runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
 
-    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.Display.ActiveSamusMode7Transform = secondMode7;
+    var secondMode7 = new TurningFloorTransform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
+    runtime.Display.ActiveTurningFloor = secondMode7;
     runtime.StepFrame(ControllerButton.Start);
     AssertEqual(ControllerButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");

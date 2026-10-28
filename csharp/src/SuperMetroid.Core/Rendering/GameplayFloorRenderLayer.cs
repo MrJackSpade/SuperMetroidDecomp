@@ -28,10 +28,10 @@ public sealed record GameplayFloorRenderLayer : RenderLayer
     public GameplayFloorRenderLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
         int hudScanlines, Mode1FloorBand? floor = null)
     {
-        if (hudScanlines < 0 || hudScanlines > SnesPpuLayout.ScreenHeightPixels ||
-            hudScanlines % SnesPpuLayout.BackgroundTileSizePixels != 0)
+        if (hudScanlines < 0 || hudScanlines > ScreenGeometry.ScreenHeightPixels ||
+            hudScanlines % ScreenGeometry.BackgroundTileSizePixels != 0)
             throw new ArgumentOutOfRangeException(nameof(hudScanlines));
-        if (floor is { } f && (f.FirstScanline < hudScanlines || f.FirstScanline >= SnesPpuLayout.ScreenHeightPixels ||
+        if (floor is { } f && (f.FirstScanline < hudScanlines || f.FirstScanline >= ScreenGeometry.ScreenHeightPixels ||
             f.MapSize.X is not (32 or 64) || f.MapSize.Y is not (32 or 64)))
             throw new ArgumentOutOfRangeException(nameof(floor));
         Transform = transform;

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Stable identities and calculated atlas layout for the four portrait eye drawings. The three selected patch anchors and display design identify authored portrait content; changing them invents different drawings. Timing and pixels are outside this retained scope.</summary>
@@ -16,11 +18,11 @@ public static class IntroEyeTilemapFormat
     /// <summary>$8C:D785/D795/D7A5/D7B5: second tile row begins16 characters after the first; each selected patch uses the native 16-column artwork atlas.</summary>
     internal const int RowStride = 16;
     /// <summary>$8C:D785: open-eye patch starts at tile389 of the installed95:F90E atlas.</summary>
-    private static int OpenTile => SnesCharacterGrid.Cell(row: 56, column: 9);
+    private static int OpenTile => CharacterSheetGrid.Cell(row: 56, column: 9);
     /// <summary>$8C:D795: half-open-eye patch starts at tile31D of the same atlas.</summary>
-    private static int HalfOpenTile => SnesCharacterGrid.Cell(row: 49, column: 13);
+    private static int HalfOpenTile => CharacterSheetGrid.Cell(row: 49, column: 13);
     /// <summary>$8C:D7A5: closed-eye patch starts at tile33A; deadpan patch atD7B5 lies immediately to its right.</summary>
-    private static int ClosedTile => SnesCharacterGrid.Cell(row: 51, column: 10);
+    private static int ClosedTile => CharacterSheetGrid.Cell(row: 51, column: 10);
     /// <summary>$8C:D785-D7BF: selected portrait palette three, no priority or flips.</summary>
     private const int PortraitPalette = 3;
     /// <summary>Selects the native open, half-open, closed, or adjacent deadpan patch anchor.</summary>

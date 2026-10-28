@@ -232,7 +232,7 @@ public sealed class SamusXrayState
         AngularHalfWidth = SignedSixteenSixteen.Zero;
         AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
-        SetupStage = XraySetupStage.FreezeTimeBackupBg2Registers;
+        SetupStage = XraySetupStage.FreezeTimeSaveBackground;
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
         SuspendedSubsystems = XraySuspendedSubsystems.All;

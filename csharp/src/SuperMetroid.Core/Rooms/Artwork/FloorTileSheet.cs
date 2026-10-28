@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
@@ -6,7 +7,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured floor tiles of one Ceres tileset (#1392): each of the 256 tiles whose characters the room's
 /// load binds, sixteen to a row, coloured with the tileset's standard palette and the sprite half as a room load leaves
-/// it, and what showed at each tile's characters when it was pictured; a tile nothing binds is not pictured.
+/// it, what showed at each tile's characters when it was pictured (a tile nothing binds is not pictured), and the
+/// floor map a room of the tileset starts from, which extraction imports (#1422).
 /// </summary>
 public sealed class FloorTileSheet
 {
@@ -28,14 +30,20 @@ public sealed class FloorTileSheet
     /// <summary>The room tile characters whose bytes one floor tile's pixels share.</summary>
     public const int TileCharacters = 4;
 
-    /// <summary>Checks the picture holds every tile and is background-coloured, and that each tile records what it shows over.</summary>
-    /// <exception cref="InvalidDataException">The picture is not every tile's size or colours, or a tile's artwork is missing.</exception>
-    public FloorTileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<BgArtworkShown?> shown)
+    /// <summary>
+    /// Checks the picture holds every tile and is background-coloured, that each tile records what it shows over, and that
+    /// the map names a tile for every cell.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The picture is not every tile's size or colours, a tile's artwork is missing, or the map is not every cell.</exception>
+    public FloorTileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<BgArtworkShown?> shown, ReadOnlySpan<byte> map)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         Picture = sheet.Frame(FrameName);
         Shown = [.. Ensure.NotNull(shown)];
+        if (map.Length != FloorMap.Cells)
+            throw new InvalidDataException($"{Name}'s floor map holds {map.Length} cells, not {FloorMap.Cells}.");
+        this.map = map.ToArray();
         if (Picture.Size.X != TilesPerRow * TilePixels || Picture.Size.Y != Tiles / TilesPerRow * TilePixels)
             throw new InvalidDataException($"{Name} is {Picture.Size.X}x{Picture.Size.Y}, not every tile's size.");
         if (Picture.Sheet.Colours != SpriteImageColours.FullPalette)
@@ -44,8 +52,14 @@ public sealed class FloorTileSheet
             throw new InvalidDataException($"{Name} records what {Shown.Count} tiles show over, not {Tiles}.");
     }
 
+    /// <summary>The floor map a room of the tileset starts from: its tile numbers, row-major.</summary>
+    private readonly byte[] map;
+
     /// <summary>The Ceres tileset.</summary>
     public TilesetDefinition Tileset { get; }
+
+    /// <summary>The floor map a room of the tileset starts from: <see cref="FloorMap.Cells"/> tile numbers, row-major.</summary>
+    public ReadOnlySpan<byte> Map => map;
 
     /// <summary>The installed name.</summary>
     public string Name => NameOf(Tileset);

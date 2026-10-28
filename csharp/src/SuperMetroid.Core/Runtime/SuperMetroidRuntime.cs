@@ -99,7 +99,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="GameplayActorDrawing"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayActorDrawing ActorDrawing { get; }
 
-    /// <summary>The session's Mode 7 transfer queue residue, bound into the enemies and every Samus this runtime creates.</summary>
+    /// <summary>The session's floor update residue, bound into the enemies and every Samus this runtime creates.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; }
 
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
@@ -128,7 +128,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="artwork">The installed catalogs; their initial palette is loaded into CGRAM during construction, and <see cref="BindArtwork"/> binds the rest.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
-    /// <param name="floorQueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
+    /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime as WRAM does.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
         FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random)
@@ -975,7 +975,7 @@ internal sealed class SuperMetroidRuntime
             allowDeparture: policy.AllowCeresElevatorDeparture,
             Room.RoomMainScratch);
         if (RoomMains.LastCeresElevatorShaftRoomMain.MatrixChanged)
-            Display.ActiveSamusMode7Transform = RoomMains.LastCeresElevatorShaftRoomMain.Transform;
+            Display.ActiveTurningFloor = RoomMains.LastCeresElevatorShaftRoomMain.Transform;
 
         RoomMains.RunCeresFallingDebrisRoomMain(Room.LoadedScope);
         RoomMains.RunCrocomireComebackRoomMain(Room.LoadedScope);

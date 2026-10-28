@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
@@ -27,7 +28,7 @@ internal static class MenuScreenMemory
     internal static byte[] Compose(MenuScreen screen)
     {
         byte[] image = Characters(screen);
-        ReadOnlySpan<ushort> tilemaps = screen.Tilemaps.All;
+        ushort[] tilemaps = BackgroundTileWordBytes.Words(screen.Tilemaps.All);
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)
         {

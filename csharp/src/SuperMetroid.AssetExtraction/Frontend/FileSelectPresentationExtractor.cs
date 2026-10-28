@@ -103,10 +103,10 @@ public static class FileSelectPresentationExtractor
             [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
         };
         var digits = Enumerable.Range(0, 10)
-            .Select(value => Cell(unchecked((ushort)(FileSelectLayout.DigitTileBase + value))))
+            .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectLayout.Digit(value))))
             .ToArray();
         var letters = Enumerable.Range(0, 3)
-            .Select(value => Cell(unchecked((ushort)(FileSelectLayout.SamusLetterTileBase + value))))
+            .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectLayout.SlotLetter(value))))
             .ToArray();
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
@@ -276,7 +276,7 @@ public static class FileSelectPresentationExtractor
     private static ushort[] BlankPage()
     {
         var page = new ushort[FileSelectPresentationDefinitions.CellCount];
-        Array.Fill(page, FileSelectLayout.BlankTile);
+        Array.Fill(page, BackgroundTileWords.ToWord(FileSelectLayout.BlankTile));
         return page;
     }
 

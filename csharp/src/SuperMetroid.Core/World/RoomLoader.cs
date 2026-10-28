@@ -12,6 +12,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -430,7 +431,7 @@ internal sealed class RoomLoader
         bool suppressBg1 = sourceIsolated || destinationIsolated;
         _room.DoorTransitionMainScreenLayers = suppressBg1
             ? ScreenLayers.Sprites
-            : ScreenLayers.Bg1 | ScreenLayers.Sprites;
+            : ScreenLayers.Foreground | ScreenLayers.Sprites;
     }
 
     /// <summary>Returns main-screen ownership to the room's ordinary gameplay IRQ.</summary>
@@ -822,14 +823,14 @@ internal sealed class RoomLoader
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
         // producer. Ordinary doors clear it so stale Mode-7 math cannot leak across rooms.
-        SamusMode7Transform? initialFloorTransform = door.EntersCeresElevatorShaft
-            ? new SamusMode7Transform(
+        TurningFloorTransform? initialFloorTransform = door.EntersCeresElevatorShaft
+            ? new TurningFloorTransform(
                 MatrixA: 256, // 1.0 in Mode 7's 8.8 fixed point.
                 MatrixB: 0,
                 MatrixC: 0,
                 Center: CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
             : null;
-        _display.ActiveSamusMode7Transform = initialFloorTransform;
+        _display.ActiveTurningFloor = initialFloorTransform;
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
         // reach it only when the frame's display is published, like every other floor change.

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;

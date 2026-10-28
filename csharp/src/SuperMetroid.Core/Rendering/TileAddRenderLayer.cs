@@ -37,7 +37,7 @@ public sealed record TileAddRenderLayer(ScreenTileMap Cells,
     /// <exception cref="ArgumentException">The scroll count differs from the visible screen height.</exception>
     public TileAddRenderLayer WithScrolls(ReadOnlySpan<Position16<BgPlanePixels>> value)
     {
-        Ensure.LengthEqual(value, Hardware.SnesPpuLayout.ScreenHeightPixels);
+        Ensure.LengthEqual(value, ScreenGeometry.ScreenHeightPixels);
         var copy = this with { };
         copy.scrolls = value.ToArray();
         return copy;

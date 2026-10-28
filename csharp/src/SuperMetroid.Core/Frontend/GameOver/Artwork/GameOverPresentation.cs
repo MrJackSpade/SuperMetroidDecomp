@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -17,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 public sealed class GameOverPresentation
 {
     /// <summary>Stores an authored tilemap only when it differs from the calculated stock game-over text page.</summary>
-    internal readonly byte[]? tilemap;
+    internal readonly BackgroundTile[]? tilemap;
     /// <summary>Each Baby frame's composition.</summary>
     internal readonly Dictionary<GameOverBabyFrame, SpriteComposition> babySprites;
     /// <summary>The egg's composition.</summary>
@@ -35,7 +34,7 @@ public sealed class GameOverPresentation
 
     /// <summary>Retains compiled artwork and screen anchors, eliding an unchanged stock tilemap.</summary>
     private GameOverPresentation(
-        byte[] tilemap,
+        BackgroundTile[] tilemap,
         Dictionary<GameOverBabyFrame, SpriteComposition> babySprites,
         SpriteComposition eggSprite,
         SpriteComposition[] cursorSprites,
@@ -44,8 +43,7 @@ public sealed class GameOverPresentation
         string contentIdentity)
     {
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            if (BinaryPrimitives.ReadUInt16LittleEndian(tilemap.AsSpan(cell * sizeof(ushort))) !=
-                GameOverPresentationDefinitions.TilemapWord(cell))
+            if (tilemap[cell] != GameOverPresentationDefinitions.TilemapTile(cell))
             {
                 this.tilemap = tilemap;
                 break;
@@ -84,9 +82,9 @@ public sealed class GameOverPresentation
     /// <summary>Menu updates per frame of the looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
-    /// <summary>Copies the complete game-over tilemap into the menu's BG1 words, calculating stock text words when the loaded page has no edits.</summary>
-    /// <param name="destination">The menu BG1 tilemap words.</param>
-    internal void LoadTilemapTo(Span<ushort> destination)
+    /// <summary>Copies the complete game-over tilemap into the menu's BG1, calculating the stock text tiles when the loaded page has no edits.</summary>
+    /// <param name="destination">The menu BG1 tilemap.</param>
+    internal void LoadTilemapTo(Span<BackgroundTile> destination)
     {
         if (tilemap is not null)
         {
@@ -95,7 +93,7 @@ public sealed class GameOverPresentation
         }
         Ensure.LengthEqual(destination, GameOverPresentationDefinitions.TilemapCellCount);
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            destination[cell] = GameOverPresentationDefinitions.TilemapWord(cell);
+            destination[cell] = GameOverPresentationDefinitions.TilemapTile(cell);
     }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
@@ -185,7 +183,7 @@ public sealed class GameOverPresentation
         if (document.CursorFrameDuration is < 1 or > ushort.MaxValue)
             throw new InvalidDataException("Game-over cursor frame duration must be 1..65535.");
 
-        var tilemap = new byte[GameOverPresentationDefinitions.TilemapByteCount];
+        var tilemap = new BackgroundTile[GameOverPresentationDefinitions.TilemapCellCount];
         for (int index = 0; index < document.Tilemap.Length; index++)
         {
             MapPresentationCell? cell = document.Tilemap[index];
@@ -195,12 +193,8 @@ public sealed class GameOverPresentation
                 (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"Game-over tilemap cell {index} has an invalid atlas coordinate or palette.");
-            BinaryPrimitives.WriteUInt16LittleEndian(tilemap.AsSpan(index * sizeof(ushort)), checked((ushort)(
-                cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn |
-                cell.Palette << MapPresentationFormat.PaletteShift |
-                (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
-                (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) |
-                (cell.FlipY ? MapPresentationFormat.FlipYBit : 0))));
+            tilemap[index] = new BackgroundTile(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn, cell.Palette,
+                cell.FlipX, cell.FlipY, cell.Priority);
         }
 
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,

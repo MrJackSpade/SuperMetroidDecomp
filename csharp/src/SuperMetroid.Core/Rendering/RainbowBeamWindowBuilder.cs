@@ -33,7 +33,7 @@ internal static class RainbowBeamWindowBuilder
     /// </summary>
     internal static MotherBrainBeamLine[] Build(MotherBrainRainbowBeamGeometry? geometry)
     {
-        var windows = new MotherBrainBeamLine[SnesPpuLayout.ScreenHeightPixels];
+        var windows = new MotherBrainBeamLine[ScreenGeometry.ScreenHeightPixels];
         Array.Fill(windows, MotherBrainBeamLine.None);
         if (geometry is not { } beam) return windows;
         bool right = beam.Direction == MotherBrainBeamDirection.Right;

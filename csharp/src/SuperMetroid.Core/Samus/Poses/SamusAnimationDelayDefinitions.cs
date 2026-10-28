@@ -410,7 +410,7 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>The delay program any pose byte animates by.</summary>
     /// <remarks>
     /// The three invalid pose bytes overread the pose table into the first delay bytes, whose words name a start in the
-    /// Mode 7 transfer queue residue.
+    /// floor update residue.
     /// </remarks>
     internal static SamusAnimationDelayList ListForPose(SamusPoseId pose)
     {

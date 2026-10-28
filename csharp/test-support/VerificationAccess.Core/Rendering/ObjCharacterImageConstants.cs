@@ -108,7 +108,7 @@ internal static class ObjCharacterImageConstants
             int height = entry.IsLarge ? largeHeight : smallHeight;
             // OAM X is a signed/modular 9-bit coordinate and Y wraps above the visible field.
             int objectX = entry.Position.X >= XRange / 2 ? entry.Position.X - XRange : entry.Position.X;
-            int objectY = entry.Position.Y >= SnesPpuLayout.ScreenHeightPixels ? entry.Position.Y - YRange : entry.Position.Y;
+            int objectY = entry.Position.Y >= ScreenGeometry.ScreenHeightPixels ? entry.Position.Y - YRange : entry.Position.Y;
             var flip = (entry.FlipX ? TileFlip.Horizontal : 0) | (entry.FlipY ? TileFlip.Vertical : 0);
             int columns = width / SpriteArtwork.CharacterPixels;
             int rows = height / SpriteArtwork.CharacterPixels;

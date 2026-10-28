@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Bosses.Botwoon;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

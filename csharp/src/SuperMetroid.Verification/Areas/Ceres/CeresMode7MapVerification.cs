@@ -54,7 +54,7 @@ internal static class CeresMode7MapVerification
 
     /// <summary>The Mode 7 map the runtime's last NMI published.</summary>
     private static AffineFloor Published(SuperMetroidRuntime runtime) =>
-        (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.")).Mode7
+        (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.")).Floor
             ?? throw new InvalidOperationException("A Ceres room publishes its Mode 7 map.");
 
     /// <summary>Runs the Ceres Mode 7 map checks.</summary>

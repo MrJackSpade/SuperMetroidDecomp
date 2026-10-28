@@ -54,7 +54,7 @@ internal static class CeresRidleyBodyPublicationVerification
                 ?? throw new InvalidOperationException("Ridley's getaway publishes his floor.");
             AssertEqual(CeresPerspectiveFloors.RidleyGetaway(CeresRidleyGetaway.FloorTransform(ridley)
                 ?? throw new InvalidOperationException("Ridley flies his getaway.")), floor, $"angle {ridley.FloorAngle} publishes Ridley's floor");
-            AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
+            AffineFloor map = runtime.Display.Latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
             foreach (CeresFloorTileRun transfer in CeresFloorAnimationDefinitions.Get(wings))
                 AssertTrue(map.Cells.Slice(transfer.FloorCell, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),

@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
@@ -7,34 +6,31 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <summary>Editable equipment-page base art, independent of live inventory and reserve patches.</summary>
 public sealed class PauseEquipmentBasePresentation
 {
-    /// <summary>Only independently edited cells; unchanged words come from the composed stock page.</summary>
-    internal readonly Dictionary<int, ushort> remainingCells = [];
+    /// <summary>Only independently edited cells; unchanged tiles come from the composed stock page.</summary>
+    internal readonly Dictionary<int, BackgroundTile> remainingCells = [];
     /// <summary>Compares every selected cell with the immutable stock composition.</summary>
-    private PauseEquipmentBasePresentation(ReadOnlySpan<byte> selected)
+    private PauseEquipmentBasePresentation(ReadOnlySpan<BackgroundTile> selected)
     {
-        // Compare each supplied word independently with immutable stock composition.
+        // Compare each supplied tile independently with immutable stock composition.
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
-        {
-            int word = BinaryPrimitives.ReadUInt16LittleEndian(selected[(cell * sizeof(ushort))..]);
-            if (word != DefaultWord(cell)) remainingCells.Add(cell, (ushort)word);
-        }
+            if (selected[cell] != DefaultTile(cell)) remainingCells.Add(cell, selected[cell]);
     }
 
-    /// <summary>Builds a complete 32-by-32 native BG tilemap from selected edits and calculated stock composition.</summary>
-    /// <returns>A new 2048-byte little-endian tilemap in row-major order.</returns>
-    public byte[] CreateTilemap()
+    /// <summary>Builds a complete 32-by-32 tilemap from selected edits and calculated stock composition.</summary>
+    /// <returns>A new 1024-tile tilemap in row-major order.</returns>
+    public BackgroundTile[] CreateTilemap()
     {
-        var result = new byte[PauseEquipmentBaseDefinitions.Cells * sizeof(ushort)];
+        var result = new BackgroundTile[PauseEquipmentBaseDefinitions.Cells];
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
-            BinaryPrimitives.WriteUInt16LittleEndian(result.AsSpan(cell * sizeof(ushort)), Word(cell));
+            result[cell] = Tile(cell);
         return result;
     }
 
     /// <summary>Uses a supplied visual edit when present and calculates the stock cell otherwise.</summary>
-    private ushort Word(int cell) => remainingCells.ContainsKey(cell) ? remainingCells[cell] : DefaultWord(cell);
+    private BackgroundTile Tile(int cell) => remainingCells.TryGetValue(cell, out BackgroundTile edited) ? edited : DefaultTile(cell);
 
     /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
-    private static ushort DefaultWord(int cell)
+    private static BackgroundTile DefaultTile(int cell)
     {
         int relative = cell - PauseWireframeDefinitions.FirstPageByte / sizeof(ushort);
         int stride = PauseWireframeDefinitions.PageRowBytes / sizeof(ushort);
@@ -42,16 +38,16 @@ public sealed class PauseEquipmentBasePresentation
             relative % stride < PauseWireframeDefinitions.Columns)
         {
             int local = relative / stride * PauseWireframeDefinitions.Columns + relative % stride;
-            return PauseWireframeDefinitions.StockWord(PauseWireframeKind.PowerSuit, local);
+            return PauseWireframeDefinitions.StockTile(PauseWireframeKind.PowerSuit, local);
         }
-        return PauseEquipmentBaseDefinitions.StockWord(cell);
+        return PauseEquipmentBaseDefinitions.StockTile(cell);
     }
 
     /// <summary>Refreshes authored base cells while preserving every footprint owned by live menu state.</summary>
-    public void RebindBaseInto(Span<byte> current,
+    public void RebindBaseInto(Span<BackgroundTile> current,
         PauseEquipmentLabelPresentation? equipmentLabels = null)
     {
-        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
+        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells);
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
             bool liveOwned = equipmentLabels is null
@@ -59,14 +55,7 @@ public sealed class PauseEquipmentBasePresentation
                 : PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) ||
                     equipmentLabels.OwnsLiveCell(cell);
             if (liveOwned) continue;
-            int offset = cell * sizeof(ushort);
-            SnesBgTilemapWord replacement = Word(cell);
-            if (PauseEquipmentBaseDefinitions.IsArrowCell(cell))
-            {
-                int palette = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(current.Slice(offset))).PaletteIndex;
-                replacement = replacement.WithPaletteIndex(palette);
-            }
-            BinaryPrimitives.WriteUInt16LittleEndian(current.Slice(offset), replacement);
+            current[cell] = Replacement(current[cell], cell);
         }
     }
 
@@ -74,21 +63,21 @@ public sealed class PauseEquipmentBasePresentation
     /// Refreshes the complete authored base before semantic inventory labels are rebuilt,
     /// while retaining the independent wireframe/reserve owners and live arrow palette.
     /// </summary>
-    public void RebindBeforeInventoryRefreshInto(Span<byte> current)
+    public void RebindBeforeInventoryRefreshInto(Span<BackgroundTile> current)
     {
-        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
+        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells);
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
             if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell)) continue;
-            int offset = cell * sizeof(ushort);
-            SnesBgTilemapWord replacement = Word(cell);
-            if (PauseEquipmentBaseDefinitions.IsArrowCell(cell))
-            {
-                int palette = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(current.Slice(offset))).PaletteIndex;
-                replacement = replacement.WithPaletteIndex(palette);
-            }
-            BinaryPrimitives.WriteUInt16LittleEndian(current.Slice(offset), replacement);
+            current[cell] = Replacement(current[cell], cell);
         }
+    }
+
+    /// <summary>The selected tile of <paramref name="cell"/>, keeping a reserve arrow cell's live colour variant from <paramref name="shown"/>.</summary>
+    private BackgroundTile Replacement(BackgroundTile shown, int cell)
+    {
+        BackgroundTile replacement = Tile(cell);
+        return PauseEquipmentBaseDefinitions.IsArrowCell(cell) ? replacement with { ColourVariant = shown.ColourVariant } : replacement;
     }
 
     /// <summary>Loads and validates all 1024 editable equipment-page base cells.</summary>

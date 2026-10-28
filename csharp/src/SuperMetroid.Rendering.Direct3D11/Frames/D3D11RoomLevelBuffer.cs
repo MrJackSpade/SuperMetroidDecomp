@@ -145,7 +145,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomOverlayPictures? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
         SkyPictures? sky = frame.Sky;
         Layer3Cells? bg3 = frame.Bg3;
-        AffineFloor? mode7 = frame.Mode7;
+        AffineFloor? mode7 = frame.Floor;
         BossBodyPictures? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
@@ -424,7 +424,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         const uint highPriority = 1u << 20, flipHorizontally = 1u << 21, flipVertically = 1u << 22;
         for (int index = 0; index < map.Cells.Length; index++)
         {
-            ScreenTileCell cell = map.Cells[index];
+            BackgroundTile cell = map.Cells[index];
             words[index] = (uint)cell.Tile | (uint)cell.ColourVariant << variantShift | (cell.HighPriority ? highPriority : 0)
                 | (cell.FlipHorizontally ? flipHorizontally : 0) | (cell.FlipVertically ? flipVertically : 0);
         }

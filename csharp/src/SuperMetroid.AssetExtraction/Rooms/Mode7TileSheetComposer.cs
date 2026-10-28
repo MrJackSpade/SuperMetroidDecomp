@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 
@@ -13,7 +14,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Pre-colours each Ceres tileset's Mode 7 tiles (#1392): the 256 tiles whose pixels are the high bytes of the VRAM words
 /// the room's character uploads fill, coloured with the tileset's standard palette and, where a pixel names a sprite
 /// colour, the sprite half as a room load leaves it: the initial gameplay palette with the common sprite and
-/// enemy-projectile rows restored.
+/// enemy-projectile rows restored. It also imports the floor map a room of the tileset starts from (#1422): the 128 by
+/// 128 tile numbers are the low bytes of the first 16384 of those words.
 /// </summary>
 internal static class Mode7TileSheetComposer
 {
@@ -69,6 +71,9 @@ internal static class Mode7TileSheetComposer
                 Parts = [],
             },
         };
-        return new ComposedMode7Tiles(tileset, canvas.ToSheet(colours, frames, SpriteImageColours.FullPalette), shown);
+        var map = new byte[FloorMap.Cells];
+        for (int cell = 0; cell < map.Length; cell++)
+            map[cell] = tiles[cell * 2];
+        return new ComposedMode7Tiles(tileset, canvas.ToSheet(colours, frames, SpriteImageColours.FullPalette), shown, map);
     }
 }

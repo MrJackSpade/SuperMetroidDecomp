@@ -287,16 +287,16 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
         Position16<BgPlanePixels> mapScroll = new(
             ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0,
-            unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline)));
+            unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset)));
         // Every plane draws from the pause screen's pre-coloured tiles (#1392).
         ScreenLayerPictures planes = screen.PlaneTiles;
         var bg1 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(64, 32), planes),
             mapScroll, false);
         var bg2 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
-            new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), false);
+            new Position16<BgPlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
         // The HUD plane shows its first screen through the viewport.
         var bg3 = new TileViewportRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg3[..PauseTilemaps.ScreenWords], TileViewportRenderLayer.MapSize,
-            screen.HudTiles), SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
+            screen.HudTiles), ScreenGeometry.BackgroundRowOffset, true, false);
         RenderLayer[] layers =
         [
             new SpritePriorityRenderLayer(0), bg3,

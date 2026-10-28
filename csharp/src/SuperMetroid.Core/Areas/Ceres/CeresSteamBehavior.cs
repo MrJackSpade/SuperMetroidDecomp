@@ -114,7 +114,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Ports <c>CeresSteam_Main</c> at <c>$A6:F00D</c>.</summary>
     private static void RunCeresSteamMain(
         RoomEnemySlot slot,
-        SamusMode7Transform? floorTransform)
+        TurningFloorTransform? floorTransform)
     {
         // Both main AI and touch AI restore this value. Steam is scenery/hazard state and
         // cannot be destroyed by a projectile that happened to overlap an active plume.
@@ -134,7 +134,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             // collision continues to use the untransformed world point; drawing consumes
             // these offsets later in WriteEnemyOAM.
             case CeresSteamFunction.ApplyRotatingElevatorOffset:
-                if (floorTransform is not SamusMode7Transform transform)
+                if (floorTransform is not TurningFloorTransform transform)
                 {
                     throw new InvalidOperationException(
                         "Ceres steam elevator variant requires the turning floor's transform.");

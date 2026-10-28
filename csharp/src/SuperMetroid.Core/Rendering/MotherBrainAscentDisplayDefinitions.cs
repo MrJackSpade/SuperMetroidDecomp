@@ -11,13 +11,13 @@ internal static class MotherBrainAscentDisplayDefinitions
     /// <summary>$88:E73D selects BG3 for the 32-line HUD, then $15/$13/$05 for the gameplay bands.</summary>
     internal static ScreenLayers[] BuildGameplayLayers()
     {
-        var layers = new ScreenLayers[SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels];
-        for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
-            layers[y - SnesPpuLayout.GameplayHudHeightPixels] = y < UpperBandEnd
-                ? ScreenLayers.Bg1 | ScreenLayers.Bg3 | ScreenLayers.Sprites
+        var layers = new ScreenLayers[ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels];
+        for (int y = ScreenGeometry.GameplayHudHeightPixels; y < ScreenGeometry.ScreenHeightPixels; y++)
+            layers[y - ScreenGeometry.GameplayHudHeightPixels] = y < UpperBandEnd
+                ? ScreenLayers.Foreground | ScreenLayers.Overlay | ScreenLayers.Sprites
                 : y < FloorBandStart
-                    ? ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites
-                    : ScreenLayers.Bg1 | ScreenLayers.Bg3;
+                    ? ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites
+                    : ScreenLayers.Foreground | ScreenLayers.Overlay;
         return layers;
     }
 }

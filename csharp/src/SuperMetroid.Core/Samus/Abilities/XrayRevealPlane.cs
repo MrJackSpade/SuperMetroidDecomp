@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -52,7 +53,7 @@ public sealed class XrayRevealPlane
             {
                 int first = XrayRevealTilemap.FirstCellOf(column, row);
                 found[row * XrayTilemapLayout.MetatileColumns + column] = index.Find(words[first], words[first + 1],
-                    words[first + SnesPpuLayout.TilemapPageWidthInTiles], words[first + SnesPpuLayout.TilemapPageWidthInTiles + 1]);
+                    words[first + ScreenGeometry.TilemapScreenWidthInTiles], words[first + ScreenGeometry.TilemapScreenWidthInTiles + 1]);
             }
         }
         return found;

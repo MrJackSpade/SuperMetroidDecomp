@@ -126,7 +126,7 @@ public static class GameplayDisplayCapture
                 : new Extent16<TilemapCells>(32, 64),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
-                    ? ScreenLayers.Bg1 | ScreenLayers.Sprites
+                    ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedMainScreen),
             bg2Lines.First, bg2Lines.End,
             Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
@@ -196,7 +196,7 @@ public static class GameplayDisplayCapture
     private static ushort[] VisibleLines(IReadOnlyList<ushort>? values)
     {
         if (values is null) return [];
-        int count = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
+        int count = ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels;
         if (values.Count < count) throw new InvalidDataException("Published HDMA does not cover the gameplay viewport.");
         var result = new ushort[count];
         for (int i = 0; i < count; i++) result[i] = values[i];
@@ -214,7 +214,7 @@ public static class GameplayDisplayCapture
         // The source-aware operation is shared with X-ray, but an empty window means
         // every pixel is eligible. Only the background and the backdrop blend:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
-        var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray();
+        var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray();
         return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = fixedColor });
     }
 
@@ -239,8 +239,8 @@ public static class GameplayDisplayCapture
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
-        var layer = new GameplayFloorRenderLayer(transform, Bg3(latched), (latched.Rooms?.Mode7
-                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), SnesPpuLayout.GameplayHudHeightPixels, floor);
+        var layer = new GameplayFloorRenderLayer(transform, Bg3(latched), (latched.Rooms?.Floor
+                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new RenderLayer[] { layer }, FadeLevel.Full);
     }
 
@@ -253,12 +253,12 @@ public static class GameplayDisplayCapture
             return ordinary;
         var gameplay = new OrdinaryGameplayRenderLayer(ordinary.View with
         {
-            MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Bg2,
+            MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.Bg2LineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.
-        return new GameplayColorMathRenderLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+        return new GameplayColorMathRenderLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
     }
 
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
@@ -292,8 +292,8 @@ public static class GameplayDisplayCapture
         view = view with
         {
             MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
-                ? ScreenLayers.Bg1 | ScreenLayers.Sprites
-                : ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites,
+                ? ScreenLayers.Foreground | ScreenLayers.Sprites
+                : ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites,
         };
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
@@ -311,9 +311,9 @@ public static class GameplayDisplayCapture
             sub = new FxPlaneBlendRenderLayer(
                 ordinary.Rooms.ShownBg3, 0,
                 Layer3Plane.Rows,
-                SnesPpuLayout.GameplayHudHeightPixels,
+                ScreenGeometry.GameplayHudHeightPixels,
                 ExpandedColorMathOperation.Add,
-                new Position16<BgPlanePixels>[SnesPpuLayout.ScreenHeightPixels]);
+                new Position16<BgPlanePixels>[ScreenGeometry.ScreenHeightPixels]);
         }
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
@@ -335,7 +335,7 @@ public static class GameplayDisplayCapture
         // phase closes the HDMA window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
-        var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
+        var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray()
             : GameplayEffectCapture.CaptureXrayWindowLines(xray, scrolls.Layer1Position);
         var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
         return new(paint, new RenderLayer[] { layer }, basis.Brightness);

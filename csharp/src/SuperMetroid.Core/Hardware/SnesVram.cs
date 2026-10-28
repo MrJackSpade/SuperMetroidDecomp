@@ -86,7 +86,7 @@ public sealed class SnesVram
     }
 
     /// <summary>Loads bytes through Mode 7's high-byte-only $2119 DMA port.</summary>
-    public void LoadMode7CharacterBytes(ReadOnlySpan<byte> bytes, int destinationWord = 0)
+    public void LoadFloorCharacterBytes(ReadOnlySpan<byte> bytes, int destinationWord = 0)
     {
         writeGeneration++;
         if (bytes.Length > WordCount)
@@ -100,7 +100,7 @@ public sealed class SnesVram
     }
 
     /// <summary>Loads bytes through Mode 7's low-byte-only $2118 DMA port.</summary>
-    public void LoadMode7MapBytes(ReadOnlySpan<byte> bytes, int destinationWord = 0)
+    public void LoadFloorMapBytes(ReadOnlySpan<byte> bytes, int destinationWord = 0)
     {
         writeGeneration++;
         if (bytes.Length > WordCount)

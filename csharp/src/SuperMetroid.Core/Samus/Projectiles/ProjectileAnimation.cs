@@ -117,17 +117,17 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
-    internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
+    internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
     {
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (direction >= 16)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>
-    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
@@ -140,7 +140,7 @@ internal sealed class ProjectileAnimation
         // offsets are added afterward. Retail then restores `$0AF6/$0AFA`, so this path
         // must never write the public physics coordinates merely to reuse the arithmetic.
         var samusPosition = samus.Position.Whole;
-        Position16<RoomPixels> renderPoint = mode7Transform is { } transform
+        Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(samusPosition)
             : samusPosition;
         int screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));

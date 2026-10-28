@@ -56,7 +56,7 @@ internal static class FileSelectRoomMapVerification
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
             var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-            byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
+            byte[] pause = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank));
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {

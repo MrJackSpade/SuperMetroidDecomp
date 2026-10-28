@@ -19,7 +19,7 @@ internal static class XraySetupStageDomainVerification
     {
         XraySetupStage[] order =
         [
-            XraySetupStage.FreezeTimeBackupBg2Registers,
+            XraySetupStage.FreezeTimeSaveBackground,
             XraySetupStage.ReadBg1SecondScreen,
             XraySetupStage.ReadBg1FirstScreen,
             XraySetupStage.BuildRevealReadBg2FirstScreen,
@@ -38,7 +38,7 @@ internal static class XraySetupStageDomainVerification
         // $91:D27F first runs after call one, together with call two: blending shows from the third call.
         foreach (XraySetupStage stage in order)
         {
-            bool expected = stage is not (XraySetupStage.FreezeTimeBackupBg2Registers or XraySetupStage.ReadBg1SecondScreen);
+            bool expected = stage is not (XraySetupStage.FreezeTimeSaveBackground or XraySetupStage.ReadBg1SecondScreen);
             AssertEqual(expected, stage.ShowsBlendedRoom(), $"X-ray stage {stage} blending");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => ((XraySetupStage)0xff).ShowsBlendedRoom(), "undefined stage has no display rule");

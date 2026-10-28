@@ -30,7 +30,7 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public SamusProjectileSystem? SamusProjectiles => frame.SamusProjectiles;
 
     /// <inheritdoc/>
-    public SamusMode7Transform? TurningFloor => frame.TurningFloor;
+    public TurningFloorTransform? TurningFloor => frame.TurningFloor;
 
     /// <inheritdoc/>
     public SamusBombProjectileSystem? SharedProjectiles => frame.SharedProjectiles;

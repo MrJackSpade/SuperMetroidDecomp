@@ -157,7 +157,7 @@ internal static class PaletteJsonContractsVisibleVerification
         static RgbaPixel[] CapturedSpritePixels(FramePaint paint)
         {
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
-            return [.. Enumerable.Range(0, 64).Select(pixel => frame[pixel / 8 * SnesPpuLayout.ScreenSize.X + pixel % 8])];
+            return [.. Enumerable.Range(0, 64).Select(pixel => frame[pixel / 8 * ScreenGeometry.ScreenSize.X + pixel % 8])];
         }
     }
 }

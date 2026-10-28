@@ -31,10 +31,10 @@ internal sealed class EndingAnimalEscapeDefinitions : ICinematicSpriteFrames
     /// </summary>
     private static readonly Dictionary<CinematicSpritePose, SpriteComposition> frames = new()
     {
-        [new(155)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 0), 7, 3)),
-        [new(156)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 1), 7, 3)),
-        [new(157)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 2), 7, 3)),
-        [new(158)] = Pod(SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(30, 3), 7, 3)),
+        [new(155)] = Pod(SnesObjAttributeWord.Create(CharacterSheetGrid.Cell(30, 0), 7, 3)),
+        [new(156)] = Pod(SnesObjAttributeWord.Create(CharacterSheetGrid.Cell(30, 1), 7, 3)),
+        [new(157)] = Pod(SnesObjAttributeWord.Create(CharacterSheetGrid.Cell(30, 2), 7, 3)),
+        [new(158)] = Pod(SnesObjAttributeWord.Create(CharacterSheetGrid.Cell(30, 3), 7, 3)),
     };
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingAnimalEscape;

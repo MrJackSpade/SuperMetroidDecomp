@@ -28,40 +28,40 @@ public static class PauseReserveUiFile
             document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveUiDefinitions.ArrowFrames ||
             (uint)document.Arrow.EnabledPalette > 7 || (uint)document.Arrow.DisabledPalette > 7)
             throw new InvalidDataException("Pause reserve UI requires four labels, ten digits, ten arrow cells, and 32 arrow frames.");
-        var labelOffsets = new Dictionary<PauseReserveLabel, int>();
-        var labelWords = new Dictionary<PauseReserveLabel, byte[]>();
+        var labelCells = new Dictionary<PauseReserveLabel, int>();
+        var labelTiles = new Dictionary<PauseReserveLabel, BackgroundTile[]>();
         foreach (PauseReserveLabel expected in PauseReserveUiDefinitions.Labels)
         {
             string name = PauseReserveUiDefinitions.Name(expected);
             if (!document.Labels.TryGetValue(name, out var label) || label is null || label.Cells is null ||
                 label.Cells.Length != PauseReserveUiDefinitions.StockLabelWords(expected))
                 throw new InvalidDataException($"Pause reserve UI label {name} has the wrong shape.");
-            labelOffsets.Add(expected, Offset(label.Anchor, name));
-            labelWords.Add(expected, PauseTileGrid.Compile(label.Cells, $"Reserve.{name}"));
+            labelCells.Add(expected, Cell(label.Anchor, name));
+            labelTiles.Add(expected, PauseTileGrid.Compile(label.Cells, $"Reserve.{name}"));
         }
-        var digits = document.Digits.Cells.Select((cell, index) => PauseTileGrid.Compile([cell], $"Reserve.Digit{index}")).ToArray();
-        int[] arrowOffsets = document.Arrow.Cells.Select((point, index) => Offset(point, $"Arrow.{index}")).ToArray();
-        if (arrowOffsets.Distinct().Count() != arrowOffsets.Length) throw new InvalidDataException("Reserve arrow cells must be unique.");
+        BackgroundTile[] digits = PauseTileGrid.Compile(document.Digits.Cells, "Reserve.Digits");
+        int[] arrowCells = document.Arrow.Cells.Select((point, index) => Cell(point, $"Arrow.{index}")).ToArray();
+        if (arrowCells.Distinct().Count() != arrowCells.Length) throw new InvalidDataException("Reserve arrow cells must be unique.");
         var frames = document.Arrow.Frames.Select((frame, index) =>
             new ReserveArrowColors(Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
-        int digitOffset = Offset(document.Digits.Anchor, "Digits");
+        int digitCell = Cell(document.Digits.Anchor, "Digits");
         RgbColor solidColor6 = Color(document.Arrow.SolidColor6, "solid color 6");
         RgbColor solidColor11 = Color(document.Arrow.SolidColor11, "solid color 11");
         return PauseReserveUiPresentation.Create(new PauseReserveUiSelection
         {
-            LabelOffsets = labelOffsets, LabelWords = labelWords, DigitOffset = digitOffset, Digits = digits,
-            ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette,
+            LabelCells = labelCells, LabelTiles = labelTiles, DigitCell = digitCell, Digits = digits,
+            ArrowCells = arrowCells, EnabledPalette = document.Arrow.EnabledPalette,
             DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = solidColor6, SolidColor11 = solidColor11,
             ArrowFrames = frames,
         });
 
-        // Converts a bounded equipment-page cell coordinate to its little-endian byte offset.
-        static int Offset(PauseGridPoint? point, string name)
+        // Converts a bounded equipment-page cell coordinate to its row-major cell.
+        static int Cell(PauseGridPoint? point, string name)
         {
             if (point is null || (uint)point.Column >= PauseReserveUiDefinitions.TilemapColumns ||
                 (uint)point.Row >= PauseReserveUiDefinitions.TilemapRows)
                 throw new InvalidDataException($"Pause reserve UI {name} anchor is outside the 32x32 tilemap.");
-            return (point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column) * sizeof(ushort);
+            return point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column;
         }
         // Requires nonnull five-bit RGB components before packing an arrow color.
         static RgbColor Color(PaletteRgb5? color, string name)

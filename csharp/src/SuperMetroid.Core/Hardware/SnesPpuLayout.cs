@@ -1,43 +1,12 @@
 namespace SuperMetroid.Core.Hardware;
 
-/// <summary>Shared physical PPU capacities and Super Metroid's stable screen layout.</summary>
-/// <remarks>
-/// This catalog intentionally contains only hardware sizes or engine-wide placements.
-/// Dimensions belonging to one animation, temporary buffer, or algorithm remain beside
-/// that code even when their numeric value happens to match one of these constants.
-/// </remarks>
+/// <summary>
+/// The physical PPU memory capacities the import-only memory images size themselves by. The screen's own geometry is
+/// Rendering's ScreenGeometry; nothing here describes the game screen.
+/// </summary>
 [PpuLayoutBoundary("catalog: PPU memory geometry and gameplay VRAM bases")]
 public static class SnesPpuLayout
 {
-    /// <summary>Width of the SNES low-resolution raster used by the game.</summary>
-    public const int ScreenWidthPixels = 256;
-
-    /// <summary>NTSC visible height emitted by Super Metroid.</summary>
-    public const int ScreenHeightPixels = 224;
-
-    /// <summary>The visible low-resolution raster: <see cref="ScreenWidthPixels"/> by <see cref="ScreenHeightPixels"/>.</summary>
-    public static Extent16<ScreenPixels> ScreenSize => new(ScreenWidthPixels, ScreenHeightPixels);
-
-    /// <summary>
-    /// The first stored NTSC output row is physical PPU scanline one. Background
-    /// sampling uses that physical line; OBJ evaluation uses the preceding line.
-    /// Verified against the independent PPU with #516's captured frame memory.
-    /// </summary>
-    public const int FirstVisibleBackgroundScanline = 1;
-
-    /// <summary>Physical scanlines reserved for the gameplay BG3 HUD.</summary>
-    public const int GameplayHudHeightPixels = 32;
-
-    /// <summary>Pixels on either axis of one SNES background character.</summary>
-    public const int BackgroundTileSizePixels = 8;
-
-    /// <summary>Characters on either axis of one BGSC tilemap page.</summary>
-    public const int TilemapPageWidthInTiles = 32;
-
-    /// <summary>Words in one 32-by-32 BGSC tilemap page.</summary>
-    public const int TilemapPageWordCount =
-        TilemapPageWidthInTiles * TilemapPageWidthInTiles;
-
     /// <summary>Physical 15-bit VMADD capacity.</summary>
     [PpuLayoutAccess]
     public const int VramWordCount = 0x8000;

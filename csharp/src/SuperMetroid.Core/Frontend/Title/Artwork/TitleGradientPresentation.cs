@@ -56,11 +56,11 @@ public sealed class TitleGradientPresentation
         {
             TitleGradientVariant? source = document.Variants[variant];
             if (source is null || source.ZoomHighNibble != variant || source.Lines is null ||
-                source.Lines.Length != SnesPpuLayout.ScreenHeightPixels)
+                source.Lines.Length != ScreenGeometry.ScreenHeightPixels)
             {
                 throw new InvalidDataException(
                     $"Title gradient variant {variant} must identify nibble {variant} and contain " +
-                    $"{SnesPpuLayout.ScreenHeightPixels} scanlines.");
+                    $"{ScreenGeometry.ScreenHeightPixels} scanlines.");
             }
 
             variants[variant] = new TitleGradientLine[source.Lines.Length];

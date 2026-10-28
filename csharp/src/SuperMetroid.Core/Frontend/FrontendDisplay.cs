@@ -147,7 +147,7 @@ internal sealed class FrontendDisplay
         ImmutableArray<FadeLevel> passes)
     {
         if (frame.Layers is { } layers) return new(identity, layers, passes);
-        if (frame.Mode7 is { } floor) return new(identity, floor, passes);
+        if (frame.Floor is { } floor) return new(identity, floor, passes);
         if (frame.SolidColor is { } color) return new(identity, color, passes);
         throw new InvalidDataException("Captured display has no composition.");
     }

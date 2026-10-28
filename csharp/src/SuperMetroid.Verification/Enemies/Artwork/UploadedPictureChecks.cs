@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
@@ -83,7 +84,7 @@ internal static class UploadedPictureChecks
         // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
         static void Ink(Dictionary<(int X, int Y), (int Entry, int Priority)> inks, int x, int y, int entry, int priority)
         {
-            if (x is >= 0 and < SnesPpuLayout.ScreenWidthPixels && y is >= 0 and < SnesPpuLayout.ScreenHeightPixels)
+            if (x is >= 0 and < ScreenGeometry.ScreenWidthPixels && y is >= 0 and < ScreenGeometry.ScreenHeightPixels)
                 inks.TryAdd((x, y), (entry, priority));
         }
     }

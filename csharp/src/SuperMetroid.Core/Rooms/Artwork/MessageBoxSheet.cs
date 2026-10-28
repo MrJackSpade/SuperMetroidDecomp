@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -12,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class MessageBoxSheet
 {
     /// <summary>Words in a row of a message: one row of the BG3 tilemap page a message box is drawn into.</summary>
-    private const int RowWords = SnesPpuLayout.TilemapPageWidthInTiles;
+    private const int RowWords = ScreenGeometry.TilemapScreenWidthInTiles;
 
     /// <summary>Each image by the words it pictures.</summary>
     private readonly Dictionary<string, SpriteSheetFrame> pictures = new(StringComparer.Ordinal);

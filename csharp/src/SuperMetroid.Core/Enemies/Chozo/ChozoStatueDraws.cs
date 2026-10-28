@@ -61,10 +61,10 @@ internal static class ChozoStatueDraws
     }
     /// <summary>Builds a temporary run record from the cells; runtime evaluates the physical cells directly.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
+        ShotBlockPlmDraws.TryCompile<Draw>(request, TryDescribe, out list);
     /// <summary>Finds a compiled statue draw by its published visual resource identity.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
     internal static string VisualId(PlmDraw request) =>

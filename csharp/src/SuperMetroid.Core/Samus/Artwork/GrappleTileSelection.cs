@@ -85,6 +85,6 @@ public static class GrappleTileSelection
                 InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
             _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
-        return transfers[index];
+        return Transfers[index];
     }
 }

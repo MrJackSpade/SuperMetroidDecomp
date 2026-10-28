@@ -24,5 +24,5 @@ public static class GameOverPresentationNames
     /// <returns>The corresponding <c>Baby.</c> palette dictionary key.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
     public static string BabyPaletteName(GameOverBabyPalette palette) =>
-        Ensure.Listed(GameOverPresentationDefinitions.BabyPaletteNames, palette);
+        Ensure.Listed(GameOverPresentationDefinitions.BabyPaletteNamesByPhase, palette);
 }

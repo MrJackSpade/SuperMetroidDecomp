@@ -19,7 +19,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         for (int index = 0; index <= 112; index++)
         {
             int offset = index * 2;
-            var frame = CeresRidleyGetaway.FromIndex(index);
+            var frame = CeresRidleyGetawayCurve.FromIndex(index);
             ushort nativeZoom = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6ae4d + offset);
             if (offset == 224)
             {
@@ -35,7 +35,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
         }
         foreach (int invalid in new[] { -1, 113, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => CeresRidleyGetaway.FromIndex(invalid), "Ceres invalid curve index");
+            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.FromIndex(invalid), "Ceres invalid curve index");
         Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }

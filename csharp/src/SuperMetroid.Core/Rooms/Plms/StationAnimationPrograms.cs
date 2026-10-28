@@ -27,6 +27,9 @@ internal static class StationAnimationPrograms
         _ => throw new InvalidOperationException($"Undefined StationAnimationList {list}."),
     };
 
+    /// <summary>
+    /// Seven named program entries own fifteen timed frames. Map/resource cycles
+    /// have three frames and six-tick holds;
     /// acquired maps hold two ticks. Save idle draws once for one tick; its two
     /// active entries each own one four-tick frame. Reject all other frame indexes.
     /// </summary>

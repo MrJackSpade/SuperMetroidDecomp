@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Chozo;

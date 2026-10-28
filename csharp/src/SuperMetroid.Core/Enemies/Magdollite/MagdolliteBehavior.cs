@@ -341,7 +341,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPhase++;
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 8)));
-        state.DesiredProgram = MagdollitePhaseDefinitions
+        state.DesiredProgram = MagdolliteRise
             .Phase(state.BodyPhase).BodyProgram;
         InstallMagdolliteInstructionList(body, state);
     }
@@ -371,7 +371,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPhase--;
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 8)));
-        state.DesiredProgram = MagdollitePhaseDefinitions
+        state.DesiredProgram = MagdolliteRise
             .Phase(state.BodyPhase).BodyProgram;
         InstallMagdolliteInstructionList(body, state);
     }
@@ -431,7 +431,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int offset = MagdollitePhaseDefinitions
+            int offset = MagdolliteRise
                 .Phase(bodyState.BodyPhase).OverlayYOffset;
             overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
         }
@@ -453,7 +453,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int offset = MagdollitePhaseDefinitions
+            int offset = MagdolliteRise
                 .Phase(bodyState.BodyPhase).OverlayYOffset;
             overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
         }

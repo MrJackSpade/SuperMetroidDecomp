@@ -114,7 +114,7 @@ internal static class PaletteFxObjectAccess
     }
 
     /// <summary>Definitions by address.</summary>
-    extension(RoomPaletteFxDefinitions)
+    extension(RoomPaletteFxSelection)
     {
         /// <summary>The definition at <paramref name="pointer"/>.</summary>
         internal static RoomPaletteFxDefinition Get(ushort pointer) => RoomPaletteFxSelection.Get(FromNative(pointer));

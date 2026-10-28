@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>Finds the definition of a PLM a Chozo statue publishes.</summary>

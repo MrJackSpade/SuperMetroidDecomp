@@ -7,8 +7,4 @@ internal static class StationAnimationProgramDefinitions
     /// <param name="Duration">Number of station animation ticks before advancing to the next frame.</param>
     /// <param name="Draw">The blocks displayed for this frame.</param>
     internal readonly record struct Frame(int Duration, PlmDraw Draw);
-
-    /// <summary>
-    /// Seven named program entries own fifteen timed frames. Map/resource cycles
-    /// have three frames and six-tick holds;
 }

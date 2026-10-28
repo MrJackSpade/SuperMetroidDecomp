@@ -10,7 +10,7 @@ internal static class RoomPlmScrollPrograms
     internal static void Apply(RoomScrollProgram program, Action<int, RoomScrollState> write)
     {
         Ensure.NotNull(write);
-        foreach (RoomScrollWrite step in Programs[program])
+        foreach (RoomScrollWrite step in RoomPlmScrollProgramDefinitions.Programs[program])
             write(step.Index, step.State);
     }
 }

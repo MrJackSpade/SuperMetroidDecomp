@@ -67,10 +67,10 @@ internal static class ElevatorPlatformDraws
     /// <summary>Resolves a stable frame identifier to its temporary draw DTO.</summary>
     internal static bool TryGetByVisualId(string? id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Enum.GetValues<ElevatorPlatformDraw>().Select(draw => (PlmDraw)PlmDraw.Of(draw)),
+        ShotBlockPlmDraws.FindByVisualId(Enum.GetValues<ElevatorPlatformDraw>().Select(draw => (PlmDraw)PlmDraw.Of(draw)),
             VisualId, TryGetDraw, id, out list);
 
     /// <summary>Materializes an artwork DTO; gameplay reads platform cells directly.</summary>
     internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
+        ShotBlockPlmDraws.TryCompile<Draw>(request, TryDescribe, out list);
 }

@@ -21,7 +21,7 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
             int regular = index - FirstRegularProgram;
             int palette = heat ? HeatPalette : RegularFirstPalette + regular;
             int color = heat ? HeatFirstColor : RegularFirstColor;
-            return new(owner, Objects[index], Programs[index],
+            return new(owner, Objects[index], NorfairEnvironmentalPaletteFxColorDefinitions.Programs[index],
                 (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
         }
     }

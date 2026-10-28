@@ -7,7 +7,7 @@ internal static class MaridiaLargeSnailPrograms
 {
     /// <summary>The program of animation <paramref name="animationIndex"/>; the complete domain is zero through seven.</summary>
     internal static MaridiaLargeSnailProgram Program(int animationIndex) =>
-        Programs.TryGetValue(Animations.At(animationIndex), out MaridiaLargeSnailProgram program)
+        MaridiaLargeSnailInstructionDefinitions.Programs.TryGetValue(Animations.At(animationIndex), out MaridiaLargeSnailProgram program)
             ? program
             : throw new ArgumentOutOfRangeException(nameof(animationIndex), animationIndex,
                 "Maridia Large Snail animation index must be zero through seven.");

@@ -24,7 +24,11 @@ internal static class SamusRunningCadenceDefinitionsAccess
         /// <summary>The bank-$91 start of the cadence a Speed Booster sound-queue selection picks.</summary>
         internal static ushort ReadSpeedBoostDelayListPointer(byte selection) =>
             Start(SamusRunningCadenceBytes.SpeedBoostCadence(selection));
+    }
 
+    /// <summary>Reads cadence bytes by the bank-$91 address their cadence starts at.</summary>
+    extension(SamusRunningCadenceBytes)
+    {
         /// <summary>Reads a cadence byte from the cadence starting at bank-$91 <paramref name="pointer"/>.</summary>
         internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
             ushort pointer, int byteIndex) =>

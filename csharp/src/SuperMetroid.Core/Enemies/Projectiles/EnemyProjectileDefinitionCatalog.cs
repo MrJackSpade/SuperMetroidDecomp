@@ -270,7 +270,5 @@ EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction,
         [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = new(
 EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction,
             new(0, 0), 0, EnemyProjectilePropertyFlags.HighPriority, SamusTouch: EnemyProjectileSamusTouch.KeepsProgram),
-        [RoomEnemyProjectileKind.None] = throw new InvalidDataException(
-            $"Enemy projectile definition {kind} is not compiled."),
     };
 }

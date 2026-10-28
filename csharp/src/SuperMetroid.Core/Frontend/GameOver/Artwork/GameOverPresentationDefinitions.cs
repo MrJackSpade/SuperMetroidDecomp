@@ -91,7 +91,7 @@ public static class GameOverPresentationDefinitions
         };
 
     /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>
-    internal static readonly IReadOnlyDictionary<GameOverBabyPalette, string> BabyPaletteNames =
+    internal static readonly IReadOnlyDictionary<GameOverBabyPalette, string> BabyPaletteNamesByPhase =
         new Dictionary<GameOverBabyPalette, string>
         {
             [GameOverBabyPalette.Idle] = "Baby.Idle",

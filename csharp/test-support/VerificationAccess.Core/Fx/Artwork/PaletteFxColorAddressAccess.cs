@@ -196,7 +196,7 @@ internal static class HeatPaletteColorDefinitionsAddressAccess
 internal static class LoadingPaletteColorDefinitionsAddressAccess
 {
     /// <summary>The keyed members by bank-$8D address.</summary>
-    extension(LoadingPaletteColorDefinitions)
+    extension(LoadingPaletteColors)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
         internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
@@ -319,7 +319,7 @@ internal static class TourianStatueGreyColorDefinitionsAddressAccess
 internal static class CrateriaLightningColorDefinitionsAddressAccess
 {
     /// <summary>The keyed members by bank-$8D address.</summary>
-    extension(CrateriaLightningColorDefinitions)
+    extension(CrateriaLightningColors)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
         internal static bool TryCalculatedColor(int pointer, out RgbColor value)

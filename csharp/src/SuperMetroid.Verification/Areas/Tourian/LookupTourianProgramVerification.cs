@@ -148,7 +148,7 @@ internal static class LookupTourianProgramVerification
             $"{definition.AnimatedObject}: every typed program is a native list entry");
         foreach ((TourianStatueTileProgram program, List<Step> native) in expected)
         {
-            IReadOnlyList<Step> typed = definition.Program.Steps(program);
+            IReadOnlyList<Step> typed = TourianStatueTileAnimations.Create(definition.FirstFrameDuration).Steps(program);
             AssertEqual(native.Count, typed.Count, $"{definition.AnimatedObject} {program}: step count");
             for (int index = 0; index < native.Count; index++)
                 AssertEqual(native[index], typed[index], $"{definition.AnimatedObject} {program}: step {index}");

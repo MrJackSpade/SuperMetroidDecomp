@@ -116,12 +116,12 @@ internal static class SamusProjectileProgramsVerification
         int link = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.SuperMissileLink);
         int projectile25 = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.Projectile25);
         int projectile27 = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.Projectile27);
-        if (address < SamusProjectileDamageDefinitions.BeamHeaderStart || address >= projectile27 + 2 * sizeof(ushort))
+        if (address < SamusProjectileDamage.BeamHeaderStart || address >= projectile27 + 2 * sizeof(ushort))
             return null;
         (int start, int stride) = address < link
-            ? new HeaderListFieldCase(SamusProjectileDamageDefinitions.BeamHeaderStart, SamusProjectileDamageDefinitions.BeamHeaderStride)
+            ? new HeaderListFieldCase(SamusProjectileDamage.BeamHeaderStart, SamusProjectileDamage.BeamHeaderStride)
             : address < projectile25 ? new HeaderListFieldCase(link, 2 * sizeof(ushort))
-            : address < projectile27 ? new HeaderListFieldCase(projectile25, SamusProjectileDamageDefinitions.BeamHeaderStride)
+            : address < projectile27 ? new HeaderListFieldCase(projectile25, SamusProjectileDamage.BeamHeaderStride)
             : new HeaderListFieldCase(projectile27, 2 * sizeof(ushort));
         int header = start + (address - start) / stride * stride;
         int offset = address - header;

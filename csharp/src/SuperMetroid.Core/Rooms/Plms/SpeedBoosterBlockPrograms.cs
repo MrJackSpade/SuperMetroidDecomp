@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockProgram, SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockFrame, SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockCue>;
 using static SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockPlmProgramDefinitions;
 

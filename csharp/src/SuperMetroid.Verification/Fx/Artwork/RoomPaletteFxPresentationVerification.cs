@@ -468,7 +468,7 @@ internal static class RoomPaletteFxPresentationVerification
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);
-            AssertEqual(expected, LoadingPaletteColorDefinitions.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
+            AssertEqual(expected, LoadingPaletteColors.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
             AssertEqual(canonical, actual, "Original earliest identical row or unowned zero");
             bool calculated = LoadingPaletteColors.TryCalculatedColor((ushort)address, inputView, out RgbColor tint);
             AssertEqual(tinted.Contains((ushort)address), calculated, "Complete tint-only address domain");

@@ -15,7 +15,7 @@ public static class GrappleSheets
 
     /// <summary>The frame-name segment for a rope mirroring, in <see cref="GrappleSheetDefinitions.RopeMirrors"/> order.</summary>
     private static string MirrorName(SpriteMirror mirror) =>
-        MirrorNames.TryGetValue(mirror, out string value) ? value : throw new ArgumentOutOfRangeException(nameof(mirror), mirror, "Undefined rope mirroring.");
+        MirrorNames.TryGetValue(mirror, out string? value) ? value : throw new ArgumentOutOfRangeException(nameof(mirror), mirror, "Undefined rope mirroring.");
 
     /// <summary>Every frame the grapple sheet holds.</summary>
     public static IEnumerable<string> Frames =>

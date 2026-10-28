@@ -28,6 +28,8 @@ internal static class SamusBodyPixels
         return true;
     }
 
+    /// <summary>$9C:8000..84FF, eight morph drawings: a diameter-16 circle
+    /// sampled at pixel centres. $92:BAB3 uses one large OBJ plus its small overlay;
     /// $92:BAE3 instead orders four small quadrants 4,3,2,1 and overlay0.
     /// The selected interior material and seam painting remain independent inputs.</summary>
     internal static byte ContourMask(bool upper, int set, int position, int index)

@@ -59,7 +59,7 @@ internal static class StationAccessPlmDefinitionsVerification
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | operand));
                 AssertEqual(expected, PlmDrawAddressCodec.Of(PlmDraw.Of(extended ? selected.Extended : selected.Retracted)),
                     "Station native access draw operand");
-                AssertEqual(expected, PlmDrawAddressCodec.Of(selected.Draw(extended)), "Station public phase selection");
+                AssertEqual(expected, PlmDrawAddressCodec.Of(PlmDraw.Of(extended ? selected.Extended : selected.Retracted)), "Station public phase selection");
                 AssertTrue(StationPlmDraws.TryGet(NativePlmDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
             }
         }

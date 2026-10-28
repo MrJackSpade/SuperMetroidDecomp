@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class SamusBodyTransferDefinitionsAccess
 {
     /// <summary>Checks canonical transfer size using in-group OAM and the separate pixel payload.</summary>
-    extension(SamusBodyTransferDefinitions)
+    extension(SamusBodyTransfers)
     {
         /// <summary>
         /// Canonical in-group OAM establishes the first-row footprint; the remainder

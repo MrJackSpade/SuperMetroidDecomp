@@ -66,7 +66,4 @@ internal static class SamusBodyPixelDefinitions
         new(false, 0x8, 0x1, 0x1), // $9BEC00 transparent allocation cells.
         new(false, 0x8, 0x2, 0x0), // $9BEE00 transparent allocation cells.
     };
-
-    /// <summary>$9C:8000..84FF, eight morph drawings: a diameter-16 circle
-    /// sampled at pixel centres. $92:BAB3 uses one large OBJ plus its small overlay;
 }

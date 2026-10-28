@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Progression;
 using static SuperMetroid.Core.Rooms.Plms.LoadStationDefinitions;
 
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The placement each area's load station selects.</summary>

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -63,8 +63,8 @@ internal sealed class DoorPlms : IPlmFamilySource
             // `$82:E951-$E963` treats a negative room argument as explicitly
             // nonpersistent. C8CA uses $8000, so the escape entrance always selects its
             // closing list. Ordinary colored caps consult the same opened-door bit array.
-            if (resident.Argument is DoorBitArgument { Persists: true } residentDoor &&
-                system.HasOpenedDoorBit(residentDoor.DoorBit))
+            if (resident.Argument is DoorBitArgument { Persists: true } residentDoorBit &&
+                system.HasOpenedDoorBit(residentDoorBit.DoorBit))
             {
                 break;
             }

@@ -27,7 +27,7 @@ internal static class MotherBrainFakeDeathDraws
     /// <summary>Finds a compiled physical draw by its case-sensitive editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out draw);
+        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out draw);
 
     /// <summary>
     /// One of the two thirteen-cell solid fill rows or six tube clears. Tube interiors become blank; ceiling and floor

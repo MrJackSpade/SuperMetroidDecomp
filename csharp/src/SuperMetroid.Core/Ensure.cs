@@ -41,7 +41,7 @@ public static class Ensure
     public static TValue Listed<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> table, TKey key,
         [CallerArgumentExpression(nameof(key))] string? parameterName = null)
         where TKey : notnull =>
-        NotNull(table).TryGetValue(key, out TValue value)
+        NotNull(table).TryGetValue(key, out TValue? value)
             ? value
             : throw new ArgumentOutOfRangeException(parameterName, key, "Value is not listed.");
 

@@ -72,7 +72,7 @@ internal static class SamusProjectileHeaderNative
     }
 
     /// <summary>Header damage by bank-$93 address.</summary>
-    extension(SamusProjectileDamageDefinitions)
+    extension(SamusProjectileDamage)
     {
         /// <summary>$93:8431 ProjectileDataTable_Uncharged_Power, the first beam header.</summary>
         internal static int BeamHeaderStart => 0x938431;
@@ -85,7 +85,7 @@ internal static class SamusProjectileHeaderNative
     }
 
     /// <summary>Header programs by bank-$93 address.</summary>
-    extension(SamusProjectileHeaderDefinitions)
+    extension(SamusProjectileHeaders)
     {
         /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="direction"/> selects.</summary>
         internal static SamusProjectileProgram? Program(ushort header, int direction) =>

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 internal sealed class CeresRidleyStartColors
 {
     /// <summary>Normal door/container material used by the first palette's non-clear colors.</summary>
-    private readonly CeresDoorNormalPaintDefinitions door;
+    private readonly CeresDoorNormalPaint door;
     /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaint baby;
     /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>

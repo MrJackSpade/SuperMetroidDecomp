@@ -90,10 +90,8 @@ internal static class XrayInputVerification
         AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
             "a reveal room halves its added blend over both backgrounds, the sprites and the backdrop");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Colors[0], "setup backdrop reaches the packet");
-        // BG2 shows the setup-owned reveal map, as the blocks its words lay out (#1403).
-        var frozenMap = XraySetupMemory.ReadReveal(runtime.Xray);
-        RevealedBlock?[] frozenBlocks = XrayRevealPlane.BlocksOf(frozenMap,
-            new RevealedBlockIndex(runtime.Room.LoadedLevelData.ForegroundPlane.Definitions));
+        // BG2 shows the setup-owned reveal map's blocks and arrangements (#1403, #1431).
+        RevealedBlock?[] frozenBlocks = XraySetupMemory.ReadReveal(runtime.Xray);
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
             ?? throw new InvalidOperationException("The captured X-ray frame shows no reveal.");
         AssertTrue(Enumerable.SequenceEqual(shownReveal.Blocks.ToArray(), frozenBlocks), "captured BG2 is the setup-owned reveal map");

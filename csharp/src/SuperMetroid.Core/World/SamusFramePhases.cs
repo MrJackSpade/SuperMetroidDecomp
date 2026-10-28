@@ -1175,7 +1175,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         if (samus.Xray.IsActive && !samus.DeathSequence.IsActive)
         {
             if (samus.Xray.SetupStage == XraySetupStage.BuildRevealReadBg2FirstScreen)
-                _xray.BuildXrayRevealTilemap(plms);
+                _xray.BuildXrayRevealMap(plms);
             _player.LastXrayBeamStep = samus.Xray.StepBeam(
                 samus,
                 _controller1.Current);

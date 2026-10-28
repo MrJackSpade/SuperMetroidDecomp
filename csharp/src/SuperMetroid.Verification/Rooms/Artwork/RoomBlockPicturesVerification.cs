@@ -28,7 +28,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -545,59 +544,6 @@ internal static class RoomBlockPicturesVerification
                 uploaded++;
         }
         return (pictures, uploaded);
-    }
-
-    /// <summary>
-    /// Asserts the X-ray reveal the frame displays paints, pixel for pixel, the palette index, priority and standard colour
-    /// the reveal buffer's tile words paint over the characters the bindings compose into VRAM (#1392).
-    /// </summary>
-    internal static void AssertRevealPaintsWords(SuperMetroidRuntime runtime, ReadOnlySpan<BackgroundTile> tiles, string where)
-    {
-        ushort[] words = BackgroundTileWordBytes.Words(tiles);
-        XrayRevealPlane reveal = runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException($"{where}: no X-ray reveal is displayed.");
-        ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
-        for (int column = 0; column < XrayTilemapLayout.MetatileColumns; column++)
-        for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
-        for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
-        {
-            var word = new SnesBgTilemapWord(words[XrayRevealTilemap.FirstCellOf(column, row) + y / CharacterPixels * 32 + x / CharacterPixels]);
-            int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
-            int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
-            int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
-            int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
-                | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
-            int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-            RevealedBlock block = reveal.Blocks[row * XrayTilemapLayout.MetatileColumns + column]
-                ?? throw new InvalidOperationException($"{where}: the reveal shows no block at ({column}, {row}).");
-            SpriteSheetFrame picture = reveal.Pictures.Picture(block.Definition)
-                ?? throw new InvalidOperationException($"{where}: the reveal's block definition {block.Definition} has no picture.");
-            Position16<ImagePixels> picturePixel = ArrangedPixel(block.Arrangement, x, y);
-            SpriteImage sheet = picture.Sheet;
-            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
-            AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
-                && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel()),
-                $"{where}: reveal block ({column}, {row}) pixel ({x}, {y}) paints index {sheet.Inks[pixel].PaletteIndex} where its tile ${word.Raw:X4} paints {expected}");
-        }
-    }
-
-    /// <summary>
-    /// The pixel of a block definition's picture a revealed block shows at (<paramref name="x"/>, <paramref name="y"/>) of
-    /// its 16x16 square, laid out by <paramref name="arrangement"/>.
-    /// </summary>
-    private static Position16<ImagePixels> ArrangedPixel(RevealedBlockArrangement arrangement, int x, int y)
-    {
-        const int side = RoomBlockSheet.BlockPixels;
-        if (!Enum.IsDefined(arrangement))
-            throw new InvalidDataException($"Unknown revealed block arrangement {arrangement}.");
-        if (arrangement is RevealedBlockArrangement.MirroredHorizontally or RevealedBlockArrangement.MirroredBoth)
-            x = side - 1 - x;
-        if (arrangement is RevealedBlockArrangement.MirroredVertically or RevealedBlockArrangement.MirroredBoth)
-            y = side - 1 - y;
-        // Swapped rows show the lower tile row on top; neither row is flipped.
-        if (arrangement == RevealedBlockArrangement.RowsSwapped)
-            y = (y + side / 2) % side;
-        return new Position16<ImagePixels>((ushort)x, (ushort)y);
     }
 
     /// <summary>Tiles a block's picture paints: top left, top right, bottom left, bottom right.</summary>

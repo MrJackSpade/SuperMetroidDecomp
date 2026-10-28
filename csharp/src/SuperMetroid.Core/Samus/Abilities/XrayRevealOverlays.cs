@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -12,12 +11,20 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class XrayRevealOverlays
 {
     /// <summary>Applies $84:831A in descending PLM slot order, then room-authored record order.</summary>
-    public static void Apply(RoomLevelData level, Span<BackgroundTile> tilemap,
+    /// <param name="level">The room, whose size places the overlays' blocks.</param>
+    /// <param name="blocks">The reveal's shown cells, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
+    /// <param name="items">The room's collectibles.</param>
+    /// <param name="system">The collected-item record.</param>
+    /// <param name="roomOverlay">The room state's special overlay, or null.</param>
+    /// <param name="layer1Position">Layer one's position, which places the overlays on screen.</param>
+    /// <param name="visuals">Installed reveal art.</param>
+    public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
         IReadOnlyList<CollectiblePlmSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> layer1Position,
         XrayRevealVisualCatalog? visuals = null)
     {
-        Ensure.LengthEqual(tilemap, XrayTilemapLayout.BufferWords);
+        Ensure.NotNull(level);
+        Ensure.LengthEqual(blocks, XrayRevealLayout.Cells);
         if (visuals is null)
             throw new InvalidOperationException("X-ray reveal requires installed overlay visuals.");
         XrayOverlayVisualCatalog overlays = visuals.Overlays ?? throw new InvalidOperationException(
@@ -46,36 +53,28 @@ public static class XrayRevealOverlays
             if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));
-            Write(level, tilemap, metatile, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
+            Write(blocks, metatile, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
         }
         if (roomOverlay is null) return;
         foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(roomOverlay))
-            Write(level, tilemap, tile.Metatile, tile.Block, layer1Position);
+            Write(blocks, tile.Metatile, tile.Block, layer1Position);
     }
 
-    /// <summary>Copies a visible metatile's four tiles, swapping rows for native vertical flip without changing each tile's mirroring.</summary>
-    private static void Write(RoomLevelData level, Span<BackgroundTile> tilemap, RoomLevelWord metatileWord, Position16<RoomBlocks> block,
+    /// <summary>
+    /// Places a visible metatile's whole block, its rows swapped for native vertical flip without mirroring its picture.
+    /// </summary>
+    private static void Write(Span<RevealedBlock?> blocks, RoomLevelWord metatileWord, Position16<RoomBlocks> block,
         Position16<RoomPixels> layer1Position)
     {
         // The overlay's metatile within the visible window, relative to the camera's block.
         Offset16<RoomBlocks> visible = block - layer1Position.ToRoomBlock();
         int x = visible.X, y = visible.Y;
         // $91:D04C admits only the first 16x16 metatiles, not the fine-scroll column.
-        if ((uint)x >= XrayTilemapLayout.MetatileColumns - 1 || (uint)y >= XrayTilemapLayout.MetatileRows) return;
-        int metatile = metatileWord.VisualBlockIndex;
-        int source = metatile * RoomLevelPlane.DefinitionTiles;
-        ReadOnlySpan<BackgroundTile> definitions = level.BlockDefinitions.Span;
-        if (source + RoomLevelPlane.DefinitionTiles > definitions.Length)
-            throw new InvalidDataException($"X-ray overlay metatile ${metatile:X4} is outside room definitions.");
-        int destination = y * XrayTilemapLayout.MetatileRowStride + x * 2;
+        if ((uint)x >= XrayRevealLayout.MetatileColumns - 1 || (uint)y >= XrayRevealLayout.MetatileRows) return;
         // $91:D0A6 swaps the two tile rows for vertical flip. It neither toggles each
         // tile's mirroring nor implements horizontal flip; preserve that native behavior.
         bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None;
-        for (int row = 0; row < 2; row++)
-        for (int col = 0; col < 2; col++)
-        {
-            tilemap[destination + row * 32 + col] = definitions[source + (flip ? 1 - row : row) * 2 + col];
-        }
+        blocks[XrayRevealLayout.CellOf(x, y)] = new RevealedBlock(metatileWord.VisualBlockIndex,
+            flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
     }
-
 }

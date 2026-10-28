@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 
@@ -23,7 +24,11 @@ internal static class XrayOverlaysVerification
             Enumerable.Range(1, 8).Select(value => (ushort)value),
             new XrayRoomOverlayTiles[]
             {
-                new(SpecialRoom, new XrayRoomOverlayVisual[] { new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)) }),
+                new(SpecialRoom, new XrayRoomOverlayVisual[]
+                {
+                    new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)),
+                    new(new(2, 1), new RoomLevelWord(0x0403)), new(new(3, 1), new RoomLevelWord(0x0c04)),
+                }),
             });
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
@@ -45,22 +50,27 @@ internal static class XrayOverlaysVerification
             new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),
             new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
         };
-        var map = new BackgroundTile[XrayTilemapLayout.BufferWords];
+        // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
+        // arrangement its word's flips select.
+        var map = new RevealedBlock?[XrayRevealLayout.Cells];
+        RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
-        AssertEqual(8, map[0].PackedWord, "descending item slot order leaves the lower physical slot's reveal last");
+        AssertEqual(Defined(2), map[0], "descending item slot order leaves the lower physical slot's reveal last");
         system.SetCollectedItemBit(1);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
-        AssertEqual(20, map[0].PackedWord, "collected items do not obscure another live reveal");
+        AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal");
         XrayRevealOverlays.Apply(level, map, items, system, SpecialRoom, new(16, 16), visuals);
-        AssertEqual(38, map[0].PackedWord, "special-room override follows item writes and selects the flipped bottom-left tile");
-        AssertEqual(39, map[1].PackedWord, "vertical flip preserves tile-word bits");
-        AssertEqual(36, map[32].PackedWord, "vertical flip places original top row below");
-        AssertEqual(0, map[XrayTilemapLayout.ScreenWords].PackedWord, "special-room overlay excludes the fine-scroll seventeenth column");
+        AssertEqual(new RevealedBlock(9, RevealedBlockArrangement.RowsSwapped), map[0],
+            "special-room override follows item writes, and its vertical flip swaps the block's rows without mirroring them");
+        AssertEqual(Defined(3), map[1], "an overlay's horizontal flip is not drawn, as natively");
+        AssertEqual(new RevealedBlock(4, RevealedBlockArrangement.RowsSwapped), map[2],
+            "an overlay flipped both ways only swaps the block's rows");
+        AssertEqual(null, map[XrayRevealLayout.MetatileColumns - 1], "special-room overlay excludes the fine-scroll seventeenth column");
         Array.Clear(map);
         items[0] = items[0] with { RoomArgument = ushort.MaxValue };
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
-        AssertTrue(map.All(tile => tile.PackedWord == 0), "negative item arguments and collected items leave the tilemap unchanged");
+        AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
         Console.WriteLine("  X-ray overlays: item graphics slots, collection gates, slot order, room override, vertical flip and viewport bounds agree.");
     }
 

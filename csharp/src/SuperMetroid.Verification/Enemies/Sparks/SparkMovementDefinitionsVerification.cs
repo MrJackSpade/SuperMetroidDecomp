@@ -17,7 +17,6 @@ internal static class SparkMovementDefinitionsVerification
     /// overread while its list word, the following main-AI function pointer, starts no animation. Flicker-on makes the
     /// Spark tangible and runs into the active loop; flicker-out makes it intangible and holds; both loops run on time.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spark selector tables")]
     internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: new TestAddressSpace(), services: new VerificationRoomEnemyServices(null));

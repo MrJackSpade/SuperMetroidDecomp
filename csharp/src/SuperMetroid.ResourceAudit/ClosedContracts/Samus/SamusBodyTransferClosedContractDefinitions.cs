@@ -31,7 +31,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Movement/SamusMovementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/TileFlip.cs"),
+             new("csharp/src/SuperMetroid.Core/Spatial/TileFlip.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),

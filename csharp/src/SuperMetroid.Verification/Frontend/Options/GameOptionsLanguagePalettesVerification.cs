@@ -67,7 +67,6 @@ internal static class GameOptionsLanguagePalettesVerification
     }
 
     /// <summary>Reads native toggle geometry and palette operands for the layout comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for game options toggle geometry")]
     private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks every tilemap word in four language regions for Japanese and English states.</summary>
@@ -129,7 +128,6 @@ internal static class GameOptionsLanguagePalettesVerification
     }
 
     /// <summary>Reads native language-region operands for the tilemap palette comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for game options language palettes")]
     private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the options toggle geometry check.</summary>

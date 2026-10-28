@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>The title sequence's definitions: its console lights, music, cards, floor scenes, sprite placement, installed graphics extents, skip colours and timing.</summary>

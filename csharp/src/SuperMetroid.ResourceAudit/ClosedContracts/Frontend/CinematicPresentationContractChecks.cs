@@ -34,7 +34,7 @@ internal static class CinematicPresentationContractChecks
                     CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
                     CinematicSpriteSheet explosions, CeresDoorVisualCatalog door,
                     EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
-                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
+                    EscapeTimer countdown, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     palette.Apply(screen);

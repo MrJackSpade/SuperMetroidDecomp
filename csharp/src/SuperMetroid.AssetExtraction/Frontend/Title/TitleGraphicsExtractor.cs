@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Expands title graphics and OBJ compositions into indexed PNG/JSON assets.</summary>
-[CpuBusBoundary("codec: ROM compressed title graphics and OBJ compositions → title artwork")]
 internal static class TitleGraphicsExtractor
 {
     /// <summary>Decompresses title character streams and map data into indexed PNGs and a validated map document.</summary>

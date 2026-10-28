@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Converts the native equipment-page template to semantic atlas references.</summary>
-[CpuBusBoundary("codec: ROM pause equipment-page tilemap template → equipment atlas references")]
 public static class PauseEquipmentBaseExtractor
 {
     /// <summary>Converts the fixed native equipment-page tilemap into semantic map/interface atlas cells and serializes the versioned template.</summary>

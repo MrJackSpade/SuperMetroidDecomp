@@ -59,6 +59,5 @@ internal static class KraidNailContourVerification
     }
 
     /// <summary>Reads the retail contour as an independent oracle for the compiled lookup.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail contour")]
     private static byte KraidNailContourRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

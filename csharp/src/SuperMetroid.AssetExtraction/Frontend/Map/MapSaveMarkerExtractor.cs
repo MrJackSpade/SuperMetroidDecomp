@@ -10,7 +10,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports drawing coordinates while verifying the native save-index validity map.</summary>
-[CpuBusBoundary("codec: ROM save-station marker coordinate tables → map save markers")]
 public static class MapSaveMarkerExtractor
 {
     /// <summary>Exports drawing anchors for all usable area/save-index slots while checking the native unused-slot validity pattern.</summary>

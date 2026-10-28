@@ -6,5 +6,5 @@ public readonly record struct BgArtworkIdentity(string Name)
 {
 
     /// <summary>The installed VRAM asset <paramref name="asset"/>, as the VRAM queue binds it.</summary>
-    public static BgArtworkIdentity Asset(VramAssetId asset) => new($"asset {asset}");
+    public static BgArtworkIdentity Asset(InstalledArtworkId asset) => new($"asset {asset}");
 }

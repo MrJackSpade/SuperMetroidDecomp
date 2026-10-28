@@ -1,7 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The S-DSP's named global registers, valued by their register-file address.</summary>
-[DspRegisterAccess]
 internal enum DspGlobalRegister : byte
 {
     /// <summary>MVOLL: left master volume.</summary>

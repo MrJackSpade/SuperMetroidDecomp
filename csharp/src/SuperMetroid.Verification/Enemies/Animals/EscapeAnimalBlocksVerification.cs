@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

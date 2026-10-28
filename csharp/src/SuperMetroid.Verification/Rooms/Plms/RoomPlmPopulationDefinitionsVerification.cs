@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

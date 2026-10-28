@@ -12,11 +12,11 @@ public static class GrappleTileDefinitions
     /// <summary>OBJ character $20, where `$9B:BFA5` uploads the endpoint character; the four rope characters follow it.</summary>
     public const int FirstCharacter = 0x20;
     /// <summary>Installed tile identity for horizontal rope segments.</summary>
-    private const VramAssetId Horizontal = VramAssetId.GrappleHorizontalSegmentTiles;
+    private const InstalledArtworkId Horizontal = InstalledArtworkId.GrappleHorizontalSegmentTiles;
     /// <summary>Installed tile identity for diagonal rope segments.</summary>
-    private const VramAssetId Diagonal = VramAssetId.GrappleDiagonalSegmentTiles;
+    private const InstalledArtworkId Diagonal = InstalledArtworkId.GrappleDiagonalSegmentTiles;
     /// <summary>Installed tile identity for vertical rope segments.</summary>
-    private const VramAssetId Vertical = VramAssetId.GrappleVerticalSegmentTiles;
+    private const InstalledArtworkId Vertical = InstalledArtworkId.GrappleVerticalSegmentTiles;
     /// <summary>Calculates the seven endpoint and rope upload descriptors in native order.</summary>
     private static readonly TransferList transfers = new();
     /// <summary>$9A:8200/8A00/9200 Tiles_GrappleBeam groups; only endpoint and segment-owned characters are extracted.</summary>
@@ -36,7 +36,7 @@ public static class GrappleTileDefinitions
     }
 
     /// <summary>The installed rope characters of an orientation.</summary>
-    public static VramAssetId SegmentAssetFor(GrappleRopeOrientation orientation) => orientation switch
+    public static InstalledArtworkId SegmentAssetFor(GrappleRopeOrientation orientation) => orientation switch
     {
         GrappleRopeOrientation.Horizontal => Horizontal,
         GrappleRopeOrientation.Diagonal => Diagonal,
@@ -44,60 +44,60 @@ public static class GrappleTileDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined rope orientation."),
     };
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
-    public static VramAssetId PointAssetFor(int frame) => frame switch
+    public static InstalledArtworkId PointAssetFor(int frame) => frame switch
     {
-        0 => VramAssetId.GrapplePointFirstTiles,
-        1 => VramAssetId.GrapplePointSecondTiles,
-        2 => VramAssetId.GrapplePointThirdTiles,
-        3 => VramAssetId.GrapplePointFourthTiles,
+        0 => InstalledArtworkId.GrapplePointFirstTiles,
+        1 => InstalledArtworkId.GrapplePointSecondTiles,
+        2 => InstalledArtworkId.GrapplePointThirdTiles,
+        3 => InstalledArtworkId.GrapplePointFourthTiles,
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
     /// <summary>Resolves one of seven Grapple-owned upload identities to its native source and planar-sheet slice; this lookup neither advances endpoint animation nor enqueues a VRAM transfer.</summary>
     /// <param name="asset">One of the four endpoint-frame identities or the horizontal, diagonal, or vertical segment identity.</param>
     /// <returns>A 32-byte endpoint or 128-byte segment descriptor; destination VRAM words are separately defined by <c>PointDestination</c> and <c>SegmentDestination</c>.</returns>
     /// <exception cref="InvalidDataException">The asset identity is not owned by the Grapple tile catalog.</exception>
-    public static GrappleTileTransfer TransferFor(VramAssetId asset)
+    public static GrappleTileTransfer TransferFor(InstalledArtworkId asset)
     {
         int index = asset switch
         {
-            VramAssetId.GrapplePointFirstTiles => 0,
-            VramAssetId.GrapplePointSecondTiles => 1,
-            VramAssetId.GrapplePointThirdTiles => 2,
-            VramAssetId.GrapplePointFourthTiles => 3,
+            InstalledArtworkId.GrapplePointFirstTiles => 0,
+            InstalledArtworkId.GrapplePointSecondTiles => 1,
+            InstalledArtworkId.GrapplePointThirdTiles => 2,
+            InstalledArtworkId.GrapplePointFourthTiles => 3,
             Horizontal => 4,
             Diagonal => 5,
             Vertical => 6,
-            VramAssetId.None or
-                VramAssetId.StandardHudTiles or
-                VramAssetId.EscapeTimerFirstTiles or
-                VramAssetId.EscapeTimerSecondTiles or
-                VramAssetId.BeamPowerTiles or
-                VramAssetId.BeamWaveTiles or
-                VramAssetId.BeamIceTiles or
-                VramAssetId.BeamIceWaveTiles or
-                VramAssetId.BeamSpazerTiles or
-                VramAssetId.BeamSpazerWaveTiles or
-                VramAssetId.BeamSpazerIceTiles or
-                VramAssetId.BeamSpazerIceWaveTiles or
-                VramAssetId.BeamPlasmaTiles or
-                VramAssetId.BeamPlasmaWaveTiles or
-                VramAssetId.BeamPlasmaIceTiles or
-                VramAssetId.BeamPlasmaIceWaveTiles or
-                VramAssetId.ProjectileIceWaveTrailTiles or
-                VramAssetId.ProjectileMissileTrailTiles or
-                VramAssetId.KraidBg3RestoreQuarter0 or
-                VramAssetId.KraidBg3RestoreQuarter1 or
-                VramAssetId.KraidBg3RestoreQuarter2 or
-                VramAssetId.KraidBg3RestoreQuarter3 or
-                VramAssetId.GunshipLiftoffFirstTiles or
-                VramAssetId.GunshipLiftoffSecondTiles or
-                VramAssetId.GunshipLiftoffThirdTiles or
-                VramAssetId.GunshipLiftoffFourthTiles or
-                VramAssetId.GunshipLiftoffFifthTiles or
-                VramAssetId.BeamChainsawTiles or
-                VramAssetId.BeamSpacetimeTiles or
-                VramAssetId.StandardObjectTiles or
-                VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
+            InstalledArtworkId.None or
+                InstalledArtworkId.StandardHudTiles or
+                InstalledArtworkId.EscapeTimerFirstTiles or
+                InstalledArtworkId.EscapeTimerSecondTiles or
+                InstalledArtworkId.BeamPowerTiles or
+                InstalledArtworkId.BeamWaveTiles or
+                InstalledArtworkId.BeamIceTiles or
+                InstalledArtworkId.BeamIceWaveTiles or
+                InstalledArtworkId.BeamSpazerTiles or
+                InstalledArtworkId.BeamSpazerWaveTiles or
+                InstalledArtworkId.BeamSpazerIceTiles or
+                InstalledArtworkId.BeamSpazerIceWaveTiles or
+                InstalledArtworkId.BeamPlasmaTiles or
+                InstalledArtworkId.BeamPlasmaWaveTiles or
+                InstalledArtworkId.BeamPlasmaIceTiles or
+                InstalledArtworkId.BeamPlasmaIceWaveTiles or
+                InstalledArtworkId.ProjectileIceWaveTrailTiles or
+                InstalledArtworkId.ProjectileMissileTrailTiles or
+                InstalledArtworkId.KraidBg3RestoreQuarter0 or
+                InstalledArtworkId.KraidBg3RestoreQuarter1 or
+                InstalledArtworkId.KraidBg3RestoreQuarter2 or
+                InstalledArtworkId.KraidBg3RestoreQuarter3 or
+                InstalledArtworkId.GunshipLiftoffFirstTiles or
+                InstalledArtworkId.GunshipLiftoffSecondTiles or
+                InstalledArtworkId.GunshipLiftoffThirdTiles or
+                InstalledArtworkId.GunshipLiftoffFourthTiles or
+                InstalledArtworkId.GunshipLiftoffFifthTiles or
+                InstalledArtworkId.BeamChainsawTiles or
+                InstalledArtworkId.BeamSpacetimeTiles or
+                InstalledArtworkId.StandardObjectTiles or
+                InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
             _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
         return transfers[index];
@@ -118,7 +118,7 @@ public static class GrappleTileDefinitions
                 if (index < 4)
                     return new(PointAssetFor(index), 32 * index, 32);
                 int orientation = index - 4;
-                VramAssetId asset = orientation switch
+                InstalledArtworkId asset = orientation switch
                 {
                     0 => Horizontal,
                     1 => Diagonal,

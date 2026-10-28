@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Room and enemy definition values used by CanXrayShowBlocks ($91:D143).</summary>

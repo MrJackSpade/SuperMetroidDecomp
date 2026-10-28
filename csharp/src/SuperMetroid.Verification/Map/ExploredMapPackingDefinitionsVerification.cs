@@ -101,7 +101,6 @@ internal static class ExploredMapPackingDefinitionsVerification
     }
 
     /// <summary>Reads a native map-packing byte solely for the cartridge-side verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for explored map packing definitions")]
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that edited map artwork preserves SRAM layout and that debugger restoration requires artwork rebinding.</summary>

@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Draygon's four transfer images and eight health-band color records.</summary>
-[CpuBusBoundary("codec: ROM Draygon transfer images and health-band colors → DraygonColorCatalog")]
 public static class DraygonColorExtractor
 {
     /// <summary>Imports Draygon's intro, background, sprite, and white-flash palettes and eight ordered health-band color records.</summary>

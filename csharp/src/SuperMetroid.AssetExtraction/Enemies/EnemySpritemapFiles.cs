@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports named enemy visual frames, leaving instruction control in code.</summary>
-[CpuBusBoundary("codec: ROM enemy spritemap part records → named enemy visual frames")]
 internal static class EnemySpritemapFiles
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>

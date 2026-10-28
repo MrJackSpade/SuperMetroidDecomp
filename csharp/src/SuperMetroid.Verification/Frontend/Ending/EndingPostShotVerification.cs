@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks post-shot ending rotation, palette fades, VRAM uploads, and white-flash timing.</summary>
@@ -16,7 +17,6 @@ internal static class EndingPostShotVerification
     /// <summary>Compares every post-shot frame with native timing and exact palette and VRAM contents.</summary>
     /// <param name="bus">Retail cartridge data used as the expected artwork and palette source.</param>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the post-shot palette, font, logo tiles and map")]
     internal static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));

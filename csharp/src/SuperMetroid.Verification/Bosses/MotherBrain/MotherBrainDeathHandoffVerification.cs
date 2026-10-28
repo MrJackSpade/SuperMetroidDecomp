@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape;

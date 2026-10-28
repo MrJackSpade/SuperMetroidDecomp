@@ -9,7 +9,6 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.TestSupport.RoomHeaderImport;
 
 /// <summary>Reads native bank-$8F room records for import and cartridge-reference checks.</summary>
-[CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → SelectedRoom")]
 public static class CartridgeRoomHeaderImporter
 {
     /// <summary>

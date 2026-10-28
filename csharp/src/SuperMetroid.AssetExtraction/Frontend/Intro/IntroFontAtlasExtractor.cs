@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Exports the English opening's 144 contiguous 2-bpp font tiles.</summary>
-[CpuBusBoundary("codec: ROM opening 2-bpp font tiles → intro font atlas PNG")]
 public static class IntroFontAtlasExtractor
 {
     /// <summary>Decompresses opening font resource $95:D089 and exports its first 144 contiguous English narration glyph tiles.</summary>

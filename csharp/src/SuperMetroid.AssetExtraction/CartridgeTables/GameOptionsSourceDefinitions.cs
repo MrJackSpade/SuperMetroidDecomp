@@ -1,7 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using SuperMetroid.Core.Frontend.Options;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -9,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the options screen's pages, button labels and heading spritemaps (#1416): the import
 /// pipeline's private knowledge of the cartridge, decoded once into the installed options presentation.
 /// </summary>
-[CpuBusBoundary("catalog: options screen cartridge sources")]
 internal static class GameOptionsSourceDefinitions
 {
     /// <summary>Bank $82, in which the options screen's sixteen-bit label pointers resolve.</summary>

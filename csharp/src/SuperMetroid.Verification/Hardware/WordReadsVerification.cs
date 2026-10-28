@@ -136,7 +136,6 @@ internal static class WordReadsVerification
     }
 
     /// <summary>A byte store that records every read and fails at unmapped addresses.</summary>
-    [CpuBusBoundary("exact bus test: recording byte source for the canonical word reads' order, boundary and failure contract")]
     internal sealed class RecordingByteSource(Dictionary<int, byte> bytes) : ISnesMutableMemory, IImportCartridgeSource
     {
         /// <summary>Every CPU address requested, in the order the word helper read it.</summary>

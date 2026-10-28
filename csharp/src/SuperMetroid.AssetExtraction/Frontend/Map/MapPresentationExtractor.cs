@@ -35,7 +35,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Writes stock maps into fresh installation staging; never receives the user override directory.</summary>
-[CpuBusBoundary("codec: ROM map screen tilemaps, sprites and palettes → stock map presentation")]
 public static class MapPresentationExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>

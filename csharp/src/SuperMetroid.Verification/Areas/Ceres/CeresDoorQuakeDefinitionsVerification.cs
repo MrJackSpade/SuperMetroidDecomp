@@ -28,7 +28,6 @@ internal static class CeresDoorQuakeDefinitionsVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Compares four native offsets, timer aliases, real OAM phases, and an isolated sprite edit.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door quake definitions")]
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;

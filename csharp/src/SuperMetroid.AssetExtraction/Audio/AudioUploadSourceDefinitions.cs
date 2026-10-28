@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio;
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// not inferred from the next address. Music-data selectors are byte offsets into <c>Music_Pointers</c> at <c>$8F:E7E1</c>.
 /// Import validates mapped source addresses and bounded termination; these values themselves perform no reads or validation.
 /// </remarks>
-[CpuBusBoundary("catalog: SPC upload stream sources")]
 public static class AudioUploadSourceDefinitions
 {
     /// <summary><c>SPC_Engine</c> at <c>$CF:8000</c>; common upload containing the resident driver, sound-effect programs, and shared samples, catalog data selector $00.</summary>

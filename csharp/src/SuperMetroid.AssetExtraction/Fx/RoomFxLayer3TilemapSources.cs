@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Where the cartridge stores each room effect's layer-three page and palette blend (#1415).</summary>
-[CpuBusBoundary("codec: room-effect pages and palette blends → cartridge sources")]
 internal static class RoomFxLayer3TilemapSources
 {
     /// <summary>

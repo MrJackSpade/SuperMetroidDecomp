@@ -17,7 +17,6 @@ internal static class RidleyExplosionDefinitionsVerification
         [0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788];
 
     /// <summary>Compares spawn order, fragment lifetimes and lists, and death scatter with cartridge data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
     internal static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
 

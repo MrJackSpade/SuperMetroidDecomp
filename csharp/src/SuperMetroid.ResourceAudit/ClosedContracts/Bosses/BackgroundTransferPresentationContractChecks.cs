@@ -35,7 +35,7 @@ internal static class BackgroundTransferPresentationContractChecks
                 void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
                     CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain,
                     RoomFxLayer3TilemapCatalog pages, RoomFxPaletteBlendCatalog blends,
-                    EndingObjectArtworkCatalog ending, GunshipLiftoffArtworkCatalog ship, SnesCgram cgram, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
+                    EndingObjectArtworkCatalog ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
                     phantoon.TryGet(0, out _);
                     draygon.TryGet(0, out _);
                     crocomire.TryGet(0, out _);
@@ -49,9 +49,9 @@ internal static class BackgroundTransferPresentationContractChecks
                     blends.Apply(backgrounds, RoomFxPaletteBlend.Fog);
                     ending.Fragment(EndingObjectFragmentId.Segment7C);
                     ending.Fragment((EndingObjectFragmentId)4);
-                    ship.Resolve(VramAssetId.GunshipLiftoffFirstTiles);
-                    ship.Resolve(VramAssetId.GunshipLiftoffFifthTiles);
-                    ship.Resolve(VramAssetId.BeamPowerTiles);
+                    ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);
+                    ship.Resolve(InstalledArtworkId.GunshipLiftoffFifthTiles);
+                    ship.Resolve(InstalledArtworkId.BeamPowerTiles);
                     ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount, out _);
                     ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);
                     ship.TryResolve(0, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);

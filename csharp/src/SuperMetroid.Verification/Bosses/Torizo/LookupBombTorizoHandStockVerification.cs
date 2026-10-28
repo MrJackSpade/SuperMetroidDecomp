@@ -87,6 +87,5 @@ internal static class LookupBombTorizoHandStockVerification
     }
 
     /// <summary>Reads a native hand draw-list byte for the stock oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for bomb Torizo hand stock mapping")]
     private static byte BombTorizoHandStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

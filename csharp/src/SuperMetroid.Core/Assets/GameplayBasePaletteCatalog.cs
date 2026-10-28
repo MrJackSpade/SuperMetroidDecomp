@@ -26,11 +26,8 @@ public sealed class GameplayBasePaletteCatalog
     public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStartingImage(initial);
 
     /// <summary>Loads the complete selected 256-colour starting image into a screen's colours.</summary>
-    public void LoadInitial(IPaletteColors colours)
-    {
-        Ensure.NotNull(colours);
-        new CgramPalettes(colours).LoadImage(initial);
-    }
+    /// <param name="colours">Every colour of the screen, all 256.</param>
+    public void LoadInitial(ColourRun colours) => colours.CopyFrom(initial);
 
     /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>
     public void LoadCommonSprites(ColourRun set) => set.CopyFrom(commonSprites);

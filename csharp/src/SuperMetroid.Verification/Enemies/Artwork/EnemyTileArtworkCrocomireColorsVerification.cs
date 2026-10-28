@@ -27,7 +27,6 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
     /// <summary>Checks five color transfers, isolated overrides, hurt whiteout,
     /// death-phase palette use, reload persistence, and invalid asset rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire palette bands")]
     internal static void VerifyInstalledCrocomireColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

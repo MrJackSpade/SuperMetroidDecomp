@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Hardware;
 /// A bounded WRAM byte range at a fixed CPU address. Element offsets wrap within the bank as a
 /// fixed-bank indexed access does. Constructed only by domain memory views.
 /// </summary>
-[CpuBusAccess]
 internal readonly struct WramBytes
 {
     /// <summary>Mutable CPU bus supplying this bounded WRAM range.</summary>

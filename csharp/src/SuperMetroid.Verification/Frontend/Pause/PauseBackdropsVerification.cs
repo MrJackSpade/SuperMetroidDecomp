@@ -24,7 +24,6 @@ internal static class PauseBackdropsVerification
 {
     /// <summary>Checks native VRAM and pixels, edited content rebinds, and preserved equipment state across fades.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label tilemaps")]
     internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
@@ -174,7 +173,6 @@ internal static class PauseBackdropsVerification
     }
 
     /// <summary>Forbids native backdrop, button, and area-label reads after installed art is bound.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label source ranges")]
     private static CartridgeReadGuard NewPauseBackdropReadGuard(ISnesAddressSpace source)
     {
         var blocked = new HashSet<int>();

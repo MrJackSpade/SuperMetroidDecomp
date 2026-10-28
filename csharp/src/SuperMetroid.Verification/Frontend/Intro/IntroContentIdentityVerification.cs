@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Ceres;

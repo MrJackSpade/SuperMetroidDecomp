@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.Artwork;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>Game-over Baby color inputs with calculated cry-phase brightness steps.</summary>

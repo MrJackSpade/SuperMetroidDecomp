@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Maps a library-background instruction's named sky pages and destinations to the cartridge's encoding of them (#1414):
 /// extraction reads a sky page and writes a destination's words through this map.
 /// </summary>
-[CpuBusBoundary("codec: library-background sky pages and destinations → their cartridge encoding")]
 internal static class LibraryBackgroundOperands
 {
     /// <summary>Where the cartridge stores scrolling-sky page <paramref name="page"/>, 0 through 6.</summary>

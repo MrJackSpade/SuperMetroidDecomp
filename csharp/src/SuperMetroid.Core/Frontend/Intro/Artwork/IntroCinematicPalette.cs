@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>The opening narration's full, editable 256 screen colours.</summary>

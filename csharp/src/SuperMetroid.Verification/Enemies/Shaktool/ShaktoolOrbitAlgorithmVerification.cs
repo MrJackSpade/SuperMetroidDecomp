@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolOrbitAlgorithmVerification
 {
     /// <summary>Checks 320 table words, quantization bounds, 256 displacement pairs, and invalid indexes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool orbit algorithm")]
     internal static void VerifyShaktoolOrbitAlgorithm(SuperMetroidAddressSpace rom)
     {
         short Original(int index)

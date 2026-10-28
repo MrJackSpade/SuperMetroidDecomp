@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

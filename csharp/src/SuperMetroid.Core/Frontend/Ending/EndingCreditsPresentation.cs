@@ -205,7 +205,7 @@ internal static class EndingCreditsPresentation
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>
-    internal static short ReadSine(ByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
+    internal static short ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
 
     /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
     private static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true

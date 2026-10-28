@@ -1960,7 +1960,6 @@ internal static void VerifySamusRanIntoWall()
 /// Running movement type one reads the normal-air entry at $90:9F61. These are the real
 /// retail words already asserted independently by VerifySamusHorizontalSpeed.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the normal-air running speed record")]
 static void SeedRunningNormalAirSpeedRecord(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909f61, 0x0000); // acceleration whole
@@ -1976,7 +1975,6 @@ static void SeedRunningNormalAirSpeedRecord(TestAddressSpace bus)
 /// type the same conspicuous synthetic speed record as type `$0E`; selecting the wrong table
 /// address would otherwise read zero-filled fixture memory and stop.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the type-$17 crouched aim-turn speed record")]
 static void SeedCrouchedAimTurnSpeedRecord(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x90a069, 0x0000);
@@ -1988,7 +1986,6 @@ static void SeedCrouchedAimTurnSpeedRecord(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the dry-air normal-jump launch and gravity words read after a Moonwalk turn-jump's `$F8`.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Moonwalk turn-jump dry launch and gravity rows")]
 static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909eb9, 0x0004);

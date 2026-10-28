@@ -119,7 +119,6 @@ internal static class MapLandmarksVerification
     }
 
     /// <summary>Blocks native landmark coordinate reads after their installed presentation is bound.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native boss, elevator and gunship landmark lists to forbid them")]
     private static MutableCartridgeReadGuard NewLandmarkGuard(ISnesAddressSpace source, bool blockGunship = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);

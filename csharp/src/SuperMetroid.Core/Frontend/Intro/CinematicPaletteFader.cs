@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>

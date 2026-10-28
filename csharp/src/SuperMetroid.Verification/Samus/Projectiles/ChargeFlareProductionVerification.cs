@@ -139,7 +139,6 @@ internal static class ChargeFlareProductionVerification
     }
 
     /// <summary>Blocks live reads of the native flare selector table and every referenced spritemap body.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare spritemap extents the guard forbids")]
     internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();

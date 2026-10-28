@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -8,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Crocomire colour and skeleton tables extraction reads (#1413): the import pipeline's
 /// private knowledge of the cartridge, decoded once into the installed Crocomire documents and sheets.
 /// </summary>
-[CpuBusBoundary("catalog: Crocomire cartridge sources")]
 internal static class CrocomireSourceDefinitions
 {
     /// <summary>$A4:B89D, the body and head colours restored after hurt flashes.</summary>

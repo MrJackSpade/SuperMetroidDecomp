@@ -69,7 +69,7 @@ internal static class SamusComboMechanicsDefinitions
     {
         short Component(int phase)
         {
-            int sample = EnemyTrigonometryTables.SignedSine(new ByteAngle(checked((byte)phase)));
+            int sample = Trigonometry.SignedSine(new ByteAngle(checked((byte)phase)));
             int magnitude = EightEight.Multiply(Math.Abs(sample), (byte)amplitude);
             return unchecked((short)(sample < 0 ? -magnitude : magnitude));
         }

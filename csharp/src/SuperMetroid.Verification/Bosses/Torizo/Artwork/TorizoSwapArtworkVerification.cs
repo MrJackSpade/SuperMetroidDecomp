@@ -21,7 +21,6 @@ internal static class TorizoSwapArtworkVerification
 {
     /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks live PNG edits and rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo instruction VRAM artwork")]
     internal static void VerifyTorizoSwapArtwork(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -132,7 +131,7 @@ internal static class TorizoSwapArtworkVerification
         AssertEqual(golden.SourceAddress, TorizoArtworkSwapDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial swap shows its awakening sheet");
         ShowTorizoArtwork(editedEnemies, editedSlot, goldenSwap);
-        AssertEqual<ObjCharacterSource>(new TorizoArtworkSwapCharacters(goldenUpload),
+        AssertEqual<SpriteArtworkSource>(new TorizoArtworkSwapCharacters(goldenUpload),
             editedEnemies.Room.Session.SpriteCharacters.Uploads.Single().Source,
             "Golden Torizo's swap shows its installed transfer by entry");
         AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.SpriteCharacters,

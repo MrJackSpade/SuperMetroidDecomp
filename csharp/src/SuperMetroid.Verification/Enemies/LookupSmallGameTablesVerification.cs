@@ -69,7 +69,6 @@ internal static class LookupSmallGameTablesVerification
     }
 
     /// <summary>Reads a retail opcode byte when checking Crocomire's unrolled dust spawns.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge dust positions")]
     private static byte CrocomireBridgeDustPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Matches all sixteen Ceres falling-debris column positions to their source words.</summary>
@@ -151,6 +150,5 @@ internal static class LookupSmallGameTablesVerification
     }
 
     /// <summary>Reads a retail opcode byte when checking dead-corpse copy and initialization routines.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for dead Tourian corpse layouts")]
     private static byte DeadTourianCorpseLayoutsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

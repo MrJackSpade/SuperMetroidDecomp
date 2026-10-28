@@ -57,7 +57,6 @@ internal static class BabyMetroidRouteDefinitionsVerification
     }
 
     /// <summary>Reads one native route word solely as the verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle words for cartridge definition comparisons")]
     internal static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 

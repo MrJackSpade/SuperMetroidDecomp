@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Verification.Harness;
@@ -98,7 +99,6 @@ internal static class GameplayBasePalettesVerification
     }
 
     /// <summary>Reads native palette bytes for the installed-color comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay base palettes")]
     private static byte GameplayBasePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the gameplay base palette installation and override check.</summary>

@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts Grapple visual offsets, including adjacent-row results for nibble directions, not physical hand origins.</summary>
-[CpuBusBoundary("codec: ROM Grapple flare visual offset tables → Grapple flare placements")]
 public static class GrappleFlarePlacementExtractor
 {
     /// <summary>Exports Grapple's standing and running visual flare offsets for all sixteen low-nibble direction selectors.</summary>

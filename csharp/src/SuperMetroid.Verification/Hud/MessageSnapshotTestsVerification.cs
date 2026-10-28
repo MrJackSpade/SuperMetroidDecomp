@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hud;
 
 /// <summary>Checks gameplay message snapshots, reveal geometry and frame ownership.</summary>

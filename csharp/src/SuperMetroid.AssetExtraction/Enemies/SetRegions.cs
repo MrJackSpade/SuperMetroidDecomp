@@ -25,7 +25,7 @@ internal sealed class SetRegions
     /// into, a corpse's row being one region or several where encounters upload over parts of it.
     /// </summary>
     /// <exception cref="InvalidDataException">Two corpses upload rows over the same characters.</exception>
-    internal SetRegions(IReadOnlyList<SpriteCharacterPlacement> uploads, IReadOnlyList<CorpseRotSimulation> corpses)
+    internal SetRegions(IReadOnlyList<SpriteArtworkPlacement> uploads, IReadOnlyList<CorpseRotSimulation> corpses)
     {
         Uploads = Ensure.NotNull(uploads);
         CorpseRegion[] rows = [.. Ensure.NotNull(corpses).SelectMany(corpse => corpse.Rows.Select(row => new CorpseRegion(corpse, row)))];
@@ -53,7 +53,7 @@ internal sealed class SetRegions
     }
 
     /// <summary>The uploads the set's encounters make.</summary>
-    internal IReadOnlyList<SpriteCharacterPlacement> Uploads { get; }
+    internal IReadOnlyList<SpriteArtworkPlacement> Uploads { get; }
 
     /// <summary>The ranges the uploads and the corpses' rows divide the characters into.</summary>
     internal IReadOnlyList<CharacterRange> Regions { get; }
@@ -77,18 +77,18 @@ internal sealed class SetRegions
     internal SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set)
     {
         Ensure.NotNull(set);
-        var bySource = new Dictionary<ObjCharacterSource, CharacterRegion[]>();
-        void Add(ObjCharacterSource source, int firstByte, int byteCount)
+        var bySource = new Dictionary<SpriteArtworkSource, CharacterRegion[]>();
+        void Add(SpriteArtworkSource source, int firstByte, int byteCount)
         {
             CharacterRegion[] covered = [.. Regions.Where(range => range.Overlaps(firstByte, byteCount)).Select(RegionOf)];
             bySource[source] = bySource.TryGetValue(source, out CharacterRegion[]? earlier) ? [.. earlier.Union(covered)] : covered;
         }
-        foreach (SpriteCharacterPlacement upload in Uploads)
+        foreach (SpriteArtworkPlacement upload in Uploads)
             Add(upload.Source, upload.FirstByte, upload.ByteCount);
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, set))
             Add(new GraphicsSetTileCharacters(entry.DefinitionId),
-                EnemyGraphicsSet.EnemyTileAreaFirstCharacter * SpriteCharacters.CharacterByteCount + entry.StagingOffset, entry.TileByteCount);
-        Add(new AssetObjCharacters(VramAssetId.StandardObjectTiles), 0, StandardObjectArtworkFormat.ByteCount);
+                EnemyGraphicsSet.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount + entry.StagingOffset, entry.TileByteCount);
+        Add(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles), 0, StandardObjectArtworkFormat.ByteCount);
         CharacterRegion[][] rotRows = corpseRows.Count == 0 ? [] : [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
             Regions.Where(range => range.FirstByte >= row.FirstCharacter * CharacterBytes
                 && range.FirstByte + range.ByteCount <= row.FirstCharacter * CharacterBytes + row.ByteCount).Select(RegionOf).ToArray())];

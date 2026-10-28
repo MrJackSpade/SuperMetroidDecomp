@@ -40,7 +40,6 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     }
 
     /// <summary>Compares all nine instruction operands with the compiled frame-pointer order.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue frame positions")]
     internal static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
@@ -55,7 +54,6 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     }
 
     /// <summary>Checks each frame's single component and its empty native hitbox list.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue component cases")]
     internal static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
@@ -77,7 +75,6 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(CrocomireNativeWords.TongueHitboxLists.Decode(0x8000, "compiled Crocomire tongue hitbox list")), "tongue rejects unknown hitbox list");
     }
     /// <summary>Compares touch and shot collision outcomes for all tongue frames at wrapped and ordinary positions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue collision definitions")]
     internal static void VerifyCrocomireTongueCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

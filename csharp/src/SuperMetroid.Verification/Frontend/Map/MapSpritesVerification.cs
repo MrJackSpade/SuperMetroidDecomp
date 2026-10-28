@@ -30,7 +30,6 @@ internal static class MapSpritesVerification
 {
     /// <summary>Compares native sprite bytes and clipping, then checks composition and PNG edits through rendered maps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native map OBJ characters")]
     internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var native = new OamBuffer();
@@ -151,7 +150,6 @@ internal static class MapSpritesVerification
             paletteBits, originIsOnScreen);
 
     /// <summary>Forbids runtime reads of installed map characters and every native map sprite pointer and body.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle reading the native map spritemap pointers to forbid every migrated sprite source")]
     private static MutableCartridgeReadGuard NewMapSpriteGuard(ISnesAddressSpace source)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);

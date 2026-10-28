@@ -13,7 +13,7 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// <summary>$90:8C0F-$8C1E: route the initial enemy-projectile colors at CGRAM208 to their OBJ palette row.</summary>
     /// <remarks>RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex uses the same destination.
     /// OBJ colors occupy the upper half of CGRAM, with sixteen colors per row.</remarks>
-    internal const int Palette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - CgramPalettes.ColorCount / 2) /
+    internal const int Palette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - GameplayColours.ColorCount / 2) /
         GameplayBasePaletteFormat.SpriteColorCount;
     /// <summary>$90:8C0F-$8C1E: selected OBJ priority two, retained as the exact atmospheric drawing-layer composition.</summary>
     /// <remarks>This materially determines visibility against background layers. Only the eight

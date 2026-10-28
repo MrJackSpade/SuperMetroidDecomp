@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuMissileLookupsVerification
 {
     /// <summary>Compares the four spritemap IDs and native wrap mask, including rejection of invalid frame indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for menu missile spritemap ids")]
     internal static void VerifyMenuMissileSpritemapIds(ISnesAddressSpace rom)
     {
         AssertEqual(4, MenuMissileAnimationDefinitions.FrameCount, "menu missile frame count");

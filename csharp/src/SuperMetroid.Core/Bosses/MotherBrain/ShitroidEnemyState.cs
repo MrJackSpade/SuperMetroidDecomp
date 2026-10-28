@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 

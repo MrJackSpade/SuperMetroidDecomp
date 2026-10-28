@@ -60,6 +60,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;
@@ -246,7 +247,6 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Compares options heading borders with ROM and OAM, then checks individual edits, reordering, and expansion.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for options borders")]
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
@@ -318,7 +318,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select border geometry and ordered sprite parts against ROM and edited presentation data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select borders")]
     internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
@@ -390,7 +389,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Decodes the seven grapple transfers and checks derived tile pixels against ROM and edited atlas data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple tile patterns")]
     internal static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
     {
         byte[] planar = transfers.SelectMany(transfer => Enumerable.Range(0, transfer.ByteCount)
@@ -440,7 +438,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks narration glyph coordinates and line breaks against native records and independently edited pages.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for narration layout")]
     internal static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
         int nativeCharacters = 0;
@@ -497,7 +494,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks six Mochtroid frame registrations and their calculated native spritemap pointers.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     internal static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
     {
         NativeEnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
@@ -622,7 +618,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks the ordered named frame registry and derived room-sprite additions without duplicate identities.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy frame registration")]
     internal static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
     {
         // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.
@@ -651,7 +646,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select patch cells and terminators against ROM, then verifies edited placement and order.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select patches")]
     internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
@@ -762,7 +756,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks options anchors, labels, language regions, toggles, and heading draw placement against ROM and edits.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for options geometry")]
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
@@ -896,7 +889,6 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Runs the stream-three ROM oracle for inline lookup tables and presentation boundaries.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
     internal static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
@@ -1130,13 +1122,13 @@ internal static class LookupStream3Verification
 
         GrappleTileTransfer[] expectedTransfers =
         [
-            new(VramAssetId.GrapplePointFirstTiles, 0, 32),
-            new(VramAssetId.GrapplePointSecondTiles, 32, 32),
-            new(VramAssetId.GrapplePointThirdTiles, 64, 32),
-            new(VramAssetId.GrapplePointFourthTiles, 96, 32),
-            new(VramAssetId.GrappleHorizontalSegmentTiles, 128, 128),
-            new(VramAssetId.GrappleDiagonalSegmentTiles, 256, 128),
-            new(VramAssetId.GrappleVerticalSegmentTiles, 384, 128),
+            new(InstalledArtworkId.GrapplePointFirstTiles, 0, 32),
+            new(InstalledArtworkId.GrapplePointSecondTiles, 32, 32),
+            new(InstalledArtworkId.GrapplePointThirdTiles, 64, 32),
+            new(InstalledArtworkId.GrapplePointFourthTiles, 96, 32),
+            new(InstalledArtworkId.GrappleHorizontalSegmentTiles, 128, 128),
+            new(InstalledArtworkId.GrappleDiagonalSegmentTiles, 256, 128),
+            new(InstalledArtworkId.GrappleVerticalSegmentTiles, 384, 128),
         ];
         int[] expectedSources = [0x9a8200, 0x9a8400, 0x9a8600, 0x9a8800, 0x9a8220, 0x9a8a20, 0x9a9220];
         var actualTransfers = GrappleTileDefinitions.Transfers;
@@ -1153,7 +1145,7 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = actualTransfers[invalid],
                 "stream 3 grapple transfer bounds");
-        AssertThrows<InvalidDataException>(() => GrappleTileDefinitions.TransferFor((VramAssetId)(-1)),
+        AssertThrows<InvalidDataException>(() => GrappleTileDefinitions.TransferFor((InstalledArtworkId)(-1)),
             "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter <= ushort.MaxValue; parameter++)
@@ -1307,7 +1299,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks death explosion program selectors, native scatter anchors, and their generated burst cadence.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for death selectors")]
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
@@ -1362,7 +1353,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks eight painful-walk delay, neck, and pause rows against ROM and the sequence's stage behavior.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for painful walking")]
     private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
     {
         for (int stage = 0; stage < 8; stage++)
@@ -1395,7 +1385,6 @@ internal static class LookupStream3Verification
     /// selection, in list order, shows the record's bytes where the record places them, and each list's cursor advances once
     /// per call and refuses a call past its last page.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for escape geometry")]
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
@@ -1411,7 +1400,7 @@ internal static class LookupStream3Verification
                 int address = start + index * 7;
                 int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
-                SpriteCharacterPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(method()));
+                SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(method()));
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
                 AssertEqual(nativeSize, shown.ByteCount, "stream 3 production escape page shows the native record's bytes");
                 AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapePagesShown : sequence.ThirdPhaseDeath.ExplodedDoorPagesShown,
@@ -1444,7 +1433,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks corpse row offsets and rot/page transfer geometry against native source and destination words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 8; row++)
@@ -1466,7 +1454,7 @@ internal static class LookupStream3Verification
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseArtworkDefinitions.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            SpriteCharacterPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
+            SpriteArtworkPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
@@ -1534,7 +1522,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Shitroid pulse and Baby cutscene colors against ROM while exercising palette catalog edits.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shitroid pulse")]
     internal static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
     {
         PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
@@ -1657,7 +1644,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks rainbow, drain, fake-death, and revival palette frames against their native rows and edited colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for drain fades")]
     internal static void VerifyStream3DrainFades(ISnesAddressSpace rom)
     {
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
@@ -1915,7 +1901,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks the Baby Metroid initial and six fade palettes against ROM and independently edited colors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby fade")]
     internal static void VerifyStream3BabyFade(ISnesAddressSpace rom)
     {
         var initial = new ushort[15];
@@ -2006,7 +1991,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Mother Brain body, leg, and corpse fade frames against the native color sequences.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain fades")]
     internal static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
     {
         var body = new ushort[16][];
@@ -2122,7 +2106,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Choot falling patterns, loop distances, and separated mechanics/presentation operands.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Choot control")]
     private static void VerifyStream3ChootControl(ISnesAddressSpace rom)
     {
         for (ushort pattern = 0; pattern < 5; pattern++)
@@ -2138,7 +2121,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks pickup and death animation dispatch plus Fireflea instruction words against native tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pickup and Fireflea programs")]
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
     {
         for (int kind = 0; kind < 6; kind++)
@@ -2161,7 +2143,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks six four-color Work Robot palette frames against ROM and edited RGB5 source colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot colors")]
     private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)
     {
         var words = new ushort[6][];
@@ -2236,7 +2217,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks Mother Brain's health tint from paint anchors without retaining native intermediate rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for health tint")]
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
@@ -2312,7 +2292,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks recovery-light colors and room-palette routing against ROM and independent edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for recovery lights")]
     internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2408,7 +2387,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks timed room-flash colors and mirrors without storing native output rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room flash")]
     internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2474,7 +2452,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Interprets the supported bank-$8F door callback opcodes to calculate the native scroll writes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for door scroll")]
     private static void ExecuteStream3DoorScroll(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -2543,7 +2520,6 @@ internal static class LookupStream3Verification
             $"${opcode:X2} at ${SnesAddressMath.BankNumber(opcodeAddress):X2}:{SnesAddressMath.OffsetInBank(opcodeAddress):X4}.");
     /// <summary>Checks the phase-two rear-leg palette's CGRAM output against ROM and its calculated health basis.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for phase two rear leg")]
     internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2581,7 +2557,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks auxiliary palette definitions and resolved rows for Face Block, Sidehopper, and Golden Torizo.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for auxiliary palettes")]
     internal static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
     {
         EnemyAuxiliaryPaletteDefinition[] definitions =
@@ -2667,7 +2642,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Baby Metroid sprite parts, reflected OAM placement, and imported schema behavior.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby sprite reflection")]
     internal static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
     {
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -2784,7 +2758,6 @@ internal static class LookupStream3Verification
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain attack palette")]
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2836,7 +2809,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks final-room paint colors and dependent palette isolation against native and edited inputs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for final room paints")]
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2903,7 +2875,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks room-entry glass and tube colors, recovery independence, and legacy palette inheritance.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room entry palettes")]
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -3005,7 +2976,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Baby Metroid's initial cutscene paints and their separation from live Shitroid colors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby initial paints")]
     internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
         var babyDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorExtractor.Extract(rom));
@@ -3067,7 +3037,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks the first narration tilemap against decompressed ROM words and the intro upload path.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the initial narration tilemap and opening font")]
     internal static void VerifyStream3InitialNarrationMap()
     {
         using var rootScratch = new TestScratchDirectory("initial-narration");
@@ -3126,7 +3095,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select sprite compositions, border parts, and edited layout against native OAM data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select sprites")]
     internal static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
@@ -3208,7 +3176,6 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks all 144 intro font tiles against decompressed ROM bytes and edited atlas uploads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the opening font")]
     internal static void VerifyStream3IntroFont()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3254,7 +3221,6 @@ internal static class LookupStream3Verification
 
     /// <summary>Checks intro background map pages against decompressed ROM and loaded presentation edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro background page tilemaps")]
     internal static void VerifyStream3BackgroundMaps()
     {
         using var rootScratch = new TestScratchDirectory("background-maps");
@@ -3401,7 +3367,6 @@ BranchesToSharedBody:true),
 
     /// <summary>Checks the opening portrait tilemap against decompressed ROM and the actual VRAM upload.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro Samus head tilemap")]
     internal static void VerifyStream3PortraitMap()
     {
         using var rootScratch = new TestScratchDirectory("portrait-map");
@@ -3597,13 +3562,13 @@ BranchesToSharedBody:true),
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             GrappleTileTransfer[] expectedTransfers =
             [
-                new(VramAssetId.GrapplePointFirstTiles, 0, 32),
-                new(VramAssetId.GrapplePointSecondTiles, 32, 32),
-                new(VramAssetId.GrapplePointThirdTiles, 64, 32),
-                new(VramAssetId.GrapplePointFourthTiles, 96, 32),
-                new(VramAssetId.GrappleHorizontalSegmentTiles, 128, 128),
-                new(VramAssetId.GrappleDiagonalSegmentTiles, 256, 128),
-                new(VramAssetId.GrappleVerticalSegmentTiles, 384, 128),
+                new(InstalledArtworkId.GrapplePointFirstTiles, 0, 32),
+                new(InstalledArtworkId.GrapplePointSecondTiles, 32, 32),
+                new(InstalledArtworkId.GrapplePointThirdTiles, 64, 32),
+                new(InstalledArtworkId.GrapplePointFourthTiles, 96, 32),
+                new(InstalledArtworkId.GrappleHorizontalSegmentTiles, 128, 128),
+                new(InstalledArtworkId.GrappleDiagonalSegmentTiles, 256, 128),
+                new(InstalledArtworkId.GrappleVerticalSegmentTiles, 384, 128),
             ];
             VerifyStream3GrappleTilePatterns(rom, expectedTransfers);
         Console.WriteLine("Grapple tiles:512 native bytes,64 plane edits,8 coverage edits and seven transfer bindings pass; only reviewed stroke masks and visual shape choices remain.");

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks stock-assisted migration of older room, Mother Brain, and rainbow palette JSON.</summary>

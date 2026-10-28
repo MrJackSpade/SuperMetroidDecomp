@@ -9,7 +9,6 @@ using SuperMetroid.Verification.Harness;
 internal static class CompiledEnemyVisualSelectorsVerification
 {
     /// <summary>Checks every checked-in selector directly against the pinned cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy visual selectors")]
     internal static void VerifyCompiledEnemyVisualSelectors()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

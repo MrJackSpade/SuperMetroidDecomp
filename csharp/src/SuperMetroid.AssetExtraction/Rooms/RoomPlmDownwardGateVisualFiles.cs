@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Installs named gate-block appearances. Native draw geometry and physical level
 /// words are checked against the compiled cartridge definitions.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 downward gate PLM draw lists → gate visual files")]
 public static class RoomPlmDownwardGateVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>

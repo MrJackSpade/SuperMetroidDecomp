@@ -43,11 +43,11 @@ internal sealed class EnemyGraphicsSet
         _room.EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
-            if (entry.StagingOffset % SpriteCharacters.CharacterByteCount != 0 || entry.TileByteCount % SpriteCharacters.CharacterByteCount != 0)
+            if (entry.StagingOffset % SpriteArtworkPlacements.CharacterByteCount != 0 || entry.TileByteCount % SpriteArtworkPlacements.CharacterByteCount != 0)
                 throw new InvalidDataException($"{entry.DefinitionId}'s tiles are not whole sprite characters from a character's start.");
-            _room.Session.SpriteCharacters.Show(new SpriteCharacterPlacement(new GraphicsSetTileCharacters(entry.DefinitionId),
-                EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteCharacters.CharacterByteCount,
-                entry.TileByteCount / SpriteCharacters.CharacterByteCount));
+            _room.Session.SpriteCharacters.Show(new SpriteArtworkPlacement(new GraphicsSetTileCharacters(entry.DefinitionId),
+                EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteArtworkPlacements.CharacterByteCount,
+                entry.TileByteCount / SpriteArtworkPlacements.CharacterByteCount));
         }
     }
 
@@ -55,13 +55,13 @@ internal sealed class EnemyGraphicsSet
     internal const int EnemyTileAreaFirstCharacter = 192;
 
     /// <summary>The bytes of the enemy tile area: 320 characters, through the end of the OBJ character table.</summary>
-    private const int EnemyTileAreaByteCount = 320 * SpriteCharacters.CharacterByteCount;
+    private const int EnemyTileAreaByteCount = 320 * SpriteArtworkPlacements.CharacterByteCount;
 
     /// <summary>
     /// Where the set's first member that follows the previous one shows its tiles: 64 characters into the enemy tile
     /// area, after the share the fixed sprite set keeps.
     /// </summary>
-    private const int OrdinaryTilesStart = 64 * SpriteCharacters.CharacterByteCount;
+    private const int OrdinaryTilesStart = 64 * SpriteArtworkPlacements.CharacterByteCount;
 
     /// <summary>Stages selected enemy tiles and OBJ palettes in graphics-set record order.</summary>
     internal void LoadGraphicsSet(
@@ -144,7 +144,7 @@ internal sealed class EnemyGraphicsSet
                 byteCount));
 
             followsFixedBlock = atFixedBlock;
-            nextEnemyTileIndex += byteCount / SpriteCharacters.CharacterByteCount;
+            nextEnemyTileIndex += byteCount / SpriteArtworkPlacements.CharacterByteCount;
             nextStagingOffset += byteCount;
         }
         return entries;

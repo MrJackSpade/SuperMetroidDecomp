@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>Checks typed DMA source routing across cartridge, WRAM and unmapped regions, SRAM windows included.</summary>
@@ -11,7 +12,6 @@ internal static class DmaSourceRoutingVerification
     /// mapped source type between consecutive bytes. A generic bus read throws here.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: PPU DMA and import palette source routing across cartridge, WRAM and unmapped windows")]
     internal static void VerifyDmaSourceRouting()
     {
         var source = new DmaReadRoutingBus();
@@ -38,7 +38,6 @@ internal static class DmaSourceRoutingVerification
     }
 
     /// <summary>Sparse region stores and read counters reveal which source API each PPU transfer uses.</summary>
-    [CpuBusBoundary("exact bus test: sparse per-region store whose read counters witness PPU DMA source routing")]
     internal sealed class DmaReadRoutingBus : ISnesMemoryBus,
         IImportCartridgeSource
     {

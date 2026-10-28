@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports ordered map sprite artwork only, excluding all game collision and navigation data.</summary>
-[CpuBusBoundary("codec: ROM bank-$82 map spritemaps → map sprite artwork")]
 public static class MapSpriteExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>

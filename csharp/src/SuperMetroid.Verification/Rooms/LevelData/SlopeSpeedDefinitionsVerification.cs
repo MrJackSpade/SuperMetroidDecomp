@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Rooms.LevelData;
 internal static class SlopeSpeedDefinitionsVerification
 {
     /// <summary>Compares all slope shapes and BTS orientations, including signed byte packing and airborne early return.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for slope speeds")]
     internal static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
     {
         var multipliers = new ushort[32];

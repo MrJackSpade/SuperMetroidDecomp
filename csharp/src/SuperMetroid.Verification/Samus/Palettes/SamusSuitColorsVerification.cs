@@ -46,7 +46,7 @@ internal static class SamusSuitColorsVerification
                 ushort powerColor = ReadVerificationWord(cartridge, 0x9b9400 + 2 * color);
                 ushort suitColor = ReadVerificationWord(cartridge, source + 2 * color);
                 AssertEqual(powerColor != suitColor, differences.TryGetValue(new ColourCell(0, color), out RgbColor stored), "Every native shared/different slot is independently classified");
-                if (powerColor != suitColor) AssertEqual(RgbColor.FromCgramPortWord(suitColor), stored, "Differing native word is preserved");
+                if (powerColor != suitColor) AssertEqual(RgbColor.FromWordIgnoringTopBit(suitColor), stored, "Differing native word is preserved");
             }
         }
         for (int offset = 0; offset <= ushort.MaxValue; offset++)
@@ -252,7 +252,6 @@ internal static class SamusSuitColorsVerification
     }
 
     /// <summary>Reads a native suit palette word solely for comparison with extracted colors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus normal-suit palette colors")]
     private static ushort ReadNativeSuitColor(IImportCartridgeSource cartridge, int sourceAddress, int color) =>
         RomDataReader.ReadWordFixedBank(cartridge, sourceAddress + color * sizeof(ushort));
 

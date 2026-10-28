@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the four cartridge-authored full-body palette cycles without their timing rules.</summary>
-[CpuBusBoundary("codec: ROM Samus full-body palette cycles → full-body cycle colors")]
 public static class SamusFullBodyCycleColorExtractor
 {
     /// <summary>Exports Speed Booster, Screw Attack, stored-shine, and active-Shinespark full-body color families without their state/timing rules.</summary>

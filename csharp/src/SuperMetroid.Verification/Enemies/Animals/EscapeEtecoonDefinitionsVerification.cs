@@ -15,7 +15,6 @@ using SuperMetroid.Core.World;
 internal static class EscapeEtecoonDefinitionsVerification
 {
     /// <summary>Checks three native setup roles and all six masked selector values against production initialization.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for escape Etecoon definitions")]
     internal static void VerifyEscapeEtecoonDefinitions(SuperMetroidAddressSpace rom)
     {
         const int xTable = 0xb3e718;

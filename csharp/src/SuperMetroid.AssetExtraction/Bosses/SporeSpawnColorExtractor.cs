@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Spore Spawn's initial, health, and death RGB5 images.</summary>
-[CpuBusBoundary("codec: ROM Spore Spawn initial, health and death colors → SporeSpawnColorCatalog")]
 public static class SporeSpawnColorExtractor
 {
     /// <summary>Exports the independent spore palette, four health-dependent body images, and separate sprite/level/background death-color sequences.</summary>

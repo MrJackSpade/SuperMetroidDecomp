@@ -83,10 +83,10 @@ internal sealed class EnemyPresentation
     /// The session's gameplay OBJ character table bindings, which enemy-format sprites draw from. Uploads that bypass
     /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.
     /// </summary>
-    internal SpriteCharacters SpriteCharacters => _room.Session.SpriteCharacters;
+    internal SpriteArtworkPlacements SpriteCharacters => _room.Session.SpriteCharacters;
 
     /// <summary>Shows an encounter's <paramref name="source"/> over the sprite characters (#1406).</summary>
-    internal void ShowCharacters(ObjCharacterSource source) => _room.Session.ShowCharacters(source);
+    internal void ShowCharacters(SpriteArtworkSource source) => _room.Session.ShowCharacters(source);
 
     /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
     internal CorpseRotSteps RotSteps { get; } = new();
@@ -170,7 +170,7 @@ internal sealed class EnemyPresentation
         if (layers.Count == 0)
             return [frame];
         EncounterCharacterCatalog catalog = Sheets.Encounters;
-        IReadOnlyList<SpriteCharacterPlacement> uploads = catalog.Of(LoadedSet);
+        IReadOnlyList<SpriteArtworkPlacement> uploads = catalog.Of(LoadedSet);
         SetCharacterCoverage coverage = Sheets.Coverage(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
             [.. regions.Select(region => RotSteps.TryShowing(region, out int step, out long stamp)

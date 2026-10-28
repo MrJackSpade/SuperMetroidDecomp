@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -6,7 +5,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where bank $81 keeps the file-select screens' authored tilemap text streams (#1416): the import pipeline's private
 /// knowledge, decoded once into the installed file-select presentation.
 /// </summary>
-[CpuBusBoundary("catalog: file-select tilemap sources")]
 internal static class FileSelectTilemapSourceDefinitions
 {
     /// <summary>SAMUS DATA heading at $81:B40A.</summary>

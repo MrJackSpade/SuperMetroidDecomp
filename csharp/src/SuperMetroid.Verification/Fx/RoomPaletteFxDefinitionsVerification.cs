@@ -21,7 +21,6 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class RoomPaletteFxDefinitionsVerification
 {
     /// <summary>Audits 63 entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room palette FX definitions")]
     internal static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
 

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -8,7 +7,7 @@ internal static class EnemyRomTablePointersCommon
 {
     /// <summary>256 signed 16-bit sine/cosine samples at $A0:B443 (512 bytes).</summary>
     /// <remarks>
-    /// Physical view of <see cref="EnemyTrigonometryTables.SignedSine"/>
+    /// Physical view of <see cref="Trigonometry.SignedSine"/>
     /// within the 320-word prefix/full-cycle region. Proof: #625 / #910.
     /// </remarks>
     public const int SignedSineCosineWords = 0xa0b443;

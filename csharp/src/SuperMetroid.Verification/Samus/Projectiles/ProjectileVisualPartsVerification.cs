@@ -48,7 +48,6 @@ internal static class ProjectileVisualPartsVerification
     /// Seeds the one-part packed projectile spritemap at <c>$93:F700</c>: a part count of one,
     /// then the X/size word, Y offset byte and attribute word of that part.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-part bank-$93 projectile spritemap")]
     private static void SeedSinglePartProjectileSpritemap(TestAddressSpace bus, ushort rawX, byte yOffset, ushort attribute)
     {
         WriteTestWord(bus, 0x93f700, 1);

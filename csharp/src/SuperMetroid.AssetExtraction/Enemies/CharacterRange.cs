@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal sealed record CharacterRange(int FirstByte, int ByteCount)
 {
     /// <summary>The uploads among <paramref name="uploads"/> that show over <paramref name="range"/> when made: those covering it whole.</summary>
-    internal static IEnumerable<SpriteCharacterPlacement> Over(IEnumerable<SpriteCharacterPlacement> uploads, CharacterRange range)
+    internal static IEnumerable<SpriteArtworkPlacement> Over(IEnumerable<SpriteArtworkPlacement> uploads, CharacterRange range)
     {
         Ensure.NotNull(range);
         return Ensure.NotNull(uploads).Where(upload =>

@@ -75,6 +75,5 @@ internal static class GrappleCompiledMathVerification
     }
 
     /// <summary>Reads original signed trigonometry samples only for the independent oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled grapple math")]
     private static byte CompiledGrappleMathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers ending codecs resolve.</summary>
-[CpuBusBoundary("catalog: ending cartridge tables")]
 internal static class EndingSourceDefinitions
 {
     /// <summary>

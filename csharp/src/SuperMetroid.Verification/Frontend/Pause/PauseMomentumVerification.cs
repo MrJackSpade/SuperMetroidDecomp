@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseMomentumVerification
 {
     /// <summary>Confirms unpause preserves numeric speed, reconciles equipment and momentum, and clears abandoned echo state.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause momentum reconciliation")]
     internal static void VerifyPauseMomentumReconciliation()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

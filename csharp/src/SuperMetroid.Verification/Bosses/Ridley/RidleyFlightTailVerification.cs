@@ -17,7 +17,6 @@ using SuperMetroid.Core.Progression;
 internal static class RidleyFlightTailVerification
 {
     /// <summary>The native signed sine sample for <paramref name="angle"/> from the $A0:B443 table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B443 sine table used by Ridley's swoop")]
     private static short ReadRetailSwoopSine(ISnesAddressSpace rom, int angle)
     {
         int address = 0xa0b443 + unchecked((byte)angle) * 2;

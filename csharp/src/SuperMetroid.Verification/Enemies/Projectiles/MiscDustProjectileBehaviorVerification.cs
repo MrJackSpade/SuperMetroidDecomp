@@ -25,7 +25,6 @@ internal static class MiscDustProjectileBehaviorVerification
     /// (the looping elevator pad loops), and the eye door's smoke reaches deletion, each shown frame keeping its native
     /// duration, with both the misc-dust and Mother Brain list bytes forbidden.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for misc-dust frame durations")]
     internal static void VerifyMiscDustProjectileBehavior(SuperMetroidAddressSpace rom)
     {
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);

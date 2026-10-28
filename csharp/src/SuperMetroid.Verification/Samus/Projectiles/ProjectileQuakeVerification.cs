@@ -20,7 +20,6 @@ internal static class ProjectileQuakeVerification
 {
     /// <summary>Compares native OAM across quake types, timers, freeze state, priority, and screen edges.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $86:846B earthquake displacement table")]
     internal static void VerifyProjectileQuake()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

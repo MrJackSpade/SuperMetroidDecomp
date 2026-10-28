@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// music driver continues to write the ordinary DSP registers, so samples remain data rather
 /// than pre-rendered sound effects.
 /// </summary>
-[DspRegisterBoundary("implementation: the S-DSP register file and mixer")]
 public sealed class ManagedSnesDsp
 {
     /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>
@@ -130,7 +129,6 @@ public sealed class ManagedSnesDsp
         sampleBank = Ensure.NotNull(bank);
 
     /// <summary>Applies one SPC write to the mirrored S-DSP register file.</summary>
-    [DspRegisterAccess]
     public void WriteRegister(byte address, byte value)
     {
         if (address >= SnesDspRegisterLayout.RegisterFileSize)
@@ -533,7 +531,6 @@ public sealed class ManagedSnesDsp
     }
 
     /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
-    [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM sample directory loop pointers")]
     private ushort ReadLoopAddress(int source)
     {
         int directory = SnesLittleEndian.Word(0, registers[(byte)DspGlobalRegister.SourceDirectory]) +
@@ -625,11 +622,9 @@ public sealed class ManagedSnesDsp
     }
 
     /// <summary>Reads a wrapped little-endian DSP word from shared audio RAM.</summary>
-    [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM BRR directory and echo-buffer words")]
     private ushort ReadWord(int address) => SpcRamWords.Read(apuRam, address);
 
     /// <summary>Writes a wrapped little-endian echo word into shared audio RAM.</summary>
-    [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM echo-buffer samples")]
     private void WriteWord(int address, ushort value) => SpcRamWords.Write(apuRam, address, value);
 
     /// <summary>Clamps an intermediate mix or echo sum to signed 16-bit amplitude.</summary>

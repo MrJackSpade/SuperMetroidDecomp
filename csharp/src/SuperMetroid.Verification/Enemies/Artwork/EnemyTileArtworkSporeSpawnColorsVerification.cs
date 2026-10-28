@@ -26,7 +26,6 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
     /// <summary>Compares 432 native RGB5 words, edits one color per palette family, and checks production CGRAM and fade targets without source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Spore Spawn colors")]
     internal static void VerifyInstalledSporeSpawnColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

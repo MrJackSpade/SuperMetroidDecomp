@@ -500,7 +500,7 @@ internal sealed class MotherBrainProjectiles
 
     /// <summary>Reads the native signed sine table as its raw two-byte sample.</summary>
     internal static ushort ReadSignedSineSample(int index) =>
-        unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(index));
+        unchecked((ushort)Trigonometry.SignedNegativeCosineWord(index));
 
     /// <summary>
     /// Ports fired-child initializer <c>$86:C684-C75C</c>. Each child first advances the

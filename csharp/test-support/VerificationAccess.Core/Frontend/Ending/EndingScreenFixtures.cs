@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's screen as checks read it (#1358): its recorded transfers replayed into a VRAM.</summary>

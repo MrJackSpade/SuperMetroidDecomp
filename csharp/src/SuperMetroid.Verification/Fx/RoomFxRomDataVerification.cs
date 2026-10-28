@@ -326,7 +326,6 @@ internal static class RoomFxRomDataVerification
         RoomLayer3FxState.ForDefinition(session, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
-    [CpuBusBoundary("exact bus test: decodes the synthetic sixteen-byte bank-$83 room FX record")]
     private static RoomFxRecordDefinition ReadSyntheticRoomFxRecord(TestAddressSpace bus, ushort pointer)
     {
         int address = 0x830000 | pointer;
@@ -341,12 +340,10 @@ internal static class RoomFxRomDataVerification
     }
 
     /// <summary>Writes one byte field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$83 room FX record byte field")]
     private static void SeedSyntheticRoomFxByte(TestAddressSpace bus, ushort record, int fieldOffset, byte value) =>
         WriteTestByte(bus, RoomFxRomDataBanksTooling.RoomDefinitions | unchecked((ushort)(record + fieldOffset)), value);
 
     /// <summary>Writes one little-endian word field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$83 room FX record word field")]
     private static void SeedSyntheticRoomFxWord(TestAddressSpace bus, ushort record, int fieldOffset, ushort value) =>
         WriteTestWord(bus, RoomFxRomDataBanksTooling.RoomDefinitions | unchecked((ushort)(record + fieldOffset)), value);
 

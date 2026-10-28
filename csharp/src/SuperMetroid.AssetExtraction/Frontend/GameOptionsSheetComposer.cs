@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>

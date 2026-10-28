@@ -105,7 +105,6 @@ internal static class LookupLiquidTilemapsVerification
     }
 
     /// <summary>Reads one retail liquid page byte for the exact stock-page comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for liquid tilemap domain and storage")]
     private static byte LiquidTilemapDomainAndStorageRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs field-by-field page comparisons and the identity, bounds, and storage checks.</summary>

@@ -17,7 +17,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapScrollControlsVerification
 {
     /// <summary>Compares every direction combination, scroll trajectory, sound boundary, and installed menu under a guarded bus.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native map-arrow controller masks and direction order")]
     internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         var buttons = new ControllerButton[MapScrollControls.DirectionCount];

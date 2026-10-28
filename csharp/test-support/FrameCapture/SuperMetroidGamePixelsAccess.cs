@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Core.Frontend;

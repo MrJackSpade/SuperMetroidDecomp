@@ -21,7 +21,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class EndingTextPresentationVerification
 {
     /// <summary>Matches extracted font bytes and panels to the cartridge, then checks text edits, snapshot rebinding, and glyph validation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending font characters")]
     internal static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -119,7 +118,6 @@ internal static class EndingTextPresentationVerification
     }
 
     /// <summary>Reads a bank-$8C tilemap span for the independent result or copyright panel comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending text presentation words")]
     internal static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new ushort[count];

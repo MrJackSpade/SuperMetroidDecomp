@@ -14,7 +14,6 @@ internal static class SamusVerticalDefinitionsVerification
 {
     /// <summary>Exercises production launch initialization for every source
     /// speed word, including independent whole and fractional booster additions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus vertical definitions")]
     internal static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {
         var guard = NewSlopeHeightNoReadBus();

@@ -1645,7 +1645,6 @@ private static void RunPowerBombToInitialBoundary(
 /// Seeds the bank-$93 normal-bomb and power-bomb projectile records and instruction lists
 /// and the bank-$90 bomb-spread launch table consumed by the Morph Ball bomb verifier.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Morph Ball bomb and power-bomb projectile records")]
 static void InstallMorphBombProjectileFixture(TestAddressSpace bus)
 {
     // Bank-$93 projectile fixtures copied byte-for-byte from the normal-bomb pointer/data
@@ -1711,7 +1710,6 @@ static void InstallMorphBombProjectileFixture(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the retail bank-$88 power-bomb fixed-color tables indexed by radius.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-bomb fixed-color tables")]
 static void InstallPowerBombFixedColorFixture(TestAddressSpace bus)
 {
     // `$88:9079` and `$88:8D85` are the fixed-color tables indexed by the high byte of
@@ -1739,7 +1737,6 @@ static void InstallPowerBombFixedColorFixture(TestAddressSpace bus)
 /// Seeds the retail bank-$84 bomb-reaction PLM instruction lists and draw lists exercised by
 /// the bombable-terrain integration.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for bomb-reaction PLM programs and draw lists")]
 static void InstallBombReactionPlmFixture(TestAddressSpace bus)
 {
     // The bombable-terrain integration below intentionally supplies the literal bank-$84

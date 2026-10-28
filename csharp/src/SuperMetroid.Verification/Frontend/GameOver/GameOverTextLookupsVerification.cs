@@ -39,6 +39,5 @@ internal static class GameOverTextLookupsVerification
     }
 
     /// <summary>Reads a native instruction byte only for the cartridge oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for game over text field")]
     private static byte GameOverTextFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

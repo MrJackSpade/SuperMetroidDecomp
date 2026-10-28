@@ -21,7 +21,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class DraygonPrebattleXrayVerification
 {
     /// <summary>Verifies that the native TM HDMA range hides wrapped body art during X-Ray without hiding the combat body.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Draygon offscreen HDMA table")]
     internal static void VerifyDraygonPrebattleXray()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

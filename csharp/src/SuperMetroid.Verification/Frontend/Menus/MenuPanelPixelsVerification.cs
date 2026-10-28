@@ -14,7 +14,6 @@ internal static class MenuPanelPixelsVerification
 {
     /// <summary>Compares stock atlas uploads and every panel pixel, then checks edited artwork and invalid coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for menu panel pixels")]
     internal static void VerifyMenuPanelPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x57, 0x58, 0x59, 0x5a];

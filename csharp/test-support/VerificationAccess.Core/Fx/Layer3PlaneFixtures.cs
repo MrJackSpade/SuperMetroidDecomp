@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>BG3 planes for render tests that set BG3 up in VRAM (#1348).</summary>

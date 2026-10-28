@@ -12,7 +12,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class ProjectileTrailDefinitionsVerification
 {
     /// <summary>Compares all reachable selector words and 64 spawn choices with retail data while forbidding runtime reads of the migrated selector window.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     internal static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailCoordinates), () => VerifyProjectileTrailCoordinates(bus));

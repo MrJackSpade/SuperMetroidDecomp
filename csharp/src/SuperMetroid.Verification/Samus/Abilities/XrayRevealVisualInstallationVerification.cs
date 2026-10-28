@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms;

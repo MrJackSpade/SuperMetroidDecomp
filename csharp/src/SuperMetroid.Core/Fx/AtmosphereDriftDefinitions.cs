@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How rain, spores and fog drift across the screen, in 1/256 pixel a frame, and what the spores blend with (#1415).</summary>

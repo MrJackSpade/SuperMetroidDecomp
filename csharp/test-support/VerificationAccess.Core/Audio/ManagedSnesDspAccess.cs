@@ -8,7 +8,6 @@ internal static class ManagedSnesDspAccess
     extension(ManagedSnesDsp self)
     {
         /// <summary>Reads a mirrored S-DSP register byte using its seven-bit hardware index.</summary>
-        [DspRegisterAccess]
         internal byte ReadRegister(byte address) => self.registers[address & 0x7f];
     }
 }

@@ -87,6 +87,5 @@ internal static class LookupMotherBrainGlassStockVerification
     }
 
     /// <summary>Reads native bank $84 glass draw-stream bytes as the stock reference.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass stock mapping")]
     private static byte MotherBrainGlassStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

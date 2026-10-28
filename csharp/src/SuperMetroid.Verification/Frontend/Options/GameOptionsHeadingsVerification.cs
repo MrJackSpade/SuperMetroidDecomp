@@ -81,7 +81,6 @@ internal static class GameOptionsHeadingsVerification
     }
 
     /// <summary>Reads a native heading setup opcode for the cartridge comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for game options heading anchors")]
     private static byte GameOptionsHeadingAnchorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the game-options heading sprite and anchor checks.</summary>

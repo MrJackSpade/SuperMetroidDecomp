@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Enemies.Boulder;
 internal static class BoulderBounceDefinitionsVerification
 {
     /// <summary>Compares the three native words and verifies the zero-counter bounce enters rolling with Y position preserved.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boulder bounces")]
     internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());

@@ -16,7 +16,6 @@ using SuperMetroid.Core.Progression;
 internal static class GroundedBombSpreadVerification
 {
     /// <summary>Compares release and timeout boundaries plus each 16.16 trajectory and fuse with native tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the five native bomb-spread velocity and fuse tables")]
     internal static void VerifyGroundedBombSpread()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

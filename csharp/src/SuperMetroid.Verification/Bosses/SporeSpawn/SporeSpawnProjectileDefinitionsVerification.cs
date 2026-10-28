@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 internal static class SporeSpawnProjectileDefinitionsVerification
 {
     /// <summary>Compares geometry and all movement bytes, then runs real spawn and mirrored-motion paths with source reads blocked.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile definitions")]
     internal static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort index = 0; index < 4; index++)

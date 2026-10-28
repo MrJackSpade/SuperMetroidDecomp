@@ -14,7 +14,6 @@ internal static class MenuThinBorderPixelsVerification
 {
     /// <summary>Compares stock atlas uploads and every border pixel, then checks edited art and invalid coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for menu thin border pixels")]
     internal static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0xad, 0xae];

@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

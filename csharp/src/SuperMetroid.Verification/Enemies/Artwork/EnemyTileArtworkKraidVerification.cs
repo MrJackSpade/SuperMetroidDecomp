@@ -24,6 +24,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid BG2, BG3, head, and room-background artwork against native transfers.</summary>
@@ -33,7 +34,6 @@ internal static class EnemyTileArtworkKraidVerification
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
 
     /// <summary>Matches Kraid's working BG2 map and both shown body pages, then checks an edited tile.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     internal static void VerifyInstalledKraidBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -98,7 +98,6 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches the shown body.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -161,13 +160,12 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Checks queued, direct, and restored BG3 tile uploads against installed HUD pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid BG3 restoration")]
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
     {
-        AssertEqual(24, (int)VramAssetId.GrappleVerticalSegmentTiles,
+        AssertEqual(24, (int)InstalledArtworkId.GrappleVerticalSegmentTiles,
             "existing pending-VRAM asset identities remain stable");
-        AssertEqual(25, (int)VramAssetId.KraidBg3RestoreQuarter0,
+        AssertEqual(25, (int)InstalledArtworkId.KraidBg3RestoreQuarter0,
             "new Kraid quarter IDs append after existing debugger-state IDs");
         string mapDirectory = Path.Combine(directory, "kraid-bg3-map-art");
         MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
@@ -200,8 +198,8 @@ internal static class EnemyTileArtworkKraidVerification
         for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount;
              quarter++)
         {
-            VramAssetId asset = KraidHudRestoration.AssetForQuarter(quarter);
-            AssertTrue(((IVramAssetProvider)runtime.Artwork).Resolve(asset).Span
+            InstalledArtworkId asset = KraidHudRestoration.AssetForQuarter(quarter);
+            AssertTrue(((IInstalledArtworkContent)runtime.Artwork).Resolve(asset).Span
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
@@ -256,7 +254,6 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid room background")]
     private static void VerifyInstalledKraidRoomBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {

@@ -7,7 +7,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingGlyphMappingVerification
 {
     /// <summary>Locates panel text and typewriter lines in the cartridge and checks compiled region geometry.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending text regions")]
     internal static void VerifyEndingTextRegions(ISnesAddressSpace bus)
     {
         void Panel(EndingTextRegionDefinition actual, int source, string expectedText, int startColumn)
@@ -59,7 +58,6 @@ internal static class EndingGlyphMappingVerification
     }
 
     /// <summary>Checks every supported glyph word and rejects non-glyph words, invalid characters, and styles.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending glyph mapping")]
     internal static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
     {
         // Transcribed from the SHA-pinned Font3 atlas, viewed with --lookup-ending-font-layout.

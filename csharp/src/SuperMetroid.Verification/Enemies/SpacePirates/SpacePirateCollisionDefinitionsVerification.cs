@@ -23,7 +23,6 @@ internal static class SpacePirateCollisionDefinitionsVerification
     private const byte SpacePirateFrameBank = 0xb2;
 
     /// <summary>Checks all compiled Pirate frame and list bytes against the cartridge, then compares collision callbacks and hits through the production walker.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate collision definitions")]
     internal static void VerifySpacePirateCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

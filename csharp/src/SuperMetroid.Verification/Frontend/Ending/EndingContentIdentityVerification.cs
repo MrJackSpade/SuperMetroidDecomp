@@ -22,7 +22,6 @@ internal static class EndingContentIdentityVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode 7 role selection")]
     internal static void VerifyEndingMode7RoleSelection()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

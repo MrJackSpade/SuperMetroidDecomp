@@ -15,11 +15,11 @@ internal static class EscapeTimerTileAtlasAccess
         internal void QueueTo(VramWriteQueue queue)
         {
             Ensure.NotNull(queue);
-            if (self.Resolve(VramAssetId.EscapeTimerFirstTiles).Length + self.Resolve(VramAssetId.EscapeTimerSecondTiles).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
+            if (self.Resolve(InstalledArtworkId.EscapeTimerFirstTiles).Length + self.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
                 throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
-            queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles,
+            queue.EnqueueAsset(InstalledArtworkId.EscapeTimerFirstTiles,
                 EscapeTimerTileAtlasFormat.FirstByteCount, VramDmaDestination.FromNative(EscapeNativePageWords.TimerFirst));
-            queue.EnqueueAsset(VramAssetId.EscapeTimerSecondTiles,
+            queue.EnqueueAsset(InstalledArtworkId.EscapeTimerSecondTiles,
                 EscapeTimerTileAtlasFormat.SecondByteCount, VramDmaDestination.FromNative(EscapeNativePageWords.TimerSecond));
         }
     }

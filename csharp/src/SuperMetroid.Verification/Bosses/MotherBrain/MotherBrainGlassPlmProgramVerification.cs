@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -20,7 +21,6 @@ internal static class MotherBrainGlassPlmProgramVerification
     /// dispatcher through every glass-break threshold without permitting a ROM
     /// read of the compiled control bytes.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM program")]
     internal static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
     {
         BossRoomPlmProgramsVerification.VerifyMotherBrainGlassPrograms(rom);

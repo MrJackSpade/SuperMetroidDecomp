@@ -268,6 +268,5 @@ internal static class TorizoProjectileAnimationsVerification
     }
 
     /// <summary>Reads one byte of a native command's operands for the cartridge-side comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo projectile command operands")]
     private static byte OperandByte(IImportCartridgeSource cartridge, int address) => cartridge.ReadCartridgeByte(address);
 }

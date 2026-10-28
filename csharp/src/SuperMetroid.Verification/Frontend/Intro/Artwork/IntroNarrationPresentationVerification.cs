@@ -25,7 +25,6 @@ internal static class IntroNarrationPresentationVerification
 {
     /// <summary>Compares all six stock pages and the font upload with native data, then checks edits, rebinding, and malformed glyph rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the decompressed opening-font planar bytes")]
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

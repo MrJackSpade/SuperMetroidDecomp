@@ -19,7 +19,6 @@ internal static class InvalidBeamGraphicsVerification
 {
     /// <summary>Verifies bounded instruction reads, ordinary beam palettes, and both direct and queued Chainsaw graphics loads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: LDA [dp],Y operand reads of the glitched Chainsaw/SpaceTime palette pointers, open bus and compiled instruction bytes")]
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -34,7 +33,7 @@ internal static class InvalidBeamGraphicsVerification
             byte low = color == 0
                 ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
                 : bus.ReadCartridgeByte(highByteAddress - 1);
-            RgbColor native = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
+            RgbColor native = RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
             AssertEqual(native, ChainsawBeamGraphicsDefinitions.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }
@@ -44,7 +43,7 @@ internal static class InvalidBeamGraphicsVerification
         var artwork = SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
-        AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(VramAssetId.BeamChainsawTiles).Span),
+        AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(InstalledArtworkId.BeamChainsawTiles).Span),
             "native and typed Chainsaw transfers select the same installed sheet");
         var gameplayBus = NewProjectileCompositionForbiddenBus();
         for (ushort beam = 0; beam < 12; beam++)

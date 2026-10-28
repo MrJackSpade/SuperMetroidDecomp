@@ -87,6 +87,5 @@ internal static class LookupChozoStockVerification
     }
 
     /// <summary>Reads a native draw-record byte to determine each statue run's displacement and terminator.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo statue stock mapping")]
     private static byte ChozoStatueStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

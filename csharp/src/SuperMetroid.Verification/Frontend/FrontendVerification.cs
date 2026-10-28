@@ -21,6 +21,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Harness;
@@ -30,7 +31,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class FrontendVerification
 {
 /// <summary>Confirms a LoROM compressed literal and terminator survive the physical $94/$95 bank boundary.</summary>
-[CpuBusBoundary("exact bus test: LoROM cross-bank traversal of a compressed stream over a constructed cartridge")]
 internal static void VerifyLoRomCrossBankCompressedData()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -517,7 +517,6 @@ internal static void VerifyDemoInputObject()
 }
 
 /// <summary>Reads a fixture instruction from bank $91 through the cartridge import boundary.</summary>
-[CpuBusBoundary("exact bus test: retail and constructed cartridge oracle for bank-$91 demo-input object and instruction words")]
 internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
     CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
 /// <summary>Writes a little-endian fixture word at a mapped SNES ROM address.</summary>

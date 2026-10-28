@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 using SuperMetroid.Verification.Harness;

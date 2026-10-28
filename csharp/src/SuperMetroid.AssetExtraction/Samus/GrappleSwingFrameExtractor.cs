@@ -1,12 +1,10 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts displayed orientation, never the physical body placement associated with it.</summary>
-[CpuBusBoundary("codec: ROM Grapple swing orientation frame tables → Grapple swing frames")]
 public static class GrappleSwingFrameExtractor
 {
     /// <summary>Exports the 256-entry Grapple angle-to-displayed-Samus-frame mapping from $9B:C1C2–C2C1.</summary>

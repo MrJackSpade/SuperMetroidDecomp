@@ -19,7 +19,6 @@ internal static class CeresBlastPlacementVerification
     internal static void VerifyCeresFinalBlastDelay(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc56a, 4, i => checked((ushort)CeresExplosionDefinitions.FinalExplosion(i).DelayFrames));
 
     /// <summary>Compares each source word and requires out-of-range blast indices to name the index parameter.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres blast field")]
     private static void VerifyCeresBlastField(ISnesAddressSpace rom, int address, int count, Func<int, ushort> actual)
     {
         for (int index = 0; index < count; index++)

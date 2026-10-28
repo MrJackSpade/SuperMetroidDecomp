@@ -2,8 +2,6 @@ using SuperMetroid.Core;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests;
-using static SuperMetroid.EnsureVerification.Hardware.CpuBusCodeFixTests;
-using static SuperMetroid.EnsureVerification.Hardware.CpuBusDeclarationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.EnsureCodeFixTests;
 using static SuperMetroid.EnsureVerification.Contracts.OwnedReflectionAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PaletteFx.PaletteFxContractTests;
@@ -48,9 +46,6 @@ internal static class Program
                 new AnalyzerSuite(nameof(VerifyMemberDocumentationAnalyzer), VerifyMemberDocumentationAnalyzer),
                 new AnalyzerSuite(nameof(VerifyPrimitiveDomainAnalyzer), VerifyPrimitiveDomainAnalyzer),
                 new AnalyzerSuite(nameof(VerifySpatialClumpAnalyzer), VerifySpatialClumpAnalyzer),
-                new AnalyzerSuite(nameof(VerifyCpuBusAccessAnalyzer), VerifyCpuBusAccessAnalyzer),
-                new AnalyzerSuite(nameof(VerifyCpuBusAccessCodeFix), VerifyCpuBusAccessCodeFix),
-                new AnalyzerSuite(nameof(VerifyCpuBusDeclarationAnalyzer), VerifyCpuBusDeclarationAnalyzer),
                 new AnalyzerSuite(nameof(VerifyCartridgeEncodingAnalyzer), VerifyCartridgeEncodingAnalyzer),
                 new AnalyzerSuite(nameof(VerifyPpuLayoutAccessAnalyzer), VerifyPpuLayoutAccessAnalyzer),
                 new AnalyzerSuite(nameof(VerifyFrontendPpuMemoryAnalyzer), VerifyFrontendPpuMemoryAnalyzer),
@@ -79,8 +74,6 @@ internal static class Program
                 new AnalyzerSuite(nameof(AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer), AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer),
                 new AnalyzerSuite(nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 new AnalyzerSuite(nameof(VerifyStringIdentityAnalyzer), VerifyStringIdentityAnalyzer),
-                new AnalyzerSuite(nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
-                new AnalyzerSuite(nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
                 new AnalyzerSuite(nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),
                 new AnalyzerSuite(nameof(VerifyPartialTypeAnalyzer), VerifyPartialTypeAnalyzer),
                 new AnalyzerSuite(nameof(VerifyNullForgivingAnalyzer), VerifyNullForgivingAnalyzer),

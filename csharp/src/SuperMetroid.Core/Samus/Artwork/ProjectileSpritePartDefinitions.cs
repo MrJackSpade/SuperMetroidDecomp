@@ -33,11 +33,11 @@ public static class ProjectileSpritePartDefinitions
     internal const int PowerPriority = 2;
 
     /// <summary>$90:ACDE-ACE8 loads the active beam colors at CGRAM224. OBJ attributes select a sixteen-color row in CGRAM's upper half, so its palette field derives from that destination.</summary>
-    internal const int PowerPalette = (SamusColourDefinitions.BeamFirstColour - CgramPalettes.ColorCount / 2) /
+    internal const int PowerPalette = (SamusColourDefinitions.BeamFirstColour - GameplayColours.ColorCount / 2) /
         GameplayBasePaletteFormat.SpriteColorCount;
 
     /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
-    internal const int FixedProjectilePalette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - CgramPalettes.ColorCount / 2) /
+    internal const int FixedProjectilePalette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - GameplayColours.ColorCount / 2) /
         GameplayBasePaletteFormat.SpriteColorCount;
 
     /// <summary>Recognizes one-cell Power or Ice compositions and their cycle phase.</summary>

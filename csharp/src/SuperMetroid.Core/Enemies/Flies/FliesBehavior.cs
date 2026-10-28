@@ -154,7 +154,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,
         // and continues far enough for every byte angle plus the cosine phase offset.
-        return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
+        return Trigonometry.SignedNegativeCosineWord(index);
     }
 
     /// <summary>Advances Flies's typed animation.</summary>

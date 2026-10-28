@@ -11,18 +11,18 @@ internal static class EscapeTimerTileAtlasAccess
     {
         /// <summary>Shows one native page in the OBJ character table for the Mother Brain sequence's synchronous transfer owner.</summary>
         [PpuLayoutBoundary("codec: a matched native escape-timer transfer record's encoded VRAM destination")]
-        public bool TryRecordNativeTransfer(SpriteCharacters uploads, int sourceAddress, ushort byteCount,
+        public bool TryRecordNativeTransfer(SpriteArtworkPlacements uploads, int sourceAddress, ushort byteCount,
             ushort destinationWord)
         {
             Ensure.NotNull(uploads);
             if (!EscapeTimerTilePagesConstants.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page) ||
-                SpriteCharacters.TableByte(VramDmaDestination.FromNative(destinationWord)) != EscapeTimerTilePages.FirstCharacterOf(page) * 32)
+                SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(destinationWord)) != EscapeTimerTilePages.FirstCharacterOf(page) * 32)
                 return false;
 
-            VramAssetId asset = EscapeTimerTilePages.AssetOf(page);
+            InstalledArtworkId asset = EscapeTimerTilePages.AssetOf(page);
             if (self.Resolve(asset).Length != byteCount)
                 throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
-            uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new AssetObjCharacters(asset));
+            uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new InstalledArtworkCharacters(asset));
             return true;
         }
         /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>

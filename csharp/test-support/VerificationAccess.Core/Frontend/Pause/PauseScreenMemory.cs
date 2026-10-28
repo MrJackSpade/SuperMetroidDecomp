@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>

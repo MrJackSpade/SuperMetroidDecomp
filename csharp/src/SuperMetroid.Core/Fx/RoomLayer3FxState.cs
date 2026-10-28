@@ -731,7 +731,7 @@ public sealed class RoomLayer3FxState
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        int sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)EightEight.WholeOf(TidePhase)));
+        int sample = Trigonometry.SignedNegativeCosineWord(checked((byte)EightEight.WholeOf(TidePhase)));
         TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }

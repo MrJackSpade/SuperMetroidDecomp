@@ -15,7 +15,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// palette offsets. PNG tile order is the native eight-tile upload order:
 /// frame zero uses tiles 0-3 and frame one uses tiles 4-7.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$89 dynamic item PLM tiles → dynamic collectible art files")]
 public static class RoomPlmDynamicCollectibleArtFiles
 {
     /// <summary>Stock/override JSON filename containing eight BG palette selectors per each of the seventeen dynamic permanent-item kinds, not RGB colors.</summary>

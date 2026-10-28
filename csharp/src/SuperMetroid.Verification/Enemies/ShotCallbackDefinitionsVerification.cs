@@ -19,7 +19,6 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class ShotCallbackDefinitionsVerification
 {
     /// <summary>Inventories callback pointers in enemy headers and hitboxes, then checks classification and combat admission.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for shot callback definitions")]
     internal static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         var shotCallbacks = new HashSet<int>();

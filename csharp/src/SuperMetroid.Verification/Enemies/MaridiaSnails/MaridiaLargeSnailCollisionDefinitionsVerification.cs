@@ -28,7 +28,6 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
     }
 
     /// <summary>Compares Oum frame pointers and hitboxes with ROM, then checks touch and shot overlap at rectangle boundaries.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia large snail collision definitions")]
     internal static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

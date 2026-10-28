@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -22,7 +23,6 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
     /// <summary>Compares all initial and reveal colors, guarded production updates, isolated edits, and override validation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

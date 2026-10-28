@@ -14,7 +14,6 @@ using SuperMetroid.Core.World.Artwork;
 internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 {
     /// <summary>Compares all twelve visual roots, their hitbox records, and live touch/shot overlap results with an independent cartridge walker.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Spore Spawn collision")]
     internal static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
     {

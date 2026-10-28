@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Fixed VRAM destinations of the installed world map characters (#630).</summary>

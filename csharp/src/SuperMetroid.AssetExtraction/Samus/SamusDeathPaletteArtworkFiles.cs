@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts the authored bank-$9B fatal-damage color and color-selection data.</summary>
-[CpuBusBoundary("codec: ROM bank-$9B fatal-damage colors and selections → Samus death palette files")]
 public static class SamusDeathPaletteArtworkFiles
 {
     /// <summary>Stock/override JSON filename for suited/suitless death rows, whiteout shades, and explosion palette selectors.</summary>

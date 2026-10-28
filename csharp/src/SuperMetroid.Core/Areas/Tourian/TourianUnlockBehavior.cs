@@ -97,8 +97,8 @@ internal sealed class TourianUnlockBehavior
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         int angle = unchecked((byte)((_room.Random.Generate() & 63) - 32));
         projectile.Variable0 = (ushort)(angle * 2);
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64))));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)Trigonometry.SignedNegativeCosineWord(angle + 64))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(4 * Trigonometry.SignedNegativeCosineWord(angle)))));
     }
 
     /// <summary>Runs native splash, soul, or particle motion and requests deletion at their exit boundaries.</summary>

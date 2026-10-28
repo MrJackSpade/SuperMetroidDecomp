@@ -9,19 +9,19 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class SpriteCharacterBytes
 {
     /// <summary>The bytes of the whole table.</summary>
-    extension(SpriteCharacters)
+    extension(SpriteArtworkPlacements)
     {
         /// <summary>The bytes every sprite character holds together.</summary>
-        internal static int TableByteCount => SpriteCharacters.CharacterCount * SpriteCharacters.CharacterByteCount;
+        internal static int TableByteCount => SpriteArtworkPlacements.CharacterCount * SpriteArtworkPlacements.CharacterByteCount;
     }
 
     /// <summary>The table bytes a placement shows over.</summary>
-    extension(SpriteCharacterPlacement self)
+    extension(SpriteArtworkPlacement self)
     {
         /// <summary>The table byte the placement shows from.</summary>
-        internal int FirstByte => self.FirstCharacter * SpriteCharacters.CharacterByteCount;
+        internal int FirstByte => self.FirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
 
         /// <summary>The table bytes the placement shows.</summary>
-        internal int ByteCount => self.CharacterCount * SpriteCharacters.CharacterByteCount;
+        internal int ByteCount => self.CharacterCount * SpriteArtworkPlacements.CharacterByteCount;
     }
 }

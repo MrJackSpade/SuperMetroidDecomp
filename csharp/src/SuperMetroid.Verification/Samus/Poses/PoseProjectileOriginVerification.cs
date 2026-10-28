@@ -19,7 +19,6 @@ using SuperMetroid.Verification.Harness;
 internal static class PoseProjectileOriginVerification
 {
     /// <summary>Compares every pose and direction across signed graphics-offset classes for beams and Grapple.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pose projectile origin")]
     internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));

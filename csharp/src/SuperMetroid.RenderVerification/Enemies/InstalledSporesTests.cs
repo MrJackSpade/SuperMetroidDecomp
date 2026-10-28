@@ -192,7 +192,6 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Compares installed animated-tile atlas segments with the retail ROM and checks legacy atlas edits retain their positions.</summary>
-    [SuperMetroid.Core.Hardware.CpuBusBoundary("exact bus test: retail ROM oracle for every installed animated-tile atlas segment")]
     private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
     {

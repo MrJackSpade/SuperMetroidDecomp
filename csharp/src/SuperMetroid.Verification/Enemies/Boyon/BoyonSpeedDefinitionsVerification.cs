@@ -12,7 +12,6 @@ internal static class BoyonSpeedDefinitionsVerification
 {
     /// <summary>Compares all authored initializer rows and effective byte-width
     /// multipliers, including out-of-range inputs and saturated curve indexes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());

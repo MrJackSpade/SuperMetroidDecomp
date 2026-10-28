@@ -834,7 +834,6 @@ internal static void VerifySamusGrabbedByDraygon()
 /// Seeds the <c>$91:D99E</c> Hyper Beam suit-palette pointer table, its ten bank-$9B
 /// palettes, and the normal Power Suit palette with distinct synthetic colors.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Hyper Beam suit palettes")]
 static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
 {
     // `$91:D99E` points at ten complete Hyper Beam palettes in reverse-numbered order.
@@ -863,7 +862,6 @@ static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
 /// Seeds the bank-$8D Hyper Beam projectile-palette program at <c>$8D:E1F0</c>: ten
 /// two-call records of eight synthetic colors and the looping tail.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Hyper Beam projectile-palette program")]
 static void InstallHyperBeamProjectilePaletteProgramFixture(TestAddressSpace bus)
 {
     // `$8D:E1F0` points at the compact Hyper Beam projectile-palette program. Each of its

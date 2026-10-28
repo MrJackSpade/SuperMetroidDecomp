@@ -15,7 +15,6 @@ using SuperMetroid.Core.World.Artwork;
 internal static class RidleyCollisionDefinitionsVerification
 {
     /// <summary>Compares eleven frame component lists and seventeen hitbox lists with bank $A6, then checks touch, shot, and Ceres projectile edge overlaps without runtime ROM reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley collision definitions")]
     internal static void VerifyRidleyCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

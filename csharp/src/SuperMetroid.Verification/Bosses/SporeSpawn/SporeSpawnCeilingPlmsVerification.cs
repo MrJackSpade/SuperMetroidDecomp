@@ -46,7 +46,6 @@ internal static class SporeSpawnCeilingPlmsVerification
     }
 
     /// <summary>Compares four two-by-two physical draw layouts and exact pointer ownership with the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn ceiling draw mapping")]
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =

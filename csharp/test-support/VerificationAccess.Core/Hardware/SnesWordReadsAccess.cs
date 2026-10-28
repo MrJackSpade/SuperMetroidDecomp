@@ -3,7 +3,6 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="SnesWordReads"/> members production does not use.</summary>
-[CpuBusAccess]
 internal static class SnesWordReadsAccess
 {
     /// <summary>Word reads over mutable SNES memory that only verification performs.</summary>

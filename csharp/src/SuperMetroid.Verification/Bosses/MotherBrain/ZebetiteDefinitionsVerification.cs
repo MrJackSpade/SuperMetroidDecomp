@@ -15,7 +15,6 @@ using SuperMetroid.Core.World;
 internal static class ZebetiteDefinitionsVerification
 {
     /// <summary>Compares table words, then exercises initialization, health handoffs, and both respawn roles.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Zebetite definitions")]
     internal static void VerifyZebetiteDefinitions(SuperMetroidAddressSpace rom)
     {
         int[] generationTables =

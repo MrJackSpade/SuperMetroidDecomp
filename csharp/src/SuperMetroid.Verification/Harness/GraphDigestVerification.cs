@@ -84,10 +84,10 @@ internal static class GraphDigestVerification
         return true;
     }
     /// <summary>The pixels a packet shows, for a comparison.</summary>
-    internal static SuperMetroid.Core.Hardware.RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
+    internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
         DisplayRendering.Render(frame);
 
     /// <summary>The pixels a layered scene shows, for a comparison.</summary>
-    internal static SuperMetroid.Core.Hardware.RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
+    internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
         DisplayRendering.Render(frame);
 }

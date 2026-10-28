@@ -8,7 +8,6 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Extracts safe text and placement from the two native escape typewriter streams.</summary>
-[CpuBusBoundary("codec: ROM escape typewriter text streams → escape typewriter text and placement")]
 public static class EscapeTypewriterExtractor
 {
     /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>

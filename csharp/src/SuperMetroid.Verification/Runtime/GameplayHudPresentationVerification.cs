@@ -173,7 +173,6 @@ internal static class GameplayHudPresentationVerification
     }
 
     /// <summary>Reads a native HUD byte as the independent stock-art oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay HUD presentation assets")]
     private static byte GameplayHudPresentationAssetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks whether a bus address lies within one migrated HUD presentation range.</summary>

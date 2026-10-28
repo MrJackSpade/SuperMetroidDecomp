@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -22,7 +23,6 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 internal static class DraygonCannonPlmProgramVerification
 {
     /// <summary>Runs both retail cannon sequences through shield redraws and Super Missile damage under a program read guard.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon cannon PLM program")]
     internal static void VerifyDraygonCannonPlmProgram()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

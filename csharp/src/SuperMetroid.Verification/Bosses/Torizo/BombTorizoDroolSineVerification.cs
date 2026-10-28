@@ -96,7 +96,6 @@ internal static class BombTorizoDroolSineVerification
     }
 
     /// <summary>Reads the pinned retail sine or negative-cosine word used solely as this verifier's oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool words")]
     private static ushort ReadBombTorizoDroolWord(
         SuperMetroidAddressSpace rom,
         int table,

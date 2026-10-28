@@ -726,7 +726,6 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
 /// behavior, and the water-specific Space Jump velocity window.
 /// </summary>
 /// <summary>Writes one word of the bank-$9B Samus palette data at <paramref name="pointer"/>.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$9B Samus palette word")]
 static void SeedSamusPaletteWord(TestAddressSpace bus, ushort pointer, ushort color) =>
     WriteTestWord(bus, SamusSourceDefinitions.PaletteBank.Value | pointer, color);
 
@@ -734,7 +733,6 @@ static void SeedSamusPaletteWord(TestAddressSpace bus, ushort pointer, ushort co
 /// Seeds the three media's standalone grapple-release speed records ($90:9F31/$9F3D/$9F49):
 /// all zero except each record's fractional deceleration word at +10.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the grapple-release speed records")]
 static void SeedGrappleReleaseSpeedRecords(TestAddressSpace bus, ushort[] grappleReleaseDeceleration)
 {
     int[] grappleReleaseRecords = [0x909f31, 0x909f3d, 0x909f49];
@@ -1337,7 +1335,6 @@ internal static void VerifySamusAtmosphericEffects()
 }
 
 /// <summary>Synthetic cartridge with the aerial route's pose records, animation streams and dry-air jump words.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus aerial movement poses and jump words")]
 static TestAddressSpace CreateSamusAerialMovementCartridge()
 {
     var bus = new TestAddressSpace();
@@ -1374,7 +1371,6 @@ static TestAddressSpace CreateSamusAerialMovementCartridge()
 }
 
 /// <summary>Seeds left-facing spin-jump poses and animation streams in the fixture bus.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the spin-jump $19/$1A pose records and streams")]
 static void SeedLeftSpinJumpPoses(TestAddressSpace bus)
 {
     bus.WriteBytes(0x91b6f1, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $19
@@ -1386,7 +1382,6 @@ static void SeedLeftSpinJumpPoses(TestAddressSpace bus)
 }
 
 /// <summary>Seeds ledge-fall pose records, animations, and the type-six speed entry.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the ledge-fall poses, streams and type-six speed entry")]
 static void SeedLedgeFallPosesAndTypeSixSpeed(TestAddressSpace bus)
 {
     bus.WriteBytes(0x91b779, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]); // $2A
@@ -1407,7 +1402,6 @@ static void SeedLedgeFallPosesAndTypeSixSpeed(TestAddressSpace bus)
 }
 
 /// <summary>Synthetic cartridge with the spin, running and landing pose records, their streams, and dry-air words.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Space Jump and Screw Attack poses")]
 static TestAddressSpace CreateSpaceJumpAndScrewAttackCartridge()
 {
     var bus = new TestAddressSpace();
@@ -1471,7 +1465,6 @@ static TestAddressSpace CreateSpaceJumpAndScrewAttackCartridge()
 }
 
 /// <summary>Synthetic cartridge with the three media's adjacent jump/gravity word tables read by `$90:98BC/$90:9C5B`.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus liquid jump and gravity tables")]
 static TestAddressSpace CreateSamusLiquidPhysicsCartridge()
 {
     var bus = new TestAddressSpace();
@@ -1496,7 +1489,6 @@ static TestAddressSpace CreateSamusLiquidPhysicsCartridge()
 }
 
 /// <summary>Seeds the Space Jump spin pose and zeroed spin speed records.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Space Jump spin pose and zeroed spin speed records")]
 static void SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(TestAddressSpace bus)
 {
     WritePoseDefinition(bus, (int)SamusPoseId.SpaceJumpRightPose,
@@ -1513,7 +1505,6 @@ static void SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(TestAddressSpace bus)
 }
 
 /// <summary>Synthetic cartridge with running pose $09 and the bank-$90 atmospheric records exercised by the effects test.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus atmospheric effects")]
 static TestAddressSpace CreateSamusAtmosphericEffectsCartridge()
 {
     var bus = new TestAddressSpace();
@@ -1539,7 +1530,6 @@ static TestAddressSpace CreateSamusAtmosphericEffectsCartridge()
 }
 
 /// <summary>Crateria's literal inline Landing Site flag byte at $91:F0F3.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Landing Site inline room flag")]
 static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
 {
     WriteTestByte(bus, 0x91f0f3, 1);

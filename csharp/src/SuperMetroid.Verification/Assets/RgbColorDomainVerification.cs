@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks the SNES color value type across word encoding, channel operations, CGRAM, and a production fade.</summary>
@@ -25,7 +26,7 @@ internal static class RgbColorDomainVerification
             AssertEqual(word >> 5 & 31, color.Green, $"word ${word:X4} green");
             AssertEqual(word >> 10 & 31, color.Blue, $"word ${word:X4} blue");
             AssertEqual(color, new RgbColor(color.Red, color.Green, color.Blue), $"word ${word:X4} channel construction");
-            AssertEqual(color, RgbColor.FromCgramPortWord((ushort)(word | 0x8000)), $"CGRAM port drops bit 15 of ${word:X4}");
+            AssertEqual(color, RgbColor.FromWordIgnoringTopBit((ushort)(word | 0x8000)), $"CGRAM port drops bit 15 of ${word:X4}");
             AssertEqual(color.Red, color[ColorChannel.Red], "red indexer");
             AssertEqual(color.Green, color[ColorChannel.Green], "green indexer");
             AssertEqual(color.Blue, color[ColorChannel.Blue], "blue indexer");

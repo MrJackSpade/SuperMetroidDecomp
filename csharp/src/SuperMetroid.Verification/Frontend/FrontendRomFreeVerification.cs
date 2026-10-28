@@ -704,7 +704,7 @@ internal static class FrontendRomFreeVerification
             }
             if (room.Room == RoomHeaderDefinitions.Draygon && frame == 0)
             {
-                SpriteCharacterPlacement evir = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles);
+                SpriteArtworkPlacement evir = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles);
                 ReadOnlySpan<byte> nativeEvir = ShownObjects(native.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
                 ReadOnlySpan<byte> installedEvir = ShownObjects(installed.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
                 AssertTrue(installedEvir.SequenceEqual(nativeEvir),
@@ -783,7 +783,6 @@ internal static class FrontendRomFreeVerification
     }
 
     /// <summary>Marks native extended-frame BG2 source bytes so installed play cannot reread them.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for block frontend extended BG2 streams")]
     private static void BlockFrontendExtendedBg2Streams(HashSet<int> blockedPresentationBytes,
         ISnesAddressSpace catalogueSource, byte bank, ImmutableArray<EnemySpritemapDefinition> frames)
     {

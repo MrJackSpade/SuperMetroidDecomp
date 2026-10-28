@@ -14,7 +14,6 @@ using SuperMetroid.Verification.Harness;
 internal static class GameOptionsPageCasesVerification
 {
     /// <summary>Compares page addresses, descriptions, and decompressed tilemaps with the pinned ROM.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for game-options page tilemaps")]
     internal static void VerifyGameOptionsPageCases()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

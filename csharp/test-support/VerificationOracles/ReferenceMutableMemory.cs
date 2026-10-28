@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -14,7 +13,6 @@ internal static class ReferenceMutableMemory
         source as ISnesMutableMemory ?? new GuardMemory(source);
 
     /// <summary>Confines fallback diagnostic reads to the caller-requested mutable region.</summary>
-    [CpuBusBoundary("exact bus test: mutable-only projection of a diagnostic bus that rejects reads outside the requested WRAM/SRAM kind")]
     private sealed class GuardMemory(ISnesAddressSpace source) : ISnesMutableMemory
     {
         /// <summary>Reads WRAM only after confirming the requested address maps to work memory.</summary>

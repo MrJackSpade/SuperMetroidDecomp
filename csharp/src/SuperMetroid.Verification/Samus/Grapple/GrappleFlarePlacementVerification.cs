@@ -28,7 +28,6 @@ using SuperMetroid.Core.Gameplay;
 internal static class GrappleFlarePlacementVerification
 {
     /// <summary>Exercises authored launch poses and live artwork rebinding while comparing stock and offset-edited Samus state.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple flare placement offsets")]
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);

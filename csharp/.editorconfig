@@ -77,20 +77,9 @@ dotnet_diagnostic.SME6280.severity = error
 dotnet_diagnostic.SME6281.severity = error
 dotnet_diagnostic.SME6282.severity = error
 dotnet_diagnostic.SME6283.severity = error
-# #629: the CPU A-bus layout is confined to declared boundaries.
-dotnet_diagnostic.SME6290.severity = error
-# #1320: Core takes, stores or exposes a CPU-bus interface only inside a [CpuBusBoundary].
-dotnet_diagnostic.SME6292.severity = error
-dotnet_diagnostic.SME6291.severity = error
 # #630: the PPU layout is confined to declared rendering boundaries.
 dotnet_diagnostic.SME6300.severity = error
 dotnet_diagnostic.SME6301.severity = error
-# #631: S-DSP register layout is confined to the DSP and its typed controls.
-dotnet_diagnostic.SME6310.severity = error
-dotnet_diagnostic.SME6311.severity = error
-# #632: SPC700 APU RAM and port layout is confined to the typed driver-memory views.
-dotnet_diagnostic.SME6320.severity = error
-dotnet_diagnostic.SME6321.severity = error
 # #633: parameter lists stay within the ceiling and pass capabilities as narrow typed contracts.
 dotnet_diagnostic.SME6330.severity = error
 dotnet_diagnostic.SME6331.severity = error
@@ -157,15 +146,8 @@ dotnet_diagnostic.SME6281.severity = none
 dotnet_diagnostic.SME6282.severity = none
 dotnet_diagnostic.SME6283.severity = none
 dotnet_diagnostic.SME6284.severity = none
-dotnet_diagnostic.SME6290.severity = none
-dotnet_diagnostic.SME6291.severity = none
-dotnet_diagnostic.SME6292.severity = none
 dotnet_diagnostic.SME6300.severity = none
 dotnet_diagnostic.SME6301.severity = none
-dotnet_diagnostic.SME6310.severity = none
-dotnet_diagnostic.SME6311.severity = none
-dotnet_diagnostic.SME6320.severity = none
-dotnet_diagnostic.SME6321.severity = none
 dotnet_diagnostic.SME6330.severity = none
 dotnet_diagnostic.SME6331.severity = none
 dotnet_diagnostic.SME6332.severity = none
@@ -263,15 +245,8 @@ dotnet_diagnostic.SME6281.severity = none
 dotnet_diagnostic.SME6282.severity = none
 dotnet_diagnostic.SME6283.severity = none
 dotnet_diagnostic.SME6284.severity = none
-dotnet_diagnostic.SME6290.severity = none
-dotnet_diagnostic.SME6291.severity = none
-dotnet_diagnostic.SME6292.severity = none
 dotnet_diagnostic.SME6300.severity = none
 dotnet_diagnostic.SME6301.severity = none
-dotnet_diagnostic.SME6310.severity = none
-dotnet_diagnostic.SME6311.severity = none
-dotnet_diagnostic.SME6320.severity = none
-dotnet_diagnostic.SME6321.severity = none
 dotnet_diagnostic.SME6330.severity = none
 dotnet_diagnostic.SME6331.severity = none
 dotnet_diagnostic.SME6332.severity = none

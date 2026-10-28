@@ -16,7 +16,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The family is stock-only. It has no override directory, so artwork edits cannot alter
 /// collision, BTS, slopes, hazards, or the native overread tail.
 /// </summary>
-[CpuBusBoundary("codec: ROM compressed room level data → native level-stream files")]
 public static class RoomLevelStreamFiles
 {
     /// <summary>Stock manifest filename recording provenance and each retail level's name, byte count, and SHA-256.</summary>

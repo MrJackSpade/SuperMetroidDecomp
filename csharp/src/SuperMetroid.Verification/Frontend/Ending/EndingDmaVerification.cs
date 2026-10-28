@@ -18,7 +18,6 @@ using SuperMetroid.Verification.Harness;
 internal static class EndingDmaVerification
 {
     /// <summary>Confirms escape artwork uses split VRAM lanes and reward artwork uses contiguous bytes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending escape and reward VRAM DMA")]
     internal static void VerifyEndingDma()
     {
         Suite(nameof(VerifyObjSubscreenAddition), () => VerifyObjSubscreenAddition());

@@ -73,7 +73,6 @@ internal static class FileSelectSlotDestinationsVerification
     }
 
     /// <summary>Reads native slot destination instructions for the layout comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot destinations")]
     private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks both slot-label load sites use the compiled source and terminal word.</summary>
@@ -94,7 +93,6 @@ internal static class FileSelectSlotDestinationsVerification
     }
 
     /// <summary>Reads native slot-label source instructions for the layout comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot label sources")]
     private static byte FileSelectSlotLabelSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the slot field destination and source verification command.</summary>

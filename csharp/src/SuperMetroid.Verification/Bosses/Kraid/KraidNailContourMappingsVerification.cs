@@ -32,7 +32,6 @@ internal static class KraidNailContourMappingsVerification
     }
 
     /// <summary>Reads a source byte for the independent Kraid nail left-offset oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail left offsets")]
     private static byte KraidNailLeftOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the six compiled nail top boundaries and rejects out-of-range records.</summary>
@@ -49,6 +48,5 @@ internal static class KraidNailContourMappingsVerification
     }
 
     /// <summary>Reads a source byte for the independent Kraid nail top-boundary oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail top boundaries")]
     private static byte KraidNailTopBoundariesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

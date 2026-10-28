@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// Decodes the title compositions from the bank-$8C spritemaps the four native title text lists select. This codec is
 /// the only place that knows which cartridge spritemap holds each <see cref="TitleSprite"/>.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$8C title spritemap parts → title sprites")]
 internal static class TitleSpriteExtractor
 {
     /// <summary>Decodes every title composition's ordered OAM parts, keyed by its semantic name.</summary>

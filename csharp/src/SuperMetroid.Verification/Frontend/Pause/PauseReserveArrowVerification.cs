@@ -24,7 +24,6 @@ internal static class PauseReserveArrowVerification
         [0x302, 0x304];
 
     /// <summary>Compares thirty-two AUTO color phases and MANUAL selection transitions with rendered arrow pixels.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve arrow spritemap")]
     internal static void VerifyPauseReserveArrow()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

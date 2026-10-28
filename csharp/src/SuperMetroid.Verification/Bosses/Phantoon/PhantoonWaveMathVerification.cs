@@ -9,7 +9,6 @@ using SuperMetroid.Verification.Enemies;
 internal static class PhantoonWaveMathVerification
 {
     /// <summary>Compares wrapped phase reads, word-width displacement math, and both complete mirrored wave modes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon wave math")]
     internal static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var samples = new short[512];

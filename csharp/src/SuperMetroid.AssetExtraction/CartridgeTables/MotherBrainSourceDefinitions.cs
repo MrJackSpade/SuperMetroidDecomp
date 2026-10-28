@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -9,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the Shitroid. The import pipeline's private knowledge of the cartridge, decoded once into the installed colour
 /// documents and definitions.
 /// </summary>
-[CpuBusBoundary("catalog: Mother Brain encounter cartridge sources")]
 internal static class MotherBrainSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>

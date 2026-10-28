@@ -105,6 +105,5 @@ internal static class KraidHeadCommandMappingVerification
     }
 
     /// <summary>Reads one native bank-$A7 byte solely for the head-program oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head command mapping")]
     private static byte KraidHeadCommandMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Installs bank-$AD rainbow and grey-transition colors without copying native control tables.</summary>
-[CpuBusBoundary("codec: ROM bank-$AD rainbow and grey-transition colors → Mother Brain rainbow palettes")]
 internal static class MotherBrainRainbowPaletteExtractor
 {
     /// <summary>Imports rainbow, drained, revival, fake-death, and beam colors

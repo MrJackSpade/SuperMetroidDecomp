@@ -11,7 +11,6 @@ using SuperMetroid.Core.World;
 internal static class TorizoRandomizedProjectileDefinitionsVerification
 {
     /// <summary>Compares eight five-word tuples with the cartridge and checks RNG-adjusted projectiles.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo randomized projectile definitions")]
     internal static void VerifyTorizoRandomizedProjectileDefinitions(
         SuperMetroidAddressSpace rom)
     {

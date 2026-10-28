@@ -206,7 +206,6 @@ internal static void VerifyMultiplicationExhaustively()
 /// refusal of a native-source record no installed artwork resolves, and the NMI consumer's unconditional queue reset.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-[CpuBusBoundary("exact bus test: a full DAS-zero channel DMA's A-bus source reads that wrap within WRAM bank $7E")]
 internal static void VerifyVramWriteQueue()
 {
     var vram = new SnesVram();
@@ -560,7 +559,6 @@ internal static void VerifyFrameRuntime()
 /// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, unmapped SRAM windows,
 /// and deliberate failures for unimplemented hardware and ROM writes.
 /// </summary>
-[CpuBusBoundary("exact bus test: LoROM and WRAM mapping, unmapped SRAM, mirror and rejection behaviour of the address-space implementation")]
 internal static void VerifySuperMetroidAddressSpace()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -760,7 +758,6 @@ internal static void VerifyOamSpritemapPacking()
 }
 
 /// <summary>Seeds a two-part bank-$80 spritemap with distinct OAM positions and attributes.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
 static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
 {
     bus.WriteBytes(0x808000, [
@@ -771,14 +768,12 @@ static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
 }
 
 /// <summary>Seeds a common spritemap whose piece crosses the vertical screen boundary.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the vertically clipped common spritemap at $80:8100")]
 static void SeedVerticallyClippedCommonSpritemap(TestAddressSpace bus)
 {
     bus.WriteBytes(0x808100, [0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00]);
 }
 
 /// <summary>Seeds the bank-$8D projectile spritemap used to verify imported OAM packing.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry enemy-projectile spritemap at $8D:9800")]
 static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
 {
     bus.WriteBytes(0x8d9800, [
@@ -789,7 +784,6 @@ static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the bank-$A2 enemy spritemap used to verify imported OAM packing.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry room-enemy spritemap at $A2:9000")]
 static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
 {
     bus.WriteBytes(0xa29000, [

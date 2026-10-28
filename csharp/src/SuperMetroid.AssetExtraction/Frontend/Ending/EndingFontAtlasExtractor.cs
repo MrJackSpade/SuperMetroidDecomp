@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Exports the ending's 160 contiguous 4-bpp font and subtitle tiles as indexed PNG.</summary>
-[CpuBusBoundary("codec: ROM ending 4-bpp font and subtitle tiles → indexed font atlas PNG")]
 public static class EndingFontAtlasExtractor
 {
     /// <summary>Decompresses the ending font source and converts its first 160 four-bit planar characters into an indexed tile atlas.</summary>

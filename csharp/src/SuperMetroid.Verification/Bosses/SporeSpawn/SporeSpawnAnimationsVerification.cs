@@ -250,7 +250,6 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>Reads one native bank-$A5 word for the independent reference trace.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn program words")]
     internal static ushort ReadSporeSpawnProgramWord(SuperMetroidAddressSpace source, ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWord((BodyBankNumber << 16) | address);
 

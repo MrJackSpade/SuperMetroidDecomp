@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads the four bank-$AD pointer-selected damage palette pairs once at installation.</summary>
-[CpuBusBoundary("codec: ROM bank-$AD damage palette pointer pairs → Mother Brain health palettes")]
 internal static class MotherBrainHealthPaletteExtractor
 {
     /// <summary>Follows body and back-leg state pointers, decodes each BGR555 color, and writes the installed JSON document.</summary>

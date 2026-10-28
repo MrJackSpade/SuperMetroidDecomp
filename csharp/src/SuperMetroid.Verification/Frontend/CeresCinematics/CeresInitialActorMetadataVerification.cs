@@ -14,7 +14,6 @@ internal static class CeresInitialActorMetadataVerification
     private const int ActorBank = 0x8b0000;
 
     /// <summary>Compares asteroid motion and vortex stationary metadata, including callback selection and invalid actor indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres initial actor metadata")]
     internal static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)

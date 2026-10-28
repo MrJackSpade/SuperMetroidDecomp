@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
-
+﻿
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Development-tool members of <see cref="RoomGraphicsLayout"/>; never linked by player hosts.</summary>

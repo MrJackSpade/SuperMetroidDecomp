@@ -21,6 +21,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
@@ -366,7 +367,6 @@ internal static class NoobTubePlmVerification
         plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Noob Tube PLM header, instruction list and crack projectile")]
     internal static void SeedNoobTubeRom(TestAddressSpace bus)
     {
         // Three seven-word enemy-projectile definitions. Their lists do not need draw data

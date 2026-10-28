@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 internal static class PhantoonFlameSpawnsVerification
 {
     /// <summary>Compares rage, rain, and spiral bytes and 507 spawn positions without table rereads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon flame spawns")]
     internal static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 16; i++)

@@ -30,6 +30,5 @@ internal static class FileSelectHelmetAnimationVerification
     }
 
     /// <summary>Reads a native helmet-animation instruction byte solely for the cartridge-oracle comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet animation")]
     private static byte FileSelectHelmetAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

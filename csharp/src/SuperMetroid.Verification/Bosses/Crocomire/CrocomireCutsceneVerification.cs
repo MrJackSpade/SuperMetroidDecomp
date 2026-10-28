@@ -20,7 +20,6 @@ using SuperMetroid.Core.World;
 internal static class CrocomireCutsceneVerification
 {
     /// <summary>Compares all 33 skeleton frames' hitboxes and callbacks with the cartridge, including the empty E6BC frame.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire corpse collision")]
     internal static void VerifyCrocomireCorpseCollision()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -81,7 +80,6 @@ internal static class CrocomireCutsceneVerification
     }
 
     /// <summary>The Crocomire room's authored scroll storage, read from its retail $8F:A9D7 record.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire room's authored scroll storage")]
     private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
         Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Builds a RAM-only boss actor fixture for queued OAM and hitbox checks.</summary>

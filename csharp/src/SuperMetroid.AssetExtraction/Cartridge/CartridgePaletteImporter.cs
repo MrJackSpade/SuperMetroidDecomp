@@ -2,13 +2,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Resolves cartridge-backed palette DMA while importing assets. Runtime CGRAM only
 /// accepts mutable memory sources; ROM colors must become installed asset bytes first.
 /// </summary>
-[CpuBusAccess]
 public static class CartridgePaletteImporter
 {
     /// <summary>Copies native little-endian color words from a cartridge, WRAM, or SRAM DMA source into a bounded CGRAM range during asset import.</summary>
@@ -44,7 +44,7 @@ public static class CartridgePaletteImporter
             byte low = ReadImportSource(source.AddWithinBank(color * 2));
             byte high = ReadImportSource(source.AddWithinBank(color * 2 + 1));
             // A DMA to CGRAM stores the fifteen color bits of each transferred word.
-            destination.SetColor(destinationIndex + color, RgbColor.FromCgramPortWord(SnesLittleEndian.Word(low, high)));
+            destination.SetColor(destinationIndex + color, RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(low, high)));
         }
     }
 }

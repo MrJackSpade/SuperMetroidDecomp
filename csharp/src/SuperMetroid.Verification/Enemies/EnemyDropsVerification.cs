@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -420,7 +421,6 @@ internal static class EnemyDropsVerification
     }
 
     /// <summary>Seeds respawn enemy data and compiled pickup list pointers into the synthetic bus.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the respawn enemy definition copied into the synthetic pickup cartridge")]
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -452,12 +452,10 @@ internal static class EnemyDropsVerification
     /// Points the synthetic bank-$A0 enemy definition at <paramref name="enemyHeader"/> (its
     /// drop-chance pointer field, definition byte 58) at the native first drop-chance record.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an enemy definition's drop-chance pointer")]
     internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader) =>
         WriteTestWord(bus, 0xa00000 | enemyHeader | 58, EnemyDropChanceDefinitionsConstants.Pointer(NativeDropChances));
 
     /// <summary>Seeds the bank-$B4 vulnerability byte the contact-death fixture enemy consults.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the contact-death enemy vulnerability byte")]
     private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>
         bus.WriteBytes(0xb48014, [2]);
 

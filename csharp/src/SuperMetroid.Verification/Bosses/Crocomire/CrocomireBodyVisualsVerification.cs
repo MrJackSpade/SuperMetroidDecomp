@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
@@ -26,7 +27,6 @@ internal static class CrocomireBodyVisualsVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body));
@@ -53,7 +53,6 @@ internal static class CrocomireBodyVisualsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBodyVisualToolingDefinitions.FramePointer(50), "body frame past end");
     }
     /// <summary>Checks generated BG2 keys against retail selectors and confirms the extractor and loader preserve all 42 mixed-frame streams.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 generated catalog")]
     internal static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
         var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body)
@@ -77,7 +76,6 @@ internal static class CrocomireBodyVisualsVerification
     }
     /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied, then checks a BG2 edit obeys the new-frame gate.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire body visuals")]
     internal static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)

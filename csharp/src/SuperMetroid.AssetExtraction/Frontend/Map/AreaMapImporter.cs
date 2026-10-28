@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Extracts native area map tilemaps and reveal masks before gameplay starts.</summary>
-[CpuBusBoundary("codec: ROM area map tilemaps and reveal masks → area map definitions")]
 public static class AreaMapImporter
 {
     /// <summary>Resolves one area's native tilemap and map-station reveal-mask pointers, copies their bytes, and decodes the split native tilemap layout into row-major cells.</summary>

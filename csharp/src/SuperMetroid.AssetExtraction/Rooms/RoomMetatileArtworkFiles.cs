@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Hash-checked stock visual block definitions and persistent editable JSON overrides.</summary>
-[CpuBusBoundary("codec: ROM compressed CRE and area metatile tables → room metatile artwork files")]
 public static class RoomMetatileArtworkFiles
 {
     /// <summary>Stock visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>

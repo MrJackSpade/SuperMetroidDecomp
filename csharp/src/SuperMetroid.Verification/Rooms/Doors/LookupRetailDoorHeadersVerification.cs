@@ -116,6 +116,5 @@ internal static class LookupRetailDoorHeadersVerification
     }
 
     /// <summary>Reads one original door-header byte for field-level comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for door header field")]
     private static byte DoorHeaderFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

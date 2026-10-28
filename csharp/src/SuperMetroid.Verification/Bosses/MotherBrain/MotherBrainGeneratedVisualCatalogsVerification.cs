@@ -35,7 +35,6 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     ];
 
     /// <summary>Checks 17 OAM identities, native part counts, iteration, and bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain generated OAM catalog")]
     internal static void VerifyMotherBrainGeneratedOamCatalog(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, MotherBrainBodyVisualDefinitions.Frames.Length, "Mother Brain OAM count");

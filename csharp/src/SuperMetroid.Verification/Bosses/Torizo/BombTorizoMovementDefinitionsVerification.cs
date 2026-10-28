@@ -13,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class BombTorizoMovementDefinitionsVerification
 {
     /// <summary>Compares six source tables and exercises actual posture and walking consumers with migrated reads forbidden.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo movement definitions")]
     internal static void VerifyBombTorizoMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int standingXAddress = 0xaac3ee;

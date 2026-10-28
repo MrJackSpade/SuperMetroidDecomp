@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -276,7 +277,6 @@ internal static class ChainsawFiringVerification
     /// Builds the Orange-Door interference cartridge: a synthetic bank-$84 yellow-door PLM
     /// program and its draw lists, plus one bank-$8F population entry at <paramref name="population"/>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: seeds the synthetic yellow-door PLM program and room population for the Chainsaw interference fixture")]
     private static TestAddressSpace CreateChainsawInterferenceCartridge(ushort population)
     {
         const ushort yellowDoorArgument = 0xffff;

@@ -67,7 +67,6 @@ internal static class LookupSporeTilemapVerification
     }
 
     /// <summary>Reads a retail tilemap byte when constructing the independent edit source.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for spore attribute storage and edits")]
     private static byte SporeAttributeStorageAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs all four attribute-bit comparisons and storage ownership checks.</summary>

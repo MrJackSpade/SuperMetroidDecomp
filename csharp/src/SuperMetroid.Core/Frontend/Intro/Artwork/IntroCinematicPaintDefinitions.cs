@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Exact $8C:E3E9-E5E8 intro paint composition. Reviewed categorical material/endpoints and policies

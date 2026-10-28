@@ -24,7 +24,6 @@ internal static class CeresEscapeTileArtworkVerification
 {
     /// <summary>Compares native transfer bytes, then checks a PNG edit reaches VRAM without cartridge reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape tile artwork")]
     internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -59,7 +58,7 @@ internal static class CeresEscapeTileArtworkVerification
             {
             }
         }
-        SpriteCharacters shown = installed.Presentation.SpriteCharacters;
+        SpriteArtworkPlacements shown = installed.Presentation.SpriteCharacters;
         AssertEqual(7, shown.Uploads.Count, "Ceres escape production shows the timer-sprite list's seven pages");
         ReadOnlySpan<byte> installedPage = new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(stock, timer: timer)).Characters;
 
@@ -79,7 +78,7 @@ internal static class CeresEscapeTileArtworkVerification
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        foreach (SpriteCharacterPlacement page in shown.Uploads)
+        foreach (SpriteArtworkPlacement page in shown.Uploads)
             AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.ByteCount)
                     .SequenceEqual(installedPage.Slice(page.FirstByte, page.ByteCount)),
                 $"the Ceres page {page.Source} matches the cartridge's OBJ characters without source reads");
@@ -138,7 +137,7 @@ internal static class CeresEscapeTileArtworkVerification
                 out TileTransferDefinition warningTransfer),
             "first warning transfer is compiled");
         AssertEqual(editedChunk.Span[0],
-            editedPage[SpriteCharacters.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
+            editedPage[SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
             "edited Ceres warning PNG changes the page production shows");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(0, 0, 0x0200,

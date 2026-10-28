@@ -21,6 +21,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.FrameRendering;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>

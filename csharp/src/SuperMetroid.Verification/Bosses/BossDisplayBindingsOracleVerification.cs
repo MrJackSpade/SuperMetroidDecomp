@@ -16,7 +16,6 @@ namespace SuperMetroid.Verification.Bosses;
 internal static class BossDisplayBindingsOracleVerification
 {
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for native boss extended OAM and BG2 display records")]
     internal static ReadBossDisplayOracleResult ReadBossDisplayOracle(
         CartridgeImportAddressSpace source, EnemySpritemapDefinition frame, HashSet<int> checkedLists)
     {

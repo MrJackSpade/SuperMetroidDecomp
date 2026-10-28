@@ -47,7 +47,6 @@ internal static class LookupFxBlendSelectorsVerification
     }
 
     /// <summary>Reads one retail operand byte for the native blend-source address comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for FX blend source addresses")]
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks stock and edited three-color blends in CGRAM, including selector zero and malformed documents.</summary>

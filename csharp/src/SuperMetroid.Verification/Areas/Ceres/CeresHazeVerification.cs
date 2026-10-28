@@ -18,7 +18,6 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresHazeVerification
 {
     /// <summary>Compares waiting, fade, and hold writes against the pinned bank-$88 instruction trace.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze phase control")]
     internal static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
     {
         // Independently transcribed instruction trace from pinned bank_88.asm,

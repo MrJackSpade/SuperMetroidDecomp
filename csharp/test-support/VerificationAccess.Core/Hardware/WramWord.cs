@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Hardware;
 /// One little-endian WRAM word at a fixed CPU address; the high byte wraps within the bank as the
 /// 65C816 does for a fixed-bank access. Constructed only by domain memory views.
 /// </summary>
-[CpuBusAccess]
 internal readonly struct WramWord
 {
     /// <summary>Mutable CPU bus supplying the word's bank-wrapped byte accesses.</summary>

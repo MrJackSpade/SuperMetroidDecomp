@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Decodes the fields of a bank-$83 door record into the door's domain values (#1414): the orientation byte into a
 /// direction and closing behavior, and the Samus-distance word into a push speed.
 /// </summary>
-[CpuBusBoundary("codec: bank-$83 door record orientation byte and Samus-distance word → DoorOrientation, DoorSamusSpeed")]
 internal static class DoorRecordCodec
 {
     /// <summary>Rows of <c>Door_Closing_PLMs</c> ($8F:E68A); a larger orientation byte would index past the table.</summary>

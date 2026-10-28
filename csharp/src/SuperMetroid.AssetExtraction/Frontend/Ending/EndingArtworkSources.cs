@@ -1,11 +1,9 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Which cartridge sources the ending's Mode 7 scenes and explosion fragments import from (#1416: moved out of Core).</summary>
-[CpuBusBoundary("codec: ending floor scenes and explosion fragments → cartridge artwork sources")]
 internal static class EndingArtworkSources
 {
     /// <summary>

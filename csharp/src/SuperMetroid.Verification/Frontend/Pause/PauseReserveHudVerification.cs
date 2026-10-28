@@ -25,7 +25,6 @@ internal static class PauseReserveHudVerification
     private const int PauseClearedEffectWords = 28 * Layer3Plane.Columns;
 
     /// <summary>Confirms AUTO label changes, manual refill digits, next-NMI presentation, and preservation of unrelated HUD cells.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve HUD")]
     internal static void VerifyPauseReserveHud()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

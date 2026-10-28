@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's hitboxes, touch, projectiles and hurt palette, and what Samus's weapons do to it.</summary>
@@ -456,9 +457,9 @@ internal sealed class CrocomireCombat
         // Preserve the two native word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
-            unchecked((short)(EnemyTrigonometryTables.SignedSine(bearing.ReinterpretAsTableAngle()) *
+            unchecked((short)(Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) *
                 CrocomireProjectileDefinitions.VelocityMultiplier)),
-            unchecked((short)(EnemyTrigonometryTables.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
+            unchecked((short)(Trigonometry.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
                 CrocomireProjectileDefinitions.VelocityMultiplier)));
     }
 

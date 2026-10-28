@@ -15,6 +15,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
@@ -216,7 +217,6 @@ internal static class GunshipLandingVerification
     }
 
     /// <summary>Ends the synthetic three-slot gunship population with the native $FFFF header and zero kill quota.</summary>
-    [CpuBusBoundary("exact bus test: seeds the constructed cartridge population's $FFFF terminator and its kill-quota byte")]
     private static void WriteGunshipPopulationTerminator(TestAddressSpace bus, int address)
     {
         WriteTestWord(bus, address, 0xffff);
@@ -224,7 +224,6 @@ internal static class GunshipLandingVerification
     }
 
     /// <summary>Writes one sixteen-byte native enemy placement with its definition, room position, and second parameter.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one gunship enemy population record")]
     private static void WriteGunshipPopulationRecord(
         TestAddressSpace bus,
         int address,
@@ -246,7 +245,6 @@ internal static class GunshipLandingVerification
     /// Seeds the two gunship enemy definitions, their presentation-owned spritemap operands, the
     /// dust-cloud upload table, an empty tileset and the three-slot gunship population.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the post-Ceres gunship landing enemies")]
     private static void SeedPostCeresGunshipCartridge(
         TestAddressSpace bus,
         EnemyDefinitionId topDefinition,

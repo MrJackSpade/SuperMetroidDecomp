@@ -36,7 +36,6 @@ internal static class LookupElevatubeVerification
     }
 
     /// <summary>Reads a native elevatube draw byte for the independent geometry comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube physical draw")]
     private static byte ElevatubePhysicalDrawRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the elevatube's three compiled control words.</summary>
@@ -71,6 +70,5 @@ internal static class LookupElevatubeVerification
     }
 
     /// <summary>Reads the native elevatube sound byte for comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube program sound")]
     private static byte ElevatubeProgramSoundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -13,7 +13,6 @@ internal static class MochtroidVisualsVerification
 {
     /// <summary>Checks the six frames the two loops show are editable and draw pixel-identically to the cartridge.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     internal static void VerifyInstalledMochtroidVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

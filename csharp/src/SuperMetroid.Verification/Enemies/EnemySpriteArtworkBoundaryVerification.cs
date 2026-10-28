@@ -29,7 +29,6 @@ internal static class EnemySpriteArtworkBoundaryVerification
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile presentation spritemap pointers")]
     internal static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
         using var temporary = new TestScratchDirectory("map-catalog");

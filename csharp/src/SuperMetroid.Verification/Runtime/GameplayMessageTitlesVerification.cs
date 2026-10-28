@@ -82,7 +82,6 @@ internal static class GameplayMessageTitlesVerification
     }
 
     /// <summary>Reads a title-table byte solely for the independent cartridge comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay message titles")]
     private static byte GameplayMessageTitlesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Fails if installed title handling tries a cartridge read or write.</summary>

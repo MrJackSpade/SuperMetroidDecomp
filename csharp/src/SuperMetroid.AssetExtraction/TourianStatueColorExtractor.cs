@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts only the authored palette images, not statue unlock conditions or animation programs.</summary>
-[CpuBusBoundary("codec: ROM Tourian statue palette images → Tourian statue colors")]
 public static class TourianStatueColorExtractor
 {
     /// <summary>Exports Tourian entrance base/statue palettes, the four boss-specific eye-glow rows, and the grey-transition target band.</summary>

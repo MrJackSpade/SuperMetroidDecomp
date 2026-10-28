@@ -199,7 +199,7 @@ internal static class MotherBrainNeckKinematics
         ByteAngle angle,
         int distance)
     {
-        int sine = EnemyTrigonometryTables.SignedSine(angle);
+        int sine = Trigonometry.SignedSine(angle);
         int product = sine * unchecked((sbyte)distance);
         return unchecked((short)EightEight.WholeOf(product));
     }

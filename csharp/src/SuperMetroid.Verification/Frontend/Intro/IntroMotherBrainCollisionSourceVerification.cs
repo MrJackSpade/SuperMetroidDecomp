@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 internal static class IntroMotherBrainCollisionSourceVerification
 {
     /// <summary>Compares all 224 words and confirms callers receive an independent mutable copy.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the intro Mother Brain collision words at $8C:BEC3")]
     internal static byte[] VerifyIntroMotherBrainCollisionSource(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cbec3, 448);

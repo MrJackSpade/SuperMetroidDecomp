@@ -78,7 +78,6 @@ internal static class RoomHeaderDefinitionsVerification
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the room header's isolated door transition bit")]
     private static void VerifyRoomHeaderIsolatedDoorTransition(SuperMetroidAddressSpace rom, ushort[] rooms)
     {
         bool sawOtherBitsOnly = false;
@@ -96,7 +95,6 @@ internal static class RoomHeaderDefinitionsVerification
     private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 
     /// <summary>Compares one selected header field in direct and enumerated views with its cartridge bytes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room header field")]
     private static void VerifyRoomHeaderField(SuperMetroidAddressSpace rom, ushort[] rooms,
         int offset, Func<RoomHeaderDefinition, int> field)
     {

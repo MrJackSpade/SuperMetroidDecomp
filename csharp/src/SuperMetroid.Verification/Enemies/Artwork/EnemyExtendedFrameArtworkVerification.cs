@@ -43,7 +43,6 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// Collects the Draygon presentation selectors that do not name an installed OAM frame and
     /// checks each such native frame holds a BG2 command component.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon's bank-$A5 presentation selectors and BG2 frame commands")]
     private static HashSet<ushort> VerifyNativeDraygonBg2FrameSelectors(
         ISnesAddressSpace rom, HashSet<ushort> draygonOamPointers)
     {
@@ -1301,7 +1300,6 @@ internal static class EnemyExtendedFrameArtworkVerification
 
     /// <summary>Walks native extended spritemap components for an independent OAM reference, including clipping and packed sprite parts.</summary>
     /// <remarks>BG2 command streams are checked by their dedicated fixture.</remarks>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the reference extended-frame drawer")]
     internal static OamBuffer DrawReferenceExtendedFrame(
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin, ushort paletteBits = 0, ushort baseTileIndex = 0)
     {
@@ -1436,7 +1434,6 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Blocks a frame header, its OAM components, sprite records, and any bounded BG2 command stream from runtime ROM reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for extended visual frame layouts the guard blocks")]
     private static void BlockExtendedVisualFrame(
         HashSet<int> blocked, ISnesAddressSpace source, byte bank, ushort pointer)
     {

@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Installs named, editable station visual block references. Native draw geometry and
 /// complete physical level words are checked against the compiled cartridge catalog.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 station PLM draw lists → station visual files")]
 public static class RoomPlmStationVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>

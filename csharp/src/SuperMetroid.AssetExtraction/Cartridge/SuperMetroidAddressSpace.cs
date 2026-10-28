@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// <remarks>
 /// Hardware registers, SRAM and cartridge windows are intentionally unmapped.
 /// </remarks>
-[CpuBusBoundary("CPU-bus implementation: maps WRAM banks and low-window mirrors.")]
 public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
 {
     /// <summary>Two complete 64 KiB WRAM banks, <c>$7E</c> and <c>$7F</c>.</summary>

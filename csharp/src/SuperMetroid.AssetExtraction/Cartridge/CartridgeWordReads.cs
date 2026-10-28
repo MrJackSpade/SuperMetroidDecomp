@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
@@ -20,7 +19,6 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// </list>
 /// The two read the same bytes everywhere else.
 /// </remarks>
-[CpuBusAccess]
 [EncodingOwner("cartridge little-endian words and longs")]
 public static class CartridgeWordReads
 {

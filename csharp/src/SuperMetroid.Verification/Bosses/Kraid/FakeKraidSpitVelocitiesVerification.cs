@@ -37,6 +37,5 @@ internal static class FakeKraidSpitVelocitiesVerification
     }
 
     /// <summary>Reads a byte from the native launch-vector table for the axis comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spit velocity field")]
     private static byte FakeKraidSpitVelocityFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

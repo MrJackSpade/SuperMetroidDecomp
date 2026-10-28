@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -81,7 +82,6 @@ internal static class SpeedBoosterStageFiveResidueVerification
     /// The queue bytes <c>QueueMode7Transfers</c> leaves after one capsule list and one wing list: each descriptor
     /// copied at the running offset, a zero after the last, and the NMI handler's clear of the first word.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres Mode 7 descriptor lists")]
     private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresFloorAnimationFrame capsule, CeresFloorAnimationFrame wing)
     {
         IImportCartridgeSource rom = CartridgeImportSource.Require(bus);

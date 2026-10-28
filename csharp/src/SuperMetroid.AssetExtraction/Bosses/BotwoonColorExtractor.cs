@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Exports Botwoon's eight complete health-band sprite palettes.</summary>
-[CpuBusBoundary("codec: ROM Botwoon health-band sprite palettes → BotwoonColorCatalog")]
 public static class BotwoonColorExtractor
 {
     /// <summary>Reads all complete native Botwoon health-band palettes, rejects colors with the high bit set, and serializes their RGB5 components.</summary>

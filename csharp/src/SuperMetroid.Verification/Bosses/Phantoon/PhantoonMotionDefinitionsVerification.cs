@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 internal static class PhantoonMotionDefinitionsVerification
 {
     /// <summary>Compares fourteen native words and exercises both real speed adjusters across fractional, whole, and phase boundary values.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon motion")]
     internal static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {
         // Each definition is the signed value the cartridge's word holds; every unsigned one is below $8000.

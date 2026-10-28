@@ -26,7 +26,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapSaveMarkersVerification
 {
     /// <summary>Compares all area slots with native marker presence and used-station label rules.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native save/elevator marker slots per area")]
     internal static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
         var expectedIds = new List<string>();
@@ -187,7 +186,6 @@ internal static class MapSaveMarkersVerification
     }
 
     /// <summary>Blocks runtime reads of native area pointer and save-marker coordinate tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native selected-save marker coordinate lists to forbid them")]
     private static MutableCartridgeReadGuard NewSaveMarkerGuard(ISnesAddressSpace source)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);

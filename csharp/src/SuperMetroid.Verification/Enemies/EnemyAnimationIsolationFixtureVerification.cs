@@ -14,6 +14,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;

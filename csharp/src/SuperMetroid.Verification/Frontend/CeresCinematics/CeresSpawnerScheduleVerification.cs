@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresSpawnerScheduleVerification
 {
     /// <summary>Compares spawn events and timer reloads across reseeds and departure frames, including inactive boundaries.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres spawner schedule")]
     internal static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
     {
         // C33B loads the repeat countdown seed; C4A8 reloads the period after a spawn.

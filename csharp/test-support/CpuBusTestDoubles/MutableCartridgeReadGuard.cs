@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -7,7 +6,6 @@ namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
 /// A <see cref="CartridgeReadGuard"/> whose read rules also apply to WRAM/SRAM reads (#629): a WRAM/SRAM
 /// read no rule rejects is served by the source's mutable memory.
 /// </summary>
-[CpuBusBoundary("exact bus test: guard double over a mutable bus that forbids, observes and counts reads")]
 internal sealed class MutableCartridgeReadGuard(ISnesAddressSpace source) : CartridgeReadGuard(source)
 {
     /// <inheritdoc />

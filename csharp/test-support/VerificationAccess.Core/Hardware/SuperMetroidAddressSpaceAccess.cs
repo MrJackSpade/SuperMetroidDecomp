@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification writes into <see cref="SuperMetroidAddressSpace"/>'s WRAM image; production never writes through it.</summary>
-[CpuBusBoundary("exact bus test: seeds the WRAM image the runtime reads")]
 internal static class SuperMetroidAddressSpaceAccess
 {
     /// <summary>Writes into the image.</summary>

@@ -44,6 +44,5 @@ internal static class KraidDefeatedPlmMappingsVerification
     }
 
     /// <summary>Reads an inline bank-$A7 argument byte from the cartridge oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid defeated PLM field")]
     private static byte KraidDefeatedPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

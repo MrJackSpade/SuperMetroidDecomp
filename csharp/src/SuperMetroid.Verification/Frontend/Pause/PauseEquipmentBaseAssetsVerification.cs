@@ -22,7 +22,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseEquipmentBaseAssetsVerification
 {
     /// <summary>Compares 1,024 native cells, checks a visible edit, and preserves live cells on artwork rebind.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment base tilemap")]
     internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {

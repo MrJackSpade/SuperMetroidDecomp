@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Original $8D:DF94 logo glare colors: seven equal RGB5 intervals to

@@ -916,7 +916,7 @@ public sealed class BabyMetroidCutsceneState
     {
         // Bank `$86:C27A` multiplies unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.
-        return EnemyTrigonometryTables.MultiplySignedSine(checked((ushort)speed), angle);
+        return Trigonometry.MultiplySignedSine(checked((ushort)speed), angle);
     }
 
     /// <summary>Advances native 16.16 position from 8.8 velocity while leaving the low subposition byte untouched.</summary>

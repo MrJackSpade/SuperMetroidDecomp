@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -7,7 +6,6 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresShaftRotationVerification
 {
     /// <summary>Compares held frames and 548 matrix changes across four forward-and-reverse sweeps.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres shaft compiled rotation")]
     internal static void VerifyCeresShaftCompiledRotation()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

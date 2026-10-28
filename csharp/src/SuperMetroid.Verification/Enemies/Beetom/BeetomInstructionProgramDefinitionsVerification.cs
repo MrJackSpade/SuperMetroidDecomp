@@ -175,7 +175,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Reads a native Beetom instruction word from bank A8 solely for comparison with compiled definitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Beetom instruction words")]
     internal static ushort ReadBeetomInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>

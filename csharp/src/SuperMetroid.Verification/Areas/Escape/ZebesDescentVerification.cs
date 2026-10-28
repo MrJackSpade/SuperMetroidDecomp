@@ -77,7 +77,6 @@ internal static class ZebesDescentVerification
     }
 
     /// <summary>Seeds a one-component, zero-X-offset cinematic spritemap at `$8C:8000`.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the off-screen cinematic spritemap")]
     private static void SeedOffScreenCinematicSpritemap(TestAddressSpace bus)
     {
         WriteTestWord(bus, 0x8c8000, 1);
@@ -86,7 +85,6 @@ internal static class ZebesDescentVerification
     }
 
     /// <summary>Replaces the signed Y offset byte of the off-screen cinematic spritemap's component.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the off-screen cinematic spritemap")]
     private static void WriteOffScreenCinematicSpritemapYOffset(TestAddressSpace bus, byte offset) =>
         WriteTestByte(bus, 0x8c8004, offset);
 }

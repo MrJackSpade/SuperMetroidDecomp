@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
@@ -292,7 +293,6 @@ internal static class DownwardGatePlmsVerification
         plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Seeds exact bank-$86 closed/moving actor definitions and their shared movement instruction span.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the downward-gate enemy projectile definitions and list")]
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)
     {
         // Both exact fourteen-byte definitions share the same inert initial preinstruction.

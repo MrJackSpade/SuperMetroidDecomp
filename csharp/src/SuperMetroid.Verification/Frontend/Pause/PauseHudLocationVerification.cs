@@ -16,7 +16,6 @@ internal static class PauseHudLocationVerification
 {
     /// <summary>Checks that pause retains the native minimap tile and its native inks for both blink phases.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native BG3 tilemap words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause palette")]
     internal static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

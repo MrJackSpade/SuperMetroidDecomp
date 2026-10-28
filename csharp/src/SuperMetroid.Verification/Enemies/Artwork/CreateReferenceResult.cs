@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>The first and second of one create reference result.</summary>

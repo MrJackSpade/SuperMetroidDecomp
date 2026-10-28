@@ -9,7 +9,6 @@ internal static class SnesMemoryBusRequirement
     /// Returns <paramref name="bus"/> as the mutable memory bus, or throws naming the
     /// <paramref name="requirement"/> when the address space cannot supply live memory.
     /// </summary>
-    [CpuBusBoundary("import: resolves the live WRAM/SRAM bus a typed memory view requires")]
     public static ISnesMemoryBus Require(ISnesAddressSpace bus, string requirement)
     {
         Ensure.NotNull(bus);

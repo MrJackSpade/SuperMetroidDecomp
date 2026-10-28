@@ -99,47 +99,6 @@ internal static class AnalyzerTests
         }
     }
 
-    /// <summary>#628 spatial data-clump rules: positive and negative cases for each diagnostic.</summary>
-    internal static void VerifyCpuBusAccessAnalyzer()
-    {
-        var analyzer = new CpuBusAccessAnalyzer();
-        void Expect(string source, string? id = null, string? message = null) =>
-            VerifySnippet(source, id, message, analyzer);
-        const string api =
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class CpuBusAccessAttribute : System.Attribute { } " +
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class CpuBusBoundaryAttribute(string reason) : System.Attribute { } " +
-            "[CpuBusAccess] interface IBus { void WriteByte(int address, byte value); byte ReadWorkRamByte(int address); } " +
-            "[CpuBusAccess] static class WorkRam { public static ushort ReadWord(IBus bus, int address) => 0; } " +
-            "[CpuBusAccess] readonly struct Word { public Word(IBus bus, int address) { } public ushort Read() => 0; } " +
-            "[CpuBusBoundary(\"implementation\")] sealed class Bus : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; " +
-            "[CpuBusAccess] public System.Span<byte> SaveRam => default; } ";
-
-        // SME6290: raw reads and writes, helpers, buffers, primitives and method groups outside a boundary.
-        Expect(api + "class Game { void M(IBus bus) => bus.WriteByte(0x7e0a1c, 1); }",
-            CpuBusAccessAnalyzer.RawAccessId, "'IBus.WriteByte' is raw CPU-bus access");
-        Expect(api + "class Game { ushort M(IBus bus) => WorkRam.ReadWord(bus, 0x7e0998); }",
-            CpuBusAccessAnalyzer.RawAccessId, "'WorkRam.ReadWord'");
-        Expect(api + "class Game { byte M(Bus bus) => bus.ReadWorkRamByte(0x7e0998); }",
-            CpuBusAccessAnalyzer.RawAccessId, "'Bus.ReadWorkRamByte'");
-        Expect(api + "class Game { int M(Bus bus) => bus.SaveRam.Length; }",
-            CpuBusAccessAnalyzer.RawAccessId, "'Bus.SaveRam'");
-        Expect(api + "class Game { object M(IBus bus) => new Word(bus, 0x7e0998); }",
-            CpuBusAccessAnalyzer.RawAccessId, "'Word.ctor'");
-        Expect(api + "class Game { System.Func<int, byte> M(IBus bus) => bus.ReadWorkRamByte; }",
-            CpuBusAccessAnalyzer.RawAccessId, "'IBus.ReadWorkRamByte'");
-        // A typed domain view, a boundary member or property, and code that only passes the bus along pass.
-        Expect(api + "[CpuBusBoundary(\"domain view\")] sealed class SamusMemory(IBus bus) { public ushort Health { get => WorkRam.ReadWord(bus, 0x7e09c2); } } " +
-            "class Game { ushort M(SamusMemory samus) => samus.Health; }");
-        Expect(api + "class Codec { [CpuBusBoundary(\"codec\")] static byte M(IBus bus) => bus.ReadWorkRamByte(0); " +
-            "ushort P(IBus bus) { return Q; } [CpuBusBoundary(\"view\")] ushort Q => new Word(null!, 0).Read(); }");
-        Expect(api + "class Game { SamusView M(IBus bus) => new SamusView(bus); } class SamusView(IBus bus) { }");
-
-        // SME6291: raw contracts implemented outside a boundary.
-        Expect(api + "sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }",
-            CpuBusAccessAnalyzer.RawImplementationId, "Fake implements raw CPU-bus contract 'IBus'");
-        Expect(api + "[CpuBusBoundary(\"exact bus test double\")] sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }");
-    }
-
     /// <summary>Checks raw PPU access diagnostics while accepting typed layout views and declared boundary members.</summary>
     internal static void VerifyPpuLayoutAccessAnalyzer()
     {
@@ -599,48 +558,6 @@ internal static class AnalyzerTests
             PlmSlotAllocationAnalyzer.OpenCodedClaimId, "DoorPlms claims a PLM slot directly");
         // The slot table's spawn operations, and callers that use them, pass.
         Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.Plms; sealed class DoorPlms { PlmSlot? M(PlmSlotTable table) => table.SpawnHardcoded(); } }");
-    }
-
-    /// <summary>Checks DSP register-write and numeric-register diagnostics against typed control exceptions.</summary>
-    internal static void VerifyDspRegisterAccessAnalyzer()
-    {
-        var analyzer = new DspRegisterAccessAnalyzer();
-        void Expect(string source, string? id = null, string? message = null) =>
-            VerifySnippet(source, id, message, analyzer);
-        const string api =
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class DspRegisterAccessAttribute : System.Attribute { } " +
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class DspRegisterBoundaryAttribute(string reason) : System.Attribute { } " +
-            "[DspRegisterAccess] enum GlobalRegister : byte { KeyOn = 0x4c } " +
-            "[DspRegisterBoundary(\"implementation\")] sealed class Dsp { [DspRegisterAccess] public void WriteRegister(byte address, byte value) { } public void Cycle() { } } ";
-
-        // SME6310: raw register writes and register numbers outside a boundary.
-        Expect(api + "class Driver { void M(Dsp dsp) => dsp.WriteRegister(0x4c, 1); }",
-            DspRegisterAccessAnalyzer.RawAccessId, "'Dsp.WriteRegister' is raw S-DSP register access");
-        Expect(api + "class Driver { byte M() => (byte)GlobalRegister.KeyOn; }",
-            DspRegisterAccessAnalyzer.RawAccessId, "'GlobalRegister.KeyOn'");
-        // Typed controls, ordinary DSP members and passing the DSP along pass.
-        Expect(api + "[DspRegisterBoundary(\"typed controls\")] readonly struct Controls(Dsp dsp) { public void KeyOn(byte voices) => dsp.WriteRegister((byte)GlobalRegister.KeyOn, voices); } " +
-            "class Driver { void M(Controls dsp) { dsp.KeyOn(1); } }");
-        Expect(api + "class Driver { void M(Dsp dsp) => dsp.Cycle(); }");
-    }
-
-    /// <summary>Checks direct APU RAM indexing diagnostics while permitting typed memory views.</summary>
-    internal static void VerifySpcMemoryAccessAnalyzer()
-    {
-        var analyzer = new SpcMemoryAccessAnalyzer();
-        void Expect(string source, string? id = null, string? message = null) =>
-            VerifySnippet(source, id, message, analyzer);
-        const string api =
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SpcMemoryAccessAttribute : System.Attribute { } " +
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SpcMemoryBoundaryAttribute(string reason) : System.Attribute { } " +
-            "sealed class Player { [SpcMemoryAccess] private readonly byte[] ram = new byte[0x10000]; " +
-            "[SpcMemoryBoundary(\"driver-memory view\")] private byte Next(ref ushort cursor) => ram[cursor++]; ";
-
-        // SME6320: raw APU RAM indexing outside a boundary.
-        Expect(api + "byte M(ushort pointer) => ram[pointer]; }",
-            SpcMemoryAccessAnalyzer.RawAccessId, "'Player.ram' is raw SPC700 memory access");
-        // A typed view and code that uses it pass.
-        Expect(api + "byte M(ref ushort pointer) => Next(ref pointer); }");
     }
 
     /// <summary>Checks paired coordinate, parameter and parallel-array diagnostics without flagging named spatial values.</summary>

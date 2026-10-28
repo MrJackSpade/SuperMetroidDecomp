@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>
 /// Converts the retail credits row program into bounded, editable UTF-8 content.
 /// </summary>
-[CpuBusBoundary("codec: ROM credits row program and tilemap rows → credits presentation text")]
 public static class CreditsPresentationExtractor
 {
     /// <summary>Interprets the bounded native credits row program, verifies authored blank-row spacing and glyph coverage, and serializes editable UTF-8 line content.</summary>

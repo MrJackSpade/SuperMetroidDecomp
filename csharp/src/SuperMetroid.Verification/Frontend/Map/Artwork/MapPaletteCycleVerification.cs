@@ -20,6 +20,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
@@ -27,7 +28,6 @@ internal static class MapPaletteCycleVerification
 {
     /// <summary>Compares native animation cadence and CGRAM, then checks override rebinding and visible palette isolation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {
@@ -96,8 +96,8 @@ internal static class MapPaletteCycleVerification
             // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
             // so the highlight edit may recolor them. Every differing pixel must therefore show a
             // palette-3 color in both renders; nothing drawn from other palettes may change.
-            var editedPalette3 = new HashSet<SuperMetroid.Core.Hardware.RgbaPixel>();
-            var stockPalette3 = new HashSet<SuperMetroid.Core.Hardware.RgbaPixel>();
+            var editedPalette3 = new HashSet<RgbaPixel>();
+            var stockPalette3 = new HashSet<RgbaPixel>();
             for (int color = 0; color < 16; color++)
             {
                 editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgbaPixel());

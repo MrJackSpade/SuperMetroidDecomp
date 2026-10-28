@@ -11,7 +11,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SuitPickupBeamCurveDefinitionsVerification
 {
     /// <summary>Compares all 128 native contour offsets and rejects indices beyond the contour.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for suit pickup beam curve definitions")]
     internal static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < SuitPickupBeamCurveDefinitions.OffsetCount; index++)

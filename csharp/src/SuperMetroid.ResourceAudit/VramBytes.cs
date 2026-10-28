@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.ResourceAudit;
 
 /// <summary>Reads the bytes an audit uploaded into VRAM back through the little-endian words that hold them.</summary>

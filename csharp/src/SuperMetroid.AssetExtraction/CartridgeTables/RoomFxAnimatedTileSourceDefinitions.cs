@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -8,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// rest following one frame transfer apart, and the shared Tourian statue strip. The import pipeline's private
 /// knowledge, decoded once into the installed atlas.
 /// </summary>
-[CpuBusBoundary("catalog: room-FX animated-tile cartridge sources")]
 internal static class RoomFxAnimatedTileSourceDefinitions
 {
     /// <summary>$87:9D84, the three horizontal-spike pictures played 0/1/2/1 by $87:817E.</summary>

@@ -20,7 +20,6 @@ internal static class CrocomireRumbleDefinitionsVerification
 {
     /// <summary>Audits all source words, then compares every rumble update through wall-spike palette publication.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire rumble definitions")]
     internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;
@@ -141,7 +140,6 @@ internal static class CrocomireRumbleDefinitionsVerification
     }
 
     /// <summary>Advances a separate cartridge-word reference cursor for one rumble frame.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire rumble reference step")]
     private static void StepCrocomireRumbleReference(
         ISnesAddressSpace rom,
         ref ushort index,

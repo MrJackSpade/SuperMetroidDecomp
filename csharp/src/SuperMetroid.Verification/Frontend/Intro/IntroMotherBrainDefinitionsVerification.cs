@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;

@@ -112,7 +112,6 @@ internal static class MapStationLayoutVerification
     }
 
     /// <summary>Rejects native station coordinate and discovery-table reads during installed drawing.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native missile, energy and map-station coordinate lists to forbid them")]
     private static CartridgeReadGuard NewStationLayoutGuard(ISnesAddressSpace source)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);

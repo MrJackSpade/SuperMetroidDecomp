@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>The selected Mother Brain rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>

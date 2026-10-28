@@ -206,7 +206,6 @@ internal static class CeresEscapeHandoffVerification
     }
 
     /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres Ridley ejection poses")]
     private static TestAddressSpace CreateCeresRidleyEjectionCartridge()
     {
         var bus = new TestAddressSpace();
@@ -236,7 +235,6 @@ internal static class CeresEscapeHandoffVerification
     }
 
     /// <summary>Seeds the type-$0A normal-air speed entry used when ejected Samus meets the left room wall.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres ejection type-$0A air speed record")]
     private static void SeedCeresEjectionAirSpeedRecord(TestAddressSpace bus)
     {
         WriteTestWords(

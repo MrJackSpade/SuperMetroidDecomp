@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks Crocomire skeleton tile uploads against native source bytes and full VRAM results.</summary>
@@ -19,7 +20,6 @@ internal static class CrocomireSkeletonArtworkVerification
 {
     /// <summary>Exercises six installed uploads and a single-pixel PNG override with cartridge reads forbidden.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
     internal static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -60,7 +60,7 @@ internal static class CrocomireSkeletonArtworkVerification
 
         (byte[] installedCharacters, CrocomireDeathState installedState,
             CartridgeReadGuard denied) = RunInstalled(stock);
-        var nativeCharacters = new byte[SpriteCharacters.TableByteCount];
+        var nativeCharacters = new byte[SpriteArtworkPlacements.TableByteCount];
         for (int index = 0; index < frames; index++)
         {
             int destination = ReadNativeCrocomireSkeletonWord(rom,
@@ -135,8 +135,8 @@ internal static class CrocomireSkeletonArtworkVerification
                  index <= CrocomireSkeletonTransferDefinitions.FrameCount; index++)
                 ShowNextChunk(system, state);
             // The skeleton's chunks as its sheets picture them: each installed chunk where the cartridge uploads it (#1406).
-            var shown = new SpriteCharacters();
-            foreach (SpriteCharacterPlacement upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
+            var shown = new SpriteArtworkPlacements();
+            foreach (SpriteArtworkPlacement upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
                 shown.Record(upload);
             return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..SpriteCharacters.TableByteCount].ToArray(),
                 state, guard);
@@ -161,7 +161,6 @@ internal static class CrocomireSkeletonArtworkVerification
             .RejectWrites(address => $"Installed Crocomire skeleton wrote cartridge byte ${address:X6}.");
 
     /// <summary>Reads a native destination or source-table word for the independent upload oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire's native skeleton destination and source tables")]
     private static ushort ReadNativeCrocomireSkeletonWord(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

@@ -28,7 +28,6 @@ internal static class PowerBombCallbackDefinitionsVerification
     }
 
     /// <summary>Checks each native header's callback opcode and every bank/pointer pair against the compiled no-op set.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb callback definitions")]
     internal static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         int headers = 0;

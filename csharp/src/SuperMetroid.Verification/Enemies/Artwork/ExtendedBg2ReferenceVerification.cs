@@ -11,7 +11,6 @@ internal static class ExtendedBg2ReferenceVerification
     /// tilemap to VRAM word $4800. Returns an empty VRAM image when the instruction
     /// frame is unchanged and rejects unterminated streams.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for reference extended BG2 VRAM")]
     internal static byte[] ReadReferenceExtendedBg2Vram(
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {

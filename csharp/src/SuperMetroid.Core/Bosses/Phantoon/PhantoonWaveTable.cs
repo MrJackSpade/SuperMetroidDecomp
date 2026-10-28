@@ -39,12 +39,12 @@ public static class PhantoonWaveTable
     {
         int offset = phase & PhantoonWaveDefinitions.PhaseMask;
         int sample = offset / PhantoonWaveDefinitions.SampleBytes;
-        int value = unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)sample)));
+        int value = unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)sample)));
         if (offset % PhantoonWaveDefinitions.SampleBytes == 0) return unchecked((short)value);
         return unchecked((short)SnesLittleEndian.Word(
             SnesLittleEndian.HighByte(value),
             offset == PhantoonWaveDefinitions.PhaseMask ? PhantoonWaveDefinitions.TrailingByte :
-                SnesLittleEndian.LowByte(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)(sample + 1)))))));
+                SnesLittleEndian.LowByte(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(sample + 1)))))));
     }
 
     /// <summary>

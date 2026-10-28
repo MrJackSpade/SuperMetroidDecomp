@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Reads a palette-FX colour family's colours from the cartridge, row by row.</summary>
-[CpuBusBoundary("codec: ROM palette-FX colour words → RGB5 rows")]
 internal static class PaletteFxColorExtraction
 {
     /// <summary>Every colour of <paramref name="rows"/>, read from its bank-$8D colour word.</summary>

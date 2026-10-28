@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Five-bit fixed color and CGADSUB control for a physical title scanline.</summary>

@@ -3,7 +3,6 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>One WRAM byte at a fixed CPU address. Constructed only by domain memory views.</summary>
-[CpuBusAccess]
 internal readonly struct WramByte
 {
     /// <summary>Mutable CPU bus supplying this cell's WRAM reads and writes.</summary>

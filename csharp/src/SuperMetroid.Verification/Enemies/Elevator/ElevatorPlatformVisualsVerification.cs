@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVer
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

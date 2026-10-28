@@ -19,7 +19,6 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
     /// cartridge reads. The whole-room census separately checks the fight's
     /// first thirty live frames with pixel and state parity.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body collision definitions")]
     internal static void VerifyCrocomireBodyCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -111,7 +110,6 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
     /// Compares a compiled component's rectangles and callbacks with the bank-$A4 hitbox list the cartridge names at
     /// <paramref name="list"/>: its count word, then each twelve-byte rectangle and callback record.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the hitbox list a Crocomire component names")]
     internal static void AssertNativeHitboxList(IImportCartridgeSource rom, ushort list,
         IReadOnlyList<CrocomireBodyCollisionHitbox> hitboxes, string at)
     {

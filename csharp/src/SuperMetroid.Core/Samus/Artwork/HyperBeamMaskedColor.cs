@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>A hyper beam colour and the channels it supplies.</summary>

@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where each Samus projectile program's list starts in bank $93 (#1301, #1411).</summary>
-[CpuBusBoundary("catalog: Samus projectile list entries")]
 internal static class SamusProjectileListEntryDefinitions
 {
     /// <summary>Each program's list entry.</summary>

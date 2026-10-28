@@ -147,7 +147,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("SamusArmCannonArtworkCatalog", "SpriteAttributes" or "CoverTileIndex", "direction") => new(0, SamusDrawingDefinitions.ArmCannon.DirectionCount),
         ("SamusArmCannonArtworkCatalog", "CoverTileIndex", "frame") => new(0, SamusArmCannonArtworkFormat.FramesPerDirection),
         ("EndingObjectArtworkCatalog", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
-        ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)VramAssetId.GunshipLiftoffFirstTiles,
+        ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)InstalledArtworkId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
         ("XrayOverlayVisualCatalog", "ItemMetatile", "graphicsSlot") => new(0, SuperMetroid.Core.Samus.Abilities.Artwork.XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2),

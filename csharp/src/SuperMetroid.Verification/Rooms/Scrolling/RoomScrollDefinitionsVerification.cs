@@ -16,7 +16,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomScrollDefinitionsVerification
 {
     /// <summary>Compares all state grids and Ceres entry with cartridge behavior while blocking scroll-source reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room scroll definitions")]
     internal static void VerifyCompiledRoomScrollDefinitions()
     {
         string symbolPath = Path.GetFullPath(

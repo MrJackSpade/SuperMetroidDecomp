@@ -31,7 +31,6 @@ internal static class FileSelectRoomMapVerification
 {
     /// <summary>Checks every area map projection and frame word against ROM, then verifies the visible viewport and icon capacity.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file-select room-map labels and frames")]
     internal static void VerifyFileSelectRoomMapGraphics()
     {
         Suite(nameof(VerifyFileSelectStationMarker), () => VerifyFileSelectStationMarker());

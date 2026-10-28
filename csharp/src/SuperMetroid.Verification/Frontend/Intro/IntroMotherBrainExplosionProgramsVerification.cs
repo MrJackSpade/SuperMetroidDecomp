@@ -33,6 +33,5 @@ internal static class IntroMotherBrainExplosionProgramsVerification
     }
 
     /// <summary>Reads a native explosion frame operand or spritemap header for catalog comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion frame catalog")]
     private static byte IntroMotherBrainExplosionFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

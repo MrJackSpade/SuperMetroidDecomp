@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Resolves reserve-screen presentation once without exposing its mode or energy mechanics.</summary>
-[CpuBusBoundary("codec: ROM bank-$82 reserve-screen labels and colors → pause reserve UI presentation")]
 public static class PauseReserveUiExtractor
 {
     /// <summary>Resolves reserve labels, decimal digit cells, arrow positions, palettes, and animation colors into a versioned presentation document.</summary>

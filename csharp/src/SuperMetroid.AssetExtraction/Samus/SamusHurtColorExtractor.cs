@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports full-body hurt/intro RGB5 artwork, not hurt-counter logic.</summary>
-[CpuBusBoundary("codec: ROM Samus hurt/intro full-body palettes → hurt colors")]
 public static class SamusHurtColorExtractor
 {
     /// <summary>Exports Samus's full sixteen-color hurt-flash and cinematic-intro palette images from $9B:A380 and $9B:A3A0.</summary>

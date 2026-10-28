@@ -48,6 +48,5 @@ internal static class IntroDiscoveryFrameCatalogVerification
     }
 
     /// <summary>Reads a bank-$8C frame record or the large Baby pointer used by the native catalog.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro discovery frame catalog")]
     private static byte IntroDiscoveryFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

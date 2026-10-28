@@ -8,13 +8,13 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres Ridley's getaway curve and Mode 7 transfer lists against retail data.</summary>
 internal static class CeresRidleyGetawayDefinitionsVerification
 {
     /// <summary>Compares zoom and both velocity components through the terminal frame.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley getaway")]
     internal static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index <= 112; index++)
@@ -43,7 +43,6 @@ internal static class CeresRidleyGetawayDefinitionsVerification
 
     /// <summary>Checks seven compiled transfer lists and their low-byte-only VRAM effects.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley Mode 7 transfers")]
     internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         int checkedTransfers = 0;

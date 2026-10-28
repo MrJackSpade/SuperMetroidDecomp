@@ -15,7 +15,6 @@ public sealed class ManagedSpcPlayer
 {
 
     /// <summary>Zeroes the driver work regions the native reset clears.</summary>
-    [SpcMemoryBoundary("driver-memory view: reset work regions")]
     private void ClearDriverWorkRegions()
     {
         Array.Clear(ram, SpcDriverDefinitions.Ram.FirstWorkRegion, SpcDriverDefinitions.Ram.FirstWorkRegionLength);
@@ -27,11 +26,9 @@ public sealed class ManagedSpcPlayer
     }
 
     /// <summary>The DSP reads BRR samples and the echo buffer straight from APU RAM.</summary>
-    [SpcMemoryBoundary("implementation: the DSP shares the APU RAM it plays from")]
     private ManagedSnesDsp CreateDsp() => new(ram);
 
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    [SpcMemoryAccess]
     internal readonly byte[] ram = new byte[SpcDriverDefinitions.ApuRamSize];
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
@@ -71,7 +68,6 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>Creates an independent SPC sequencer and DSP over owned 64-KiB APU RAM, applying native driver reset state without loading an audio bank or opening a host audio device.</summary>
     /// <remarks>Uploads and instrument, music, sound-effect, and decoded sample definitions are installed separately by <see cref="ManagedSpcAudioBackend"/> before playback.</remarks>
-    [SpcMemoryBoundary("implementation: hands its APU RAM to the driver's parts")]
     public ManagedSpcPlayer()
     {
         dsp = CreateDsp();

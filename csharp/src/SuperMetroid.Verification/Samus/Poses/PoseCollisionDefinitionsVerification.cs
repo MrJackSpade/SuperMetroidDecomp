@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Samus.Poses;
 internal static class PoseCollisionDefinitionsVerification
 {
     /// <summary>Checks every byte-valued pose's vertical radius and live horizontal-radius refresh against native data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pose collision definitions")]
     internal static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {
         var samus = new SamusState();

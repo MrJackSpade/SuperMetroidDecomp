@@ -19,7 +19,6 @@ internal static class MotherBrainHitboxCallbacksVerification
     private const int ComponentRecordBytes = 8;
 
     /// <summary>Compares all seventeen frame roots' components and rectangles with the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain's compiled hitbox rectangles and callbacks")]
     internal static void VerifyMotherBrainHitboxCallbacks(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

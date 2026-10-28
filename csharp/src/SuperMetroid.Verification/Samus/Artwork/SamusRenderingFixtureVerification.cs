@@ -30,12 +30,10 @@ internal static class SamusRenderingFixtureVerification
     }
 
     /// <summary>Points one pose's <c>$92:D94E</c> tile-animation list pointer at a synthetic record.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus tile-animation list pointer")]
     internal static void WriteSamusTileAnimationPointer(TestAddressSpace bus, SamusPoseId pose, ushort pointer) =>
         WriteTestWord(bus, SamusSourceDefinitions.AnimationDefinitionListPointers.Value + (int)pose * 2, pointer);
 
     /// <summary>Seeds one pose's <c>$92:9263/$92:945D</c> top and bottom spritemap base indices.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus pose's spritemap base indices")]
     internal static void WriteSamusSpritemapBases(TestAddressSpace bus, SamusPoseId pose, ushort top, ushort bottom)
     {
         WriteTestWord(bus, SamusSpritemapArtworkCatalog.TopBaseAddress + (int)pose * 2, top);
@@ -46,7 +44,6 @@ internal static class SamusRenderingFixtureVerification
     /// complete DMA groups retain stock layout; spritemaps use the fixture's own compact
     /// compositions, including zero pointers.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture decoding seeded Samus rendering tables into an artwork catalog")]
     internal static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {
         SamusBodyArtworkCatalog stock = renderingFixtureStock.Value;

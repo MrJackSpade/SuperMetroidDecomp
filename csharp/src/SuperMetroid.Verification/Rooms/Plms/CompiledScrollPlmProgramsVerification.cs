@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

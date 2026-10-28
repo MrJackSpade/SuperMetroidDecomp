@@ -19,7 +19,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
-public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPresentationContent
+public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
@@ -204,45 +204,45 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
     /// <param name="asset">The transfer identity; this provider supports only the HUD and escape-timer identities in its catalog.</param>
     /// <returns>Read-only planar character bytes for the requested transfer.</returns>
     /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => asset switch
     {
-        VramAssetId.StandardHudTiles => HudTiles.Bytes,
-        VramAssetId.KraidBg3RestoreQuarter0 => HudTiles.KraidRestoreQuarter(0),
-        VramAssetId.KraidBg3RestoreQuarter1 => HudTiles.KraidRestoreQuarter(1),
-        VramAssetId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),
-        VramAssetId.KraidBg3RestoreQuarter3 => HudTiles.KraidRestoreQuarter(3),
-        VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
-        VramAssetId.None or
-            VramAssetId.BeamPowerTiles or
-            VramAssetId.BeamWaveTiles or
-            VramAssetId.BeamIceTiles or
-            VramAssetId.BeamIceWaveTiles or
-            VramAssetId.BeamSpazerTiles or
-            VramAssetId.BeamSpazerWaveTiles or
-            VramAssetId.BeamSpazerIceTiles or
-            VramAssetId.BeamSpazerIceWaveTiles or
-            VramAssetId.BeamPlasmaTiles or
-            VramAssetId.BeamPlasmaWaveTiles or
-            VramAssetId.BeamPlasmaIceTiles or
-            VramAssetId.BeamPlasmaIceWaveTiles or
-            VramAssetId.ProjectileIceWaveTrailTiles or
-            VramAssetId.ProjectileMissileTrailTiles or
-            VramAssetId.GrapplePointFirstTiles or
-            VramAssetId.GrapplePointSecondTiles or
-            VramAssetId.GrapplePointThirdTiles or
-            VramAssetId.GrapplePointFourthTiles or
-            VramAssetId.GrappleHorizontalSegmentTiles or
-            VramAssetId.GrappleDiagonalSegmentTiles or
-            VramAssetId.GrappleVerticalSegmentTiles or
-            VramAssetId.GunshipLiftoffFirstTiles or
-            VramAssetId.GunshipLiftoffSecondTiles or
-            VramAssetId.GunshipLiftoffThirdTiles or
-            VramAssetId.GunshipLiftoffFourthTiles or
-            VramAssetId.GunshipLiftoffFifthTiles or
-            VramAssetId.BeamChainsawTiles or
-            VramAssetId.BeamSpacetimeTiles or
-            VramAssetId.StandardObjectTiles or
-            VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
+        InstalledArtworkId.StandardHudTiles => HudTiles.Bytes,
+        InstalledArtworkId.KraidBg3RestoreQuarter0 => HudTiles.KraidRestoreQuarter(0),
+        InstalledArtworkId.KraidBg3RestoreQuarter1 => HudTiles.KraidRestoreQuarter(1),
+        InstalledArtworkId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),
+        InstalledArtworkId.KraidBg3RestoreQuarter3 => HudTiles.KraidRestoreQuarter(3),
+        InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
+        InstalledArtworkId.None or
+            InstalledArtworkId.BeamPowerTiles or
+            InstalledArtworkId.BeamWaveTiles or
+            InstalledArtworkId.BeamIceTiles or
+            InstalledArtworkId.BeamIceWaveTiles or
+            InstalledArtworkId.BeamSpazerTiles or
+            InstalledArtworkId.BeamSpazerWaveTiles or
+            InstalledArtworkId.BeamSpazerIceTiles or
+            InstalledArtworkId.BeamSpazerIceWaveTiles or
+            InstalledArtworkId.BeamPlasmaTiles or
+            InstalledArtworkId.BeamPlasmaWaveTiles or
+            InstalledArtworkId.BeamPlasmaIceTiles or
+            InstalledArtworkId.BeamPlasmaIceWaveTiles or
+            InstalledArtworkId.ProjectileIceWaveTrailTiles or
+            InstalledArtworkId.ProjectileMissileTrailTiles or
+            InstalledArtworkId.GrapplePointFirstTiles or
+            InstalledArtworkId.GrapplePointSecondTiles or
+            InstalledArtworkId.GrapplePointThirdTiles or
+            InstalledArtworkId.GrapplePointFourthTiles or
+            InstalledArtworkId.GrappleHorizontalSegmentTiles or
+            InstalledArtworkId.GrappleDiagonalSegmentTiles or
+            InstalledArtworkId.GrappleVerticalSegmentTiles or
+            InstalledArtworkId.GunshipLiftoffFirstTiles or
+            InstalledArtworkId.GunshipLiftoffSecondTiles or
+            InstalledArtworkId.GunshipLiftoffThirdTiles or
+            InstalledArtworkId.GunshipLiftoffFourthTiles or
+            InstalledArtworkId.GunshipLiftoffFifthTiles or
+            InstalledArtworkId.BeamChainsawTiles or
+            InstalledArtworkId.BeamSpacetimeTiles or
+            InstalledArtworkId.StandardObjectTiles or
+            InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
         _ => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
     };
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>

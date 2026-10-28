@@ -73,7 +73,7 @@ public static class PowerBombShapeDefinitions
     public static byte Width(int index)
     {
         if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
-        return EnemyTrigonometryTables.EightBitHalfWave(2 * index);
+        return Trigonometry.EightBitHalfWave(2 * index);
     }
 
     /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: inclusive vertical band boundaries.</summary>
@@ -84,6 +84,6 @@ public static class PowerBombShapeDefinitions
     public static byte TopOffset(int index)
     {
         if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
-        return (byte)(EnemyTrigonometryTables.EightBitHalfWave(63 - 2 * index) * 3 / 4);
+        return (byte)(Trigonometry.EightBitHalfWave(63 - 2 * index) * 3 / 4);
     }
 }

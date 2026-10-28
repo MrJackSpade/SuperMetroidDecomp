@@ -26,7 +26,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 internal static class CeresEscapeVramTransferDefinitionsVerification
 {
     /// <summary>Compares nineteen native records and three terminators, then queues production transfers without descriptor reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape VRAM transfer definitions")]
     internal static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<TileTransferDefinition> records =
@@ -76,7 +75,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
             .TakeWhile(record => record.Pointer < 0xc4fc)];
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
-        SpriteCharacters shown = system.Presentation.SpriteCharacters;
+        SpriteArtworkPlacements shown = system.Presentation.SpriteCharacters;
         var state = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects };
         for (int index = 0; index < spriteList.Length; index++)
         {
@@ -84,12 +83,12 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             TileTransferDefinition expected = spriteList[index];
             AssertEqual(index == spriteList.Length - 1, finished, $"Ceres transfer ${expected.Pointer:X4} list completion");
             AssertEqual(index + 1, shown.Uploads.Count, $"Ceres transfer ${expected.Pointer:X4} one page per update");
-            SpriteCharacterPlacement page = shown.Uploads[index];
+            SpriteArtworkPlacement page = shown.Uploads[index];
             AssertEqual(expected.ByteCount, page.ByteCount, $"Ceres transfer ${expected.Pointer:X4} page size");
-            AssertEqual(SpriteCharacters.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
+            AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
                 $"Ceres transfer ${expected.Pointer:X4} page's place among the OBJ characters");
-            AssertEqual<ObjCharacterSource?>(expected.Pointer is 0xc4cb or 0xc4d2
-                    ? new AssetObjCharacters(expected.Pointer == 0xc4cb ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles)
+            AssertEqual<SpriteArtworkSource?>(expected.Pointer is 0xc4cb or 0xc4d2
+                    ? new InstalledArtworkCharacters(expected.Pointer == 0xc4cb ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles)
                     : CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
                 page.Source, $"Ceres transfer ${expected.Pointer:X4} names its installed page");
         }
@@ -137,7 +136,6 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
 
 
     /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
-    [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
     private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
         CeresEscapeTileArtworkDefinitions.All.Select((page, index) =>
             RoomCharacterAtlasPng.Read(new MemoryStream(

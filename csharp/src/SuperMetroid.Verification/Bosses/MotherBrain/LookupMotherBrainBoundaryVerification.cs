@@ -61,7 +61,6 @@ internal static class LookupMotherBrainBoundaryVerification
     }
 
     /// <summary>Reads native boundary bytes for the geometry comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain boundary geometry")]
     private static byte MotherBrainBoundaryGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares collision bits in both boundary records with native block words.</summary>

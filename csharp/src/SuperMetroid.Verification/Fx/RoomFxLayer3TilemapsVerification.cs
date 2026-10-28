@@ -28,7 +28,6 @@ internal static class RoomFxLayer3TilemapsVerification
 
     /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
     internal static void VerifyRoomFxLayer3Tilemaps()
     {
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

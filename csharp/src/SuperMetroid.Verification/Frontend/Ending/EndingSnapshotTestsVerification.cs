@@ -18,7 +18,6 @@ internal static class EndingSnapshotTestsVerification
 {
     /// <summary>Compares sampled packet pixels with the live ending while checking native palettes, OAM, phase timing, and later packet stability.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending palettes, scroll programs and Mode 7 artwork compared with installed ending renders")]
     internal static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

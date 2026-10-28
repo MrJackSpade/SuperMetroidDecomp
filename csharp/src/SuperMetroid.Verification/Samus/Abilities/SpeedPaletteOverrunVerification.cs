@@ -64,7 +64,6 @@ internal static class SpeedPaletteOverrunVerification
     }
 
     /// <summary>Reads a fixed-bank retail palette word for the trace comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster overrun palette words")]
     private static ushort ReadNativeSpeedOverrunPaletteWord(IImportCartridgeSource cart, int address) =>
         RomDataReader.ReadWordFixedBank(cart, address);
 

@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts the four RGB5 words preceding each compiled Work Robot timer.</summary>
-[CpuBusBoundary("codec: ROM Work Robot palette-cycle colors → Work Robot palette cycle")]
 public static class WorkRobotPaletteCycleExtractor
 {
     /// <summary>Exports the four color operands of each of the six Work Robot palette records at $A8:CCC1, excluding their timer words and terminator.</summary>

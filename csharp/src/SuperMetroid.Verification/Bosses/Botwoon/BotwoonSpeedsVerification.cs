@@ -18,7 +18,6 @@ internal static class BotwoonSpeedsVerification
     }
 
     /// <summary>Checks native speeds and production health-phase transitions, including phase retention inside a hole.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon speed algorithm")]
     private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (byte phase = 0; phase < 3; phase++)
@@ -49,7 +48,6 @@ internal static class BotwoonSpeedsVerification
     }
 
     /// <summary>Checks native body-history spacing for each health phase and rejects unsupported phases.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon spacing algorithm")]
     private static void VerifyBotwoonSpacingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (byte phase = 0; phase < 3; phase++)

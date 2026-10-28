@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// of the same register byte: the control bits are bits 5-7 and the noise rate bits 0-4.
 /// </summary>
 /// <param name="Value">The complete FLG byte.</param>
-[DspRegisterBoundary("typed controls: FLG control bits and noise rate share one register")]
 internal readonly record struct DspFlags(byte Value)
 {
     /// <summary>The FLG byte the driver's flag copy holds; a value outside a byte is a managed-player defect.</summary>

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Shared assertion and sparse-cartridge-fixture helpers for byte-accurate movement, rendering and instruction checks.</summary>
@@ -98,8 +99,6 @@ internal static class VerificationHelpersVerification
     /// written and synthesizes no mirrors. Tests use it to construct synthetic cartridge
     /// records and programs field by field.
     /// </summary>
-    [CpuBusBoundary("exact bus test: seeds one byte of the sparse synthetic CPU address space fixture")]
-    [CpuBusAccess]
     internal static void WriteTestByte(TestAddressSpace bus, int address, byte value)
     {
         Ensure.NotNull(bus);
@@ -111,8 +110,6 @@ internal static class VerificationHelpersVerification
     /// describe cartridge words as words; repeating two byte stores obscures both width and
     /// byte order.
     /// </summary>
-    [CpuBusBoundary("exact bus test: seeds one little-endian word of the sparse synthetic CPU address space fixture")]
-    [CpuBusAccess]
     internal static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
         WriteTestByte(bus, address, (byte)value);
@@ -123,8 +120,6 @@ internal static class VerificationHelpersVerification
     /// Writes consecutive native words without repeating address-stride arithmetic in every
     /// fixture. Each element still routes through the endian-aware primitive above.
     /// </summary>
-    [CpuBusBoundary("exact bus test: seeds consecutive little-endian words of the sparse synthetic CPU address space fixture")]
-    [CpuBusAccess]
     internal static void WriteTestWords(TestAddressSpace bus, int address, params ushort[] values)
     {
         Ensure.NotNull(values);
@@ -138,7 +133,6 @@ internal static class VerificationHelpersVerification
     /// still-unknown bytes must remain byte-for-byte fixture evidence. This helper owns only
     /// the verified table base, record stride, and record-width invariant.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus pose definition record")]
     internal static void WritePoseDefinition(
         TestAddressSpace bus,
         int pose,
@@ -157,7 +151,6 @@ internal static class VerificationHelpersVerification
     /// Replaces one byte of a previously installed pose definition. This is used only when
     /// a test intentionally varies one discriminator while retaining the rest of its fixture.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one byte of a bank-$91 Samus pose definition record")]
     internal static void WritePoseDefinitionByte(TestAddressSpace bus, int pose, int byteOffset, byte value)
     {
         if ((uint)pose > byte.MaxValue)
@@ -175,12 +168,10 @@ internal static class VerificationHelpersVerification
     /// Points one pose's entry in the bank-$91 animation-delay pointer table
     /// (<c>$91:B010</c>, one same-bank word per pose) at a synthetic delay stream.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay pointer")]
     internal static void WritePoseAnimationDelayPointer(TestAddressSpace bus, SamusPoseId pose, ushort stream) =>
         WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)pose * sizeof(ushort), stream);
 
     /// <summary>Installs one synthetic animation-delay stream at a bank-$91 offset.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay stream")]
     internal static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
     {
         Ensure.NotNull(bus);

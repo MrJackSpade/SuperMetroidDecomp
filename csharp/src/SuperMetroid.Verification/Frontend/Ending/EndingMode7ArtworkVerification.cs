@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingMode7ArtworkVerification
 {
     /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, then verifies map/PNG edits, partial DMA preservation, and stock repair.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode-7 scene artwork")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

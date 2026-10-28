@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 
@@ -196,7 +197,6 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 }
 
 /// <summary>Expands the fixture's Ceres tilemap stream for comparison with installed scene map slices.</summary>
-[CpuBusBoundary("exact bus test: decompresses the synthetic cartridge's Ceres tilemap stream as the oracle for installed map slices")]
 static byte[] DecompressSyntheticCeresTilemaps(byte[] rom) =>
     RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
         CeresCinematicSourceDefinitions.CeresTilemaps, maximumOutputBytes: 0x1000);

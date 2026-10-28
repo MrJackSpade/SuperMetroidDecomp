@@ -16,7 +16,6 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 internal static class DraygonHealthPaletteDefinitionsVerification
 {
     /// <summary>Compares eight retail thresholds, all authored health values, and boundary updates without table reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health palette definitions")]
     internal static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 

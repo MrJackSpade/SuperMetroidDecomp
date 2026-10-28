@@ -10,7 +10,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Reads native title-demo scene records for import and reference diagnostics.</summary>
-[CpuBusBoundary("codec: ROM attract-demo room, equipment and Samus-setup set tables → AttractDemoScene")]
 internal static class AttractDemoSceneImporter
 {
     /// <summary>Combines one demo scene's room, equipment, and Samus setup records, or returns null at the set terminator.</summary>

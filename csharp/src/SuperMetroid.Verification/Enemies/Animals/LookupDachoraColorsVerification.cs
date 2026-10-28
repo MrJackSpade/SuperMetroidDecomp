@@ -69,6 +69,5 @@ internal static class LookupDachoraColorsVerification
     }
 
     /// <summary>Reads one cartridge byte for the exact native palette oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup Dachora colors")]
     private static byte LookupDachoraColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

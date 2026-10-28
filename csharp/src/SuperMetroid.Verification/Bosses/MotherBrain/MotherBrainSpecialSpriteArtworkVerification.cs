@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -37,7 +38,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
 
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain special sprite sheets and Baby tile records")]
     internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, InstalledEnemyArtwork stock)
     {
@@ -125,7 +125,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            SpriteCharacterPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
+            SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)) - ObjectCharactersByte, shown.FirstByte,
                 $"Baby page {page} selection shows at its record's characters");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.ByteCount,
@@ -145,7 +145,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     /// the call that completes the list and the produced characters.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg-loading records and pixels")]
     private static void VerifyMotherBrainLegLoadPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
@@ -169,7 +168,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
                 $"Mother Brain leg-loading page {page} next page, back to the first after the last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
-            SpriteCharacterPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(nativeTableByte, nativeSize)
+            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(nativeTableByte, nativeSize)
                 ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} shows nothing.");
             AssertEqual(nativeTableByte, shown.FirstByte,
                 $"Mother Brain leg-loading page {page} shows where the cartridge's record places it");
@@ -219,7 +218,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>Reads source bytes from retail data for independent comparison with a shown page.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for a Mother Brain sprite page source")]
     private static byte[] ReadNativeMotherBrainPageSource(
         CartridgeImportAddressSpace rom, int sourceAddress, int byteCount) =>
         RomDataReader.ReadFixedBank(rom, sourceAddress, byteCount);
@@ -232,7 +230,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
 
     /// <summary>Copies each native sheet page directly from retail data into its authored VRAM destination for the oracle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle: independent cartridge transfer of a Mother Brain special sprite sheet")]
     private static SnesVram ReferenceMotherBrainSpecialPages(
         ISnesAddressSpace bus, MotherBrainSpecialSpriteSheetDefinition sheet)
     {

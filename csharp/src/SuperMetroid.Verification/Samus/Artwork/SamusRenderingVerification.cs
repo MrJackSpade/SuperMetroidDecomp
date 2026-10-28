@@ -21,6 +21,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -909,7 +910,6 @@ internal static void VerifySamusHurtFlashPalette()
 /// The graphics payload uses diagnostic values because correctness here is about routing;
 /// the DebugRunner separately executes the same code against the user's actual cartridge.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for retail pose $01 frame zero rendering")]
 internal static void SeedPoseOneSamusData(TestAddressSpace bus)
 {
     // Pose definition $91:B631: facing right, standing movement type, +6 graphics Y.
@@ -970,7 +970,6 @@ internal static void SeedPoseOneSamusData(TestAddressSpace bus)
 /// indices, pose metadata, and raw chest-cover attributes are retail values; the one-piece
 /// body maps keep this verifier focused on routing because DebugRunner covers real artwork.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for front-view poses $00/$9B rendering")]
 static void SeedForwardFacingSamusData(TestAddressSpace bus)
 {
     // Both records face neither left nor right, use standing movement type zero, have an
@@ -1008,7 +1007,6 @@ static void SeedForwardFacingSamusData(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the retail pose-$09 pointer topology with compact diagnostic spritemaps.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for retail pose $09 rendering")]
 static void SeedPoseNineSamusData(TestAddressSpace bus)
 {
     // Pose $09: facing right, movement type one, new-pose-unless-buttons $01, +6 graphics
@@ -1048,7 +1046,6 @@ static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Compatibility.Reco
 /// Gives every spritemap index the body-half matrix uses one visible OBJ, and seeds the
 /// posture-transition Y offsets that matrix positions against.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the body-half routing spritemaps")]
 static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 {
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
@@ -1069,7 +1066,6 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 /// record; a zero pointer would address $92:0000, which the cartridge does not map. Tile
 /// selection stays constant so the matrix tests body-half routing only.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the body-half routing tile-animation records")]
 static void SeedBodyHalfRoutingTileAnimation(TestAddressSpace bus)
 {
     for (int frame = 0; frame < 4; frame++)
@@ -1077,12 +1073,10 @@ static void SeedBodyHalfRoutingTileAnimation(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the byte-packed <c>$90:8D28</c> landing vertical-offset table.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the landing vertical-offset table")]
 static void WriteLandingVerticalOffsets(TestAddressSpace bus, ReadOnlySpan<byte> offsets) =>
     bus.WriteBytes(SamusSourceDefinitions.LandingVerticalOffsets.Value, offsets);
 
 /// <summary>Seeds the six <c>$9B:A3C0</c> visor room-cycle colors.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the visor room-cycle colors")]
 static void WriteVisorColors(TestAddressSpace bus, ushort[] colors) =>
     WriteTestWords(bus, SamusSourceDefinitions.VisorColors.Value, colors);
 
@@ -1090,7 +1084,6 @@ static void WriteVisorColors(TestAddressSpace bus, ushort[] colors) =>
 /// Seeds all sixteen Power/Varia/Gravity suit, hurt-flash and intro colors distinctly so a
 /// partial ten-color copy cannot pass.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the suit, hurt-flash and intro palettes")]
 static void SeedHurtFlashPalettes(TestAddressSpace bus)
 {
     for (int color = 0; color < 16; color++)

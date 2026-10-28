@@ -173,7 +173,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the cartridge's signed sine sample for one byte-sized Bull heading.</summary>
     internal static short ReadBullSignedSine(ByteAngle angle) =>
-        EnemyTrigonometryTables.SignedSixteenBitSine(angle);
+        Trigonometry.SignedSixteenBitSine(angle);
 
     /// <summary>Applies Bull's 24-bit sine-times-speed displacement and native negative-fraction rule.</summary>
     private static FixedCoordinate AddBullComponent(

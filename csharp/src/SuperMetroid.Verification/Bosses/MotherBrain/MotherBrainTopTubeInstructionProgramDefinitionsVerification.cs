@@ -23,7 +23,6 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Compares native words and executes four producers through display and terminal sleep.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain top Tube instruction program definitions")]
     internal static void VerifyMotherBrainTopTubeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {

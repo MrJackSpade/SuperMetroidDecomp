@@ -26,7 +26,6 @@ internal static class EnemyRomTablePointersVerification
     /// duplicate names, or pointers outside mapped cartridge space. With the private
     /// retail ROM present, this also reads both ends of representative multi-byte ranges.
     /// </summary>
-    [CpuBusBoundary("exact bus test: proves representative enemy ROM table ranges map to readable retail cartridge ROM")]
     internal static void VerifyEnemyRomTablePointerCatalog()
     {
         // The retail ROM oracle's tables live in test-support (#1412): production reads none of them, and the
@@ -95,7 +94,6 @@ internal static class EnemyRomTablePointersVerification
     ];
 
     /// <summary>Compares Golden Torizo, Work Robot, and Tourian statue selectors with cartridge words and production initializers.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy instruction selectors")]
     private static void VerifyCompiledEnemyInstructionSelectors(
         SuperMetroidAddressSpace rom)
     {

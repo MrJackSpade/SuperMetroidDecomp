@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Compression;
 internal static class RomDecompressionVerification
 {
     /// <summary>Compares every compression command family and verifies exact source extent and allocation bounds.</summary>
-    [CpuBusBoundary("exact bus test: RomDataReader fixed-bank, word, long and compressed-stream framing reads exactly the declared LoROM bytes")]
     public static int Run()
     {
         // Four maximum-length literal runs full of terminator-valued payload bytes.
@@ -91,7 +90,6 @@ internal static class RomDecompressionVerification
     }
 
     /// <summary>Tracks sequential LoROM byte reads and rejects reads beyond the declared fixture stream.</summary>
-    [CpuBusBoundary("exact bus test: witnesses LoROM traversal order and read extent of a cartridge stream")]
     private sealed class StreamBus(byte[] bytes) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         /// <summary>Begins four bytes before a bank boundary to exercise the native wrap.</summary>

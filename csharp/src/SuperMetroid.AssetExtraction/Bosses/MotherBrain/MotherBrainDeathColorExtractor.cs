@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports complete Mother Brain death-fade and exploded-door RGB5 images.</summary>
-[CpuBusBoundary("codec: ROM Mother Brain death-fade and exploded-door colors → MotherBrainDeathColorCatalog")]
 public static class MotherBrainDeathColorExtractor
 {
     /// <summary>Reads every Mother Brain body, leg, and corpse death-fade row plus the exploded-door palette, rejects high-bit colors, and serializes RGB5 data.</summary>

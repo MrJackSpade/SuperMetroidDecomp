@@ -21,7 +21,7 @@ public readonly record struct VramWriteEntry(
         : throw new ArgumentOutOfRangeException(nameof(SizeInBytes), SizeInBytes, "A queued DMA moves 0 through 65535 bytes.");
 
     /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
-    public VramAssetId AssetId { get; init; }
+    public InstalledArtworkId AssetId { get; init; }
 
     /// <summary>Whether the transfer is background character artwork, which the drain binds instead of writing (#1350).</summary>
     public bool Background { get; init; }
@@ -33,7 +33,7 @@ public readonly record struct VramWriteEntry(
     public VramStagingBuffer? Staging { get; init; }
 
     /// <summary>The owned artwork the transfer uploads, resolved when the queue drains; null for every other transfer.</summary>
-    public ObjCharacterSource? OwnedSource { get; init; }
+    public SpriteArtworkSource? OwnedSource { get; init; }
     /// <summary>The first byte of <see cref="Staging"/> the transfer reads.</summary>
     public int StagingOffset { get; init; }
 

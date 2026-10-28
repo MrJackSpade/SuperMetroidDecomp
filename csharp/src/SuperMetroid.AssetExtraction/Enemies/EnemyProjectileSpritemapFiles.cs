@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports authored bank-$8D projectile OAM parts, not animation control flow.</summary>
-[CpuBusBoundary("codec: ROM bank-$86 projectile instruction operands and bank-$8D spritemaps → enemy projectile spritemaps")]
 public static class EnemyProjectileSpritemapFiles
 {
     /// <summary>Imports named enemy-projectile OAM compositions, including program frames read through the bank-$86 operands they are stored at.</summary>

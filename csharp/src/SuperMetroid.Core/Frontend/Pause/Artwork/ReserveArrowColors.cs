@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>The reserve arrow's two animated colours.</summary>

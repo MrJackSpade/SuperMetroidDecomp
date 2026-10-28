@@ -544,7 +544,6 @@ static TestAddressSpace CreateBreakableGrappleCartridge()
 }
 
 /// <summary>Seeds BTS-3 and BTS-6 bomb-block heads, shared bank-$84 tails, and draw records for collision checks.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for bomb-block PLM collision heads, tails and draw records")]
 static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
 {
     // The following bytes are the exact BTS-3/BTS-6 collision heads and their shared
@@ -616,7 +615,6 @@ static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
 }
 
 /// <summary>Synthetic cartridge with the literal pose definitions the posture transitions consult.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus posture pose definitions")]
 static TestAddressSpace CreateSamusPostureCartridge()
 {
     var bus = new TestAddressSpace();
@@ -644,7 +642,6 @@ static TestAddressSpace CreateSamusPostureCartridge()
 }
 
 /// <summary>Installs the two complete aimed crouch/stand transition pose definitions for one aim.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for aimed crouch/stand transition pose definitions")]
 static void SeedAimedTransitionPoseDefinitions(
     TestAddressSpace bus, SamusPoseId crouchPose, SamusPoseId standPose, byte direction, byte shot)
 {
@@ -661,7 +658,6 @@ static void SeedAimedTransitionPoseDefinitions(
 }
 
 /// <summary>Seeds native dry-air jump and gravity table-zero words for posture movement checks.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry-air jump and gravity table-zero words")]
 static void SeedDryAirJumpTableZero(TestAddressSpace bus)
 {
     // Dry-air table-zero values used by Make_Samus_Jump and normal-air gravity. Keeping

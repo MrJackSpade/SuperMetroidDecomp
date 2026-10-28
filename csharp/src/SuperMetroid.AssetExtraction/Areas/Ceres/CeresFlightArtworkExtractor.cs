@@ -12,10 +12,10 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
-[CpuBusBoundary("codec: ROM Ceres approach Mode-7 and OBJ graphics streams → Ceres flight artwork")]
 internal static class CeresFlightArtworkExtractor
 {
     /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements, then round-trips their native bytes.</summary>
@@ -131,7 +131,7 @@ internal static class CeresFlightArtworkExtractor
             !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
         for (int index = 0; index < CgramPalettes.ColorCount; index++)
-            if (roundTrip.Palette.ColorAt(index) != RgbColor.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * RgbColor.ByteCount))))
+            if (roundTrip.Palette.ColorAt(index) != RgbColor.FromWordIgnoringTopBit(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * RgbColor.ByteCount))))
                 throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {

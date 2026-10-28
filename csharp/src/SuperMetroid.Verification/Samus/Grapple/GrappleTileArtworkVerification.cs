@@ -23,7 +23,6 @@ internal static class GrappleTileArtworkVerification
 {
     /// <summary>Compares every angle's source selection and all uploaded bytes while preserving rope state and OAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple tile transfers and segment tile pointers")]
     internal static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));
@@ -91,7 +90,7 @@ internal static class GrappleTileArtworkVerification
         IndexedPng.Write(invalidPng, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height), invalid, SnesGraphics.DiagnosticPalette(32)); invalidPng.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(invalidPng), "Grapple PNG out-of-range palette index rejected");
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
-        AssertThrows<InvalidDataException>(() => stock.Resolve(VramAssetId.StandardHudTiles), "Grapple provider rejects unrelated identity");
+        AssertThrows<InvalidDataException>(() => stock.Resolve(InstalledArtworkId.StandardHudTiles), "Grapple provider rejects unrelated identity");
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production draws preserve native OAM and full state; bindings hold native tiles and all edited tiles map exactly.");
     }
 

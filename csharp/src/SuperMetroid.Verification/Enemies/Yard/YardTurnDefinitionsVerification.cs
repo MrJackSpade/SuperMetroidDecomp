@@ -13,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class YardTurnDefinitionsVerification
 {
     /// <summary>Matches Yard turn lookahead and animation lists to cartridge records, then exercises actual inside/outside branches.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Yard turn definitions")]
     internal static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
     {
         YardTurnDefinitionsRecord[] records =

@@ -15,7 +15,6 @@ using SuperMetroid.Core.Frontend.Intro;
 internal static class CeresExplosionDefinitionsVerification
 {
     /// <summary>Compares 70 native words and completes the real destruction scene without definition rereads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion definitions")]
     internal static void VerifyCeresExplosionDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -76,7 +75,6 @@ internal static class CeresExplosionDefinitionsVerification
     }
 
     /// <summary>Compares repeating and final-wave placement records and their index bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres burst layout")]
     internal static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)

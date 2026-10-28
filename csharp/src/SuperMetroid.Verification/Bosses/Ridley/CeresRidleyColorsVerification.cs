@@ -17,6 +17,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
@@ -382,7 +383,6 @@ internal static class CeresRidleyColorsVerification
             .Forbid(forbidden.Contains, address => $"Ceres Ridley color reread ${address:X6}.");
 
     /// <summary>Reads one BGR555 word from the pinned retail palette oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native palette rows")]
     private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

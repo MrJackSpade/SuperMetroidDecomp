@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;
@@ -501,7 +502,6 @@ internal static class RoomFxRetailInventoryVerification
         .ToArray();
 
     /// <summary>Compares an animated FX object's instruction pointer, transfer size, destination, and first source with ROM.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for retail room-FX animated-tile object headers")]
     private static void VerifyRetailRoomFxAnimatedTileHeader(
         SuperMetroidAddressSpace bus,
         ushort objectPointer,
@@ -526,7 +526,6 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Reads a native FX byte directly from the import-only cartridge source.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for one byte field of a retail room-FX record")]
     private static byte ReadRetailFxRecordByte(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
     {
         if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
@@ -536,7 +535,6 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Reads a native FX word directly from the import-only cartridge source.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for one word field of a retail room-FX record")]
     private static ushort ReadRetailFxRecordWord(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
     {
         if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
@@ -674,7 +672,6 @@ internal static class RoomFxRetailInventoryVerification
     /// audiovisual outputs at the full runtime seam. This specifically guards the missing
     /// rumble and shake report rather than accepting liquid position as a proxy.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the room $02/$28 earthquake displacement row")]
     private static void VerifyRetailRisingLavaFeedback(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<DoorDefinition> doors)

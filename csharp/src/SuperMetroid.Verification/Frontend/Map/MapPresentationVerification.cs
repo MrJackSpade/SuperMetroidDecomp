@@ -91,6 +91,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
@@ -479,7 +480,6 @@ internal static class MapPresentationVerification
 
     /// <summary>Checks Mother Brain rainbow, beam, drain, and fake-death palette overrides against native CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain rainbow, grey and beam palettes")]
     private static void VerifyMotherBrainRainbowPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1396,7 +1396,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks title sprite composition edits against native pointer selection and live OAM while preserving animation timing.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native title year sprite pointer")]
     private static void VerifyTitleSpriteCompositionOverride(
         ISnesAddressSpace bus,
         string stock,

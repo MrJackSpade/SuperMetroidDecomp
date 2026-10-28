@@ -38,6 +38,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
@@ -99,7 +100,6 @@ internal static class RoomPlmPopulationVerification
     }
 
     /// <summary>Checks compiled door-closing definitions and their admission through actual door PLM allocation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for door closing PLM definitions")]
     internal static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
 
@@ -154,7 +154,6 @@ internal static class RoomPlmPopulationVerification
     /// there, and the escape gate and eye doors resolve their closing start by identity. Each then runs the real
     /// room-population load and transition redirect with that source word absent from the sparse bus.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for resident door closing definitions")]
     internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
@@ -1442,14 +1441,12 @@ internal static class RoomPlmPopulationVerification
             address => $"Mother Brain escape gate reread compiled source ${address:X6}.");
 
     /// <summary>The dormant scroll fixture owns an empty terminated bank-$8F scroll program at $9100.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an empty bank-$8F scroll PLM program")]
     private static void SeedDormantScrollPlmProgram(TestAddressSpace bus)
     {
         bus.WriteBytes(0x8f9100, [0x80]); // Dormant scroll fixture owns an empty terminated program.
     }
 
     /// <summary>Seeds the save-station electricity enemy-projectile definition, animation list and frame map.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the save-station electricity enemy projectile")]
     private static void SeedSaveStationElectricityProjectile(TestAddressSpace bus)
     {
         bus.WriteBytes(0x86e6d2,
@@ -1478,7 +1475,6 @@ internal static class RoomPlmPopulationVerification
     }
 
     /// <summary>Seeds message $17's bank-$85 definition record and the tilemaps it names.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the save-confirmation message definition and tilemaps")]
     private static void SeedSaveConfirmationMessageCartridge(TestAddressSpace bus)
     {
         const int definitions = 0x85869b;

@@ -99,7 +99,6 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>Matches the installed OAM compositions of every corpse pose the typed programs show to retail spritemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse visuals")]
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {
@@ -173,7 +172,6 @@ internal static class DeadTourianCorpseArtworkVerification
     }
 
     /// <summary>Reads a retail corpse-sheet byte for the independent staging oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the dead Tourian corpse tile sheet at $B7:C000")]
     private static byte ReadNativeDeadTourianCorpseSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7c000 + sheetOffset);
 

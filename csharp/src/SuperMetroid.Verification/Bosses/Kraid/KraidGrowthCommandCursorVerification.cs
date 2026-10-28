@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -70,7 +71,6 @@ internal static class KraidGrowthCommandCursorVerification
     }
 
     /// <summary>Reads one native command byte as an independent growth-selection oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth command cursor")]
     private static byte KraidGrowthCommandCursorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the Kraid growth command-cursor regression.</summary>

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Frontend.Pause;

@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -95,7 +96,6 @@ internal static class StatueSplashVerification
     }
 
     /// <summary>Reads one native launch-table word for the independent trajectory reference.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B3C3 statue-particle launch table")]
     private static ushort ReadNativeStatueParticleWord(ISnesAddressSpace bus, int index) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + index * 2);
 

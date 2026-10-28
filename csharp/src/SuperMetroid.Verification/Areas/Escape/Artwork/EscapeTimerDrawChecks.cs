@@ -9,6 +9,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 
 /// <summary>
@@ -60,7 +61,7 @@ internal static class EscapeTimerDrawChecks
             AssertTrue(draw is ImageSpriteDraw, message + ": timer draws are sheet images");
         }
         var cgram = new ScreenPalette();
-        palettes.LoadInitial(cgram);
+        palettes.LoadInitial(cgram.All);
         palettes.LoadCommonSprites(cgram.SpriteRow(SpriteColourSetDefinitions.Common));
         palettes.LoadEnemyProjectileSprites(cgram.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
 

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -45,7 +44,6 @@ internal static class ProjectileTrailPlacementSources
     };
 
     /// <summary>The bank-local pointer stored at <paramref name="address"/>, in <paramref name="address"/>'s bank.</summary>
-    [CpuBusBoundary("codec: the trail selector and direction tables' bank-$9B pointers")]
     private static SnesAddress Pointer(IImportCartridgeSource cartridge, SnesAddress address) =>
         new(address.Bank, RomDataReader.ReadWordFixedBank(cartridge, address));
 }

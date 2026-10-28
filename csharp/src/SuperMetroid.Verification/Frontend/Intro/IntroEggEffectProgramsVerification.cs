@@ -33,6 +33,5 @@ internal static class IntroEggEffectProgramsVerification
     }
 
     /// <summary>Reads one original frame-operand or spritemap byte for the catalog comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect frame catalog")]
     private static byte IntroEggEffectFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

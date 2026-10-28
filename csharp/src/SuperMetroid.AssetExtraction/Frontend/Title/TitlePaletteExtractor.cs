@@ -8,10 +8,10 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Converts the title's complete cartridge CGRAM image to editable RGB5 JSON.</summary>
-[CpuBusBoundary("codec: ROM title CGRAM image → title palette")]
 internal static class TitlePaletteExtractor
 {
     /// <summary>Exports the full title CGRAM image, both ambient palette-FX timelines, and copyright skip colors to the versioned presentation catalog.</summary>

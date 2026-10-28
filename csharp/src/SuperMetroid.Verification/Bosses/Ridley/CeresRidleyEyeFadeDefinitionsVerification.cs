@@ -15,7 +15,6 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
 {
     /// <summary>Compares all 64 rows and the terminator while forbidding live schedule reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley eye fade definitions")]
     internal static void VerifyCeresRidleyEyeFadeDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0;

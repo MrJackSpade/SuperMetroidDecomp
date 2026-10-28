@@ -62,7 +62,6 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads one cartridge byte only for comparison with compiled grapple connection entries.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple connection definitions")]
     private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks accepted grapple connections across authored movement, aim, vertical-speed, and anchor-owner states with compiled reads forbidden.</summary>
@@ -119,7 +118,6 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads a retail dispatch or pose byte for comparison with production connection results.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple connection dispatch")]
     private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks eight native special-angle rows, exact 16-bit angle matches, wrapped body offsets, phase changes, and camera clamps.</summary>
@@ -183,7 +181,6 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads retail special-angle bytes only to construct the comparison records.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple special connections")]
     private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks firing cancellation and directional drop pose choices against native policy bytes for reachable poses and radius boundaries.</summary>
@@ -259,7 +256,6 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads retail policy and pose metadata bytes used as the cancellation/drop oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple cancellation and drop")]
     private static byte GrappleCancellationAndDropRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Forbids runtime reads of the compiled firing-cancel, connection, special-angle, and drop-pose ranges in bank $9B.</summary>

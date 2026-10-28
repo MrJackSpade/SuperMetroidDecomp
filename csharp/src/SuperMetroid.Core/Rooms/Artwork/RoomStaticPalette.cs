@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>The 128 base BG colors selected by one room graphics-set palette source.</summary>
@@ -23,12 +24,4 @@ public sealed class RoomStaticPalette
 
     /// <summary>The 128 colours packed as little-endian BGR555 words, two bytes each, after discarding the unused high bit.</summary>
     public ReadOnlyMemory<byte> PackedColours => packedColours;
-
-    /// <summary>Loads all 128 colours into the background colours beginning at colour zero.</summary>
-    /// <param name="colours">The colours that receive the room palette.</param>
-    public void LoadTo(IPaletteColors colours)
-    {
-        Ensure.NotNull(colours);
-        new CgramPalettes(colours).Background.LoadPortBytes(packedColours);
-    }
 }

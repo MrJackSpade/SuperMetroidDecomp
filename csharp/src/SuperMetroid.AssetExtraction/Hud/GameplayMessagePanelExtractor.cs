@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts the seven large item-instruction panels as editable presentation data.</summary>
-[CpuBusBoundary("codec: ROM item-instruction message panel tilemaps → gameplay message panels")]
 public static class GameplayMessagePanelExtractor
 {
     /// <summary>Imports the seven large item-instruction panels with their raw templates, decoded titles, and shared border.</summary>

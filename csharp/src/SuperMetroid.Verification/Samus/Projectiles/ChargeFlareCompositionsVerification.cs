@@ -92,7 +92,6 @@ internal static class ChargeFlareCompositionsVerification
     }
 
     /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the imported charge-flare spritemap drawer")]
     internal static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
         ushort selector, Position16<SpritePixels> origin)
     {
@@ -111,7 +110,6 @@ internal static class ChargeFlareCompositionsVerification
     }
 
     /// <summary>Reads one native pointer in the bank-$93 charge-flare selector table for comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare selector table")]
     private static ushort ReadNativeChargeFlareSelector(ISnesAddressSpace bus, int selector) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             ChargeFlareSpriteDefinitions.SelectorTable + selector * 2);

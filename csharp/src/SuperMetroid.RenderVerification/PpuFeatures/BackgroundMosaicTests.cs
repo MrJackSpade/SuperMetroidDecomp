@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 using SuperMetroid.TestSupport.FrameCapture;

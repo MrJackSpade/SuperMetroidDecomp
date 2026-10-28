@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Import-only reader for the stream consumed by native <c>APU_UploadBank</c>.</summary>
-[CpuBusBoundary("codec: ROM APU_UploadBank upload stream → SPC upload bytes")]
 public static class SpcUploadStreamReader
 {
     /// <summary>

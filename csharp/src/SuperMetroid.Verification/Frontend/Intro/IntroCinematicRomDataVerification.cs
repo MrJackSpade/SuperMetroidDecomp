@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>Checks opening-cinematic ROM resource bounds, palette spans, and actor sound identities.</summary>
@@ -128,7 +129,6 @@ internal static class IntroCinematicRomDataVerification
     }
 
     /// <summary>Reads a cartridge byte to validate a named cinematic code or list pointer.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for cinematic code pointer catalog")]
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that a cinematic palette span is aligned, nonempty, and inside CGRAM.</summary>

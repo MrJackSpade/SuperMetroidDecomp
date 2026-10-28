@@ -91,7 +91,6 @@ internal static class GrappleBodyPlacementVerification
     }
 
     /// <summary>Reads native frame and body-offset tables for the independent placement oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple body placement")]
     private static byte GrappleBodyPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the grapple placement comparison with the retail cartridge image.</summary>

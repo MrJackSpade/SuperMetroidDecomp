@@ -19,7 +19,6 @@ internal static class SquareSlopeDefinitionsVerification
     }
 
     /// <summary>Checks all native Samus quadrant bytes and actual missile reactions for five shapes and BTS orientations.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus square slope algorithm")]
     private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
         var native = new byte[20];
@@ -59,7 +58,6 @@ internal static class SquareSlopeDefinitionsVerification
     }
 
     /// <summary>Compares both native enemy quadrant copies and rejects indices outside their twenty-byte range.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy square slope algorithm")]
     private static void VerifyEnemySquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 20; index++)

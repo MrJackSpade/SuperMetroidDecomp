@@ -10,7 +10,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class BombSpreadLaunchDefinitionsVerification
 {
     /// <summary>Compares five native fuse, X, Y, and subvelocity records and verifies hold-modified launches without reading migrated ROM tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb spread launch definitions")]
     internal static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.SlotCount).Select(i =>

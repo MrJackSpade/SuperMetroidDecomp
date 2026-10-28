@@ -22,7 +22,6 @@ internal static class KraidCameraMappingsVerification
     }
 
     /// <summary>Reads one byte from the native initial scroll instructions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid initial scroll mapping")]
     private static byte KraidInitialScrollMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the grown-phase screen scroll bytes and preserves four-screen index bounds.</summary>
@@ -39,6 +38,5 @@ internal static class KraidCameraMappingsVerification
     }
 
     /// <summary>Reads one byte from the native grown scroll instructions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid grown scroll mapping")]
     private static byte KraidGrownScrollMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

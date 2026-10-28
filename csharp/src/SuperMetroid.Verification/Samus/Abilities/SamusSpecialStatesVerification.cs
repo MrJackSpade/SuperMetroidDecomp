@@ -25,7 +25,6 @@ internal static class SamusSpecialStatesVerification
 {
 
 /// <summary>The largest component of the stock fixed-color row three at $88:8D85, which bounds the native afterglow.</summary>
-[CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash fixed-color row")]
 static int ReadRetailCrystalFlashStockFadeSteps()
 {
     var nativeColors = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -35,7 +34,6 @@ static int ReadRetailCrystalFlashStockFadeSteps()
 }
 
 /// <summary>Seeds the Crystal Flash pose records, delay streams, palette records and Power Bomb fade color.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Crystal Flash poses, animation and palettes")]
 static void SeedCrystalFlashCartridge(TestAddressSpace bus)
 {
     // Only bytes zero, one, and six matter to this fixture: facing, movement type, and Y
@@ -342,7 +340,6 @@ internal static void VerifySamusCrystalFlash()
 }
 
 /// <summary>Seeds the X-ray pose records, visor and suit colors, and the two window tangent words.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for X-ray poses, visor palettes and the absolute-tangent table")]
 static void SeedXrayCartridge(TestAddressSpace bus)
 {
     // Complete literal pose records from `$91:B631/B751/B851/BCD1-BCF9`. X-ray does not
@@ -685,7 +682,6 @@ internal static void VerifySamusXray()
 /// Seeds the death-sequence pose records and delay streams, the ten suit and suitless
 /// palettes, the explosion timer/palette records and the whiteout shades.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Samus death sequence")]
 static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shades)
 {
     // Source standing/morph/spin records prove three distinct `$9B:B420` decisions. The
@@ -740,7 +736,6 @@ static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shade
 /// Installs the seeded synthetic death colors through the production artwork boundary. This
 /// fixture exercises Power suit; the other suit families use the same supplied colors.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture decoding the seeded Samus death palettes")]
 static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddressSpace bus, ushort[] shades)
 {
     ushort[] FixturePalette(int pointer) => Enumerable.Range(0, 16)

@@ -146,7 +146,6 @@ internal static class GrappleFlarePresentationVerification
     }
 
     /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple flare presentation")]
     private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the real actor draws the flare from the bound sheets and rebinds them after a saved-state restore.</summary>
@@ -211,7 +210,6 @@ internal static class GrappleFlarePresentationVerification
                 address => $"Grapple flare still reads compiled cadence/selector at {address:X6}.");
 
     /// <summary>Reads one native facing-row selector offset to check both rows choose the shared main flare.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native Grapple flare spritemap-offset rows")]
     private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

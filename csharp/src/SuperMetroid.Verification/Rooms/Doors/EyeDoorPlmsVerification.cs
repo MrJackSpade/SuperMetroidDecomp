@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 using SuperMetroid.Verification.Harness;
@@ -295,7 +296,6 @@ internal static class EyeDoorPlmsVerification
     }
 
     /// <summary>Seeds one passive door-piece list that redirects on the opened bit and otherwise repeats its frame.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one passive eye-door instruction list")]
     private static void SeedPassiveEyeDoorList(
         TestAddressSpace bus,
         ushort list,

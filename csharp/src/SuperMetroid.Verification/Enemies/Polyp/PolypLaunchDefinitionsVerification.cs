@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Enemies.Polyp;
 internal static class PolypLaunchDefinitionsVerification
 {
     /// <summary>Compares cooldown, initial Y index, and signed X velocity against their native bank-$A2 table selections.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp launch definitions")]
     internal static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)

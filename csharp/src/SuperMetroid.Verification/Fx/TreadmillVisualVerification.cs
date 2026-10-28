@@ -12,6 +12,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;

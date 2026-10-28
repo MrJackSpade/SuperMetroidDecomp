@@ -40,6 +40,5 @@ internal static class KraidHealthThresholdsVerification
     }
 
     /// <summary>Reads one retail instruction byte to confirm the initializer uses accumulator LSR.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid health fraction")]
     private static byte KraidHealthFractionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

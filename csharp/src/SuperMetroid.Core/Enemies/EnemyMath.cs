@@ -121,7 +121,7 @@ internal static class EnemyMath
     internal static int ReadEightBitSineProduct(ByteAngle angle, int radius)
     {
         int byteAngle = angle.RawValue;
-        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
+        int sample = Trigonometry.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         int magnitude = EightEight.Multiply(sample, SnesLittleEndian.LowByte(radius));
         return byteAngle < EnemyByteAngleDefinitions.HalfTurn ? magnitude : -magnitude;
     }
@@ -153,7 +153,7 @@ internal static class EnemyMath
     {
         // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
         int byteAngle = angle.RawValue;
-        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
+        int sample = Trigonometry.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         int product = sample * SnesLittleEndian.LowByte(radius);
         int whole = EightEight.WholeOf(product);
         int fraction = unchecked((ushort)SixteenSixteen.FromEightEight(product));
@@ -193,7 +193,7 @@ internal static class EnemyMath
         int angleOffset)
     {
         int tableIndex = angle.AddTableUnits(angleOffset).RawValue & EnemyByteAngleDefinitions.HalfWaveIndexMask;
-        int sample = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex);
+        int sample = Trigonometry.UnsignedHalfWave(tableIndex);
         uint product = (uint)sample * (uint)magnitude;
         return unchecked((int)product);
     }
@@ -214,7 +214,7 @@ internal static class EnemyMath
 
     /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
     internal static ushort MultiplySineSample(int speed, ByteAngle angle) =>
-        EnemyTrigonometryTables.MultiplySignedSine(checked((ushort)speed), angle);
+        Trigonometry.MultiplySignedSine(checked((ushort)speed), angle);
 
     /// <summary>
     /// The cartridge's sign extension of a word's low byte (<c>Sign_Extend_A</c>): a negative low byte fills the high byte

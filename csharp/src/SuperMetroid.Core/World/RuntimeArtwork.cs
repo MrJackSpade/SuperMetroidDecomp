@@ -22,10 +22,10 @@ namespace SuperMetroid.Core.World;
 /// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation)
 /// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
 /// </summary>
-internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveCharacters(asset);
+    ReadOnlyMemory<byte> IInstalledArtworkContent.ResolveAsset(InstalledArtworkId asset) => ResolveCharacters(asset);
 
     /// <inheritdoc/>
     BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => _bossArtwork.Installed;
@@ -43,7 +43,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
 
 
     /// <summary>Resolves a typed VRAM asset from its currently bound artwork catalog.</summary>
-    ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveCharacters(asset);
+    ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) => ResolveCharacters(asset);
 
     /// <summary>Locates the current HUD character base in VRAM.</summary>
     private readonly GameplayDisplayState _display;
@@ -292,20 +292,20 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     /// characters are composed into the installed projectile and grapple sheets, so the runtime holds none.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The runtime binds no characters for the asset.</exception>
-    internal ReadOnlyMemory<byte> ResolveCharacters(VramAssetId asset) =>
-        asset == VramAssetId.StandardObjectTiles
+    internal ReadOnlyMemory<byte> ResolveCharacters(InstalledArtworkId asset) =>
+        asset == InstalledArtworkId.StandardObjectTiles
             ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Characters
-            : asset is VramAssetId.GunshipLiftoffFirstTiles or
-            VramAssetId.GunshipLiftoffSecondTiles or
-            VramAssetId.GunshipLiftoffThirdTiles or
-            VramAssetId.GunshipLiftoffFourthTiles or
-            VramAssetId.GunshipLiftoffFifthTiles
+            : asset is InstalledArtworkId.GunshipLiftoffFirstTiles or
+            InstalledArtworkId.GunshipLiftoffSecondTiles or
+            InstalledArtworkId.GunshipLiftoffThirdTiles or
+            InstalledArtworkId.GunshipLiftoffFourthTiles or
+            InstalledArtworkId.GunshipLiftoffFifthTiles
             ? (_enemySession.TileArtwork?.GunshipLiftoff ??
                 throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
-            : asset is VramAssetId.StandardHudTiles or
-                VramAssetId.KraidBg3RestoreQuarter0 or VramAssetId.KraidBg3RestoreQuarter1 or
-                VramAssetId.KraidBg3RestoreQuarter2 or VramAssetId.KraidBg3RestoreQuarter3 or
-                VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles
+            : asset is InstalledArtworkId.StandardHudTiles or
+                InstalledArtworkId.KraidBg3RestoreQuarter0 or InstalledArtworkId.KraidBg3RestoreQuarter1 or
+                InstalledArtworkId.KraidBg3RestoreQuarter2 or InstalledArtworkId.KraidBg3RestoreQuarter3 or
+                InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
             : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
 

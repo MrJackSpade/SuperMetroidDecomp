@@ -193,7 +193,6 @@ internal static class MapScreensVerification
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle reading the native room-label pointers to forbid every map-screen presentation source")]
     private static MutableCartridgeReadGuard NewMapScreenGuard(ISnesAddressSpace source)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);

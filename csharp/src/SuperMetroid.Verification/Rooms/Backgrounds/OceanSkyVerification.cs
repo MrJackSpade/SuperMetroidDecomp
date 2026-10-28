@@ -17,7 +17,6 @@ internal static class OceanSkyVerification
 {
     /// <summary>Checks the published sky rows across camera positions against the ocean chunks.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ocean Sky")]
     internal static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

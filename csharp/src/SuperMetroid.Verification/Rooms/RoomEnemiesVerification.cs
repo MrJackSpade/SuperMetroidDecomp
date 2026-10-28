@@ -65,7 +65,6 @@ internal static class RoomEnemiesVerification
 /// real retail omission (RecordEnemySpawnData copies words 0-4 and 6), so it carries a
 /// distinct sentinel that the managed snapshot must not normalize.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for room-enemy loading artwork and spawn-data words")]
 static void SeedRoomEnemyLoadingArtworkAndSpawnData(
     TestAddressSpace bus,
     byte[] primaryPaletteBytes,
@@ -278,7 +277,6 @@ internal static void VerifyRoomEnemyLoading()
 /// Forwards fixture definitions and mutable memory while rejecting native tile and
 /// palette reads, proving the installed artwork path supplies those uploads.
 /// </summary>
-[CpuBusBoundary("exact bus test: enemy fixture source that forwards fixture tables and forbids the native enemy tile-upload ROM ranges")]
 internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     ISnesAddressSpace, IRoomEnemyDefinitionSource, IImportCartridgeSource,
     ISnesMutableMemory
@@ -332,7 +330,6 @@ internal static void VerifyEnemyMappedSourceRouting()
 }
 
 /// <summary>Checks fixed-bank WRAM word wrap, mirrors, and rejection of other address regions.</summary>
-[CpuBusBoundary("exact bus test: enemy WRAM word bank wrap, low-window mirror and ROM/SRAM/hardware rejection")]
 private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memory)
 {
     memory.WriteByte(0x7effff, 0x34);
@@ -802,7 +799,6 @@ internal static void VerifyCeresDoorBossBranch()
 }
 
 /// <summary>Reads a native seven-byte Ceres escape VRAM transfer list (size, 24-bit source, destination) up to its zero terminator.</summary>
-[CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres escape VRAM transfer lists in bank $A6")]
 static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom, int pointer)
 {
     var records = new List<VramWriteEntry>();
@@ -1233,7 +1229,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     var backgroundTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4fe);
     AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
-    SpriteCharacters shownPages = enemies.Presentation.SpriteCharacters;
+    SpriteArtworkPlacements shownPages = enemies.Presentation.SpriteCharacters;
     int pagesBefore = shownPages.Uploads.Count;
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
@@ -1255,18 +1251,18 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
         VramWriteEntry expected = spriteTransfers[index];
-        SpriteCharacterPlacement actual = shownPages.Uploads[pagesBefore + index];
+        SpriteArtworkPlacement actual = shownPages.Uploads[pagesBefore + index];
         AssertEqual(expected.SizeInBytes, actual.ByteCount, $"Ceres page {index} native size");
-        AssertEqual(SpriteCharacters.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
+        AssertEqual(SpriteArtworkPlacements.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
         if (index < 2)
         {
             AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,
                 $"Ceres timer {index} native source mapped to installed asset");
-            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles),
+            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(index == 0 ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles),
                 actual.Source, $"Ceres timer {index} installed source identity");
         }
         else
-            AssertEqual<ObjCharacterSource?>(CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
+            AssertEqual<SpriteArtworkSource?>(CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
                 $"Ceres page {index} names its installed character page");
     }
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
@@ -1329,7 +1325,6 @@ internal static void VerifyCeresRidleyRoomEntry()
 /// all three destination commands in the fixture catches the former phase-six-to-twelve
 /// jump, which rendered only EMERGENCY and never touched any of these tilemap rows.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres English escape typewriter program")]
 static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
 {
     int cursor = 0xa6c450;
@@ -1361,7 +1356,6 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
 }
 
 /// <summary>Writes the Zebes escape warning's control words and text into the fixture bus.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Zebes escape typewriter program")]
 static void WriteZebesEscapeWarning(TestAddressSpace bus)
 {
     int cursor = EscapeTypewriterDefinitions.ZebesSourceAddress;
@@ -1390,7 +1384,6 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Ripper's bank-$A2 instruction lists")]
 static void SeedRipperInstructionLists(TestAddressSpace bus, ushort[] rightList, ushort[] leftList)
 {
     WriteTestWords(bus, 0xa2e477, rightList);
@@ -1398,7 +1391,6 @@ static void SeedRipperInstructionLists(TestAddressSpace bus, ushort[] rightList,
 }
 
 /// <summary>Points the two bank-$93 projectile data words Ripper's shot fixture consults at $9100/$9200.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ripper shot projectile data pointers")]
 static void SeedRipperProjectileDataPointers(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x93867b, 0x9100);
@@ -1411,7 +1403,6 @@ static void SeedRipperProjectileDataPointers(TestAddressSpace bus)
 /// (<paramref name="light"/>, then <paramref name="dark"/>) to Mode-7 word $060E, alternating
 /// by NMI bit one; six distinct palette words follow at $A6:F871.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres elevator platform Mode-7 transfers")]
 static void SeedCeresElevatorPlatformTransfers(TestAddressSpace bus, byte[] light, byte[] dark)
 {
     WriteTestWord(bus, 0xa6f72f, 0xf850);
@@ -1440,7 +1431,6 @@ static void SeedCeresElevatorPlatformTransfers(TestAddressSpace bus, byte[] ligh
 }
 
 /// <summary>Seeds the uncharged beam pre-instruction table's first entry with the no-wave pre-instruction.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the uncharged no-wave beam pre-instruction")]
 static void SeedUnchargedNoWavePreInstruction(TestAddressSpace bus) =>
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
 
@@ -1448,7 +1438,6 @@ static void SeedUnchargedNoWavePreInstruction(TestAddressSpace bus) =>
 /// Zeroes the Ceres escape typewriter's cartridge source (up to $A6:C4CB) after its presentation
 /// has been extracted, so the runtime cannot pass by reading the text from cartridge bytes.
 /// </summary>
-[CpuBusBoundary("exact bus test: clears the synthetic Ceres escape typewriter cartridge source")]
 static void ClearCeresEscapeTypewriterSource(TestAddressSpace bus)
 {
     for (int address = EscapeTypewriterDefinitions.CeresSourceAddress;
@@ -1461,7 +1450,6 @@ static void ClearCeresEscapeTypewriterSource(TestAddressSpace bus)
 /// Seeds Ridley's private `$A6:A2F2` door overlay: a one-entry spritemap at $A6:A329 and the
 /// earthquake displacement word table at $A6:A321 whose retail byte-index bug reads $FC for timer two.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres door earthquake overlay")]
 static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0xa6a329, 1);
@@ -1475,7 +1463,6 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 }
 
 /// <summary>Reads back the seeded Ceres Ridley palette words ($A6:E14F) and one planar tile ($A6:9000) as installed fixture artwork.</summary>
-[CpuBusBoundary("exact bus test: reads back the synthetic cartridge's seeded Ceres Ridley palette and tile bytes")]
 static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
 {
     ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
@@ -1487,7 +1474,6 @@ static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAdd
 }
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one complete bank-$A0 enemy definition header")]
 internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
     int address = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(definitionPointer);
@@ -1511,8 +1497,6 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
 }
 
 /// <summary>Writes one native little-endian 24-bit long pointer into the sparse SNES-bus fixture.</summary>
-[CpuBusAccess]
-[CpuBusBoundary("exact bus test: sparse-fixture 24-bit long-pointer seeding primitive")]
 static void WriteTestLong(TestAddressSpace bus, int address, int value)
 {
     WriteTestByte(bus, address, unchecked((byte)value));
@@ -1526,7 +1510,6 @@ static void WriteTestLong(TestAddressSpace bus, int address, int value)
 /// animation lists and extended hitbox frame, additional palettes, end-of-battle palettes,
 /// escape-warning transfers and text, and a minimal power-beam data/list pair.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres Ridley room entry")]
 static void SeedCeresRidleyRoomEntryCartridge(
     TestAddressSpace bus,
     EnemyDefinitionId definitionPointer,
@@ -1795,7 +1778,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
 /// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
 /// <param name="tiles">The fixture's seeded enemy artwork.</param>
 internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
-    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork
+    : IInstalledArtworkContent, IInstalledArtworkContent, IInstalledSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => tiles;
@@ -1805,9 +1788,9 @@ internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
         throw new InvalidOperationException("The loading fixture binds no animated tiles.");
 
     /// <summary>Rejects typed assets, which the fixture never queues.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
 
     /// <summary>Rejects typed assets, which the fixture never binds.</summary>
-    public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
+    public ReadOnlyMemory<byte> ResolveAsset(InstalledArtworkId asset) => Resolve(asset);
 
 }

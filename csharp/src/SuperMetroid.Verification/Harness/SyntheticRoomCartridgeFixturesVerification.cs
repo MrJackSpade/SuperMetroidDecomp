@@ -12,7 +12,6 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// cartridge fixture. <paramref name="records"/> are the native six-byte placement records
     /// (header pointer, X, Y, argument) followed by whatever terminator bytes the test supplies.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a bank-$8F room PLM population list")]
     internal static void SeedRoomPlmPopulation(TestAddressSpace bus, ushort population, ReadOnlySpan<byte> records) =>
         bus.WriteBytes(0x8f0000 | population, records);
 
@@ -46,7 +45,6 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// lists, operands or draw records) starting at the bank-local <paramref name="pointer"/>.
     /// Each word's address wraps within bank $84 exactly as the native 16-bit list cursor does.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$84 PLM header and program words")]
     internal static void SeedPlmProgramWords(TestAddressSpace bus, ushort pointer, params ReadOnlySpan<ushort> words)
     {
         for (int index = 0; index < words.Length; index++)
@@ -57,7 +55,6 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// Seeds raw bank-$84 PLM bytes (instruction streams with unaligned operands, draw
     /// records) starting at the bank-local <paramref name="pointer"/>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$84 PLM program bytes")]
     internal static void SeedPlmProgramBytes(TestAddressSpace bus, ushort pointer, ReadOnlySpan<byte> bytes) =>
         bus.WriteBytes(0x840000 | pointer, bytes);
 
@@ -65,7 +62,6 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// Seeds an empty bank-$A1 room enemy population (a lone <c>$FFFF</c> terminator) at
     /// <paramref name="population"/> in the sparse cartridge fixture.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an empty bank-$A1 room enemy population")]
     internal static void SeedEmptyRoomEnemyPopulation(TestAddressSpace bus, ushort population) =>
         bus.WriteBytes(0xa10000 | population, [0xff, 0xff]);
 }

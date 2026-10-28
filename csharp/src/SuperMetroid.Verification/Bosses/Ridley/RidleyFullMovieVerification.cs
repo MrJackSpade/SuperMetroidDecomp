@@ -39,6 +39,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 using SuperMetroid.Verification.Harness;
@@ -875,7 +876,6 @@ internal static class RidleyFullMovieVerification
     }
 
     /// <summary>The 16 native beam colors $90:C3C9 selects for <paramref name="equippedBeams"/>, BGR555 only.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the equipped-beam palette pointer table and palettes")]
     private static ushort[] ReadRetailBeamPalette(ISnesAddressSpace bus, ushort equippedBeams)
     {
         int pointerAddress = NativeSnapshotMemory.BeamPalettePointers + (equippedBeams & 0x0fff) * 2;
@@ -890,7 +890,6 @@ internal static class RidleyFullMovieVerification
     }
 
     /// <summary>A native little-endian PLM program word at a bank-$84 CPU address.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
     internal static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 

@@ -8,7 +8,6 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// Import-only packed sprite decoder for cartridge-versus-installed OAM comparisons.
 /// Linked into diagnostic executables, never the gameplay Core or shipped hosts.
 /// </summary>
-[CpuBusBoundary("exact bus test: reference decoder of ROM packed spritemaps compared against installed OAM output")]
 internal static class ImportedSpritemapOracle
 {
     /// <summary>Decodes packed five-byte parts with native bank wrap into on-screen or off-screen OAM.</summary>

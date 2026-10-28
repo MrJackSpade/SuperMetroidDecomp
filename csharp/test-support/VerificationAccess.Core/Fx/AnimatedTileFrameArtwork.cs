@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>

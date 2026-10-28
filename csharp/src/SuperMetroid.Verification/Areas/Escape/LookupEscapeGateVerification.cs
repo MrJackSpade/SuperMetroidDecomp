@@ -47,7 +47,6 @@ internal static class LookupEscapeGateVerification
     }
 
     /// <summary>Reads a native escape-gate program byte for independent field comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for escape gate program field")]
     private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks three draw identities, vertical run geometry, and lookup bounds.</summary>

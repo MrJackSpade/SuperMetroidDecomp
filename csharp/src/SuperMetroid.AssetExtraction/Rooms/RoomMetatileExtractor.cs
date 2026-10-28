@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Exports CRE and distinct area block tables as visual composition, never collision.</summary>
-[CpuBusBoundary("codec: ROM compressed CRE and area metatile tables → visual block definitions")]
 public static class RoomMetatileExtractor
 {
     /// <summary>Imports shared CRE and distinct room graphics-set metatile tables as visual block compositions.</summary>

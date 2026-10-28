@@ -11,7 +11,6 @@ using SuperMetroid.Verification.Samus.Projectiles;
 internal static class PowerBombShapeDefinitionsVerification
 {
     /// <summary>Compares all 32 quantized sine widths with native bytes and rejects invalid indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb width algorithm")]
     internal static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
@@ -23,7 +22,6 @@ internal static class PowerBombShapeDefinitionsVerification
     }
 
     /// <summary>Compares all 32 quantized vertical boundaries with native bytes and rejects invalid indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb top offset algorithm")]
     internal static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
@@ -38,7 +36,6 @@ internal static class PowerBombShapeDefinitionsVerification
     /// Reads every row of all 21 pre-scaled window shapes through their stream cursor and compares each byte with the
     /// cartridge table the cursor names, then rejects a cursor past the end of either stream.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pre-scaled power bomb window shapes")]
     internal static void VerifyPowerBombPreScaledShapes(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, PowerBombShapeCursor.CountOf(PowerBombShapeStream.White), "seventeen white shapes");
@@ -62,7 +59,6 @@ internal static class PowerBombShapeDefinitionsVerification
     }
 
     /// <summary>Checks signed scanline profiles and clipped rendered pixels across radii and centers.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb shape")]
     internal static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(rom));

@@ -13,7 +13,6 @@ namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
 /// The guard is a full <see cref="ISnesMemoryBus"/> so production paths that require live memory can run
 /// over it: WRAM and SRAM reads pass through to the source's mutable memory unchecked.
 /// </summary>
-[CpuBusBoundary("exact bus test: guard double that forbids, observes and counts reads of declared CPU-bus ranges")]
 internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
 {
     /// <summary>Backing cartridge and mutable memory; absent for a guard that requires every read to be rejected.</summary>

@@ -10,7 +10,6 @@ using SuperMetroid.Verification.Harness;
 internal static class AudioBankTransitionVerification
 {
     /// <summary>Confirms a released voice remains silent after its sample disappears while BRR headers still set ENDX and a new key-on plays.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void VerifyReleasedVoiceBankSwitch()
     {
         var ram = new byte[65536];

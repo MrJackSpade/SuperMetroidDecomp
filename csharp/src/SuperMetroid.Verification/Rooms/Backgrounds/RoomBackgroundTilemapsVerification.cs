@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +18,6 @@ internal static class RoomBackgroundTilemapsVerification
 {
     /// <summary>Compares all retail sources, Ceres VRAM parity, and the effect of a single JSON tile edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room background tilemaps")]
     internal static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

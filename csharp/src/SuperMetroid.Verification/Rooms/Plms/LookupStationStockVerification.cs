@@ -89,6 +89,5 @@ internal static class LookupStationStockVerification
     }
 
     /// <summary>Reads native run-displacement bytes as the stock station draw oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for station stock mapping")]
     private static byte StationStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

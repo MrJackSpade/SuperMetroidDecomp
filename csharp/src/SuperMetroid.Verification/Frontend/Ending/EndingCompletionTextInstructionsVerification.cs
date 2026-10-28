@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingCompletionTextInstructionsVerification
 {
     /// <summary>Compares all published completion-text glyphs and their compositions with the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending completion text instructions")]
     internal static void VerifyEndingCompletionTextInstructions(ISnesAddressSpace bus)
     {
         var catalog = EndingCompletionTextSpriteDefinitions.Frames;

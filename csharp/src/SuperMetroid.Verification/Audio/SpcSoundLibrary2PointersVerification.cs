@@ -26,7 +26,6 @@ internal static class SpcSoundLibrary2PointersVerification
     internal static void VerifySpcSoundStream3(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 2, 47, 0xcfba97);
 
     /// <summary>Compares native pointers and command bounds, then checks driver acknowledgement and rejection timing.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound streams")]
     private static void VerifySpcSoundStreams(ISnesAddressSpace rom, int library, int count, int source)
     {
         AssertEqual(count, SpcSoundEffectTables.CommandCount(library), "native sound command extent");

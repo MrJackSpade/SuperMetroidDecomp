@@ -36,7 +36,6 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
     }
 
     /// <summary>Checks sand and treadmill population for one area while guarding immutable bank-$83 sources.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled area selection")]
     private static void VerifyCompiledAreaSelection(
         ISnesAddressSpace rom,
         AreaId area,

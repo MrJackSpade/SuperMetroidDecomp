@@ -44,7 +44,6 @@ internal static class LookupMotherBrainBackgroundVerification
     }
 
     /// <summary>Reads one cartridge byte as the independent row-offset oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain background geometry")]
     private static byte MotherBrainBackgroundGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that every background cell keeps the ROM's collision and visual word intact.</summary>

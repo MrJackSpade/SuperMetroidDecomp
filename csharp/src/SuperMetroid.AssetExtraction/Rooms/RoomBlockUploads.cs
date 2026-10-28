@@ -269,7 +269,7 @@ internal static class RoomBlockUploads
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
             yield return new BgCharacterPlacement(new BgArtworkIdentity($"{new GraphicsSetTileCharacters(entry.DefinitionId)}"), BgCharacterSet.Tiles,
-                EnemyGraphicsSet.EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteCharacters.CharacterByteCount, tiles);
+                EnemyGraphicsSet.EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteArtworkPlacements.CharacterByteCount, tiles);
         }
     }
 
@@ -284,7 +284,7 @@ internal static class RoomBlockUploads
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterPlacement HudCharacters(RoomBlockSheetInputs inputs) =>
-        new(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), BgCharacterSet.Layer3, 0, Ensure.NotNull(inputs).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
+        new(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0, Ensure.NotNull(inputs).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
 
     /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
     private static IEnumerable<RoomFxType> EffectsIn(RoomStateSettings state) =>

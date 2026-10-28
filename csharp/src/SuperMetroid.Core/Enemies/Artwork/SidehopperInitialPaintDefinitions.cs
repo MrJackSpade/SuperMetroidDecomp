@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Standalone Sidehopper target paints at $A9:F8C6-F8E4.

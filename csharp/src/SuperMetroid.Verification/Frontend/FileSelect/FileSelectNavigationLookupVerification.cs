@@ -36,7 +36,6 @@ internal static class FileSelectNavigationLookupVerification
     }
 
     /// <summary>Reads a native source/clear occupancy bit for the independent navigation oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select source navigation")]
     private static byte FileSelectSourceNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that copy destinations omit only the source slot for both cursor directions.</summary>
@@ -65,7 +64,6 @@ internal static class FileSelectNavigationLookupVerification
     }
 
     /// <summary>Reads a native destination-navigation opcode for comparison with the compiled selection rule.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select destination navigation")]
     private static byte FileSelectDestinationNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Uses the former ordinal-list behavior to check each selectable row and rejected row under directional inputs.</summary>

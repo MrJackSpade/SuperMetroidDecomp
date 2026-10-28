@@ -78,7 +78,7 @@ internal static class TileSmokeTests
             new RenderLayer[] { new TileRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(0, 0), null) }, 15));
         var expected = DisplayRendering.Render(frame);
-        if (expected[0] != new SuperMetroid.Core.Hardware.RgbaPixel(255, 0, 0))
+        if (expected[0] != new RgbaPixel(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: fourth-plane byte selection");
     }

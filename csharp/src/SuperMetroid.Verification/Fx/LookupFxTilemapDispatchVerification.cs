@@ -81,6 +81,5 @@ internal static class LookupFxTilemapDispatchVerification
     }
 
     /// <summary>Reads one cartridge byte for the native FX tilemap page oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for FX tilemap page dispatch")]
     private static byte FxTilemapPageDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

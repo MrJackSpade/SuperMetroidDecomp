@@ -9,7 +9,6 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
-[CpuBusBoundary("exact bus test: sparse synthetic CPU address space whose bytes the test seeds directly")]
 internal sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
     IRoomEnemyDefinitionSource
@@ -18,11 +17,9 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     private readonly Dictionary<int, byte> _bytes = [];
 
     /// <summary>Distinguishes an explicitly seeded zero from an unwritten fixture address.</summary>
-    [CpuBusAccess]
     internal bool HasSeededByte(int address) => _bytes.ContainsKey(address);
 
     /// <summary>Reads a seeded CPU byte, returning zero for an unwritten 24-bit address.</summary>
-    [CpuBusAccess]
     public byte ReadByte(int address)
     {
         if ((uint)address > 0x00ff_ffff)
@@ -54,7 +51,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     }
 
     /// <summary>Seeds consecutive bytes at their exact CPU addresses.</summary>
-    [CpuBusAccess]
     public void WriteBytes(int startAddress, ReadOnlySpan<byte> values)
     {
         for (int index = 0; index < values.Length; index++)

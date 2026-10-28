@@ -118,7 +118,6 @@ internal static class MagdollitePhaseDefinitionsVerification
     }
 
     /// <summary>Reads one native threshold, instruction, or overlay word for the independent oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite words")]
     internal static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 

@@ -97,7 +97,6 @@ internal static class LookupMotherBrainStockVerification
     }
 
     /// <summary>Reads a native run displacement byte for the fake-death draw-list oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain stock mapping")]
     private static byte MotherBrainStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

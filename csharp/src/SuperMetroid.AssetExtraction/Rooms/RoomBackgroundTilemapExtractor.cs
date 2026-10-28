@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Exports compressed library-background tilemaps as editable ordered tile references.</summary>
-[CpuBusBoundary("codec: ROM compressed library-background tilemaps → room background tile references")]
 public static class RoomBackgroundTilemapExtractor
 {
     /// <summary>Decompresses every background tilemap and exports its ordered BG tilemap pages.</summary>

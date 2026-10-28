@@ -14,7 +14,6 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// <param name="ByteCount">The cell's size in bytes (element size times count for a table).</param>
 /// <param name="Encoding">How the bytes encode the domain value, e.g. "u16 little-endian" or "SamusPose (u16)".</param>
 /// <param name="AliasOf">The cell this one intentionally shares bytes with under a different meaning, if any.</param>
-[CpuBusAccess]
 public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, int ByteCount, string Encoding,
     CpuBusCell? AliasOf = null)
 {

@@ -24,7 +24,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresDestructionArtworkVerification
 {
     /// <summary>Confirms native maps, characters, and OAM, then exercises editable actor, sprite, map, and PNG overrides through the running scene.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction tilemaps, characters and actor layout")]
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {

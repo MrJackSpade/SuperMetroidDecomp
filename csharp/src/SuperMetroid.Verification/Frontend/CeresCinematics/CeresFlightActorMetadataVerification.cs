@@ -14,7 +14,6 @@ internal static class CeresFlightActorMetadataVerification
     private const int ActorBank = 0x8b0000;
 
     /// <summary>Compares actor programs, positions, callbacks, speeds, and nine-bit wrap masks with bank $8B.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight actor metadata")]
     internal static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;

@@ -23,7 +23,7 @@ internal static class StandardObjectArtworkVerification
     /// <summary>The bytes the OBJ character table shows over the standard sheet's span, as the session records them.</summary>
     private static ReadOnlySpan<byte> ShownStandardObjects(SuperMetroidRuntime runtime)
     {
-        SpriteCharacterPlacement shown = runtime.EnemySession.SpriteCharacters.LastOver(0, StandardObjectArtworkFormat.ByteCount)
+        SpriteArtworkPlacement shown = runtime.EnemySession.SpriteCharacters.LastOver(0, StandardObjectArtworkFormat.ByteCount)
             ?? throw new InvalidOperationException("Nothing is shown over the standard OBJ characters.");
         AssertEqual(0, shown.FirstByte, "the standard OBJ characters start the table");
         AssertEqual(StandardObjectArtworkFormat.ByteCount, shown.ByteCount, "the whole standard sheet is shown");
@@ -31,7 +31,6 @@ internal static class StandardObjectArtworkVerification
     }
 
     /// <summary>Compares every native OBJ byte, then checks the edited PNG, provenance, and the ROM-free setup selection.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     internal static void VerifyStandardObjectArtwork(string sourceRom)
     {
         using var directoryScratch = new TestScratchDirectory("standard-objects");

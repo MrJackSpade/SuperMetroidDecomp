@@ -87,6 +87,5 @@ internal static class LookupDraygonCannonStockVerification
     }
 
     /// <summary>Reads one native draw-record byte for the cannon run-termination oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon cannon stock mapping")]
     private static byte DraygonCannonStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -25,6 +25,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
@@ -920,7 +921,6 @@ internal static class CollectiblesVerification
         int BlockIndex);
 
     /// <summary>Synthetic cartridge with the suit-pickup fade curve and distinct suit palette first words.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for suit pickup fades and suit palettes")]
     private static TestAddressSpace CreateSuitPickupCartridge()
     {
         var bus = new TestAddressSpace();

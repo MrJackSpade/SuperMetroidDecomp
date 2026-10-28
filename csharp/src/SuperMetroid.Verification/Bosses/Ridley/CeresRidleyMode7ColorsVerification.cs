@@ -130,7 +130,6 @@ internal static class CeresRidleyMode7ColorsVerification
             .Forbid(forbidden.Contains, address => $"Ceres Mode-7 color reread ${address:X6}.");
 
     /// <summary>Reads one native zoom color for the extracted-palette comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native Mode-7 zoom colors")]
     private static ushort ReadNativeCeresRidleyMode7Color(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

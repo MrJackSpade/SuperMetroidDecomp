@@ -66,5 +66,5 @@ internal static class TorizoArtworkSwapDefinitions
     ];
 
     /// <summary>Each swap's characters, in entry order (#1392, #1406).</summary>
-    internal static IReadOnlyList<ObjCharacterSource> Sources { get; } = [.. Entries.Select((_, index) => new TorizoArtworkSwapCharacters(index))];
+    internal static IReadOnlyList<SpriteArtworkSource> Sources { get; } = [.. Entries.Select((_, index) => new TorizoArtworkSwapCharacters(index))];
 }

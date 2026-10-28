@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Original $8D:D6BA two-stage gunship reveal. Frames0..7 interpolate

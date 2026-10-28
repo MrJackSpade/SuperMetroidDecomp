@@ -29,7 +29,6 @@ internal static class SamusChargeColorsVerification
 {
     /// <summary>Edits representative charge and Hyper colors, then checks installed identity and CGRAM output without rereading native palette words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge palette color words")]
     internal static void VerifySamusChargeColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
@@ -162,7 +161,6 @@ internal static class SamusChargeColorsVerification
 
     /// <summary>Checks all suit and charge phases against ROM, including canonical shared pointers and the runtime six-step palette cadence.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge color phases")]
     internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);

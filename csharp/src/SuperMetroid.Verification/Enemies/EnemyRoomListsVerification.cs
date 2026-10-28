@@ -13,7 +13,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class EnemyRoomListsVerification
 {
     /// <summary>Compares every ordered enemy placement, death quota, and graphics-set member to the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy room lists")]
     internal static void VerifyCompiledEnemyRoomLists()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

@@ -9,5 +9,5 @@ internal static class DraygonIntroPresentationDefinitions
     /// <summary>Transfer size $0600 bytes, the Evir enemy graphics-set sheet.</summary>
     internal const int EvirTilesByteCount = 0x0600;
     /// <summary>The Evir tiles the opening shows.</summary>
-    internal static ObjCharacterSource EvirTiles { get; } = new EnemyTileCharacters(EnemyDefinitionId.Evir);
+    internal static SpriteArtworkSource EvirTiles { get; } = new EnemyTileCharacters(EnemyDefinitionId.Evir);
 }

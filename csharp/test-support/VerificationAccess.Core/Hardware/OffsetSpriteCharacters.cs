@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 /// <param name="Characters">The whole transfer's artwork.</param>
 /// <param name="ByteOffset">The bytes of it before the sprite characters begin.</param>
-internal sealed record OffsetSpriteCharacters(ObjCharacterSource Characters, int ByteOffset) : ObjCharacterSource
+internal sealed record OffsetSpriteCharacters(SpriteArtworkSource Characters, int ByteOffset) : SpriteArtworkSource
 {
     /// <inheritdoc/>
-    public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) => Characters.Resolve(resolver)[ByteOffset..];
+    public override ReadOnlyMemory<byte> Resolve(IInstalledArtworkContent resolver) => Characters.Resolve(resolver)[ByteOffset..];
 
     /// <summary>Names the source for diagnostics.</summary>
     public override string ToString() => $"{Characters} from byte {ByteOffset}";

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Calculated repeated-row aliases for the three native Samus heat palettes.</summary>

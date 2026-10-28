@@ -77,7 +77,6 @@ internal static class FileSelectGeometryLookupsVerification
     }
 
     /// <summary>Reads a native helmet placement opcode as the cartridge comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet Y")]
     private static byte FileSelectHelmetYRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that each indexed geometry lookup rejects values outside its native row count.</summary>

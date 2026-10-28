@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>Spore Spawn death fades and their explicitly unresolved original room-color inputs.</summary>

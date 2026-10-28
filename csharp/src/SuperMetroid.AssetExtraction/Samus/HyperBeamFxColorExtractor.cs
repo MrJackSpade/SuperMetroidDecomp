@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
@@ -8,7 +7,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads only the authored Hyper Beam palette-FX color words from the validated cartridge.</summary>
-[CpuBusBoundary("codec: ROM Hyper Beam palette-FX color words → Hyper Beam FX colors")]
 public static class HyperBeamFxColorExtractor
 {
     /// <summary>Exports the ten eight-color payloads of Hyper Beam palette-FX program $8D:D900, skipping each duration and terminator word.</summary>

@@ -18,7 +18,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Unused tiles are zero. Native transfer sizes and pose/frame choices live in JSON;
 /// no game mechanics or animation delay bytes are represented here.
 /// </remarks>
-[CpuBusBoundary("codec: ROM bank-$92 Samus body DMA definitions and graphics → Samus body atlases and selectors")]
 public static class SamusBodyArtworkFiles
 {
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>

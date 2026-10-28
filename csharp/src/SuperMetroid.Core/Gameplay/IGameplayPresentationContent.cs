@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// tiles and Samus palette inputs, plus the installed VRAM assets they upload. The frontend's complete presentation
 /// catalog supplies it.
 /// </summary>
-public interface IGameplayPresentationContent : IAreaMapSource, IVramAssetProvider
+public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtworkContent
 {
     /// <summary>Standard gameplay HUD character transfers, including the four BG3 quarters restored after Kraid.</summary>
     HudTileAtlas HudTiles { get; }

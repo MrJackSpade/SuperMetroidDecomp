@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Expanded scanline layout of the bank-$88 FX type $2C fixed-color gradient.</summary>

@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Video;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge values and helpers of <see cref="PpuMemoryLayout"/> that only verification reads.</summary>
 internal static class PpuMemoryLayoutConstants

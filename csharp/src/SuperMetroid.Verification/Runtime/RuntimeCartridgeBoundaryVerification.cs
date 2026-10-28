@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Guards the compiled gameplay assembly's separation from cartridge import and untyped CPU reads.</summary>

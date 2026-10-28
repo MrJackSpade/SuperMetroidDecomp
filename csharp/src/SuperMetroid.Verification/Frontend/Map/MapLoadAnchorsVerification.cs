@@ -213,7 +213,6 @@ internal static class MapLoadAnchorsVerification
     }
 
     /// <summary>Derives a saved station's map pixel anchor directly from its native load record and room header.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for native map load-station anchors")]
     private static Position16<MapPixels> ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {
         // Independent literal native layout: no production LoadStationEntry or

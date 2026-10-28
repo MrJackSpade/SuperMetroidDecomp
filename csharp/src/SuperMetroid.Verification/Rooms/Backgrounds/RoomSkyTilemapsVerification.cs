@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Doors;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
 /// <summary>Checks installed scrolling-sky pages, the rows they show and Landing Site transfers against native data.</summary>
@@ -135,7 +136,6 @@ internal static class RoomSkyTilemapsVerification
     }
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
 

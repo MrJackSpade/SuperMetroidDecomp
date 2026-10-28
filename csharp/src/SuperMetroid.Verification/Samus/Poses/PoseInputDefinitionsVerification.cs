@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 internal static class PoseInputDefinitionsVerification
 {
     /// <summary>Compares first-match, self-match, and fallback results across the input-bit domain without ROM reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pose input definitions")]
     internal static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();

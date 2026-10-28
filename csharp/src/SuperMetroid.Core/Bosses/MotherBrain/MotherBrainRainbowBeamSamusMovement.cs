@@ -124,7 +124,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     {
         // `$86:C27A` multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
-        return EnemyTrigonometryTables.MultiplySignedSine(
+        return Trigonometry.MultiplySignedSine(
             checked((ushort)speed), angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle());
     }
 

@@ -1,12 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge words naming Samus's grapple AI routines and X-ray reveal commands (#1411).</summary>
-[CpuBusBoundary("catalog: Samus identity words")]
 internal static class SamusIdentityWords
 {
     /// <summary>The bank-$A0 routine an enemy header's grapple AI word names; zero names none.</summary>

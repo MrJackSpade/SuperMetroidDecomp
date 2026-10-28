@@ -24,7 +24,6 @@ internal static class RoomVisualLayoutsVerification
     /// Checks every stock visual reference against its native source, then proves an
     /// installed override changes both rendered planes without changing collision/BTS.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room level streams")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {

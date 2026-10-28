@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class SurfaceMotionDefinitionsVerification
 {
     /// <summary>Checks 32 slope multipliers, every signed 16-bit speed, and all Yard kick selectors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for surface motion")]
     internal static void VerifyCompiledSurfaceMotion(SuperMetroidAddressSpace rom)
     {
         for (int shape = 0; shape < 32; shape++)

@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Audio;
 internal static class SpcPanSamplesVerification
 {
     /// <summary>Compares native bytes, verifies the 21-sample bound, and rejects out-of-range pan indexes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan samples")]
     internal static void VerifySpcPanSamples(ISnesAddressSpace rom)
     {
         AssertEqual(21, SpcMusicTables.PanSampleCount, "native curve ends before the FIR preset");

@@ -73,7 +73,6 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>The list the cartridge's selector row and direction entry name, or null where either names none.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the trail selector and direction tables")]
     private static ProjectileTrailPlacementList? NativeList(
         ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists, int table, SamusBeamCombination beams, int direction)
     {
@@ -88,7 +87,6 @@ internal static class ProjectileTrailCoordinatesVerification
     private static bool RecordIsCartridge(int offset) => offset is >= CartridgeHalfStart and <= ushort.MaxValue - (RecordByteCount - 1);
 
     /// <summary>The placement the cartridge stores at bank-$9B offset <paramref name="offset"/>.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for one trail placement record")]
     private static ProjectileTrailPlacement NativePlacement(ISnesAddressSpace bus, int offset)
     {
         sbyte Byte(int index) => unchecked((sbyte)ReadRetailTrailOperandByte(bus, 0x9b0000 | (offset + index)));
@@ -96,7 +94,6 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>Checks actual trail spawn positions for beam, missile, and reflected list-start cases at coordinate wraps.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for trail family, direction and reflected list-start pointer tables")]
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists)
     {
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
@@ -174,12 +171,10 @@ internal static class ProjectileTrailCoordinatesVerification
     private static int SelectorTable(ushort type) => (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
 
     /// <summary>Whether <paramref name="type"/>'s selector row names a direction table in the cartridge half of bank $9B.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for a trail selector row")]
     private static bool FamilyIsCartridge(ISnesAddressSpace bus, ushort type) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2) >= CartridgeHalfStart;
 
     /// <summary>The bank-$9B list <paramref name="type"/>'s selector row and direction entry name.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for trail family and direction pointer tables")]
     private static ushort DirectionList(ISnesAddressSpace bus, ushort type, ushort direction)
     {
         ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2);
@@ -225,17 +220,14 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>Reads a native trail table word for the cartridge-side oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for trail selector and direction words")]
     private static ushort ReadRetailTrailWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     /// <summary>Reads a cartridge byte for a native bank-$9B trail operand.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for a $9B trail operand byte the native CPU reads from the cartridge")]
     private static byte ReadRetailTrailOperandByte(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeByte(address);
 
     /// <summary>Reads a modeled peripheral response or rejects an unmodeled hardware operand.</summary>
-    [CpuBusBoundary("exact bus test: device-response oracle for a $9B trail operand outside memory and the cartridge")]
     private static byte ReadNativeTrailOperandDeviceByte(ISnesAddressSpace bus, int address) =>
         bus is ISnesCpuPeripheralSource peripheral
             ? peripheral.ReadPeripheralByte(address)
@@ -243,7 +235,6 @@ internal static class ProjectileTrailCoordinatesVerification
                 $"Native trail operand ${address:X6} addresses unmodeled hardware.");
 
     /// <summary>Resolves the native $9B absolute-indexed word through ROM, WRAM, SRAM, open bus, or devices in CPU read order.</summary>
-    [CpuBusBoundary("exact bus test: reference CPU read of the $9B absolute-indexed trail operand across ROM, WRAM, SRAM, open bus and devices")]
     private static ushort ReadNativeTrailOperandWord(
         ISnesAddressSpace bus, ushort operand, ushort index)
     {

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
@@ -75,8 +76,8 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>
     /// Actor-selected sixteen-color target palette. Retail stores this in global target
-    /// palette WRAM; the sidecar preserves that second buffer because <see cref="Hardware.SnesCgram"/>
-    /// models the independently visible current palette.
+    /// palette WRAM; the sidecar preserves that second buffer because the actor's shown colours
+    /// model the independently visible current palette.
     /// </summary>
     public ReadOnlyMemory<RgbColor> TargetColours => _targetColours;
 

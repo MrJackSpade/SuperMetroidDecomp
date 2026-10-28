@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Where the cartridge keeps each ending palette role's colours (#1416: moved from Core's palette definitions and
 /// logo palette pointer catalog, which no longer name a cartridge source).
 /// </summary>
-[CpuBusBoundary("codec: ending palette roles → cartridge palette sources")]
 internal static class EndingPaletteSources
 {
     /// <summary>The bytes of one sixteen-colour palette.</summary>

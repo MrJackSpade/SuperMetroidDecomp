@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Frame">The frame.</param>
 /// <param name="Characters">The installed characters the frame shows.</param>
-public sealed record ArtworkFrameCharacters(ArtworkFrame Frame, ObjCharacterSource Characters) : ObjCharacterSource
+public sealed record ArtworkFrameCharacters(ArtworkFrame Frame, SpriteArtworkSource Characters) : SpriteArtworkSource
 {
-    /// <inheritdoc />
-    public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) => Characters.Resolve(resolver);
-
     /// <summary>The frame's name, which the region's pictures are keyed by.</summary>
     public override string ToString() => Frame.ToString();
 }

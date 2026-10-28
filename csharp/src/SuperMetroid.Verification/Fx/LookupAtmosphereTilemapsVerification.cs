@@ -82,7 +82,6 @@ internal static class LookupAtmosphereTilemapsVerification
     }
 
     /// <summary>Reads a native atmosphere page byte for editable-field comparisons.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for atmosphere tilemap domain and edits")]
     private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs rain and fog palette, priority, and edit ownership checks.</summary>

@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Copies Ridley's authored RGB5 images while retaining the native reveal pointer order.</summary>
-[CpuBusBoundary("codec: ROM bank-$A6 Norfair Ridley initial and reveal colors → NorfairRidleyColorCatalog")]
 public static class NorfairRidleyColorExtractor
 {
     /// <summary>Reads Ridley's initial palette and zero-terminated native reveal-pointer sequence, preserving authored row order and rejecting invalid pointers or high-bit colors.</summary>

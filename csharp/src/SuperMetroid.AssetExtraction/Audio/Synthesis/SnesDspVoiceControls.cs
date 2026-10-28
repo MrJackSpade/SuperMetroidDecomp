@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>One S-DSP voice's registers, in its sixteen-byte block at $00 + 16 × voice.</summary>
-[DspRegisterBoundary("typed controls: one S-DSP voice block")]
 internal readonly struct SnesDspVoiceControls
 {
     /// <summary>DSP register file receiving writes for the selected voice.</summary>

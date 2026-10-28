@@ -57,7 +57,7 @@ public sealed class EnemySession
     /// The gameplay OBJ character table's bindings, which enemy-format sprites draw from. Uploads that bypass the NMI
     /// queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here; the runtime shares its table.
     /// </summary>
-    internal SpriteCharacters SpriteCharacters { get; } = new();
+    internal SpriteArtworkPlacements SpriteCharacters { get; } = new();
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
@@ -72,7 +72,7 @@ public sealed class EnemySession
 
     /// <summary>Shows <paramref name="source"/> over the sprite characters where the installed catalogue places it (#1406).</summary>
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
-    internal void ShowCharacters(ObjCharacterSource source) =>
+    internal void ShowCharacters(SpriteArtworkSource source) =>
         SpriteCharacters.Show((Sheets ?? throw new InvalidOperationException("Showing an encounter's characters requires installed enemy sheets."))
             .Encounters.Placement(source));
 

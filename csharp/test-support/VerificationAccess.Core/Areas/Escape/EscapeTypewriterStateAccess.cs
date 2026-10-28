@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Escape;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Areas.Escape;
 
 /// <summary>Steps escape typewriters into a test word image, for tests that check glyphs at their overlay cells.</summary>

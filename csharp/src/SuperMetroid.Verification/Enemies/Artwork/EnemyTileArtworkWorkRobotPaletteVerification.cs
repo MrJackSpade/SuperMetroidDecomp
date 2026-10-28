@@ -16,7 +16,6 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Compares 24 retail RGB5 words, persistent single-color override, and invalid document rejection.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed work-robot palette cycle")]
     internal static void VerifyInstalledWorkRobotPaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {

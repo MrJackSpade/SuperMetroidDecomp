@@ -22,13 +22,12 @@ internal static class FamilyTrigonometryVerification
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
             short original = unchecked((short)(SnesLittleEndian.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
-            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
+            AssertEqual(original, Trigonometry.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
 
     /// <summary>Reads a native sine-table byte for the signed-sample oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for signed sixteen bit sine definitions")]
     private static byte SignedSixteenBitSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks boundary-word Maw products, Bull movement, and linked Shaktool segment placement without runtime ROM reads.</summary>
@@ -116,6 +115,5 @@ internal static class FamilyTrigonometryVerification
     }
 
     /// <summary>Reads a retail trigonometry byte for the independent family-math reference arrays.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled family trigonometry")]
     private static byte CompiledFamilyTrigonometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

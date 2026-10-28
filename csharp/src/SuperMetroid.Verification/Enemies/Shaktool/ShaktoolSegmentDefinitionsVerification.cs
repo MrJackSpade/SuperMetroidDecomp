@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolSegmentDefinitionsVerification
 {
     /// <summary>Exercises each segment's properties, orbit, layer, instruction, and group callback reset with ROM reads forbidden.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool segment definitions")]
     internal static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyShaktoolPropertySelection), () => VerifyShaktoolPropertySelection(rom));
@@ -115,7 +114,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
             definition => ShaktoolNativeWords.ShaktoolPreInstructions.Word(definition.PreInstruction), "callback selection"));
 
     /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool definition field")]
     private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
         int nativeAddress, Func<ShaktoolSegmentDefinition, int> select, string label)
     {

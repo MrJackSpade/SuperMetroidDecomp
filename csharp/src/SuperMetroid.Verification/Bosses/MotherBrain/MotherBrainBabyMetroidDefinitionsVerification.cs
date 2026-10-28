@@ -13,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class MotherBrainBabyMetroidDefinitionsVerification
 {
     /// <summary>Compares all eight population words and checks initialization and duplicate-spawn rejection without record reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain Baby Metroid definitions")]
     internal static void VerifyMotherBrainBabyMetroidDefinitions(
         SuperMetroidAddressSpace rom)
     {

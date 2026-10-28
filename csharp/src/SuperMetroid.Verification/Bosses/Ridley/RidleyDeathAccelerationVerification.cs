@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyInertiaVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -11,7 +10,6 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class RidleyDeathAccelerationVerification
 {
     /// <summary>Confirms index zero and boost sixteen from retail code, then checks both axes across 126 distance/velocity cases.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley death acceleration")]
     internal static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
     {
         // $A6:C60E LDY #0, $C611 LDA #16: index and extra deceleration are

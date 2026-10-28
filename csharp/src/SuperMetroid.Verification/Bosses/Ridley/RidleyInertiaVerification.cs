@@ -12,7 +12,6 @@ using SuperMetroid.Core.World;
 internal static class RidleyInertiaVerification
 {
     /// <summary>Compares Ceres and Norfair inertia bytes to the cartridge and probes production acceleration across signed distances.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley inertia")]
     internal static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
         Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int> ceres = CeresRidleyFlight.AccelerateRidleyToward;

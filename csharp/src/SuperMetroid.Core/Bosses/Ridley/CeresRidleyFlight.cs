@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>
@@ -306,8 +307,8 @@ internal sealed class CeresRidleyFlight
             angle = RotationAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
         ByteAngle phase = angle.ToByteAngle();
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase)));
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(Trigonometry.MultiplySignedSine((ushort)magnitude, phase)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(Trigonometry.MultiplySignedSine((ushort)magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>

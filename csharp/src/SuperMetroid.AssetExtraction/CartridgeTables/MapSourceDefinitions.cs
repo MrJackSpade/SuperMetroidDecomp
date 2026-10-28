@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the shared menu, map and HUD characters (#1416): the import pipeline's private knowledge of the cartridge, decoded
 /// once into the installed map presentation.
 /// </summary>
-[CpuBusBoundary("catalog: map and menu cartridge sources")]
 internal static class MapSourceDefinitions
 {
     /// <summary>The shared menu screens' sources, installed by the menu tile loader at $81:8DDB.</summary>

@@ -1,6 +1,6 @@
-﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction.Frontend.Map;
+﻿using SuperMetroid.AssetExtraction.Frontend.Map;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Verification access to <see cref="WorldMapArtwork"/> members production does not use.</summary>

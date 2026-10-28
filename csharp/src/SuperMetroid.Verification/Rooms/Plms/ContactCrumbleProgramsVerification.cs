@@ -64,7 +64,6 @@ internal static class ContactCrumbleProgramsVerification
     }
 
     /// <summary>Compares packed sound bytes at the eight list starts against native bank-$84 data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for contact crumble sound mapping")]
     private static void VerifyContactCrumbleSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xc9fb,0xca1e,0xca43,0xca68,0xca8d,0xcaa2,0xcab7,0xcacc];
@@ -81,7 +80,6 @@ internal static class ContactCrumbleProgramsVerification
     }
 
     /// <summary>Checks the three native restoration lists and their exact draw-pointer ownership.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for contact crumble restoration mapping")]
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];

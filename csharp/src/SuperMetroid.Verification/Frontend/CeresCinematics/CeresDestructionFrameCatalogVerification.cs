@@ -11,7 +11,6 @@ internal static class CeresDestructionFrameCatalogVerification
 {
     /// <summary>Compares all twenty-three backdrop and blast frames with
     /// cartridge definitions and rejects indexes outside each frame family.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction frame catalog")]
     internal static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
     {
         int[] backdropOperands = [0xcc41, 0xccad, 0xccc3, 0xcd85, 0xcd8d, 0xcd95, 0xcd9d];

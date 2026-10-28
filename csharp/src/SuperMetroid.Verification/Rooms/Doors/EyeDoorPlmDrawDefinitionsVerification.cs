@@ -20,6 +20,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -207,7 +208,6 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     }
 
     /// <summary>Reads one retail bank-$84 program byte for the fixture oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for eye door retail program path")]
     private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks extracted stock validation, override persistence, and invalid eye-door visual rejection.</summary>

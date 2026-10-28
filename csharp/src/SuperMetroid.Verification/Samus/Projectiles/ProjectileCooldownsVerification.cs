@@ -19,7 +19,6 @@ using SuperMetroid.Core.Progression;
 internal static class ProjectileCooldownsVerification
 {
     /// <summary>Compares compiled bank $90 bytes and exact shared-timer behavior with source reads blocked.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile cooldowns")]
     internal static void VerifyProjectileCooldowns()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

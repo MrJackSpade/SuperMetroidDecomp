@@ -19,6 +19,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
 using SuperMetroid.Verification.Harness;
@@ -508,7 +509,6 @@ internal static class EnemyProjectileDefinitionsVerification
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
     /// and returns the record bytes, which the runtime must then never reread.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$86 enemy-projectile definition records")]
     private static HashSet<int> VerifyEnemyProjectileDefinitionRecords(
         SuperMetroidAddressSpace rom, RoomEnemyProjectileKind[] kinds)
     {
@@ -546,7 +546,6 @@ internal static class EnemyProjectileDefinitionsVerification
     }
 
     /// <summary>A sparse cartridge whose bank-$A1 population at <paramref name="populationPointer"/> is empty.</summary>
-    [CpuBusBoundary("exact bus test: seeds an empty synthetic bank-$A1 enemy population")]
     private static TestAddressSpace CreateEmptyEnemyPopulationCartridge(ushort populationPointer)
     {
         var bus = new TestAddressSpace();

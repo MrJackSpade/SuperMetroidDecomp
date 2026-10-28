@@ -24,7 +24,6 @@ internal static class SyntheticSamusCartridge
     /// Points pose <paramref name="pose"/>'s entry of the <c>$91:9EE2</c> pose-transition
     /// pointer table (one bank-$91 word per pose) at <paramref name="list"/>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $91:9EE2 Samus pose-transition pointer table")]
     internal static void WritePoseTransitionPointer(TestAddressSpace bus, SamusPoseId pose, ushort list) =>
         WriteTestWord(bus, 0x919ee2 + (int)pose * 2, list);
 
@@ -33,7 +32,6 @@ internal static class SyntheticSamusCartridge
     /// records of (required newly pressed input, required held input, target pose) words,
     /// terminated by <c>$FFFF</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$91 Samus pose-transition lists")]
     internal static void WritePoseTransitionList(
         TestAddressSpace bus,
         ushort list,
@@ -55,7 +53,6 @@ internal static class SyntheticSamusCartridge
     /// table (acceleration, maximum, and deceleration as whole/subspeed word pairs),
     /// indexed by movement type.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9F55 normal-air Samus speed table")]
     internal static void WriteNormalAirSpeedEntry(
         TestAddressSpace bus,
         SamusMovementType movementType,
@@ -69,7 +66,6 @@ internal static class SyntheticSamusCartridge
     /// Installs the dry-air initial jump speed: whole word <c>$90:9EB9</c> and subspeed
     /// word <c>$90:9EBF</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9EB9/$9EBF dry-air Samus jump speed")]
     internal static void WriteDryAirJumpSpeed(TestAddressSpace bus, ushort whole, ushort subspeed)
     {
         WriteTestWord(bus, 0x909eb9, whole);
@@ -80,7 +76,6 @@ internal static class SyntheticSamusCartridge
     /// Installs the dry-air gravity: subspeed word <c>$90:9EA1</c> and whole word
     /// <c>$90:9EA7</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9EA1/$9EA7 dry-air Samus gravity")]
     internal static void WriteDryAirGravity(TestAddressSpace bus, ushort whole, ushort subspeed)
     {
         WriteTestWord(bus, 0x909ea1, subspeed);
@@ -91,7 +86,6 @@ internal static class SyntheticSamusCartridge
     /// Installs the Morph Ball bounce speed: whole word <c>$90:9EB5</c> and fractional
     /// word <c>$90:9EB7</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9EB5/$9EB7 Morph Ball bounce speed")]
     internal static void WriteBallBounceSpeed(TestAddressSpace bus, ushort whole, ushort subspeed)
     {
         WriteTestWord(bus, 0x909eb5, whole);
@@ -102,7 +96,6 @@ internal static class SyntheticSamusCartridge
     /// Installs the dry-air wall-jump speed (table zero): whole word <c>$90:9ED1</c> and
     /// subspeed word <c>$90:9ED7</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9ED1/$9ED7 dry-air Samus wall-jump speed")]
     internal static void WriteDryAirWallJumpSpeed(TestAddressSpace bus, ushort whole, ushort subspeed)
     {
         WriteTestWord(bus, 0x909ed1, whole);
@@ -113,7 +106,6 @@ internal static class SyntheticSamusCartridge
     /// Installs the dry-air bomb-jump magnitude read by <c>$90:9A2C</c>: whole word
     /// <c>$90:9EF5</c> and subspeed word <c>$90:9EFB</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9EF5/$9EFB dry-air bomb-jump speed")]
     internal static void WriteDryAirBombJumpSpeed(TestAddressSpace bus, ushort whole, ushort subspeed)
     {
         WriteTestWord(bus, 0x909ef5, whole);
@@ -124,7 +116,6 @@ internal static class SyntheticSamusCartridge
     /// Installs the standalone twelve-byte bomb-jump horizontal speed record at
     /// <c>$90:9F25</c>, which <c>$90:8EF4</c> passes directly to <c>$90:9A7E</c>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9F25 bomb-jump speed record")]
     internal static void WriteBombJumpSpeedEntry(TestAddressSpace bus, ReadOnlySpan<byte> entry)
     {
         Ensure.LengthEqual(entry, 12);
@@ -135,7 +126,6 @@ internal static class SyntheticSamusCartridge
     /// Writes consecutive BGR555 color words into bank $9B starting at bank-local
     /// <paramref name="pointer"/>, the bank that every Samus body/beam palette pointer selects.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$9B Samus palettes")]
     internal static void WriteSamusPaletteColors(TestAddressSpace bus, ushort pointer, params ReadOnlySpan<ushort> colors)
     {
         for (int color = 0; color < colors.Length; color++)
@@ -151,7 +141,6 @@ internal static class SyntheticSamusCartridge
     /// Installs a one-object bank-$93 spritemap at <paramref name="pointer"/>: entry count
     /// one, then the native X word, signed Y byte, and tile/attribute word.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one-object bank-$93 projectile spritemaps")]
     internal static void WriteSingleObjectProjectileSpritemap(
         TestAddressSpace bus,
         ushort pointer,

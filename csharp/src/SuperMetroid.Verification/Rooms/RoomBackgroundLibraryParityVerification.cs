@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
@@ -81,7 +82,6 @@ internal static class RoomBackgroundLibraryParityVerification
     /// is one transfer-to-VRAM ($4800) of <paramref name="byteCount"/> bytes from the long
     /// <paramref name="sourceAddress"/>, then end.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-transfer library-background command list")]
     private static TestAddressSpace CreateSingleTransferBackgroundCartridge(
         ushort listPointer, int sourceAddress, ushort byteCount)
     {

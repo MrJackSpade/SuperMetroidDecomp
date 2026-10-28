@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// A frontend screen's own 256 colours (#1358, #1404): eight background rows of sixteen, then eight sprite rows, each row
 /// the colours that one colour variant of the screen's pre-coloured tiles shows. The screen publishes them with its frame.
 /// </summary>
-/// <remarks>The shared palette effects write through <see cref="IPaletteColors"/> until #1405 types them.</remarks>
-public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
+public sealed class ScreenPalette : ISpriteColourSets
 {
     /// <summary>The number of colours a screen palette holds.</summary>
     public const int ColorCount = 2 * RowsPerKind * ColoursPerRow;
@@ -23,7 +22,7 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
     /// <summary>The colours, background rows first.</summary>
     internal readonly RgbColor[] colors = new RgbColor[ColorCount];
 
-    /// <inheritdoc />
+    /// <summary>The colours, in palette order: the background rows, then the sprite rows.</summary>
     public ReadOnlySpan<RgbColor> Colors => colors;
 
     /// <summary>Every colour of the screen.</summary>
@@ -69,26 +68,6 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
             if (!Keeps(kept, position))
                 colors[position] = screenColours[position];
         }
-    }
-
-    /// <inheritdoc />
-    public void SetColor(int index, RgbColor color)
-    {
-        if ((uint)index >= ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        colors[index] = color;
-    }
-
-    /// <inheritdoc />
-    public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0)
-    {
-        if ((bytes.Length & 1) != 0)
-            throw new ArgumentException("Palette data must contain complete two-byte colours.", nameof(bytes));
-        int count = bytes.Length / 2;
-        if (destinationIndex < 0 || destinationIndex + count > ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(destinationIndex), "A palette load must remain within 256 colours.");
-        for (int color = 0; color < count; color++)
-            colors[destinationIndex + color] = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
     }
 
     /// <summary>Whether a run in <paramref name="kept"/> holds the colour at <paramref name="position"/>.</summary>

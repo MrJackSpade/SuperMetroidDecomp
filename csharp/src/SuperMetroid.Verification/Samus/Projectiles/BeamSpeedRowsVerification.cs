@@ -19,7 +19,6 @@ using SuperMetroid.Core.Progression;
 internal static class BeamSpeedRowsVerification
 {
     /// <summary>Compares native motion words, combination-dependent overreads, and six-frame missile trajectories.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for beam speed rows, pose aim directions and missile acceleration words")]
     internal static void VerifyBeamSpeedRows()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -118,7 +117,6 @@ internal static class BeamSpeedRowsVerification
     }
 
     /// <summary>Forwards fixture writes while rejecting native projectile-mechanics source reads.</summary>
-    [CpuBusBoundary("exact bus test: write-overlay fixture over the retail bus that rejects compiled projectile-mechanics reads")]
     internal sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         /// <summary>Routes WRAM reads through the guarded address-space fixture.</summary>

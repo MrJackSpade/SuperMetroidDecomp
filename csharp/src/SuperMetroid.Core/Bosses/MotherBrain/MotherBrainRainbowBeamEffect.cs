@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>

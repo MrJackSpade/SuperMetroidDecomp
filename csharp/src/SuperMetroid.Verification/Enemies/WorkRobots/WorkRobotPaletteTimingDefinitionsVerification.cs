@@ -22,7 +22,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
 
     /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {

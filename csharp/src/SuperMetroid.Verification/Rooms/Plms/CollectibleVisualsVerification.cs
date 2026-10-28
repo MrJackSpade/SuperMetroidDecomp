@@ -173,7 +173,6 @@ internal static class CollectibleVisualsVerification
     }
 
     /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for collectible visual words")]
     internal static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 

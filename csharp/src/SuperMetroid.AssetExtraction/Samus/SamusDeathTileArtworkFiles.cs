@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports Samus's death-explosion characters into one indexed PNG.</summary>
-[CpuBusBoundary("codec: ROM Samus death-explosion characters → death tile PNG")]
 public static class SamusDeathTileArtworkFiles
 {
     /// <summary>Current provenance manifest revision for the death-explosion characters.</summary>

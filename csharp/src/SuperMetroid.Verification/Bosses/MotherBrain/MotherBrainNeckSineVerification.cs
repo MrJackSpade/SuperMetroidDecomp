@@ -81,7 +81,6 @@ internal static class MotherBrainNeckSineVerification
     }
 
     /// <summary>Reads the native signed sine word and applies SNES 8.8 multiplication for the reference component.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain neck component")]
     private static short ReferenceMotherBrainNeckComponent(
         SuperMetroidAddressSpace rom,
         byte angle,

@@ -570,7 +570,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static ushort CalculateYappingMawY(ByteAngle angle, int length)
     {
-        int signedSample = EnemyTrigonometryTables.SignedSixteenBitSine(
+        int signedSample = Trigonometry.SignedSixteenBitSine(
             new ByteAngle(unchecked((byte)-angle.RawValue)));
         bool negative = signedSample < 0;
         int magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));

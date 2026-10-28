@@ -33,7 +33,7 @@ internal static class TextAndMapPresentationContractChecks
             class TextMapConsumer {
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
                     EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites, SpriteSheet mapSheet,
-                    MapArrowPresentation arrows, MapScreenPresentation screen, SnesVram vram,
+                    MapArrowPresentation arrows, MapScreenPresentation screen,
                     ScreenSprites objects, System.Span<ushort> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
                     escape.Get(EscapeTypewriterProgramId.Zebes);

@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts timed-projectile visual parts only; physical fields and instruction programs stay compiled.</summary>
-[CpuBusBoundary("codec: ROM bank-$93 projectile spritemaps → projectile sprite frames")]
 public static class ProjectileSpriteExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>

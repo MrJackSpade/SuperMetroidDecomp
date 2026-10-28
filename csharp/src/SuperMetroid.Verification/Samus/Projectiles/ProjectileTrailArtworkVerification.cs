@@ -20,7 +20,6 @@ internal static class ProjectileTrailArtworkVerification
 {
     /// <summary>Compares stock and edited trail appearance through production drawing while keeping timing, movement, and program control cartridge-owned.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program and frame attribute words")]
     internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
@@ -136,7 +135,6 @@ internal static class ProjectileTrailArtworkVerification
     }
 
     /// <summary>Interprets the native trail words and sibling-targeted movement as an independent OAM and timer reference.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for trail frame")]
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
         SamusProjectileTrailSlot pair, Dictionary<SamusProjectileTrailSide, ushort> words, OamBuffer oam, bool frozen)
     {

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Yard;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -94,7 +95,6 @@ internal static class YardTrajectoriesVerification
     }
 
     /// <summary>Reads the parameter-selected crawl speed from the retail bank-$A3 table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:E5F0 Yard crawl-speed table")]
     private static ushort ReadNativeYardCrawlSpeed(ISnesAddressSpace bus, int parameter) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + parameter * 2);
 

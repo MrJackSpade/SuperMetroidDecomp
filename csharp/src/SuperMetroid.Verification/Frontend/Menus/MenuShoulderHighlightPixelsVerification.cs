@@ -14,7 +14,6 @@ internal static class MenuShoulderHighlightPixelsVerification
 {
     /// <summary>Compares stock planar tiles with retail VRAM data and preserves individual pixel edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for menu shoulder highlight pixels")]
     internal static void VerifyMenuShoulderHighlightPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x3c, 0x3d, 0x43, 0x51];

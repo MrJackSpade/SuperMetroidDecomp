@@ -16,7 +16,6 @@ internal static class RoomFxAnimatedTileArtworkVerification
 {
     /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room-FX animated tile transfer frames")]
     internal static void VerifyRoomFxAnimatedTileArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -236,10 +235,10 @@ internal static class RoomFxAnimatedTileArtworkVerification
 
     /// <summary>Feeds source-address DMA requests from an installed atlas while rejecting unrelated typed asset requests.</summary>
     internal sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
-        IVramAssetProvider, IInstalledArtworkTransferSource
+        IInstalledArtworkContent, IInstalledArtworkTransferSource
     {
         /// <summary>Fails if the focused room-FX fixture unexpectedly requests a typed VRAM asset.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+        public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
             throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");
         /// <summary>Resolves a bank-$87 source and native transfer width against installed frame bytes.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,

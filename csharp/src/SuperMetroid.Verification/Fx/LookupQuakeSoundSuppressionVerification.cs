@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
@@ -49,6 +49,5 @@ internal static class LookupQuakeSoundSuppressionVerification
     }
 
     /// <summary>Reads a cartridge opcode or operand for the quake-suppression comparison chain.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for quake sound suppression")]
     private static byte QuakeSoundSuppressionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

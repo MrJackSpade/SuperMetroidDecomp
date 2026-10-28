@@ -237,7 +237,6 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Reads native bank-$A6 bytes only for the independent instruction comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction program definitions")]
     private static byte FakeKraidInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the Fake Kraid instruction check against the local retail cartridge.</summary>

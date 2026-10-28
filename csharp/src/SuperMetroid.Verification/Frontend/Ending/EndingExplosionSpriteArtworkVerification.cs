@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingExplosionSpriteArtworkVerification
 {
     /// <summary>Compares sixteen program-selected frame pointers, part counts, and stable asset keys with bank-$8C sprite maps.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion frame catalog")]
     internal static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingExplosionCalculatedParts), () => VerifyEndingExplosionCalculatedParts(bus));
@@ -70,7 +69,6 @@ internal static class EndingExplosionSpriteArtworkVerification
     }
 
     /// <summary>Checks calculated grid/quadrant parts preserve native OAM and selected edits keep their authored composition.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion calculated parts")]
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         // Applies the five calculation families only when the supplied sprite map still matches their supported basis.

@@ -24,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EnemySheetComposer
 {
     /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
-    private const int EnemyRegionTableByte = EnemyGraphicsSet.EnemyTileAreaFirstCharacter * SpriteCharacters.CharacterByteCount;
+    private const int EnemyRegionTableByte = EnemyGraphicsSet.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
 
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
@@ -196,7 +196,7 @@ internal static class EnemySheetComposer
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static byte[] Table(EnemySheetInputs inputs, EnemyGraphicsSet graphics)
     {
-        var table = new byte[SpriteCharacters.TableByteCount];
+        var table = new byte[SpriteArtworkPlacements.TableByteCount];
         inputs.StandardObjects.Span.CopyTo(table);
         foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
         {

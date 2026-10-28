@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Installs editable Grapple-block visual references while verifying every native
 /// source draw record against the immutable collision/shape catalog.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 Grapple block PLM draw lists → Grapple block visual files")]
 public static class RoomPlmGrappleBlockVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>

@@ -36,6 +36,5 @@ internal static class IntroScientistFrameCatalogVerification
     }
 
     /// <summary>Reads a source byte for the native scientist record-chain comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro scientist frame catalog")]
     private static byte IntroScientistFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -61,7 +61,6 @@ internal static class GrappleBlockProgramsVerification
     }
 
     /// <summary>Reads a cartridge sound byte solely as the compiled-operand oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block sound mapping")]
     private static byte GrappleBlockSoundMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares five one-block draw lists with native geometry, collision words, and terminal offsets.</summary>
@@ -101,7 +100,6 @@ internal static class GrappleBlockProgramsVerification
             : throw new InvalidOperationException($"No Grapple-block draw has artwork identity {id}.");
 
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block physical draw mapping")]
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks calculated stock tile choices and content identity, then rejects missing, duplicate, or collision-bit edits.</summary>

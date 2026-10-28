@@ -17,10 +17,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
-[CpuBusBoundary("codec: ROM opening-scene graphics, tilemaps and palettes → intro cinematic artwork files")]
 public static class IntroCinematicArtworkFiles
 {
     /// <summary>Manifest revision for the complete opening and Ceres artwork resource set.</summary>

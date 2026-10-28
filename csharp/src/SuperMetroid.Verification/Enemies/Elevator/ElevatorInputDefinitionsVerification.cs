@@ -15,7 +15,6 @@ using SuperMetroid.Core.World;
 internal static class ElevatorInputDefinitionsVerification
 {
     /// <summary>Confirms both direction offsets and departure paths while forbidding migrated mask reads at runtime.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator input definitions")]
     internal static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
@@ -68,7 +67,6 @@ internal static class ElevatorInputDefinitionsVerification
     }
 
     /// <summary>Checks the two supported word offsets against $A3:94E2 and rejects malformed offsets.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator direction input mapping")]
     private static void VerifyElevatorDirectionInputMapping(SuperMetroidAddressSpace rom)
     {
         foreach (ushort offset in new ushort[] { 0, 2 })

@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -24,7 +25,6 @@ using SuperMetroid.Core.World;
 internal static class NoobTubePlmDrawDefinitionsVerification
 {
     /// <summary>Compares seven physical draw lists and checks that an edited tile leaves collision blocks intact.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube PLM draw definitions")]
     internal static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));

@@ -12,7 +12,6 @@ using SuperMetroid.Core.World;
 internal static class PhantoonSoundDefinitionsVerification
 {
     /// <summary>Compares native sound words and confirms two callback cycles advance the index without rereading the table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon sound definitions")]
     internal static void VerifyPhantoonSoundDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa7cded;

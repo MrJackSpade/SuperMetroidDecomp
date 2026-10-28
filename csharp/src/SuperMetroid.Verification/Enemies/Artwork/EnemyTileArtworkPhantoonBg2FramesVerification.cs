@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -24,7 +25,6 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Checks 22 BG2 selectors and native tile writes, then proves an override changes live VRAM without changing engine hitboxes or the new-frame gate.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)
@@ -146,7 +146,6 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     }
 
     /// <summary>Compares compiled frame components and three hitbox lists with retail data while checking stock and edited artwork select the same callbacks.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
     private static void VerifyPhantoonCollisionDefinitions(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock, InstalledEnemyArtwork edited)
     {

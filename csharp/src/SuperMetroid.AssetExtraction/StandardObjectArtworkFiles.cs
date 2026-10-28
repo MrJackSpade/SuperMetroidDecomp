@@ -12,7 +12,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs the complete, indexed 4-bpp standard OBJ sheet as editable artwork.</summary>
-[CpuBusBoundary("codec: ROM standard 4-bpp OBJ sheet → standard object artwork")]
 public static class StandardObjectArtworkFiles
 {
 

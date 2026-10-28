@@ -73,7 +73,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // Retail clears the actor palette's target-buffer entries here. Its room fade then
         // settles the independently stored current palette to that black target long before
-        // the 280-frame appearance delay expires. SnesCgram is this runtime's already-settled
+        // the 280-frame appearance delay expires. The actor's shown colours are this runtime's already-settled
         // visible buffer, so clear it alongside the retained target buffer; otherwise the
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
         state.MutableTargetColours.Clear();
@@ -254,7 +254,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             // only on red and does not saturate the others: a full green or blue carries
             // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
             palette.Write(color,
-                RgbColor.FromCgramPortWord(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
+                RgbColor.FromWordIgnoringTopBit(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
             colorsChanged++;
         }
 

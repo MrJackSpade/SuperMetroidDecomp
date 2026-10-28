@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>

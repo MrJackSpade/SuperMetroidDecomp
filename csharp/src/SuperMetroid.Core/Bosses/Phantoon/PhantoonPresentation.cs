@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>

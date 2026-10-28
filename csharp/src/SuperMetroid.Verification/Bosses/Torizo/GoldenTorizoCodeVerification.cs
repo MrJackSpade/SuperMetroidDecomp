@@ -65,7 +65,6 @@ internal static class GoldenTorizoCodeVerification
     }
 
     /// <summary>Reads a cartridge byte for the native code's input mask and inventory oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo code")]
     private static byte GoldenTorizoCodeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the focused Golden Torizo code grant check.</summary>

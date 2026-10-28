@@ -99,6 +99,5 @@ internal static class LibraryBackgroundProgramsVerification
     }
 
     /// <summary>Reads a native command byte while comparing compiled library background lists.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled library background programs")]
     private static byte CompiledLibraryBackgroundProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

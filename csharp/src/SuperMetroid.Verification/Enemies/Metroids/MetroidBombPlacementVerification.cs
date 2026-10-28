@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 
 using SuperMetroid.Verification.Harness;
@@ -24,7 +25,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class MetroidBombPlacementVerification
 {
     /// <summary>Checks natural bomb detonation, four native jitter updates, and return to homing.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Metroid post-bomb escape jitter table")]
     internal static void VerifyMetroidBombPlacement()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

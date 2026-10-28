@@ -14,7 +14,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// blocks are stored in native run order, while the compiled definitions retain
 /// run directions, signed offsets and physical level words.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 PLM block-draw lists → installed PLM door visual files")]
 internal static class RoomPlmDoorVisualFileCodec
 {
     /// <summary>Stock manifest name containing cartridge and extracted visual hashes.</summary>

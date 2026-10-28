@@ -65,7 +65,6 @@ internal static class OldTourianEscapeShaftWallVerification
     /// movement, the burst count, the scatter masks, the sound, each pose's duration and operand position, the
     /// counted repeat back to $86:B449 and the delete.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the old Tourian wall explosion list")]
     private static void VerifyWallExplosionProgramAgainstRom(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

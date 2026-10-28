@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class RunningCadenceVerification
 {
     /// <summary>Checks authored delay streams, queue-selected aliases, and the production animation-stage interceptor.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for running cadence")]
     internal static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
@@ -151,7 +150,6 @@ internal static class RunningCadenceVerification
     }
 
     /// <summary>Compares the ordinary running-list pointer with its native bank-$91 word.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ordinary running pointer")]
     private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5d1, 2));
@@ -173,7 +171,6 @@ internal static class RunningCadenceVerification
     private static void VerifyBoostRunningStream4(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b614, 11);
 
     /// <summary>Checks all five stage pointers and the sixth sound-queue alias against native words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for boost running pointers")]
     private static void VerifyBoostRunningPointers(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5de, 10));
@@ -188,7 +185,6 @@ internal static class RunningCadenceVerification
     }
 
     /// <summary>Checks stage reset words, including the adjacent pose-zero alias, and rejects unsupported selections.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for boost running resets")]
     private static void VerifyBoostRunningResets(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b61f, 12));
@@ -203,14 +199,12 @@ internal static class RunningCadenceVerification
     }
 
     /// <summary>Compares one bounded compiled cadence byte range with retail cartridge bytes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for running cadence bytes")]
     private static void VerifyCadenceBytes(SuperMetroidAddressSpace rom, int start, int count)
     {
         for (int address = start; address < start + count; address++)
             AssertEqual(rom.ReadCartridgeByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
     }
     /// <summary>Forbids compiled cadence ROM reads while exposing the live WRAM delay alias and fallback address signature.</summary>
-    [CpuBusBoundary("exact bus test: live WRAM delay alias at $91:0303 plus a constructed unimplemented-hardware byte signature that witnesses running-cadence operand routing")]
     internal sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
         ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

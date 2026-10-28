@@ -39,7 +39,6 @@ internal static class ManagedAudioVerification
     }
 
     /// <summary>Checks that a source-number write affects the next live loop without restarting a voice.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
     {
         var dsp = new ManagedSnesDsp(new byte[0x10000]);
@@ -62,7 +61,6 @@ internal static class ManagedAudioVerification
     }
 
     /// <summary>Separates a sample's key-on start from its independently mapped loop entry.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void VerifyManagedDspUsesIndependentLoopEntry()
     {
         var dsp = new ManagedSnesDsp(new byte[65536]);
@@ -142,7 +140,6 @@ internal static class ManagedAudioVerification
     /// Preset `$0A` deliberately lands beyond the four conventional filters and must read
     /// the resident bytes at `$1E82`, exactly as the SPC's indexed load does.
     /// </summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedSpcUsesAddressedFirCoefficients()
     {
         const ushort topLevel = 0x6000;
@@ -222,7 +219,6 @@ internal static class ManagedAudioVerification
     /// Exercises PCM source lookup, Gaussian interpolation, direct-gain envelope, pitch
     /// stepping, stereo volumes, and the end/loop path without a cartridge room.
     /// </summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspPlaysConstructedPcmSample()
     {
         byte[] apuRam = new byte[0x10000];
@@ -285,7 +281,6 @@ internal static class ManagedAudioVerification
     /// A replacement WAV may carry more source frames than the stock 32-kHz decode. The DSP
     /// normalizes phase advance, applies the same live envelope/pan path, and still obeys key-off.
     /// </summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement()
     {
         ManagedSnesDsp dsp = new(new byte[0x10000]);
@@ -314,7 +309,6 @@ internal static class ManagedAudioVerification
     }
 
     /// <summary>Sets voice zero to audible direct gain with equal stereo volume and key-on.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
         dsp.WriteRegister(0x00, 0x7f);
@@ -331,7 +325,6 @@ internal static class ManagedAudioVerification
     }
 
     /// <summary>Checks invalid APU RAM, register, waveform, sample-rate, and WAV boundaries.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspRejectsInvalidBoundaries()
     {
         AssertThrows<ArgumentException>(

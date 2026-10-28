@@ -25,7 +25,6 @@ internal static class MapIndicatorAnimationVerification
     }
 
     /// <summary>Compares native frame delays and 49 ticks of marker phase and backing alternation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for map indicator delays")]
     internal static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0xe0, rom.ReadCartridgeByte(0x82ba06), "native marker frame CPX");

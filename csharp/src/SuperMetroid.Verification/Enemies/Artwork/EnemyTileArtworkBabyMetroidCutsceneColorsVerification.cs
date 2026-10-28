@@ -26,7 +26,6 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
     /// <summary>Compares native colors and selectors, edits one channel, and checks strict override failures.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby Metroid cutscene colors and fade selectors")]
     internal static void VerifyInstalledBabyMetroidCutsceneColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

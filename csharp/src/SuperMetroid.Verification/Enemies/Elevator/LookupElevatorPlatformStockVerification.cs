@@ -86,6 +86,5 @@ internal static class LookupElevatorPlatformStockVerification
     }
 
     /// <summary>Reads a native elevator platform draw-list byte for the stock oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator platform stock mapping")]
     private static byte ElevatorPlatformStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

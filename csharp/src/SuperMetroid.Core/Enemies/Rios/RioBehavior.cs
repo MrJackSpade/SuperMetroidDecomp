@@ -244,7 +244,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
     internal static ushort ReadRioSignedSineCosineSample(ByteAngle angle) =>
-        unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
+        unchecked((ushort)Trigonometry.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>
     private static void RequireRioLevel([NotNull] RoomLevelData? level)

@@ -60,6 +60,5 @@ internal static class FallingSparkLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native launch table as the independent speed oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for falling spark launch definitions")]
     private static byte FallingSparkLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

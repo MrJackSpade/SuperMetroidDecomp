@@ -93,7 +93,6 @@ internal static class PauseSelectorCompositionsVerification
     }
 
     /// <summary>Compares each group's 14 phases with native OAM at several preoccupied-buffer sizes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native compositions")]
     internal static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorPresentation selector, int group)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);

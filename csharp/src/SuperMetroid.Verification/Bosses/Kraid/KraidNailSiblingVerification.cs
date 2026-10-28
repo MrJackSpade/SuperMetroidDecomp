@@ -47,7 +47,6 @@ internal static class KraidNailSiblingVerification
     }
 
     /// <summary>Reads one native launch-table byte for the field comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail launch field")]
     private static byte KraidNailLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks both nail slots, sibling flags, RNG preservation, and the actual launch or waiting phase.</summary>
@@ -96,6 +95,5 @@ internal static class KraidNailSiblingVerification
     }
 
     /// <summary>Reads native nail launch words solely as the verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail sibling")]
     private static byte KraidNailSiblingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

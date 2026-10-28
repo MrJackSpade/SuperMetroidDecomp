@@ -10,13 +10,13 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain's fake-death gray fades against native full-CGRAM frames.</summary>
 internal static class MotherBrainFakeDeathPaletteVerification
 {
     /// <summary>Compares both descent and ascent color tables, timers, and zero-terminator transitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain fake-death palette")]
     internal static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
     {

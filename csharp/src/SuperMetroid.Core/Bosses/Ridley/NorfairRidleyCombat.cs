@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, pogo and ground attacks, and grabbing Samus.</summary>

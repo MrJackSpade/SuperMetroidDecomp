@@ -13,7 +13,6 @@ internal static class ReserveTilePixelsVerification
 {
     /// <summary>Compares reserve tiles $47-$4F with retail planar art and preserves every pixel edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for reserve tile pixels")]
     internal static void VerifyReserveTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

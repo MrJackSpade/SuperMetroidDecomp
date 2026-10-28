@@ -16,7 +16,6 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : IPaletteFxColorSource
 {
     /// <summary>Reads a BGR555 word from the palette-FX bank and reports it available to the diagnostic fixture.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for palette-FX color words")]
     public bool TryReadColor(PaletteFxColorKey key, out RgbColor color)
     {
         int address = RoomFxBankSourceDefinitions.PaletteFx | PaletteFxRecordSources.ColorAddress(key);

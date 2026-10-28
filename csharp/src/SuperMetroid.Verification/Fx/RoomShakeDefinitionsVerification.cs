@@ -117,7 +117,6 @@ internal static class RoomShakeDefinitionsVerification
             definition => new OctantVector(definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
     /// <summary>Checks one compiled vector field against all 36 native rows and rejects invalid type indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room shake vector")]
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, OctantVector> select, string label)
     {

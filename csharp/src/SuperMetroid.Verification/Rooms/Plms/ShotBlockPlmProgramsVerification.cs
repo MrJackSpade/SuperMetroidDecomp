@@ -60,7 +60,6 @@ internal static class ShotBlockPlmProgramsVerification
     }
 
     /// <summary>Checks compiled shot-block control, sound, and drawing data against retail ROM and executes the programs with source reads forbidden.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for shot block PLM programs")]
     internal static void VerifyShotBlockPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -272,7 +271,6 @@ internal static class ShotBlockPlmProgramsVerification
     }
 
     /// <summary>Checks the thirteen packed sound operands and rejects every unrelated bank-$84 address.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for shot block program sound mapping")]
     private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,

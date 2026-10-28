@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>

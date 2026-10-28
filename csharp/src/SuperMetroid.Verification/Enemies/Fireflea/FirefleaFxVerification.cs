@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 
 using SuperMetroid.Verification.Harness;

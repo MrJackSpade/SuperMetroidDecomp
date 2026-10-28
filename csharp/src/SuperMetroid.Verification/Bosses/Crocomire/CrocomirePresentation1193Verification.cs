@@ -152,7 +152,6 @@ internal static class CrocomirePresentation1193Verification
     }
 
     /// <summary>Checks that a pre-spike PNG inherits every new stock spike tile byte-for-byte from the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$87 spike tile sources a legacy room-FX PNG inherits")]
     private static void AssertInheritedSpikeArtworkMatchesCartridge(ISnesAddressSpace rom, RoomFxAnimatedTileAtlas migrated)
     {
         foreach (int source in new[] { 0x879d84, 0x879e04, 0x879e84 })

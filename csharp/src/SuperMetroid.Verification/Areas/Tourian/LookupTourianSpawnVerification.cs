@@ -16,7 +16,6 @@ internal static class LookupTourianSpawnVerification
 {
     /// <summary>Reads the bounded bank-$8F spawn sequence and checks the
     /// production objects preserve its order, entry programs, and initial timer.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue spawn order")]
     internal static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {
         var expected = new List<ushort>();

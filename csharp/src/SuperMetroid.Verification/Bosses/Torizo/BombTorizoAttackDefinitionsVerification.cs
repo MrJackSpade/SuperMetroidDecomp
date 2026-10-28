@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 internal static class BombTorizoAttackDefinitionsVerification
 {
     /// <summary>Compares 34 native offset words and real projectile spawns for both facings.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo attack definitions")]
     internal static void VerifyBombTorizoAttackDefinitions(SuperMetroidAddressSpace rom)
     {
         const int swipeXAddress = 0x86a738;

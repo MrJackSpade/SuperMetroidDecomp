@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Hud;
@@ -29,7 +30,6 @@ internal static class LibraryBackgroundVerification
 private const int CartridgeRomFloor = 0x800000;
 
 /// <summary>Compares the retail list operands with compiled sources and validates every compressed page count.</summary>
-[CpuBusBoundary("exact bus test: retail ROM oracle decompressing every library-background tilemap source to validate its page count")]
 internal static void VerifyLibraryBackgroundSourceInventory()
 {
     ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -77,7 +77,6 @@ internal static void VerifyLibraryBackgroundSourceInventory()
 
 /// <summary>Confirms installed Kraid HUD pixels reproduce the native upload and that an edit reaches VRAM.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-[CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid HUD library-background planar characters")]
 static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundNativeOperand> romTransfers)
 {
@@ -219,7 +218,6 @@ private static (SnesVram Shown, LibraryBackgroundExecutionResult Result) ReplayS
 /// The list cursor is sixteen-bit: a command word at $8F:FFFF takes its high byte from the
 /// $8F:0000 low-WRAM mirror, not from the next ROM bank.
 /// </summary>
-[CpuBusBoundary("exact bus test: library-background command word wrapping from $8F:FFFF into the $8F:0000 low-WRAM mirror")]
 private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
 {
     WriteLibraryByte(rom, 0xffff, 0);
@@ -237,7 +235,6 @@ private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
 }
 
 /// <summary>Counts cartridge and WRAM reads separately to verify library-background source routing.</summary>
-[CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
 internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesMemoryBus, IImportCartridgeSource
 {

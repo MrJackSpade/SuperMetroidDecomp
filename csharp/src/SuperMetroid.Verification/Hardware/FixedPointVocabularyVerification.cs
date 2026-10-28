@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Verification.Harness;
 
@@ -51,7 +50,7 @@ internal static class FixedPointVocabularyVerification
         foreach (byte angle in new byte[] { 0x00, 0x40, 0x80, 0xc0, 0xa3 })
         for (int radius = 0; radius <= 0x1ff; radius++)
         {
-            int sample = EnemyTrigonometryTables.EightBitHalfWave(angle & 0x7f);
+            int sample = Trigonometry.EightBitHalfWave(angle & 0x7f);
             ushort product = unchecked((ushort)(sample * (radius & 0xff)));
             ushort whole = (ushort)(product >> 8);
             ushort fraction = (ushort)((product & 0xff) << 8);

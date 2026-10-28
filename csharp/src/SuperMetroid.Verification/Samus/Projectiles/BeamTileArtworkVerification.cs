@@ -90,7 +90,6 @@ internal static class BeamTileArtworkVerification
 
     /// <summary>Reconstructs the cartridge's selected beam tile transfer and palette as a native comparison fixture.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the native beam tile artwork fixture")]
     internal static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {

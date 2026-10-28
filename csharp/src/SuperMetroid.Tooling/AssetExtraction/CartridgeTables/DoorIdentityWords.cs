@@ -1,11 +1,9 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge words naming the door identities (#1414); Core's values are arbitrary.</summary>
-[CpuBusBoundary("catalog: door identity words")]
 internal static class DoorIdentityWords
 {
     /// <summary>The bank-$8F routine a door record's setup word names; zero names none.</summary>

@@ -15,7 +15,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the remaining Ceres map slices and Zebes reveal transfers.</summary>
-[CpuBusBoundary("codec: ROM Ceres map slices and Zebes reveal transfers → Ceres destruction artwork")]
 internal static class CeresDestructionArtworkExtractor
 {
     /// <summary>Exports the three Ceres destruction map slices, Zebes reveal

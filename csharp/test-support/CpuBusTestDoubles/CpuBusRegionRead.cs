@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -9,7 +8,6 @@ namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
 /// <see cref="ISnesMutableMemory"/>. A source without the contract an address needs, or an address
 /// outside the runtime map, fails loudly. Used only by exact bus test doubles that wrap a source.
 /// </summary>
-[CpuBusAccess]
 internal static class CpuBusRegionRead
 {
     /// <summary>Routes one CPU address to its cartridge, WRAM, or SRAM contract and rejects unsupported regions.</summary>

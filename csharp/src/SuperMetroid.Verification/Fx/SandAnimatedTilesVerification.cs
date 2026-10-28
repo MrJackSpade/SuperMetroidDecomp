@@ -14,7 +14,6 @@ internal static class SandAnimatedTilesVerification
 {
     /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for sand animated tiles")]
     internal static void VerifySandAnimatedTiles()
     {
         var bus = new TestAddressSpace();

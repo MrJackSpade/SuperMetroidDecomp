@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads native 64-byte bank-$A0 enemy headers during cartridge import.</summary>
-[CpuBusBoundary("codec: ROM bank-$A0 64-byte enemy headers → RoomEnemyDefinition")]
 public static class RoomEnemyDefinitionImporter
 {
     /// <summary>Decodes one fixed 64-byte bank-$A0 enemy definition from cartridge data.</summary>

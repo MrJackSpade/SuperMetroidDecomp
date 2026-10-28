@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Intro;
@@ -22,7 +23,6 @@ internal static class EndingRewardGestureVerification
 {
     /// <summary>Compares sixteen upload chunks, both reward gesture timelines, and jump-to-shot sequences with native data and guarded definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon graphics and upload tables")]
     internal static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -144,7 +144,6 @@ internal static class EndingRewardGestureVerification
         [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
 
     /// <summary>Matches ten native spawn operands, actor records, and four initializer origins against compiled definitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward actor definitions")]
     internal static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
 

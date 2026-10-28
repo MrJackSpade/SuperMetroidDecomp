@@ -35,7 +35,7 @@ internal static class GoldenTorizoCodeVerification
             var initialize = new Action<RoomEnemySlot, EnemySpawnSurroundings>(EnemySlotDispatch.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);
-            actor.Bind(actor.DefinitionId, RoomEnemyDefinitions.Get(header));
+            actor.Bind(actor.DefinitionId, RoomEnemyHeaders.Get(header));
             var samus = new SamusState
             {
                 Health = 1500, MaxHealth = 1599, ReserveEnergy = 400, MaxReserveEnergy = 400,

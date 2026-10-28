@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Finds an enemy projectile's definition and derives what its properties mean for drawing.</summary>
-internal static class EnemyProjectileDefinitions
+internal static class EnemyProjectileKinds
 {
     /// <summary>Returns the complete native definition for one translated projectile identity.</summary>
     /// <exception cref="InvalidDataException"><paramref name="kind"/> is not compiled.</exception>

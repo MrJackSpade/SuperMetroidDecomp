@@ -40,7 +40,7 @@ internal sealed class DraygonIntro
         {
             if (state.FunctionTimer.IsZero)
             {
-                RoomEnemyDefinition evir = RoomEnemyDefinitions.Get(EnemyDefinitionId.Evir);
+                RoomEnemyDefinition evir = RoomEnemyHeaders.Get(EnemyDefinitionId.Evir);
                 if (evir.TileByteCount != DraygonIntroPresentationDefinitions.EvirTilesByteCount)
                     throw new InvalidDataException(
                         "Draygon opening Evir sheet no longer has the compiled transfer length.");

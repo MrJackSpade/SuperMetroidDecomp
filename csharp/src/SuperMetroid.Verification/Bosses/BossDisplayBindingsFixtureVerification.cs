@@ -56,7 +56,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             Actor.Bind(definition, Actor.Definition);
-            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitions.Get(definition));
+            Actor.Bind(Actor.DefinitionId, RoomEnemyHeaders.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);

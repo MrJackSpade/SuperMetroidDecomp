@@ -55,7 +55,7 @@ internal static class EnemyProjectileDefinitionsVerification
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
-            EnemyProjectileDefinition definition = EnemyProjectileDefinitions.Get(kind);
+            EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Clear();
             initialize(projectile, kind, SpriteGraphics.InPalette(6));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
@@ -72,7 +72,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production radius");
             AssertEqual(definition.Damage, projectile.Damage,
                 $"{kind} production damage");
-            AssertEqual(EnemyProjectileDefinitions.DrawPriority(definition), projectile.DrawPriority,
+            AssertEqual(EnemyProjectileKinds.DrawPriority(definition), projectile.DrawPriority,
                 $"{kind} production draw priority");
             AssertEqual(definition.CanDamageSamus, projectile.CanDamageSamus,
                 $"{kind} production Samus-damage property");
@@ -492,10 +492,10 @@ internal static class EnemyProjectileDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileDefinitions.Get(RoomEnemyProjectileKind.None),
+            () => EnemyProjectileKinds.Get(RoomEnemyProjectileKind.None),
             "inactive enemy-projectile identity has no definition");
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileDefinitions.Get((RoomEnemyProjectileKind)ushort.MaxValue),
+            () => EnemyProjectileKinds.Get((RoomEnemyProjectileKind)ushort.MaxValue),
             "unknown enemy-projectile definition");
 
         Console.WriteLine(
@@ -519,7 +519,7 @@ internal static class EnemyProjectileDefinitionsVerification
             for (int index = 0; index < 14; index++)
                 forbidden.Add(address + index);
 
-            EnemyProjectileDefinition definition = EnemyProjectileDefinitions.Get(kind);
+            EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), EnemyProjectilePreInstructionAccess.Word(definition.PreInstruction),
                 $"{kind} pre-instruction");
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the

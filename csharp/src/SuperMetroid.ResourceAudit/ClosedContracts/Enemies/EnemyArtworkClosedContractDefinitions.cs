@@ -12,7 +12,7 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSets.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyDefinitionCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyHeaders.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyDefinition.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyPopulationRecord.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetEntry.cs"),

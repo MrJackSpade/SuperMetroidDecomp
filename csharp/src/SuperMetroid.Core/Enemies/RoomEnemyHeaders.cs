@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Finds the retail enemy definitions room states reference, and checks their compiled catalog.</summary>
-public static class RoomEnemyDefinitions
+public static class RoomEnemyHeaders
 {
     /// <summary>Indexes the compiled definitions by identity, checking their count and that each identity is compiled once.</summary>
     /// <exception cref="InvalidDataException">The count changed or an identity repeats.</exception>

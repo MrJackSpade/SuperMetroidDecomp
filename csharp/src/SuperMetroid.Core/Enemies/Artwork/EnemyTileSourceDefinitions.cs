@@ -13,7 +13,7 @@ public static class EnemyTileSourceDefinitions
             .SelectMany(set => set.Records.ToArray())
             .Select(record => record.DefinitionId).Distinct().Order()
             .Select(definition => {
-                RoomEnemyDefinition header = RoomEnemyDefinitions.Get(definition);
+                RoomEnemyDefinition header = RoomEnemyHeaders.Get(definition);
                 return new EnemyTileSourceDefinition(definition, header.TileByteCount);
             }).ToArray();
         if (definitions.Length != EnemyTileArtworkFormat.RetailDefinitionCount)

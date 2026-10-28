@@ -1728,23 +1728,23 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1EnemyMovementRomByte(rom, address), LookupStream1EnemyMovementRomByte(rom, address + 1));
         for (ushort index = 0; index < 13; index++)
         {
-            var intervals = BullMovementDefinitions.Intervals(index);
+            var intervals = BullMotion.Intervals(index);
             AssertEqual(Word(0xa8d895 + 4 * index), intervals.Acceleration, "stream1 Bull acceleration interval");
             AssertEqual(Word(0xa8d897 + 4 * index), intervals.Deceleration, "stream1 Bull deceleration interval");
         }
         for (int direction = 0; direction < 10; direction++)
-            AssertEqual(Word(0xa8d871 + 2 * direction), BullMovementDefinitions.ShotAngle(direction), "stream1 Bull compass angle");
+            AssertEqual(Word(0xa8d871 + 2 * direction), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BullMovementDefinitions.ShotAngle(invalid), "stream1 Bull invalid direction");
-        AssertThrows<InvalidDataException>(() => BullMovementDefinitions.Intervals(13), "stream1 Bull invalid interval");
+            AssertThrows<InvalidDataException>(() => BullMotion.ShotAngle(invalid), "stream1 Bull invalid direction");
+        AssertThrows<InvalidDataException>(() => BullMotion.Intervals(13), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
-            AssertEqual(Word(0xa29f36 + 2 * index), CacatacMovementDefinitions.TravelDistance(index), "stream1 Cacatac patrol blocks");
+            AssertEqual(Word(0xa29f36 + 2 * index), CacatacPatrol.TravelDistance(index), "stream1 Cacatac patrol blocks");
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })
-            AssertThrows<InvalidDataException>(() => CacatacMovementDefinitions.TravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
+            AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
         for (ushort direction = 0; direction < 20; direction += 2)
-            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacProjectileDefinitions.Program((CacatacSpikeDirection)direction)), "stream1 Cacatac named direction program");
+            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Program((CacatacSpikeDirection)direction)), "stream1 Cacatac named direction program");
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.Program((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
+            AssertThrows<InvalidDataException>(() => CacatacSpikes.Program((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
     }
 
     /// <summary>Reads native Bull and related enemy motion words.</summary>

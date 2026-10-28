@@ -16,10 +16,10 @@ internal static class AtomicMovementDefinitionsVerification
     {
         for (ushort selector = 0; selector < 4; selector++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
-                NativeEnemyProgramOracle.EntryOf(AtomicNativeListAddresses.Entries, AtomicMovementDefinitions.InitialProgram(selector)),
+                NativeEnemyProgramOracle.EntryOf(AtomicNativeListAddresses.Entries, AtomicSpins.InitialProgram(selector)),
                 "Atomic native direction program");
         foreach (ushort selector in new ushort[] { 4, 5, 0x7fff, 0xffff })
-            AssertThrows<InvalidDataException>(() => AtomicMovementDefinitions.InitialProgram(selector),
+            AssertThrows<InvalidDataException>(() => AtomicSpins.InitialProgram(selector),
                 "Atomic invalid direction selector");
     }
 
@@ -39,7 +39,7 @@ internal static class AtomicMovementDefinitionsVerification
             slot.SetSpawnParameter2((ushort)(selector * 7));
             AtomicBehavior.InitializeAtomic(slot);
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
-            AtomicProgram program = AtomicMovementDefinitions.InitialProgram(selector);
+            AtomicProgram program = AtomicSpins.InitialProgram(selector);
             AssertEqual(AnimationProgramCursor<AtomicProgram>.Start(program), state.Program,
                 $"Atomic initializer animation {selector}");
 

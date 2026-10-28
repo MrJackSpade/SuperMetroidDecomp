@@ -7,5 +7,5 @@ internal static class SamusArmCannonOpening
 {
     /// <summary>Returns the native desired cover state for a HUD item.</summary>
     public static byte DesiredOpenFlag(HudItem selectedHudItem) =>
-        DesiredOpenFlags.TryGetValue(selectedHudItem, out byte value) ? value : throw new ArgumentOutOfRangeException(nameof(selectedHudItem), selectedHudItem, "HUD item is outside the six-entry dispatcher.");
+        DesiredOpenFlags.ContainsKey(selectedHudItem) ? DesiredOpenFlags[selectedHudItem] : throw new ArgumentOutOfRangeException(nameof(selectedHudItem), selectedHudItem, "HUD item is outside the six-entry dispatcher.");
 }

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;

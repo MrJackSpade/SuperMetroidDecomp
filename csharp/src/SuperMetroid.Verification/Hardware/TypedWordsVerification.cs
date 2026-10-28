@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
@@ -509,7 +510,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
     AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1),
         "OBJ palette replacement preserves tile, priority, and flips");
-    AssertEqual(0x6e00, SnesObjPalettes.Palette(7).Or(
+    AssertEqual(0x6e00, SnesObjAttributeWord.Create(0, 7, 0).Or(
             SnesObjAttributeWord.Create(0, 0, 2, TileFlip.Horizontal)),
         "typed OBJ palette fragment composes with priority and flip fields");
     SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(

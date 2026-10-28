@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -26,7 +27,8 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ushort palette = IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw;
+        int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroDiscoveryActorSpriteDefinitions.Frames)
         {
@@ -39,9 +41,9 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
-                    DrawImportedSpritemap(bus, native, source, new(x, y), palette);
+                    DrawImportedSpritemap(bus, native, source, new(x, y), paletteBits);
                 else
-                    DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
+                    DrawImportedSpritemap(bus, native, source, new(x, y), paletteBits, originIsOnScreen: false);
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();

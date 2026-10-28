@@ -60,7 +60,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"intro baby actor {index} initializer X immediate");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 7)), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), actual.PaletteBits,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), actual.Palette,
                 $"intro baby actor {index} initializer palette immediate");
         }
 

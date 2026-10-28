@@ -31,8 +31,8 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(4, FileSelectMapDefinitions.EntryWindowSpeed, "entry window speed");
         AssertEqual(32, FileSelectMapDefinitions.LoadBlackFrames, "load black frames");
         AssertEqual(15, FileSelectMapDefinitions.EntryPaletteDenominator, "entry fade steps");
-        AssertEqual(0x0e00, FileSelectMapDefinitions.StationMarkerPalette, "station marker palette");
-        AssertEqual(0x0c00, FileSelectMapDefinitions.DefeatedBossPalette, "defeated boss palette");
+        AssertEqual(7, FileSelectMapDefinitions.StationMarkerPalette, "station marker palette row (the cartridge's $0E00 palette bits)");
+        AssertEqual(6, FileSelectMapDefinitions.DefeatedBossPalette, "defeated boss palette row (the cartridge's $0C00 palette bits)");
         AssertEqual(4, MapScrollDefinitions.PulseTick, "scroll pulse tick");
         AssertEqual(8, MapScrollDefinitions.StepTicks, "scroll step ticks");
         AssertEqual(8, MapScrollDefinitions.StepPixels, "scroll step pixels");

@@ -53,8 +53,8 @@ internal static class PauseScreenPublicationVerification
         PauseScreen screen = pause.screen;
         FramePaint memory = pause.CaptureRenderSnapshot().Paint;
         byte[] vram = pause.ShownVram();
-        AssertWords(vram, PauseMenuLayoutConstants.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
-        AssertWords(vram, PauseMenuLayoutConstants.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
+        AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
+        AssertTiles(vram, PauseMenuLayoutConstants.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
         AssertWords(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
         int tilemapsFirst = PauseMenuLayoutConstants.Bg1TilemapWord * sizeof(ushort);
         int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
@@ -73,6 +73,16 @@ internal static class PauseScreenPublicationVerification
         {
             int at = (firstWord + word) * sizeof(ushort);
             AssertEqual(expected[word], SnesLittleEndian.Word(vram[at], vram[at + 1]), $"{context} word {word}");
+        }
+    }
+
+    /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> place exactly the tiles <paramref name="expected"/>.</summary>
+    private static void AssertTiles(byte[] vram, int firstWord, ReadOnlySpan<BackgroundTile> expected, string context)
+    {
+        for (int cell = 0; cell < expected.Length; cell++)
+        {
+            int at = (firstWord + cell) * sizeof(ushort);
+            AssertEqual(expected[cell], BackgroundTileWords.ToTile(SnesLittleEndian.Word(vram[at], vram[at + 1])), $"{context} tile {cell}");
         }
     }
 

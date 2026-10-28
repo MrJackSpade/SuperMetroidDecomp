@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
@@ -45,7 +46,7 @@ internal static class PauseSelectorCompositionsVerification
                     AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);
-                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new(anchor.X, anchor.Y), edited.ObjectPalette.PaletteBits);
+                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new(anchor.X, anchor.Y), SnesObjAttributeWord.Create(0, edited.ObjectPalette, 0).PaletteBits);
                     edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, 0);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
@@ -81,7 +82,7 @@ internal static class PauseSelectorCompositionsVerification
                 var composition = MenuSpriteCompiler.Compile(document.Frames[name], name);
                 var anchor = edited.Anchor(category, 0);
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                composition.DrawOnScreen(expected, new(anchor.X, anchor.Y), edited.ObjectPalette.PaletteBits);
+                composition.DrawOnScreen(expected, new(anchor.X, anchor.Y), SnesObjAttributeWord.Create(0, edited.ObjectPalette, 0).PaletteBits);
                 edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),

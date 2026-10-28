@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 
@@ -38,8 +39,9 @@ internal static class RoomSpriteObjectSlotAccess
         /// <summary>The bank-$B4 spritemap the slot shows, or zero for a free slot.</summary>
         internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
 
-        /// <summary>The native OBJ attribute word.</summary>
-        internal ushort GraphicsIndex => self.Attributes.Raw;
+        /// <summary>The native OBJ attribute word the slot's tile base and palette row encode to.</summary>
+        internal ushort GraphicsIndex =>
+            SnesObjAttributeWord.Create(self.Graphics.TileBase, self.Graphics.PaletteRow, priority: 0).Raw;
 
         /// <summary>The native disable word.</summary>
         internal int DisableFlags => self.UpdatesDisabled ? 1 : 0;

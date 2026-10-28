@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
@@ -32,8 +33,8 @@ internal static class PauseScreenMemory
         var image = new SnesVram();
         image.LoadBytes(0, Characters(screen.Artwork));
         var pause = new PauseVram(image);
-        pause.Bg1Tilemap.Write(screen.Tilemaps.Bg1);
-        pause.Bg2Tilemap.Write(screen.Tilemaps.Bg2);
+        pause.Bg1Tilemap.Write(BackgroundTileWordBytes.Words(screen.Tilemaps.Bg1));
+        pause.Bg2Tilemap.Write(BackgroundTileWordBytes.Words(screen.Tilemaps.Bg2));
         pause.Bg3Tilemap.Write(screen.Tilemaps.Bg3);
         return image.CaptureImage();
     }

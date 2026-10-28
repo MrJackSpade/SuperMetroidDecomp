@@ -26,8 +26,8 @@ internal static class CinematicScreenPublicationVerification
         AssertEqual(new ScreenObjectSizes(new Extent16<ScreenPixels>(32, 32), new Extent16<ScreenPixels>(64, 64)), clouds,
             "OBSEL $A3 selects 32- and 64-pixel objects");
         SpriteFrame sized = new SpriteComposition([
-            new CompiledSpritePart(SnesSpritemapXWord.Create(0, true), SnesSpritemapYByte.Create(0), SnesObjAttributeWord.Create(0, 0, 0), InheritPalette: false),
-            new CompiledSpritePart(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), SnesObjAttributeWord.Create(0, 0, 0), InheritPalette: false),
+            new CompiledSpritePart(SpritePart.Create(0, 0, large: true, character: 0, palette: 0, priority: 0), InheritPalette: false),
+            new CompiledSpritePart(SpritePart.Create(0, 0, large: false, character: 0, palette: 0, priority: 0), InheritPalette: false),
         ]).ToFrame("sized", 0, clouds);
         AssertEqual(clouds.Large, sized.Parts[0].Size, "a large part is composed at the selection's large size");
         AssertEqual(clouds.Small, sized.Parts[1].Size, "a small part is composed at the selection's small size");
@@ -43,7 +43,7 @@ internal static class CinematicScreenPublicationVerification
         {
             var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
             raw.AddObjectImage(star, position);
-            oam.AddRawSmallSprite(position, EndingShootingStarDefinitions.Attribute(EndingShootingStarDefinitions.FullStarFrame));
+            oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(EndingShootingStarDefinitions.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
         }
         raw.FinishFrame();
         oam.FinalizeFrame();

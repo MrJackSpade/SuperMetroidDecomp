@@ -35,7 +35,7 @@ internal static class CeresInitialActorMetadataVerification
             CeresDestructionActorDefinitions.InitialActor(2);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfa6), vortex.Position.X, "destruction vortex X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), vortex.Attributes,
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), vortex.Palette,
             "destruction vortex attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActivePreInstruction.NativeAddress,
             "destruction vortex no-op callback override");
@@ -74,7 +74,7 @@ internal static class CeresInitialActorMetadataVerification
         {
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), actor.Attributes,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), actor.Palette,
                 $"{name} attributes");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");

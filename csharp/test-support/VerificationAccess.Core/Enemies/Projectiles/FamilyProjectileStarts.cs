@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -10,13 +11,13 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class FamilyProjectileStarts
 {
     /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
-    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, ushort graphicsIndex)
+    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
         if (TourianStatueProjectileStarts.ForKind(kind) is not null)
-            TourianStatueProjectileStarts.Initialize(projectile, kind, graphicsIndex);
+            TourianStatueProjectileStarts.Initialize(projectile, kind, graphics);
         else if (MotherBrainProjectileStarts.ForKind(kind) is not null)
-            MotherBrainProjectileStarts.Initialize(projectile, kind, graphicsIndex);
+            MotherBrainProjectileStarts.Initialize(projectile, kind, graphics);
         else
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex);
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
     }
 }

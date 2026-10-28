@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -33,10 +32,10 @@ internal static class EnemyProjectileSpritemapNative
     extension(EnemyProjectileSpritemapCatalog catalog)
     {
         /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-        internal ReadOnlyMemory<SpritemapPart> Get(ushort spritemap) => catalog.Get(FrameAt(spritemap));
+        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => catalog.Get(FrameAt(spritemap));
 
         /// <summary>The parts of the program frame stored at bank-$86 operand <paramref name="operand"/>.</summary>
-        internal ReadOnlyMemory<SpritemapPart> GetProgramFrame(ushort operand) =>
+        internal ReadOnlyMemory<SpritePart> GetProgramFrame(ushort operand) =>
             catalog.GetProgramFrame(EnemyProjectileProgramFrameOperands.Frame(operand));
     }
 

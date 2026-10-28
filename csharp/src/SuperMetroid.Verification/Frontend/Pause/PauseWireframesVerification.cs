@@ -31,13 +31,16 @@ internal static class PauseWireframesVerification
         var guard = NewPauseWireframeReadGuard(bus);
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            byte[] expected = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
+            // Every page cell starts as a sentinel tile, so the cells the patch leaves alone must keep it.
+            var sentinel = new BackgroundTile(0x25a, 6, FlipHorizontally: true, FlipVertically: false, HighPriority: false);
+            BackgroundTile[] expected = Enumerable.Repeat(sentinel, PauseWireframeDefinitions.PageTiles).ToArray();
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b25f + (int)kind * 2);
             for (int row = 0; row < 17; row++)
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16).CopyTo(expected, 472 + row * 64);
-            byte[] actual = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
+                BackgroundTileWordBytes.Tiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16))
+                    .CopyTo(expected, PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns);
+            BackgroundTile[] actual = Enumerable.Repeat(sentinel, PauseWireframeDefinitions.PageTiles).ToArray();
             original.PauseWireframes.ApplyTo(actual, kind);
-            AssertTrue(expected.SequenceEqual(actual), "all 136 native wireframe words and untouched surrounding bytes match");
+            AssertTrue(expected.SequenceEqual(actual), "all 136 native wireframe tiles and untouched surrounding cells match");
             // One replacement at a time proves semantic variants do not alias.
             var frames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
             frames[kind.ToString()] = frames[kind.ToString()].Select(cell => cell with
@@ -47,7 +50,7 @@ internal static class PauseWireframesVerification
             AssertTrue(original.ContentIdentity != edited.ContentIdentity, "independent wireframe edit changes selected identity");
             foreach (PauseWireframeKind other in Enum.GetValues<PauseWireframeKind>())
             {
-                var baseline = new byte[2048]; var changed = new byte[2048];
+                var baseline = new BackgroundTile[PauseWireframeDefinitions.PageTiles]; var changed = new BackgroundTile[PauseWireframeDefinitions.PageTiles];
                 original.PauseWireframes.ApplyTo(baseline, other); edited.PauseWireframes.ApplyTo(changed, other);
                 AssertEqual(kind != other, baseline.SequenceEqual(changed), "wireframe override affects only its named variant");
             }
@@ -121,8 +124,8 @@ internal static class PauseWireframesVerification
             document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { TileRow = 8 },
             document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { Palette = 8 } })
         { invalidFrames[nameof(PauseWireframeKind.PowerSuit)][0] = invalid; Reject(document with { Frames = invalidFrames }); }
-        AssertThrows<ArgumentOutOfRangeException>(() => original.PauseWireframes.ApplyTo(new byte[2048], (PauseWireframeKind)4), "invalid compiled selector rejected");
-        AssertThrows<ArgumentException>(() => original.PauseWireframes.ApplyTo(new byte[32], PauseWireframeKind.PowerSuit), "short patch target rejected before partial write");
+        AssertThrows<ArgumentOutOfRangeException>(() => original.PauseWireframes.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "invalid compiled selector rejected");
+        AssertThrows<ArgumentException>(() => original.PauseWireframes.ApplyTo(new BackgroundTile[16], PauseWireframeKind.PowerSuit), "short patch target rejected before partial write");
         File.WriteAllText(path, "broken JSON");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid wireframe override never silently replaced");
         File.WriteAllBytes(path, stockBytes);
@@ -140,8 +143,8 @@ internal static class PauseWireframesVerification
         { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }
         static void AssertPage(PauseMenuState pause, AreaMapPresentationCatalog catalog, PauseWireframeKind kind)
         {
-            byte[] actual = pause.ShownVram().AsSpan(0x6000, 0x800).ToArray();
-            byte[] expected = actual.ToArray(); catalog.PauseWireframes.ApplyTo(expected, kind);
+            BackgroundTile[] actual = BackgroundTileWordBytes.Tiles(pause.ShownVram().AsSpan(0x6000, 0x800));
+            BackgroundTile[] expected = actual.ToArray(); catalog.PauseWireframes.ApplyTo(expected, kind);
             AssertTrue(expected.SequenceEqual(actual), "actual equipment page contains the selected current-content wireframe patch");
         }
     }

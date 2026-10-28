@@ -862,7 +862,7 @@ public sealed class BabyMetroidCutsceneState
         // `$A9:CDFC` holds the scatter shared with Ridley's death. The handler increments its
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
         return new DustExplosionRequest(
-            Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
+            Position: Position.Whole + DeathExplosionScatter.Offset(DeathExplosionPatternIndex),
             Animation: MiscDustAnimation.SmallExplosion,
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }

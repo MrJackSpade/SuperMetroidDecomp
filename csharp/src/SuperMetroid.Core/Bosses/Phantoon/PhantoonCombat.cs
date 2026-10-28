@@ -150,7 +150,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(body.Frame) ||
+            CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |

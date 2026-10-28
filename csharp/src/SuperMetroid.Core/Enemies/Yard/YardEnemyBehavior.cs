@@ -123,7 +123,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void SetYardCrawlingVelocities(YardEnemyState state, int direction)
     {
         ValidateYardSpeedIndex(checked((ushort)state.CrawlingSpeedIndex));
-        int speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
+        int speed = CrawlerSpeeds.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 

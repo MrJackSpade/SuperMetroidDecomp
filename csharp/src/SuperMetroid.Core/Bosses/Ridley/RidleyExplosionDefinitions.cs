@@ -84,7 +84,7 @@ internal static class RidleyExplosionDefinitions
     /// shared with the Baby Metroid death).
     /// </summary>
     public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>
-        DeathExplosionScatterDefinitions.Offset(index);
+        DeathExplosionScatter.Offset(index);
 
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyBreakupFrame> TailFrames = new Dictionary<RidleyExplosionPart, RidleyBreakupFrame>

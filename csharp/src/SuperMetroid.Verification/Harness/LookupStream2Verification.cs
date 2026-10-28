@@ -1085,7 +1085,7 @@ internal static class LookupStream2Verification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
-            AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Native calculated speed ramp");
+            AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Native calculated speed ramp");
             speedParameter = parameter;
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
@@ -1107,7 +1107,7 @@ internal static class LookupStream2Verification
                     yard.CrawlingVelocity.Y.RawValue, "Actual Yard reset Y magnitude");
             }
         }
-        AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");
+        AssertThrows<InvalidDataException>(() => CrawlerSpeeds.ForParameter(32), "Crawler parameter upper bound");
         Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
     }
     /// <summary>Checks lava-jumper control and visual selectors, parent/follower programs, and handshake.</summary>

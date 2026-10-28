@@ -1,55 +1,32 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Calculated initializer and corpse-rotting metadata for dead Tourian enemies.</summary>
+/// <summary>Initializer and corpse-rotting metadata for dead Tourian enemies.</summary>
 internal static class DeadTourianCorpseDefinitions
 {
-    /// <summary>The five 64-byte Zoomer and Ripper rot tables begin this far into the rotting heap.</summary>
-    private const int FirstWideRotTable = 0x2c0;
-    /// <summary>The three 128-byte Skree rot tables begin this far into the rotting heap.</summary>
-    private const int FirstSkreeRotTable = 0x140;
-
-    /// <summary>The corpse pose program of the eight Zoomer, Ripper and Skree variants, in native configuration order.</summary>
-    private static DeadTourianProgram CorpseProgram(int ordinal) => ordinal switch
+    /// <summary>
+    /// Each species' corpse variants: the pose program, in native configuration order; the rot table, five 64-byte
+    /// Zoomer and Ripper tables from $2C0 and three 128-byte Skree tables from $140 in the rotting heap; the rotting
+    /// kind; the entries per table, sixteen for the three-tile-wide Zoomer and Ripper and thirty-two for the two-tile-wide
+    /// Skree; and the wrap offset, 32 per row tile less 12.
+    /// </summary>
+    internal static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> Variants = new()
     {
-        0 => DeadTourianProgram.ZoomerCorpse0,
-        1 => DeadTourianProgram.ZoomerCorpse1,
-        2 => DeadTourianProgram.ZoomerCorpse2,
-        3 => DeadTourianProgram.RipperCorpse0,
-        4 => DeadTourianProgram.RipperCorpse1,
-        5 => DeadTourianProgram.SkreeCorpse0,
-        6 => DeadTourianProgram.SkreeCorpse1,
-        7 => DeadTourianProgram.SkreeCorpse2,
-        _ => throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, null),
+        [DeadTourianCorpseSpecies.Zoomer] =
+        [
+            new(DeadTourianProgram.ZoomerCorpse0, 0x2c0, new RottingCorpseKind(RottingCorpseSpecies.Zoomer, 0), 16, 84),
+            new(DeadTourianProgram.ZoomerCorpse1, 0x300, new RottingCorpseKind(RottingCorpseSpecies.Zoomer, 1), 16, 84),
+            new(DeadTourianProgram.ZoomerCorpse2, 0x340, new RottingCorpseKind(RottingCorpseSpecies.Zoomer, 2), 16, 84),
+        ],
+        [DeadTourianCorpseSpecies.Ripper] =
+        [
+            new(DeadTourianProgram.RipperCorpse0, 0x380, new RottingCorpseKind(RottingCorpseSpecies.Ripper, 0), 16, 84),
+            new(DeadTourianProgram.RipperCorpse1, 0x3c0, new RottingCorpseKind(RottingCorpseSpecies.Ripper, 1), 16, 84),
+        ],
+        [DeadTourianCorpseSpecies.Skree] =
+        [
+            new(DeadTourianProgram.SkreeCorpse0, 0x140, new RottingCorpseKind(RottingCorpseSpecies.Skree, 0), 32, 52),
+            new(DeadTourianProgram.SkreeCorpse1, 0x1c0, new RottingCorpseKind(RottingCorpseSpecies.Skree, 1), 32, 52),
+            new(DeadTourianProgram.SkreeCorpse2, 0x240, new RottingCorpseKind(RottingCorpseSpecies.Skree, 2), 32, 52),
+        ],
     };
-
-    /// <summary>Calculates one Zoomer, Ripper, or Skree corpse's animation, rotting, kind, movement, and rotation identities.</summary>
-    internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species,int variantIndex)
-    {
-        int first = species switch
-        {
-            DeadTourianCorpseSpecies.Zoomer => 0,
-            DeadTourianCorpseSpecies.Ripper => 3,
-            DeadTourianCorpseSpecies.Skree => 5,
-            _ => throw new ArgumentOutOfRangeException(nameof(species),species,null),
-        };
-        int count = species == DeadTourianCorpseSpecies.Ripper ? 2 : 3;
-        if ((uint)variantIndex >= count) throw new ArgumentOutOfRangeException(nameof(variantIndex),variantIndex,null);
-        int ordinal = first+variantIndex;
-        bool skree = species == DeadTourianCorpseSpecies.Skree;
-        int layout = skree ? variantIndex : ordinal;
-        int rowTiles = skree ? 2 : 3;
-        RottingCorpseSpecies kind = species switch
-        {
-            DeadTourianCorpseSpecies.Zoomer => RottingCorpseSpecies.Zoomer,
-            DeadTourianCorpseSpecies.Ripper => RottingCorpseSpecies.Ripper,
-            DeadTourianCorpseSpecies.Skree => RottingCorpseSpecies.Skree,
-            _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
-        };
-        return new(
-            CorpseProgram(ordinal),
-            (skree ? FirstSkreeRotTable : FirstWideRotTable) + (skree ? 128 : 64) * layout,
-            new RottingCorpseKind(kind, variantIndex),
-            skree ? (ushort)32 : (ushort)16,
-            (ushort)(32 * rowTiles - 12));
-    }
 }

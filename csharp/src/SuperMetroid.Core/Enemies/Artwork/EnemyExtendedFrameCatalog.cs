@@ -49,7 +49,7 @@ public sealed class EnemyExtendedFrameCatalog
     {
         // The shared empty extended frame's sole component draws the empty spritemap; no editable drawing is needed
         // before initialization.
-        if (CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(frame))
+        if (CommonEnemyEmptyFrames.IsFrame(frame))
         {
             components = ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty;
             return true;

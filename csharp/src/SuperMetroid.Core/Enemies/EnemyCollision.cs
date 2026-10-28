@@ -181,7 +181,7 @@ internal sealed class EnemyCollision
             // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
-                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(enemy.Frame) ||
+                CommonEnemyEmptyFrames.DrawsNothing(enemy.Frame) ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
@@ -226,7 +226,7 @@ internal sealed class EnemyCollision
                 // the empty extended frame. Its point hitbox remains live for Samus and
                 // bombs, whose extended passes have no such check.
                 if (usesExtendedHitboxes &&
-                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.Frame))
+                    CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
                     continue;
                 if (usesExtendedHitboxes &&
                     IsCanonicalMultiboxNoOpAi(ShotAi(enemy)))
@@ -859,7 +859,7 @@ internal sealed class EnemyCollision
             SelectShotCallback: callbackKind == HitboxCallbackKind.Shot,
             ArtworkInstalled: _room.Artwork is not null);
 
-        if (CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.Frame))
+        if (CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
         {
             // The shared empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric native overlap test before

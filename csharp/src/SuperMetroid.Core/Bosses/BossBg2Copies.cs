@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -16,15 +17,11 @@ internal sealed class BossBg2Copies(CrocomireBehavior crocomire, MotherBrainEnco
     public bool StagesBody => motherBrain.MotherBrain is not null;
 
     /// <inheritdoc/>
-    public void Write(int destinationWord, ReadOnlySpan<ushort> words)
+    public void Write(int destinationCell, ReadOnlySpan<BackgroundTile> tiles)
     {
         if (crocomire.Access.CrocomireDeath is { } death)
-            words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
+            tiles.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationCell, tiles.Length));
         if (StagesBody)
-        {
-            ushort[] bg2 = room.Staging.EnemyBg2Tilemap;
-            for (int index = 0; index < words.Length; index++)
-                bg2[destinationWord + index] = words[index];
-        }
+            tiles.CopyTo(room.Staging.EnemyBg2Tilemap.AsSpan(destinationCell, tiles.Length));
     }
 }

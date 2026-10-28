@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Enemies;
@@ -9,16 +10,16 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public sealed class EnemyStagingSurfaces
 {
-    /// <summary>The words of the enemy BG2 staging image.</summary>
-    private const int Bg2WordCount = EnemyStagingDefinitions.Bg2ByteCount / sizeof(ushort);
+    /// <summary>The cells of the enemy BG2 staging image.</summary>
+    private const int Bg2CellCount = EnemyStagingDefinitions.Bg2ByteCount / sizeof(ushort);
 
-    /// <summary>The enemy BG2 staging image Mother Brain's body and the extended-tilemap writer (<c>$A0:96CA</c>) fill.</summary>
-    public ushort[] EnemyBg2Tilemap { get; } = new ushort[Bg2WordCount];
+    /// <summary>The enemy BG2 staging image's tiles, which Mother Brain's body and the extended-tilemap writer (<c>$A0:96CA</c>) fill.</summary>
+    public BackgroundTile[] EnemyBg2Tilemap { get; } = new BackgroundTile[Bg2CellCount];
 
     /// <summary>The rot tables of the corpses rotting in the rotting heap.</summary>
     private readonly CorpseRotHeap rotHeap = new(EnemyStagingDefinitions.RottingHeapByteCount);
 
-    /// <summary>Clears the whole enemy BG2 staging image, as the Shitroid cutscene's initialization does.</summary>
+    /// <summary>Clears the whole enemy BG2 staging image to tile zero, as the Shitroid cutscene's initialization does.</summary>
     public void ClearEnemyBg2Tilemap() => Array.Clear(EnemyBg2Tilemap);
 
     /// <summary>Mother Brain's 48-entry rot table.</summary>

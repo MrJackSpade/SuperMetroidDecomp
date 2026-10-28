@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -54,12 +55,9 @@ internal sealed class MotherBrainAscent
         // The native transition now requests the prepared enemy image, replacing the
         // room's pipe background before the articulated body becomes visible. Its one
         // 32x32 screen is the whole BG2 map she shows; she owns that image from here (#1356).
-        var words = new ushort[state.EnemyBg2TilemapSize / 2];
-        ushort[] bg2 = _room.Staging.EnemyBg2Tilemap;
-        for (int index = 0; index < words.Length; index++)
-            words[index] = bg2[index];
+        ReadOnlySpan<BackgroundTile> staged = _room.Staging.EnemyBg2Tilemap.AsSpan(0, state.EnemyBg2TilemapSize / 2);
         var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);
-        image.Write(0, words);
+        image.Write(0, staged);
         _presentation.AttachBg2Image(image);
         state.EnemyBg2TilemapTransferRequested = true;
     }

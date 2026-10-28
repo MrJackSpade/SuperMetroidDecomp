@@ -372,21 +372,21 @@ internal static class EnemyContentIdentityFixtureVerification
             var frames = definitions.SelectToArray((frame, index) =>
             {
                 bool first = index == 0;
-                var a = new EnemyBg2WriteDocument { X = 0, Y = 0, Tiles = [1, 2] };
+                var a = new EnemyBg2WriteDocument { X = 0, Y = 0, Tiles = RoomBackgroundTilemapCellWords.Cells(1, 2) };
                 var b = new EnemyBg2WriteDocument
                 {
                     X = first && edit == family + "-x" ? 2 : 1,
                     Y = first && edit == family + "-y" ? 2 : 1,
-                    Tiles = first && edit == family + "-tiles" ? [3, 5] : [3, 4],
+                    Tiles = first && edit == family + "-tiles" ? RoomBackgroundTilemapCellWords.Cells(3, 5) : RoomBackgroundTilemapCellWords.Cells(3, 4),
                 };
                 EnemyBg2WriteDocument[] writes = first && edit == family + "-order" ? [b, a]
                     : first && edit == family + "-count" ? [a]
                     // Same ordered tile payload, different command boundaries and destinations.
-                    : first && edit == family + "-run-boundary" ? [a with { Tiles = [1] }, a with { X = 1, Tiles = [2] }, b]
+                    : first && edit == family + "-run-boundary" ? [a with { Tiles = RoomBackgroundTilemapCellWords.Cells(1) }, a with { X = 1, Tiles = RoomBackgroundTilemapCellWords.Cells(2) }, b]
                     : [a, b];
                 return KeyValuePair.Create(frame.Name, writes);
             });
-            return Json(new EnemyBg2FrameDocument { Version = 1, Frames = Ordered(frames) });
+            return Json(new EnemyBg2FrameDocument { Version = 2, Frames = Ordered(frames) });
         }
     }
 }

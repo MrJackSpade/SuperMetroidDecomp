@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
@@ -11,13 +12,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 internal static class PhantoonBg2FrameDefinitions
 {
     /// <summary>Schema version of the extracted BG2 frame artwork file.</summary>
-    internal const int Version = 1;
+    internal const int Version = 2;
     /// <summary>Installed filename for Phantoon's BG2 frame artwork.</summary>
     internal const string FileName = "phantoon-bg2-frames.json";
     /// <summary>Phantoon's tentacle frames have at most two BG2 components.</summary>
     internal const int MaximumComponents = 2;
-    /// <summary>The blank BG2 tile word $0338 that fills Phantoon's tilemap before and after its body maps.</summary>
-    internal const ushort BlankTile = 0x0338;
+    /// <summary>The blank tile, 824 under colour variant zero, that fills Phantoon's tilemap before and after its body maps.</summary>
+    internal static BackgroundTile BlankTile { get; } = new(824, 0, highPriority: false);
 
     /// <summary>Enumerates the selected native frames in instruction-program order.</summary>
     internal static ImmutableArray<EnemySpritemapDefinition> Frames { get; } =

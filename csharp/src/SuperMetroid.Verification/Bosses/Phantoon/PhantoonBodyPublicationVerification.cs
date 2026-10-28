@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -37,11 +38,11 @@ internal static class PhantoonBodyPublicationVerification
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(body, frame);
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
-        expected.AsSpan().Fill(PhantoonBg2FrameDefinitions.BlankTile);
+        expected.AsSpan().Fill(PhantoonBg2FrameDefinitions.BlankTile.PackedWord);
         EnemyBg2FrameLookup lookup = ((IEnemyBg2Frames)body.Entity!).FindBg2Frame(frame, runtime.Enemies.Room)
             ?? throw new InvalidOperationException("Phantoon's body frame has installed writes.");
         foreach (EnemyBg2TilemapWrite write in lookup.Writes.Span)
-            write.Tiles.Span.CopyTo(expected.AsSpan(write.FirstCell));
+            write.Words.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
         state.Bg2Scroll = new Position16<Bg2Pixels>(40, 0);

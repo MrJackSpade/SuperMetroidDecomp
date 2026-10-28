@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 internal sealed class CrocomireMeltingTilemap
 {
     /// <summary>$A4:9C79..A07A: the blank glyph, character 824 with plain attributes; also clears Crocomire's working BG2 rows.</summary>
-    internal static SnesBgTilemapWord BlankGlyph { get; } = SnesBgTilemapWord.Create(824, 0, priority: false);
+    internal static BackgroundTile BlankGlyph { get; } = new(824, 0, highPriority: false);
     /// <summary>Both native illustrations use BG palette 7 with priority and no reflections.</summary>
     private const int IllustrationPalette = 7;
     /// <summary>Horizontal stride between vertically adjacent source tiles in the editable atlas.</summary>
@@ -22,25 +22,25 @@ internal sealed class CrocomireMeltingTilemap
     /// <summary>Selects the eroded second illustration instead of the initial closed-jaw image.</summary>
     private readonly bool second;
     /// <summary>Supplied cells that differ from the reviewed illustration composition.</summary>
-    internal readonly Dictionary<int, ushort> edits = [];
+    internal readonly Dictionary<int, BackgroundTile> edits = [];
 
     /// <summary>Retains custom cells while calculating unchanged composition and blank margins.</summary>
-    internal CrocomireMeltingTilemap(CrocomireMeltingIllustration pass, ReadOnlySpan<ushort> supplied)
+    internal CrocomireMeltingTilemap(CrocomireMeltingIllustration pass, ReadOnlySpan<BackgroundTile> supplied)
     {
         this.second = pass == CrocomireMeltingIllustration.Second;
         if (supplied.Length != CrocomireMeltingArtworkFormat.TilemapCellCount)
-            throw new InvalidDataException("Crocomire melting layout requires 256 words.");
+            throw new InvalidDataException("Crocomire melting layout requires 256 cells.");
         for (int index = 0; index < supplied.Length; index++)
             if (supplied[index] != Calculate(index)) edits.Add(index, supplied[index]);
     }
 
     /// <summary>Builds a fresh native-order tilemap from calculated cells and retained edits.</summary>
-    internal ushort[] Words()
+    internal BackgroundTile[] Tiles()
     {
-        var words = new ushort[CrocomireMeltingArtworkFormat.TilemapCellCount];
-        for (int index = 0; index < words.Length; index++)
-            words[index] = edits.ContainsKey(index) ? edits[index] : Calculate(index);
-        return words;
+        var tiles = new BackgroundTile[CrocomireMeltingArtworkFormat.TilemapCellCount];
+        for (int index = 0; index < tiles.Length; index++)
+            tiles[index] = edits.TryGetValue(index, out BackgroundTile edited) ? edited : Calculate(index);
+        return tiles;
     }
 
     /// <summary>The atlas tile at <paramref name="row"/> and <paramref name="column"/> of the sixteen-wide editable atlas.</summary>
@@ -50,11 +50,11 @@ internal sealed class CrocomireMeltingTilemap
     private static int Strip(int first, int column, int start) => first + (column - start) * AtlasColumns;
 
     /// <summary>Applies the common illustration palette and priority to a selected fragment or emits the blank glyph.</summary>
-    private ushort Calculate(int index)
+    private BackgroundTile Calculate(int index)
     {
         int row = index / BgColumns, column = index % BgColumns;
         int tile = second ? Second(row, column) : First(row, column);
-        return tile < 0 ? BlankGlyph.Raw : SnesBgTilemapWord.Create(tile, IllustrationPalette, priority: true).Raw;
+        return tile < 0 ? BlankGlyph : new BackgroundTile(tile, IllustrationPalette, highPriority: true);
     }
 
     /// <summary>$A4:9C79: closed upper jaw, eye ridge, mouth and lower neck fragments.

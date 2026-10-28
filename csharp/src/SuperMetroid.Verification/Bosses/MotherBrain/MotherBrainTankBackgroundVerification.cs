@@ -57,12 +57,12 @@ internal static class MotherBrainTankBackgroundVerification
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
-        var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapWordCount).ToArray();
+        var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
         foreach (var write in writes.Span)
         {
-            write.Tiles.Span.CopyTo(expectedImage.AsSpan(write.FirstCell));
+            write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));
             for (int index = 0; index < write.Tiles.Length; index++)
-                AssertEqual(write.Tiles.Span[index], ReadStaged(write.FirstCell + index),
+                AssertEqual(write.Tiles.Span[index].PackedWord, ReadStaged(write.FirstCell + index),
                     "Body frame updates the native staging image as well as the shown BG2 image");
         }
         AssertTrue(image.Publish().Words.SequenceEqual(expectedImage),
@@ -70,7 +70,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(RoomShowsPipeBackground(), "The body frame leaves the room's library background as loaded");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
-        ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index];
+        ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index].PackedWord;
         bool RoomShowsPipeBackground() => (runtime.Room.Scope?.BackgroundImage
             ?? throw new InvalidOperationException("Mother Brain's room selects no library background image.")).Image.Tiles.SequenceEqual(BackgroundTileWordBytes.Tiles(pipePages));
     }

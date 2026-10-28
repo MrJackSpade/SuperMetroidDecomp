@@ -93,7 +93,7 @@ internal sealed class CrocomireFight
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), PlmHeaderId.ClearCrocomireBridge);
-            _bg2.WriteCrocomireBg2Words(0, 1024);
+            _bg2.WriteCrocomireBg2Cells(0, 1024);
             return;
         }
 

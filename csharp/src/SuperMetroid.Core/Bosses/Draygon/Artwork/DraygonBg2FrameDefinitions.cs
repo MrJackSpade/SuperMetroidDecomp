@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 internal static class DraygonBg2FrameDefinitions
 {
     /// <summary>Schema revision accepted by the installed Draygon BG2 frame document.</summary>
-    internal const int Version = 1;
+    internal const int Version = 2;
     /// <summary>Asset document containing the 34 body frames with BG2 tilemap streams.</summary>
     internal const string FileName = "draygon-bg2-frames.json";
     /// <summary>Each selected Draygon BG2 frame has one zero-offset stream.</summary>

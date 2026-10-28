@@ -15,7 +15,7 @@ internal static class MotherBrainBodyVisualDefinitions
     /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
     internal const int FrameCount = 17;
     /// <summary>Schema revision of the selected BG2 body-frame document.</summary>
-    internal const int Bg2Version = 1;
+    internal const int Bg2Version = 2;
     /// <summary>Installed JSON filename for Mother Brain's selected BG2 body frames.</summary>
     internal const string Bg2FileName = "mother-brain-body-bg2-frames.json";
     /// <summary>Every body frame with a BG2 stream, omitting the OAM-only initial dummy.</summary>

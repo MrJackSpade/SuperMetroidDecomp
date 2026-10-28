@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>A horizontal BG2 tile run in 32-by-64 tilemap coordinates.</summary>
@@ -10,6 +12,6 @@ public sealed record EnemyBg2WriteDocument
     /// <summary>Gets the zero-based destination row in the 64-tile-high BG2 map.</summary>
     public required int Y { get; init; }
 
-    /// <summary>Gets the contiguous native tilemap words written left to right from the destination.</summary>
-    public required int[] Tiles { get; init; }
+    /// <summary>Gets the tiles placed left to right from the destination: each cell's tile, palette, priority and mirroring.</summary>
+    public required RoomBackgroundTilemapCell[] Tiles { get; init; }
 }

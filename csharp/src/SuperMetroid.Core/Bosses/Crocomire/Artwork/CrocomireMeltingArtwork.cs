@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -14,12 +13,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 public sealed class CrocomireMeltingArtwork
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
         {
             content.Append("first", first.Characters.Span);
             content.Append("second", second.Characters.Span);
-            content.AppendWords("first-map", firstTilemap.Words());
-            content.AppendWords("second-map", secondTilemap.Words());
+            content.AppendTiles("first-map", firstTilemap.Tiles());
+            content.AppendTiles("second-map", secondTilemap.Tiles());
         });
 
     /// <summary>Installed planar character data for the first overlapping melt pass.</summary>
@@ -33,7 +32,7 @@ public sealed class CrocomireMeltingArtwork
 
     /// <summary>Retains compiled sheets and tilemaps, distinguishing the second illustration's layout.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
-        ushort[] firstTilemap, ushort[] secondTilemap)
+        BackgroundTile[] firstTilemap, BackgroundTile[] secondTilemap)
     {
         this.first = first;
         this.second = second;
@@ -72,10 +71,10 @@ public sealed class CrocomireMeltingArtwork
     };
 
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
-    internal ReadOnlySpan<ushort> Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
+    internal ReadOnlySpan<BackgroundTile> Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First => firstTilemap.Words(),
-        CrocomireMeltingIllustration.Second => secondTilemap.Words(),
+        CrocomireMeltingIllustration.First => firstTilemap.Tiles(),
+        CrocomireMeltingIllustration.Second => secondTilemap.Tiles(),
         _ => throw new InvalidDataException(
             $"Crocomire melt tilemap {illustration} is not installed."),
     };
@@ -89,8 +88,8 @@ public sealed class CrocomireMeltingArtwork
         json.Write(bytes);
     }
 
-    /// <summary>Validates a 16-by-16 tile-layout document and packs each cell into a native BG word.</summary>
-    private static ushort[] ReadTilemap(Stream json)
+    /// <summary>Validates a 16-by-16 tile-layout document and places each cell's tile.</summary>
+    private static BackgroundTile[] ReadTilemap(Stream json)
     {
         CrocomireMeltingTilemapDocument document;
         try
@@ -113,21 +112,17 @@ public sealed class CrocomireMeltingArtwork
             throw new InvalidDataException(
                 "Crocomire melt tilemap requires a version-one 16x16 ordered cell array.");
 
-        var words = new ushort[document.Cells.Length];
-        for (int index = 0; index < words.Length; index++)
+        var tiles = new BackgroundTile[document.Cells.Length];
+        for (int index = 0; index < tiles.Length; index++)
         {
             CrocomireMeltingTilemapCell? cell = document.Cells[index];
-            if (cell is null || (uint)cell.TileIndex > 1023 ||
-                (uint)cell.Palette > 7)
+            if (cell is null || (uint)cell.TileIndex >= BackgroundTile.TileCount ||
+                (uint)cell.Palette >= BackgroundTile.ColourVariants)
                 throw new InvalidDataException(
                     $"Crocomire melt tilemap cell {index} has an invalid tile or palette.");
-            TileFlip flips =
-                (cell.FlipX ? TileFlip.Horizontal : 0) |
-                (cell.FlipY ? TileFlip.Vertical : 0);
-            words[index] = SnesBgTilemapWord.Create(
-                cell.TileIndex, cell.Palette, cell.Priority, flips).Raw;
+            tiles[index] = new BackgroundTile(cell.TileIndex, cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
         }
-        return words;
+        return tiles;
     }
 
     /// <summary>Uses the published camel-case schema while rejecting unknown and duplicate properties.</summary>

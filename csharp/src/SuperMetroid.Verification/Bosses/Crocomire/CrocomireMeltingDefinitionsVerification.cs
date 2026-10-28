@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -178,7 +179,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
         // Crocomire's initialization attaches the enemy BG2 image his words draw into (#1355).
-        enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph.Raw));
+        enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph));
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
@@ -192,8 +193,8 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
-        var result = death.Bg2WorkingTilemap.Slice(32,
-            CrocomireMeltingArtworkFormat.TilemapCellCount).ToArray();
+        ushort[] result = BackgroundTileWordBytes.Words(death.Bg2WorkingTilemap.Slice(32,
+            CrocomireMeltingArtworkFormat.TilemapCellCount));
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;

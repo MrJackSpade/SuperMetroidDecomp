@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -8,7 +9,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
+/// <summary>Crocomire's BG2 body: its scroll, scroll table, the tiles it writes into his BG2 image and the acid smoke drawn with it.</summary>
 [RoomLifetime]
 internal sealed class CrocomireBg2
 {
@@ -42,26 +43,26 @@ internal sealed class CrocomireBg2
         tongue.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>BG2 tile word used to clear Crocomire's working background rows.</summary>
-    internal static ushort CrocomireBlankBg2Tile => CrocomireMeltingTilemap.BlankGlyph.Raw;
+    /// <summary>The tile that clears Crocomire's working background rows.</summary>
+    internal static BackgroundTile CrocomireBlankBg2Tile => CrocomireMeltingTilemap.BlankGlyph;
 
     /// <summary>Clears the working BG2 map before death and melting scene transfers.</summary>
     internal void ClearCrocomireBg2WorkingTilemap()
     {
-        Span<ushort> tilemap = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
+        Span<BackgroundTile> tilemap = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
         tilemap.Fill(CrocomireBlankBg2Tile);
     }
 
-    /// <summary>Copies a bounded working-map span into the corresponding words of the shown enemy BG2 image (#1355).</summary>
-    internal void WriteCrocomireBg2Words(int startWord, int wordCount)
+    /// <summary>Copies a bounded working-map span into the corresponding cells of the shown enemy BG2 image (#1355).</summary>
+    internal void WriteCrocomireBg2Cells(int startCell, int cellCount)
     {
-        if (startWord < 0 || wordCount < 0 ||
-            startWord + wordCount > CrocomireDeathState.Bg2WorkingWordCount)
+        if (startCell < 0 || cellCount < 0 ||
+            startCell + cellCount > CrocomireDeathState.Bg2WorkingCellCount)
         {
-            throw new ArgumentOutOfRangeException(nameof(startWord));
+            throw new ArgumentOutOfRangeException(nameof(startCell));
         }
 
-        _presentation.RequireBg2Image().Write(startWord, _access.RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount));
+        _presentation.RequireBg2Image().Write(startCell, _access.RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startCell, cellCount));
     }
 
     /// <summary>Writes a uniform vertical offset to the per-scanline BG2 scroll table.</summary>

@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
@@ -70,13 +71,13 @@ internal static class BossDisplayBindingsVerification
             $"mixed remaps, native new-frame gating and {hitSamples} compiled collision samples ({hits} hits). RAM-only production.");
     }
 
-    /// <summary>Compares every expected BG2 tilemap word after ordered boss-frame writes.</summary>
+    /// <summary>Compares every expected BG2 tilemap word, each authored cell's tile encoded through the codec, after ordered boss-frame writes.</summary>
     internal static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
         foreach (EnemyBg2WriteDocument write in writes)
             for (int index = 0; index < write.Tiles.Length; index++)
-                expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + index] = checked((ushort)write.Tiles[index]);
+                expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + index] = write.Tiles[index].PackedWord;
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayoutConstants.VramBase + index), "boss BG2 exact ordered destinations and payload");
     }

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal sealed class EnemyBg2FrameCatalog
 {
     /// <summary>Canonical frames retain command order, destinations and each tile-run boundary.</summary>
-    internal string ContentIdentity => SelectedPresentationHash.Create("enemy-bg2-frames-v2", content =>
+    internal string ContentIdentity => SelectedPresentationHash.Create("enemy-bg2-frames-v3", content =>
         {
             foreach ((EnemyFrameId frame, EnemyBg2TilemapWrite[] writes) in frames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
@@ -21,7 +21,7 @@ internal sealed class EnemyBg2FrameCatalog
                 foreach (EnemyBg2TilemapWrite write in writes)
                 {
                     content.Append("destination", write.FirstCell);
-                    content.AppendWords("tiles", write.Tiles.Span);
+                    content.AppendTiles("tiles", write.Tiles.Span);
                 }
             }
         });
@@ -77,13 +77,15 @@ internal sealed class EnemyBg2FrameCatalog
                     write.Y is < 0 or >= EnemyBg2FrameLayout.TilemapHeight ||
                     write.Tiles is null || write.Tiles.Length is < 1 or >
                         EnemyBg2FrameLayout.TilemapWidth ||
-                    write.X + write.Tiles.Length > EnemyBg2FrameLayout.TilemapWidth ||
-                    write.Tiles.Any(tile => tile is < 0 or > ushort.MaxValue))
+                    write.X + write.Tiles.Length > EnemyBg2FrameLayout.TilemapWidth)
                     throw new InvalidDataException(
                         $"{family} BG2 frame {frame.Name} write {index} is outside its tilemap.");
+                var tiles = new BackgroundTile[write.Tiles.Length];
+                for (int cell = 0; cell < tiles.Length; cell++)
+                    tiles[cell] = write.Tiles[cell]?.Placement() ?? throw new InvalidDataException(
+                        $"{family} BG2 frame {frame.Name} write {index} cell {cell} has an invalid tile or palette.");
                 writes[index] = new EnemyBg2TilemapWrite(
-                    write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X,
-                    write.Tiles.Select(tile => checked((ushort)tile)).ToArray());
+                    write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X, tiles);
             }
             if (!frames.TryAdd(frame.Frame, writes))
                 throw new InvalidDataException(

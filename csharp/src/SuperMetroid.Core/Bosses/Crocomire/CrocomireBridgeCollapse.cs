@@ -167,15 +167,15 @@ internal sealed class CrocomireBridgeCollapse
     private void ClearCrocomireBg2SinkRow()
     {
         int byteOffset = 8 * (unchecked((ushort)(_bg2.CrocomireBg2Scroll.Y + 288)) & ~7);
-        int firstWord = byteOffset >> 1;
-        Span<ushort> tilemap = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
-        if (firstWord < 0 || firstWord + 32 > tilemap.Length)
+        int firstCell = byteOffset >> 1;
+        Span<BackgroundTile> tilemap = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
+        if (firstCell < 0 || firstCell + 32 > tilemap.Length)
         {
             throw new InvalidDataException(
-                $"Crocomire sink selected BG2 word {firstWord}, outside the {tilemap.Length}-word buffer.");
+                $"Crocomire sink selected BG2 cell {firstCell}, outside the {tilemap.Length}-cell buffer.");
         }
-        tilemap.Slice(firstWord, 32).Fill(CrocomireBg2.CrocomireBlankBg2Tile);
-        _bg2.WriteCrocomireBg2Words(firstWord, 32);
+        tilemap.Slice(firstCell, 32).Fill(CrocomireBg2.CrocomireBlankBg2Tile);
+        _bg2.WriteCrocomireBg2Cells(firstCell, 32);
     }
 
     /// <summary>Runs the paired body and BG2 presentation while Crocomire sinks into acid.</summary>

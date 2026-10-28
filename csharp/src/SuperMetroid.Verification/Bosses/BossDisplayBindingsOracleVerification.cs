@@ -60,7 +60,7 @@ internal static class BossDisplayBindingsOracleVerification
                     AssertTrue(length is > 0 and <= EnemyBg2FrameLayout.TilemapWidth, "native oracle BG2 run is bounded");
                     var words = new ushort[length];
                     for (int index = 0; index < length; index++) words[index] = source.ReadCartridgeWord((cursor + 4 + index * 2));
-                    bg2.Add(new EnemyBg2TilemapWrite(checked((ushort)((destination - EnemyBg2FrameLayoutConstants.WorkingRamBase) / 2)), words));
+                    bg2.Add(new EnemyBg2TilemapWrite(checked((ushort)((destination - EnemyBg2FrameLayoutConstants.WorkingRamBase) / 2)), BackgroundTileWordBytes.Tiles(words)));
                     cursor += 4 + length * 2;
                 }
                 AssertTrue(ended, "native oracle BG2 stream terminates within its declared bound");

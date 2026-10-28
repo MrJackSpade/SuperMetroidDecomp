@@ -86,15 +86,15 @@ internal static class BossDisplayBindingsDocumentsVerification
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 
-        /// <summary>Gives each BG2 frame distinctive tile values and relocates one write when edited.</summary>
+        /// <summary>Gives each BG2 frame distinctive tiles, authored by their tilemap entries, and relocates one write when edited.</summary>
         private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, bool edited) => new()
         {
-            Version = 1,
+            Version = 2,
             Frames = definitions.SelectToArray((frame, index) => KeyValuePair.Create(frame.Name,
                 new EnemyBg2WriteDocument[]
-                { new() { X = 3, Y = 2, Tiles = [100 + index, 200 + index] },
-                  new() { X = 4, Y = 2, Tiles = [edited ? 500 + index : 300 + index, 400 + index] },
-                  new() { X = 1, Y = edited ? 4 : 3, Tiles = [600 + index] } })).ToDictionary(),
+                { new() { X = 3, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
+                  new() { X = 4, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(edited ? 500 + index : 300 + index, 400 + index) },
+                  new() { X = 1, Y = edited ? 4 : 3, Tiles = RoomBackgroundTilemapCellWords.Cells(600 + index) } })).ToDictionary(),
         };
     }
 }

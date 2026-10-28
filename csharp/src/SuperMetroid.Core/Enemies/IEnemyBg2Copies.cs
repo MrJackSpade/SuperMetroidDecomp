@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -6,8 +8,8 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal interface IEnemyBg2Copies
 {
-    /// <summary>Copies <paramref name="words"/> at <paramref name="destinationWord"/> into each copy that exists now.</summary>
-    void Write(int destinationWord, ReadOnlySpan<ushort> words);
+    /// <summary>Copies <paramref name="tiles"/> at cell <paramref name="destinationCell"/> into each copy that exists now.</summary>
+    void Write(int destinationCell, ReadOnlySpan<BackgroundTile> tiles);
 
     /// <summary>
     /// Whether a boss stages its BG2 body instead of uploading it: Mother Brain stages hers until her phase-two

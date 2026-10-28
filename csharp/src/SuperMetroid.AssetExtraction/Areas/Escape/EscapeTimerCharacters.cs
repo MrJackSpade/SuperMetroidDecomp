@@ -56,42 +56,42 @@ public sealed class EscapeTimerCharacters : EscapeTimerTileAtlas
             fillOverrides = new Dictionary<int, bool>();
             for (int index = 0; index < pixels.Length; index++)
             {
-                if (EscapeTimerGlyphDefinitions.SourcePixel(index) != index) continue;
-                bool filled = pixels[index] == EscapeTimerGlyphDefinitions.FillInk(index);
-                if (EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool expected))
+                if (EscapeTimerGlyphs.SourcePixel(index) != index) continue;
+                bool filled = pixels[index] == EscapeTimerGlyphs.FillInk(index);
+                if (EscapeTimerGlyphs.TryDefaultFill(index, out bool expected))
                 {
                     if (filled != expected) fillOverrides.Add(index, filled);
                 }
                 else if (filled) fillPixels.Add(index);
             }
             pixelOverrides = Enumerable.Range(0, pixels.Length)
-                .Where(index => EscapeTimerGlyphDefinitions.SourcePixel(index) != index && pixels[index] != pixels[EscapeTimerGlyphDefinitions.SourcePixel(index)])
+                .Where(index => EscapeTimerGlyphs.SourcePixel(index) != index && pixels[index] != pixels[EscapeTimerGlyphs.SourcePixel(index)])
                 .ToDictionary(index => index, index => pixels[index]);
             foreach (int index in Enumerable.Range(0, pixels.Length))
-                if (EscapeTimerGlyphDefinitions.SourcePixel(index) == index && !IsFill(index) &&
-                    pixels[index] != EscapeTimerGlyphDefinitions.Outline(index, IsFill))
+                if (EscapeTimerGlyphs.SourcePixel(index) == index && !IsFill(index) &&
+                    pixels[index] != EscapeTimerGlyphs.Outline(index, IsFill))
                     pixelOverrides.Add(index, pixels[index]);
         }
 
         /// <summary>Determines whether a pixel uses the glyph fill ink, honoring an independently edited shared pixel.</summary>
         private bool IsFill(int index)
         {
-            int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
+            int source = EscapeTimerGlyphs.SourcePixel(index);
             return source != index && pixelOverrides.ContainsKey(index)
-                ? pixelOverrides[index] == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
+                ? pixelOverrides[index] == EscapeTimerGlyphs.FillInk(index) : BasisFill(source);
         }
 
         /// <summary>Resolves a basis pixel from its PNG override, native calculated fill, or retained fill-site set.</summary>
         private bool BasisFill(int index) => fillOverrides.TryGetValue(index, out bool supplied) ? supplied :
-            EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool calculated) ? calculated : fillPixels.Contains(index);
+            EscapeTimerGlyphs.TryDefaultFill(index, out bool calculated) ? calculated : fillPixels.Contains(index);
 
         /// <summary>Resolves an edited pixel, shared source pixel, or calculated fill and outline ink.</summary>
         private byte Pixel(int index)
         {
             if (pixelOverrides.ContainsKey(index)) return pixelOverrides[index];
-            int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
+            int source = EscapeTimerGlyphs.SourcePixel(index);
             if (source != index) return Pixel(source);
-            return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);
+            return BasisFill(index) ? EscapeTimerGlyphs.FillInk(index) : EscapeTimerGlyphs.Outline(index, IsFill);
         }
 
         /// <summary>Rebuilds all 25 timer characters in native four-bit planar DMA order.</summary>

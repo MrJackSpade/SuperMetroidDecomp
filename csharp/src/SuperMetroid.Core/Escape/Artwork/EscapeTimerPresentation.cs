@@ -41,20 +41,20 @@ public sealed class EscapeTimerPresentation
         {
             if (!pair.IsValid)
                 throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${pair.Raw:X2}.");
-            DrawFrame(EscapeTimerPresentationDefinitions.DigitGlyph(pair.Tens), anchor);
-            DrawFrame(EscapeTimerPresentationDefinitions.DigitGlyph(pair.Ones),
+            DrawFrame(EscapeTimerComposition.DigitGlyph(pair.Tens), anchor);
+            DrawFrame(EscapeTimerComposition.DigitGlyph(pair.Ones),
                 anchor + new Offset16<SpritePixels>(checked((short)DigitSpacing), 0));
         }
 
         void DrawFrame(EscapeTimerGlyph glyph, Offset16<SpritePixels> anchor) =>
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer),
-                sheet.Frame(EscapeTimerPresentationDefinitions.FrameName(glyph)),
+                sheet.Frame(EscapeTimerComposition.FrameName(glyph)),
                 timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None));
     }
 
     /// <summary>Resolves an edited timer anchor or its calculated stock position.</summary>
     private Offset16<SpritePixels> Anchor(EscapeTimerAnchor anchor) => anchors.TryGetValue(anchor, out var supplied)
-        ? supplied : EscapeTimerPresentationDefinitions.DefaultAnchor(anchor);
+        ? supplied : EscapeTimerComposition.DefaultAnchor(anchor);
 
     /// <summary>Validates an authored timer layout.</summary>
     /// <param name="json">UTF-8 JSON read from the current position to the end; the caller retains ownership of the stream.</param>
@@ -79,16 +79,16 @@ public sealed class EscapeTimerPresentation
             document.DigitSpacing is < -256 or > 255)
             throw new InvalidDataException($"Escape timer presentation requires version {EscapeTimerPresentationDefinitions.Version}, valid anchors and spacing.");
         if (document.Anchors.Count != EscapeTimerPresentationDefinitions.Anchors.Count ||
-            EscapeTimerPresentationDefinitions.Anchors.Any(anchor => !document.Anchors.ContainsKey(EscapeTimerPresentationDefinitions.AnchorName(anchor))))
+            EscapeTimerPresentationDefinitions.Anchors.Any(anchor => !document.Anchors.ContainsKey(EscapeTimerComposition.AnchorName(anchor))))
             throw new InvalidDataException("Escape timer presentation requires Label, Minutes, Seconds and Centiseconds anchors exactly once.");
 
         var anchors = new Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>>();
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
         {
-            Offset16<SpritePixels> point = document.Anchors[EscapeTimerPresentationDefinitions.AnchorName(anchor)];
+            Offset16<SpritePixels> point = document.Anchors[EscapeTimerComposition.AnchorName(anchor)];
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {anchor} is outside the supported screen-relative range.");
-            if (point != EscapeTimerPresentationDefinitions.DefaultAnchor(anchor)) anchors.Add(anchor, point);
+            if (point != EscapeTimerComposition.DefaultAnchor(anchor)) anchors.Add(anchor, point);
         }
         return new(anchors, document.DigitSpacing);
     }

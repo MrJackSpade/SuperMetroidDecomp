@@ -45,7 +45,7 @@ internal static class SpriteSheetFilesVerification
             SpriteSheet timer = installed.Get(SpriteSheetId.EscapeTimer);
             AssertEqual(composed.Size, timer.Image.Size, "the installed timer image has the composed size");
             AssertTrue(timer.Image.Pixels.SequenceEqual(composed.Pixels), "the installed timer image holds the composed pixels");
-            AssertTrue(timer.HoldsExactly(EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName)),
+            AssertTrue(timer.HoldsExactly(EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName)),
                 "the installed timer sheet holds exactly the timer's frames");
 
             string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileName(SpriteSheetId.EscapeTimer));

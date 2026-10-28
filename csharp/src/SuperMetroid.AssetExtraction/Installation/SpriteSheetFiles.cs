@@ -120,7 +120,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
             SpriteSheetId.EndingRewardIconFloorTiles =>
             [FloorCharacterSheet.FrameName],
-        SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
+        SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,

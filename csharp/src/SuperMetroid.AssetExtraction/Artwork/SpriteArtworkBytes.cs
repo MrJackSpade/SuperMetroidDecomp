@@ -46,7 +46,7 @@ internal static class SpriteArtworkBytes
                 MotherBrainCorpseArtworkDefinitions.PageOffset(corpse.Page), MotherBrainCorpseArtworkDefinitions.PageByteCount),
             MotherBrainEscapeTextCharacters text => (Bosses(installed).MotherBrainEscapeText ?? throw new InvalidDataException(
                 "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.")).Characters.Slice(
-                EscapeTextArtworkDefinitions.PageOffset(text.Page), EscapeTextArtworkDefinitions.PageByteCount(text.Page)),
+                EscapeTextPages.PageOffset(text.Page), EscapeTextPages.PageByteCount(text.Page)),
             MotherBrainSpecialSpriteCharacters special => MotherBrainSpecialSprite(special, installed),
             TorizoArtworkSwapCharacters swap => TorizoSwap(swap, installed),
             EnemyTileCharacters tiles => Sprites(installed).EnemyTiles.TilesOf(tiles.Enemy),

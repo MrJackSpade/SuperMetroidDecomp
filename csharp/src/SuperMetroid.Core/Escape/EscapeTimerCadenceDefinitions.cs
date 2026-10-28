@@ -19,28 +19,4 @@ internal static class EscapeTimerCadenceDefinitions
     internal const int HigherBudgetPhase = 1;
     /// <summary>Native26-centisecond halves use accumulator preload4 in a16-unit denominator; an exact native-compatible accumulator initial condition.</summary>
     internal const int LowerBudgetPhase = 4;
-
-    /// <summary>
-    /// $80:9EAB..9EB4 selects by global NMI phase. Distribute the period budget by cumulative
-    /// floor, split each quarter with its odd unit first, then difference a fractional
-    /// accumulator at consecutive frames. No sampled per-frame corrections are stored.
-    /// </summary>
-    internal static byte Centiseconds(int frameCounter)
-    {
-        int frame = frameCounter & (PeriodFrames - 1);
-        int quarterFrames = PeriodFrames / QuarterCount;
-        int halfFrames = quarterFrames / HalvesPerQuarter;
-        int quarter = frame / quarterFrames;
-        int quarterBudget = PeriodCentiseconds * (quarter + 1) / QuarterCount -
-            PeriodCentiseconds * quarter / QuarterCount;
-        int lowerBudget = quarterBudget / HalvesPerQuarter;
-        int higherBudget = (quarterBudget + HalvesPerQuarter - 1) / HalvesPerQuarter;
-        int budget = frame % quarterFrames < halfFrames ? higherBudget : lowerBudget;
-        int highRateBudget = (PeriodCentiseconds + QuarterCount * HalvesPerQuarter - 1) /
-            (QuarterCount * HalvesPerQuarter);
-        int phase = budget == highRateBudget ? HigherBudgetPhase : LowerBudgetPhase;
-        int localFrame = frame % halfFrames;
-        return (byte)((budget * (localFrame + 1) + phase) / halfFrames -
-            (budget * localFrame + phase) / halfFrames);
-    }
 }

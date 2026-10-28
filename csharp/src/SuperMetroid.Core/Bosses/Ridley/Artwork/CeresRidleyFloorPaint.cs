@@ -31,7 +31,7 @@ internal sealed class CeresRidleyFloorPaint
     }
 
     /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
-    private static RgbColor Neutral => GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false);
+    private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, rear: false);
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
     internal static RgbColor RetreatNeutral => CeresRidleyFade.Scale(Neutral, 1);
 

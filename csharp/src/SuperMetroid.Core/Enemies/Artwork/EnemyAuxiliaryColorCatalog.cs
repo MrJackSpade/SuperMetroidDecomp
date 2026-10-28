@@ -101,11 +101,11 @@ public sealed class EnemyAuxiliaryColorCatalog
             bool rearTorizo = paint == AuxiliaryPaint.TorizoRear;
             FrameCount = rows.Length;
             ColorCount = rows[0].Length;
-            if (healthGradient && GoldenTorizoHealthPaintDefinitions.Matches(rows, rearTorizo))
+            if (healthGradient && GoldenTorizoHealthPaint.Matches(rows, rearTorizo))
             {
                 stockTorizo = true; this.rearTorizo = rearTorizo; first = []; last = []; return;
             }
-            if (faceGlow && FaceBlockGlowPaintDefinitions.Matches(rows))
+            if (faceGlow && FaceBlockGlowPaint.Matches(rows))
             {
                 stockFaceGlow = true; first = []; last = []; return;
             }
@@ -129,8 +129,8 @@ public sealed class EnemyAuxiliaryColorCatalog
         /// <summary>Interpolates RGB5 health/drain endpoints or mirrors the face-block glow, with stock palettes using their own paint definitions.</summary>
         private RgbColor Calculate(int frame, int color)
         {
-            if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
-            if (stockFaceGlow) return FaceBlockGlowPaintDefinitions.Color(frame, color);
+            if (stockTorizo) return GoldenTorizoHealthPaint.Color(frame, color, rearTorizo);
+            if (stockFaceGlow) return FaceBlockGlowPaint.Color(frame, color);
             if (stockSidehopperDrain) return SidehopperDrainPaint.Color(frame, color);
             if (corpse is not null && frame == FrameCount - 1) return corpse[color];
             int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);

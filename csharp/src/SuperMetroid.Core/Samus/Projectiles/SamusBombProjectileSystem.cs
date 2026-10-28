@@ -467,9 +467,8 @@ public sealed class SamusBombProjectileSystem
         }
 
         if ((controllerInput & ControllerButton.Down) != ControllerButton.None &&
-            (samus.BombSpreadChargeTimeoutCounter &
-                MorphBallBombDefinitions.DownChargeTimeoutMask) <
-                MorphBallBombDefinitions.DownChargeTimeoutMask)
+            samus.BombSpreadChargeTimeoutCounter % MorphBallBombDefinitions.DownChargeTimeoutCycle <
+                MorphBallBombDefinitions.DownChargeTimeoutUpdates)
         {
             samus.BombSpreadChargeTimeoutCounter =
                 unchecked((ushort)(samus.BombSpreadChargeTimeoutCounter + 1));
@@ -1078,7 +1077,7 @@ public sealed class SamusBombProjectileSystem
             if (slot.Damage == 0 ||
                 (slot.Type & SamusProjectileTypeWord.LiveMarker) != 0 ||
                 slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.BeamExplosion) ||
-                (slot.Direction & SamusProjectileDirectionMasks.Spent) != 0)
+                slot.PackedDirection.HasCollisionLifecycleState)
             {
                 continue;
             }

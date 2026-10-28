@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Native NTSC firing delays, independent of projectile presentation assets.</summary>
 internal static class SamusProjectileCooldownDefinitions
 {
-    /// <summary>The bits of a cooldown row's index that select its beam combination.</summary>
-    internal const int CombinationMask = 0x0f;
     /// <summary>The SpaceTime beam's cooldown byte.</summary>
     internal const byte SpacetimeCooldown = 0x0D;
 

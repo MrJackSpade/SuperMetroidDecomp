@@ -17,7 +17,8 @@ internal static class SamusProjectileCooldowns
         if ((uint)index < 32)
         {
             bool charged = index >= SamusFiringTableDefinitions.ChargedRowOffset;
-            int combination = index & CombinationMask;
+            // Each row holds one byte per table index, so a byte's place within its row is its combination.
+            int combination = index % SamusFiringTableDefinitions.ChargedRowOffset;
             if (combination >= SamusFiringTableDefinitions.CombinationCount)
                 return 0;
             return (byte)(charged ? 30 : combination == PlasmaIce ? 12 : 15);

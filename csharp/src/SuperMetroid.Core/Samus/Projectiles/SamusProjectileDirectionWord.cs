@@ -27,6 +27,12 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     public bool HasLowByteLifecycleState => (Raw & LifecycleBits) != 0;
 
     /// <summary>
+    /// Whether a collision walker has installed collision lifecycle state <c>$10</c>: the projectile already struck
+    /// something, so later collision walkers skip it.
+    /// </summary>
+    public bool HasCollisionLifecycleState => (Raw & CollisionLifecycleState) != 0;
+
+    /// <summary>
     /// Firing and missile movement accept only indices 0–9 with no lifecycle bits in the
     /// rest of the low byte. High-byte state remains untouched and intentionally unnamed.
     /// </summary>

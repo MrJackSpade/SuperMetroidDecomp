@@ -31,8 +31,11 @@ public static class MorphBallBombDefinitions
     public const ushort RequiredChargeFrames = 0x003c;
 
     /// <summary>
-    /// Bits tested in the bomb-spread timeout word; reaching $C0 forces release while Down
-    /// remains held.
+    /// The updates of held Down a bomb spread charges for within each <see cref="DownChargeTimeoutCycle"/> of the
+    /// timeout counter; reaching it forces release while Down remains held (the cartridge tests bits six and seven).
     /// </summary>
-    public const ushort DownChargeTimeoutMask = 0x00c0;
+    public const int DownChargeTimeoutUpdates = 192;
+
+    /// <summary>The span of the timeout counter the timeout reads a position within.</summary>
+    public const int DownChargeTimeoutCycle = 256;
 }

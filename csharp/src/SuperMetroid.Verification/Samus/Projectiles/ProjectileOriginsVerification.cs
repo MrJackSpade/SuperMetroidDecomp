@@ -52,7 +52,7 @@ internal static class ProjectileOriginsVerification
         foreach (bool running in new[] { false, true })
         for (ushort direction = 0; direction < 16; direction++)
         {
-            var actual = SamusMuzzleOrigins.Read(running, direction);
+            var actual = SamusMuzzleOrigins.Read(running, new SamusProjectileDirectionWord(direction));
             AssertEqual(new Offset16<RoomPixels>(Word((running ? 0x90c22c : 0x90c204) + direction * 2),
                 Word((running ? 0x90c240 : 0x90c218) + direction * 2)), actual,
                 "Forty native origin words and cross-row/cooldown overreads");

@@ -25,7 +25,7 @@ public static class ChargeFlarePlacementOffsets
         {
             int adjacent = direction - SamusFiringTableDefinitions.DirectionCount;
             return new() { X = BeamOffset(true, adjacent).Y,
-                Y = SamusMuzzleOrigins.Read(false, (ushort)adjacent).X };
+                Y = SamusMuzzleOrigins.Read(false, new SamusProjectileDirectionWord((ushort)adjacent)).X };
         }
         if (!running && direction >= StandingDirectionCount)
         {

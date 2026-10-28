@@ -110,7 +110,7 @@ internal static class MorphBallEyeBehaviorVerification
         slot.SetSpawnParameter1(parameter1);
         slot.SetSpawnParameter2(parameter2);
         enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);
-        return new MorphBallEyeBehaviorCreateResult(enemies, slot, enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The eye has no state."));
+        return new MorphBallEyeBehaviorCreateResult(enemies, slot, slot.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The eye has no state."));
     }
 
     /// <summary>Runs the Morph Ball eye behavior check and its program oracle against the local retail cartridge.</summary>

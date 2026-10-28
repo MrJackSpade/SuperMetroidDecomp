@@ -27,7 +27,7 @@ internal static class LookupHorizontalHeatWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave)
                 { LavaAcidBg2WavePhase = phase };
-            ushort[] scrolls = (GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx,
+            ushort[] scrolls = (GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(fx,
                 new Position16<BackgroundPixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
             for (int line = 0; line < scrolls.Length; line++)
                 AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),

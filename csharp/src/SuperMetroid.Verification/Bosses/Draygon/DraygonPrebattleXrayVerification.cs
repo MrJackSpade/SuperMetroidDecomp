@@ -83,7 +83,7 @@ internal static class DraygonPrebattleXrayVerification
 
         RgbaPixel[] RenderWithRegisters(GameplaySceneView registers)
         {
-            var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.MainScreenLayersByLine);
+            var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.LayersShownByLine);
             var changed = new GameplayBlendLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.BlendPlane, math.BlendsWithBackground);
             return DisplayRendering.Render(new LayeredScene(scene.Paint, new DisplayLayer[] { changed }, scene.Brightness));
         }

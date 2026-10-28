@@ -39,10 +39,10 @@ public sealed record MessageBoxLayer : DisplayLayer
     public int Top => GameplayMessageBoxDefinitions.Layout.WindowCenterY - Picture.Size.Y / 2;
 
     /// <summary>The first screen line the reveal window shows.</summary>
-    public int FirstScanline => GameplayMessageBoxDefinitions.Layout.WindowCenterY - RadiusPixels;
+    public int FirstLine => GameplayMessageBoxDefinitions.Layout.WindowCenterY - RadiusPixels;
 
     /// <summary>The screen line after the last one the reveal window shows.</summary>
-    public int EndScanline => GameplayMessageBoxDefinitions.Layout.WindowCenterY + RadiusPixels;
+    public int EndLine => GameplayMessageBoxDefinitions.Layout.WindowCenterY + RadiusPixels;
 
     /// <summary>
     /// The colours the message's text shows in over <paramref name="room"/>, the frame's: the room's, with the box's light

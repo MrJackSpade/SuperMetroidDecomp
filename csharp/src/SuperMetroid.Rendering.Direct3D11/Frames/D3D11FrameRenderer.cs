@@ -227,7 +227,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[1] = (uint)layer.FirstRow;
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
         data[14] = (uint)D3D11RoomSource.Layer3;
-        data[25] = (uint)layer.FirstScanline; data[26] = 224;
+        data[25] = (uint)layer.FirstLine; data[26] = 224;
         for (int y = 0; y < layer.Scrolls.Length; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
@@ -315,7 +315,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 ? D3D11XrayBehindLayers.Layer2AndLayer3
                 : D3D11XrayBehindLayers.Layer3);
             data[18] = (uint)sub.FirstRow;
-            data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstScanline;
+            data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstLine;
         }
         for (int y = 32; y < 224; y++)
         {
@@ -325,8 +325,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
             data[offset + 2] = D3D11ConstantPacking.Bytes(checked((byte)layer.Lines[y].Left), checked((byte)layer.Lines[y].Right), 0, 0);
             // The third byte holds the layers this line shows; the low half the line's window edges.
-            var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
-                ? r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line];
+            var mainScreen = layer.Gameplay.LayersShownByLine.IsEmpty
+                ? r.MainScreenLayers : layer.Gameplay.LayersShownByLine[line];
             // Draygon's room hides layer 2 outside its band even while the X-ray blends.
             if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) mainScreen &= ~ScreenLayers.Background;
             data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
@@ -344,8 +344,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (uint)D3D11TileOperation.MessageText;
         // The image's top line goes in the layer word; the room levels hold the image (#1392).
         data[1] = (uint)layer.Top;
-        data[25] = (uint)Math.Clamp(layer.FirstScanline, 0, D3D11Screen.Height);
-        data[26] = (uint)Math.Clamp(layer.EndScanline, 0, D3D11Screen.Height);
+        data[25] = (uint)Math.Clamp(layer.FirstLine, 0, D3D11Screen.Height);
+        data[26] = (uint)Math.Clamp(layer.EndLine, 0, D3D11Screen.Height);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -355,9 +355,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Clipping is in screen lines. Never move the floor's origin to the start of the band: the transform is the
         // whole screen's.
-        int floorStart = layer.Floor?.FirstScanline ?? 224;
-        DispatchFloor(layer.Transform, layer.HudScanlines, floorStart);
-        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudScanlines, EndScanline = (uint)floorStart });
+        int floorStart = layer.Floor?.FirstLine ?? 224;
+        DispatchFloor(layer.Transform, layer.HudLines, floorStart);
+        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart });
         if (layer.Floor is { } floor)
         {
             // Only the middle band shows the floor. Transparent floor pixels keep the backdrop; every priority pass
@@ -372,8 +372,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
         }
         // The HUD's colour zero is opaque, and no sprite shows over this band.
-        if (layer.HudScanlines != 0)
-            DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer3, Map = 0, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
+        if (layer.HudLines != 0)
+            DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer3, Map = 0, TransparentZero = 0, EndScanline = (uint)layer.HudLines });
     }
 
     /// <summary>
@@ -389,11 +389,11 @@ public sealed class D3D11FrameRenderer : IDisposable
         ScreenLayers activeLayers;
         while (first < D3D11Screen.Height)
         {
-            activeLayers = layer.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
-                : layer.MainScreenLayersByLine[first - D3D11Screen.HudHeight];
+            activeLayers = layer.LayersShownByLine.IsEmpty ? r.MainScreenLayers
+                : layer.LayersShownByLine[first - D3D11Screen.HudHeight];
             end = first + 1;
-            while (end < D3D11Screen.Height && (layer.MainScreenLayersByLine.IsEmpty ||
-                layer.MainScreenLayersByLine[end - D3D11Screen.HudHeight] == activeLayers)) end++;
+            while (end < D3D11Screen.Height && (layer.LayersShownByLine.IsEmpty ||
+                layer.LayersShownByLine[end - D3D11Screen.HudHeight] == activeLayers)) end++;
             Sprites(0); Sprites(1); Background2(false); Background1(false);
             Sprites(2); Background2(true); Background1(true); Sprites(3);
             first = end;

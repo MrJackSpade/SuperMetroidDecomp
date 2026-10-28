@@ -63,7 +63,7 @@ public static class GameplayDisplayCapture
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door IRQ. Message glyphs precede the suit's final color window.
-        AddLayer(GameplayEffectCapture.CapturePowerBombColorMath(PowerBomb(frame), scrolls.Layer1Position));
+        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.Layer1Position));
         AddLayer(live.MessageBox);
         AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));
         return new(basis.Paint, layers.ToArray(), basis.Brightness);
@@ -103,11 +103,11 @@ public static class GameplayDisplayCapture
         ushort[]? skyX = SkyHorizontalScrolls(live, shake);
 
         ushort[]? waterX = fx is { } water
-            ? GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(water, bg2Scroll) : null;
+            ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(water, bg2Scroll) : null;
         ushort[]? lavaX = fx is { } lava
-            ? GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(lava, bg2Scroll) : null;
+            ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, bg2Scroll) : null;
         ushort[]? lavaY = fx is { } vertical
-            ? GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
+            ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, bg2Scroll.Y) : null;
         BossBg2Layer? kraidBody = bosses.KraidBody;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(scrolls.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
@@ -234,7 +234,7 @@ public static class GameplayDisplayCapture
                 unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
         };
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
-            ? new(GameplayRenderDefinitions.CeresFloorFirstScanline, scrolls.Bg2Scroll + shake.Bg2,
+            ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.Bg2Scroll + shake.Bg2,
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
@@ -289,7 +289,7 @@ public static class GameplayDisplayCapture
         }
         view = view with
         {
-            MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
+            MainScreenLayers = XrayRoomDisplayRules.RemovesBackground(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
                 ? ScreenLayers.Foreground | ScreenLayers.Sprites
                 : ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites,
         };

@@ -27,7 +27,7 @@ public static class GameplayEffectCapture
     /// Resolves water's optional per-scanline BG2 distortion from <c>$88:C5E4</c>. The
     /// ordinary compositor already accepts the resulting 192-line HDMA projection.
     /// </summary>
-    public static ushort[]? BuildWaterBg2HorizontalScrolls(
+    public static ushort[]? BuildWaterBackgroundHorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         Position16<BackgroundPixels> bg2Scroll)
     {
@@ -54,7 +54,7 @@ public static class GameplayEffectCapture
     /// distortion has cartridge priority when both option bits are set, matching the
     /// branch order in <c>$88:B4D5</c>.
     /// </summary>
-    public static ushort[]? BuildLavaAcidBg2HorizontalScrolls(
+    public static ushort[]? BuildLavaAcidBackgroundHorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         Position16<BackgroundPixels> bg2Scroll)
     {
@@ -74,7 +74,7 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>Resolves the Norfair heat-haze BG2VOFS waveform from <c>$88:B5A9</c>.</summary>
-    public static ushort[]? BuildLavaAcidBg2VerticalScrolls(
+    public static ushort[]? BuildLavaAcidBackgroundVerticalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         int bg2VerticalScroll)
     {
@@ -359,7 +359,7 @@ public static class GameplayEffectCapture
     /// Resolves ROM curve data and the rendered explosion phase on the producer side.
     /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
     /// </summary>
-    public static ColourAddBandsLayer? CapturePowerBombColorMath(
+    public static ColourAddBandsLayer? CapturePowerBombGlow(
         PowerBombRenderSnapshot explosion, Position16<RoomPixels> layer1,
         int firstVisibleScanline = HudHeight)
     {

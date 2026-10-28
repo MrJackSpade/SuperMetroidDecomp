@@ -44,7 +44,7 @@ internal static class RetailRidleyCaptureTests
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (scene.Layers[0] is not TurningRoomLayer { Floor: not null } mixed ||
-                mixed.HudScanlines != ScreenGeometry.GameplayHudHeightPixels)
+                mixed.HudLines != ScreenGeometry.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
             var packet = new DisplayPacket(new(retained.Count + 1, 1, 0), scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

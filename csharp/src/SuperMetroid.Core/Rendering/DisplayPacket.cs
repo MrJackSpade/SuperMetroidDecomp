@@ -7,9 +7,6 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed class DisplayPacket
 {
-    /// <summary>The brightness of a solid-colour frame; unused by the scene frames, whose scenes carry theirs.</summary>
-    private readonly int solidBrightness;
-
     /// <summary>The host's publication identity and the game frame it shows; sequence and generation are positive, while the mailbox enforces their ordering.</summary>
     public RenderFrameIdentity Identity { get; }
     /// <summary>The layered scene this frame shows, or <see langword="null"/> when it shows a turning floor or a solid colour.</summary>
@@ -25,7 +22,7 @@ public sealed class DisplayPacket
     /// The frame's one brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>, applied once after the
     /// scene is composed: the scene's own for a layered or turning-floor frame, the frame's for a solid colour.
     /// </summary>
-    public int Brightness => Layers?.Brightness ?? Floor?.Brightness ?? solidBrightness;
+    public int Brightness { get; }
 
     /// <summary>Creates a frame showing a layered scene at the scene's brightness.</summary>
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
@@ -35,6 +32,7 @@ public sealed class DisplayPacket
     {
         Ensure.NotNull(layers);
         Layers = layers;
+        Brightness = layers.Brightness;
     }
 
     /// <summary>Creates a frame showing a turning floor, backdrop and sprites at the scene's brightness.</summary>
@@ -45,6 +43,7 @@ public sealed class DisplayPacket
     {
         Ensure.NotNull(floor);
         Floor = floor;
+        Brightness = floor.Brightness;
     }
 
     /// <summary>Creates a frame filled with one colour, shown at <paramref name="brightness"/>.</summary>
@@ -56,7 +55,7 @@ public sealed class DisplayPacket
         : this(identity)
     {
         SolidColor = solidColor;
-        solidBrightness = DisplayBrightness.Require(brightness);
+        Brightness = DisplayBrightness.Require(brightness);
     }
 
     /// <summary>Validates the host identity.</summary>

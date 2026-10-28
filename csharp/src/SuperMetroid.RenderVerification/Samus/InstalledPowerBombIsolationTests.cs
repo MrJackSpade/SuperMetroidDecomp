@@ -80,8 +80,8 @@ internal static class InstalledPowerBombIsolationTests
                         Require(expected == actual, context + ": cleanup result differs");
                         if (replacement.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow)
                             CheckEditedRestore(replacement, stock.PowerBombFixedColors, context);
-                        var first = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(baseline), new Position16<RoomPixels>(0, 0));
-                        var second = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(replacement), new Position16<RoomPixels>(0, 0));
+                        var first = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(baseline), new Position16<RoomPixels>(0, 0));
+                        var second = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(replacement), new Position16<RoomPixels>(0, 0));
                         RequireSameGeometry(first, second, context);
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)

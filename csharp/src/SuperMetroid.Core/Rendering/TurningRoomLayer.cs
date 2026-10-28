@@ -14,7 +14,7 @@ public sealed record TurningRoomLayer : DisplayLayer
     /// <summary>The turning floor's map the room shows (#1349); its characters are the room tileset's.</summary>
     public AffineFloor Map { get; }
     /// <summary>The screen lines at the top the opaque HUD covers, 0..224 in multiples of eight; zero shows no HUD.</summary>
-    public int HudScanlines { get; }
+    public int HudLines { get; }
     /// <summary>The optional band of background and sprites at the bottom of the screen; null lets the floor and sprites continue to the bottom.</summary>
     public TurningRoomLowerBand? Floor { get; }
 
@@ -31,13 +31,13 @@ public sealed record TurningRoomLayer : DisplayLayer
         if (hudScanlines < 0 || hudScanlines > ScreenGeometry.ScreenHeightPixels ||
             hudScanlines % ScreenGeometry.BackgroundTileSizePixels != 0)
             throw new ArgumentOutOfRangeException(nameof(hudScanlines));
-        if (floor is { } f && (f.FirstScanline < hudScanlines || f.FirstScanline >= ScreenGeometry.ScreenHeightPixels ||
+        if (floor is { } f && (f.FirstLine < hudScanlines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels ||
             f.MapSize.X is not (32 or 64) || f.MapSize.Y is not (32 or 64)))
             throw new ArgumentOutOfRangeException(nameof(floor));
         Transform = transform;
         Hud = Ensure.NotNull(hud);
         Map = Ensure.NotNull(map);
-        HudScanlines = hudScanlines;
+        HudLines = hudScanlines;
         Floor = floor;
     }
 }

@@ -1067,7 +1067,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     // The colour windows the displayed frame adds for the explosion, as the gameplay capture takes them.
     ColourAddBandsLayer? CaptureWindows() =>
-        GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+        GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
 }
 
 /// <summary>The colour <paramref name="windows"/> add at a screen pixel, or null where no window covers it.</summary>

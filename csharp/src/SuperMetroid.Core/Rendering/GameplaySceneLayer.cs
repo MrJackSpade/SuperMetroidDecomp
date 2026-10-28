@@ -19,7 +19,7 @@ public sealed record GameplaySceneLayer : DisplayLayer
     /// <summary>The background's per-line scrolls for screen lines 32..223; an axis no effect drives uses <see cref="GameplaySceneView.BackgroundScroll"/> on every line.</summary>
     public BackgroundLineScrolls BackgroundLineScrolls { get; }
     /// <summary>The layers screen lines 32..223 show; when given they replace the frame's layers, leaving the HUD as it is.</summary>
-    public ReadOnlySpan<ScreenLayers> MainScreenLayersByLine => mainScreenLayersByLine;
+    public ReadOnlySpan<ScreenLayers> LayersShownByLine => mainScreenLayersByLine;
 
     /// <summary>Captures the frame's view and copies its optional per-line tables; this layer is drawn before any blend or overlay.</summary>
     /// <param name="view">How the frame views the gameplay scene, with a background map of 32 or 64 cells on each axis.</param>

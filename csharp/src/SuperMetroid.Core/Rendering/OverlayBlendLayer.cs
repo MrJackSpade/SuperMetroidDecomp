@@ -20,7 +20,7 @@ public sealed record OverlayBlendLayer : DisplayLayer
     /// <summary>The map's height, 32 or 64 eight-pixel rows, where it wraps vertically; the plane is always 32 tiles wide.</summary>
     public int MapHeightTiles { get; }
     /// <summary>First participating screen line, inclusive; lines before it are untouched, and 224 disables the plane for the entire frame.</summary>
-    public int FirstScanline { get; }
+    public int FirstLine { get; }
     /// <summary>How the layer combines with the screen when drawn on its own; within a gameplay blend it follows that blend instead.</summary>
     public BlendOperation Operation { get; }
 
@@ -44,7 +44,7 @@ public sealed record OverlayBlendLayer : DisplayLayer
         Plane = Ensure.NotNull(plane);
         FirstRow = firstRow;
         MapHeightTiles = mapHeightTiles;
-        FirstScanline = firstScanline;
+        FirstLine = firstScanline;
         Operation = operation;
         this.scrolls = scrolls.ToArray();
     }

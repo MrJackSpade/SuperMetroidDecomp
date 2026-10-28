@@ -57,7 +57,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
         GameplayRenderSnapshot ppu = runtime.Display.DisplayedGameplayScrolls;
-        ColourAddBandsLayer expected = GameplayEffectCapture.CapturePowerBombColorMath(
+        ColourAddBandsLayer expected = GameplayEffectCapture.CapturePowerBombGlow(
                 PowerBombRenderSnapshot.Capture(explosion), ppu.Layer1Position)
             ?? throw new InvalidOperationException("The active Power Bomb captured no window.");
         AssertTrue(expected.Windows.ToArray().Any(window => window != ColorAddWindow.Empty),

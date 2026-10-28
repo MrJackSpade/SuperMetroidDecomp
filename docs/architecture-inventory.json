@@ -55413,6 +55413,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamCone",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBeamCone.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -55434,19 +55447,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBeamPhase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamRenderSnapshot",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBeamRenderSnapshot.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -57726,14 +57726,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDrawPriority",
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDepth",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileDrawPriority.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileDepth.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -91612,6 +91612,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.AddedScreenTilesLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/AddedScreenTilesLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.BackgroundColours",
       "kind": "class",
       "scope": "product",
@@ -91625,14 +91638,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.BackgroundMosaicSampling",
+      "type": "SuperMetroid.Core.Rendering.BackgroundLineScrolls",
       "kind": "struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/BackgroundMosaicSampling.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/BackgroundLineScrolls.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -91654,40 +91667,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.Bg2LineScrolls",
+      "type": "SuperMetroid.Core.Rendering.BackgroundPixelation",
       "kind": "struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/Bg2LineScrolls.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.BgBitDepth",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/BgBitDepth.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.BgTilePriority",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/BgTilePriority.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/BackgroundPixelation.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -91704,6 +91691,19 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Rendering/BgVramAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.BlendOperation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/BlendOperation.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -91764,6 +91764,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.ColourAddBandsLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/ColourAddBandsLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.DisplayBrightness",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/DisplayBrightness.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.DisplayLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/DisplayLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.DisplayPacket",
       "kind": "class",
       "scope": "product",
@@ -91788,19 +91827,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.ExpandedColorMathOperation",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/ExpandedColorMathOperation.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.EyeBeamWindowBuilder",
@@ -91842,32 +91868,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.FadeLevel",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/FadeLevel.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.FixedColorAddRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/FixedColorAddRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.FloorCharacterSheet",
       "kind": "class",
       "scope": "product",
@@ -91905,19 +91905,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.FloorRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/FloorRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.FloorScene",
@@ -91994,27 +91981,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.FxPlaneBlendRenderLayer",
+      "type": "SuperMetroid.Core.Rendering.GameplayBlendLayer",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/FxPlaneBlendRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.GameplayColorMathRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/GameplayColorMathRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/GameplayBlendLayer.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -92033,19 +92007,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.GameplayFloorRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/GameplayFloorRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.GameplayRenderDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -92057,6 +92018,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.GameplaySceneLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/GameplaySceneLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.GameplaySceneView",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/GameplaySceneView.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.InsetSceneLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/InsetSceneLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.IntegerWindowIntersection",
@@ -92117,30 +92117,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.MessageBoxRenderLayer",
+      "type": "SuperMetroid.Core.Rendering.MessageBoxLayer",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/MessageBoxRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/MessageBoxLayer.cs"
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.Mode1FloorBand",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/Mode1FloorBand.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.MotherBrainAscentDisplay",
@@ -92185,30 +92172,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.OrdinaryGameplayRenderLayer",
+      "type": "SuperMetroid.Core.Rendering.OverlayBlendLayer",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/OrdinaryGameplayRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/OverlayBlendLayer.cs"
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.OrdinaryGameplayView",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/OrdinaryGameplayView.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.PowerBombShape",
@@ -92312,32 +92286,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.RenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/RenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.ScanlineColorAddRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/ScanlineColorAddRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.SceneBlend",
@@ -92479,27 +92427,66 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.SpritePriorityRenderLayer",
+      "type": "SuperMetroid.Core.Rendering.ScreenTilesLayer",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/SpritePriorityRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenTilesLayer.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.SpriteRenderLayer",
+      "type": "SuperMetroid.Core.Rendering.ScreenTilesViewportLayer",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/SpriteRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenTilesViewportLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.ScreenTintLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenTintLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.SpriteDepthLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/SpriteDepthLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.SpritesLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/SpritesLayer.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -92518,43 +92505,30 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.TileAddRenderLayer",
-      "kind": "record",
+      "type": "SuperMetroid.Core.Rendering.TileDepth",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/TileAddRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/TileDepth.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.TileRenderLayer",
-      "kind": "record",
+      "type": "SuperMetroid.Core.Rendering.TileInkDepth",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/TileRenderLayer.cs"
+        "csharp/src/SuperMetroid.Core/Rendering/TileInkDepth.cs"
       ],
       "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.TileViewportRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/TileViewportRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.TitleGradientLine",
@@ -92565,6 +92539,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rendering/TitleGradientLine.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.TurningFloorLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/TurningFloorLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.TurningRoomLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/TurningRoomLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.TurningRoomLowerBand",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/TurningRoomLowerBand.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -92600,19 +92613,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.WindowedSceneRenderLayer",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/WindowedSceneRenderLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.XrayRoomBlendMode",
@@ -116632,6 +116632,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.BackgroundPixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/BackgroundPixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.Bearing",
       "kind": "record struct",
       "scope": "product",
@@ -116643,19 +116656,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.Bg2Pixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/Bg2Pixels.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.Bg3FxConversions",
@@ -116671,32 +116671,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.Bg3Pixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/Bg3Pixels.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.Bg3Subpixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/Bg3Subpixels.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Spatial.BgPlaneConversions",
       "kind": "static class",
       "scope": "product",
@@ -116708,19 +116682,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.BgPlanePixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/BgPlanePixels.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.ByteAngle",
@@ -117000,6 +116961,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.OverlayPixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/OverlayPixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.OverlaySubpixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/OverlaySubpixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.Position16\u003CTSpace\u003E",
@@ -117391,6 +117378,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.TilePlanePixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/TilePlanePixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.TilemapCells",

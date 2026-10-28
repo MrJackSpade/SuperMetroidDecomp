@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -15,15 +15,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, slot, common);
 
-    /// <summary>The room's enemy slots, which hold the eyes' mounts and bodies.</summary>
-    private readonly EnemySlotTable _slotTable;
-
-    /// <summary>Owns the eyes found in the room's enemy slots.</summary>
-    internal MorphBallEyeBehavior(EnemySlotTable slotTable)
-    {
-        _slotTable = slotTable;
-    }
-
     /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
     /// <summary>Strict horizontal range for starting the opening animation.</summary>
     private const ushort EyeActivateXDistance = 128;
@@ -36,10 +27,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
     private const ushort EyeTransitionDuration = 32;
 
-
-    /// <summary>Typed native state for every loaded mount/body record.</summary>
-    public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates =>
-        [.. _slotTable.Slots.Select(slot => slot.SpeciesState<MorphBallEyeEnemyState>())];
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();

@@ -259,11 +259,11 @@ internal static class RoomFxRomDataVerification
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             ushort[] bg2Scroll = type == RoomFxType.Water
-                ? GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(
+                ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(
                     snapshot,
                     bg2Scroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
                         "Wavy water did not publish a BG2 HDMA scroll table.")
-                : GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(
+                : GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(
                     snapshot,
                     bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
                         $"{type} did not publish its BG2 HDMA scroll table.");

@@ -949,7 +949,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Captures the active station blast's scanline color addition as a render layer.</summary>
     private ColourAddBandsLayer? CaptureStationExplosion() =>
-        GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(stationExplosion),
+        GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(stationExplosion),
             layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 
     /// <summary>Places live actors as sprite entries, retaining native slot order when Ceres explosions recycle slots.</summary>

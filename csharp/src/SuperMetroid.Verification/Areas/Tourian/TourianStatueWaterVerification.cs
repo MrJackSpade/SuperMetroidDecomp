@@ -65,7 +65,7 @@ internal static class TourianStatueWaterVerification
                 AssertEqual(dryPixels[y * 256 + x], wetPixels[y * 256 + x], "BG3 water does not tint pixels above its native surface tile");
         AssertTrue(Enumerable.Range(176 * 256, (224 - 176) * 256).Any(index => dryPixels[index] != wetPixels[index]),
             "Actual water artwork visibly changes submerged room pixels");
-        AssertEqual<ushort[]?>(null, GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(displayed, new Position16<BackgroundPixels>(0, 0)),
+        AssertEqual<ushort[]?>(null, GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, new Position16<BackgroundPixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.Descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();

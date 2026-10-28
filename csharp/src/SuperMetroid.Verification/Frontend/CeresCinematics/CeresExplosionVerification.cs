@@ -51,7 +51,7 @@ internal static class CeresExplosionVerification
 
                 var actual = scene.CaptureRenderSnapshot()
                     .LayersOf<ColourAddBandsLayer>().SingleOrDefault();
-                var expected = GameplayEffectCapture.CapturePowerBombColorMath(
+                var expected = GameplayEffectCapture.CapturePowerBombGlow(
                     PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
                 AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
                 if (expected is not null && actual is not null)

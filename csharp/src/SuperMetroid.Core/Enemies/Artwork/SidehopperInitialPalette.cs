@@ -27,7 +27,7 @@ internal sealed class SidehopperInitialPalette
     {
         Count = colors.Length;
         if (Count is not (15 or 16)) throw new ArgumentException("Sidehopper palette requires15 or16 colors.", nameof(colors));
-        if (Count == 16 && Enumerable.Range(0, Count).All(color => colors[color] == SidehopperInitialPaintDefinitions.Color(color)))
+        if (Count == 16 && Enumerable.Range(0, Count).All(color => colors[color] == SidehopperInitialPaint.Color(color)))
         {
             stockTarget = true;
             independentOrSupplied = [];
@@ -49,7 +49,7 @@ internal sealed class SidehopperInitialPalette
     internal RgbColor Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
-        if (stockTarget) return SidehopperInitialPaintDefinitions.Color(color);
+        if (stockTarget) return SidehopperInitialPaint.Color(color);
         if (!calculated) return independentOrSupplied[color];
         return color switch
         {

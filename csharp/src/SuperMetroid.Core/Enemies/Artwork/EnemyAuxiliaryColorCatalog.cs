@@ -109,7 +109,7 @@ public sealed class EnemyAuxiliaryColorCatalog
             {
                 stockFaceGlow = true; first = []; last = []; return;
             }
-            if (sidehopperDrain && SidehopperDrainPaintDefinitions.Matches(rows))
+            if (sidehopperDrain && SidehopperDrainPaint.Matches(rows))
             {
                 stockSidehopperDrain = true; first = []; last = []; return;
             }
@@ -131,7 +131,7 @@ public sealed class EnemyAuxiliaryColorCatalog
         {
             if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
             if (stockFaceGlow) return FaceBlockGlowPaintDefinitions.Color(frame, color);
-            if (stockSidehopperDrain) return SidehopperDrainPaintDefinitions.Color(frame, color);
+            if (stockSidehopperDrain) return SidehopperDrainPaint.Color(frame, color);
             if (corpse is not null && frame == FrameCount - 1) return corpse[color];
             int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);
             if (faceGlow) frame = Math.Min(frame, FrameCount - 1 - frame);

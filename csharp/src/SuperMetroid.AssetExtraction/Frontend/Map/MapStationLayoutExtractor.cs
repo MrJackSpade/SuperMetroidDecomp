@@ -29,21 +29,22 @@ public static class MapStationLayoutExtractor
                 MapStationKind.Map => MapSourceDefinitions.Landmarks.MapStationLists,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind))
             };
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
             var rules = MapStationDiscoveryRules.Get(area, kind).ToArray();
             int count = 0;
             if (pointer != 0)
                 for (; count <= rules.Length; count++)
                 {
                     int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + count * 4);
-                    ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                    if ((short)x < 0) break;
+                    int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                    // A list ends at the first record whose horizontal word is negative as a signed word.
+                    if (x > short.MaxValue) break;
                     if (count == rules.Length) throw new InvalidDataException($"Unexpected {area}/{kind} station record.");
-                    ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
+                    int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
                     var rule = rules[count];
-                    if (new Position16<MapTiles>(checked((ushort)(x >> 3)), checked((ushort)(y >> 3))) != rule.Cell)
+                    if (Position16<MapTiles>.Of(x >> 3, y >> 3) != rule.Cell)
                         throw new InvalidDataException($"Station discovery definition differs from cartridge: {rule.Id}.");
-                    markers.Add(rule.Id, new(x, y));
+                    markers.Add(rule.Id, Position16<MapPixels>.Of(x, y));
                 }
             if (count != rules.Length) throw new InvalidDataException($"Missing {area}/{kind} station records.");
         }

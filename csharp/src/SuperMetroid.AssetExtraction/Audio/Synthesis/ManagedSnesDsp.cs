@@ -10,8 +10,10 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// It consumes replaceable decoded PCM while retaining cartridge-accurate Gaussian
 /// interpolation, envelopes, pitch/noise modulation, and the shared FIR echo buffer. The
 /// music driver continues to write the ordinary DSP registers, so samples remain data rather
-/// than pre-rendered sound effects.
+/// than pre-rendered sound effects. It is the chip model: the byte register file, the signed eight-bit volumes and
+/// the sixteen-bit sample arithmetic whose clamps and wraps the output reproduces live here at the chip's widths.
 /// </summary>
+[EncodingOwner("S-DSP register file and its signed sample arithmetic")]
 public sealed class ManagedSnesDsp
 {
     /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>

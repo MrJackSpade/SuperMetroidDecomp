@@ -123,7 +123,7 @@ internal sealed class CorpseRotSimulation
     }
 
     /// <summary>The Sidehopper corpse of graphics variant <paramref name="graphicsVariant"/> (population parameter 0 or 2).</summary>
-    private static CorpseRotSimulation Sidehopper(EnemyTileArtworkCatalog enemies, ushort graphicsVariant, DeadSidehopperCorpseDefinition definition)
+    private static CorpseRotSimulation Sidehopper(EnemyTileArtworkCatalog enemies, int graphicsVariant, DeadSidehopperCorpseDefinition definition)
     {
         CorpseStaging staged = CorpseStaging.Sidehopper(
             Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
@@ -296,7 +296,7 @@ internal sealed class CorpseRotSimulation
         upload < uploads - 1 ? upload + (odd ? uploads - 1 : 0) : 2 * (uploads - 1) + (odd ? 1 : 0);
 
     /// <summary>How many population records of <paramref name="enemy"/> with first parameter <paramref name="parameter"/> any room state holds at most.</summary>
-    private static int Populated(EnemyDefinitionId enemy, ushort parameter) =>
+    private static int Populated(EnemyDefinitionId enemy, int parameter) =>
         Math.Max(1, RoomStateDefinitions.All.Max(state => state.EnemyPopulation.Records.Span
             .Count(record => record.DefinitionId == enemy && record.Parameter1 == parameter)));
 

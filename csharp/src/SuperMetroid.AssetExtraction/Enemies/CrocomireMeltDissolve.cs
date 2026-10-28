@@ -91,16 +91,16 @@ internal static class CrocomireMeltDissolve
     internal static void EraseColumn(Span<byte> image, int step)
     {
         int column = SelectColumn(step);
-        byte mask = SelectMask(step);
+        int mask = SelectMask(step);
         for (int y = 0; y < ColumnPixels; y++)
         {
             int byteIndex = 2 * (y & 7) + ((y & ~7) << 6) + 4 * (column & ~7);
             if (byteIndex + 17 >= image.Length)
                 throw new InvalidDataException("Crocomire melting column addressed outside its graphics image.");
-            image[byteIndex] &= mask;
-            image[byteIndex + 1] &= mask;
-            image[byteIndex + 16] &= mask;
-            image[byteIndex + 17] &= mask;
+            image[byteIndex] = (byte)(image[byteIndex] & mask);
+            image[byteIndex + 1] = (byte)(image[byteIndex + 1] & mask);
+            image[byteIndex + 16] = (byte)(image[byteIndex + 16] & mask);
+            image[byteIndex + 17] = (byte)(image[byteIndex + 17] & mask);
         }
     }
 }

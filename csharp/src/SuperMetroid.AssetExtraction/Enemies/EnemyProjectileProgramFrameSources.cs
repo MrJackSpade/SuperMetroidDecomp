@@ -7,7 +7,7 @@ internal static class EnemyProjectileProgramFrameSources
 {
     /// <summary>The bank-$86 operand installed program frame <paramref name="frame"/> is stored at.</summary>
     internal static ushort Operand(EnemyProjectileFrameId frame) =>
-        EnemyProjectileProgramFrameDefinitions.Operands.TryGetValue(frame, out ushort operand)
-            ? operand
+        EnemyProjectileProgramFrameDefinitions.Operands.ContainsKey(frame)
+            ? EnemyProjectileProgramFrameDefinitions.Operands[frame]
             : throw new ArgumentOutOfRangeException(nameof(frame), frame, "No installed program frame shows this projectile frame.");
 }

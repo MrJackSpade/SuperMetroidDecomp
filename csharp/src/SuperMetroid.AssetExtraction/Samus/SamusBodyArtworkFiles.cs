@@ -189,16 +189,16 @@ public static class SamusBodyArtworkFiles
             for (int position = 0; position < count; position++)
             {
                 int definitionAddress = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, start + position * 7);
-                ushort sourceOffset = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress);
-                byte sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
-                ushort firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
-                ushort secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
+                int sourceOffset = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress);
+                int sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
+                int firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
+                int secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
                 int byteCount = firstSize + secondSize;
                 if (sourceOffset < SnesBusLayout.RomWindowStart || firstSize == 0 || byteCount >
                     SamusBodyArtworkCatalog.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
                     sourceOffset + byteCount > CartridgeFormatDefinitions.BankByteCount)
                     throw new InvalidDataException($"Invalid Samus body DMA at ${definitionAddress:X6}.");
-                int sourceAddress = ((int)new SnesAddress(sourceBank, sourceOffset));
+                int sourceAddress = ((int)SnesAddress.InBank(sourceBank, sourceOffset));
                 for (int i = 0; i < byteCount; i++)
                     planar[position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot + i] =
                         bus.ReadCartridgeByte(sourceAddress + i);
@@ -314,22 +314,22 @@ public static class SamusBodyArtworkFiles
         Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
 
     /// <summary>The record of the body DMA definition at bank-$92 <paramref name="pointer"/>.</summary>
-    private static int BodyRecord(ushort pointer) =>
+    private static int BodyRecord(int pointer) =>
         pointer >= SamusSourceDefinitions.FirstBodyDefinition && (pointer - SamusSourceDefinitions.FirstBodyDefinition) % SamusSourceDefinitions.BodyDefinitionBytes == 0
             ? (pointer - SamusSourceDefinitions.FirstBodyDefinition) / SamusSourceDefinitions.BodyDefinitionBytes
             : throw new InvalidDataException($"Samus body definition group ${pointer:X4} is not a record.");
 
     /// <summary>The frame selector at bank-$92 <paramref name="pointer"/>.</summary>
-    private static int BodyFrame(ushort pointer) =>
+    private static int BodyFrame(int pointer) =>
         pointer >= SamusSourceDefinitions.FirstBodyFrame && (pointer - SamusSourceDefinitions.FirstBodyFrame) % 4 == 0
             ? (pointer - SamusSourceDefinitions.FirstBodyFrame) / 4
             : throw new InvalidDataException($"Samus pose frame list ${pointer:X4} is not a frame selector.");
 
     /// <summary>Imports a bounded bank-$92 Samus map, decoding its five-byte records into stored sprite parts.</summary>
-    private static SpriteVisualPart[] ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
+    private static SpriteVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int pointer)
     {
         int address = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, pointer);
-        ushort count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
         if (pointer < SamusSourceDefinitions.FirstSpritemap || count > 128 || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
         var parts = new SpriteVisualPart[count];

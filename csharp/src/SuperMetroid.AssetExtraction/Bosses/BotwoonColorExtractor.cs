@@ -26,11 +26,11 @@ public static class BotwoonColorExtractor
                 int address = BotwoonSourceDefinitions.HealthColors +
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) *
                     sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!RgbColor.IsColorWord(native))
+                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Botwoon color ${address:X6} has an unrepresentable high bit.");
-                bands[band][color] = PaletteRgb5.From(RgbColor.FromWord(native));
+                bands[band][color] = PaletteRgb5.From(RgbColor.FromWord(checked((ushort)native)));
             }
         }
         return BotwoonColorFile.Write(new BotwoonColorDocument

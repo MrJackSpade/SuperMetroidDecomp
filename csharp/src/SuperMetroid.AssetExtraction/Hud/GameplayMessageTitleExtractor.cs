@@ -24,10 +24,10 @@ public static class GameplayMessageTitleExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
-            ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
+            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
+            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
+            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
+            int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
                 GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
                 next - pointer != GameplayMessageBoxDefinitions.Layout.TilemapWidth * sizeof(ushort))
@@ -40,7 +40,7 @@ public static class GameplayMessageTitleExtractor
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int column = 0; column < GameplayMessageBoxDefinitions.Layout.TilemapWidth; column++)
             {
-                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort)));
+                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort)));
                 if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
                     >= (GameplayMessageBoxDefinitions.Layout.TilemapWidth -
                         GameplayMessageTitleDefinitions.OuterRightColumns))
@@ -50,7 +50,7 @@ public static class GameplayMessageTitleExtractor
                             $"Gameplay message {id} has a nontransparent outer cell at {column}.");
                     continue;
                 }
-                visible[column - GameplayMessageTitleDefinitions.OuterLeftColumns] = word;
+                visible[column - GameplayMessageTitleDefinitions.OuterLeftColumns] = checked((ushort)word);
             }
 
             int palette = (visible.First(word =>

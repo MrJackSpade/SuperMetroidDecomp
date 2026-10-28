@@ -23,7 +23,7 @@ public static class RoomCharacterAtlasExtractor
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomCharacterAtlasFormat.CreFileName,
             RoomTilesetSourceDefinitions.CreCharacters);
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
             string name = RoomCharacterAtlasFormat.FileName(set);

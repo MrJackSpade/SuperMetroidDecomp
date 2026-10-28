@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 
@@ -18,7 +19,7 @@ internal static class ObjCharacterImage
     /// <summary>The OBJ characters memory image <paramref name="image"/> holds under <paramref name="objectSelection"/>, as one page in name order.</summary>
     public static SpriteArtwork Page(ReadOnlySpan<byte> image, int objectSelection)
     {
-        byte obsel = checked((byte)objectSelection);
+        int obsel = checked((byte)objectSelection);
         var characters = new byte[ObjCharacterPage.Characters * SpriteArtwork.CharacterByteCount];
         for (int name = 0; name < ObjCharacterPage.Characters; name++)
             image.Slice(ResolveTileByteAddress(name, obsel), SpriteArtwork.CharacterByteCount)
@@ -29,10 +30,11 @@ internal static class ObjCharacterImage
     /// <summary>Resolves a nine-bit OBJ character name through OBSEL into byte VRAM.</summary>
     /// <param name="tileNumber">The name, 0 through 511.</param>
     /// <param name="obsel">The OBSEL value.</param>
-    public static int ResolveTileByteAddress(int tileNumber, byte obsel)
+    public static int ResolveTileByteAddress(int tileNumber, int obsel)
     {
         if ((uint)tileNumber >= 2 * NameTableCharacters)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
+        Ensure.BetweenInclusive(0, byte.MaxValue, obsel);
         // OBSEL bits 0-2 choose the base in $2000-word ($4000-byte) units. A set ninth
         // tile bit selects the second name table, whose programmable displacement is
         // ((bits 3-4) + 1) * $1000 words. Each 4-bpp 8x8 tile occupies 16 VRAM words.

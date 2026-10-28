@@ -5,8 +5,8 @@ namespace SuperMetroid.AssetExtraction.Video;
 internal static class SnesVramPortWrites
 {
     /// <summary>Runs the mode-1 VRAM port sequence a queued transfer to <paramref name="encodedDestination"/> runs.</summary>
-    internal static void ExecuteQueuedAssetWrite(this SnesVram vram, ReadOnlySpan<byte> bytes, ushort encodedDestination) =>
-        vram.ExecuteQueuedAssetWrite(bytes, VramDmaDestination.FromNative(encodedDestination));
+    internal static void ExecuteQueuedAssetWrite(this SnesVram vram, ReadOnlySpan<byte> bytes, int encodedDestination) =>
+        vram.ExecuteQueuedAssetWrite(bytes, VramDmaDestination.FromNative(checked((ushort)encodedDestination)));
 
     /// <summary>Runs the mode-1 VRAM port sequence a queued transfer to <paramref name="destination"/> runs.</summary>
     internal static void ExecuteQueuedAssetWrite(this SnesVram vram, ReadOnlySpan<byte> bytes, VramDmaDestination destination) =>

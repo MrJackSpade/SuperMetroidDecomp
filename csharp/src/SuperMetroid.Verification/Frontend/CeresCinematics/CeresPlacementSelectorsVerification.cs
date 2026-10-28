@@ -71,7 +71,7 @@ internal static class CeresPlacementSelectorsVerification
     }
 
     /// <summary>Requires an immediate LDA before the coordinate and compares its retail word.</summary>
-    private static void VerifyPlacementOperand(ISnesAddressSpace rom, ushort operand, ushort coordinate)
+    private static void VerifyPlacementOperand(ISnesAddressSpace rom, int operand, ushort coordinate)
     {
         int address = 0x8b0000 | operand;
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address - 1), "placement immediate LDA");

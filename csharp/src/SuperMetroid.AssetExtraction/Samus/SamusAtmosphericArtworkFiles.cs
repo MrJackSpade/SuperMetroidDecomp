@@ -105,7 +105,7 @@ public static class SamusAtmosphericArtworkFiles
             : throw new InvalidDataException($"Samus atmospheric artwork {source} has a part that is not one small piece at the origin."))];
 
     /// <summary>Imports one native atmospheric list, decoding its four attribute words into single small pieces.</summary>
-    private static SpriteVisualPart[] ReadList(ISnesAddressSpace bus, ushort pointer)
+    private static SpriteVisualPart[] ReadList(ISnesAddressSpace bus, int pointer)
     {
         var parts = new SpriteVisualPart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
         for (int frame = 0; frame < parts.Length; frame++)
@@ -115,9 +115,9 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>Checks that each atmospheric type still selects its expected authored or zero list pointer.</summary>
-    private static void AssertPointer(ISnesAddressSpace bus, int table, int type, ushort expected)
+    private static void AssertPointer(ISnesAddressSpace bus, int table, int type, int expected)
     {
-        ushort actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
+        int actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
         if (actual != expected)
             throw new InvalidDataException(
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");

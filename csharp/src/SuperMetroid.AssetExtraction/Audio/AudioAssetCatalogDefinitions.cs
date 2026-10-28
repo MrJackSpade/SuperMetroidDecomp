@@ -119,7 +119,7 @@ public static class AudioAssetCatalogDefinitions
     /// bytes or subsequent room data and are not authored music-data identities.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="dataIndex"/> names no retail upload stream.</exception>
-    public static AudioUploadAssetDefinition ResolveDataIndex(byte dataIndex) => dataIndex switch
+    public static AudioUploadAssetDefinition ResolveDataIndex(int dataIndex) => dataIndex switch
     {
         0 => Common,
         0x03 => new(AudioBank.TitleSequence, MusicDataSet.TitleSequence, (int)AudioUploadSourceDefinitions.TitleSequence, dataIndex, "Music_TitleSequence"),

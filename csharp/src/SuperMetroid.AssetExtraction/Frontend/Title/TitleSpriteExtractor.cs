@@ -17,7 +17,7 @@ internal static class TitleSpriteExtractor
     /// <summary>Decodes every title composition's ordered OAM parts, keyed by its semantic name.</summary>
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
     {
-        IReadOnlyDictionary<TitleSprite, ushort> spritemaps = MapSprites(bus);
+        IReadOnlyDictionary<TitleSprite, int> spritemaps = MapSprites(bus);
         return TitleSpriteDefinitions.All.Select(sprite => new TitleSpriteFrame
         {
             Sprite = sprite,
@@ -32,11 +32,11 @@ internal static class TitleSpriteExtractor
     /// logo pointer and the copyright from its fixed spritemap.
     /// </summary>
     /// <exception cref="InvalidDataException">A native list disagrees with its typed card, or two compositions share a spritemap.</exception>
-    internal static IReadOnlyDictionary<TitleSprite, ushort> MapSprites(ISnesAddressSpace bus)
+    internal static IReadOnlyDictionary<TitleSprite, int> MapSprites(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        var spritemaps = new Dictionary<TitleSprite, ushort>
+        var spritemaps = new Dictionary<TitleSprite, int>
         {
             [TitleSprite.SuperMetroidLogo] = RomDataReader.ReadWordFixedBank(cartridge, FrontendSourceDefinitions.TitleLogoSpritemapOperand),
             [TitleSprite.NintendoCopyright] = FrontendSourceDefinitions.TitleCopyrightSpritemap,
@@ -52,7 +52,7 @@ internal static class TitleSpriteExtractor
             int entry = TitleSourceDefinitions.TextLists[sequence.Phase];
             foreach (TitleCardStep step in TitleCards.Steps(sequence.Phase))
             {
-                ushort durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
+                int durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
                 bool nativeCommand = (durationOrCommand & TitleSourceDefinitions.CommandBit) != 0;
                 if (step.Command is not null)
                 {
@@ -62,7 +62,7 @@ internal static class TitleSpriteExtractor
                 }
                 if (nativeCommand)
                     throw new InvalidDataException($"Title card {sequence.Phase} ends before its typed steps do.");
-                ushort spritemap = RomDataReader.ReadWordFixedBank(cartridge, entry + sizeof(ushort));
+                int spritemap = RomDataReader.ReadWordFixedBank(cartridge, entry + sizeof(ushort));
                 if (step.Sprite is not { } sprite)
                 {
                     if (spritemap != FrontendSourceDefinitions.TitleBlankSpritemap)
@@ -86,9 +86,9 @@ internal static class TitleSpriteExtractor
     }
 
     /// <summary>Decodes one bank-$8C title spritemap into bounded offsets, tile positions, and flip attributes.</summary>
-    private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, ushort pointer)
+    private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, int pointer)
     {
-        int address = ((int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank, pointer));
+        int address = ((int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, pointer));
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > TitleGraphicsFormat.MaximumSpriteParts)
             throw new InvalidDataException($"Title sprite $8C:{pointer:X4} exceeds OAM capacity.");

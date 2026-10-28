@@ -144,18 +144,18 @@ internal static class EnemyInteractionCallbacks
         Addresses.ToFrozenDictionary(pair => pair.Value, pair => pair.Key);
 
     /// <summary>Names the callback a word selects in <paramref name="bank"/>'s code, or null when the port names none.</summary>
-    internal static EnemyInteractionCallback? TryDecode(byte bank, ushort pointer)
+    internal static EnemyInteractionCallback? TryDecode(int bank, int pointer)
     {
-        if (ByAddress.TryGetValue(new SnesAddress(EnemyAiRoutineDefinitions.BankA0.Bank, pointer), out EnemyInteractionCallback common) &&
+        if (ByAddress.TryGetValue(SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer), out EnemyInteractionCallback common) &&
             common is EnemyInteractionCallback.NormalEnemyTouch or EnemyInteractionCallback.NormalEnemyShot or
                 EnemyInteractionCallback.DudShot or EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
             return common;
-        return ByAddress.TryGetValue(new SnesAddress(bank, pointer), out EnemyInteractionCallback local) ? local : null;
+        return ByAddress.TryGetValue(SnesAddress.InBank(bank, pointer), out EnemyInteractionCallback local) ? local : null;
     }
 
     /// <summary>Whether a header's initialization or main-AI word names the shared no-op or the species' routine.</summary>
-    internal static EnemyAiRoutine AiRoutine(byte bank, ushort pointer) =>
-        EnemyAiRoutineDefinitions.CommonNoOpAiRoutines.Contains(new SnesAddress(bank, pointer))
+    internal static EnemyAiRoutine AiRoutine(int bank, int pointer) =>
+        EnemyAiRoutineDefinitions.CommonNoOpAiRoutines.Contains(SnesAddress.InBank(bank, pointer))
             ? EnemyAiRoutine.CommonNoOp
             : EnemyAiRoutine.SpeciesRoutine;
 
@@ -163,32 +163,32 @@ internal static class EnemyInteractionCallbacks
     /// Whether a header's hurt-AI word names the shared no-op or the species' routine. Every enemy bank repeats the
     /// shared long return at the same offset, so the word is read as its bank-$A0 copy.
     /// </summary>
-    internal static EnemyAiRoutine HurtRoutine(ushort pointer) =>
-        new SnesAddress(EnemyAiRoutineDefinitions.BankA0.Bank, pointer) == EnemyAiRoutineDefinitions.BankA0.NoOp
+    internal static EnemyAiRoutine HurtRoutine(int pointer) =>
+        SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer) == EnemyAiRoutineDefinitions.BankA0.NoOp
             ? EnemyAiRoutine.CommonNoOp
             : EnemyAiRoutine.SpeciesRoutine;
 
     /// <summary>What a callback word does: nothing to call, a routine, or an immediate return.</summary>
-    internal static EnemyCallbackBody Body(ushort pointer, bool literalNoOp) =>
+    internal static EnemyCallbackBody Body(int pointer, bool literalNoOp) =>
         pointer == 0 ? EnemyCallbackBody.None
         : literalNoOp ? EnemyCallbackBody.ImmediateReturn
         : EnemyCallbackBody.Routine;
 
     /// <summary>What <paramref name="bank"/>'s code runs for the shared no-op callback.</summary>
-    internal static EnemyCallbackBody NoOpCallbackBody(byte bank) =>
+    internal static EnemyCallbackBody NoOpCallbackBody(int bank) =>
         IsLiteralNoOpShot(bank, EnemyAiRoutineDefinitions.BankA0.NoOp.Offset)
             ? EnemyCallbackBody.ImmediateReturn
             : EnemyCallbackBody.Routine;
 
     /// <summary>Whether a header or hitbox touch word in <paramref name="bank"/>'s code is a literal long return.</summary>
-    internal static bool IsLiteralNoOpTouch(byte bank, ushort pointer) =>
-        EnemyTouchCallbackDefinitions.LiteralNoOps.Contains(new SnesAddress(bank, pointer));
+    internal static bool IsLiteralNoOpTouch(int bank, int pointer) =>
+        EnemyTouchCallbackDefinitions.LiteralNoOps.Contains(SnesAddress.InBank(bank, pointer));
 
     /// <summary>Whether a header or hitbox shot word in <paramref name="bank"/>'s code is a literal long return.</summary>
-    internal static bool IsLiteralNoOpShot(byte bank, ushort pointer) =>
-        EnemyShotCallbackDefinitions.LiteralNoOps.Contains(new SnesAddress(bank, pointer));
+    internal static bool IsLiteralNoOpShot(int bank, int pointer) =>
+        EnemyShotCallbackDefinitions.LiteralNoOps.Contains(SnesAddress.InBank(bank, pointer));
 
     /// <summary>Whether a header's Power Bomb word in <paramref name="bank"/>'s code is a literal long return.</summary>
-    internal static bool IsLiteralNoOpPowerBomb(byte bank, ushort pointer) =>
-        EnemyPowerBombCallbackDefinitions.LiteralNoOps.Contains(new SnesAddress(bank, pointer));
+    internal static bool IsLiteralNoOpPowerBomb(int bank, int pointer) =>
+        EnemyPowerBombCallbackDefinitions.LiteralNoOps.Contains(SnesAddress.InBank(bank, pointer));
 }

@@ -106,7 +106,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
-            ushort cursor = PlmDrawAddressCodec.Of(list.Draw);
+            int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
@@ -117,11 +117,11 @@ public static class RoomPlmElevatorPlatformVisualFiles
                 var visualWords = new ushort[run.LevelWords.Length];
                 for (int index = 0; index < visualWords.Length; index++)
                 {
-                    ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
+                    int source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
                     if (source != run.LevelWords.Span[index])
                         throw new InvalidDataException(
                             $"Elevator-platform draw list {list.Draw} differs at ${cursor:X4}.");
-                    visualWords[index] = new RoomLevelWord(source).VisualWord;
+                    visualWords[index] = new RoomLevelWord(checked((ushort)source)).VisualWord;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
@@ -150,7 +150,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
         {
-            ushort expected = new RoomLevelWord(
+            int expected = new RoomLevelWord(
                 list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
             if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(

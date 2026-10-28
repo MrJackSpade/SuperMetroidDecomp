@@ -7,11 +7,12 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Address arithmetic and playback remain managed-driver mechanics; definitions retain their
 /// native fixed slots so edits cannot silently relocate into adjacent music or sample data.
 /// </summary>
+[EncodingOwner("sound driver music track, phrase and channel program bytecode")]
 internal static class SpcMusicDefinitionCodec
 {
     /// <summary>Walks selected track pointers and their referenced phrase and channel programs within uploaded APU RAM.</summary>
     internal static SpcMusicDefinitionBundle DecodeBank(
-        byte dataIndex,
+        int dataIndex,
         IReadOnlyList<ushort> trackPointers,
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written)
@@ -197,7 +198,7 @@ internal static class SpcMusicDefinitionCodec
 
     /// <summary>Reads a bounded track control stream and collects its referenced phrase addresses.</summary>
     private static AudioMusicTrackMetadata DecodeTrack(
-        byte dataIndex,
+        int dataIndex,
         int track,
         ushort address,
         ReadOnlySpan<byte> ram,
@@ -246,7 +247,7 @@ internal static class SpcMusicDefinitionCodec
 
     /// <summary>Reads eight channel-program pointers and decodes each unique referenced program.</summary>
     private static void DecodePhrase(
-        byte dataIndex,
+        int dataIndex,
         ushort address,
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,
@@ -281,7 +282,7 @@ internal static class SpcMusicDefinitionCodec
 
     /// <summary>Decodes a bounded channel bytecode stream through its end command.</summary>
     private static void DecodeProgram(
-        byte dataIndex,
+        int dataIndex,
         ushort address,
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,

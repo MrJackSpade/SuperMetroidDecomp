@@ -34,9 +34,9 @@ internal static class MapStaticPalettesExtractor
                 bool terminated = false;
                 for (int record = 0; record < MapSourceDefinitions.Artwork.MaximumCopyRecords; record++, cursor += MapSourceDefinitions.Artwork.CopyRecordBytes)
                 {
-                    ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
+                    int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
                     if (source == ushort.MaxValue) { terminated = true; break; }
-                    ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
+                    int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
                     if ((destination & 1) != 0 || destination / 2 + MapSourceDefinitions.Artwork.CopyColorCount > CgramPalettes.ColorCount)
                         throw new InvalidDataException("World-map palette copy exceeds the color range.");
                     CartridgePaletteImporter.LoadToCgram(colors, bus, MapSourceDefinitions.FileSelectMap.PaletteColors + source, MapSourceDefinitions.Artwork.CopyColorCount, destination / 2);

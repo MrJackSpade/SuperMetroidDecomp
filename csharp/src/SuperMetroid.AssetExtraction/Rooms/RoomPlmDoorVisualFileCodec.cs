@@ -103,14 +103,14 @@ internal static class RoomPlmDoorVisualFileCodec
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
                  definitions.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
-            ushort pointer = PlmDrawAddressCodec.Of(draw.Draw);
+            int pointer = PlmDrawAddressCodec.Of(draw.Draw);
             // Multirow statue and hand layouts need up to five native runs.
             // Keep a bounded structural guard without rejecting those layouts.
             if (draw.Runs.Length is < 1 or > 8)
                 throw new InvalidDataException(
                     $"Compiled {family} draw ${pointer:X4} has an invalid run count.");
             var blocks = new List<ushort>();
-            ushort cursor = pointer;
+            int cursor = pointer;
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
@@ -123,16 +123,16 @@ internal static class RoomPlmDoorVisualFileCodec
                         $"{family} draw ${pointer:X4} differs in run {runIndex} shape.");
                 for (int block = 0; block < run.LevelWords.Length; block++)
                 {
-                    ushort source = ReadWord(bus,
+                    int source = ReadWord(bus,
                         checked((ushort)(cursor + 2 + block * 2)));
                     if (source != run.LevelWords.Span[block])
                         throw new InvalidDataException(
                             $"{family} draw ${pointer:X4} differs at run {runIndex}, block {block}.");
-                    blocks.Add(new RoomLevelWord(source).VisualWord);
+                    blocks.Add(new RoomLevelWord(checked((ushort)source)).VisualWord);
                 }
-                ushort nativeOffset = ReadWord(bus,
+                int nativeOffset = ReadWord(bus,
                     checked((ushort)(cursor + 2 + run.LevelWords.Length * 2)));
-                ushort compiledOffset =
+                int compiledOffset =
                     LittleEndianBytes.Word(unchecked((byte)run.Next.X), unchecked((byte)run.Next.Y));
                 if (nativeOffset != compiledOffset ||
                     (runIndex == draw.Runs.Length - 1) != (nativeOffset == 0))
@@ -159,7 +159,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
                 for (int block = 0; block < run.LevelWords.Length; block++)
                 {
-                    ushort expected = new RoomLevelWord(
+                    int expected = new RoomLevelWord(
                         run.LevelWords.Span[block]).VisualWord;
                     if (getWord(catalog, draw.Draw, runIndex, block) != expected)
                         throw new InvalidDataException(
@@ -204,7 +204,7 @@ internal static class RoomPlmDoorVisualFileCodec
     }
 
     /// <summary>Reads a bank-$84 PLM word while rejecting a pointer that straddles the bank end.</summary>
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
+    private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
         pointer == ushort.MaxValue
             ? throw new InvalidDataException("A PLM visual word cannot start at the PLM bank's last byte.")
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer));

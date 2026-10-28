@@ -34,7 +34,7 @@ internal static class MotherBrainHealthPaletteExtractor
                 for (int color = 0; color < states[state].Length; color++)
                 {
                     int address = source + color * sizeof(ushort);
-                    ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                    int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                     states[state][color] = new PaletteRgb5
                     {
                         Red = word & 31,

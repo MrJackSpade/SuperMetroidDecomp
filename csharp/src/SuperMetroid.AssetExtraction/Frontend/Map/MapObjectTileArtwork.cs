@@ -65,17 +65,17 @@ internal sealed class MapObjectTileArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            int pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
             if (pixel != ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))))
-                (reserveEdits ??= new()).Add((tile - FirstReserveTile) * 64 + y * 8 + x, pixel);
+                (reserveEdits ??= new()).Add((tile - FirstReserveTile) * 64 + y * 8 + x, (byte)pixel);
         }
         for (int tile = FirstHighlightTile; tile < FirstHighlightTile + HighlightTileCount; tile++)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            int pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
             if (pixel != HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y))))
-                (highlightEdits ??= new()).Add((tile - FirstHighlightTile) * 64 + y * 8 + x, pixel);
+                (highlightEdits ??= new()).Add((tile - FirstHighlightTile) * 64 + y * 8 + x, (byte)pixel);
         }
     }
 
@@ -146,15 +146,15 @@ internal sealed class MapObjectTileArtwork
             for (int y = 0; y < 8; y++)
             for (int plane = 0; plane < 4; plane++)
             {
-                byte encoded = 0;
+                int encoded = 0;
                 for (int x = 0; x < 8; x++)
                 {
                     int key = (tile - first) * 64 + y * 8 + x;
-                    byte pixel = thin ? thinBorder.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : square ? squares.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : marker ? markers.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulderFrame ? shoulderHighlight.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulder ? shoulderButtons.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : panelTile ? panel.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : lettering ? elevatorLettering.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : title ? largeFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : font ? smallFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : edits is not null && edits.TryGetValue(key, out byte authored)
-                        ? authored : reserve ? ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))) : HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y)));
-                    encoded |= (byte)(((pixel >> plane) & 1) << (7 - x));
+                    int pixel = thin ? thinBorder.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : square ? squares.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : marker ? markers.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulderFrame ? shoulderHighlight.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulder ? shoulderButtons.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : panelTile ? panel.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : lettering ? elevatorLettering.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : title ? largeFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : font ? smallFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : edits is not null && edits.ContainsKey(key)
+                        ? edits[key] : reserve ? ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))) : HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y)));
+                    encoded |= ((pixel >> plane) & 1) << (7 - x);
                 }
-                transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = encoded;
+                transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = (byte)encoded;
             }
         }
         return transfer;

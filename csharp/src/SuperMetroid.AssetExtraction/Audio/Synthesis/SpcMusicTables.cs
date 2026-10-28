@@ -19,7 +19,7 @@ internal static class SpcMusicTables
     internal static byte EffectByteLength(int index)
     {
         if ((uint)index >= EffectCount) throw new ArgumentOutOfRangeException(nameof(index));
-        byte opcode = (byte)(index + (int)SpcMusicEffect.SetInstrument);
+        int opcode = index + (int)SpcMusicEffect.SetInstrument;
         return SuperMetroid.AssetExtraction.Cartridge.ClosedEnumWords.Decode<SpcMusicEffect>(opcode, "SPC music effect opcode") switch
         {
             SpcMusicEffect.DisableVibrato or SpcMusicEffect.DisableTremolo or

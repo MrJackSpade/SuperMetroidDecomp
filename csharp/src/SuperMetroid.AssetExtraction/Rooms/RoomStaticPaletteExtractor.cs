@@ -22,7 +22,7 @@ public static class RoomStaticPaletteExtractor
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomPaletteSet set = RoomTilesetDefinitions.Get(graphicsSet).Palette;
             SnesAddress address = sources.Palettes[set];
@@ -36,7 +36,7 @@ public static class RoomStaticPaletteExtractor
             var colors = new PaletteRgb5[RoomStaticPaletteFormat.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
+                int word = BinaryPrimitives.ReadUInt16LittleEndian(
                     decompressed.AsSpan(index * sizeof(ushort)));
                 colors[index] = new PaletteRgb5
                 {

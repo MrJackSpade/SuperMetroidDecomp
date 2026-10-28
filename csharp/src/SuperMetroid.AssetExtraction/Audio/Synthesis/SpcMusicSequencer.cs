@@ -60,7 +60,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>Remembers the selected instrument before installing its DSP voice registers.</summary>
-    private void SetInstrument(ManagedSpcMusicChannel channel, byte instrument)
+    private void SetInstrument(ManagedSpcMusicChannel channel, int instrument)
     {
         channel.InstrumentId = instrument;
         _voices.SetInstrumentWithoutSavingId(channel, instrument);
@@ -87,14 +87,14 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>Decodes one music effect and its native operand length, updating channel or global driver state.</summary>
-    internal void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
+    internal void HandleEffect(ManagedSpcMusicChannel channel, int rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverDefinitions.Music.FirstEffect;
         if ((uint)tableIndex >= SpcMusicTables.EffectCount)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
-        byte argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
+        int argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
             ? NextSequenceByte(ref channel.PatternOrderPointer)
-            : (byte)0;
+            : 0;
 
         switch ((SpcMusicEffect)rawEffect)
         {
@@ -163,7 +163,7 @@ internal sealed class SpcMusicSequencer
                 break;
             case SpcMusicEffect.CallPattern:
                 channel.PatternStartPointer = unchecked(
-                    LittleEndianBytes.Word(argument, NextSequenceByte(ref channel.PatternOrderPointer)));
+                    LittleEndianBytes.Word(checked((byte)argument), NextSequenceByte(ref channel.PatternOrderPointer)));
                 channel.SubroutineLoops = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.SavedPatternPointer = channel.PatternOrderPointer;
                 channel.PatternOrderPointer = channel.PatternStartPointer;
@@ -260,7 +260,7 @@ internal sealed class SpcMusicSequencer
         int pointer = channel.PatternOrderPointer;
         for (int instructions = 0; instructions < SpcDriverDefinitions.MaximumFastForwardTicks; instructions++)
         {
-            byte command = NextSequenceByte(ref pointer);
+            int command = NextSequenceByte(ref pointer);
             if (command == 0)
             {
                 if (loops == 0)
@@ -286,7 +286,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>Combines master, channel and tremolo volume with the driver's repeated fixed-point scaling.</summary>
-    private void CalculateFinalVolume(ManagedSpcMusicChannel channel, byte volume)
+    private void CalculateFinalVolume(ManagedSpcMusicChannel channel, int volume)
     {
         int scaled = SpcFixedPoint.Scale(SpcFixedPoint.Whole(masterVolume), volume);
         scaled = SpcFixedPoint.Scale(scaled, channel.ChannelVolumeMaster);
@@ -491,12 +491,12 @@ internal sealed class SpcMusicSequencer
 
     NextPhrase:
         observer?.PhraseStarting();
-        ushort patternTable;
+        int patternTable;
         for (int records = 0; ; records++)
         {
             if (records > SpcDriverDefinitions.MaximumFastForwardTicks)
                 throw new InvalidDataException("SPC top-level music stream did not reach a pattern table.");
-            ushort record = _voices.ReadWord(musicTopLevelPointer);
+            int record = _voices.ReadWord(musicTopLevelPointer);
             musicTopLevelPointer = SpcDriverWrap.Word(musicTopLevelPointer + 2);
             if (LittleEndianBytes.HighByte(record) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
             {
@@ -523,7 +523,7 @@ internal sealed class SpcMusicSequencer
                 blockCount = SpcDriverWrap.Byte(blockCount - 1);
                 if ((blockCount & 0x80) != 0) // cartridge-encoding: allow(BitMask) - signed block-counter underflow
                     blockCount = unchecked((byte)record);
-                ushort loopPointer = _voices.ReadWord(musicTopLevelPointer);
+                int loopPointer = _voices.ReadWord(musicTopLevelPointer);
                 musicTopLevelPointer = SpcDriverWrap.Word(musicTopLevelPointer + 2);
                 if (blockCount != 0)
                     musicTopLevelPointer = loopPointer;
@@ -533,7 +533,7 @@ internal sealed class SpcMusicSequencer
         for (int index = 0; index < channels.Length; index++)
         {
             channels[index].PatternOrderPointer = _voices.ReadWord(patternTable);
-            patternTable += 2;
+            patternTable = SpcDriverWrap.Word(patternTable + 2);
         }
         for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
         {
@@ -563,7 +563,7 @@ internal sealed class SpcMusicSequencer
                 {
                     if (instructions > SpcDriverDefinitions.MaximumFastForwardTicks)
                         throw new InvalidDataException($"SPC channel {index} did not reach a timed note.");
-                    byte noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
+                    int noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                     if (noteCommand == 0)
                     {
                         if (channel.SubroutineLoops == 0)
@@ -652,7 +652,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>Applies note or percussion pitch, volume and key-on state to the selected music voice.</summary>
-    private void PlayNote(ManagedSpcMusicChannel channel, byte note)
+    private void PlayNote(ManagedSpcMusicChannel channel, int note)
     {
         if (note >= SpcDriverDefinitions.Music.FirstPercussionNote)
         {
@@ -685,9 +685,9 @@ internal sealed class SpcMusicSequencer
     /// <summary>The next byte of a music sequence stream at <paramref name="cursor"/>, advancing it with 16-bit wrap.</summary>
     internal byte NextSequenceByte(ref int cursor)
     {
-        byte value = ram[cursor];
+        int position = cursor;
         cursor = SpcDriverWrap.Word(cursor + 1);
-        return value;
+        return ram[position];
     }
 
     /// <summary>The music sequence byte at <paramref name="cursor"/>, without advancing.</summary>
@@ -792,12 +792,12 @@ internal sealed class SpcMusicSequencer
     internal ISpcDriverObserver? observer;
 
     /// <summary>Disables echo during delay changes, computes its countdown and selects the native buffer page.</summary>
-    internal void SetupEchoDelay(byte requestedDelay)
+    internal void SetupEchoDelay(int requestedDelay)
     {
         echoDelay = requestedDelay;
         if (requestedDelay != lastWrittenEchoDelay)
         {
-            byte countdown = unchecked((byte)(SnesDspControls.EchoDelayOf(lastWrittenEchoDelay) ^ byte.MaxValue));
+            int countdown = unchecked((byte)(SnesDspControls.EchoDelayOf(lastWrittenEchoDelay) ^ byte.MaxValue));
             if ((echoStoredTime & 0x80) != 0) // cartridge-encoding: allow(BitMask) - signed SPC countdown bit
                 countdown = unchecked((byte)(countdown + echoStoredTime));
             echoStoredTime = countdown;
@@ -808,10 +808,10 @@ internal sealed class SpcMusicSequencer
             _voices.Dsp.Global.WriteEchoVolume(DspStereoSide.Left, 0);
             _voices.Dsp.Global.WriteFlags(new DspFlags(unchecked((byte)(_voices.dspFlags | SpcDriverDefinitions.Echo.WriteDisable))));
             lastWrittenEchoDelay = echoDelay;
-            _voices.Dsp.Global.WriteEchoDelay(checked((byte)echoDelay));
+            _voices.Dsp.Global.WriteEchoDelay(echoDelay);
         }
 
-        byte echoPage = unchecked((byte)(((echoDelay * SpcDriverDefinitions.Echo.DelayToPages) ^
+        int echoPage = unchecked((byte)(((echoDelay * SpcDriverDefinitions.Echo.DelayToPages) ^
             byte.MaxValue) + SpcDriverDefinitions.Echo.BufferPageBias));
         _voices.Dsp.Global.WriteEchoBufferPage(echoPage);
     }

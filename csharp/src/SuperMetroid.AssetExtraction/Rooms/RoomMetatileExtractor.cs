@@ -24,7 +24,7 @@ public static class RoomMetatileExtractor
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomMetatileFormat.CreFileName,
             RoomTilesetSourceDefinitions.CreBlocks);
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomBlockSet set = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
             string name = RoomMetatileFormat.FileName(set);

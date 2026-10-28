@@ -29,7 +29,7 @@ public static class EnemyAuxiliaryColorFiles
                 rows[frame] = new PaletteRgb5[definition.ColorCount];
                 for (int color = 0; color < rows[frame].Length; color++)
                 {
-                    ushort word = RomDataReader.ReadWordFixedBank(cartridge, stored.FirstRow.Value +
+                    int word = RomDataReader.ReadWordFixedBank(cartridge, stored.FirstRow.Value +
                         (frame * stored.RowStrideColors + color) * sizeof(ushort));
                     rows[frame][color] = new PaletteRgb5
                     {

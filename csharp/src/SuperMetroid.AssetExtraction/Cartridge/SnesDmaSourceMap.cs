@@ -10,8 +10,8 @@ internal static class SnesDmaSourceMap
     /// <summary>Classifies one DMA A-bus address after offset wrapping, honoring direct WRAM, mirrors and LoROM windows; SRAM windows are unmapped.</summary>
     internal static SnesDmaSourceKind Classify(SnesAddress address)
     {
-        byte bank = address.Bank;
-        ushort offset = address.Offset;
+        int bank = address.Bank;
+        int offset = address.Offset;
         if (bank is >= LoRomMemoryBankLayout.FirstWorkRamBank and
             <= LoRomMemoryBankLayout.LastWorkRamBank)
             return SnesDmaSourceKind.WorkRam;

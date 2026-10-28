@@ -11,9 +11,9 @@ internal static class IntroCinematicSpriteFrameExtractor
 {
     /// <summary>Decodes a bank-$8C opening spritemap and checks its authored OAM part count before importing editable visual attributes.</summary>
     internal static SpriteVisualPart[] Extract(ISnesAddressSpace bus,
-        ushort pointer, int expectedParts, string name)
+        int pointer, int expectedParts, string name)
     {
-        int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
+        int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
         int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
         if (count != expectedParts)
             throw new InvalidDataException(
@@ -23,12 +23,12 @@ internal static class IntroCinematicSpriteFrameExtractor
         {
             int entry = source + 2 + index * 5;
             var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(entry));
-            byte y = bus.ReadCartridgeByte(entry + 2);
+            var y = new SnesSpritemapYByte(bus.ReadCartridgeByte(entry + 2));
             var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(entry + 3));
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,
-                OffsetY = unchecked((sbyte)y),
+                OffsetY = y.SignedOffset,
                 TileColumn = attributes.TileNumber % IntroCinematicSpriteCompiler.TileColumns,
                 TileRow = attributes.TileNumber / IntroCinematicSpriteCompiler.TileColumns,
                 Size = x.IsLarge ? 16 : 8,

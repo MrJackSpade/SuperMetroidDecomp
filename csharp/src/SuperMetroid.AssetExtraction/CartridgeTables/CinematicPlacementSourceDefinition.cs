@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>
@@ -7,11 +9,14 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// </summary>
 /// <param name="Id">The actor's asset id.</param>
 /// <param name="FirstOperand">The bank-$8B address of its horizontal immediate.</param>
-internal readonly record struct CinematicPlacementSourceDefinition(string Id, ushort FirstOperand)
+internal readonly record struct CinematicPlacementSourceDefinition(string Id, int FirstOperand)
 {
+    /// <summary>The bank-$8B address of its horizontal immediate, an offset within the bank.</summary>
+    public int FirstOperand { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue - OperandDistance, FirstOperand);
+
     /// <summary>The bytes from the first immediate to the second: the first immediate's word and the store between them.</summary>
     internal const int OperandDistance = 6;
 
     /// <summary>The bank-$8B address of its vertical immediate.</summary>
-    internal ushort SecondOperand => checked((ushort)(FirstOperand + OperandDistance));
+    internal int SecondOperand => FirstOperand + OperandDistance;
 }

@@ -26,7 +26,7 @@ public static class CeresRidleyMode7ColorExtractor
             rows[row] = new PaletteRgb5[CeresRidleyPaletteDefinitions.GetawayZoomColorCount];
             for (int color = 0; color < rows[row].Length; color++)
             {
-                ushort word = LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]);
+                int word = LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]);
                 rows[row][color] = new PaletteRgb5
                 {
                     Red = word & 31,

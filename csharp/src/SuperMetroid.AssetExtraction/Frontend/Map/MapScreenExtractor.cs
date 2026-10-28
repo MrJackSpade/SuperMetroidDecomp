@@ -36,7 +36,7 @@ public static class MapScreenExtractor
                 BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), MapSourceDefinitions.FileSelectMap.RoomFrameBlank);
             // Native's reverse copy supplies footer words 1..160, not 0..159.
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrameFooter + 2, MapSourceDefinitions.FileSelectMap.RoomFrameFooterWords * 2).CopyTo(frame, MapSourceDefinitions.FileSelectMap.RoomFrameHeaderWords * 2);
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + index * 2);
+            int label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + index * 2);
             for (int word = 0; word < MapSourceDefinitions.FileSelectMap.RoomLabelWords; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((RoomLabelFirstWord + word) * 2),
                     (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (label + word * 2)) & MapSourceDefinitions.FileSelectMap.RoomLabelMask));

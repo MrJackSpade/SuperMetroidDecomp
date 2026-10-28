@@ -64,7 +64,7 @@ public static class PauseReserveUiExtractor
         {
             int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelPlacements.AddWithinBank(index * 2)) -
                 PauseMenuSourceDefinitions.EquipmentTilemapBase;
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
             return DirectLabel(CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, pointer), destination / 2, words);
         }
         PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
@@ -78,6 +78,6 @@ public static class PauseReserveUiExtractor
             Column = cell % PauseReserveUiDefinitions.TilemapColumns,
             Row = cell / PauseReserveUiDefinitions.TilemapColumns,
         };
-        static PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        static PaletteRgb5 Rgb(int word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
     }
 }

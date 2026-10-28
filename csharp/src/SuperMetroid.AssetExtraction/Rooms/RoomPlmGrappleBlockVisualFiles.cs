@@ -88,7 +88,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
                  RoomPlmGrappleBlockDrawDefinitions.All)
         {
-            ushort expected = draw.LevelWord.VisualWord;
+            int expected = draw.LevelWord.VisualWord;
             if (stock.GetWord(PlmDraw.Of(draw.Frame)) != expected)
                 throw new InvalidDataException(
                     $"Stock Grapple-block visuals {stockPath} differ from {draw.Frame}.");
@@ -113,7 +113,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
                  RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
         {
-            ushort pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
+            int pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer)) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (unchecked((ushort)(pointer + 2))))) != draw.LevelWord ||

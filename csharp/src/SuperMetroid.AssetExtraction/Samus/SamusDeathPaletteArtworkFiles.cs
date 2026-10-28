@@ -50,7 +50,7 @@ public static class SamusDeathPaletteArtworkFiles
             suited[suit] = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
             for (int palette = 0; palette < suited[suit].Length; palette++)
             {
-                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
+                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
                     suit * SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort) +
                     palette * sizeof(ushort)));
                 suited[suit][palette] = ReadPalette(bus, pointer);
@@ -59,7 +59,7 @@ public static class SamusDeathPaletteArtworkFiles
         var suitless = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
+            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
         var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
@@ -125,7 +125,7 @@ public static class SamusDeathPaletteArtworkFiles
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
     /// <summary>Imports all colors in one native sixteen-entry death palette row.</summary>
-    private static ushort[] ReadPalette(ISnesAddressSpace bus, ushort pointer)
+    private static ushort[] ReadPalette(ISnesAddressSpace bus, int pointer)
     {
         var colors = new ushort[SamusDeathPaletteArtworkCatalog.ColorCount];
         for (int color = 0; color < colors.Length; color++)

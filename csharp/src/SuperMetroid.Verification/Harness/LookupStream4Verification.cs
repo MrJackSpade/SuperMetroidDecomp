@@ -3054,7 +3054,7 @@ internal static class LookupStream4Verification
                 if (selection is >= 4 and <= 7 && pixel % 64 / 8 is 1 or 2)
                     AssertEqual(pixel is not (9 or 74 or 139 or 140 or 399), derived,
                         "Spazer diagonal geometry and texture retain exactly five original ink seeds");
-                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out byte selectedInk);
+                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out int selectedInk);
                 AssertEqual((selection & 8) != 0 && pixel is 192 or 193 or 195 or 256 or 257, ink,
                     "Only the five independently reviewed original Plasma seed positions have retained pen values");
                 AssertEqual(!derived && !ink, stored.ContainsKey(pixel), "Every calculated stock pixel is absent from stored basis");

@@ -7,7 +7,7 @@ public static class GameOverTextSources
 {
     /// <summary>The bank-$81 pointer of <paramref name="element"/>'s command stream.</summary>
     public static ushort Pointer(GameOverTextElement element) =>
-        GameOverTextSourceDefinitions.Pointers.TryGetValue(element, out ushort pointer)
-            ? pointer
+        GameOverTextSourceDefinitions.Pointers.ContainsKey(element)
+            ? GameOverTextSourceDefinitions.Pointers[element]
             : throw new ArgumentOutOfRangeException(nameof(element), element, "Not a game-over text element.");
 }

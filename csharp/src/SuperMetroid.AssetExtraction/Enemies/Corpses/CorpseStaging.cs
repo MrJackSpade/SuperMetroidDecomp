@@ -24,7 +24,7 @@ internal sealed class CorpseStaging
     private const int TileBytes = 32;
 
     /// <summary>The Sidehopper corpse's staged characters for graphics variant <paramref name="graphicsVariant"/>, copied from <paramref name="atlas"/>.</summary>
-    internal static CorpseStaging Sidehopper(ReadOnlySpan<byte> atlas, ushort graphicsVariant)
+    internal static CorpseStaging Sidehopper(ReadOnlySpan<byte> atlas, int graphicsVariant)
     {
         var staged = new CorpseStaging();
         for (int row = 0; row < 5; row++)
@@ -72,7 +72,7 @@ internal sealed class CorpseStaging
     /// Copies pixel row <paramref name="y"/> of each of the corpse's character columns down to the next, as the cartridge's
     /// unrolled movers do, and clears it for a move.
     /// </summary>
-    internal void MoveRow(CorpseRowGeometry geometry, ushort y, CorpseRowOperation operation)
+    internal void MoveRow(CorpseRowGeometry geometry, int y, CorpseRowOperation operation)
     {
         Ensure.NotNull(geometry);
         StagedBytes tiles = geometry.InHeap ? heap : bg2;
@@ -155,9 +155,9 @@ internal sealed class CorpseStaging
         }
 
         /// <summary>Writes <paramref name="value"/> at word <paramref name="word"/>.</summary>
-        internal void WriteWord(int word, ushort value)
+        internal void WriteWord(int word, int value)
         {
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(word * 2), value);
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(word * 2), checked((ushort)value));
             written[word * 2] = written[word * 2 + 1] = true;
         }
 

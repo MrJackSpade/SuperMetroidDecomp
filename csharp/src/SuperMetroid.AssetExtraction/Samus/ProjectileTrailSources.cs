@@ -7,8 +7,8 @@ internal static class ProjectileTrailSources
 {
     /// <summary>The bank-$90 address of <paramref name="program"/>'s first step.</summary>
     internal static ushort Start(ProjectileTrailProgram program) =>
-        ProjectileTrailSourceDefinitions.Starts.TryGetValue(program, out ushort start)
-            ? start
+        ProjectileTrailSourceDefinitions.Starts.ContainsKey(program)
+            ? ProjectileTrailSourceDefinitions.Starts[program]
             : throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined trail program.");
 
     /// <summary>The bank-$90 address of the step <paramref name="cursor"/> names: a pose takes four bytes, other steps two.</summary>

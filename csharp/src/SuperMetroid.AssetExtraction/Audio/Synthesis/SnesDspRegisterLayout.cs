@@ -30,7 +30,7 @@ internal static class SnesDspRegisterLayout
     }
 
     /// <summary>The voice register an address names, or null for offsets $A-$F (global registers).</summary>
-    internal static DspVoiceRegister? VoiceRegisterAt(byte address)
+    internal static DspVoiceRegister? VoiceRegisterAt(int address)
     {
         int offset = address & VoiceRegisterMask;
         return offset <= Voice.SampleOutput ? (DspVoiceRegister)offset : null;
@@ -40,8 +40,8 @@ internal static class SnesDspRegisterLayout
     internal const byte FirstFirCoefficient = 0x0f;
 
     /// <summary>The named global register an address selects, or null for FIR coefficients and unused addresses.</summary>
-    internal static DspGlobalRegister? GlobalRegisterAt(byte address) =>
-        Enum.IsDefined((DspGlobalRegister)address) ? (DspGlobalRegister)address : null;
+    internal static DspGlobalRegister? GlobalRegisterAt(int address) =>
+        (uint)address <= byte.MaxValue && Enum.IsDefined((DspGlobalRegister)address) ? (DspGlobalRegister)address : null;
 
     /// <summary>Bit masks and shifts for pitch, envelopes, gain, DSP flags, and echo delay.</summary>
     internal static class Fields

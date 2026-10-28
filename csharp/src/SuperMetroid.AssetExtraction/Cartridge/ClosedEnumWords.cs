@@ -9,10 +9,12 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 internal static class ClosedEnumWords
 {
     /// <summary>Decodes a native byte selector or throws, naming <paramref name="meaning"/>.</summary>
-    public static TEnum Decode<TEnum>(byte value, string meaning)
+    public static TEnum Decode<TEnum>(int value, string meaning)
         where TEnum : struct, Enum
     {
-        TEnum decoded = Unsafe.BitCast<byte, TEnum>(value);
+        if ((uint)value > byte.MaxValue)
+            throw new InvalidDataException($"${value:X} is not a {meaning} byte ({typeof(TEnum).Name}).");
+        TEnum decoded = Unsafe.BitCast<byte, TEnum>((byte)value);
         return Enum.IsDefined(decoded)
             ? decoded
             : throw new InvalidDataException($"${value:X2} is not a {meaning} ({typeof(TEnum).Name}).");

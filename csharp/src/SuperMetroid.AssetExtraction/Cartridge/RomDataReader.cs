@@ -119,21 +119,20 @@ public static class RomDataReader
         SnesAddress currentAddress = sourceAddress;
         var stored = new byte[maximumCompressedBytes];
         int length = 0;
-        byte Next()
+        int Next()
         {
             if (length == stored.Length)
                 throw new InvalidDataException($"Compressed stream at {sourceAddress} exceeds ${maximumCompressedBytes:X} input bytes.");
-            byte value = cartridge.ReadCartridgeByte((int)currentAddress);
-            stored[length++] = value;
+            stored[length] = cartridge.ReadCartridgeByte((int)currentAddress);
             currentAddress = currentAddress.NextLoRomByte();
-            return value;
+            return stored[length++];
         }
         while (true)
         {
-            byte first = Next();
+            int first = Next();
             if (first == SmCompressionCodes.Terminator)
                 return SmCompression.Decompress(stored.AsSpan(0, length), maximumOutputBytes);
-            byte? second = SmCompressionCodes.IsLongHeader(first) ? Next() : null;
+            int? second = SmCompressionCodes.IsLongHeader(first) ? Next() : null;
             SmCompressionHeader header = SmCompressionHeader.Decode(first, second);
             for (int operand = 0; operand < header.PayloadByteCount; operand++)
                 Next();

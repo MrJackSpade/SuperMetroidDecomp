@@ -110,9 +110,10 @@ internal static class TileWordSheetComposer
                 for (int index = 0; index < run.Words.Length; index++)
                     written[new((ushort)(run.Start.X + index), (ushort)(run.Start.Y - part.Part.Top))] = run.Words[index];
             }
-            foreach ((Position16<TilemapCells> cell, ushort raw) in written)
+            foreach (KeyValuePair<Position16<TilemapCells>, ushort> entry in written)
             {
-                var word = new SnesBgTilemapWord(raw);
+                Position16<TilemapCells> cell = entry.Key;
+                var word = new SnesBgTilemapWord(entry.Value);
                 int character = word.CharacterIndex;
                 if (!content.TryShowing(bindings.Sets[0], character, 1, out BgArtworkShown shown))
                     throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {bindings.Sets[0]} character {character}, which its room loads nothing over.");
@@ -186,7 +187,7 @@ internal static class TileWordSheetComposer
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
         {
-            byte index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + x];
+            int index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + x];
             if (index % rowColours != 0)
                 coloured |= SpritePaletteRowSet.Rows[index / 16];
         }

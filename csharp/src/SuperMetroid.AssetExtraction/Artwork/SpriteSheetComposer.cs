@@ -184,12 +184,12 @@ internal static class SpriteSheetComposer
                 int partRow = part.Palette is not int own ? 0
                     : sources.PartsKeepOwnRows ? own | SpriteImage.FixedPartRow : own;
                 rows |= SpritePaletteRowSet.Rows[paletteRow];
-                for (ushort row = 0; row < part.Size.Y; row++)
+                for (int row = 0; row < part.Size.Y; row++)
                 {
-                    for (ushort column = 0; column < part.Size.X; column++)
+                    for (int column = 0; column < part.Size.X; column++)
                     {
-                        int character = part.CharacterAt(new(column, row), out Position16<CharacterPixels> pixel);
-                        byte colour = source.Characters.ColorIndex(character, pixel);
+                        int character = part.CharacterAt(Position16<ScreenPixels>.Of(column, row), out Position16<CharacterPixels> pixel);
+                        int colour = source.Characters.ColorIndex(character, pixel);
                         if (colour == 0)
                             continue;
                         int at = (corner.Y + part.Offset.Y - bound.TopLeft.Y + row) * size.X + corner.X + part.Offset.X - bound.TopLeft.X + column;

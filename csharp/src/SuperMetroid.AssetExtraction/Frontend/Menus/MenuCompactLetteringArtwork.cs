@@ -74,8 +74,8 @@ internal sealed class MenuCompactLetteringArtwork
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
-                byte pixel = Source(tile, x, y);
-                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                int pixel = Source(tile, x, y);
+                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
             }
         }
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
@@ -85,7 +85,7 @@ internal sealed class MenuCompactLetteringArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(tile, point);
     }
 
     /// <summary>Draws ink, SELECT/START shadow and enclosed gaps, or a beveled eight-neighbor outline for an unedited atlas pixel.</summary>

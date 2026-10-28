@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Compression;
 
@@ -6,8 +7,9 @@ namespace SuperMetroid.AssetExtraction.Compression;
 public readonly record struct SmCompressionHeader
 {
     /// <summary>Decodes the short, long, or terminator header.</summary>
-    private SmCompressionHeader(byte firstByte, byte? secondByte)
+    private SmCompressionHeader(int firstByte, int? secondByte)
     {
+        firstByte = Ensure.BetweenInclusive(0, byte.MaxValue, firstByte);
         IsTerminator = firstByte == SmCompressionCodes.Terminator;
         if (IsTerminator)
         {
@@ -23,7 +25,8 @@ public readonly record struct SmCompressionHeader
                 SmCompressionCodes.LongCommandShift) & SmCompressionCodes.CommandMask)
             : (SmCompressionCommand)(firstByte & SmCompressionCodes.CommandMask);
         Length = isLong
-            ? LittleEndianBytes.Word(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."),
+            ? LittleEndianBytes.Word(
+                checked((byte)(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."))),
                 (byte)(firstByte & SmCompressionCodes.LongLengthHighMask)) + 1
             : (firstByte & SmCompressionCodes.ShortLengthMask) + 1;
         HeaderByteCount = isLong ? 2 : 1;
@@ -83,6 +86,6 @@ public readonly record struct SmCompressionHeader
     /// <param name="secondByte">The required low length byte for a long header; ignored for short headers and terminators.</param>
     /// <returns>A header retaining the supplied bytes and exposing their decoded fields.</returns>
     /// <exception cref="InvalidDataException">A long header is supplied without its second byte.</exception>
-    public static SmCompressionHeader Decode(byte firstByte, byte? secondByte = null) =>
+    public static SmCompressionHeader Decode(int firstByte, int? secondByte = null) =>
         new(firstByte, secondByte);
 }

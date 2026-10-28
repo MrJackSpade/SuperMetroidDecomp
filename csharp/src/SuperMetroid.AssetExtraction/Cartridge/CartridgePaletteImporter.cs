@@ -40,10 +40,9 @@ public static class CartridgePaletteImporter
         };
         for (int color = 0; color < colorCount; color++)
         {
-            byte low = ReadImportSource(source.AddWithinBank(color * 2));
-            byte high = ReadImportSource(source.AddWithinBank(color * 2 + 1));
-            // A DMA to CGRAM stores the fifteen color bits of each transferred word.
-            destination.SetColor(destinationIndex + color, RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(low, high)));
+            // A DMA to CGRAM stores the fifteen color bits of each transferred word, low byte first.
+            destination.SetColor(destinationIndex + color, RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(
+                ReadImportSource(source.AddWithinBank(color * 2)), ReadImportSource(source.AddWithinBank(color * 2 + 1)))));
         }
     }
 }

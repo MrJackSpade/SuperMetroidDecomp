@@ -24,10 +24,10 @@ public static class GameplayMessagePanelExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
-            ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
+            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
+            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
+            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
+            int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             GameplayMessageRoutine expectedSetup = GameplayMessagePanelDefinitions.ButtonBinding(id) switch
             {
                 GameplayMessagePanelButtonBinding.Shoot => GameplayMessageRoutine.PatchShootButton,

@@ -35,8 +35,8 @@ internal sealed class MenuShoulderButtonArtwork
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
-                byte pixel = Source(tile, x, y);
-                if (pixel != Basis((MenuShoulderButtonCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                int pixel = Source(tile, x, y);
+                if (pixel != Basis((MenuShoulderButtonCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
             }
         }
         bool[] ReadLetter(int tile)
@@ -54,7 +54,7 @@ internal sealed class MenuShoulderButtonArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis((MenuShoulderButtonCell)tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis((MenuShoulderButtonCell)tile, point);
     }
 
     /// <summary>Composes a glyph mask with the shared 24-by-seven pill outline and shaded edge.</summary>

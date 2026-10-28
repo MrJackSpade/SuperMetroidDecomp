@@ -29,7 +29,7 @@ public static class SpcUploadStreamReader
         SnesAddress cursor = SnesAddress.FromBusAddress(sourceAddress);
         while (bytes.Count < MaximumStreamBytes)
         {
-            ushort byteCount = ReadWord(cartridge, ref cursor, bytes);
+            int byteCount = ReadWord(cartridge, ref cursor, bytes);
             if (byteCount == 0)
             {
                 // Extraction retains the final SPC execution word; the managed driver
@@ -53,22 +53,18 @@ public static class SpcUploadStreamReader
 
     /// <summary>Copies the next two stream bytes and interprets their little-endian wire value.</summary>
     private static ushort ReadWord(IImportCartridgeSource cartridge, ref SnesAddress cursor,
-        List<byte> bytes)
-    {
-        byte low = ReadByte(cartridge, ref cursor, bytes);
-        byte high = ReadByte(cartridge, ref cursor, bytes);
-        return unchecked(LittleEndianBytes.Word(low, high));
-    }
+        List<byte> bytes) =>
+        // Arguments evaluate left to right: the low byte is copied before the high byte.
+        unchecked(LittleEndianBytes.Word(ReadByte(cartridge, ref cursor, bytes), ReadByte(cartridge, ref cursor, bytes)));
 
     /// <summary>Copies one source byte and advances over LoROM bank boundaries in file order.</summary>
     private static byte ReadByte(IImportCartridgeSource cartridge, ref SnesAddress cursor,
         List<byte> bytes)
     {
-        byte value = cartridge.ReadCartridgeByte((int)cursor);
-        bytes.Add(value);
+        bytes.Add(cartridge.ReadCartridgeByte((int)cursor));
         // C pointer arithmetic over RomPtr crosses from one bank's $FFFF directly to the next bank's $8000.
         cursor = cursor.NextLoRomByte();
-        return value;
+        return bytes[^1];
     }
 
 }

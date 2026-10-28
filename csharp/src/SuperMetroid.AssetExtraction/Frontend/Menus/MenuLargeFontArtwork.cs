@@ -34,8 +34,8 @@ internal sealed class MenuLargeFontArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = Source(tile, x, y);
-            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            int pixel = Source(tile, x, y);
+            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
         }
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
@@ -60,8 +60,8 @@ internal sealed class MenuLargeFontArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel)
-            ? pixel : Basis(tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X)
+            ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(tile, point);
     }
 
     /// <summary>Calculates index-13 shadow from index-14 ink, including touching corners and upper-half continuation.</summary>

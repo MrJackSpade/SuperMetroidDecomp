@@ -50,10 +50,10 @@ public static class EndingTextExtractor
     }
 
     /// <summary>Decodes a bounded timed glyph stream while validating command order, positions, and glyph dimensions.</summary>
-    private static string ReadStream(ISnesAddressSpace bus, ushort pointer,
+    private static string ReadStream(ISnesAddressSpace bus, int pointer,
         EndingTextSequence sequence, out EndingTextCharacter[] characters)
     {
-        ushort cursor = pointer;
+        int cursor = pointer;
         RequireMarker(bus, cursor, EndingTextDefinitions.InitialDelayFrames);
         cursor = Add(cursor, 6);
         var text = new List<char>();
@@ -63,7 +63,7 @@ public static class EndingTextExtractor
             : EndingTextDefinitions.FinalMessage;
         for (int record = 0; record < EndingSourceDefinitions.EndingMaximumRecords; record++)
         {
-            ushort word = ReadWord(bus, cursor);
+            int word = ReadWord(bus, cursor);
             if ((word & EndingSourceDefinitions.EndingCommandBit) != 0)
             {
                 if (sequence == EndingTextSequence.ItemPercentage)
@@ -82,7 +82,7 @@ public static class EndingTextExtractor
                 return new string(text.ToArray());
             }
             RequireWord(word, EndingTextDefinitions.CharacterDelayFrames, "ending-text character delay");
-            ushort packed = ReadWord(bus, Add(cursor, 2));
+            int packed = ReadWord(bus, Add(cursor, 2));
             int column = packed & EndingSourceDefinitions.EndingPackedPositionXMask;
             int row = LittleEndianBytes.HighByte(packed);
             EndingTextStyle style = sequence == EndingTextSequence.ItemPercentage
@@ -93,7 +93,7 @@ public static class EndingTextExtractor
                 (expected == EndingTextDefinitions.PercentageDetail ? EndingTextDefinitions.PercentageHeading.Width : 0);
             if (row != expected.Row || column != expectedColumn)
                 throw new InvalidDataException($"Native {sequence} record {record} is at ({column},{row}), expected ({expectedColumn},{expected.Row}).");
-            ushort data = ReadWord(bus, Add(cursor, 4));
+            int data = ReadWord(bus, Add(cursor, 4));
             RequireWord(ReadWord(bus, data), EndingSourceDefinitions.EndingDrawFunction, "ending-text draw function");
             int height = ReadByte(bus, Add(data, 3));
             if (ReadByte(bus, Add(data, 2)) != EndingSourceDefinitions.EndingGlyphWidth ||
@@ -101,15 +101,15 @@ public static class EndingTextExtractor
                     ? EndingTextDefinitions.LargeGlyphHeight
                     : EndingTextDefinitions.SmallGlyphHeight))
                 throw new InvalidDataException($"Native {sequence} glyph has unexpected dimensions.");
-            ushort top = ReadWord(bus, Add(data, 4));
+            int top = ReadWord(bus, Add(data, 4));
             char glyph = EndingTextDefinitions.DecodeGlyph(top, style);
-            ushort? bottom = height == EndingTextDefinitions.LargeGlyphHeight
+            int? bottom = height == EndingTextDefinitions.LargeGlyphHeight
                 ? ReadWord(bus, Add(data, 6)) : null;
             if (bottom is { } bottomWord && EndingTextDefinitions.DecodeGlyph(bottomWord, style, bottom: true) != glyph)
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);
-            compiled.Add(new(row, column, new SnesBgTilemapWord(top),
-                bottom is { } lower ? new SnesBgTilemapWord(lower) : null));
+            compiled.Add(new(row, column, new SnesBgTilemapWord(checked((ushort)top)),
+                bottom is { } lower ? new SnesBgTilemapWord(checked((ushort)lower)) : null));
             cursor = Add(cursor, 6);
         }
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");
@@ -132,7 +132,7 @@ public static class EndingTextExtractor
     }
 
     /// <summary>Copies a fixed count of native tilemap words into editable ending-text cells.</summary>
-    private static EndingTextCell[] ReadCells(ISnesAddressSpace bus, ushort pointer, int count)
+    private static EndingTextCell[] ReadCells(ISnesAddressSpace bus, int pointer, int count)
     {
         var result = new EndingTextCell[count];
         for (int index = 0; index < count; index++)
@@ -141,7 +141,7 @@ public static class EndingTextExtractor
     }
 
     /// <summary>Checks the no-op timing marker's duration, packed position, payload, and function.</summary>
-    private static void RequireMarker(ISnesAddressSpace bus, ushort pointer, ushort duration)
+    private static void RequireMarker(ISnesAddressSpace bus, int pointer, int duration)
     {
         RequireWord(ReadWord(bus, pointer), duration, "ending-text marker duration");
         RequireWord(ReadWord(bus, Add(pointer, 2)), EndingSourceDefinitions.EndingMarkerPackedPosition,
@@ -151,18 +151,18 @@ public static class EndingTextExtractor
     }
 
     /// <summary>Reports a native ending-text word that differs from its compiled control value.</summary>
-    private static void RequireWord(ushort actual, ushort expected, string identity)
+    private static void RequireWord(int actual, int expected, string identity)
     {
         if (actual != expected) throw new InvalidDataException(
             $"Native {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
     /// <summary>Reads one bank-local glyph or stream byte from the import cartridge.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadCartridgeByte((int)new SnesAddress(EndingSourceDefinitions.EndingBank, pointer));
+    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+        bus.ReadCartridgeByte((int)SnesAddress.InBank(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Reads one little-endian bank-local ending-text word from the import cartridge.</summary>
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(EndingSourceDefinitions.EndingBank, pointer));
+    private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
+        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)SnesAddress.InBank(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Advances a native 16-bit stream pointer by a byte count with cartridge wrap semantics.</summary>
-    private static ushort Add(ushort pointer, int bytes) => unchecked((ushort)(pointer + bytes));
+    private static int Add(int pointer, int bytes) => unchecked((ushort)(pointer + bytes));
 }

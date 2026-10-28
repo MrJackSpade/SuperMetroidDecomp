@@ -18,7 +18,7 @@ internal static class ArmCannonTileSources
             ? (ushort)(ArmCannonTileSourceDefinitions.FirstTileSource + index * TileSourceStride)
             : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Finds the exact bank-relative native tile identity, returning its exported character index 0–11 or -1 if the position is absent or unaligned.</summary>
-        public int IndexOf(ushort source)
+        public int IndexOf(int source)
         {
             int index = (source - ArmCannonTileSourceDefinitions.FirstTileSource) / TileSourceStride;
             return (uint)index < Count && this[index] == source ? index : -1;

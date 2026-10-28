@@ -12,8 +12,9 @@ public static class XrayRoomOverlaySources
     public static IEnumerable<ushort> Pointers => XrayRoomOverlaySourceDefinitions.ByPointer.Keys.Order();
 
     /// <summary>The overlay at <paramref name="pointer"/>.</summary>
-    public static XrayRoomOverlayDefinition Overlay(ushort pointer) =>
-        XrayRoomOverlaySourceDefinitions.ByPointer.TryGetValue(pointer, out XrayRoomOverlayDefinition? found)
+    public static XrayRoomOverlayDefinition Overlay(int pointer) =>
+        (uint)pointer <= ushort.MaxValue &&
+        XrayRoomOverlaySourceDefinitions.ByPointer.TryGetValue((ushort)pointer, out XrayRoomOverlayDefinition? found)
             ? found
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a retail room X-ray overlay.");
 }

@@ -56,7 +56,7 @@ internal static class ProjectileSheetComposer
             frames.Add(new(ProjectileSheetDefinitions.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page));
         foreach (ProjectileSpriteId composition in ProjectileSheetDefinitions.FlareCompositions)
         {
-            ushort selector = checked((ushort)ChargeFlareSpriteDefinitions.Selectors.ToList().IndexOf(composition));
+            int selector = checked((ushort)ChargeFlareSpriteDefinitions.Selectors.ToList().IndexOf(composition));
             frames.Add(new(ProjectileSheetDefinitions.FlareFrame(composition), projectiles.FlareCompositions.Frame(selector), page));
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())

@@ -99,11 +99,11 @@ public static class RoomPlmCollectibleVisualFiles
         for (int slot = 0; slot < 4; slot++)
         for (int animation = 0; animation < 2; animation++)
         {
-            ushort table = animation == 0
+            int table = animation == 0
                 ? PlmDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : PlmDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(table + slot * 2)))));
-            ushort compiled = PlmDrawAddressCodec.Of(RoomPlmCollectibleDrawDefinitions.VisibleFrame(
+            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(table + slot * 2)))));
+            int compiled = PlmDrawAddressCodec.Of(RoomPlmCollectibleDrawDefinitions.VisibleFrame(
                 InWorldCollectibleKind.Bombs, animation, slot));
             if (native != compiled)
                 throw new InvalidDataException(
@@ -113,7 +113,7 @@ public static class RoomPlmCollectibleVisualFiles
         var entries = new List<RoomPlmVisualWordEntry>();
         foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
         {
-            ushort address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
+            int address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, address)) != 1 ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 2))))) != frame.LevelWord ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 4))))) != 0)

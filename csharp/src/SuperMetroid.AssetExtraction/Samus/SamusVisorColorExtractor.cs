@@ -24,7 +24,7 @@ public static class SamusVisorColorExtractor
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
-            ushort word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
+            int word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
             colors[index] = new PaletteRgb5
             {
                 Red = word & 31,

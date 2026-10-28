@@ -33,7 +33,7 @@ public sealed class SamusDeathTileAtlas
     /// <summary>Resolves an edited character byte through named repeats or transparent padding.</summary>
     private byte ReadByte(int index)
     {
-        if (sourceBytes.TryGetValue(index, out byte value)) return value;
+        if (sourceBytes.ContainsKey(index)) return sourceBytes[index];
         int source = SamusDeathTileAtlasFormat.SourceByte(index);
         return source < 0 ? (byte)0 : source != index ? ReadByte(source)
             : throw new InvalidDataException("Death artwork source byte is unavailable.");

@@ -79,9 +79,9 @@ public static class GameplayHudPresentationExtractor
             .ToArray();
 
     /// <summary>Splits a native BG tilemap word into atlas coordinates, palette, priority, and flips.</summary>
-    private static GameplayHudCell Cell(ushort raw)
+    private static GameplayHudCell Cell(int raw)
     {
-        var word = new SnesBgTilemapWord(raw);
+        var word = new SnesBgTilemapWord(checked((ushort)raw));
         return new()
         {
             TileColumn = word.CharacterIndex % 32,

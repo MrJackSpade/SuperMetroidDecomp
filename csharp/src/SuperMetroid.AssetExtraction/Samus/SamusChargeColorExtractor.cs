@@ -33,7 +33,7 @@ public static class SamusChargeColorExtractor
         {
             int tableOffset = SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);
         }
@@ -47,19 +47,19 @@ public static class SamusChargeColorExtractor
 
         PaletteRgb5[][] ReadSixPhaseList(int topAddress, int suit)
         {
-            ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 topAddress + suit * sizeof(ushort));
             var phases = new PaletteRgb5[SamusChargeColorFormat.PhasesPerSuit][];
             for (int phase = 0; phase < phases.Length; phase++)
             {
-                ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusSourceDefinitions.PoseBank.Value | (list + phase * sizeof(ushort)));
                 phases[phase] = ReadColors(pointer);
             }
             return phases;
         }
 
-        PaletteRgb5[] ReadColors(ushort pointer)
+        PaletteRgb5[] ReadColors(int pointer)
         {
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.PaletteBank.Value | pointer,
@@ -67,7 +67,7 @@ public static class SamusChargeColorExtractor
             var result = new PaletteRgb5[SamusChargeColorFormat.ColorsPerPalette];
             for (int index = 0; index < result.Length; index++)
             {
-                ushort word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
+                int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
                 result[index] = new PaletteRgb5
                 {
                     Red = word & 31,

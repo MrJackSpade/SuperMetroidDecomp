@@ -49,7 +49,7 @@ internal static class MotherBrainRainbowPaletteExtractor
             for (int frame = 0; frame < frames; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
-                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
                 values[frame] = ReadFrame(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
@@ -67,7 +67,7 @@ internal static class MotherBrainRainbowPaletteExtractor
             {
                 int address = MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                     frame * sizeof(ushort);
-                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
                 frames[frame] = ReadColors(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
@@ -97,7 +97,7 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5 ReadColor(int address)
         {
-            ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             return ToColor(word);
         }
 
@@ -106,9 +106,9 @@ internal static class MotherBrainRainbowPaletteExtractor
             var colors = new PaletteRgb5[MotherBrainRainbowPaletteFormat.BeamCycleColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
+                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
                     index * MotherBrainSourceDefinitions.Beam.ColorEntryBytes));
-                if (!RgbColor.IsColorWord(word))
+                if (!RgbColor.IsColorWord(checked((ushort)word)))
                     throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
                 colors[index] = ToColor(word);
             }
@@ -118,7 +118,7 @@ internal static class MotherBrainRainbowPaletteExtractor
             return colors;
         }
 
-        static PaletteRgb5 ToColor(ushort word) => new()
+        static PaletteRgb5 ToColor(int word) => new()
         {
             Red = word & 31,
             Green = word >> 5 & 31,

@@ -68,10 +68,10 @@ internal static class GrappleBeamTilePatterns
         for (int tile = 0; tile < planar.Length / 32; tile++)
         for (int y = 0; y < 8; y++)
         {
-            byte row = planar[tile * 32 + y * 2];
+            int row = planar[tile * 32 + y * 2];
             for (int plane = 1; plane < 4; plane++)
                 if (planar[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] != row) return null;
-            coverage[tile * 8 + y] = row;
+            coverage[tile * 8 + y] = (byte)row;
         }
         return coverage;
     }

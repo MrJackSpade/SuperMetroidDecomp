@@ -33,7 +33,7 @@ public static class SamusSuitColorExtractor
             var result = new PaletteRgb5[SamusSuitColorFormat.ColorsPerSuit];
             for (int index = 0; index < result.Length; index++)
             {
-                ushort color = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
+                int color = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
                 result[index] = new PaletteRgb5
                 {
                     Red = color & 31,

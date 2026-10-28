@@ -35,7 +35,7 @@ public static class MapArrowExtractor
             for (int phase = 0; ; phase++)
             {
                 int address = MapSourceDefinitions.Menu.ObjectBank | (program + phase * 3);
-                byte duration = bus.ReadCartridgeByte(address);
+                int duration = bus.ReadCartridgeByte(address);
                 if (duration == byte.MaxValue) break;
                 if (phase == MapArrowFormat.MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");
                 // Native ignores the middle byte and uses only the final byte as

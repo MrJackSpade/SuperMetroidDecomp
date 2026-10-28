@@ -27,7 +27,7 @@ internal static class EnemyBg2FrameFiles
         foreach (EnemySpritemapDefinition frame in definitions)
         {
             SnesAddress location = EnemyFrameCartridgeLookup.Of(frame.Frame);
-            byte bank = location.Bank;
+            int bank = location.Bank;
             int root = (int)location;
             int componentCount = bus.ReadCartridgeByte(root);
             if (componentCount < 1 ||
@@ -40,8 +40,8 @@ internal static class EnemyBg2FrameFiles
             for (int component = 0; component < componentCount; component++)
             {
                 int record = root + 2 + component * 8;
-                ushort stream = CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 4));
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWord((((int)new SnesAddress(bank, stream)))) !=
+                int stream = CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 4));
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWord((((int)SnesAddress.InBank(bank, stream)))) !=
                     EnemySourceDefinitions.Bg2StreamMarker)
                 {
                     if (allowMixedOam)
@@ -55,13 +55,13 @@ internal static class EnemyBg2FrameFiles
                     (CartridgeImportSource.Require(bus).ReadCartridgeWord(record) != 0 || CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 2)) != 0))
                     throw new InvalidDataException(
                         $"{family} frame {frame.Frame} at {location} uses an unexpected BG2 component offset.");
-                ushort cursor = unchecked((ushort)(stream + 2));
+                int cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
                 for (int command = 0;
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
-                    int address = ((int)new SnesAddress(bank, cursor));
-                    ushort destination = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                    int address = ((int)SnesAddress.InBank(bank, cursor));
+                    int destination = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                     if (destination == CartridgeFormatDefinitions.ListTerminator)
                     {
                         terminated = true;

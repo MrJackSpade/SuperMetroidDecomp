@@ -48,8 +48,8 @@ internal static class DeadMonsterRowUploadDefinitions
     /// Consecutive live-WRAM tile rows placed in 32-tile VRAM rows, in native descriptor order; sidehoppers clip their
     /// first row to <paramref name="firstSize"/> bytes and shift it by <paramref name="firstDestinationOffset"/>.
     /// </summary>
-    private static ImmutableArray<CorpseRowUpload> Rows(int count, ushort stride, ushort source, ushort destination,
-        ushort firstSize = 0, ushort firstDestinationOffset = 0)
+    private static ImmutableArray<CorpseRowUpload> Rows(int count, int stride, int source, int destination,
+        int firstSize = 0, int firstDestinationOffset = 0)
     {
         var rows = ImmutableArray.CreateBuilder<CorpseRowUpload>(count);
         for (int index = 0; index < count; index++)

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -9,13 +10,13 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <summary>Reads and writes the installed room palette-effect colour document.</summary>
 public static class RoomPaletteFxPresentationFile
 {
-    /// <summary>Distinguishes revision 17's inherited Samus heat rows from revision 18's required rows.</summary>
-    private static bool InheritsHeatRows(int version) => version switch
-    {
-        RoomPaletteFxPresentationFormat.PreviousVersion => true,
-        RoomPaletteFxPresentationFormat.Version => false,
-        _ => throw new InvalidOperationException($"Undefined room palette-FX presentation version {version}."),
-    };
+    /// <summary>The revision each accepted stored version number names; the stored number is decoded once, here.</summary>
+    private static readonly FrozenDictionary<int, RoomPaletteFxPresentationRevision> Revisions =
+        new Dictionary<int, RoomPaletteFxPresentationRevision>
+        {
+            [RoomPaletteFxPresentationFormat.PreviousVersion] = RoomPaletteFxPresentationRevision.InheritsHeatRows,
+            [RoomPaletteFxPresentationFormat.Version] = RoomPaletteFxPresentationRevision.Current,
+        }.ToFrozenDictionary();
 
     /// <summary>Validates editable palette rows and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>
@@ -28,8 +29,8 @@ public static class RoomPaletteFxPresentationFile
         RoomPaletteFxPresentationDocument document = JsonAssetDocument.Read<RoomPaletteFxPresentationDocument>(
             json, ArtworkJson.Options, "room palette-FX presentation");
 
-        bool supported = document.Version is RoomPaletteFxPresentationFormat.PreviousVersion or RoomPaletteFxPresentationFormat.Version;
-        bool inheritsHeatRows = supported && InheritsHeatRows(document.Version);
+        bool supported = Revisions.TryGetValue(document.Version, out RoomPaletteFxPresentationRevision revision);
+        bool inheritsHeatRows = supported && revision == RoomPaletteFxPresentationRevision.InheritsHeatRows;
         if (!supported || (inheritsHeatRows && previousVersionFallback is null))
         {
             throw new InvalidDataException(

@@ -19,6 +19,7 @@ internal static class LibraryBackgroundOperands
     /// <summary>The VRAM word a transfer to <paramref name="destination"/> starts at.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="destination"/> is not a transfer's.</exception>
     internal static ushort DestinationWord(LibraryBackgroundDestination destination) =>
-        RoomBackgroundSourceDefinitions.DestinationWords.TryGetValue(destination, out ushort word) ? word
+        RoomBackgroundSourceDefinitions.DestinationWords.ContainsKey(destination)
+            ? RoomBackgroundSourceDefinitions.DestinationWords[destination]
             : throw new ArgumentOutOfRangeException(nameof(destination), destination, "Not a library-background transfer's destination.");
 }

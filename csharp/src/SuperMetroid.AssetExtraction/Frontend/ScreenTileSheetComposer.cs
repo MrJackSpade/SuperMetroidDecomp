@@ -225,7 +225,7 @@ internal static class ScreenTileSheetComposer
             Position16<ImagePixels> corner = FloorCharacterSheet.Corner(tile);
             for (int pixel = 0; pixel < FloorCharacterSheet.TileBytes; pixel++)
             {
-                byte index = pixels[tile * FloorCharacterSheet.TileBytes + pixel];
+                int index = pixels[tile * FloorCharacterSheet.TileBytes + pixel];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
                 canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % FloorCharacterSheet.TilePixels)), checked((ushort)(corner.Y + pixel / FloorCharacterSheet.TilePixels))), index, colours);

@@ -93,7 +93,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
             return;
         }
         long relative = tickSample - StartSample.Value;
-        byte voices = unchecked((byte)(keyOn & library.EnabledVoices));
+        int voices = unchecked((byte)(keyOn & library.EnabledVoices));
         if (voices != 0)
             keyOns.Add(new KeyOnSample(relative, voices));
         if (EndSample is null && library.CurrentSound == 0)

@@ -53,11 +53,16 @@ internal sealed class DeadMonsterFrame
     internal void SpawnCorpseRowDust(RoomEnemySlot slot, int random, EnemyProjectileEngine projectiles, int randomEnemyCounter)
     {
         projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
+            new(unchecked((ushort)(slot.Position.X.Whole + CorpseDustSpread(random) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         if ((randomEnemyCounter & 7) == 0)
             LastSoundEffect = Library2Sound.LiquidDamage;
     }
+
+    /// <summary>How far right of its leftmost place <paramref name="random"/> spreads a corpse row's dust cloud.</summary>
+    private static int CorpseDustSpread(int random) =>
+        (CorpseDustDefinitions.SpreadFineSteps.Of(random) * CorpseDustDefinitions.SpreadFineStep) +
+        (CorpseDustDefinitions.SpreadCoarseSteps.Of(random) * CorpseDustDefinitions.SpreadCoarseStep);
 
     /// <summary>Drops this frame's sound request.</summary>
     internal void Clear() => LastSoundEffect = null;

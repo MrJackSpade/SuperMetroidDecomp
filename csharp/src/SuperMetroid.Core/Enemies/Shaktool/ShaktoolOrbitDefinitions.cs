@@ -6,8 +6,11 @@ internal static class ShaktoolOrbitDefinitions
     /// <summary>One angle-table entry of a 16-bit angle: the straightening step and its extra centre step.</summary>
     internal const ushort TableStep = 0x0100;
 
-    /// <summary>Rounds a midpoint's table angle to one of eight direction buckets.</summary>
-    internal const int DirectionBucketMask = 0x00e0;
+    /// <summary>The direction buckets a middle segment's heading is rounded to, one for each equal arc of the turn.</summary>
+    internal const int OrientationBuckets = 8;
+
+    /// <summary>The table units a midpoint's heading is advanced by before its bucket is chosen.</summary>
+    internal const int OrientationBucketLead = 8;
 
     /// <summary>The curl progress installed when the centre reaches its target angle: 120 angle-table steps.</summary>
     internal const ushort StraighteningStart = 120 * TableStep;

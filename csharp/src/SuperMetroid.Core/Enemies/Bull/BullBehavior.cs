@@ -210,7 +210,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ResolveBullImmuneShot(
         RoomEnemySlot bull,
         BullEnemyState state,
-        int projectileDirection)
+        SamusProjectileDirectionWord projectileDirection)
     {
         if (state.ShotReactionDisabled)
             return;
@@ -218,7 +218,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         bull.InstructionTimer = WrappingCountdown.Start(1);
         bull.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
-        int direction = projectileDirection & SamusProjectileDirectionMasks.Direction;
+        int direction = projectileDirection.DirectionIndex;
         state.Angle = BullMotion.ShotAngle(direction);
         state.Acceleration = 256;
         state.Speed = 1536;
@@ -241,7 +241,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 bullState.PreviousHealth = c.HealthBefore;
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, bullState, c.Bomb.PackedDirection.Raw);
+                    ResolveBullImmuneShot(c.Enemy, bullState, c.Bomb.PackedDirection);
             },
         };
 
@@ -255,7 +255,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 bullState.PreviousHealth = c.HealthBefore;
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection.Raw);
+                    ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection);
             },
         };
 }

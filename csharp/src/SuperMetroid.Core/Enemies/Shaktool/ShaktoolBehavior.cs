@@ -184,7 +184,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.OrientationReversed)
             midpoint ^= RotationAngle.HalfTurn.RawValue;
 
-        int directionBucket = unchecked((ushort)((RotationAngle.FromRaw(checked((ushort)midpoint)).TableIndex + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
+        RotationAngle heading = RotationAngle.FromRaw(checked((ushort)midpoint))
+            .AddTableUnits(ShaktoolOrbitDefinitions.OrientationBucketLead);
+        int directionBucket = heading.Sector(ShaktoolOrbitDefinitions.OrientationBuckets) *
+            (RotationAngle.TableUnitsPerTurn / ShaktoolOrbitDefinitions.OrientationBuckets);
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolPrograms.ForOrientationBucket(directionBucket));

@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Bull;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Bull's normal loop and its immune-shot reaction animation.</summary>
 internal static class BullBehaviorVerification
@@ -29,7 +30,7 @@ internal static class BullBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Programs, BullProgram.Normal)),
             "Bull normal loop");
 
-        BullBehavior.ResolveBullImmuneShot(slot, state, 2);
+        BullBehavior.ResolveBullImmuneShot(slot, state, new SamusProjectileDirectionWord(2));
         AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot), state.Program, "Bull immune-shot animation");
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullProgram.ShotLoop).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullProgram.Normal).First()];

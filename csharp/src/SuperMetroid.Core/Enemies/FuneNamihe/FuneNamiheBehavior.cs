@@ -73,17 +73,16 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
+        FuneNamiheSetup setup = FuneNamiheSetup.Of(slot.Spawn.Population.Parameter1);
         FuneNamiheEnemyState state = new()
         {
             ShowsActiveAnimation = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
-            VariantIndex = slot.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.VariantBits,
+            VariantIndex = setup.Variant,
             YProximity = slot.Spawn.Population.Parameter2Settings.Second,
             CooldownTime = slot.Spawn.Population.Parameter1Settings.Second,
             CooldownTimer = 0,
-            // Any bit in parameter one's upper low-byte nibble selects right-facing art. The
-            // code does not mask to a single direction flag before making this decision.
-            FacingRight = (slot.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.RightFacingBits) != 0,
+            FacingRight = setup.FacesRight,
         };
 
         // Species is encoded in the population parameter rather than inferred from the
@@ -244,7 +243,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer tests the actor parameter's species nibble, not the projectile
         // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
-        if ((source.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.VariantBits) != 0)
+        if (FuneNamiheSetup.Of(source.Spawn.Population.Parameter1).IsNamihe)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
         var velocities = EnemyFireballLaunches.NamiFuneVelocities(checked((ushort)source.Spawn.Population.Parameter2));

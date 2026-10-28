@@ -215,7 +215,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FinishedEntryCount++;
         int random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)((random & CorpseDustDefinitions.TorizoSpreadBits) + 272)), 188),
+            new(unchecked((ushort)(CorpseDustDefinitions.TorizoSpread.Of(random) + 272)), 188),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)

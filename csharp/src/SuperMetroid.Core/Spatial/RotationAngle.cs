@@ -66,6 +66,14 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>Adds whole sine-table units while retaining the fractional low byte.</summary>
     public RotationAngle AddTableUnits(int delta) => AddRaw(delta << 8);
 
+    /// <summary>
+    /// Which of <paramref name="sectors"/> equal arcs of the turn, numbered from zero at <see cref="Zero"/>, holds the
+    /// angle's table index (#1461): for a power of two, the index's top bits, which a pose or heading choice reads.
+    /// </summary>
+    /// <param name="sectors">The number of arcs the turn divides into, 1 through <see cref="TableUnitsPerTurn"/>.</param>
+    public int Sector(int sectors) =>
+        TableIndex * Ensure.BetweenInclusive(1, TableUnitsPerTurn, sectors) / TableUnitsPerTurn;
+
     /// <inheritdoc />
     public int CompareTo(RotationAngle other) => RawValue.CompareTo(other.RawValue);
 

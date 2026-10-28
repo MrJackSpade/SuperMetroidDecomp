@@ -26,7 +26,7 @@ public sealed class MorphBallEyeBeamState
     /// <summary>The 16.16 widening speed in angle units per update: zero when the beam appears and raised by a quarter unit before each widening update adds it.</summary>
     public SignedSixteenSixteen AngularHalfWidthGrowth { get; internal set; }
 
-    /// <summary>Position in the sixteen-step yellow brightness cycle; only its low four bits select the colour shown next.</summary>
+    /// <summary>Position in the sixteen-step yellow brightness cycle, 0 through 15: the colour shown next.</summary>
     public int ColorIndex { get; internal set; }
 
     /// <summary>

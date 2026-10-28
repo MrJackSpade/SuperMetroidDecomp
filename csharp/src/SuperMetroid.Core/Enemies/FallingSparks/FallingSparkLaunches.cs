@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 public static class FallingSparkLaunches
 {
     /// <summary>The launch random bits two through four select.</summary>
-    public static SignedSixteenSixteen FromRandom(int random) => Launches[(random & LaunchSelectorMask) >> 2];
+    public static SignedSixteenSixteen FromRandom(int random) => Launches[LaunchSelector.Of(random)];
 }

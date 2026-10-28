@@ -87,7 +87,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The retail gate tests bits eight and zero of the newly-generated random
                 // word, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle list without starting an attack.
-                if (samus is null || (random & RioLaunchDefinitions.AttackRandomBits) == 0 ||
+                if (samus is null ||
+                    (!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,

@@ -1,20 +1,17 @@
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
-/// <summary>The Morph Ball eye's beam colour and mount encoding, as its bank-$A3 routines write them.</summary>
+/// <summary>The Morph Ball eye's tracking poses and its beam's colour and width, as its bank-$A3 routines write them.</summary>
 internal static class MorphBallEyeBeamDefinitions
 {
-    /// <summary>Parameter two's low nibble: the wall the eye is mounted on.</summary>
-    internal const int MountDirectionBits = 0x000f;
-
-    /// <summary>The high nibble of the eye's table angle: the tracking pose it resumes at.</summary>
-    internal const int PoseAngleBits = 0x00f0;
+    /// <summary>The tracking poses the eye's angle chooses among, one for each equal arc of the turn.</summary>
+    internal const int TrackingPoses = 16;
 
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
     internal static RgbColor InitialColor { get; } = new(16, 16, 0);
 
     /// <summary>The beam cycles through sixteen colours.</summary>
-    internal const int ColorIndexBits = 0x000f;
+    internal const int ColorCycleLength = 16;
 
     /// <summary>How much faster the widening beam's half-width grows each update: a quarter angle unit.</summary>
     internal static SignedSixteenSixteen WidthGrowthStep { get; } = SignedSixteenSixteen.FromParts(0, 0x4000);

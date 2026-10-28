@@ -15,10 +15,11 @@ internal static class PlmProgressionClosedContractDefinitions
     /// <summary>Closed visual domains for progression blocks and boss-room PLM draws.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Areas.Tourian.Artwork.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Areas.Tourian.Artwork.RoomPlmTourianAccessVisuals", "plm-tourian-access-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/RoomPlmTourianAccessVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessPlmDrawDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/RoomPlmTourianAccessVisuals.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessPlmDrawDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessDraws.cs")]),
         new("SuperMetroid.Core.Rooms.Plms.RoomPlmSpeedBoosterVisualCatalog", "plm-speed-booster-complete-reveal", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmSpeedBoosterVisualCatalog.cs"),

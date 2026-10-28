@@ -51,7 +51,7 @@ internal static class TourianAccessPlmProgramsVerification
     private static void VerifyTourianAccessPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            TourianAccessPlmDrawDefinitions.All.ToArray();
+            TourianAccessDraws.All.ToArray();
         AssertEqual(5, draws.Length, "Tourian access owns four frames and a six-row clear");
         ushort[] pointers = [0x9297,0x92a3,0x92af,0x92bb,0x92c7];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

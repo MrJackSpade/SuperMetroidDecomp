@@ -91,7 +91,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         foreach (CeresFloorAnimationFrame list in new[] { capsule, wing })
         {
             var source = new SnesAddress(0xa6, CeresNativeWords.FloorAnimationFrames.Word(list));
-            for (int descriptor = 0; descriptor < CeresFloorAnimationDefinitions.Get(list).Count; descriptor++, offset += descriptorBytes)
+            for (int descriptor = 0; descriptor < CeresFloorAnimation.Get(list).Count; descriptor++, offset += descriptorBytes)
             {
                 for (int index = 0; index < descriptorBytes; index++)
                     image[offset + index] = rom.ReadCartridgeByte((int)source.AddWithinBank(descriptor * descriptorBytes + index));

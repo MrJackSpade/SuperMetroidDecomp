@@ -173,7 +173,7 @@ public sealed class CeresElevatorArrivalState
         }
 
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalDefinitions.Frame(pose)), screen,
+            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), screen,
             EnemyProjectileEngine.ProjectileTileBase(projectile.Graphics), projectile.Graphics.PaletteRow);
     }
 

@@ -82,7 +82,7 @@ internal sealed class PlmShotBlockVisuals
 
     /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
     [field: NonSerialized]
-    public RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; set; }
+    public RoomPlmTourianAccessVisuals? RoomPlmTourianAccessVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>

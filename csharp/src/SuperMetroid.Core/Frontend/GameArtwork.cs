@@ -127,7 +127,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals { get; init; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
-    public RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; init; }
+    public RoomPlmTourianAccessVisuals? RoomPlmTourianAccessVisuals { get; init; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
     public RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals { get; init; }
@@ -187,7 +187,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public BossArtworkCatalog? BossArtwork { get; init; }
 
     /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
-    public AreaArtworkCatalog? AreaArtwork { get; init; }
+    public AreaArtworkBundle? AreaArtwork { get; init; }
 
     /// <summary>Projectile trail artwork.</summary>
     public ProjectileTrailCatalog? TrailArtwork { get; init; }

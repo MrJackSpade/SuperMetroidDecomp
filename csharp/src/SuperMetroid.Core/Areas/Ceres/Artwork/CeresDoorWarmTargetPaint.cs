@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// occurrences retain their independently supplied values. These are copied target
 /// colors, not a claim about visible door pixels.
 /// </summary>
-internal sealed class CeresDoorWarmTargetPaintDefinitions
+internal sealed class CeresDoorWarmTargetPaint
 {
     /// <summary>Largest five-bit BGR component used by the white door highlight.</summary>
     private const int Maximum = (1 << 5) - 1;
@@ -22,7 +22,7 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Validates six supplied target colors, captures their shared channels, and preserves independently edited colors as overrides.</summary>
-    internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<RgbColor> colors)
+    internal CeresDoorWarmTargetPaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 6);
         highlightBlue = colors[0].Blue;

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>Editable tiles for Ceres's five fixed warning overlays.</summary>
-public sealed class CeresEscapeOverlayTilemapCatalog
+public sealed class CeresEscapeOverlays
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v2", content =>
@@ -22,7 +22,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
     /// <summary>Selected tiles differing from the calculated stock warning pages, keyed by page and position.</summary>
     internal readonly Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits;
     /// <summary>Retains only authored deviations from the stock Ceres warning tilemaps.</summary>
-    private CeresEscapeOverlayTilemapCatalog(Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits) => this.edits = edits;
+    private CeresEscapeOverlays(Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits) => this.edits = edits;
 
     /// <summary>One page's calculated and edited tiles, in tilemap order.</summary>
     private BackgroundTile[] PageTiles(CeresEscapeOverlayTilemapDefinition page)
@@ -31,12 +31,12 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         for (int index = 0; index < page.WordCount; index++)
         {
             tiles[index] = edits.GetValueOrDefault(
-                new CeresEscapeOverlayWord(page.Name, index), CeresEscapeOverlayTilemapDefinitions.StockTile(page, index));
+                new CeresEscapeOverlayWord(page.Name, index), CeresEscapeWarningGlyphs.StockTile(page, index));
         }
         return tiles;
     }
     /// <summary>Validates the five-page JSON document and compiles its edited tiles.</summary>
-    internal static CeresEscapeOverlayTilemapCatalog Load(Stream json)
+    internal static CeresEscapeOverlays Load(Stream json)
     {
         Ensure.NotNull(json);
         CeresEscapeOverlayTilemapDocument document = JsonAssetDocument.Read<CeresEscapeOverlayTilemapDocument>(
@@ -84,7 +84,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
                 throw new InvalidDataException(
                     $"Ceres escape tilemap {definition.Name} requires {definition.WordCount} tiles.");
             for (int index = 0; index < tiles.Length; index++)
-                if (tiles[index] != CeresEscapeOverlayTilemapDefinitions.StockTile(definition, index))
+                if (tiles[index] != CeresEscapeWarningGlyphs.StockTile(definition, index))
                     compiled.Add(new CeresEscapeOverlayWord(definition.Name, index), tiles[index]);
         }
         if (document.Pages.Keys.Any(name =>

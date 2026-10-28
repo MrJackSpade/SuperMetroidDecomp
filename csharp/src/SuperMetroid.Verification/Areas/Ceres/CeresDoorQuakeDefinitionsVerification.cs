@@ -34,7 +34,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         for (ushort phase = 0; phase < 4; phase++)
         {
             sbyte expected = unchecked((sbyte)rom.ReadCartridgeByte(sourceAddress + phase));
-            AssertEqual(expected, CeresDoorQuakeDefinitions.XOffset(phase),
+            AssertEqual(expected, CeresDoorQuake.XOffset(phase),
                 $"Ceres private door quake phase {phase}");
         }
 
@@ -42,7 +42,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         {
             AssertEqual(
                 unchecked((sbyte)rom.ReadCartridgeByte(sourceAddress + (timer & 3))),
-                CeresDoorQuakeDefinitions.XOffset((ushort)timer),
+                CeresDoorQuake.XOffset((ushort)timer),
                 $"Ceres private door quake timer ${timer:X4}");
         }
 

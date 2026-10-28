@@ -1,7 +1,9 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>Animation selection for the three Tourian entrance-statue enemy records.</summary>
-internal static class TourianEntranceStatueAnimationDefinitions
+/// <summary>
+/// Selects the animation each of the three Tourian entrance-statue enemy records starts with.
+/// </summary>
+internal static class TourianEntranceStatues
 {
     /// <summary>The animation the native even parameter zero, two or four selects ($AA:D7A5/D7AF/D7B9 table).</summary>
     internal static TourianEntranceStatueProgram InitialProgram(int parameter)

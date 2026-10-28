@@ -17,7 +17,7 @@ internal sealed class CeresRidleyStartColorDefinitions
     /// <summary>Sixteen colors per additional OBJ palette, including each copied clear slot.</summary>
     private const int PaletteSize = 16;
     /// <summary>Normal door/container material used by the first palette's non-clear colors.</summary>
-    private readonly CeresDoorNormalPaintDefinitions door;
+    private readonly CeresDoorNormalPaint door;
     /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaintDefinitions baby;
     /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>

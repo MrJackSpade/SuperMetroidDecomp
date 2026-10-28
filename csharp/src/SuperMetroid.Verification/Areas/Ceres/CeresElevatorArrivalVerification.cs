@@ -47,7 +47,7 @@ internal static class CeresElevatorArrivalVerification
         var expected = new OamBuffer();
         expected.BeginFrame();
         foreach (CeresElevatorArrivalState.CeresElevatorProjectile actor in new[] { arrival.pad, arrival.platform })
-            expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalDefinitions.Frame(actor.Pose
+            expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalAnimations.Frame(actor.Pose
                     ?? throw new InvalidOperationException("Verification requires a shown arrival pose."))).Span,
                 actor.Position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), 0, 0);
         VerificationAssert.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
@@ -109,7 +109,7 @@ internal static class CeresElevatorArrivalVerification
                 }
                 var show = VerificationAssert.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.ShowStep>(step, $"{at}: frame");
                 VerificationAssert.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssert.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalDefinitions.Frame(show.Frame)), $"{at}: spritemap");
+                VerificationAssert.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(show.Frame)), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
             }
             VerificationAssert.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");

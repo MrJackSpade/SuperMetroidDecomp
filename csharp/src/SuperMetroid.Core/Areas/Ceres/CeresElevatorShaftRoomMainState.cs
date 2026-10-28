@@ -120,7 +120,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
         // mapping back into the tail of this very table during the reverse sweep.
         int rotationIndex = checked((ushort)scratch.Var1);
-        var record = CeresShaftRotationDefinitions.Read(rotationIndex);
+        var record = CeresShaftRotation.Read(rotationIndex);
         RotationTimer = WrappingCountdown.FromRaw(record.Timer);
         int sine = record.Sine;
         int cosine = record.Cosine;

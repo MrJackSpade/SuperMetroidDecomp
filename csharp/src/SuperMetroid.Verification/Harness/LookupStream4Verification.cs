@@ -1294,9 +1294,9 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationDefinitions.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimation.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimationDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
         byte[] untouchedCells = new byte[FloorMap.Cells];
@@ -2427,7 +2427,7 @@ internal static class LookupStream4Verification
         for(int edit=-1;edit<45;edit++)
         {
             ushort[] selected=(ushort[])escape.Clone(); if(edit>=0)selected[edit/3]^=(ushort)(1<<(edit%3*5));
-            var paint=new CeresDoorEscapePaintDefinitions(ToColors(selected));
+            var paint=new CeresDoorEscapePaint(ToColors(selected));
             for(int color=0;color<15;color++)AssertEqual(selected[color],paint.ColorAt(color),"Shared extraction preserves all escape channels and edits");
             for(int color=0;color<25;color++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
         }
@@ -2836,7 +2836,7 @@ internal static class LookupStream4Verification
             }
         }
         ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
-        var normalStock = new CeresDoorNormalPaintDefinitions(ToColors(normalWords));
+        var normalStock = new CeresDoorNormalPaint(ToColors(normalWords));
         NoEdits(normalStock.edits); NoEdits(normalStock.WarmTargets.edits);
         for (int edit = -1; edit < 90; edit++)
         {
@@ -2846,9 +2846,9 @@ internal static class LookupStream4Verification
                 int local = edit % 45;
                 (edit < 45 ? normal : escape)[local / 3] ^= (ushort)(1 << (local % 3 * 5));
             }
-            var normalProvider = new CeresDoorNormalPaintDefinitions(ToColors(normal));
-            var dependentEscape = new CeresDoorEscapePaintDefinitions(ToColors(escape), normalProvider);
-            var standaloneEscape = new CeresDoorEscapePaintDefinitions(ToColors(escape));
+            var normalProvider = new CeresDoorNormalPaint(ToColors(normal));
+            var dependentEscape = new CeresDoorEscapePaint(ToColors(escape), normalProvider);
+            var standaloneEscape = new CeresDoorEscapePaint(ToColors(escape));
             for (int color = 0; color < 15; color++)
             {
                 AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction preserves independent edits");

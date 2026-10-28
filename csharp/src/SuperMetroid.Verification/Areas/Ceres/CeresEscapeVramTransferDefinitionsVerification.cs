@@ -60,14 +60,14 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
             writable: false);
         RoomCharacterAtlas[] escapePages = ImportCeresEscapeTilePages(rom);
-        CeresEscapeOverlayTilemapCatalog overlay =
-            CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
+        CeresEscapeOverlays overlay =
+            CeresEscapeOverlays.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
         var japaneseOverlay = new RecordedBg1Overlay();
         var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: japaneseOverlay.Services())
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
             BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng) },
         };
         // The timer-sprite list shows exactly the ROM-checked records' characters over the OBJ characters, one an update.

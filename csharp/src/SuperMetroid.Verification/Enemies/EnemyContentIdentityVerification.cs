@@ -39,7 +39,7 @@ internal static class EnemyContentIdentityVerification
         Suite(nameof(VerifyLegacyEnemyIdentityMerges), () => VerifyLegacyEnemyIdentityMerges());
         // Inspect serialization shape, not data, so computed digests cannot silently change
         // the field count of a debugger snapshot. The hash itself uses typed production fields.
-        Type[] catalogs = [typeof(EnemyTileArtworkCatalog), typeof(BossArtworkCatalog), typeof(AreaArtworkCatalog)];
+        Type[] catalogs = [typeof(EnemyTileArtworkCatalog), typeof(BossArtworkCatalog), typeof(AreaArtworkBundle)];
         Type[] childTypes = catalogs.SelectMany(catalog => MetadataShape.Properties(catalog, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
             .Where(property => property.Name != nameof(EnemyTileArtworkCatalog.ContentIdentity))
             .Select(property => property.PropertyType)).ToArray();

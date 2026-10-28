@@ -23,7 +23,7 @@ internal static class TourianAccessPlmDefinitionsVerification
 
         void VerifyDefinition(bool clear)
         {
-            TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
+            TourianAccessPlmDefinition definition = TourianAccessFloors.ForState(clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
             const int width = 16;
             const int height = 16;
             int blockCount = width * height;
@@ -60,7 +60,7 @@ internal static class TourianAccessPlmDefinitionsVerification
         foreach (var item in cases)
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);
-            var actual = TourianAccessPlmDefinitions.ForState(item.Clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
+            var actual = TourianAccessFloors.ForState(item.Clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
             if (instruction)
             {
                 ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (header + 2));

@@ -95,7 +95,7 @@ internal static class InstalledFixtures
     internal static BossArtworkCatalog BossArtwork => enemyArtwork.Value.Bosses;
 
     /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
-    internal static AreaArtworkCatalog AreaArtwork => enemyArtwork.Value.Areas;
+    internal static AreaArtworkBundle AreaArtwork => enemyArtwork.Value.Areas;
 
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>

@@ -79,7 +79,7 @@ internal static class PlmPresentationContractChecks
                     RoomPlmNoobTubeVisualCatalog tube, RoomPlmDownwardGateVisualCatalog gate,
                     RoomPlmElevatorPlatformVisualCatalog elevator, RoomPlmDraygonCannonVisualCatalog cannon,
                     RoomPlmChozoStatueVisualCatalog chozo, RoomPlmLinkedRestoreVisualCatalog restore,
-                    RoomPlmTourianAccessVisualCatalog tourian, RoomPlmSpeedBoosterVisualCatalog speed,
+                    RoomPlmTourianAccessVisuals tourian, RoomPlmSpeedBoosterVisualCatalog speed,
                     RoomPlmMaridiaElevatubeVisualCatalog elevatube, RoomPlmSporeSpawnCeilingVisualCatalog spore,
                     RoomPlmSamusEaterVisualCatalog eater, RoomPlmBotwoonWallVisualCatalog botwoon,
                     RoomPlmKraidVisualCatalog kraid, RoomPlmCrocomireVisualCatalog crocomire,
@@ -203,10 +203,10 @@ internal static class PlmPresentationContractChecks
             new RoomPlmVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmLinkedRestoreVisualCatalog(entries));
-        ConfirmCoverage(TourianAccessPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(TourianAccessPlmDrawDefinitions.VisualId(frame.Draw),
+        ConfirmCoverage(TourianAccessDraws.All, frame =>
+            new RoomPlmVisualEntry(TourianAccessDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
-            entries => _ = new RoomPlmTourianAccessVisualCatalog(entries));
+            entries => _ = new RoomPlmTourianAccessVisuals(entries));
         ConfirmCoverage(SpeedBoosterBlockPlmDrawDefinitions.All, frame =>
             new RoomPlmVisualEntry(SpeedBoosterBlockPlmDrawDefinitions.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),

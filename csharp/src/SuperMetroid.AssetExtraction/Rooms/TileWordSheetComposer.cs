@@ -262,7 +262,7 @@ internal static class TileWordSheetComposer
     /// <exception cref="InvalidDataException">The installed area artwork has no Ceres warning tilemaps.</exception>
     private static IEnumerable<NamedPart> CeresWarningParts(RoomBlockSheetInputs inputs)
     {
-        CeresEscapeOverlayTilemapCatalog overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
+        CeresEscapeOverlays overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
         yield return new NamedPart("Emergency", new BodyPart([.. Runs(emergency.Cell, OverlayWords(overlays, emergency))]));
@@ -275,7 +275,7 @@ internal static class TileWordSheetComposer
 
     /// <summary>The words of the installed Ceres warning tilemap <paramref name="page"/> the getaway writes.</summary>
     /// <exception cref="InvalidDataException">No installed warning tilemap holds them.</exception>
-    private static ushort[] OverlayWords(CeresEscapeOverlayTilemapCatalog overlays, CeresEscapeOverlayTilemapDefinition page)
+    private static ushort[] OverlayWords(CeresEscapeOverlays overlays, CeresEscapeOverlayTilemapDefinition page)
     {
         if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
             throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");

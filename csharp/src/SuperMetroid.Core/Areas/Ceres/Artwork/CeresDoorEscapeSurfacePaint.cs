@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// This owner centralizes the identical material; each supplied occurrence and
 /// every independently edited channel remains separate. No new paint choice is added.
 /// </summary>
-internal sealed class CeresDoorEscapeSurfacePaintDefinitions
+internal sealed class CeresDoorEscapeSurfacePaint
 {
     /// <summary>Native blue tint, bevel decrement, and RGB5 ceiling used by the calculated door material.</summary>
     private const int BlueTint = 3, BevelShadeStep = 5, MaximumChannel = (1 << 5) - 1;
@@ -20,7 +20,7 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Captures the selected color parameters and preserves every independently edited supplied color.</summary>
-    internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<RgbColor> colors)
+    internal CeresDoorEscapeSurfacePaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 8);
         highlightAndEdgeLevels = new int[4];

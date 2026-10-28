@@ -118,9 +118,9 @@ internal static class TilemapJsonContractsEnvironmentVerification
 
         var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());
-        string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlayTilemapCatalog.Write(new()
+        string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlays.Write(new()
             { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords.ToDictionary(page => page.Key, page => BackgroundTileWordBytes.Tiles(page.Value)) }));
-        var overlay = CeresEscapeOverlayTilemapCatalog.Load(TilemapContractStream(overlayJson));
+        var overlay = CeresEscapeOverlays.Load(TilemapContractStream(overlayJson));
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {
             AssertTrue(overlay.TryResolve(page, out var actual), "every Ceres warning page resolves");
@@ -132,7 +132,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
             overlayJson.Replace("\"emergency\":", "\"emergency\":[],\"emergency\":", StringComparison.Ordinal),
             TilemapContractMutate(overlayJson, root => root.Required("pages").AsObject().Remove("emergency")),
             TilemapContractMutate(overlayJson, root => root.Required("pages")["japanese_0"] = new JsonArray()) })
-            Reject("Ceres warning", corrupt, text => CeresEscapeOverlayTilemapCatalog.Load(TilemapContractStream(text)));
+            Reject("Ceres warning", corrupt, text => CeresEscapeOverlays.Load(TilemapContractStream(text)));
 
         AssertEqual(0, accepted.Count, "tilemap loaders must reject ambiguous/unknown content:\n" + string.Join('\n', accepted));
         Console.WriteLine($"PASS environmental/intro/metatile JSON contracts: five compilers, {rejected} invalid documents, " +

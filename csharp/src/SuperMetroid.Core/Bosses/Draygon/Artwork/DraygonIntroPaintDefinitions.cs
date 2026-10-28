@@ -15,7 +15,7 @@ internal sealed class DraygonIntroPaintDefinitions
     /// <summary>First sixteen installed colors, shared in identity with Draygon's primary material.</summary>
     internal readonly DraygonMaterialPaintDefinitions primary;
     /// <summary>Final eight colors, aliased to the Ceres escape-door surface material.</summary>
-    internal readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+    internal readonly CeresDoorEscapeSurfacePaint surface;
     /// <summary>Independent edit of the copied clear target, or null when it retains the native value.</summary>
     internal readonly RgbColor? clearEdit;
 

@@ -8,18 +8,21 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// Visual-only block selections for the four crumble frames and six-row clear.
 /// The compiled draw lists retain every physical level word and run offset.
 /// </summary>
-public sealed class RoomPlmTourianAccessVisualCatalog
+public sealed class RoomPlmTourianAccessVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmTourianAccessVisualCatalog), content =>
+    /// <summary>
+    /// Canonical identity of the selected visual frames, excluding native mechanics. The identity keeps the name it was
+    /// introduced under, so installed content identities do not change.
+    /// </summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("RoomPlmTourianAccessVisualCatalog", content =>
     {
         Span<ushort> words = stackalloc ushort[24];
-        foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>().OrderBy(TourianAccessPlmDrawDefinitions.VisualId, StringComparer.Ordinal))
+        foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>().OrderBy(TourianAccessDraws.VisualId, StringComparer.Ordinal))
         {
-            TourianAccessPlmDrawDefinitions.Describe(draw, out int rows, out _);
+            TourianAccessDraws.Describe(draw, out int rows, out _);
             for (int index = 0; index < rows * 4; index++)
                 words[index] = GetWord(PlmDraw.Of(draw), index / 4, index % 4);
-            content.AppendName("frame", TourianAccessPlmDrawDefinitions.VisualId(draw));
+            content.AppendName("frame", TourianAccessDraws.VisualId(draw));
             // Preserve the original flattened-frame hash, including the six-row clear.
             content.Append("runs", 1);
             content.AppendWords("words", words[..(rows * 4)]);
@@ -34,11 +37,11 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     /// <remarks>Edited arrays are copied; stock-identical layouts use compiled visual bits, so caller-array edits after construction cannot alter the catalog.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, block-array dimensions, or presentation-only word bits are invalid.</exception>
-    public RoomPlmTourianAccessVisualCatalog(
+    public RoomPlmTourianAccessVisuals(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        customWords = new PlmVisualOverrides(entries, "Tourian access", TourianAccessPlmDrawDefinitions.TryGetByVisualId,
-            TourianAccessPlmDrawDefinitions.All.Count());
+        customWords = new PlmVisualOverrides(entries, "Tourian access", TourianAccessDraws.TryGetByVisualId,
+            TourianAccessDraws.All.Count());
     }
 
     /// <summary>Resolves one Tourian access-floor visual cell from edited artwork or its compiled stock layout.</summary>
@@ -50,7 +53,7 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Tourian access draw.</exception>
     internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        TourianAccessPlmDrawDefinitions.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out int stockWord);
+        TourianAccessDraws.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out int stockWord);
         if ((uint)runIndex >= (uint)rows ||
             (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// paint channels. These and the named brightening/phase policies are selected
 /// beacon paint composition, not a claim about pixel art or actor cadence.
 /// </summary>
-internal sealed class CeresDoorAnimationPaintDefinitions
+internal sealed class CeresDoorAnimationPaint
 {
     /// <summary>Highest value permitted by each SNES five-bit palette channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
@@ -21,7 +21,7 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     /// <summary>Green boost for the leading gold facet at peak brightness.</summary>
     private const int GoldHighlightGreenBrightening = 4;
     /// <summary>Shared target paint that supplies the six beacon seed colors.</summary>
-    private readonly CeresDoorNormalPaintDefinitions normal;
+    private readonly CeresDoorNormalPaint normal;
     /// <summary>Blue channel retained independently for the first seed color.</summary>
     internal readonly int firstSeedBlue;
     /// <summary>Red channel retained independently for the dim middle amber phase.</summary>
@@ -32,7 +32,7 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Captures independent paint channels and per-cell edits from eight six-color source rows.</summary>
-    internal CeresDoorAnimationPaintDefinitions(RgbColor[][] rows, CeresDoorNormalPaintDefinitions normal)
+    internal CeresDoorAnimationPaint(RgbColor[][] rows, CeresDoorNormalPaint normal)
     {
         Ensure.NotNull(rows); Ensure.NotNull(normal);
         if (rows.Length != 8 || rows.Any(row => row is null || row.Length != 6))

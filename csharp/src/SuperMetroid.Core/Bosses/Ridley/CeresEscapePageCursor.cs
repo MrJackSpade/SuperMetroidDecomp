@@ -26,7 +26,7 @@ internal readonly record struct CeresEscapePageCursor(CeresEscapePageList List, 
     /// <exception cref="InvalidOperationException">The cursor was never started.</exception>
     private int PageCount => List switch
     {
-        CeresEscapePageList.Objects => CeresEscapePageDefinitions.ObjectPages.Count,
+        CeresEscapePageList.Objects => CeresEscapeObjectPages.ObjectPages.Count,
         CeresEscapePageList.Backgrounds => CeresEscapePageDefinitions.BackgroundPageUpdates,
         CeresEscapePageList.None => throw new InvalidOperationException("A Ceres escape page cursor that was never started has no pages."),
         _ => throw new InvalidOperationException($"Undefined {nameof(CeresEscapePageList)} {List}."),

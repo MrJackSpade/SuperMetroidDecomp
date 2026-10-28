@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>Editable entrance, eye-glow, and grey-transition RGB5 colors for the Tourian statue.</summary>
-public sealed class TourianStatueColorCatalog
+public sealed class TourianStatuePalettes
 {
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
@@ -29,7 +29,7 @@ public sealed class TourianStatueColorCatalog
     internal readonly PaletteBand greyColors;
 
     /// <summary>Separates the supplied base, statue, eye, and grey colors into independent paint bands.</summary>
-    internal TourianStatueColorCatalog(RgbColor[] baseColors, RgbColor[] statueColors,
+    internal TourianStatuePalettes(RgbColor[] baseColors, RgbColor[] statueColors,
         RgbColor[][] eyeColors, RgbColor[] greyColors)
     {
         this.baseColors = new(TourianStatuePaintBand.Base, baseColors);
@@ -90,13 +90,13 @@ public sealed class TourianStatueColorCatalog
             this.band = band;
             count = supplied.Length;
             for (int color = 0; color < count; color++)
-                if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
+                if (supplied[color] != TourianStatuePaint.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
         }
         /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
         internal RgbColor Read(int color)
         {
             if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
-            return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
+            return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : TourianStatuePaint.Color(band, color);
         }
         /// <summary>Materializes the selected band for content hashing in indexed color order.</summary>
         internal RgbColor[] Words()

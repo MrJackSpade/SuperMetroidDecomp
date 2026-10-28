@@ -248,7 +248,7 @@ internal static class InstalledSporesTests
             }
             // Statue frames overlap the middle strip and must retain their original
             // aliases even though spores now occupy the final nine characters.
-            foreach (var statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
+            foreach (var statue in TourianStatueAnimatedTiles.All)
             foreach (var picture in TourianStatueTileStripDefinitions.Pictures)
             {
                 int source = AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture);

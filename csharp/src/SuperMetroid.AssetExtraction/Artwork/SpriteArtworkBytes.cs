@@ -59,7 +59,7 @@ internal static class SpriteArtworkBytes
     private static ReadOnlyMemory<byte> TourianStatue(TourianStatuePictureCharacters statue, IInstalledArtworkContent installed)
     {
         TourianStatueAnimatedTileProgramDefinition definition =
-            TourianStatueAnimatedTileMechanicsDefinitions.All.Single(candidate => candidate.AnimatedObject == statue.Statue);
+            TourianStatueAnimatedTiles.All.Single(candidate => candidate.AnimatedObject == statue.Statue);
         return Sprites(installed).AnimatedTiles.TourianStatuePicture(definition.AnimatedObject, statue.Picture, definition.FrameByteCount);
     }
 
@@ -94,7 +94,7 @@ internal static class SpriteArtworkBytes
 
     /// <summary>The installed area artwork <paramref name="installed"/> holds.</summary>
     /// <exception cref="InvalidOperationException">It holds no installed area artwork.</exception>
-    private static AreaArtworkCatalog Areas(IInstalledArtworkContent installed) =>
+    private static AreaArtworkBundle Areas(IInstalledArtworkContent installed) =>
         (installed as IInstalledAreaSpriteCharacterArtwork ?? throw new InvalidOperationException(
             $"{installed.GetType().Name} holds no installed area artwork to resolve a named sprite artwork source.")).AreaTiles;
 }

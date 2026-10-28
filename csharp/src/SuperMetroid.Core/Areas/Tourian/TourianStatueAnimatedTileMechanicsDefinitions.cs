@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -12,19 +11,19 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// shared typed program (<see cref="TourianStatueTileAnimations"/>) acts on.
 /// </summary>
 /// <remarks>
-/// The pictures each program shows are presentation references in
+/// <see cref="TourianStatueAnimatedTiles"/> resolves them. The pictures each program shows are presentation references in
 /// <see cref="SuperMetroid.Core.Fx.Artwork.TourianStatueTileStripDefinitions"/>.
 /// </remarks>
 public static class TourianStatueAnimatedTileMechanicsDefinitions
 {
     /// <summary>
-    /// The statue identity selects its transfer geometry, event, boss test, palette destinations and effect
-    /// parameters. Animated-tile objects that are not statues return null.
+    /// Each statue's transfer geometry, event, boss test, palette destinations and effect parameters, by its animated-tile
+    /// object; no other animated-tile object is a statue (<see cref="TourianStatueAnimatedTiles"/>).
     /// </summary>
-    private static TourianStatueAnimatedTileProgramDefinition? SelectObject(AnimatedTileObject animatedObject) =>
-        animatedObject switch
+    internal static readonly IReadOnlyDictionary<AnimatedTileObject, TourianStatueAnimatedTileProgramDefinition> Statues =
+        new Dictionary<AnimatedTileObject, TourianStatueAnimatedTileProgramDefinition>
     {
-        AnimatedTileObject.TourianStatuePhantoon => new()
+        [AnimatedTileObject.TourianStatuePhantoon] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatuePhantoon,
             FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
@@ -38,7 +37,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
             GreyColours = new SpriteColourRun(2, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
-        AnimatedTileObject.TourianStatueRidley => new()
+        [AnimatedTileObject.TourianStatueRidley] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueRidley,
             FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
@@ -52,7 +51,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
             GreyColours = new SpriteColourRun(1, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
-        AnimatedTileObject.TourianStatueKraid => new()
+        [AnimatedTileObject.TourianStatueKraid] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueKraid,
             FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
@@ -66,7 +65,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
             GreyColours = new BackgroundColourRun(7, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
-        AnimatedTileObject.TourianStatueDraygon => new()
+        [AnimatedTileObject.TourianStatueDraygon] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueDraygon,
             FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
@@ -80,38 +79,5 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
             GreyColours = new BackgroundColourRun(6, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
-        AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or
-            AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or
-            AnimatedTileObject.UnusedCrateriaLava or AnimatedTileObject.BrinstarPlant or
-            AnimatedTileObject.WreckedShipScreen or AnimatedTileObject.MaridiaSandCeiling or
-            AnimatedTileObject.MaridiaSandFalling or AnimatedTileObject.WreckedShipTreadmillRightwards or
-            AnimatedTileObject.WreckedShipTreadmillLeftwards or AnimatedTileObject.Lava or
-            AnimatedTileObject.Acid or AnimatedTileObject.Rain or AnimatedTileObject.Spores => null,
-        _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}."),
     };
-
-    /// <summary>The definition of an object this catalog supports.</summary>
-    private static TourianStatueAnimatedTileProgramDefinition Require(AnimatedTileObject animatedObject) => SelectObject(animatedObject) ??
-        throw new InvalidOperationException($"{animatedObject} has no definition in this catalog.");
-
-    /// <summary>The four boss-statue programs in cartridge header order, without a stored roster.</summary>
-    public static IEnumerable<TourianStatueAnimatedTileProgramDefinition> All
-    {
-        get
-        {
-            yield return Require(AnimatedTileObject.TourianStatuePhantoon);
-            yield return Require(AnimatedTileObject.TourianStatueRidley);
-            yield return Require(AnimatedTileObject.TourianStatueKraid);
-            yield return Require(AnimatedTileObject.TourianStatueDraygon);
-        }
-    }
-
-    /// <summary>Resolves one statue's animated-tile definition.</summary>
-    public static bool TryResolveObjectHeader(
-        AnimatedTileObject animatedObject,
-        [NotNullWhen(true)] out TourianStatueAnimatedTileProgramDefinition? definition)
-    {
-        definition = SelectObject(animatedObject);
-        return definition is not null;
-    }
 }

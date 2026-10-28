@@ -53,6 +53,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Map/Artwork/MapTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphs.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHudRestoration.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
@@ -65,6 +66,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Map/Artwork/MapTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphs.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHudRestoration.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),    ];
 

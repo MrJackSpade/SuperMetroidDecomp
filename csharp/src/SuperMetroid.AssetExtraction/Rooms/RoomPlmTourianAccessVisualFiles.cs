@@ -18,17 +18,17 @@ public static class RoomPlmTourianAccessVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Tourian access", TourianAccessPlmDrawDefinitions.All,
-            TourianAccessPlmDrawDefinitions.VisualId);
+            VisualFileName, "Tourian access", TourianAccessDraws.All,
+            TourianAccessDraws.VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Tourian access override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Tourian access JSON.</param>
     /// <param name="overrideDirectory">Optional directory whose Tourian access JSON is selected when present.</param>
     /// <returns>The immutable selected Tourian access-floor visual catalog.</returns>
-    public static RoomPlmTourianAccessVisualCatalog Load(
+    public static RoomPlmTourianAccessVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmTourianAccessVisualCatalog>(VisualFileName, "Tourian access", TourianAccessPlmDrawDefinitions.All, TourianAccessPlmDrawDefinitions.VisualId, entries => new RoomPlmTourianAccessVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmTourianAccessVisuals>(VisualFileName, "Tourian access", TourianAccessDraws.All, TourianAccessDraws.VisualId, entries => new RoomPlmTourianAccessVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Tourian access visuals.</summary>

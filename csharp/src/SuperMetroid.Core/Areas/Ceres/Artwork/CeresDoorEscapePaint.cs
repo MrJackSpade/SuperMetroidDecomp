@@ -9,36 +9,36 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// The uniform target copy at $A6:F717-F726 does not choose these material shades.
 /// Six warm target colors share the normal palette; every supplied edit stays independent.
 /// </summary>
-internal sealed class CeresDoorEscapePaintDefinitions
+internal sealed class CeresDoorEscapePaint
 {
     /// <summary>Five-bit maximum used by the escape accent's saturated green channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
     /// <summary>Six warm target colors reused from the normal Ceres door paint.</summary>
-    internal readonly CeresDoorWarmTargetPaintDefinitions warm;
+    internal readonly CeresDoorWarmTargetPaint warm;
     /// <summary>Eight grey-blue surface colors composing the escape door face.</summary>
-    internal readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+    internal readonly CeresDoorEscapeSurfacePaint surface;
     /// <summary>Blue component of the terminal cyan target-paint slot.</summary>
     private readonly int accentBlue;
     /// <summary>Extracted colors that differ from the derived surface and warm-target paint.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Uses the normal door's warm targets when compiling the escape paint.</summary>
-    internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<RgbColor> colors, CeresDoorNormalPaintDefinitions normal)
+    internal CeresDoorEscapePaint(ReadOnlySpan<RgbColor> colors, CeresDoorNormalPaint normal)
         : this(colors, (Ensure.NotNull(normal)).WarmTargets) { }
 
     /// <summary>Derives warm targets from the supplied escape palette when no normal palette is provided.</summary>
-    internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<RgbColor> colors)
+    internal CeresDoorEscapePaint(ReadOnlySpan<RgbColor> colors)
         : this(colors, WarmFrom(colors)) { }
 
     /// <summary>Selects six warm entries from a complete fifteen-color escape palette.</summary>
-    private static CeresDoorWarmTargetPaintDefinitions WarmFrom(ReadOnlySpan<RgbColor> colors)
+    private static CeresDoorWarmTargetPaint WarmFrom(ReadOnlySpan<RgbColor> colors)
     {
         if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
         return new(colors.Slice(8, 6));
     }
 
     /// <summary>Captures the derived material paint and retains every differing supplied ink as an edit.</summary>
-    private CeresDoorEscapePaintDefinitions(ReadOnlySpan<RgbColor> colors, CeresDoorWarmTargetPaintDefinitions warm)
+    private CeresDoorEscapePaint(ReadOnlySpan<RgbColor> colors, CeresDoorWarmTargetPaint warm)
     {
         if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
         this.warm = warm;

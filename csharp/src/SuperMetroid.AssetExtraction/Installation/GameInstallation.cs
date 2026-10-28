@@ -296,7 +296,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Persistent replacements for Tourian access-floor appearances, preserved during stock rebuilds.</summary>
     public string RoomPlmTourianAccessVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
     /// <summary>Editable Tourian access-floor art; physical rows and timing stay compiled.</summary>
-    public RoomPlmTourianAccessVisualCatalog LoadRoomPlmTourianAccessVisuals() =>
+    public RoomPlmTourianAccessVisuals LoadRoomPlmTourianAccessVisuals() =>
         RoomPlmTourianAccessVisualFiles.Load(RoomPlmTourianAccessVisualDirectory,
             RoomPlmTourianAccessVisualOverrideDirectory);
     /// <summary>Stock definitions for the bomb-revealed Speed Booster tile under the replaceable content tree.</summary>

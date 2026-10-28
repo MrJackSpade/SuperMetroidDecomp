@@ -29,9 +29,9 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(CeresDoorFunction.ElevatorAnimation, CeresNativeWords.DoorFunctions.Decode(0xf850, "door function"), "elevator animation decodes");
         AssertEqual(0xf019, CeresNativeWords.SteamFunctions.Word(CeresSteamFunction.ApplyRotatingElevatorOffset), "rotating steam function word");
         AssertEqual(0xad80, CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationFrame.WingFrame1), "second wing frame list word");
-        AssertEqual(CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationDefinitions.BabyFrameForPhase(3), "the capsule's fourth phase reuses frame one");
-        AssertEqual(11 * 128 + 4, CeresFloorAnimationDefinitions.Get(CeresFloorAnimationFrame.BabyFrame1)[1].FloorCell, "the capsule's lower run's floor cell");
-        AssertEqual(6, CeresFloorAnimationDefinitions.Get(CeresFloorAnimationFrame.WingFrame0).Count, "the wings' six runs");
+        AssertEqual(CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimation.BabyFrameForPhase(3), "the capsule's fourth phase reuses frame one");
+        AssertEqual(11 * 128 + 4, CeresFloorAnimation.Get(CeresFloorAnimationFrame.BabyFrame1)[1].FloorCell, "the capsule's lower run's floor cell");
+        AssertEqual(6, CeresFloorAnimation.Get(CeresFloorAnimationFrame.WingFrame0).Count, "the wings' six runs");
 
         // CeresDoorVisualRomData: its counts are Core's, its sources extraction's.
         AssertEqual(0x0400, CeresDoorVisualDefinitions.CharacterBytes, "door character bytes");

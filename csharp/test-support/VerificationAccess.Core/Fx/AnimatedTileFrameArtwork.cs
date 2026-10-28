@@ -64,7 +64,7 @@ internal static class AnimatedTileFrameArtwork
                 yield return new(AnimatedTileFrames.Frame(treadmill.AnimatedObject, frame), AnimatedTileImageSources.Of(treadmill.Image(frame)),
                     Picture(treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount));
         }
-        foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
+        foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
         {
             foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
                 yield return new(AnimatedTileFrames.Picture(statue.AnimatedObject, picture),

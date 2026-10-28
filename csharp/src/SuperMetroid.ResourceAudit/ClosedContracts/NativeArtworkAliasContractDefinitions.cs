@@ -13,6 +13,7 @@ internal static class NativeArtworkAliasContractDefinitions
         new("SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas", "native-EscapeTimerTileAtlas-dma-aliases", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphs.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs")]),
     ];
 }

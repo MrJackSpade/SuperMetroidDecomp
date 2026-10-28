@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Areas;
 public sealed class AreaArtworkBinding
 {
     /// <summary>The installed area artwork, or null before any is installed.</summary>
-    public AreaArtworkCatalog? Artwork { get; set; }
+    public AreaArtworkBundle? Artwork { get; set; }
 
     /// <summary>The installed area artwork; an actor that needs it fails when none is installed.</summary>
-    internal AreaArtworkCatalog Installed =>
+    internal AreaArtworkBundle Installed =>
         Artwork ?? throw new InvalidOperationException("No area artwork is installed.");
 }

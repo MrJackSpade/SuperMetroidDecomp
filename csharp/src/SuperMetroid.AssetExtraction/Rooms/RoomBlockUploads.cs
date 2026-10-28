@@ -152,7 +152,7 @@ internal static class RoomBlockUploads
         }
         if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
         {
-            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
+            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
             {
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
                 if (!BgCharacterWords.AmongTiles(AnimatedTileVramDestinations.WordOf(statue.AnimatedObject)))

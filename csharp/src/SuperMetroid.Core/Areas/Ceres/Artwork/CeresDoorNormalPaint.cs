@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// copy at $A6:F704-F726 supplies no rule for choosing different material colors.
 /// Supplied channel changes remain independent, including changes to shared seeds.
 /// </summary>
-internal sealed class CeresDoorNormalPaintDefinitions
+internal sealed class CeresDoorNormalPaint
 {
     /// <summary>Largest RGB5 component accepted by the paint calculation.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
@@ -18,14 +18,14 @@ internal sealed class CeresDoorNormalPaintDefinitions
     private const int HighlightBlueTint = 14;
 
     /// <summary>Independent copied target paint for door slots nine through fourteen.</summary>
-    internal CeresDoorWarmTargetPaintDefinitions WarmTargets { get; }
+    internal CeresDoorWarmTargetPaint WarmTargets { get; }
     /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
     internal readonly Dictionary<CeresDoorPaintChannel, int> paint = [];
     /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Separates chosen material paint channels from calculated and independently edited colors.</summary>
-    internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<RgbColor> colors)
+    internal CeresDoorNormalPaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 15);
         WarmTargets = new(colors.Slice(8, 6));

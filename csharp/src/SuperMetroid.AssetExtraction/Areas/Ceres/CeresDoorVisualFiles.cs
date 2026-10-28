@@ -72,7 +72,7 @@ public static class CeresDoorVisualFiles
     /// <param name="tilePng">Indexed PNG bytes for the fixed-size Ceres door tile transfer.</param>
     /// <param name="paletteJson">Versioned RGB5 and Mode 7 appearance document bytes.</param>
     /// <returns>The validated selected Ceres door visual catalog.</returns>
-    public static CeresDoorVisualCatalog Load(byte[] tilePng, byte[] paletteJson) =>
+    public static CeresDoorVisuals Load(byte[] tilePng, byte[] paletteJson) =>
         Read(new MemoryStream(tilePng, writable: false),
             new MemoryStream(paletteJson, writable: false));
 
@@ -80,7 +80,7 @@ public static class CeresDoorVisualFiles
     /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
     /// <param name="paletteJson">Caller-owned <c>ceres-door-colors.json</c> stream containing setup colors, animation rows, and Mode 7 strip cells.</param>
     /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
-    public static CeresDoorVisualCatalog Read(Stream tilePng, Stream paletteJson)
+    public static CeresDoorVisuals Read(Stream tilePng, Stream paletteJson)
     {
         Ensure.NotNull(tilePng);
         Ensure.NotNull(paletteJson);
@@ -106,7 +106,7 @@ public static class CeresDoorVisualFiles
                 $"animation row {index}")).ToArray();
         byte[][] platformFrames = CompileMode7Frames(document.Mode7DoorFrames);
         RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualDefinitions.CharacterBytes);
-        return CeresDoorVisualCatalog.Load(tiles, normal, escape, animation,
+        return CeresDoorVisuals.Load(tiles, normal, escape, animation,
             platformFrames);
     }
 

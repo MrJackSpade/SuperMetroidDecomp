@@ -8,19 +8,19 @@ namespace SuperMetroid.Core.Areas;
 /// The areas' installed artwork beside the shared enemy sheets (#1395): the Ceres door, the Ceres escape's tiles and
 /// overlay, and the Tourian statues' colors.
 /// </summary>
-public sealed record AreaArtworkCatalog
+public sealed record AreaArtworkBundle
 {
     /// <summary>The Ceres door actor's special tile transfer and RGB5 rows.</summary>
-    public CeresDoorVisualCatalog? CeresDoorVisual { get; init; }
+    public CeresDoorVisuals? CeresDoorVisual { get; init; }
 
     /// <summary>Editable warning-text and door character pages for the Ceres escape.</summary>
     public CeresEscapeTileArtwork? CeresEscapeTiles { get; init; }
 
     /// <summary>Editable English and Japanese visual tile words for the Ceres warning overlay.</summary>
-    public CeresEscapeOverlayTilemapCatalog? CeresEscapeOverlayTilemaps { get; init; }
+    public CeresEscapeOverlays? CeresEscapeOverlayTilemaps { get; init; }
 
     /// <summary>Editable entrance, eye and grey colors; statue unlocking stays compiled.</summary>
-    public TourianStatueColorCatalog? TourianStatueColors { get; init; }
+    public TourianStatuePalettes? TourianStatueColors { get; init; }
 
     /// <summary>The selected area presentation, computed rather than persisted in an exact debugger snapshot.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>
@@ -32,7 +32,7 @@ public sealed record AreaArtworkCatalog
     });
 
     /// <summary>Returns installed area artwork, which must carry both Ceres transfer providers the room-entry queue resolves.</summary>
-    public static AreaArtworkCatalog FromInstalledArtwork(AreaArtworkCatalog artwork)
+    public static AreaArtworkBundle FromInstalledArtwork(AreaArtworkBundle artwork)
     {
         Ensure.NotNull(artwork);
         if (artwork.CeresEscapeTiles is null || artwork.CeresEscapeOverlayTilemaps is null)

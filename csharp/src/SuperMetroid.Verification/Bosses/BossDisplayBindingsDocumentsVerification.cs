@@ -58,7 +58,7 @@ internal static class BossDisplayBindingsDocumentsVerification
             tiles.ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null;
             return new(tiles,
                 new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
-                new AreaArtworkCatalog());
+                new AreaArtworkBundle());
         }
 
         /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>

@@ -77,7 +77,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals => _visuals.RoomPlmLinkedRestoreVisuals;
 
     /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
-    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals => _visuals.RoomPlmTourianAccessVisuals;
+    public RoomPlmTourianAccessVisuals? TourianAccessVisuals => _visuals.RoomPlmTourianAccessVisuals;
 
     /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
@@ -201,7 +201,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         }
         if (draw is PlmFrameDraw<TourianAccessDraw> { Frame: var tourian })
         {
-            TourianAccessPlmDrawDefinitions.Describe(tourian, out int tourianRows, out int tourianWord);
+            TourianAccessDraws.Describe(tourian, out int tourianRows, out int tourianWord);
             for (int row = 0; row < tourianRows; row++)
                 for (int column = 0; column < 4; column++)
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianWord, TourianAccessVisuals?.GetWord(draw, row, column));

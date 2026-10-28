@@ -497,7 +497,7 @@ public static class EnemyTileArtworkFiles
         foreach ((int manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
-            RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
+            RoomEnemyDefinition definition = RoomEnemyDefinitions.Get(definitionPointer);
             if (entry.NativeByteCount != definition.TileByteCount)
                 throw new InvalidDataException(
                     $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies;
 [NumberedIdentities("Each numbered member is the enemy population of one numbered room or room state, named for it; no caller indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
-    /// <summary>Retail populations in the cartridge's list order.</summary>
-    internal static readonly RoomEnemyPopulationDefinition[] Definitions =
+    /// <summary>Retail populations in the cartridge's list order, checked complete before gameplay can use them.</summary>
+    internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
     [
         ..CrateriaRoomEnemyPopulationDefinitions.Build(),
         ..BrinstarRoomEnemyPopulationDefinitions.Build(),
@@ -20,25 +20,18 @@ public static class RoomEnemyPopulationDefinitions
         ..MaridiaRoomEnemyPopulationDefinitions.Build(),
         ..TourianRoomEnemyPopulationDefinitions.Build(),
         ..CeresRoomEnemyPopulationDefinitions.Build(),
-    ];
+    ], ListCount, RecordCount);
 
     /// <summary>Number of distinct bank-$A1 population pointers selected by the compiled retail room states, including empty lists.</summary>
     public const int ListCount = 302;
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;
 
-    /// <summary>Rejects an incomplete or unordered compiled population table before gameplay can use it.</summary>
-    static RoomEnemyPopulationDefinitions()
-    {
-        if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)
-            throw new InvalidDataException("Compiled enemy-population counts changed.");
-        if (Definitions.Select(list => list.Name).Distinct().Count() != ListCount)
-            throw new InvalidDataException("Compiled enemy populations repeat a name.");
-    }
+    /// <summary>Each retail population by name.</summary>
+    private static readonly Dictionary<string, RoomEnemyPopulationDefinition> ByName = Definitions.ToDictionary(list => list.Name);
 
     /// <summary>The compiled population named <paramref name="name"/>.</summary>
-    private static RoomEnemyPopulationDefinition Find(string name) =>
-        Definitions.Single(list => list.Name == name);
+    private static RoomEnemyPopulationDefinition Find(string name) => ByName[name];
 
     /// <summary>The <c>EnemyPopulations_DraygonState1MotherBrainState2</c> list.</summary>
     public static RoomEnemyPopulationDefinition DraygonState1MotherBrainState2 { get; } = Find(nameof(DraygonState1MotherBrainState2));

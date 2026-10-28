@@ -12,7 +12,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
 {
     /// <summary>Uses the retail enemy header for the constructed Ripper population.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-        RoomEnemyDefinitionCatalog.Get(pointer);
+        RoomEnemyDefinitions.Get(pointer);
 
     /// <summary>Places one stationary Ripper at Samus's contact position for the damage frame.</summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)

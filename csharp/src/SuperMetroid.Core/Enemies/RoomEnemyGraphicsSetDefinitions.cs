@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Enemies;
 [NumberedIdentities("Each numbered member is the enemy graphics set of one numbered room or room state, named for it; no caller indexes the sets by number.")]
 public static class RoomEnemyGraphicsSetDefinitions
 {
-    /// <summary>Retail sets in the cartridge's list order.</summary>
-    private static readonly RoomEnemyGraphicsSetDefinition[] Definitions =
+    /// <summary>Retail sets in the cartridge's list order, checked complete when built.</summary>
+    private static readonly RoomEnemyGraphicsSetDefinition[] Definitions = RoomEnemyGraphicsSets.Complete(
     [
         ..CrateriaRoomEnemyGraphicsSetDefinitions.Build(),
         ..BrinstarRoomEnemyGraphicsSetDefinitions.Build(),
@@ -19,23 +19,12 @@ public static class RoomEnemyGraphicsSetDefinitions
         ..MaridiaRoomEnemyGraphicsSetDefinitions.Build(),
         ..TourianRoomEnemyGraphicsSetDefinitions.Build(),
         ..CeresRoomEnemyGraphicsSetDefinitions.Build(),
-    ];
+    ], ListCount, RecordCount, nameof(SessionStart));
 
     /// <summary>Number of distinct retail bank-$B4 graphics-set identities in the compiled catalog, including empty sets and separately addressed sets with matching content.</summary>
     public const int ListCount = 302;
     /// <summary>Total four-byte member records across all compiled retail lists, excluding terminators and trailing metadata; not a count of unique enemy definitions or artwork images.</summary>
     public const int RecordCount = 425;
-
-    /// <summary>Rejects a compiled catalog with missing, duplicate or misordered retail records.</summary>
-    static RoomEnemyGraphicsSetDefinitions()
-    {
-        if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)
-            throw new InvalidDataException("Compiled enemy graphics-set counts changed.");
-        if (Definitions.Select(list => list.Name).Distinct().Count() != ListCount)
-            throw new InvalidDataException("Compiled enemy graphics sets repeat a name.");
-        if (Definitions.Any(list => list.Name == SessionStart.Name))
-            throw new InvalidDataException("A compiled enemy graphics set takes the session start's name.");
-    }
 
     /// <summary>Every retail graphics set, in the cartridge's list order.</summary>
     public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All => Definitions;
@@ -49,9 +38,11 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>Every graphics set rooms draw under: each retail set, then the session start's.</summary>
     public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> DrawnUnder { get; } = [.. Definitions, SessionStart];
 
+    /// <summary>Each retail graphics set by name.</summary>
+    private static readonly Dictionary<string, RoomEnemyGraphicsSetDefinition> ByName = Definitions.ToDictionary(list => list.Name);
+
     /// <summary>The compiled graphics set named <paramref name="name"/>.</summary>
-    private static RoomEnemyGraphicsSetDefinition Find(string name) =>
-        Definitions.Single(list => list.Name == name);
+    private static RoomEnemyGraphicsSetDefinition Find(string name) => ByName[name];
 
     /// <summary>The <c>EnemySets_Draygon1MotherBrain2</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition Draygon1MotherBrain2 { get; } = Find(nameof(Draygon1MotherBrain2));

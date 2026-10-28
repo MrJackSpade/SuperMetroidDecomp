@@ -81,7 +81,7 @@ internal static class BossSpriteEntriesVerification
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var resolver = new EnemyTileTransfers(artwork);
         ReadOnlyMemory<byte> evirTiles = artwork.Enemies.TilesOf(EnemyDefinitionId.Evir);
-        AssertTrue(evirTiles.Length == RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir).TileByteCount &&
+        AssertTrue(evirTiles.Length == RoomEnemyDefinitions.Get(EnemyDefinitionId.Evir).TileByteCount &&
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
         var uploads = new SpriteArtworkPlacements();

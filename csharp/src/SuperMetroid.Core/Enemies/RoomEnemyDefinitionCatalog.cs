@@ -167,28 +167,10 @@ public static class RoomEnemyDefinitionCatalog
     /// <summary>Number of distinct retail enemy definitions reachable from room states.</summary>
     public const int Count = 148;
 
-    /// <summary>Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452).</summary>
-    private static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById;
-
-    /// <summary>Checks the compiled definition count and that each identity is compiled once before any lookup.</summary>
-    static RoomEnemyDefinitionCatalog()
-    {
-        if (Definitions.Length != Count)
-            throw new InvalidDataException(
-                $"Expected {Count} compiled enemy headers, found {Definitions.Length}.");
-        var byId = new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>(Definitions.Length);
-        foreach (RoomEnemyDefinitionEntry entry in Definitions)
-        {
-            if (!byId.TryAdd(entry.Id, entry.Definition))
-                throw new InvalidDataException($"Compiled enemy definitions repeat {entry.Id}.");
-        }
-        ById = byId.ToFrozenDictionary();
-    }
-
-    /// <summary>Gets an application-owned retail definition, rejecting an unreferenced identity.</summary>
-    public static RoomEnemyDefinition Get(EnemyDefinitionId definitionId) =>
-        ById.TryGetValue(definitionId, out RoomEnemyDefinition definition)
-            ? definition
-            : throw new ArgumentOutOfRangeException(nameof(definitionId), definitionId,
-                "Not a referenced retail enemy definition.");
+    /// <summary>
+    /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);
+    /// the compiled count and each identity's single compilation are checked when it is built.
+    /// </summary>
+    internal static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById =
+        RoomEnemyDefinitions.Index(Definitions, Count);
 }

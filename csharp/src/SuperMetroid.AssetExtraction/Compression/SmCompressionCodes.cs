@@ -23,7 +23,7 @@ public static class SmCompressionCodes
     /// <summary>Checks whether a byte begins a two-byte header, excluding the <c>$FF</c> stream terminator.</summary>
     /// <param name="value">The first byte of a prospective command header.</param>
     /// <returns>True when bits 5-7 are set and the byte is not the terminator.</returns>
-    public static bool IsLongHeader(byte value) =>
+    public static bool IsLongHeader(int value) =>
         value != Terminator &&
         (value & LongHeaderMarkerMask) == LongHeaderMarker;
 }

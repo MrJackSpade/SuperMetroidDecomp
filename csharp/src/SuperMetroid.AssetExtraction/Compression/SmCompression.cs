@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>
@@ -10,8 +11,10 @@ namespace SuperMetroid.AssetExtraction.Compression;
 /// encode a 1-32 byte run in one byte. Headers whose upper three bits are all set use a
 /// second length byte and can encode runs up to 1024 bytes. The three command bits select
 /// literal, fill, alternating-fill, incrementing-fill, absolute-copy, inverted-copy,
-/// relative-copy, or inverted-relative-copy behavior.
+/// relative-copy, or inverted-relative-copy behavior. The decoder owns the stream's byte widths: an incrementing fill
+/// wraps at a byte and every copy reads the bytes already emitted.
 /// </remarks>
+[EncodingOwner("compressed asset command stream")]
 public static class SmCompression
 {
     /// <summary>

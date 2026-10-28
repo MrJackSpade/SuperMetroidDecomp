@@ -241,9 +241,9 @@ internal sealed class NorfairRidleyDeath
         };
         fragment.SetSpeciesState(fragmentState, fragmentState.ClearWithRecord);
 
-        if (part <= RidleyExplosionPart.TailTip)
+        // Tail fragments start from their tail segment; the body fragments start from the body.
+        if (RidleyExplosionDefinitions.TailSegment.TryGetValue(part, out int tailIndex))
         {
-            int tailIndex = RidleyExplosionDefinitions.TailSegment[part];
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =

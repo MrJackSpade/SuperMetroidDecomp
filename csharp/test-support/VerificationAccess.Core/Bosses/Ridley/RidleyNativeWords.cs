@@ -8,6 +8,18 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyNativeWords
 {
+    /// <summary>
+    /// The encounter-mode word ($7E:7802) holding each <see cref="RidleyFightMode"/> (#1452). The cartridge tests it with
+    /// BEQ, BMI and CMP #2; dying is its only negative value.
+    /// </summary>
+    internal static readonly NativeWordIdentities<RidleyFightMode> FightModes = new(new Dictionary<RidleyFightMode, ushort>
+    {
+        [RidleyFightMode.NotFighting] = 0x0000,
+        [RidleyFightMode.Fighting] = 0x0001,
+        [RidleyFightMode.PowerBombDodge] = 0x0002,
+        [RidleyFightMode.Dying] = 0xffff,
+    });
+
     /// <summary>The bank-$A6 routine word naming each <see cref="RidleyAiFunction"/>.</summary>
     internal static readonly NativeWordIdentities<RidleyAiFunction> AiFunctions = new(new Dictionary<RidleyAiFunction, ushort>
     {

@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ridley's encounter-mode word at <c>$7E:7802</c> (<c>Ridley.fightMode</c>), shared by the
-/// Ceres and Lower Norfair encounters. Native code tests it with <c>BEQ</c>/<c>BMI</c> and
-/// <c>CMP #$0002</c>; only these four values are ever stored.
+/// Ridley's encounter mode, shared by the Ceres and Lower Norfair encounters: whether he is outside combat, fighting,
+/// dodging a power bomb or dying, which decides whether hits interrupt him, his tail attacks and his death starts. The
+/// cartridge's word for each mode is verification's <c>RidleyNativeWords.FightModes</c>.
 /// </summary>
-public enum RidleyFightMode : ushort
+public enum RidleyFightMode
 {
-    /// <summary>Zero: reveal, retreat, or any phase outside active combat (<c>$A6:A148</c>, <c>$A6:A6FC</c>).</summary>
-    NotFighting = 0x0000,
+    /// <summary>Reveal, retreat, or any phase outside active combat.</summary>
+    NotFighting,
 
-    /// <summary>One: ordinary combat (<c>$A6:A6E3</c>, <c>$A6:B317</c>, <c>$A6:BD86</c>).</summary>
-    Fighting = 0x0001,
+    /// <summary>Ordinary combat.</summary>
+    Fighting,
 
-    /// <summary>Two: power-bomb dodge, which suppresses repeated combat interruption (<c>$A6:BD56</c>).</summary>
-    PowerBombDodge = 0x0002,
+    /// <summary>Power-bomb dodge, which suppresses repeated combat interruption.</summary>
+    PowerBombDodge,
 
-    /// <summary>$FFFF: Lower Norfair death sequence started (<c>$A6:DFC5</c>); the only negative value.</summary>
-    Dying = 0xFFFF,
+    /// <summary>The Lower Norfair death sequence has started.</summary>
+    Dying,
 }

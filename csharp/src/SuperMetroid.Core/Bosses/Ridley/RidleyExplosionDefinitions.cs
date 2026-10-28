@@ -46,7 +46,7 @@ internal static class RidleyExplosionDefinitions
     /// Each part's lifetime in frames: tail segments expire eight frames apart from the base, the body parts follow
     /// the same eight-frame progression, and the torso expires last.
     /// </summary>
-    private static readonly FrozenDictionary<RidleyExplosionPart, ushort> Lifetimes = new Dictionary<RidleyExplosionPart, ushort>
+    private static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
     {
         [RidleyExplosionPart.Tail0] = 72,
         [RidleyExplosionPart.Tail1] = 80,

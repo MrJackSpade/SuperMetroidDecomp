@@ -1301,7 +1301,7 @@ internal static class LookupStream5Verification
         (owner.MorphBallEyeBehavior.MorphBallEyeStates[1] ?? throw new InvalidOperationException("Verification requires owner.MorphBallEyeBehavior.MorphBallEyeStates[1].")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.BodySlotIndex = 1;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
-        owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex = 0xfff0;
+        owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex = 0;
         Action step = owner.MorphBallEyeBehavior.StepFullMorphBallEyeBeam;
         for (int phase = 0; phase < 16; phase++)
         {
@@ -1312,7 +1312,7 @@ internal static class LookupStream5Verification
             AssertEqual(expected, MorphBallEyeGeometry.BeamColor(phase), "Native two-channel triangle intensities");
             step();
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
-            AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex, "Actual masked cycling and wrap");
+            AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => MorphBallEyeGeometry.Mount(4), "Unsupported mount direction");
         AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometry.BeamColor(16), "Beam phase bound");

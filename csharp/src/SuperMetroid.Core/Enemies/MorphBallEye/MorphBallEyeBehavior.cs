@@ -58,7 +58,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        if (unchecked((short)slot.Spawn.Population.Parameter2) >= 0)
+        MorphBallEyePlacement placement = MorphBallEyePlacement.Of(slot.Spawn.Population.Parameter2);
+        if (!placement.IsBeamMount)
         {
             // Parameter one bit zero is a fixed mounting direction, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
@@ -68,8 +69,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int mountDirection = slot.Spawn.Population.Parameter2 & MorphBallEyeBeamDefinitions.MountDirectionBits;
-        var mount = MorphBallEyeGeometry.Mount(mountDirection);
+        var mount = MorphBallEyeGeometry.Mount(placement.MountDirection);
         slot.Position += mount.Offset;
         state.Function = MorphBallEyeAiFunction.MountNoOp;
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);
@@ -177,9 +177,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
         // The native pointer is $8FAC plus the high angle nibble shifted down by two, one four-byte record per
-        // pose: the tracking loop resumes at the pose that nibble selects.
+        // pose: the tracking loop resumes at the pose for the arc of the turn the angle lies in.
         state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
-            (state.Angle.TableIndex & MorphBallEyeBeamDefinitions.PoseAngleBits) >> 4);
+            state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses));
         eye.InstructionTimer = WrappingCountdown.Start(1);
     }
 
@@ -281,9 +281,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int colorIndex = MorphBallEyeBeam.ColorIndex & MorphBallEyeBeamDefinitions.ColorIndexBits;
+        int colorIndex = MorphBallEyeBeam.ColorIndex;
         MorphBallEyeBeam.Color = MorphBallEyeGeometry.BeamColor(colorIndex);
-        MorphBallEyeBeam.ColorIndex = (colorIndex + 1) & MorphBallEyeBeamDefinitions.ColorIndexBits;
+        MorphBallEyeBeam.ColorIndex = (colorIndex + 1) % MorphBallEyeBeamDefinitions.ColorCycleLength;
     }
 
     /// <summary>Darkens the beam's colour one step and removes the beam once green has faded to black.</summary>
@@ -306,7 +306,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         int index = MorphBallEyeBeam.BodySlotIndex;
         if ((uint)index >= _slotTable.Slots.Count ||
             _slotTable.Slots[index].DefinitionId != EnemyDefinitionId.Eye ||
-            unchecked((short)_slotTable.Slots[index].Spawn.Population.Parameter2) < 0)
+            MorphBallEyePlacement.Of(_slotTable.Slots[index].Spawn.Population.Parameter2).IsBeamMount)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye HDMA object lost its body in enemy slot {index}.");

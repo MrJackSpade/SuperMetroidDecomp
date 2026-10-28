@@ -22,7 +22,7 @@ internal static class IntroBackgroundPageDefinitions
         };
 
     /// <summary>$96:FF14 page two: the delivery portrait's occupied columns in each of its nineteen atlas rows.</summary>
-    private static readonly IntroAtlasColumnRun[][] DeliveryPortraitRows =
+    private static readonly InclusiveRange[][] DeliveryPortraitRows =
     [
         [new(9, 12)],
         [new(9, 15)],
@@ -46,7 +46,7 @@ internal static class IntroBackgroundPageDefinitions
     ];
 
     /// <summary>$96:FF14 page three: the laboratory body's occupied columns in each of its twenty atlas rows.</summary>
-    private static readonly IntroAtlasColumnRun[][] ExaminationRoomRows =
+    private static readonly InclusiveRange[][] ExaminationRoomRows =
     [
         [new(10, 13)],
         [new(10, 13)],

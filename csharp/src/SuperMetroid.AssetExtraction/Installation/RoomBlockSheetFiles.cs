@@ -77,7 +77,7 @@ public static class RoomBlockSheetFiles
                 StringComparer.Ordinal)),
             JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, MessageManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => entry.Value.ToArray(),
+            new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => BackgroundTileWords.ToWords(entry.Value.AsSpan()),
                 StringComparer.Ordinal)), JsonOptions));
         var sheets = new WordManifest(WordManifestVersion, [.. wordSheets.Select(words => new WordSheetDocument(words.Layer,
             RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(BackgroundTileWords.ToWord(tile.Tile.Tile), tile.Tile.Shown.Artwork.Name,
@@ -119,8 +119,8 @@ public static class RoomBlockSheetFiles
             ?? throw new InvalidDataException($"Message box manifest {messagePath} is empty.");
         if (messages.Version != MessageManifestVersion || messages.Words is null)
             throw new InvalidDataException($"Message box manifest {messagePath} is not revision {MessageManifestVersion}.");
-        Dictionary<string, ImmutableArray<ushort>> messageWords = messages.Words.ToDictionary(entry => entry.Key,
-            entry => ImmutableArray.Create(entry.Value), StringComparer.Ordinal);
+        Dictionary<string, ImmutableArray<BackgroundTile>> messageTiles = messages.Words.ToDictionary(entry => entry.Key,
+            entry => ImmutableArray.Create(BackgroundTileWords.ToTiles(entry.Value)), StringComparer.Ordinal);
         string mode7Path = Path.Combine(stockDirectory, Mode7ManifestFileName);
         Mode7Manifest mode7 = JsonSerializer.Deserialize<Mode7Manifest>(File.ReadAllBytes(mode7Path), JsonOptions)
             ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} is empty.");
@@ -140,7 +140,7 @@ public static class RoomBlockSheetFiles
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. BackgroundTileWords.ToTiles(entry.Value)]),
                 StringComparer.Ordinal),
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
-            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)),
+            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageTiles)),
             mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
                     store.Read(FloorTileSheet.NameOf(tileset)), [.. (entry.Value.Shown ?? throw new InvalidDataException(
                         $"Mode 7 manifest {mode7Path} records no tiles for {entry.Key}.")).Select(shown => shown is null ? (BgArtworkShown?)null

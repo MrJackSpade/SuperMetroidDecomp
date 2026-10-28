@@ -25,7 +25,7 @@ internal static class MessagePresentationContractChecks
             using SuperMetroid.Core.Rooms;
             class MessageConsumer {
                 void Inspect(GameplayMessageTitlePresentation titles, GameplayMessagePanelPresentation panels,
-                    GameplayMessageNoticePresentation notices, System.Span<ushort> cells) {
+                    GameplayMessageNoticePresentation notices, System.Span<SuperMetroid.Core.Assets.BackgroundTile> cells) {
                     titles.Build(GameplayMessageId.EnergyTank);
                     titles.Build(GameplayMessageId.MissileTank);
                     panels.Build(GameplayMessageId.MissileTank);

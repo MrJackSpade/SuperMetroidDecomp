@@ -1,6 +1,8 @@
 using SuperMetroid.Tooling;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -16,7 +18,9 @@ internal static class PermanentMessageFixtureVerification
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;
         JsonNode Read(string name) => RequiredJson.Parse(File.ReadAllText(Path.Combine(directory, name)));
-        static JsonObject Cell(int word) => new() { ["raw"] = word };
+        // Documents store tiles; each cell here is the tile the cartridge word it names places.
+        static JsonNode Cell(int word) => JsonSerializer.SerializeToNode(BackgroundTileWordBytes.Tile(word), ArtworkJson.Options)
+            ?? throw new InvalidOperationException("A message tile serialized to null.");
         static void SetBorder(JsonNode document)
         {
             var border = new JsonArray();
@@ -38,7 +42,7 @@ internal static class PermanentMessageFixtureVerification
         {
             bool transparent = cell is < 32 and (< GameplayMessagePanelDefinitions.OuterLeftColumns or
                 >= (32 - GameplayMessagePanelDefinitions.OuterRightColumns));
-            template.Add(Cell(transparent ? GameplayMessageTitleDefinitions.TransparentWord : 0x3801));
+            template.Add(Cell(transparent ? GameplayMessageTitleDefinitions.TransparentTile.PackedWord : 0x3801));
         }
         panels.Required("panels").Required(GameplayMessageIds.MissileTank.ToString())["template"] = template;
 

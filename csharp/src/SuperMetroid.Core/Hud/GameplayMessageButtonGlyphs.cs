@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hud.GameplayMessageBoxDefinitions;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Hud;
 public static class GameplayMessageButtonGlyphs
 {
     /// <summary>The glyph for <paramref name="binding"/>, testing A, B, X, Y, Select, L, R in that order; the first matching button wins even for a malformed multibit binding.</summary>
-    public static ushort ResolveGlyphWord(ControllerButton binding) => binding switch
+    public static BackgroundTile ResolveGlyph(ControllerButton binding) => binding switch
     {
         var bits when (bits & ControllerButton.A) != ControllerButton.None => Buttons.A,
         var bits when (bits & ControllerButton.B) != ControllerButton.None => Buttons.B,
@@ -29,8 +30,8 @@ public static class GameplayMessageButtonGlyphs
             ControllerButton.Start or
             ControllerButton.Select or
             ControllerButton.Y or
-            ControllerButton.B => Buttons.UnknownGlyph.Raw,
-        _ => Buttons.UnknownGlyph.Raw,
+            ControllerButton.B => Buttons.UnknownGlyph,
+        _ => Buttons.UnknownGlyph,
     };
 
     /// <summary>The byte offset in <paramref name="messageId"/>'s panel where the button glyph goes; zero for a message without one.</summary>

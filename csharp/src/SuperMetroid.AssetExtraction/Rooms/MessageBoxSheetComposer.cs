@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -23,11 +22,11 @@ internal static class MessageBoxSheetComposer
     private static readonly ControllerButton[] BindableButtons =
         [ControllerButton.A, ControllerButton.B, ControllerButton.X, ControllerButton.Y, ControllerButton.Select, ControllerButton.L, ControllerButton.R];
 
-    /// <summary>Every form of every message the message box shows, by image name: the words of each.</summary>
-    internal static IReadOnlyDictionary<string, ImmutableArray<ushort>> Messages(RoomBlockSheetInputs inputs)
+    /// <summary>Every form of every message the message box shows, by image name: the tiles of each.</summary>
+    internal static IReadOnlyDictionary<string, ImmutableArray<BackgroundTile>> Messages(RoomBlockSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        var messages = new SortedDictionary<string, ImmutableArray<ushort>>(StringComparer.Ordinal);
+        var messages = new SortedDictionary<string, ImmutableArray<BackgroundTile>>(StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (GameplayMessageId message in GameplayMessageBoxState.OrdinaryMessages)
         {
@@ -37,10 +36,10 @@ internal static class MessageBoxSheetComposer
                 var box = new GameplayMessageBoxState();
                 box.BindPresentation(inputs.Maps.GameplayMessageTitles, inputs.Maps.GameplayMessagePanels, inputs.Maps.GameplayMessageNotices);
                 box.Begin(message, ControllerButton.None, shoot, run);
-                foreach (ImmutableArray<ushort> words in box.Forms())
+                foreach (ImmutableArray<BackgroundTile> tiles in box.Forms())
                 {
-                    if (seen.Add(Convert.ToHexString(System.Runtime.InteropServices.MemoryMarshal.AsBytes(words.AsSpan()))))
-                        messages.Add($"{message}.{seen.Count}", words);
+                    if (seen.Add(Convert.ToHexString(BackgroundTileWords.ToBytes(tiles.AsSpan()))))
+                        messages.Add($"{message}.{seen.Count}", tiles);
                 }
             }
         }
@@ -49,27 +48,27 @@ internal static class MessageBoxSheetComposer
 
     /// <summary>Composes <paramref name="tileset"/>'s message box images of <paramref name="messages"/>.</summary>
     internal static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
-        IReadOnlyDictionary<string, ImmutableArray<ushort>> messages)
+        IReadOnlyDictionary<string, ImmutableArray<BackgroundTile>> messages)
     {
         Ensure.NotNull(inputs);
         RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         colours[GameplayMessageBoxDefinitions.Palette.TemporaryLightIndex] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
         colours[GameplayMessageBoxDefinitions.Palette.TemporaryDarkIndex] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
-        int rows = messages.Values.Sum(words => words.Length / width);
+        int rows = messages.Values.Sum(tiles => tiles.Length / width);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(width * RoomTileCanvas.CharacterPixels)), checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));
         ReadOnlySpan<byte> characters = inputs.Hud.Bytes.Span;
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         int top = 0;
-        foreach ((string name, ImmutableArray<ushort> words) in messages)
+        foreach ((string name, ImmutableArray<BackgroundTile> tiles) in messages)
         {
-            for (int index = 0; index < words.Length; index++)
+            for (int index = 0; index < tiles.Length; index++)
             {
-                var word = new SnesBgTilemapWord(words[index]);
-                canvas.PaintTwoBppTile(index % width * RoomTileCanvas.CharacterPixels, (top + index / width) * RoomTileCanvas.CharacterPixels, word,
-                    characters.Slice(word.CharacterIndex * RoomTileCanvas.TwoBppCharacterBytes, RoomTileCanvas.TwoBppCharacterBytes), colours);
+                BackgroundTile tile = tiles[index];
+                canvas.PaintTwoBppTile(index % width * RoomTileCanvas.CharacterPixels, (top + index / width) * RoomTileCanvas.CharacterPixels, tile,
+                    characters.Slice(tile.Tile * RoomTileCanvas.TwoBppCharacterBytes, RoomTileCanvas.TwoBppCharacterBytes), colours);
             }
-            int messageRows = words.Length / width;
+            int messageRows = tiles.Length / width;
             frames.Add(name, TileWordSheetComposer.Frame(canvas, top, messageRows, TileWordLayer.Bg3));
             top += messageRows;
         }

@@ -36,7 +36,7 @@ internal static class GameplayMessageNoticesVerification
                 continue;
             while (installed.Phase != GameplayMessageBoxPhase.AwaitingInput)
                 installed.Step(0);
-            ushort[] yesSelected = installed.Tilemap.ToArray();
+            BackgroundTile[] yesSelected = installed.Tilemap.ToArray();
             // $85:84BA's two lag waits precede each ReadControllerInput; press on the read frame.
             for (int lag = 0; lag < GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames; lag++)
                 installed.Step(0);
@@ -60,7 +60,7 @@ internal static class GameplayMessageNoticesVerification
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
-        ushort[] before = active.Tilemap.ToArray();
+        BackgroundTile[] before = active.Tilemap.ToArray();
         active.BindPresentation(null, null, edited);
         AssertEqual(phase, active.Phase,
             "message-notice content rebind preserves coroutine phase");

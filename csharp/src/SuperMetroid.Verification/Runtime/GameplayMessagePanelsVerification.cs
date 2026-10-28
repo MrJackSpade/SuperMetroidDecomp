@@ -52,7 +52,7 @@ internal static class GameplayMessagePanelsVerification
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
-        ushort[] before = active.Tilemap.ToArray();
+        BackgroundTile[] before = active.Tilemap.ToArray();
         active.BindPresentation(null, edited);
         AssertEqual(phase, active.Phase,
             "message-panel content rebind preserves coroutine phase");

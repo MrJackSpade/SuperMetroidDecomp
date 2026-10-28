@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -12,7 +13,7 @@ public static class GameplayMessageNoticeExtractor
 {
     /// <summary>Imports completion and save-confirmation notice templates, editable text regions, borders, and save-selection rows.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the native message definitions and tilemap words.</param>
-    /// <returns>New UTF-8 JSON bytes containing raw BG-cell templates, text-region row and column coordinates, alignment, widths, and palette indices.</returns>
+    /// <returns>New UTF-8 JSON bytes containing tile templates, text-region row and column coordinates, alignment, widths, and palette indices.</returns>
     /// <remarks>Verifies the expected notice setup and draw routines; confirmation input and message behavior remain compiled.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A message uses unexpected routines, has incompatible glyph or palette data, or fails notice-schema validation.</exception>
@@ -38,27 +39,27 @@ public static class GameplayMessageNoticeExtractor
                     $"Gameplay message {id} is not the expected completion/save notice.");
             }
 
-            var template = new GameplayMessageTitleCell[
+            var template = new BackgroundTile[
                 rowCount * GameplayMessageBoxDefinitions.Layout.TilemapWidth];
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
+                template[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))));
 
             var regions = new List<GameplayMessageTextRegion>();
             foreach (GameplayMessageTextRegionDefinition region in
                 GameplayMessageNoticeDefinitions.StockTextRegions(id, template))
             {
-                GameplayMessageTitleCell[] cells = template.AsSpan(
+                BackgroundTile[] cells = template.AsSpan(
                     region.Row * GameplayMessageBoxDefinitions.Layout.TilemapWidth + region.Column,
                     region.Width).ToArray();
-                int palette = (cells.First(cell =>
-                    GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw) != ' ').Word.Raw >> 10) & 7;
+                int palette = cells.First(cell =>
+                    GameplayMessageTitlePresentation.DecodeGlyph(cell) != ' ').ColourVariant;
                 string padded = new(cells.Select((cell, column) =>
                 {
-                    if (((cell.Word.Raw >> 10) & 7) != palette)
+                    if (cell.ColourVariant != palette)
                         throw new InvalidDataException(
                             $"Gameplay-message notice {id} mixes palettes in text region {region.Row}:{region.Column}, column {column}.");
-                    return GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw);
+                    return GameplayMessageTitlePresentation.DecodeGlyph(cell);
                 }).ToArray());
                 regions.Add(new()
                 {
@@ -73,8 +74,8 @@ public static class GameplayMessageNoticeExtractor
                 });
             }
 
-            GameplayMessageTitleCell[]? yes = null;
-            GameplayMessageTitleCell[]? no = null;
+            BackgroundTile[]? yes = null;
+            BackgroundTile[]? no = null;
             if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
             {
                 yes = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionYesSourceWord);
@@ -90,9 +91,9 @@ public static class GameplayMessageNoticeExtractor
             });
         }
 
-        var border = new GameplayMessageTitleCell[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+        var border = new BackgroundTile[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))) };
+            border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
 
         using var output = new MemoryStream();
         GameplayMessageNoticePresentation.Write(output, new()
@@ -104,18 +105,18 @@ public static class GameplayMessageNoticeExtractor
         return output.ToArray();
     }
 
-    /// <summary>Copies one native save-confirmation choice row as raw tilemap
-    /// cells so YES and NO selection graphics remain distinct from editable text.</summary>
-    private static GameplayMessageTitleCell[] ReadSelection(
+    /// <summary>Copies one native save-confirmation choice row as tiles so YES and NO selection graphics remain distinct
+    /// from editable text.</summary>
+    private static BackgroundTile[] ReadSelection(
         ISnesAddressSpace bus,
         int sourceWord)
     {
-        var result = new GameplayMessageTitleCell[
+        var result = new BackgroundTile[
             GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords];
         for (int word = 0; word < result.Length; word++)
         {
-            result[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SaveSelectionTilemap +
-                (sourceWord + word) * sizeof(ushort))) };
+            result[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SaveSelectionTilemap +
+                (sourceWord + word) * sizeof(ushort))));
         }
         return result;
     }

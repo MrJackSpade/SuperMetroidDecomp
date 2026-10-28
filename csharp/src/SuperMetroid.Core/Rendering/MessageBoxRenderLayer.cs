@@ -56,7 +56,7 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     /// <param name="messageBox">The message box state.</param>
     /// <param name="messages">The room's message box images; required while a message is exposed.</param>
     /// <exception cref="InvalidOperationException">A message is exposed with no room's message box images.</exception>
-    /// <exception cref="InvalidDataException">The images picture no message of the words shown.</exception>
+    /// <exception cref="InvalidDataException">The images picture no message of the tiles shown.</exception>
     public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet? messages)
     {
         Ensure.NotNull(messageBox);
@@ -67,10 +67,10 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     }
 
     /// <summary>The layer showing the image <paramref name="sheet"/> pictures <paramref name="tilemap"/> with.</summary>
-    /// <param name="tilemap">The message's packed tilemap words, 32 per row.</param>
+    /// <param name="tilemap">The message's tiles, 32 per row.</param>
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
     /// <param name="sheet">The room's message box images.</param>
-    /// <exception cref="InvalidDataException">The sheet pictures no message of these words.</exception>
-    public static MessageBoxRenderLayer FromTilemap(ReadOnlySpan<ushort> tilemap, int radiusPixels, MessageBoxSheet sheet) =>
+    /// <exception cref="InvalidDataException">The sheet pictures no message of these tiles.</exception>
+    public static MessageBoxRenderLayer FromTilemap(ReadOnlySpan<BackgroundTile> tilemap, int radiusPixels, MessageBoxSheet sheet) =>
         new(Ensure.NotNull(sheet).Picture(tilemap), radiusPixels);
 }

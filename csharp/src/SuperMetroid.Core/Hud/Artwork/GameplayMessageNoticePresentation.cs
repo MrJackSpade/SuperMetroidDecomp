@@ -14,12 +14,12 @@ public sealed class GameplayMessageNoticePresentation
     /// <summary>Validated templates and bounded text overlays indexed by supported message ID.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
     /// <summary>The 32-cell row copied above and below every notice's content.</summary>
-    private readonly ushort[] border;
+    private readonly BackgroundTile[] border;
 
     /// <summary>Captures compiled notice data together with the hash of its original JSON bytes.</summary>
     private GameplayMessageNoticePresentation(
         Dictionary<GameplayMessageId, CompiledNotice> notices,
-        ushort[] border,
+        BackgroundTile[] border,
         string contentIdentity)
     {
         this.notices = notices;
@@ -38,19 +38,19 @@ public sealed class GameplayMessageNoticePresentation
     /// <summary>Copies the shared borders and content template, then blanks and paints each bounded text field using its palette and alignment.</summary>
     /// <param name="messageId">The gameplay message to build.</param>
     /// <returns>The row-major 32-cell-wide tilemap.</returns>
-    public ushort[] Build(GameplayMessageId messageId)
+    public BackgroundTile[] Build(GameplayMessageId messageId)
     {
         CompiledNotice notice = Get(messageId);
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
-        var result = new ushort[(notice.RowCount + GameplayMessageBoxDefinitions.Layout.BorderRows) * width];
+        var result = new BackgroundTile[(notice.RowCount + GameplayMessageBoxDefinitions.Layout.BorderRows) * width];
         border.CopyTo(result, 0);
         notice.Template.CopyTo(result, width);
         border.CopyTo(result, result.Length - width);
 
-        Span<ushort> content = result.AsSpan(width, notice.Template.Length);
+        Span<BackgroundTile> content = result.AsSpan(width, notice.Template.Length);
         foreach (CompiledTextRegion region in notice.Text)
         {
-            Span<ushort> cells = content.Slice(region.Row * width + region.Column, region.Width);
+            Span<BackgroundTile> cells = content.Slice(region.Row * width + region.Column, region.Width);
             cells.Fill(GameplayMessageTitlePresentation.CompileGlyph(' ', region.Palette));
             int start = region.Alignment == GameplayMessageTextAlignment.Center
                 ? (region.Width - region.Text.Length) / 2
@@ -68,11 +68,11 @@ public sealed class GameplayMessageNoticePresentation
     /// <param name="yesSelected">Whether to install the YES row instead of the NO row.</param>
     public void ApplySelection(
         GameplayMessageId messageId,
-        Span<ushort> tilemap,
+        Span<BackgroundTile> tilemap,
         bool yesSelected)
     {
         CompiledNotice notice = Get(messageId);
-        ushort[] source = yesSelected
+        BackgroundTile[] source = yesSelected
             ? notice.YesSelection ?? throw new InvalidDataException(
                 $"Gameplay-message notice {messageId} has no YES selection row.")
             : notice.NoSelection ?? throw new InvalidDataException(
@@ -116,7 +116,7 @@ public sealed class GameplayMessageNoticePresentation
             document.Notices is null)
         {
             throw new InvalidDataException(
-                "Gameplay-message notices require version 1, one 32-cell border and every named notice.");
+                $"Gameplay-message notices require version {GameplayMessageNoticeDefinitions.Version}, one 32-cell border and every named notice.");
         }
 
         string[] expected = GameplayMessageNoticeDefinitions.MessageIds
@@ -176,13 +176,13 @@ public sealed class GameplayMessageNoticePresentation
             }
 
             compiled.Add(id, new(rowCount,
-                value.Template.Select(static cell => cell.Word.Raw).ToArray(),
+                [.. value.Template],
                 text.ToArray(),
-                value.YesSelection?.Select(static cell => cell.Word.Raw).ToArray(),
-                value.NoSelection?.Select(static cell => cell.Word.Raw).ToArray()));
+                value.YesSelection?.ToArray(),
+                value.NoSelection?.ToArray()));
         }
 
-        return new(compiled, document.Border.Select(static cell => cell.Word.Raw).ToArray(),
+        return new(compiled, [.. document.Border],
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
@@ -207,10 +207,10 @@ public sealed class GameplayMessageNoticePresentation
     /// <summary>Validated tilemap content with optional fixed save-selection variants.</summary>
     private sealed record CompiledNotice(
         int RowCount,
-        ushort[] Template,
+        BackgroundTile[] Template,
         CompiledTextRegion[] Text,
-        ushort[]? YesSelection,
-        ushort[]? NoSelection);
+        BackgroundTile[]? YesSelection,
+        BackgroundTile[]? NoSelection);
 
     /// <summary>A nonoverlapping text span whose position, width, glyphs, palette, and alignment have been checked.</summary>
     private sealed record CompiledTextRegion(

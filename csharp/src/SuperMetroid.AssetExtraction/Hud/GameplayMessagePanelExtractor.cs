@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -45,23 +46,23 @@ public static class GameplayMessagePanelExtractor
                     $"Gameplay message {id} is not the expected four-row cartridge panel.");
             }
 
-            var template = new GameplayMessageTitleCell[
+            var template = new BackgroundTile[
                 GameplayMessagePanelDefinitions.ContentWords];
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
+                template[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))));
 
-            GameplayMessageTitleCell[] visible = template.AsSpan(
+            BackgroundTile[] visible = template.AsSpan(
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
                 GameplayMessagePanelDefinitions.VisibleColumns).ToArray();
-            int palette = (visible.First(cell =>
-                GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw) != ' ').Word.Raw >> 10) & 7;
+            int palette = visible.First(cell =>
+                GameplayMessageTitlePresentation.DecodeGlyph(cell) != ' ').ColourVariant;
             string paddedTitle = new(visible.Select((cell, column) =>
             {
-                if (((cell.Word.Raw >> 10) & 7) != palette)
+                if (cell.ColourVariant != palette)
                     throw new InvalidDataException(
                         $"Gameplay-message panel {id} mixes palettes in title column {column}.");
-                return GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw);
+                return GameplayMessageTitlePresentation.DecodeGlyph(cell);
             }).ToArray());
             int leadingSpaces = paddedTitle.Length - paddedTitle.TrimStart().Length;
             panels.Add(id.ToString(), new()
@@ -73,9 +74,9 @@ public static class GameplayMessagePanelExtractor
             });
         }
 
-        var border = new GameplayMessageTitleCell[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+        var border = new BackgroundTile[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.LargeBorder + column * sizeof(ushort))) };
+            border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.LargeBorder + column * sizeof(ushort))));
 
         using var output = new MemoryStream();
         GameplayMessagePanelPresentation.Write(output, new()

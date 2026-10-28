@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Collections.Frozen;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -19,7 +18,7 @@ public sealed class GameplayMessageTitlePresentation
     /// <summary>Retains copied title and border data plus the source document's byte identity.</summary>
     private GameplayMessageTitlePresentation(
         Dictionary<GameplayMessageId, CompiledTitle> titles,
-        ushort[] border,
+        BackgroundTile[] border,
         string contentIdentity)
     {
         this.titles = titles;
@@ -27,8 +26,8 @@ public sealed class GameplayMessageTitlePresentation
         ContentIdentity = contentIdentity;
     }
 
-    /// <summary>Thirty-two native BG3 words copied to both outer rows of every built message.</summary>
-    private ushort[] Border { get; }
+    /// <summary>Thirty-two tiles copied to both outer rows of every built message.</summary>
+    private BackgroundTile[] Border { get; }
     /// <summary>Uppercase SHA-256 of the exact source JSON bytes read during loading, including formatting and property order rather than only compiled title content.</summary>
     public string ContentIdentity { get; }
 
@@ -39,26 +38,26 @@ public sealed class GameplayMessageTitlePresentation
 
     /// <summary>Builds the complete three-row message tilemap without cartridge reads.</summary>
     /// <param name="messageId">Supported one-row message whose installed title and palette are selected.</param>
-    /// <returns>A new caller-owned 96-word BG3 tilemap in 32-column row-major order, with the same supplied border above and below its title row.</returns>
+    /// <returns>A new caller-owned 96-tile message in 32-column row-major order, with the same supplied border above and below its title row.</returns>
     /// <remarks>The title is centered within columns 6..24, rounding its starting column down when padding is uneven. Six left and seven right outer cells remain transparent.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is not owned by this title catalog.</exception>
-    public ushort[] Build(GameplayMessageId messageId)
+    public BackgroundTile[] Build(GameplayMessageId messageId)
     {
         if (!titles.TryGetValue(messageId, out CompiledTitle? title))
             throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                 "The gameplay-message title catalog does not own this message.");
 
-        var result = new ushort[GameplayMessageTitleDefinitions.TilemapWords];
+        var result = new BackgroundTile[GameplayMessageTitleDefinitions.TilemapWords];
         Border.CopyTo(result, 0);
         Border.CopyTo(result, GameplayMessageBoxDefinitions.Layout.TilemapWidth * 2);
-        Span<ushort> content = result.AsSpan(
+        Span<BackgroundTile> content = result.AsSpan(
             GameplayMessageBoxDefinitions.Layout.TilemapWidth,
             GameplayMessageBoxDefinitions.Layout.TilemapWidth);
         content[..GameplayMessageTitleDefinitions.OuterLeftColumns].Fill(
-            GameplayMessageTitleDefinitions.TransparentWord);
+            GameplayMessageTitleDefinitions.TransparentTile);
         content[^GameplayMessageTitleDefinitions.OuterRightColumns..].Fill(
-            GameplayMessageTitleDefinitions.TransparentWord);
-        Span<ushort> visible = content.Slice(
+            GameplayMessageTitleDefinitions.TransparentTile);
+        Span<BackgroundTile> visible = content.Slice(
             GameplayMessageTitleDefinitions.OuterLeftColumns,
             GameplayMessageTitleDefinitions.VisibleColumns);
         visible.Fill(CompileGlyph(' ', title.Palette));
@@ -68,7 +67,7 @@ public sealed class GameplayMessageTitlePresentation
         return result;
     }
 
-    /// <summary>Validates the complete one-row message set and retains independent border words and title data for later tilemap construction.</summary>
+    /// <summary>Validates the complete one-row message set and retains independent border tiles and title data for later tilemap construction.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open; its exact bytes determine <see cref="ContentIdentity"/>.</param>
     /// <returns>An immutable presentation that does not retain the document's mutable title dictionary or border-cell array.</returns>
     /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version, message set or border width is wrong, or a title is empty, too wide, uses unsupported glyphs or has an invalid palette.</exception>
@@ -99,7 +98,7 @@ public sealed class GameplayMessageTitlePresentation
             document.Titles is null)
         {
             throw new InvalidDataException(
-                "Gameplay-message titles require version 1, one 32-cell border and every named one-row title.");
+                $"Gameplay-message titles require version {GameplayMessageTitleDefinitions.Version}, one 32-cell border and every named one-row title.");
         }
 
         string[] expected = GameplayMessageTitleDefinitions.MessageIds
@@ -127,7 +126,7 @@ public sealed class GameplayMessageTitlePresentation
             compiled.Add(id, new(value.Text, value.Palette));
         }
 
-        return new(compiled, document.Border.Select(static cell => cell.Word.Raw).ToArray(),
+        return new(compiled, [.. document.Border],
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
@@ -142,38 +141,34 @@ public sealed class GameplayMessageTitlePresentation
         output.Write(bytes);
     }
 
-    /// <summary>Encodes a supported title character as a priority BG3 tilemap word with the selected palette.</summary>
-    internal static ushort CompileGlyph(char character, int palette) =>
-        unchecked((ushort)(GlyphTile(character) |
-            GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
+    /// <summary>The tile showing a supported title character in <paramref name="palette"/>, in the upper priority tier.</summary>
+    internal static BackgroundTile CompileGlyph(char character, int palette) =>
+        new(GlyphTile(character), palette, highPriority: true);
 
     /// <summary>The title tile that draws a supported character.</summary>
-    private static ushort GlyphTile(char character) =>
+    private static int GlyphTile(char character) =>
         character switch
         {
             ' ' => GameplayMessageTitleDefinitions.SpaceTile,
             '-' => GameplayMessageTitleDefinitions.HyphenTile,
             '.' => GameplayMessageTitleDefinitions.PeriodTile,
             '?' => GameplayMessageTitleDefinitions.QuestionMarkTile,
-            >= 'A' and <= 'Z' => (ushort)(GameplayMessageTitleDefinitions.FirstLetterTile + character - 'A'),
+            >= 'A' and <= 'Z' => GameplayMessageTitleDefinitions.FirstLetterTile + character - 'A',
             _ => throw new InvalidDataException(
                 $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
         };
 
-    /// <summary>Recovers a supported title character from the tile portion of a BG3 word.</summary>
-    internal static char DecodeGlyph(int word)
-    {
-        int tile = new SnesBgTilemapWord(checked((ushort)word)).CharacterIndex;
-        return GlyphsByTile.TryGetValue(checked((ushort)tile), out char character)
+    /// <summary>Recovers a supported title character from the tile <paramref name="cell"/> shows.</summary>
+    internal static char DecodeGlyph(BackgroundTile cell) =>
+        GlyphsByTile.TryGetValue(cell.Tile, out char character)
             ? character
-            : throw new InvalidDataException($"${tile:X4} is not a gameplay-message title glyph.");
-    }
+            : throw new InvalidDataException($"Tile {cell.Tile} is not a gameplay-message title glyph.");
 
     /// <summary>Every character a title can show.</summary>
     private const string TitleAlphabet = " -.?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /// <summary>Each title character keyed by the tile <see cref="GlyphTile"/> draws it with.</summary>
-    private static readonly FrozenDictionary<ushort, char> GlyphsByTile =
+    private static readonly FrozenDictionary<int, char> GlyphsByTile =
         TitleAlphabet.ToFrozenDictionary(GlyphTile, character => character);
 
     /// <summary>Validated title text and palette retained independently of the mutable JSON document.</summary>

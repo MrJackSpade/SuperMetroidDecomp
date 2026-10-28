@@ -36,10 +36,10 @@ internal static class GameplayMessageTitlesVerification
                 ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
             int content = HudSourceDefinitions.Messages.BankBase |
                 (LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
-            ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
+            ReadOnlySpan<BackgroundTile> row = installed.Tilemap.Slice(width, width);
             for (int column = 0; column < width; column++)
                 AssertEqual(LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1)),
-                    row[column], $"installed UTF-8 gameplay title {id} column {column} matches the cartridge tilemap");
+                    row[column].PackedWord, $"installed UTF-8 gameplay title {id} column {column}, encoded through the codec, matches the cartridge tilemap");
             comparedWords += width;
         }
 
@@ -57,7 +57,7 @@ internal static class GameplayMessageTitlesVerification
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
-        ushort[] before = active.Tilemap.ToArray();
+        BackgroundTile[] before = active.Tilemap.ToArray();
         active.BindPresentation(edited);
         AssertEqual(phase, active.Phase, "message-title content rebind preserves coroutine phase");
         AssertEqual(radius, active.RadiusPixels, "message-title content rebind preserves window radius");

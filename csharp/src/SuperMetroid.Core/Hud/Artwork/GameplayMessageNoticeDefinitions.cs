@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 public static class GameplayMessageNoticeDefinitions
 {
     /// <summary>Supported revision of the editable station-completion and save-confirmation notice JSON schema.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>Asset filename for the five editable gameplay notice templates and bounded text regions.</summary>
     public const string FileName = "gameplay-message-notices.json";
 
@@ -52,7 +52,7 @@ public static class GameplayMessageNoticeDefinitions
     /// <param name="template">Complete row-major 32-cell-wide content tilemap, excluding border rows.</param>
     /// <returns>Left-aligned text regions in row/column order, measured in tile cells rather than screen pixels.</returns>
     public static IEnumerable<GameplayMessageTextRegionDefinition> StockTextRegions(
-        GameplayMessageId messageId, IReadOnlyList<GameplayMessageTitleCell> template)
+        GameplayMessageId messageId, IReadOnlyList<BackgroundTile> template)
     {
         int rows = ContentRows(messageId);
         Ensure.NotNull(template);
@@ -68,14 +68,14 @@ public static class GameplayMessageNoticeDefinitions
                 int column = 0;
                 while (column < width)
                 {
-                    if (!IsText(template[row * width + column].Word.Raw)) { column++; continue; }
+                    if (!IsText(template[row * width + column])) { column++; continue; }
                     int start = column++;
                     while (column < width)
                     {
-                        int word = template[row * width + column].Word.Raw;
-                        if (IsText(word)) { column++; continue; }
-                        if ((word & 0x03ff) == GameplayMessageTitleDefinitions.SpaceTile &&
-                            column + 1 < width && IsText(template[row * width + column + 1].Word.Raw))
+                        BackgroundTile cell = template[row * width + column];
+                        if (IsText(cell)) { column++; continue; }
+                        if (cell.Tile == GameplayMessageTitleDefinitions.SpaceTile &&
+                            column + 1 < width && IsText(template[row * width + column + 1]))
                         {
                             column += 2;
                             continue;
@@ -87,9 +87,9 @@ public static class GameplayMessageNoticeDefinitions
             }
         }
 
-        static bool IsText(int word) =>
-            GameplayMessageTitleDefinitions.IsLetterTile((ushort)(word & 0x03ff)) ||
-            (word & 0x03ff) is GameplayMessageTitleDefinitions.HyphenTile or
+        static bool IsText(BackgroundTile cell) =>
+            GameplayMessageTitleDefinitions.IsLetterTile(cell.Tile) ||
+            cell.Tile is GameplayMessageTitleDefinitions.HyphenTile or
                 GameplayMessageTitleDefinitions.PeriodTile or GameplayMessageTitleDefinitions.QuestionMarkTile;
     }
 }

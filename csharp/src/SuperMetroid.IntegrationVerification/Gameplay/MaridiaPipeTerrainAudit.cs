@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;

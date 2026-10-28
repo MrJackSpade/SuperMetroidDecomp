@@ -10,7 +10,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using SuperMetroid.Core.Frontend.Pause;

@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Evir.EvirNativeListAddresses;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Evir;
 

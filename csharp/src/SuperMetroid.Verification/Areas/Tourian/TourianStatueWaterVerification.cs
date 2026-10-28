@@ -53,7 +53,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
             "Native low-nibble FX dispatch selects water below the statue surface");
         var displayed = runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("No displayed water snapshot");
-        AssertEqual((short)0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
+        AssertEqual(0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
         AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var full = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -73,7 +73,7 @@ internal static class TourianStatueWaterVerification
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayScrolls.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.View.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
-        AssertEqual((short)0xb0, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
+        AssertEqual(0xb0, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomLayer3Fx.SetLiquidMotion(targetYPosition: 0xb4,
             packedYVelocity: 0x0100, timer: 1);

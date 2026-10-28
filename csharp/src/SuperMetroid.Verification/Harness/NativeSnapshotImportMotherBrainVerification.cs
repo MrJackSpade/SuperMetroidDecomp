@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;

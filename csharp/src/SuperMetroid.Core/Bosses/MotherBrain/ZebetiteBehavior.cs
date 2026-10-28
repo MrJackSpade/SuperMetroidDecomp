@@ -7,7 +7,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
 

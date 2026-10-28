@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;

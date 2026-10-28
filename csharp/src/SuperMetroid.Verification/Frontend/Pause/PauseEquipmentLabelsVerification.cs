@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;

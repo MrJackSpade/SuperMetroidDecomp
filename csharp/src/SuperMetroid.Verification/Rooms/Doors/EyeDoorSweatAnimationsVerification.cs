@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.EyeDoor.Artwork;

@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectileProgra
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -73,9 +72,9 @@ internal static class ObjCharacterImageConstants
                     pixels[pixel] = black;
                 }
             }
-            var image = new SpriteImage($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new((ushort)size.X, (ushort)size.Y),
+            var image = new SpriteImage($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
                 pixels, indices, standard, priorities, partRows);
-            var frame = new SpriteSheetFrame(image, default, new((ushort)size.X, (ushort)size.Y), default,
+            var frame = new SpriteSheetFrame(image, default, new(size.X, size.Y), default,
                 SpritePaletteRowSet.Rows[corner.Palette], []);
             // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,

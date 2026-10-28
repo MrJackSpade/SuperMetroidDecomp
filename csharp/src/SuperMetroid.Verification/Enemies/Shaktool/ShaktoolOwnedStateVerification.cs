@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
 namespace SuperMetroid.Verification.Enemies.Shaktool;

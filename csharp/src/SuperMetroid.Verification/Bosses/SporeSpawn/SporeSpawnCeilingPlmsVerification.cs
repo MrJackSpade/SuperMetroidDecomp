@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

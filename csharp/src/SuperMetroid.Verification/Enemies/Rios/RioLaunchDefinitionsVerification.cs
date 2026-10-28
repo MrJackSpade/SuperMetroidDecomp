@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.AssetExtraction.Cartridge;
 

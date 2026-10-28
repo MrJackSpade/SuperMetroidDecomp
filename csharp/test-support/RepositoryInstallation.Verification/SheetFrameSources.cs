@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

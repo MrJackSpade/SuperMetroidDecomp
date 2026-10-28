@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Sparks.SparkNativeListAddresses;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Sparks;
 

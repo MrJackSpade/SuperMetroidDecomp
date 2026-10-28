@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailNa
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 

@@ -43,7 +43,6 @@ using SuperMetroid.Verification.Enemies.Sbug;
 using SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Enemies.Nuclear;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;

@@ -231,8 +231,8 @@ internal static class GameplayDisplayFrameTestsVerification
             "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var mode7 = (GameplayFloorRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual((short)240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
-        AssertEqual((short)33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
+        AssertEqual(240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
+        AssertEqual(33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         getaway.GetawayActive = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

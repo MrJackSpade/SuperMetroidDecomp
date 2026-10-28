@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Animals.DachoraNativeListAddresse
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
 

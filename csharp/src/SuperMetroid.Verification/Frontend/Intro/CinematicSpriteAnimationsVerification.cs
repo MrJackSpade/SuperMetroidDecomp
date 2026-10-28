@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddresses;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;

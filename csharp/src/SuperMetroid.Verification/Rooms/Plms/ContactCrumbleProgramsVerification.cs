@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.LinkedRestoreVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;

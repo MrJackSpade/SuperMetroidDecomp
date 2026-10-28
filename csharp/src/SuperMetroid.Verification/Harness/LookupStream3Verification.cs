@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;

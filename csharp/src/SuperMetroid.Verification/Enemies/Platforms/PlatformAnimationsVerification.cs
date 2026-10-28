@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Platforms.PlatformNativeListAddre
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Platforms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Platforms;
 

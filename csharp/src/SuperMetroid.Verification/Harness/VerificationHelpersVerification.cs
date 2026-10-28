@@ -5,7 +5,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
 using SuperMetroid.AssetExtraction.Video;

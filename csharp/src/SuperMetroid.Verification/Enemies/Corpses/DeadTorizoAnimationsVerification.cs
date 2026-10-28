@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoNativeListAddre
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 

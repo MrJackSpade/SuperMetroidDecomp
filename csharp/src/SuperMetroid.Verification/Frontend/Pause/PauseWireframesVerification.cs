@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;

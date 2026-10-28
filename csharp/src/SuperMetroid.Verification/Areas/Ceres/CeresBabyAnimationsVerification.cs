@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
 using static SuperMetroid.Verification.Areas.Ceres.CeresBabyNativeListAddresses;

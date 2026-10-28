@@ -5,7 +5,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;

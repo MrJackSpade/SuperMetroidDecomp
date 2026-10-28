@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Rios.RioNativeListAddresses;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Rios;
 

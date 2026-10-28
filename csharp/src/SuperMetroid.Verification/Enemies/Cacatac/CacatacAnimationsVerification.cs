@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Cacatac.CacatacNativeListAddresse
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Cacatac;
 

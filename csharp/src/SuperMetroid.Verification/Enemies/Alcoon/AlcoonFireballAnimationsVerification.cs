@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonFireballNativeListAd
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 

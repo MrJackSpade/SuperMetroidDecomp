@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
 

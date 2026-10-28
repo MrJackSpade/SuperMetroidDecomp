@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

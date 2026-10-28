@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Choot.ChootNativeListAddresses;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Choot;
 

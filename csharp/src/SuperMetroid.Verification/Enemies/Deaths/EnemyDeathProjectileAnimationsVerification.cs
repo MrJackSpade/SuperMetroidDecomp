@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectileNative
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Deaths;
 

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

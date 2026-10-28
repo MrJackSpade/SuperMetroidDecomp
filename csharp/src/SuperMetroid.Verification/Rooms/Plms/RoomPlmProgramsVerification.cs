@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;

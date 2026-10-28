@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Assets;
 

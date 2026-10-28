@@ -29,16 +29,16 @@ internal static class TourianStatueDescentRoundingVerification
 
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),
             maximumFrames: 400, context: "the statue descent begins");
-        AssertEqual((short)-1, runtime.TourianStatues.VerticalOffset, "the first quarter step floors to -1");
+        AssertEqual(-1, runtime.TourianStatues.VerticalOffset, "the first quarter step floors to -1");
         for (int frame = 0; frame < 3; frame++)
             runtime.StepFrame(0);
-        AssertEqual((short)-1, runtime.TourianStatues.VerticalOffset, "steps two to four stay at -1");
+        AssertEqual(-1, runtime.TourianStatues.VerticalOffset, "steps two to four stay at -1");
         runtime.StepFrame(0);
-        AssertEqual((short)-2, runtime.TourianStatues.VerticalOffset, "the fifth quarter step reaches -2");
+        AssertEqual(-2, runtime.TourianStatues.VerticalOffset, "the fifth quarter step reaches -2");
 
         StepUntil(() => runtime.System.HasEvent(EventNumber.TourianUnlocked), _ => runtime.StepFrame(0),
             maximumFrames: 1000, context: "the statues finish descending");
-        AssertEqual((short)-240, runtime.TourianStatues.VerticalOffset,
+        AssertEqual(-240, runtime.TourianStatues.VerticalOffset,
             "Tourian unlocks the frame the whole word first reads $FF10");
         Console.WriteLine("Tourian statue descent rounding: the signed 16.16 descent floors and unlocks at $FF10.");
     }

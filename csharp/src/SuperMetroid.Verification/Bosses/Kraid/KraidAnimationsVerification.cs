@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNativeListAddresses;

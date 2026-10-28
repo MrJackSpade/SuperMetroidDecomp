@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;

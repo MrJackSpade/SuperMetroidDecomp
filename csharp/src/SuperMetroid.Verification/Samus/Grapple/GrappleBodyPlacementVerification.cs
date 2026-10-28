@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

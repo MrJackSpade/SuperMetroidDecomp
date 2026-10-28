@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;

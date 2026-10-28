@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 

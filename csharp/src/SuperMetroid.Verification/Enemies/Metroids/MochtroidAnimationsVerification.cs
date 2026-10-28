@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Metroids.MochtroidNativeListAddre
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Metroids;
 

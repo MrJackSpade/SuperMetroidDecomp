@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

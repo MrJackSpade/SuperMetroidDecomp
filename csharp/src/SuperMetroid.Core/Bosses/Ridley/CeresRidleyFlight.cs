@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
 using SuperMetroid.Core.Assets;

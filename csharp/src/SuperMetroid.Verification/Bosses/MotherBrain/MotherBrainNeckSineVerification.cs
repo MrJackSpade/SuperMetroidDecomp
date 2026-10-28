@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;

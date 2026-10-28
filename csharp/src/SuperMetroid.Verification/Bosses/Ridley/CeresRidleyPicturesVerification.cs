@@ -6,17 +6,14 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;

@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainNeckSineVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;

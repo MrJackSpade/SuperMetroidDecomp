@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Shutters.ShutterNativeListAddress
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Shutters.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Shutters;
 

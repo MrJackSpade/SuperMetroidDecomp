@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;

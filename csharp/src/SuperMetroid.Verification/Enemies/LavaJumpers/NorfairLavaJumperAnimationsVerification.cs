@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperNati
 using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 

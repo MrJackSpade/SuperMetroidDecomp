@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.AssetExtraction.Cartridge;

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

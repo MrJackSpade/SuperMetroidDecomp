@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Pause;

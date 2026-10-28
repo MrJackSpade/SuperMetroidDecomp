@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;

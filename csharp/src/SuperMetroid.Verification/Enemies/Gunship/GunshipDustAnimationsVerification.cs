@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustNativeListAddresses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;

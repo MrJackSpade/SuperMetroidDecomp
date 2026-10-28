@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBeamWindowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathHandoffVerification;

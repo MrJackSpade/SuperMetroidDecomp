@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;

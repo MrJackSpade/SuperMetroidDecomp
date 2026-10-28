@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueNative
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Areas.Tourian;

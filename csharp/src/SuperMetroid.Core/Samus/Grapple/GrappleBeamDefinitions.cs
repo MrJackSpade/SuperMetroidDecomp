@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The Grapple Beam's definitions: its palette, sounds, swing physics, firing and rope drawing (#1411).</summary>

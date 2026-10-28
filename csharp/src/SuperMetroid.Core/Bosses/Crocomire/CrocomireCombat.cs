@@ -3,12 +3,10 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's hitboxes, touch, projectiles and hurt palette, and what Samus's weapons do to it.</summary>

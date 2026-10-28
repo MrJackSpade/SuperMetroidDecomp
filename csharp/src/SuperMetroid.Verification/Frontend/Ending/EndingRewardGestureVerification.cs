@@ -103,7 +103,7 @@ internal static class EndingRewardGestureVerification
                 }
             }
             AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, sheet handoff, landing and shooting");
-            AssertEqual((short)136, jump.BodyY, "native reward landing center");
+            AssertEqual(136, jump.BodyY, "native reward landing center");
             AssertTrue(uploads.SequenceEqual(Enumerable.Range(0, 16)), "landing publishes all sixteen native graphics queue entries exactly once");
             Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, 16 uploads, shot request.");
         }

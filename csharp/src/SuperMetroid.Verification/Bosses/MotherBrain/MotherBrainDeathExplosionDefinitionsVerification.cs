@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;

@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Assets;
 

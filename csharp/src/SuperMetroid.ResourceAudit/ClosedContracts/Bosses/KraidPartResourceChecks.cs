@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 using SuperMetroid.Core.World.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

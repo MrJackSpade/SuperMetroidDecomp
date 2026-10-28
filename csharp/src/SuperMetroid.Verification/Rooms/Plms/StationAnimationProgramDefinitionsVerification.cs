@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.LookupStationLayoutsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupStationVisualIdsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;

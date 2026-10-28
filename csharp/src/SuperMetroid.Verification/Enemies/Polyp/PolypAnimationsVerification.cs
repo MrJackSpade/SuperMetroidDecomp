@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Polyp.PolypNativeListAddresses;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Polyp;
 

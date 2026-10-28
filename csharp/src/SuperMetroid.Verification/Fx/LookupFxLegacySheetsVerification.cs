@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.Verification.Fx;

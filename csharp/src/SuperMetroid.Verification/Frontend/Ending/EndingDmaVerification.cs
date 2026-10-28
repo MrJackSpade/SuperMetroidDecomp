@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCloudPlacementVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingExplosionSlotOrderVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingRewardGestureVerification;
@@ -34,8 +33,8 @@ internal static class EndingDmaVerification
         var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.FloorRenderLayer>().Single().Transform;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
-        AssertEqual((short)45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
-        AssertEqual((short)45, projection.MatrixB, "native initial angle 32, scale 64 sine");
+        AssertEqual(45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
+        AssertEqual(45, projection.MatrixB, "native initial angle 32, scale 64 sine");
         byte[] vram = ending.ShownVram();
         byte[] interleaved = RomDataReader.Decompress(bus, 0x99d17e, 0x8000);
         byte[] characters = RomDataReader.Decompress(bus, 0x98bcd6, 0x8000);

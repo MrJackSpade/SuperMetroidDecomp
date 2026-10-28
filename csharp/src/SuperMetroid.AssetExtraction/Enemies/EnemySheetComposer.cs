@@ -7,7 +7,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 

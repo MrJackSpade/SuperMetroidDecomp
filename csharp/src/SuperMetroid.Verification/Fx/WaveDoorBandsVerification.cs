@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Fx;

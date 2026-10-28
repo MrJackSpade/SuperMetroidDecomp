@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Owtch.OwtchNativeListAddresses;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Owtch;
 

@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleNativeListA
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;

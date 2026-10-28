@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBodyProject
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 

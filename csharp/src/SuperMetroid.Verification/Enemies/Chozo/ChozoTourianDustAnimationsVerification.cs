@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Chozo.ChozoTourianDustNativeListA
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Chozo;
 

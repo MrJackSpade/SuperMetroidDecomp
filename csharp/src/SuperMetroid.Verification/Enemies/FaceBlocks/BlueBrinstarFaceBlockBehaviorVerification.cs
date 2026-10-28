@@ -5,7 +5,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.FaceBlocks;
-using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;

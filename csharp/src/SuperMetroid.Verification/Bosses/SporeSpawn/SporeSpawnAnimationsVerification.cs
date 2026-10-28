@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnNativeListAddresses;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

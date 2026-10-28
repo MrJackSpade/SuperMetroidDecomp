@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateNati
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;

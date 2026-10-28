@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;

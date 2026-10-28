@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectil
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 

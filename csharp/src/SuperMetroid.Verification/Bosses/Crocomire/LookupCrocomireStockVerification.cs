@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Verification.Areas.Escape;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;

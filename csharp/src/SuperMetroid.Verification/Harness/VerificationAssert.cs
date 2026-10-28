@@ -292,7 +292,6 @@ using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationDefinitionsVerifi
 using SuperMetroid.Verification.Enemies.Zoa;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

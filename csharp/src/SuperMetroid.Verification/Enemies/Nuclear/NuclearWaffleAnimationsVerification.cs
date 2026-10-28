@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleNativeListAd
 using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 

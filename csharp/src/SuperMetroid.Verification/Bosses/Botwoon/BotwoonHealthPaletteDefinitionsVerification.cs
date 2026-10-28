@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

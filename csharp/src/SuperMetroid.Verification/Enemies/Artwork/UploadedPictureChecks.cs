@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;

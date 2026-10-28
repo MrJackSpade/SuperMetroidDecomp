@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -28,7 +27,7 @@ internal static class BotwoonWallPlmsVerification
         AssertEqual((ushort)0x930f, PlmDrawAddressCodec.Of(draw.Draw),
             "Botwoon clear draw pointer");
         AssertEqual(1, draw.Runs.Length, "Botwoon clear has one vertical run");
-        AssertEqual((ushort)0x8009, draw.Runs.Span[0].DirectionAndCount,
+        AssertEqual(0x8009, draw.Runs.Span[0].DirectionAndCount,
             "Botwoon clear is nine blocks tall");
         int cursor = PlmDrawAddressCodec.Of(draw.Draw);
         AssertWord(checked((ushort)draw.Runs.Span[0].DirectionAndCount));

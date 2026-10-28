@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Progression;

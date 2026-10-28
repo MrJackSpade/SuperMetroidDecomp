@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;

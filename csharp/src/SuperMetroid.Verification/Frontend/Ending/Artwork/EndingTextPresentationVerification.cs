@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;

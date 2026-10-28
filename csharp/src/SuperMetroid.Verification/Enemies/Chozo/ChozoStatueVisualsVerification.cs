@@ -3,7 +3,6 @@ using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoStockVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Chozo;

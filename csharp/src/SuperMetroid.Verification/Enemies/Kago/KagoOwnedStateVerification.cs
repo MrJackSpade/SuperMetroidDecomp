@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kago;
-using SuperMetroid.Core.Enemies.Kago.Artwork;
 namespace SuperMetroid.Verification.Enemies.Kago;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

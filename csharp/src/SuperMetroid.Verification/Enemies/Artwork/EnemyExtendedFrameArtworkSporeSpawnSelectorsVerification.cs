@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification;
 using SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.AssetExtraction.Cartridge;

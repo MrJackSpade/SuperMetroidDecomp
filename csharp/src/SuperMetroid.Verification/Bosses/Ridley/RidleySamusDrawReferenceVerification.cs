@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;

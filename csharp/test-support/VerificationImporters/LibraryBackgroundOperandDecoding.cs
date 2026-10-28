@@ -1,7 +1,6 @@
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 

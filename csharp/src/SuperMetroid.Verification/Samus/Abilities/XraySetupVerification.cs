@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
@@ -39,7 +38,7 @@ internal static class XraySetupVerification
             if (native is not { } definition ||
                 !XrayRevealVisualCatalog.IsDrawable(definition.Command)) continue;
             visualEntries.Add(new(type, unchecked((byte)bts), new XrayRevealVisualWords(
-                type == RoomCollisionType.Air ? (ushort)0x00fe : definition.TopLeft,
+                type == RoomCollisionType.Air ? 0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }
         runtime.Xray.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, (runtime.Xray.XrayRevealVisuals ?? throw new InvalidOperationException("Verification requires runtime.Xray.XrayRevealVisuals.")).Overlays);

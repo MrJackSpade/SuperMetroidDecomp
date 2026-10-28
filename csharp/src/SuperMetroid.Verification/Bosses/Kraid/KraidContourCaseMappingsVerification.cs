@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyContourVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;

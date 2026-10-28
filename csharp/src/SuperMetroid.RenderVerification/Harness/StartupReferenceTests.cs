@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;

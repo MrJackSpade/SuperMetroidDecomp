@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws;
-using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

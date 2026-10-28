@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace SuperMetroid.Core.Assets;
+﻿namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification access to <see cref="DrawColours"/> members production does not use.</summary>
 internal static class DrawColoursAccess

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;

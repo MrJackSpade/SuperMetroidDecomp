@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoLayoutsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoProgramVerification;

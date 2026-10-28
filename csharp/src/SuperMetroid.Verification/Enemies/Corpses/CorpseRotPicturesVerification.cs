@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;

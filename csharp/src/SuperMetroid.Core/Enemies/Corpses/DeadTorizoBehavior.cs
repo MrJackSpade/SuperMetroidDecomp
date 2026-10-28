@@ -5,7 +5,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 

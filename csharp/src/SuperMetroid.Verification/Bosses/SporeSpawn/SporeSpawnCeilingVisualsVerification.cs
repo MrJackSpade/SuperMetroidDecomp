@@ -2,7 +2,6 @@ using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingPlmsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

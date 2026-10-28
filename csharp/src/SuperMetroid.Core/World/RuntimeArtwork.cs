@@ -147,14 +147,14 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
     internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
     {
-        if (pendingHudTiles is not { } hudTiles) return;
+        if (pendingHudTiles is null) return;
         // Binding a restored session changes content ownership, not the already
         // published frame. Refresh at accepted NMI, before native queued writes.
         // The original upload's clearing half may now lie under live BG2 words.
         // Kraid's room moves the HUD characters to his base while his BG2 tilemap
         // covers the ordinary one. A restored-state art rebind must honor the
         // *current* characters, or the next NMI paints HUD pixels across Kraid.
-        hudTiles.ShowCharactersAgain(backgrounds, _display.Layer3Characters);
+        HudTileAtlas.ShowCharactersAgain(backgrounds, _display.Layer3Characters);
         pendingHudTiles = null;
     }
 

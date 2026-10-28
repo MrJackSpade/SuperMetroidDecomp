@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.PipeBugs;

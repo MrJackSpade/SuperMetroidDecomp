@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Programs;

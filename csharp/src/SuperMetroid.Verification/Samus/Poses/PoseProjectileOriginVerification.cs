@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;

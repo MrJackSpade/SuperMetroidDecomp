@@ -1,9 +1,7 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Verification.Harness;

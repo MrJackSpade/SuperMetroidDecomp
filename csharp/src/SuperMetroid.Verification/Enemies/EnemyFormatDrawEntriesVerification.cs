@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 

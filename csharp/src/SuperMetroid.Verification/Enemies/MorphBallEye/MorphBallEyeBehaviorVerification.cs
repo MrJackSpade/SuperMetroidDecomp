@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Verification.Harness;

@@ -3,8 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.LavaJumpers;
-using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Verification.Harness;

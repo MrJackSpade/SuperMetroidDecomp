@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Rendering;
 using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Hardware;

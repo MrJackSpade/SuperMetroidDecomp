@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;

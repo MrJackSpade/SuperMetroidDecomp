@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Programs;

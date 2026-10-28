@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro;
@@ -63,7 +62,7 @@ internal static class CeresZebesActorMetadataVerification
             CeresDestructionActorDefinitions.ZebesActor(5);
         AssertEqual((ushort)0, title.SlidePreInstruction.NativeAddress,
             "PLANET ZEBES title cannot enter slide motion");
-        AssertEqual((ushort)0, title.SlideAcceleration,
+        AssertEqual(0, title.SlideAcceleration,
             "PLANET ZEBES title has no slide acceleration");
 
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })

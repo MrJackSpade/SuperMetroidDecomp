@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.AssetExtraction.Cartridge;

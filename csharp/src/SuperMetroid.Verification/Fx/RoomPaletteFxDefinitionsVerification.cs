@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxAreasVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxDispatchVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

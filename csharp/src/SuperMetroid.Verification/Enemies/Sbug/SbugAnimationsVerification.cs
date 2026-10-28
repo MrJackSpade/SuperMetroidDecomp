@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Sbug.SbugNativeListAddresses;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Sbug;
 

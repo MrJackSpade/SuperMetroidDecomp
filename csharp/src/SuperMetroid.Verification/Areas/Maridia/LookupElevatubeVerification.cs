@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms.Plms;

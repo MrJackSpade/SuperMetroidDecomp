@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.Kago;

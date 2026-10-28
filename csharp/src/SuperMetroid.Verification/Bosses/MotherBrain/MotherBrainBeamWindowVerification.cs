@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;

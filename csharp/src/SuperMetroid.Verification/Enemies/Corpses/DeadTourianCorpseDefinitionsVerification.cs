@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;

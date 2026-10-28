@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;

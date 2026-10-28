@@ -15,7 +15,6 @@ using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;

@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 

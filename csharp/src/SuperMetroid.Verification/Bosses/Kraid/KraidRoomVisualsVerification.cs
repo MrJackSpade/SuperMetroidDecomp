@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

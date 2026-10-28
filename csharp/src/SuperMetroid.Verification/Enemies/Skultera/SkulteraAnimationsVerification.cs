@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Skultera.SkulteraNativeListAddres
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Skultera;
 

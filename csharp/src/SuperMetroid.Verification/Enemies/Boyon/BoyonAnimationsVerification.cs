@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Boyon.BoyonNativeListAddresses;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Boyon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Boyon;
 

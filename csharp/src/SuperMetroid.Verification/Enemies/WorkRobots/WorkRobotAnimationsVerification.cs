@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotNativeListAdd
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 

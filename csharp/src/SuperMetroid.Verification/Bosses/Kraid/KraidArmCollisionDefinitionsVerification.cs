@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCallbackMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmComponentHitboxesVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmPhysicalFrameMappingsVerification;

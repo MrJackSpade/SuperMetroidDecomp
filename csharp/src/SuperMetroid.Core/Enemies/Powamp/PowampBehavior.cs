@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 

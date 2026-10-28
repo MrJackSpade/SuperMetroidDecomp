@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;

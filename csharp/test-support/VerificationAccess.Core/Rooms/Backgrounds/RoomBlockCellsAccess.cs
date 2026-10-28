@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using SuperMetroid.Core.Spatial;
-
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+﻿namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Verification access to <see cref="RoomBlockCells"/> members production does not use.</summary>
 internal static class RoomBlockCellsAccess

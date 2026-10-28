@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.Core;
 using SuperMetroid.EnsureAnalyzer.Contracts;
-using SuperMetroid.EnsureAnalyzer.Hardware;
 using SuperMetroid.EnsureAnalyzer.Rooms;
 using SuperMetroid.EnsureAnalyzer.SourceLayout;
 

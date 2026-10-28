@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.EnsureAnalyzer.Contracts;
 using SuperMetroid.EnsureAnalyzer.Modules;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;

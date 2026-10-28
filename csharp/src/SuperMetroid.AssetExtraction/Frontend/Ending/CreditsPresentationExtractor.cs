@@ -135,7 +135,7 @@ public static class CreditsPresentationExtractor
         var text = new char[last - first + 1];
         for (int column = first; column <= last; column++)
         {
-            BackgroundTile topTile = BackgroundTileWords.ToTile(checked((ushort)top[column]));
+            BackgroundTile topTile = BackgroundTileWords.ToTile(top[column]);
             if (!IsBlank(top[column]) && topTile.ColourVariant != palette)
             {
                 throw new InvalidDataException(
@@ -189,7 +189,7 @@ public static class CreditsPresentationExtractor
 
     /// <summary>Recognizes the credits blank tile while ignoring its colour variant, priority and mirroring.</summary>
     private static bool IsBlank(int word) =>
-        BackgroundTileWords.ToTile(checked((ushort)word)).Tile == CreditsPresentationDefinitions.BlankTile.Tile;
+        BackgroundTileWords.ToTile(word).Tile == CreditsPresentationDefinitions.BlankTile.Tile;
 
     /// <summary>Reads one instruction word from the credits program's native bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>

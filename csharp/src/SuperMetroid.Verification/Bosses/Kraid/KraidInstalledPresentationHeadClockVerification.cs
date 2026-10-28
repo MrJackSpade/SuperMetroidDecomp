@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Bosses;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;

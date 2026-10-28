@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

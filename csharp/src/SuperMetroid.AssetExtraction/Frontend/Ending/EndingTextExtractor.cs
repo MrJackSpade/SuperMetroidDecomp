@@ -102,10 +102,10 @@ public static class EndingTextExtractor
                     ? EndingTextDefinitions.LargeGlyphHeight
                     : EndingTextDefinitions.SmallGlyphHeight))
                 throw new InvalidDataException($"Native {sequence} glyph has unexpected dimensions.");
-            BackgroundTile top = BackgroundTileWords.ToTile(checked((ushort)ReadWord(bus, Add(data, 4))));
+            BackgroundTile top = BackgroundTileWords.ToTile(ReadWord(bus, Add(data, 4)));
             char glyph = EndingTextDefinitions.DecodeGlyph(top, style);
             BackgroundTile? bottom = height == EndingTextDefinitions.LargeGlyphHeight
-                ? BackgroundTileWords.ToTile(checked((ushort)ReadWord(bus, Add(data, 6)))) : null;
+                ? BackgroundTileWords.ToTile(ReadWord(bus, Add(data, 6))) : null;
             if (bottom is { } lower && EndingTextDefinitions.DecodeGlyph(lower, style, bottom: true) != glyph)
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);

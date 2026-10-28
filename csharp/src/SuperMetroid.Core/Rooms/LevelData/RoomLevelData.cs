@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;

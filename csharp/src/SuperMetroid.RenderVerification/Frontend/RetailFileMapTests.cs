@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;

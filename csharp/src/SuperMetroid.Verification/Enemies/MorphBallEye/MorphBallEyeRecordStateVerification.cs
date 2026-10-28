@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 namespace SuperMetroid.Verification.Enemies.MorphBallEye;

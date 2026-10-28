@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;

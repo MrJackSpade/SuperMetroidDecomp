@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.KiHunters.KiHunterAcidSpitNativeL
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 

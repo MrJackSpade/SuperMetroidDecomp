@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

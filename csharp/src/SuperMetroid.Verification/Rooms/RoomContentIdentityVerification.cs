@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Audio.AudioOverridesVerification;

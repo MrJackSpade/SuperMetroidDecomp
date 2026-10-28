@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

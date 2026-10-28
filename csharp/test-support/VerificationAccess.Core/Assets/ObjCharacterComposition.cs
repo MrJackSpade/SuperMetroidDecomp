@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>The uploads and source bytes a composed object character page was built from.</summary>

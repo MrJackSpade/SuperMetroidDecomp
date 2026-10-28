@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Spatial;
-
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+﻿namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Cartridge values and helpers of <see cref="RoomDoorBackground"/> that only verification reads.</summary>
 internal static class RoomDoorBackgroundConstants

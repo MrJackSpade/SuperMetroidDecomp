@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Physical DMA-record availability, independently reviewed from Samus placement tables.</summary>

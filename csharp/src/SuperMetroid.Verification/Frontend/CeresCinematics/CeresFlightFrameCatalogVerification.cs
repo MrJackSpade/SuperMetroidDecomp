@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 

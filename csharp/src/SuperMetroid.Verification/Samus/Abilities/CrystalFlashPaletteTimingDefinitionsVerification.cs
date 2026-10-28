@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;

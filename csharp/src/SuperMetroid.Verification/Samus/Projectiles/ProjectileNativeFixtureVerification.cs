@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Cartridge;

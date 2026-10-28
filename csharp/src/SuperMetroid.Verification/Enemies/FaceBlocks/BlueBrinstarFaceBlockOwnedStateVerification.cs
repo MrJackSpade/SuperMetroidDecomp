@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FaceBlocks;
-using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Harness;

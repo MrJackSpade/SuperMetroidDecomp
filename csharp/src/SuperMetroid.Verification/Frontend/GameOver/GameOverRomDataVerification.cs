@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

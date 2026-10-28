@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleRopeGeometryVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Grapple;

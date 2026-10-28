@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;

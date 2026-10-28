@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;

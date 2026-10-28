@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Hibashi.HibashiNativeListAddresse
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Hibashi;
 

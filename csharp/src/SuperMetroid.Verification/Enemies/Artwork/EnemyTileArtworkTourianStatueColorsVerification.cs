@@ -3,7 +3,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Areas.Tourian;

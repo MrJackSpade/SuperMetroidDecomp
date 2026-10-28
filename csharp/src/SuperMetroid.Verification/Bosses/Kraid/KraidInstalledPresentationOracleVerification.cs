@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;

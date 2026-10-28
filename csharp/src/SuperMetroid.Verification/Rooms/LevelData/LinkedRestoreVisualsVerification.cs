@@ -2,7 +2,6 @@ using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

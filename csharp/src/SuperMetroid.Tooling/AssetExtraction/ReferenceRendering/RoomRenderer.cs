@@ -2,7 +2,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Compression;

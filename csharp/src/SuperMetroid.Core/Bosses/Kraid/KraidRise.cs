@@ -8,7 +8,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;

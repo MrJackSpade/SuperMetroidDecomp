@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;

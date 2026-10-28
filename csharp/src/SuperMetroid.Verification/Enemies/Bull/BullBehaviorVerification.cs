@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Bull.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Bull;
 using SuperMetroid.Verification.Harness;

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 

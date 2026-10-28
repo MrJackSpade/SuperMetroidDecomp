@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Beetom.BeetomNativeListAddresses;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Beetom.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Beetom;
 

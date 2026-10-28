@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

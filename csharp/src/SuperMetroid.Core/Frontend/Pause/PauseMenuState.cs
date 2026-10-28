@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Spatial;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;

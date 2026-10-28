@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;

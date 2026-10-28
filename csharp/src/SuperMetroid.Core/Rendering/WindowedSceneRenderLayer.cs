@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Replaces a rectangular pixel region with another owned scene, including its backdrop.</summary>

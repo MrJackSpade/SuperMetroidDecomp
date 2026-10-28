@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 

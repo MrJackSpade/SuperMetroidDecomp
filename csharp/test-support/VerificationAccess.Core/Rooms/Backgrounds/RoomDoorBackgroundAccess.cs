@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Verification access to <see cref="RoomDoorBackground"/> members production does not use.</summary>

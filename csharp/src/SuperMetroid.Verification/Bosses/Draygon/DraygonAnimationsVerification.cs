@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonNativeListAddresses;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

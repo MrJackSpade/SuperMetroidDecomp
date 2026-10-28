@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>

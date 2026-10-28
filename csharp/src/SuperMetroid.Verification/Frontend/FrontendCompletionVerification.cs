@@ -5,7 +5,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.World;
 

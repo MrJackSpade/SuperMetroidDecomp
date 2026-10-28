@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -6,7 +5,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

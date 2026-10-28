@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.WreckedShip.WreckedShipGhostNativ
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
 

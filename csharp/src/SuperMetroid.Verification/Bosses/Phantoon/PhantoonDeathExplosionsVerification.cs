@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Projectiles;

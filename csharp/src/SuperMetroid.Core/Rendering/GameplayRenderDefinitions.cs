@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Cartridge register definitions for gameplay display capture.</summary>

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;

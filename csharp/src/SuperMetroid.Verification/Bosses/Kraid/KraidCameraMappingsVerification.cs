@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
 

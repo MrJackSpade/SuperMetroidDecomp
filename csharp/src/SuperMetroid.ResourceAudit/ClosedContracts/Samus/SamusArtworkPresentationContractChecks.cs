@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

@@ -17,8 +17,8 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 

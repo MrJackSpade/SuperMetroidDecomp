@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus.Movement;

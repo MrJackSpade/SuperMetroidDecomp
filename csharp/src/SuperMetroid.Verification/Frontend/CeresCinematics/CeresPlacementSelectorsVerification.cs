@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.AssetExtraction.CartridgeTables;

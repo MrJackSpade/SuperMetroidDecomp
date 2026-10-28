@@ -50,7 +50,6 @@ internal static class ParameterContractsTests
             using SuperMetroid.Core.Bosses.MotherBrain;
             using SuperMetroid.Core.Enemies;
             using SuperMetroid.Core.Enemies.Chozo;
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Input;
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;

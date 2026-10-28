@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -9,7 +8,6 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;

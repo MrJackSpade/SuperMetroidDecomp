@@ -1,5 +1,4 @@
 using System.Numerics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 

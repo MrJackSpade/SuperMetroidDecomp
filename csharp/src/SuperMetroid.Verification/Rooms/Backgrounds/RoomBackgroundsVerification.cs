@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;

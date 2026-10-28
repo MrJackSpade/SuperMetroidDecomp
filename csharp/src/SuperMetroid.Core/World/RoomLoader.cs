@@ -12,7 +12,6 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;

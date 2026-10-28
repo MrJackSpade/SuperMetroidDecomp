@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

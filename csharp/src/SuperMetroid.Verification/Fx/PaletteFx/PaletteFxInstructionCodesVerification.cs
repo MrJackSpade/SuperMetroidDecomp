@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.NorfairGlowVerification;

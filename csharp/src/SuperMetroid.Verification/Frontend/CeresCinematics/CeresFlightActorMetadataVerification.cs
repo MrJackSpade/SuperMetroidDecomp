@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -34,7 +33,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native rear spawn LDY");
             ushort definition = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]);
             VerifyActor(retail, actor, definition, $"rear actor {index}");
-            AssertEqual((ushort)0, actor.InitialTimer, "rear initializer leaves cleared timer");
+            AssertEqual(0, actor.InitialTimer, "rear initializer leaves cleared timer");
             if (index != 4)
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
                     actor.ActivePreInstruction.NativeAddress, "rear initializer preserves the definition callback");

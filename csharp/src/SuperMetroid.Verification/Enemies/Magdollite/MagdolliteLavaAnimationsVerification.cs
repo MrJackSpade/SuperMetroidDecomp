@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteLavaNativeLi
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 

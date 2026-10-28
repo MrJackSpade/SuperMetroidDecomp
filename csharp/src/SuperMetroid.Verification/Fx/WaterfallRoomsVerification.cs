@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;

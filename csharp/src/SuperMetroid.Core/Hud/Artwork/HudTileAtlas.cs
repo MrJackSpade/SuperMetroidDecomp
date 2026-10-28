@@ -29,7 +29,7 @@ public sealed class HudTileAtlas
     /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
     /// <param name="set">The layer-3 characters the HUD's are currently shown from.</param>
     /// <exception cref="InvalidDataException">The HUD characters' binding does not begin with them.</exception>
-    public void ShowCharactersAgain(BgArtworkBindings backgrounds, BgCharacterSet set)
+    public static void ShowCharactersAgain(BgArtworkBindings backgrounds, BgCharacterSet set)
     {
         Ensure.NotNull(backgrounds);
         int characters = set.CharactersIn(HudTileAtlasFormat.CharacterByteCount);

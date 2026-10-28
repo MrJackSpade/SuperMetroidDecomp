@@ -5,7 +5,6 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyColorsVerification;

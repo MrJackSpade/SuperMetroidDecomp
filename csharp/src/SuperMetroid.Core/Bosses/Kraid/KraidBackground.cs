@@ -2,11 +2,9 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>

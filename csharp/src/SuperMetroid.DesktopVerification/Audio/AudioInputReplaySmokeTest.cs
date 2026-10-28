@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics.Recording;

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

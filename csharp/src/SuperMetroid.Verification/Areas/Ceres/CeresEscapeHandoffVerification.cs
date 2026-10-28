@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Areas.Ceres.CeresShaftRotationVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingVerification;

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
@@ -100,7 +99,7 @@ internal static class LookupEscapeGateVerification
                 foreach (var frame in new[] {dto,exported[index],byId})
                 {
                     AssertEqual(1, frame.Runs.Length, "Escape gate one run");
-                    AssertEqual((ushort)0x8004, frame.Runs.Span[0].DirectionAndCount, "Escape gate DTO geometry");
+                    AssertEqual(0x8004, frame.Runs.Span[0].DirectionAndCount, "Escape gate DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Escape gate DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Escape gate DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Escape gate DTO final Y");

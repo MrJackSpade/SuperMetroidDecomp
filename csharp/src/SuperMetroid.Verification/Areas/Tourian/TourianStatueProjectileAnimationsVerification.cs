@@ -4,7 +4,6 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
 

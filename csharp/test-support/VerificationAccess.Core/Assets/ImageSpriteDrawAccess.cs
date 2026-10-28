@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Spatial;
-
-namespace SuperMetroid.Core.Assets;
+﻿namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification access to <see cref="ImageSpriteDraw"/> members production does not use.</summary>
 internal static class ImageSpriteDrawAccess

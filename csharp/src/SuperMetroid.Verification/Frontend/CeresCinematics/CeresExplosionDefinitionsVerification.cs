@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSpawnerScheduleVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

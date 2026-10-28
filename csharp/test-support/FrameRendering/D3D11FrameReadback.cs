@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;

@@ -66,7 +66,6 @@ internal static class PaletteFxContractTests
             using SuperMetroid.Core.Fx;
             using SuperMetroid.Core.Fx.Artwork;
             using SuperMetroid.Core.Fx.PaletteFx;
-            using SuperMetroid.Core.Hardware;
             class PaletteCaller
             {
                 void Run(RoomPaletteFxSystem fx, IPaletteFxColourOwners cgram,

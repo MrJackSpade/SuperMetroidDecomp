@@ -212,7 +212,7 @@ internal sealed class ProjectileMotion
             // high byte re-runs `$90:B1F3` with that word as base 8.8 speed. A normal missile
             // crosses on its first alpha pass: one pixel/frame plus native inheritance.
             slot.Variable = unchecked((ushort)(slot.Variable + 256));
-            if (slot.MissileIgnitionPixels != 0)
+            if (UnsignedEightEight.Whole(slot.Variable) != 0)
                 BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
         }
         else
@@ -277,7 +277,7 @@ internal sealed class ProjectileMotion
             // the Super family immediately allocates `$90:BF46`'s invisible collision link;
             // the link's native byte index is retained in the variable's low byte.
             slot.Variable = unchecked((ushort)(slot.Variable + 256));
-            if (slot.MissileIgnitionPixels != 0)
+            if (UnsignedEightEight.Whole(slot.Variable) != 0)
             {
                 BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
                 SpawnSuperMissileLink(samus, slot);

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainBackgroundVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainBoundaryVerification;
 using static SuperMetroid.Verification.Rooms.Plms.BossRoomPlmProgramsVerification;

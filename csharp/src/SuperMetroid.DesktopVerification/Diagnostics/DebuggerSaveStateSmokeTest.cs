@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Diagnostics.Sessions;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;

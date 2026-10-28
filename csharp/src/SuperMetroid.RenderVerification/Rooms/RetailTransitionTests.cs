@@ -5,7 +5,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;

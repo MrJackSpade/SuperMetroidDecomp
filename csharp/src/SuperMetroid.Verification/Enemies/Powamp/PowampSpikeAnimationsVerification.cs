@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Powamp.PowampSpikeNativeListAddre
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Powamp;
 

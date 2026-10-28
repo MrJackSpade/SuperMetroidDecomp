@@ -6,7 +6,6 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.NativeSnapshotImportMotherBrainVerification;
 using static SuperMetroid.Verification.Harness.NativeSnapshotImportPauseVerification;

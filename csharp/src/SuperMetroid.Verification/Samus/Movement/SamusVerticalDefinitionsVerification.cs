@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;

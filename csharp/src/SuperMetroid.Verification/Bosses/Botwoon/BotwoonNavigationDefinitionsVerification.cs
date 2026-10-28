@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -323,7 +322,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             "Botwoon invalid production path selector");
         AssertEqual(77, invalidState.PathSampleIndex,
             "Botwoon invalid path leaves sample unchanged");
-        AssertEqual((short)-7, invalidState.PathDirection,
+        AssertEqual(-7, invalidState.PathDirection,
             "Botwoon invalid path leaves direction unchanged");
         AssertEqual(3, invalidState.TargetHoleIndex,
             "Botwoon invalid path leaves target unchanged");

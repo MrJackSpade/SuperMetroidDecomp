@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;

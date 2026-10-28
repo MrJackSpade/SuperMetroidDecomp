@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolProjectileNative
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 

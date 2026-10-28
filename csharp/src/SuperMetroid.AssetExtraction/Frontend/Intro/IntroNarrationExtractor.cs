@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using System.Text;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;

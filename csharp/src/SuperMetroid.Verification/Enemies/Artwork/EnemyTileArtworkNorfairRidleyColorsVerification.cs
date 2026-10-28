@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;

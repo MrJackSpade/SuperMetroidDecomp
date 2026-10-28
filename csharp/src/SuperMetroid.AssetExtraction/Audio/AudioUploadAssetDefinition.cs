@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio;
 

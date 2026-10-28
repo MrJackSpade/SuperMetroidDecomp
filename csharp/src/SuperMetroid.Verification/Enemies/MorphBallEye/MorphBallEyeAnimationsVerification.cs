@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.MorphBallEye.MorphBallEyeNativeLi
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 

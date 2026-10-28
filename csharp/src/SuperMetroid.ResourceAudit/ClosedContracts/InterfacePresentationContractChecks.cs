@@ -7,8 +7,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

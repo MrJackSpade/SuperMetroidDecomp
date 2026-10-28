@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Stoke.StokeNativeListAddresses;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Stoke;
 

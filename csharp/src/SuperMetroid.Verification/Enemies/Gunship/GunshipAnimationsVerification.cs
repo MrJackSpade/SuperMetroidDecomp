@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Gunship.GunshipNativeListAddresse
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 

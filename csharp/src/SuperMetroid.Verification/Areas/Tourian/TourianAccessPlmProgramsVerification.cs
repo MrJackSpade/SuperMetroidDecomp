@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessPlmDefinitionsVerification;
@@ -64,7 +63,7 @@ internal static class TourianAccessPlmProgramsVerification
             if (index < 0)
             {
                 AssertEqual(0, rows, "missing Tourian rows zero");
-                AssertEqual((ushort)0, word, "missing Tourian word zero");
+                AssertEqual(0, word, "missing Tourian word zero");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Tourian DTO default");
                 continue;
             }

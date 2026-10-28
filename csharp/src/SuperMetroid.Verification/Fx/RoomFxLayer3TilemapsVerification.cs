@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.LookupAtmosphereTilemapsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxTilemapDispatchVerification;
 using static SuperMetroid.Verification.Fx.LookupFxTilemapSourcesVerification;

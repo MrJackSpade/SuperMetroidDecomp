@@ -3,7 +3,6 @@ using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Choot;
-using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Verification.Harness;

@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -25,7 +24,7 @@ internal static class CeresInitialActorMetadataVerification
             // The spawn operand names the native definition this compiled actor must match.
             VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor,
                 preservesDefinitionCallback: index != 2, $"initial destruction actor {index}");
-            AssertEqual((ushort)0, actor.SlideAcceleration, "destruction actor has no slide acceleration");
+            AssertEqual(0, actor.SlideAcceleration, "destruction actor has no slide acceleration");
             AssertEqual((ushort)0, actor.SlidePreInstruction.NativeAddress, "destruction actor has no slide callback");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
         }

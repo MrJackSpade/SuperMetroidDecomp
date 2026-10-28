@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Ripper.RipperNativeListAddresses;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Ripper;
 

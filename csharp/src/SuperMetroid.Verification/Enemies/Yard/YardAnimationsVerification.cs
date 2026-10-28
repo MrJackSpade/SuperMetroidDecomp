@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Yard.YardNativeListAddresses;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Yard;
 

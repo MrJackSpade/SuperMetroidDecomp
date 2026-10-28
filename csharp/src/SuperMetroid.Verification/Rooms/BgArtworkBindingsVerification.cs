@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.World.RoomStates;

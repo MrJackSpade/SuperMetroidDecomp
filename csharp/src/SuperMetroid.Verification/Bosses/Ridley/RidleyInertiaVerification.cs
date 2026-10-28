@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyDeathAccelerationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;

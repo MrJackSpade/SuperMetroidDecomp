@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus.Movement;

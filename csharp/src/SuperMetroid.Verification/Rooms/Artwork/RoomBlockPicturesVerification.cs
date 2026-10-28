@@ -19,7 +19,6 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;

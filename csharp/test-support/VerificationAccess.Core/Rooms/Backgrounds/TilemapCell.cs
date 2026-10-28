@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 

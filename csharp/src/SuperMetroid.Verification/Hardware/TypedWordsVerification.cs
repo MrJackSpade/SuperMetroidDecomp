@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -410,7 +408,7 @@ internal static void VerifyTypedNativeWords()
     // BTS remains a raw byte until the collision nibble selects its meaning. Exercise
     // each contextual view independently so no future cleanup conflates overlapping bits.
     var reflectedSlopeOrAreaReaction = new RoomBlockBehavior(0xff);
-    AssertEqual((sbyte)-1, reflectedSlopeOrAreaReaction.ExtensionOffset,
+    AssertEqual(-1, reflectedSlopeOrAreaReaction.ExtensionOffset,
         "BTS signed extension offset");
     AssertEqual(0x1f, reflectedSlopeOrAreaReaction.SlopeShape,
         "BTS slope shape field");

@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Dragon.DragonNativeListAddresses;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Dragon;
 

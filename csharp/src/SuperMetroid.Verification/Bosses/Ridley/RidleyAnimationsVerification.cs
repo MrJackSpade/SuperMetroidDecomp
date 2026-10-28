@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyNativeListAddresses;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

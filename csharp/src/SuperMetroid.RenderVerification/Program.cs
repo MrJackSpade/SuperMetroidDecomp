@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.RenderVerification.Bosses;
 using SuperMetroid.RenderVerification.Device;
 using SuperMetroid.RenderVerification.Enemies;

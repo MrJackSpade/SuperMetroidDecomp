@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupCollectibleDrawsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupCollectibleSelectorsVerification;

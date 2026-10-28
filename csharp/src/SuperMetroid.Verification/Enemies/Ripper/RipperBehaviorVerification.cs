@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Ripper;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

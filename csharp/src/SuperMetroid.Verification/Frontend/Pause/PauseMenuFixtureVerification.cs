@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Rooms;

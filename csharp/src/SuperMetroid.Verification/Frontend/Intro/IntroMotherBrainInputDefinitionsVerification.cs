@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

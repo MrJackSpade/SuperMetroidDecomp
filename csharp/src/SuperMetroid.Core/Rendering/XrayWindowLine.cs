@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Inclusive window endpoints in screen columns; inverted endpoints hide the reveal on that line.</summary>

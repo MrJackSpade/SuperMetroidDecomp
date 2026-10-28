@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Frontend.Title;
 

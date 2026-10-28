@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.Projectiles.MiscDustProjectileNat
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 

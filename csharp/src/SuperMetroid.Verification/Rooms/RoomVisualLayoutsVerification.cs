@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;

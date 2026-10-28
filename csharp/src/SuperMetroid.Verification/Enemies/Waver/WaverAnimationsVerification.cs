@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Enemies.Waver.WaverNativeListAddresses;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.Waver;
 

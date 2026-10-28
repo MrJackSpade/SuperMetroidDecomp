@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.FallingSparks.FallingSparkNativeL
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies.FallingSparks;
 

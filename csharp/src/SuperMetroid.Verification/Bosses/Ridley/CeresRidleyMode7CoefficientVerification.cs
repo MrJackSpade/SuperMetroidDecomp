@@ -33,9 +33,9 @@ internal static class CeresRidleyMode7CoefficientVerification
         };
         var floor = CeresRidleyGetaway.FloorTransform(getaway)
             ?? throw new InvalidOperationException("An active getaway publishes the floor's transform.");
-        AssertEqual((short)240, floor.MatrixA, "floor transform A coefficient");
-        AssertEqual((short)33, floor.MatrixB, "floor transform B coefficient");
-        AssertEqual((short)-33, floor.MatrixC, "floor transform C coefficient");
+        AssertEqual(240, floor.MatrixA, "floor transform A coefficient");
+        AssertEqual(33, floor.MatrixB, "floor transform B coefficient");
+        AssertEqual(-33, floor.MatrixC, "floor transform C coefficient");
         AssertEqual(short.MinValue, floor.MatrixD, "floor transform D coefficient keeps the wrapped minimum");
         Console.WriteLine("Ceres Ridley floor coefficients: all 65536 negations and the floor transform's signed values match the native words.");
     }

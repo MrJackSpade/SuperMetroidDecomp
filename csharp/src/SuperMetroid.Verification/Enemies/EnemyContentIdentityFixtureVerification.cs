@@ -30,7 +30,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;

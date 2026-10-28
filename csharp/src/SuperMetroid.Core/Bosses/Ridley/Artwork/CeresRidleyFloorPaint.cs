@@ -12,20 +12,20 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// is this exact composition,
 /// not a visible-paint claim or exemption for pixels, motion or timing.
 /// </summary>
-internal sealed class CeresRidleyFloorPaintDefinitions
+internal sealed class CeresRidleyFloorPaint
 {
     /// <summary>The reviewed body contour shared by every zoom bucket.</summary>
-    private readonly CeresRidleyBodyPaintDefinitions body;
+    private readonly CeresRidleyBodyPaint body;
     /// <summary>The reviewed eye contour shared by every zoom bucket.</summary>
-    private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
+    private readonly CeresRidleyFade.EyePaint eyes;
     /// <summary>Extracted colors that differ from the computed contour at a row and color index.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Builds the shared contours from the first native row and retains only differences in later rows.</summary>
-    internal CeresRidleyFloorPaintDefinitions(RgbColor[][] rows)
+    internal CeresRidleyFloorPaint(RgbColor[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
-        eyes = CeresRidleyFadeColorDefinitions.EyePaint.From(rows[0].AsSpan(11, 3));
+        eyes = CeresRidleyFade.EyePaint.From(rows[0].AsSpan(11, 3));
         for (int row = 0; row < 9; row++) for (int color = 0; color < 15; color++)
             if (Calculate(row, color) != rows[row][color]) edits.Add(new ColourCell(row, color), rows[row][color]);
     }
@@ -33,7 +33,7 @@ internal sealed class CeresRidleyFloorPaintDefinitions
     /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
     private static RgbColor Neutral => GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false);
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
-    internal static RgbColor RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
+    internal static RgbColor RetreatNeutral => CeresRidleyFade.Scale(Neutral, 1);
 
     /// <summary>Uses a reviewed native color override when present, otherwise scales the shared contour for this zoom row.</summary>
     internal RgbColor Resolve(int row, int color)
@@ -49,6 +49,6 @@ internal sealed class CeresRidleyFloorPaintDefinitions
         RgbColor endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;
         // Each zoom bucket reduces exposure once through bucket6, then twice per bucket.
         int exposure = 15 - Math.Min(row, 6) - 2 * Math.Max(0, row - 6);
-        return CeresRidleyFadeColorDefinitions.Scale(endpoint, exposure);
+        return CeresRidleyFade.Scale(endpoint, exposure);
     }
 }

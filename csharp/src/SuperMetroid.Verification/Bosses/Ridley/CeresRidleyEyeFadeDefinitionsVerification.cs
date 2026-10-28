@@ -19,7 +19,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
              offset < CeresRidleyEyeFadeDefinitions.PaletteStepCount;
              offset++)
         {
-            CeresRidleyEyeFadeStep compiled = CeresRidleyEyeFadeDefinitions.Get(offset);
+            CeresRidleyEyeFadeStep compiled = CeresRidleyEyeFade.Get(offset);
             AssertTrue(!compiled.IsComplete,
                 $"Ceres Ridley eye-fade offset {offset} remains active");
             AssertEqual(
@@ -33,11 +33,11 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
                 CeresRidleyEyeFadeDefinitions.PaletteStepCount),
             "Ceres Ridley eye-fade native terminator");
         AssertTrue(
-            CeresRidleyEyeFadeDefinitions.Get(
+            CeresRidleyEyeFade.Get(
                 CeresRidleyEyeFadeDefinitions.PaletteStepCount).IsComplete,
             "Ceres Ridley eye-fade compiled terminator");
         AssertThrows<InvalidDataException>(
-            () => CeresRidleyEyeFadeDefinitions.Get(
+            () => CeresRidleyEyeFade.Get(
                 CeresRidleyEyeFadeDefinitions.PaletteStepCount + 1),
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
@@ -60,7 +60,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             state.FunctionTimer = WrappingCountdown.Start(0);
             tick(state);
 
-            CeresRidleyEyeFadeStep expected = CeresRidleyEyeFadeDefinitions.Get(offset);
+            CeresRidleyEyeFadeStep expected = CeresRidleyEyeFade.Get(offset);
             AssertEqual(unchecked((ushort)(offset + 1)), state.FadePaletteOffset,
                 $"production Ceres eye-fade offset {offset} advances");
             AssertEqual(RidleyAiFunction.FadeInEyes, state.Function,

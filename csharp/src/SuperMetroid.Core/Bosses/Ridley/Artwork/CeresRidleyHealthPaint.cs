@@ -10,16 +10,16 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// the painted shading, with channel magnitudes derived from their previous shade.
 /// No new paint magnitudes, health thresholds, timing or pixels are retained here.
 /// </summary>
-internal sealed class CeresRidleyHealthPaintDefinitions
+internal sealed class CeresRidleyHealthPaint
 {
     /// <summary>Source healthy body and eye paints from which the three damage bands are calculated.</summary>
-    private readonly CeresRidleyFadeColorDefinitions body, eyes;
+    private readonly CeresRidleyFade body, eyes;
     /// <summary>Authored departures from the calculated health shades, keyed by row and color.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
-    internal CeresRidleyHealthPaintDefinitions(RgbColor[][] rows,
-        CeresRidleyFadeColorDefinitions body, CeresRidleyFadeColorDefinitions eyes)
+    internal CeresRidleyHealthPaint(RgbColor[][] rows,
+        CeresRidleyFade body, CeresRidleyFade eyes)
     {
         this.body = body; this.eyes = eyes;
         for (int row = 0; row < 3; row++) for (int color = 0; color < 14; color++)

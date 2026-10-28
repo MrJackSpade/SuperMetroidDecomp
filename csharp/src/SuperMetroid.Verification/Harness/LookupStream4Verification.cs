@@ -638,7 +638,7 @@ internal static class LookupStream4Verification
         for (int row = 0; row < 16; row++)
         for (int color = 0; color < 3; color++)
         {
-            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColorDefinitions.SourceRow(row), color), "direct reflected/native relationship");
+            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.SourceRow(row), color), "direct reflected/native relationship");
 
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         }
@@ -1248,11 +1248,11 @@ internal static class LookupStream4Verification
     {
         Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
         for (int link = 0; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailDefinitions.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailReach.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
         for (int link = 1; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailDefinitions.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailDefinitions.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
         Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
         foreach (int delta in new[] { -1, 0, 1 })
         {
@@ -1704,16 +1704,16 @@ internal static class LookupStream4Verification
         {
             AssertEqual(nativeFrames[ordinal], frame, "Frame identity enumeration preserves native record order");
             AssertEqual(frame, RidleyCollisionDefinitions.FramePointers[ordinal++], "Frame identity indexing preserves order");
-            var components = RidleyCollisionDefinitions.ComponentsAt(frame);
+            var components = RidleyCollision.ComponentsAt(frame);
             foreach (int invalid in new[] { -1, components.Length })
                 AssertThrows<IndexOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollisionDefinitions.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
+            AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollision.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
         int compiledLists = RidleyCollisionDefinitions.FramePointers
             .SelectMany(frame =>
             {
-                var frameComponents = RidleyCollisionDefinitions.ComponentsAt(frame);
+                var frameComponents = RidleyCollision.ComponentsAt(frame);
                 return Enumerable.Range(0, frameComponents.Length).Select(index => frameComponents[index].Hitboxes);
             })
             .Distinct(ReferenceEqualityComparer.Instance)
@@ -1777,13 +1777,13 @@ internal static class LookupStream4Verification
             if (!Enum.IsDefined(movement))
             {
                 // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
-                AssertThrows<InvalidOperationException>(() => RidleySamusInteractionDefinitions.CanGrab(movement), "Undefined movement types fail loudly");
+                AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab(movement), "Undefined movement types fail loudly");
                 continue;
             }
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);
-            AssertEqual((flags & 0x80) != 0, RidleySamusInteractionDefinitions.CanGrab(movement), "Named movement policy preserves each movement type's grabbability");
+            AssertEqual((flags & 0x80) != 0, RidleyGrabs.CanGrab(movement), "Named movement policy preserves each movement type's grabbability");
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
-                RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
+                RidleyGrabs.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Func<SamusState?, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
@@ -1841,7 +1841,7 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
         foreach (int invalid in new[] { -1, 7 })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailDefinitions.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
     }
 
     /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
@@ -2038,7 +2038,7 @@ internal static class LookupStream4Verification
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)
         {
-            var actual = RidleyPogoDefinitions.Read(pattern, stage);
+            var actual = RidleyPogo.Read(pattern, stage);
             int x = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b965 + 2 * pattern));
             int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");
@@ -2047,20 +2047,20 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration, "stream4 native pogo downward acceleration");
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogoDefinitions.Read(invalid, 0), "stream4 invalid pogo pattern");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(invalid, 0), "stream4 invalid pogo pattern");
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogoDefinitions.Read(0, invalid), "stream4 invalid pogo stage");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(0, invalid), "stream4 invalid pogo stage");
         for (ushort parameter = 0; parameter <= 22; parameter += 2)
         {
             var actual = RidleyExplosionDefinitions.GetPart(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
         }
         for (int orientation = 0; orientation < 16; orientation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), SuperMetroid.Verification.Bosses.Ridley.RidleyAnimationsVerification.BreakupList(RidleyExplosionDefinitions.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), SuperMetroid.Verification.Bosses.Ridley.RidleyAnimationsVerification.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
         foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.GetPart(invalid), "stream4 invalid breakup parameter");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailFrame(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
     }
 
     /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
@@ -2692,7 +2692,7 @@ internal static class LookupStream4Verification
         for (int color = 0; color < 14; color++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
-            AssertEqual(expected, NorfairRidleyRevealPaintDefinitions.Endpoint(color), "Exact immutable room material endpoint");
+            AssertEqual(expected, NorfairRidleyRevealPaint.Endpoint(color), "Exact immutable room material endpoint");
             AssertEqual(expected, LittleEndianBytes.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
                 "Identical room-theme9 occurrence remains separately accounted");
         }

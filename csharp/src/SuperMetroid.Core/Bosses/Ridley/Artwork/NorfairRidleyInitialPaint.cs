@@ -13,19 +13,19 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// invent different source content. Independent supplied clear-slot edits survive.
 /// Arena reveal colors are independent of this initial material operation.
 /// </summary>
-internal sealed class NorfairRidleyInitialPaintDefinitions
+internal sealed class NorfairRidleyInitialPaint
 {
     /// <summary>First 15 non-clear targets, resolved through the escape-door armor paint rules.</summary>
     internal readonly CeresDoorEscapePaintDefinitions armor;
     /// <summary>Second 15 non-clear targets, resolved through the Baby/container paint rules.</summary>
-    internal readonly CeresBabyPaintDefinitions organ;
+    internal readonly CeresBabyPaint organ;
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
     /// <summary>Supplied clear-slot colors that differ from the copied native metadata.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Splits 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
-    internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<RgbColor> colors)
+    internal NorfairRidleyInitialPaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 32);
         clearBlue = colors[0].Blue;

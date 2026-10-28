@@ -19,7 +19,5 @@ public static class RidleyInertiaDefinitions
     public const ushort ReversalAcceleration = 8;
 
     /// <summary>$A6:D61F (RidleyInertiaTable) and $A6:D712 (CeresRidleyInertiaTable): identical bytes 16 down to 1.</summary>
-    public static ushort Divisor(int index) => (uint)index < 16
-        ? (ushort)(16 - index)
-        : throw new ArgumentOutOfRangeException(nameof(index));
+    public static readonly ushort[] Divisors = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 }

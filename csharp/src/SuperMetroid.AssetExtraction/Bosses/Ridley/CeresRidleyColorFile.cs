@@ -43,7 +43,7 @@ public static class CeresRidleyColorFile
             ? null
             : CompileRows(document.Baby, CeresRidleyPaletteDefinitions.BabyRowCount,
                 CeresRidleyPaletteDefinitions.BabyColorCount, "Baby");
-        return CeresRidleyColorCatalog.Create(new CeresRidleyColorRows
+        return CeresRidleyColors.Create(new CeresRidleyColorRows
         {
             Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
             RetreatBg = retreatBg, RetreatShared = retreatShared, Baby = baby,

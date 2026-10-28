@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleySamusInteractionDefinitions
 {
     /// <summary>Separates movement handlers by Ridley's grab eligibility and release delay.</summary>
-    private enum GrabPolicy
+    internal enum GrabPolicy
     {
         /// <summary>Ridley's contact cannot start a grab in this movement handler.</summary>
         Immune,
@@ -21,28 +21,42 @@ internal static class RidleySamusInteractionDefinitions
         Morphed
     }
 
-    /// <summary>$A6:BD04..BD1F classifies each of the 28 Samus movement types; no pose selects any other value, so one fails loudly.</summary>
-    private static GrabPolicy Policy(SamusMovementType movement) => movement switch
+    /// <summary>$A6:BD04..BD1F classifies each of the 28 Samus movement types by grab policy.</summary>
+    internal static readonly Dictionary<SamusMovementType, GrabPolicy> GrabPolicies = new()
     {
-        SamusMovementType.MorphBallGround or SamusMovementType.UnusedGlitchBall or
-        SamusMovementType.MorphBallFalling or SamusMovementType.UnusedGlitchBallAlternate or
-        SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
-        SamusMovementType.SpringBallFalling => GrabPolicy.Morphed,
-        SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
-        SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Knockback or
-        SamusMovementType.Unused0D or SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
-        SamusMovementType.Moonwalking or SamusMovementType.WallJumping or SamusMovementType.RanIntoWall or
-        SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
-        SamusMovementType.Special => GrabPolicy.Ordinary,
-        SamusMovementType.SpinJumping or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
-            SamusMovementType.Grappling or SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld => GrabPolicy.Immune,
-        _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
+        [SamusMovementType.MorphBallGround] = GrabPolicy.Morphed,
+        [SamusMovementType.UnusedGlitchBall] = GrabPolicy.Morphed,
+        [SamusMovementType.MorphBallFalling] = GrabPolicy.Morphed,
+        [SamusMovementType.UnusedGlitchBallAlternate] = GrabPolicy.Morphed,
+        [SamusMovementType.SpringBallGround] = GrabPolicy.Morphed,
+        [SamusMovementType.SpringBallInAir] = GrabPolicy.Morphed,
+        [SamusMovementType.SpringBallFalling] = GrabPolicy.Morphed,
+        [SamusMovementType.Standing] = GrabPolicy.Ordinary,
+        [SamusMovementType.Running] = GrabPolicy.Ordinary,
+        [SamusMovementType.NormalJumping] = GrabPolicy.Ordinary,
+        [SamusMovementType.Crouching] = GrabPolicy.Ordinary,
+        [SamusMovementType.Falling] = GrabPolicy.Ordinary,
+        [SamusMovementType.Knockback] = GrabPolicy.Ordinary,
+        [SamusMovementType.Unused0D] = GrabPolicy.Ordinary,
+        [SamusMovementType.TurningOnGround] = GrabPolicy.Ordinary,
+        [SamusMovementType.PostureTransition] = GrabPolicy.Ordinary,
+        [SamusMovementType.Moonwalking] = GrabPolicy.Ordinary,
+        [SamusMovementType.WallJumping] = GrabPolicy.Ordinary,
+        [SamusMovementType.RanIntoWall] = GrabPolicy.Ordinary,
+        [SamusMovementType.TurningWhileJumping] = GrabPolicy.Ordinary,
+        [SamusMovementType.TurningWhileFalling] = GrabPolicy.Ordinary,
+        [SamusMovementType.Special] = GrabPolicy.Ordinary,
+        [SamusMovementType.SpinJumping] = GrabPolicy.Immune,
+        [SamusMovementType.Unused0B] = GrabPolicy.Immune,
+        [SamusMovementType.Unused0C] = GrabPolicy.Immune,
+        [SamusMovementType.Grappling] = GrabPolicy.Immune,
+        [SamusMovementType.DamageBoost] = GrabPolicy.Immune,
+        [SamusMovementType.DraygonHeld] = GrabPolicy.Immune,
     };
 
-    /// <summary>$A6:BCFC transfers movement bit7 to carry, permitting Ridley's grab when set.</summary>
-    internal static bool CanGrab(SamusMovementType movement) => Policy(movement) != GrabPolicy.Immune;
+    /// <summary>$A6:BC98 loads6 frames for morphed overflow.</summary>
+    internal const ushort MorphedReleaseIntangibilityFrames = 6;
 
-    /// <summary>$A6:BC98 loads6 frames for morphed overflow; $A6:BC9D otherwise loads10.</summary>
-    internal static ushort ReleaseIntangibilityFrames(SamusMovementType movement) =>
-        Policy(movement) == GrabPolicy.Morphed ? (ushort)6 : (ushort)10;
+    /// <summary>$A6:BC9D otherwise loads10.</summary>
+    internal const ushort OrdinaryReleaseIntangibilityFrames = 10;
 }

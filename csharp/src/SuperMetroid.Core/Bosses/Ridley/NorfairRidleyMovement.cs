@@ -28,7 +28,7 @@ internal sealed class NorfairRidleyMovement
         int divisorIndex,
         int reversalBoost = 0)
     {
-        int divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
+        int divisor = RidleyInertia.Divisor(divisorIndex);
 
         state.Velocity = new EightEightVector<RoomPixels>(
             AccelerateNorfairRidleyAxis(

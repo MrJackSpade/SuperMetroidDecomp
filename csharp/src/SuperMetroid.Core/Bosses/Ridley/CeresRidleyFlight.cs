@@ -414,7 +414,7 @@ internal sealed class CeresRidleyFlight
     {
         // Division truncates like the SNES hardware quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
-        int divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
+        int divisor = RidleyInertia.Divisor(divisorIndex);
 
         state.Velocity = new EightEightVector<RoomPixels>(
             AccelerateAxis(state.Velocity.X, slot.Position.X.Whole, target.X, divisor),

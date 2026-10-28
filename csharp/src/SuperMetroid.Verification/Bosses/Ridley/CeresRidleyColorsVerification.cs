@@ -115,7 +115,7 @@ internal static class CeresRidleyColorsVerification
             state.FadePaletteOffset = step;
             state.FunctionTimer = WrappingCountdown.Start(0);
             eyeTick(state);
-            int row = CeresRidleyEyeFadeDefinitions.Get(step).PaletteRow;
+            int row = CeresRidleyEyeFade.Get(step).PaletteRow;
             AssertEqual(unchecked((ushort)(step + 1)), state.FadePaletteOffset,
                 $"edited eye fade step {step} advances");
             CheckCgram(CeresRidleyPaletteDefinitions.EyeFadeColorCount,

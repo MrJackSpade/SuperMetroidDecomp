@@ -97,7 +97,7 @@ internal sealed class RidleyProjectiles
         // EnemyMain binds live Samus before dispatch, including her current room
         // identity. Standalone fixtures without a room owner retain the default row.
         AreaId area = _deathsAndDrops.SamusForEnemyDrops?.LiquidPhysics.AreaIndex ?? AreaId.Crateria;
-        projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
+        projectile.Damage = RidleyProjectileDamage.ForArea(area);
     }
 
     /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>

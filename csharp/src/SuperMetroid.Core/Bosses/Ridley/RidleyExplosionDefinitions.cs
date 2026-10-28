@@ -13,7 +13,7 @@ internal static class RidleyExplosionDefinitions
     /// <summary>The breakup initializer ($A6:C696) masks a random word to bits 4, 5 and 8 for a fragment's horizontal 8.8 speed.</summary>
     internal const ushort FragmentSpeedMask = 0x0130;
     /// <summary>The tail tip's sixteen orientations.</summary>
-    private const int TailTipOrientationCount = 16;
+    internal const int TailTipOrientationCount = 16;
     /// <summary>The part each authored spawn parameter of the breakup's embedded population records selects.</summary>
     internal static readonly ParameterVariants<RidleyExplosionPart> PartParameters = new(new Dictionary<int, RidleyExplosionPart>
     {
@@ -35,7 +35,7 @@ internal static class RidleyExplosionDefinitions
     /// The breakup's allocation order: the tail from tip to base, then wings, legs, torso, head and claw. Enemy-slot
     /// and draw order make this sequence observable.
     /// </summary>
-    private static readonly RidleyExplosionPart[] BreakupOrder =
+    internal static readonly RidleyExplosionPart[] BreakupOrder =
     [
         RidleyExplosionPart.TailTip, RidleyExplosionPart.Tail5, RidleyExplosionPart.Tail4, RidleyExplosionPart.Tail3,
         RidleyExplosionPart.Tail2, RidleyExplosionPart.Tail1, RidleyExplosionPart.Tail0, RidleyExplosionPart.Wings,
@@ -46,7 +46,7 @@ internal static class RidleyExplosionDefinitions
     /// Each part's lifetime in frames: tail segments expire eight frames apart from the base, the body parts follow
     /// the same eight-frame progression, and the torso expires last.
     /// </summary>
-    private static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
+    internal static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
     {
         [RidleyExplosionPart.Tail0] = 72,
         [RidleyExplosionPart.Tail1] = 80,
@@ -74,14 +74,6 @@ internal static class RidleyExplosionDefinitions
         [RidleyExplosionPart.TailTip] = 6,
     }.ToFrozenDictionary();
 
-    /// <summary>Spawns every part's authored parameter in the breakup's allocation order.</summary>
-    internal static void SpawnInBreakupOrder(Action<int> spawn)
-    {
-        Ensure.NotNull(spawn);
-        foreach (RidleyExplosionPart part in BreakupOrder)
-            spawn(PartParameters.Parameter(part));
-    }
-
     /// <summary>The definition of the part an authored spawn parameter selects.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The parameter selects no part.</exception>
     public static RidleyExplosionPartDefinition GetPart(int parameter) => new(Lifetimes[PartParameters.Decode(parameter)]);
@@ -94,45 +86,33 @@ internal static class RidleyExplosionDefinitions
     public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>
         DeathExplosionScatterDefinitions.Offset(index);
 
-    /// <summary>
-    /// Selects the tail pose loaded by <c>$A6:C6FE-$A6:C7B9</c>; the tip's comes from its orientation, as the sixteen
-    /// tip lists selected at $A6:C7BA do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
-    /// </summary>
-    public static RidleyBreakupFrame SelectTailFrame(
-        RidleyExplosionPart parameter,
-        int tailTipOrientation) => parameter switch
+    /// <summary>The tail pose each of the first six tail fragments shows.</summary>
+    internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyBreakupFrame> TailFrames = new Dictionary<RidleyExplosionPart, RidleyBreakupFrame>
     {
-        RidleyExplosionPart.Tail0 or RidleyExplosionPart.Tail1 => RidleyBreakupFrame.TailSegmentSmall,
-        RidleyExplosionPart.Tail2 or RidleyExplosionPart.Tail3 => RidleyBreakupFrame.TailSegmentMedium,
-        RidleyExplosionPart.Tail4 or RidleyExplosionPart.Tail5 => RidleyBreakupFrame.TailSegmentLarge,
-        RidleyExplosionPart.TailTip when (uint)tailTipOrientation < TailTipOrientationCount =>
-            RidleyBreakupFrame.TailTip0 + tailTipOrientation,
-        RidleyExplosionPart.TailTip =>
-            throw new ArgumentOutOfRangeException(nameof(tailTipOrientation)),
-        RidleyExplosionPart.Wings or RidleyExplosionPart.Legs or RidleyExplosionPart.OpenHeadAndNeck or
-            RidleyExplosionPart.Torso or RidleyExplosionPart.Claw =>
-            throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Body fragments have no tail program."),
-        _ => throw new InvalidOperationException($"Undefined Ridley explosion part {parameter}."),
-    };
+        [RidleyExplosionPart.Tail0] = RidleyBreakupFrame.TailSegmentSmall,
+        [RidleyExplosionPart.Tail1] = RidleyBreakupFrame.TailSegmentSmall,
+        [RidleyExplosionPart.Tail2] = RidleyBreakupFrame.TailSegmentMedium,
+        [RidleyExplosionPart.Tail3] = RidleyBreakupFrame.TailSegmentMedium,
+        [RidleyExplosionPart.Tail4] = RidleyBreakupFrame.TailSegmentLarge,
+        [RidleyExplosionPart.Tail5] = RidleyBreakupFrame.TailSegmentLarge,
+    }.ToFrozenDictionary();
 
     /// <summary>
-    /// Selects the body-relative position and pose loaded by
-    /// <c>$A6:C7DA-$A6:C8D3</c>. Facing zero selects the native left-facing record.
+    /// The body-relative position and pose of each body fragment by facing, loaded by <c>$A6:C7DA-$A6:C8D3</c>; a
+    /// right-facing record mirrors the left-facing one's X.
     /// </summary>
-    public static RidleyExplosionBodyPartDefinition SelectBodyPart(
-        RidleyExplosionPart parameter,
-        bool facingRight) => new RidleyExplosionPartFacing(parameter, facingRight) switch
-    {
-        (RidleyExplosionPart.Wings, false) => new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft),
-        (RidleyExplosionPart.Wings, true) => new(new(0, 0), RidleyBreakupFrame.WingsFacingRight),
-        (RidleyExplosionPart.Legs, false) => new(new(15, 22), RidleyBreakupFrame.LegsFacingLeft),
-        (RidleyExplosionPart.Legs, true) => new(new(-15, 22), RidleyBreakupFrame.LegsFacingRight),
-        (RidleyExplosionPart.OpenHeadAndNeck, false) => new(new(-3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingLeft),
-        (RidleyExplosionPart.OpenHeadAndNeck, true) => new(new(3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingRight),
-        (RidleyExplosionPart.Torso, false) => new(new(16, 0), RidleyBreakupFrame.TorsoFacingLeft),
-        (RidleyExplosionPart.Torso, true) => new(new(-16, 0), RidleyBreakupFrame.TorsoFacingRight),
-        (RidleyExplosionPart.Claw, false) => new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft),
-        (RidleyExplosionPart.Claw, true) => new(new(-8, 7), RidleyBreakupFrame.ClawFacingRight),
-        _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
-    };
+    internal static readonly FrozenDictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition> BodyParts =
+        new Dictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition>
+        {
+            [new(RidleyExplosionPart.Wings, false)] = new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft),
+            [new(RidleyExplosionPart.Wings, true)] = new(new(0, 0), RidleyBreakupFrame.WingsFacingRight),
+            [new(RidleyExplosionPart.Legs, false)] = new(new(15, 22), RidleyBreakupFrame.LegsFacingLeft),
+            [new(RidleyExplosionPart.Legs, true)] = new(new(-15, 22), RidleyBreakupFrame.LegsFacingRight),
+            [new(RidleyExplosionPart.OpenHeadAndNeck, false)] = new(new(-3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingLeft),
+            [new(RidleyExplosionPart.OpenHeadAndNeck, true)] = new(new(3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingRight),
+            [new(RidleyExplosionPart.Torso, false)] = new(new(16, 0), RidleyBreakupFrame.TorsoFacingLeft),
+            [new(RidleyExplosionPart.Torso, true)] = new(new(-16, 0), RidleyBreakupFrame.TorsoFacingRight),
+            [new(RidleyExplosionPart.Claw, false)] = new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft),
+            [new(RidleyExplosionPart.Claw, true)] = new(new(-8, 7), RidleyBreakupFrame.ClawFacingRight),
+        }.ToFrozenDictionary();
 }

@@ -4,14 +4,14 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>Native $A6:E2AA..E469 channel fades. Eye and body channels share the same biased integer quantizer.</summary>
-internal sealed class CeresRidleyFadeColorDefinitions
+internal sealed class CeresRidleyFade
 {
     /// <summary>Chooses eye or body row counts and their opposing fade phase directions.</summary>
     private readonly CeresRidleyFadeKind kind;
     /// <summary>Independent warm eye endpoint colors used when the eye fade is selected.</summary>
     private readonly EyePaint eyePaint;
     /// <summary>Selected body endpoint paints used only for body fade rows.</summary>
-    private readonly CeresRidleyBodyPaintDefinitions? bodyPaint;
+    private readonly CeresRidleyBodyPaint? bodyPaint;
 
     /// <summary>Source eye paint at $A6:E2AA..E2AE (also Ridley palette slots 12..14 at $A6:E167..E16B). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
     internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
@@ -41,7 +41,7 @@ internal sealed class CeresRidleyFadeColorDefinitions
         ? CeresRidleyPaletteDefinitions.EyeFadeRowCount : CeresRidleyPaletteDefinitions.BodyFadeRowCount;
 
     /// <summary>Retains selected endpoint paints and exceptions to the shared fade formula.</summary>
-    internal CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind kind, RgbColor[][] rows)
+    internal CeresRidleyFade(CeresRidleyFadeKind kind, RgbColor[][] rows)
     {
         this.kind = kind;
         if (kind == CeresRidleyFadeKind.Eyes) eyePaint = EyePaint.From(rows[0]);

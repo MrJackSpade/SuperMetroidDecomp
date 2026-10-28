@@ -10,6 +10,12 @@ public static class RoomGridConversions
     /// <summary>The bits of a pixel's offset within its room screen, below the screen index.</summary>
     private const int ScreenPixelBits = 8;
 
+    /// <summary>Pixels along a block's side.</summary>
+    private const int BlockPixels = 16;
+
+    /// <summary>Pixels along a half block's side.</summary>
+    private const int HalfBlockPixels = 8;
+
     /// <summary>
     /// The block containing an unsigned room pixel, exactly as the native <c>LSR ×4</c> collision
     /// paths derive it from each sixteen-bit coordinate word.
@@ -45,6 +51,31 @@ public static class RoomGridConversions
 
     /// <summary>An unsigned room pixel coordinate's offset within its 256-pixel room screen, 0 through 255.</summary>
     public static int OffsetWithinScreen(int pixel) => RequirePixel(pixel) - ScreenStart(pixel);
+
+    /// <summary>
+    /// A room pixel coordinate's offset within its 16-pixel block, 0 through 15. The coordinate is read as the
+    /// sixteen-bit word the cartridge's arithmetic leaves, so a sum that wrapped below zero or past 65535 keeps the
+    /// offset of its wrapped coordinate.
+    /// </summary>
+    public static int OffsetWithinBlock(int pixel) => unchecked((ushort)pixel) % BlockPixels;
+
+    /// <summary>
+    /// How far a room pixel coordinate lies before the last pixel of its block, 0 through 15: its offset measured from
+    /// the block's far edge, read from the coordinate's wrapped sixteen-bit word as <see cref="OffsetWithinBlock"/> is.
+    /// </summary>
+    public static int OffsetFromBlockEnd(int pixel) => BlockPixels - 1 - OffsetWithinBlock(pixel);
+
+    /// <summary>The first pixel of the 16-pixel block holding an unsigned room pixel coordinate.</summary>
+    public static int BlockStart(int pixel) => RequirePixel(pixel) - OffsetWithinBlock(pixel);
+
+    /// <summary>The last pixel of the 16-pixel block holding an unsigned room pixel coordinate.</summary>
+    public static int BlockEnd(int pixel) => BlockStart(pixel) + BlockPixels - 1;
+
+    /// <summary>The first pixel of the eight-pixel half block holding an unsigned room pixel coordinate.</summary>
+    public static int HalfBlockStart(int pixel) => RequirePixel(pixel) - pixel % HalfBlockPixels;
+
+    /// <summary>The block row, 0 through 15, that an unsigned room pixel coordinate lies on within its room screen.</summary>
+    public static int BlockRowWithinScreen(int pixel) => OffsetWithinScreen(pixel) / BlockPixels;
 
     /// <summary>A room pixel coordinate checked to be an unsigned sixteen-bit coordinate.</summary>
     private static int RequirePixel(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);

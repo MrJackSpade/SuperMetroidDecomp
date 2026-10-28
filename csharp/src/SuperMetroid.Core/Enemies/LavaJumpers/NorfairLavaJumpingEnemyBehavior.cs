@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
@@ -112,9 +111,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
 
                 // The low screen-row nibble is the retail lava-entry sentinel. Once the
-                // actor reaches row $xF0 it snaps to its exact population origin, restores
+                // actor reaches a screen's last block row it snaps to its exact population origin, restores
                 // the hidden list, and sleeps off-screen until the next jump begins.
-                if ((slot.Position.Y.Whole & RoomPixelMasks.BlockRowWithinScreenBits) == 240)
+                if (RoomGridConversions.BlockRowWithinScreen(slot.Position.Y.Whole) == 15)
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Hidden);

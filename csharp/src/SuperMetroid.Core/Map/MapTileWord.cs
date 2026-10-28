@@ -46,6 +46,9 @@ public readonly record struct MapTileWord(ushort Raw)
     /// <summary>Alternating Samus marker palette bits applied during minimap blink.</summary>
     internal const ushort HudLocationBlinkAttributes = 0x1c00;
 
+    /// <summary>The nine low character bits $90:AAFD compares, ignoring character bit nine and every attribute.</summary>
+    private const ushort SlopedHallwayIdentityMask = 0x01ff;
+
     /// <summary>Low ten-bit map character selected by this cell.</summary>
     public ushort CharacterIndex => (ushort)(Raw & CharacterMask);
 
@@ -54,6 +57,12 @@ public readonly record struct MapTileWord(ushort Raw)
 
     /// <summary>Whether the native BG priority bit is set.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
+
+    /// <summary>
+    /// Whether this cell shows the sloped-hallway character, as $90:AAFD recognises it from the character's nine low
+    /// bits regardless of flips and attributes.
+    /// </summary>
+    public bool IsSlopedHallway => (Raw & SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter;
 
     /// <summary>Whether this word selects the cartridge's empty map character.</summary>
     public bool IsBlank => CharacterIndex == MapTileWords.PauseBlank.CharacterIndex;

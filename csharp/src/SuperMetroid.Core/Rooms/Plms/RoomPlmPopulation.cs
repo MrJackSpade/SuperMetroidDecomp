@@ -56,7 +56,7 @@ public sealed class RoomPlmPopulation
         else if (placement.Header.Header == PlmHeaderId.ScrollTrigger)
         {
             if (program.Length is < 1 or > 2 * RoomScrollGrid.StorageByteCount - 1 ||
-                program.Length % 2 == 0 || (program[^1] & RoomPlmScrollProgramDefinitions.EndMarkerBit) == 0)
+                program.Length % 2 == 0 || program[^1] < RoomPlmScrollProgramDefinitions.FirstEndMarker)
                 throw new InvalidDataException("A decoded scroll PLM needs a bounded, terminated pair program.");
             for (int offset = 0; offset < program.Length - 1; offset += 2)
             {

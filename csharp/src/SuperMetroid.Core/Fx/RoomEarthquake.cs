@@ -41,13 +41,19 @@ internal sealed class RoomEarthquake
     /// </summary>
     public RoomShakeFrameResult LastRoomShake { get; internal set; }
 
+    /// <summary>
+    /// Whether the shake shows the side of the origin opposite its table displacement: the sides alternate every
+    /// <see cref="RoomEarthquakeDefinitions.StepsPerShakeSide"/> timer steps, starting from the far side.
+    /// </summary>
+    private bool ShowsOppositeSide => EarthquakeTimer.RawValue / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
+
     /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
         if (EarthquakeTimer.IsZero || timeIsFrozen || EarthquakeType >= RoomEarthquakeDefinitions.FirstNonRenderedType)
             return default;
         RoomShakeDefinition definition = RoomShakes.ForType(EarthquakeType);
-        return (EarthquakeTimer.RawValue & RoomEarthquakeDefinitions.AlternatingDirectionTimerMask) != 0
+        return ShowsOppositeSide
             ? -definition.Projectile
             : definition.Projectile;
     }
@@ -72,9 +78,9 @@ internal sealed class RoomEarthquake
         Offset16<RoomPixels> bg1 = definition.Bg1;
         Offset16<Bg2Pixels> bg2 = definition.Bg2;
 
-        // Bit one alternates which side of the origin is shown. Native code forms the
+        // The timer alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.
-        if ((EarthquakeTimer.RawValue & RoomEarthquakeDefinitions.AlternatingDirectionTimerMask) != 0)
+        if (ShowsOppositeSide)
         {
             bg1 = -bg1;
             bg2 = -bg2;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Enemies.EnemyBreakableTerrainDefinitions;
 
 namespace SuperMetroid.Core.Enemies;
@@ -6,14 +7,14 @@ namespace SuperMetroid.Core.Enemies;
 public static class EnemyBreakableTerrain
 {
     /// <summary>Whether the spike block with <paramref name="behavior"/> spawns the enemy-breakable block.</summary>
-    /// <exception cref="InvalidDataException">The masked behavior indexes past the sixteen-entry reaction table.</exception>
-    public static bool IsEnemyBreakable(int behavior)
+    /// <exception cref="InvalidDataException">The behavior's reaction index lies past the sixteen-entry reaction table.</exception>
+    public static bool IsEnemyBreakable(RoomBlockBehavior behavior)
     {
-        int index = behavior & ReactionIndexMask;
+        int index = behavior.EnemySpikeReactionIndex;
         if (index >= ReactionCount)
         {
             throw new InvalidDataException(
-                $"Enemy spike BTS ${behavior:X2} indexes past the sixteen-entry reaction table.");
+                $"Enemy spike BTS {behavior} indexes past the sixteen-entry reaction table.");
         }
 
         return index == BreakableReaction;

@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// <summary>Sbug's native movement constants that are masks or offsets rather than quantities.</summary>
 internal static class SbugDefinitions
 {
-    /// <summary>Bit four of the enemy frame counter alternates the zigzag's 16-frame left and right legs.</summary>
-    internal const int ZigZagLegFrameBit = 0x0010;
+    /// <summary>Enemy frames in each leg of the zigzag; the legs alternate left and right as the frame counter advances.</summary>
+    internal const int ZigZagLegFrames = 16;
 
     /// <summary>Facings a reversal advances the custom facing by: $A3:A565 adds four bytes to the facing table's byte offset.</summary>
     internal const int ReversalFacingStep = 2;

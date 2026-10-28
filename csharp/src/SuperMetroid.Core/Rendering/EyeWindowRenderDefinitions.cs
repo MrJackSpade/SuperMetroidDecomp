@@ -15,10 +15,6 @@ internal static class EyeWindowRenderDefinitions
     [SuppressMessage("Design", "SME6447", Justification =
         "A window row with its left edge at column 0 and its right edge at column 255, not a cartridge address.")]
     internal const ushort FullWindow = 0xff00;
-    /// <summary>The right-edge byte of a window row, which holds its rightmost column.</summary>
-    [SuppressMessage("Design", "SME6447", Justification =
-        "The right-edge byte of a window row (left and right edge columns side by side), not a cartridge address.")]
-    internal const int FullRightEdge = 0xff00;
     /// <summary>$91 off-screen branches extend the 8.8 origin by one 256-pixel viewport.</summary>
     internal const int FixedPointSpan = 0x10000;
     /// <summary>$91:C6C1/$C822 duplicate the origin byte into both apex endpoints.</summary>

@@ -45,9 +45,9 @@ public sealed class AudioQueues
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
-    /// <summary>Slot of the music entry being retired or fetched by bank-80 dispatch, 0 through <see cref="AudioQueueDefinitions.MusicIndexMask"/>.</summary>
+    /// <summary>Slot of the music entry being retired or fetched by bank-80 dispatch, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
     internal int MusicReadPosition { get; private set; }
-    /// <summary>Insertion slot of the circular delayed-music command queue, 0 through <see cref="AudioQueueDefinitions.MusicIndexMask"/>.</summary>
+    /// <summary>Insertion slot of the circular delayed-music command queue, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
     internal int MusicWritePosition { get; private set; }
     /// <summary>
     /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
@@ -91,8 +91,7 @@ public sealed class AudioQueues
         {
             for (int library = 0; library < AudioQueueDefinitions.SoundLibraryCount; library++)
             {
-                if (((SoundWritePositions[library] - SoundReadPositions[library]) &
-                     AudioQueueDefinitions.SoundIndexMask) != 0)
+                if (UnreadSounds(library) != 0)
                 {
                     return true;
                 }
@@ -252,8 +251,7 @@ public sealed class AudioQueues
         SoundEffectId soundEffect, SoundQueueLimit maximumQueued, bool soundSuppressed = false)
     {
         int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
-        int occupancy = (SoundWritePositions[queue] - SoundReadPositions[queue]) &
-            AudioQueueDefinitions.SoundIndexMask;
+        int occupancy = UnreadSounds(queue);
         if (occupancy >= maximumQueued.Requests)
             return SoundQueueAdmission.Rejected(occupancy);
 
@@ -264,7 +262,7 @@ public sealed class AudioQueues
         // so the occupancy test above has already rejected the request. The cartridge's full-ring branch, which keeps
         // the higher-priority of two requests in the last free position, is unreachable.
         int write = SoundWritePositions[queue];
-        int next = (write + 1) & AudioQueueDefinitions.SoundIndexMask;
+        int next = NextSoundPosition(write);
         SoundQueues[queue, write] = soundEffect;
         SoundWritePositions[queue] = (byte)next;
         SoundQueues[queue, next] = null;
@@ -309,7 +307,7 @@ public sealed class AudioQueues
                 nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
         }
 
-        int next = (MusicWritePosition + 1) & AudioQueueDefinitions.MusicIndexMask;
+        int next = NextMusicPosition(MusicWritePosition);
         if (overflow == MusicQueueOverflow.SkipWhenFull && next == MusicReadPosition)
             return;
 
@@ -363,7 +361,7 @@ public sealed class AudioQueues
     {
         _musicEntries[MusicReadPosition] = MusicRequest.Stop;
         MusicDelays[MusicReadPosition] = default;
-        MusicReadPosition = (MusicReadPosition + 1) & AudioQueueDefinitions.MusicIndexMask;
+        MusicReadPosition = NextMusicPosition(MusicReadPosition);
     }
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
@@ -451,9 +449,24 @@ public sealed class AudioQueues
         SoundEffectId? sound = SoundQueues[queue, read];
         requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), sound));
         _currentSounds[queue] = sound;
-        SoundReadPositions[queue] = unchecked((byte)(
-            (read + 1) & AudioQueueDefinitions.SoundIndexMask));
+        SoundReadPositions[queue] = (byte)NextSoundPosition(read);
         SoundStates[queue] = 1;
     }
 
+    /// <summary>The sound ring position after <paramref name="position"/>, wrapping to the first at the ring's capacity.</summary>
+    /// <param name="position">A sound ring position, below <see cref="AudioQueueDefinitions.SoundCapacity"/>.</param>
+    internal static int NextSoundPosition(int position) => (position + 1) % AudioQueueDefinitions.SoundCapacity;
+
+    /// <summary>The music queue slot after <paramref name="position"/>, wrapping to the first at the queue's capacity.</summary>
+    private static int NextMusicPosition(int position) => (position + 1) % AudioQueueDefinitions.MusicCapacity;
+
+    /// <summary>
+    /// The unread requests in <paramref name="library"/>'s sound ring: the positions from its read position up to its
+    /// write position, counted around the ring.
+    /// </summary>
+    private int UnreadSounds(int library)
+    {
+        int distance = (SoundWritePositions[library] - SoundReadPositions[library]) % AudioQueueDefinitions.SoundCapacity;
+        return distance < 0 ? distance + AudioQueueDefinitions.SoundCapacity : distance;
+    }
 }

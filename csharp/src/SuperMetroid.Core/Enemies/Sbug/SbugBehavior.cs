@@ -200,7 +200,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
         // legs. It is sampled before the scheduler increments it for the current frame.
-        if ((slot.FrameCounter & SbugDefinitions.ZigZagLegFrameBit) == 0)
+        if (slot.FrameCounter / SbugDefinitions.ZigZagLegFrames % 2 == 0)
         {
             SetSbugFacing(slot, state, state.LeftFacing);
             AddSbugVelocity(slot, state.LeftXVelocity, state.LeftYVelocity);
@@ -339,9 +339,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
         // testing the original mathematical angle independently for X and Y.
-        int initialAngle = state.InitialAngle.TableIndex;
-        bool subtractX = ((initialAngle + EnemyByteAngleDefinitions.QuarterTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
-        bool subtractY = ((initialAngle + EnemyByteAngleDefinitions.HalfTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
+        ByteAngle initialAngle = state.InitialAngle.ToByteAngle();
+        bool subtractX = initialAngle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn).IsInSecondHalf;
+        bool subtractY = initialAngle.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn).IsInSecondHalf;
         slot.Position = slot.Position.WithX(AddRawSbugVelocity(
             slot.Position.X,
             state.ForwardXVelocity.RawValue,
@@ -390,7 +390,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // ConvertAngleToXy at $A0:B643 indexes a 128-word unsigned quarter-circle table,
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
-        int tableIndex = (angle.RawValue + phase) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
+        int tableIndex = angle.AddTableUnits(phase).HalfWaveIndex;
         uint product = Trigonometry.UnsignedHalfWave(tableIndex) * (uint)speed;
         return UnsignedSixteenSixteen.FromRaw(product);
     }
@@ -412,12 +412,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
-        int tableAngle = angle.AddTableUnits(phase).RawValue;
-        int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
+        ByteAngle tableAngle = angle.AddTableUnits(phase);
+        int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
         int product = unchecked((ushort)(sineMagnitude * speed));
         int pixel = EightEight.WholeOf(product);
         int subpixel = unchecked((ushort)SixteenSixteen.FromEightEight(product));
-        if ((tableAngle & EnemyByteAngleDefinitions.HalfTurn) != 0)
+        if (tableAngle.IsInSecondHalf)
         {
             pixel = unchecked((ushort)-pixel);
             subpixel = unchecked((ushort)-subpixel);

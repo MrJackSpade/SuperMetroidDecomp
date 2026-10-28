@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public static class EnemyBreakableTerrainDefinitions
 {
-    /// <summary>The block behavior bits that index the reaction table; bit seven is masked off.</summary>
-    internal const int ReactionIndexMask = 0x7f;
-
     /// <summary>The entries in the reaction table.</summary>
     internal const int ReactionCount = 16;
 

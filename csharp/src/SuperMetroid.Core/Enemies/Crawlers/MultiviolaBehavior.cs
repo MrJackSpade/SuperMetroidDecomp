@@ -67,7 +67,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // direction vector that can simply be negated after collision.
         CalculateMultiviolaVelocityMagnitudes(state);
 
-        if ((unchecked((ushort)(state.Heading + MultiviolaCosineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
+        if (!HeadingAngle(state).AddTableUnits(MultiviolaCosineOffset).IsInSecondHalf)
         {
             NegateWithoutFractionCarry(ref state, axis: Axis.Horizontal);
         }
@@ -85,13 +85,16 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if ((unchecked((ushort)(state.Heading + MultiviolaSineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
+        if (!HeadingAngle(state).AddTableUnits(MultiviolaSineOffset).IsInSecondHalf)
             NegateWithoutFractionCarry(ref state, axis: Axis.Vertical);
 
         int verticalDisplacement = state.Velocity.Y.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
             state.Heading ^= MultiviolaVerticalReflection;
     }
+
+    /// <summary>The heading's low byte, the table angle the sign tests and sine products read.</summary>
+    private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => new(unchecked((byte)state.Heading));
 
     /// <summary>
     /// Recreates $A0:B643's unsigned |cos|/|sin| products of the heading and speed.

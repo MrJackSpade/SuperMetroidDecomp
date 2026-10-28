@@ -171,8 +171,10 @@ internal sealed class EnemyGraphicsSet
     {
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
+            // Loading the entry checked its row is one of the eight sprite rows, so the cartridge's low-nibble
+            // palette decode reads the row unchanged.
             if (entry.DefinitionId == definitionId)
-                return SpriteGraphics.Of(entry.TileIndexBase, entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits);
+                return SpriteGraphics.Of(entry.TileIndexBase, entry.PaletteRow);
         }
 
         // LoadEnemyGfxIndexes uses standard sprite character zero and palette row five when an

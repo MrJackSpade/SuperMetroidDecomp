@@ -109,7 +109,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Once per half-wave, the phase's position within its half-turn equals $38. Waver temporarily swaps to
         // the four-map spin list without changing the facing bit.
-        if ((state.Angle.TableIndex & EnemyByteAngleDefinitions.HalfWaveIndexMask) == 56)
+        if (state.Angle.ToByteAngle().HalfWaveIndex == 56)
         {
             state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
             SetWaverProgram(slot, state);

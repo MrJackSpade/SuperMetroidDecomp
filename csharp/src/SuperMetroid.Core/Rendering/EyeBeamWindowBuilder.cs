@@ -35,11 +35,11 @@ internal static class EyeBeamWindowBuilder
         if (width == 0 && (angle == quarter || angle == threeQuarter))
         {
             Set(rows, apex, offScreen ? EyeWindowRenderDefinitions.FullWindow :
-                (ushort)(angle == quarter ? x | EyeWindowRenderDefinitions.FullRightEdge : EightEight.FromWhole(x)));
+                (ushort)(angle == quarter ? ScanlineSpanWord.Of(checked((byte)x), byte.MaxValue) : EightEight.FromWhole(x)));
         }
         else if (a < quarter && b >= quarter)
         {
-            if (!offScreen) Set(rows, apex, (ushort)(x | EyeWindowRenderDefinitions.FullRightEdge));
+            if (!offScreen) Set(rows, apex, ScanlineSpanWord.Of(checked((byte)x), byte.MaxValue));
             int left = offScreen ? origin - EyeWindowRenderDefinitions.FixedPointSpan : origin;
             Ramp(rows, up, -1, new RampEdges(left, ta, ushort.MaxValue, 1), 1);
             Ramp(rows, y, 1, new RampEdges(left, tb, ushort.MaxValue, 1), -1);
@@ -78,7 +78,7 @@ internal static class EyeBeamWindowBuilder
                 {
                     edge += ta;
                     Set(rows, row, row == y ? EyeWindowRenderDefinitions.EmptyWindow :
-                        (ushort)(Math.Clamp(edge, 0, ushort.MaxValue) & EyeWindowRenderDefinitions.FullRightEdge));
+                        ScanlineSpanWord.Of(0, ScanlineSpanWord.Right(Math.Clamp(edge, 0, ushort.MaxValue))));
                 }
             }
         }
@@ -150,8 +150,9 @@ internal static class EyeBeamWindowBuilder
             bool leftOutside = left is < 0 or > ushort.MaxValue;
             bool rightOutside = right is < 0 or > ushort.MaxValue;
             int window = (right < 0 && rightStep >= 0) || (left > ushort.MaxValue && leftStep <= 0) ? EyeWindowRenderDefinitions.EmptyWindow :
-                (ushort)(EightEight.WholeOf(Math.Clamp(left, 0, ushort.MaxValue)) |
-                         (Math.Clamp(right, 0, ushort.MaxValue) & EyeWindowRenderDefinitions.FullRightEdge));
+                ScanlineSpanWord.Of(
+                    checked((byte)EightEight.WholeOf(Math.Clamp(left, 0, ushort.MaxValue))),
+                    ScanlineSpanWord.Right(Math.Clamp(right, 0, ushort.MaxValue)));
             Set(rows, y, window);
             if (!offScreenDiagonal && leftOutside && rightOutside && (leftStep ^ left) >= 0 && (rightStep ^ right) >= 0)
             {

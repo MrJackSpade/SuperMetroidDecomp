@@ -94,6 +94,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteDefinitions.cs")]),
         new("SuperMetroid.Core.Enemies.Artwork.DachoraColorCatalog", "dachora-complete-phase-colors", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/DachoraColorCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/DachoraColors.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation", "mother-brain-complete-health-colors", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"),

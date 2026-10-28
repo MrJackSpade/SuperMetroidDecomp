@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
@@ -214,7 +215,7 @@ public sealed class InstalledSamusBodyArtwork
             value = 0;
             return false;
         }
-        value = (ushort)(LandingByte(index) | LandingByte(index + 1) << 8);
+        value = BinaryPrimitives.ReadUInt16LittleEndian([(byte)LandingByte(index), (byte)LandingByte(index + 1)]);
         return true;
     }
     /// <summary>Attempts to read a signed posture-transition art offset.</summary>
@@ -343,7 +344,7 @@ public sealed class InstalledSamusBodyArtwork
                 CopyHalves(DefinitionAt(upperRecord), characters, 0);
             if (bottomRecord is { } lowerRecord)
                 CopyHalves(DefinitionAt(lowerRecord), characters, HalfRowCharacters);
-            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, (key.Top + 1) << 16 | (key.Bottom + 1)), characters);
+            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, key.SpriteVariant), characters);
         });
 
         static void CopyHalves(SamusBodyTileTransfer definition, byte[] characters, int firstCharacter)

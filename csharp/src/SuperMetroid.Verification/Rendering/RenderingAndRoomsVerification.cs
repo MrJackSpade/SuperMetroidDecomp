@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;

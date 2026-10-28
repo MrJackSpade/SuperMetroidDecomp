@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;

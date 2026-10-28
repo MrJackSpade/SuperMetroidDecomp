@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;

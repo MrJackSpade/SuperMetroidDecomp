@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy)
 {
     /// <summary>Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    internal readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy = Ensure.NotNull(byEnemy);
+    internal readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> uploadsByEnemy = Ensure.NotNull(byEnemy);
 
     /// <summary>Every catalogued upload, once, in a fixed order whose index names it in picture names.</summary>
     internal readonly ImmutableArray<SpriteArtworkPlacement> all = EncounterUploads.InCatalogueOrder(byEnemy);

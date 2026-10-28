@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class RoomEnemyGraphicsSetDefinition(string name, RoomEnemyGraphicsSetHeader[] records)
 {
     /// <summary>Catalog-owned four-byte records in the order the engine stages their tiles.</summary>
-    private readonly RoomEnemyGraphicsSetHeader[] records = records;
+    private readonly RoomEnemyGraphicsSetHeader[] staged = records;
     /// <summary>The set's name, the disassembly's label for it without its prefix.</summary>
     public string Name { get; } = Ensure.NotNull(name);
     /// <summary>Read-only view of catalog-owned members in native staging order, excluding the $FFFF terminator and trailing metadata; duplicate source associations and palette sharing are retained.</summary>
-    public ReadOnlyMemory<RoomEnemyGraphicsSetHeader> Records => records;
+    public ReadOnlyMemory<RoomEnemyGraphicsSetHeader> Records => staged;
 }

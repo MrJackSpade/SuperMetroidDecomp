@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class RoomEnemyPopulationDefinition(string name, RoomEnemyPopulationRecord[] records, int deathQuota)
 {
     /// <summary>Placement order captured from the bank-$A1 list before its terminator.</summary>
-    private readonly RoomEnemyPopulationRecord[] records = records;
+    private readonly RoomEnemyPopulationRecord[] placements = records;
     /// <summary>The list's name, the disassembly's label for it without its prefix.</summary>
     public string Name { get; } = Ensure.NotNull(name);
     /// <summary>Read-only ordered placements compiled from native 16-byte records, excluding the $FFFF terminator; order controls initialization and slot allocation.</summary>
-    public ReadOnlyMemory<RoomEnemyPopulationRecord> Records => records;
+    public ReadOnlyMemory<RoomEnemyPopulationRecord> Records => placements;
     /// <summary>Literal byte following the $FFFF terminator, used as the room kill-count requirement for nonempty populations; an empty load does not publish it. 0 through 255.</summary>
     public int DeathQuota { get; } = deathQuota;
 }

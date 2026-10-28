@@ -12,16 +12,17 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// directory fails loudly; no replacement silently falls back to stock.
 /// </summary>
 /// <remarks>
-/// The reader lives in the import pipeline (#1410) because a song's identity names its music data set by the
-/// cartridge's data index, <c>music-{dataIndex:x2}-track-{nn}</c>, which only <see cref="AudioAssetCatalogDefinitions"/>
-/// knows; the game is handed the selected manifest and never sees the index.
+/// Clips are named by what they are (#1410): a song by its music data set and track,
+/// <c>music-{MusicDataSet}-track-{nn}</c>, and a sound by its library's sound name,
+/// <c>sfx-{Library}Sound.{Name}</c>. No cartridge data index or sound number appears in an identity; an override
+/// naming a clip any other way, including the earlier hexadecimal identities, names no installed clip and fails.
 /// </remarks>
 internal static class ClipAudioOverrides
 {
-    /// <summary>A song identity: its data set's music-data index in hexadecimal and its track number in decimal, as the extracted catalog names tracks.</summary>
+    /// <summary>A song identity: its music data set's name and its track number in decimal.</summary>
     private const string MusicPrefix = "music-";
 
-    /// <summary>A sound-effect identity: library number and command in hexadecimal.</summary>
+    /// <summary>A sound-effect identity: its library's sound name.</summary>
     private const string SoundEffectPrefix = "sfx-";
 
     /// <summary>The selected manifest and where each replacement clip lives.</summary>
@@ -93,21 +94,16 @@ internal static class ClipAudioOverrides
             Convert.ToHexString(SHA256.HashData(identity.ToArray())));
     }
 
-    /// <summary>
-    /// The music identity of <paramref name="dataSet"/>'s <paramref name="track"/>, as the override names it: the data
-    /// set's music-data index, which is how the extracted catalog has always named tracks, so existing overrides keep
-    /// naming the same songs.
-    /// </summary>
+    /// <summary>The music identity of <paramref name="dataSet"/>'s <paramref name="track"/>, as an override names it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="dataSet"/> is not a defined data set.</exception>
     internal static string MusicId(MusicDataSet dataSet, int track) =>
-        $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(dataSet).DataIndex:x2}-track-{track:00}";
+        Enum.IsDefined(dataSet)
+            ? $"{MusicPrefix}{dataSet}-track-{track:00}"
+            : throw new ArgumentOutOfRangeException(nameof(dataSet), dataSet, "Not a defined music data set.");
 
-    /// <summary>
-    /// The identity an override names <paramref name="sound"/> by: its library number and its request number in
-    /// hexadecimal, <c>sfx-{library}-{command:x2}</c>, as the installed clips have always named it.
-    /// </summary>
-    internal static string SoundEffectId(Core.Audio.SoundEffectId sound) =>
-        $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(sound.Library) + 1}-{SoundEffectCommands.Command(sound):x2}";
+    /// <summary>The identity an override names <paramref name="sound"/> by: its library's sound name.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="sound"/> is the default identity, which names no sound.</exception>
+    internal static string SoundEffectId(Core.Audio.SoundEffectId sound) => $"{SoundEffectPrefix}{sound}";
 
     /// <summary>Reads and checks one replacement WAV beneath the override directory.</summary>
     private static ClipReplacement ReadReplacement(string root, AudioClipOverride replacement, int sampleRate)

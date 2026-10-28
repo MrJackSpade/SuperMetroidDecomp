@@ -68,9 +68,10 @@ internal static class AudioOverridesVerification
         string tonePath = Path.Combine(rootScratch.Root, "tone.wav");
         PcmWaveFile.WriteStereoPcm16(tonePath, ClipSampleRate(stock), tone);
         string songId = ClipAudioOverrides.MusicId(MusicDataSet.GreenBrinstar, ReplacedTrack);
-        // #1410: the data set is named in the game, but an override names a song by its music-data index, so the
-        // override manifests players already have keep naming the same song.
-        AssertEqual("music-0f-track-03", songId, "a song's override identity keeps the data index existing overrides use");
+        // #1410: an override names a song by its data set and track, never by the cartridge's data index.
+        AssertEqual("music-GreenBrinstar-track-03", songId, "a song's override identity names its data set");
+        AssertEqual("sfx-Library3Sound.SpeedBooster", ClipAudioOverrides.SoundEffectId(Library3Sound.SpeedBooster),
+            "a sound's override identity names its library's sound");
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
         ClipAudioLibrary selected = installation.LoadAudioClips();
@@ -92,6 +93,9 @@ internal static class AudioOverridesVerification
         AssertThrows<InvalidDataException>(
             () => AudioAssetOverrideInstaller.Replace(installation, "music-ff-track-99", tonePath, null),
             "an unknown song is rejected");
+        AssertThrows<InvalidDataException>(
+            () => AudioAssetOverrideInstaller.Replace(installation, "music-0f-track-03", tonePath, ToneLoop),
+            "an earlier hexadecimal song identity names no installed song");
         AssertThrows<InvalidDataException>(
             () => AudioAssetOverrideInstaller.Replace(installation,
                 ClipAudioOverrides.SoundEffectId(Library3Sound.SpeedBooster), tonePath, null),

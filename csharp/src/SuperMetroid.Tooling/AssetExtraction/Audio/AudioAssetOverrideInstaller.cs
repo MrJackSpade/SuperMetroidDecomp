@@ -39,7 +39,7 @@ public static class AudioAssetOverrideInstaller
     /// replacing an earlier replacement of the same clip.
     /// </summary>
     /// <param name="installation">The installation whose override is edited; it must be initialized.</param>
-    /// <param name="clipId">A song (<c>music-{data index:x2}-track-{nn}</c>) or sound effect (<c>sfx-{library}-{command:x2}</c>).</param>
+    /// <param name="clipId">A song (<c>music-{MusicDataSet}-track-{nn}</c>) or sound effect (<c>sfx-{Library}Sound.{Name}</c>).</param>
     /// <param name="wavPath">An uncompressed 16-bit stereo WAV at the native 32,040 Hz.</param>
     /// <param name="loopStart">The frame the clip loops back to, or null when it plays once.</param>
     /// <returns>The installed replacement.</returns>

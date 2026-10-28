@@ -1,24 +1,12 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions;
+using SuperMetroid.Core.Samus.Artwork;
+using static SuperMetroid.AssetExtraction.Samus.GrappleTileDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>The orientation, segment and point artwork and transfer each grapple angle selects.</summary>
+/// <summary>The installed rope and endpoint characters, and their transfer, each rope orientation and endpoint frame selects.</summary>
 public static class GrappleTileSelection
 {
-    /// <summary>
-    /// The rope character set the grapple's angle selects: `$9B:C005` folds the unsigned angle into an even table byte
-    /// offset, equivalent to angle / 1024.
-    /// </summary>
-    public static GrappleRopeOrientation OrientationFor(RotationAngle angle)
-    {
-        // The 64 sectors repeat after half a turn. Reflect each half-turn about
-        // its midpoint, retaining the native three/eight/five sector widths.
-        int halfTurnSector = (angle.RawValue >> 10) & 31;
-        int distance = Math.Min(halfTurnSector, 31 - halfTurnSector);
-        return distance < 3 ? GrappleRopeOrientation.Vertical : distance < 11 ? GrappleRopeOrientation.Diagonal : GrappleRopeOrientation.Horizontal;
-    }
-
     /// <summary>The installed rope characters of an orientation.</summary>
     public static InstalledArtworkId SegmentAssetFor(GrappleRopeOrientation orientation) => orientation switch
     {

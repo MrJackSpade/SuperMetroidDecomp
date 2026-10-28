@@ -61,7 +61,7 @@ internal static class GrappleTileArtworkVerification
             AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)), "Grapple draws preserve entire rope/animation simulation state");
             // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly
             // as the cartridge uploads them to $6200/$6210.
-            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleTileSelection.OrientationFor(selected.Angle));
+            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle));
             byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GrapplePointAnimationDefinitions.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
                 .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -70,7 +70,7 @@ internal static class GrappleTileArtworkVerification
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             byte[] expectedEdited = stockTiles.Characters.ToArray();
             for (int character = 0; character < 5; character++) expectedEdited[character * SpriteArtwork.CharacterByteCount] ^= 128;
-            AssertTrue(edited.Tiles(selected.PointAnimationFrame, GrappleTileSelection.OrientationFor(selected.Angle)).Characters.SequenceEqual(expectedEdited),
+            AssertTrue(edited.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle)).Characters.SequenceEqual(expectedEdited),
                 "Selected Grapple pixels change exactly five mapped bits of the binding");
             cases++;
             SamusGrappleState Seed() => new()

@@ -1,6 +1,7 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One native transfer and its planar-byte position in the sixteen-character replacement sheet.</summary>
 /// <param name="Asset">Stable installed-artwork identity retained by deferred VRAM writes instead of embedding image bytes in pending simulation state.</param>

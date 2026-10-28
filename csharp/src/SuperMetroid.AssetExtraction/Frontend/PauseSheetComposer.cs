@@ -37,7 +37,7 @@ internal static class PauseSheetComposer
         List<SheetFrameSource> frames = [.. selectors.Visuals.Select(visual =>
         {
             string name = PauseSelectorDefinitions.SheetFrameName(visual.Name);
-            return new SheetFrameSource(name, visual.ToFrame(name), page, selectors.ObjectPalette.PaletteIndex);
+            return new SheetFrameSource(name, visual.ToFrame(name), page, selectors.ObjectPalette);
         })];
         frames.AddRange(PauseReserveTankDefinitions.Frames().Select(frame =>
         {

@@ -36,8 +36,7 @@ internal static class EndingSpriteSheetComposer
             frames.AddRange(EndingShootingStarDefinitions.SheetFrames.Select(frame =>
             {
                 string name = EndingShootingStarDefinitions.SheetFrameName(frame);
-                return new SheetFrameSource(name, new SpriteFrame(name, [SpritePartFrames.Part(SnesSpritemapXWord.Create(0, large: false),
-                    SnesSpritemapYByte.Create(0), EndingShootingStarDefinitions.Attribute(frame), 0, sizes)]), characters,
+                return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarDefinitions.Appearance(frame).ToFramePart(0, sizes)]), characters,
                     FrontendSheetPalette.FramePalette);
             }));
         var colours = new ScreenPalette();

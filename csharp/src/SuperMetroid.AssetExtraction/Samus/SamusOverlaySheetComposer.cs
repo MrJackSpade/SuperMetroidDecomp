@@ -26,11 +26,11 @@ internal static class SamusOverlaySheetComposer
         for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
         {
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
-            var cover = new SnesObjAttributeWord(cannon.SpriteAttributes(direction));
+            SpritePart cover = cannon.CoverAppearance(direction);
             for (int frame = SamusOverlaySheetDefinitions.FirstCoverFrame; frame <= SamusOverlaySheetDefinitions.LastCoverFrame; frame++)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
-                    SpritePartFrames.SmallObject(cover, cover.TileNumber), cannon.CoverTile(direction, frame)));
+                    SpritePartFrames.SmallObject(cover, cover.Character), cannon.CoverTile(direction, frame)));
             }
         }
         frames.Add(new(SamusOverlaySheetDefinitions.ChestCoverFrame,

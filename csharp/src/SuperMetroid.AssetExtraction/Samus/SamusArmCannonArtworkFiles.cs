@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -48,9 +49,10 @@ public static class SamusArmCannonArtworkFiles
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                 (SamusSourceDefinitions.ArmCannonDrawingData + index))).ToArray();
-        int[] attributes = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
-            .Select(direction => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2)).ToArray();
+        SpriteVisualPart[] appearances = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+            .Select(direction => SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(
+                CartridgeImportSource.Require(bus), SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2)).ToSinglePart(),
+                SpriteArtwork.CharactersPerRow)).ToArray();
         int[][] coverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
             .Select(direction =>
             {
@@ -71,7 +73,7 @@ public static class SamusArmCannonArtworkFiles
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = descriptors,
             DrawingData = drawingData,
-            SpriteAttributes = attributes,
+            CoverAppearances = appearances,
             CoverTiles = coverTiles,
         };
         byte[] planar = new byte[SamusArmCannonArtworkFormat.CoverTileCount *

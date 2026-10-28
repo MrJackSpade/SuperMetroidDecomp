@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// Polyp's sequential AI states.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum PolypEnemyFunction : ushort
+public enum PolypEnemyFunction
 {
     /// <summary>Function_Polyp_WaitForSamusToGetNear, $A2:B596: tests strict modular distances below 64 whole pixels on both axes, selecting the shoot function without spawning until the next AI update.</summary>
     WaitingForSamus = 1,

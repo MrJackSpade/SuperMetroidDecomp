@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Named outcomes of the nonzero charged-shot glow branches.</summary>
-public enum SamusBeamChargePaletteAction : byte
+public enum SamusBeamChargePaletteAction
 {
     /// <summary>No charge-palette effect is active.</summary>
     Inactive,

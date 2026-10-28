@@ -73,7 +73,8 @@ internal static class CacatacProjectileDefinitions
     internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction)
     {
         _ = Program(direction); // Apply the identical native direction domain.
-        return direction >= CacatacSpikeDirection.UpLeft
+        return direction is CacatacSpikeDirection.UpLeft or CacatacSpikeDirection.UpRight or
+                CacatacSpikeDirection.DownLeft or CacatacSpikeDirection.DownRight
             ? DiagonalSpeeds
             : CardinalSpeeds;
     }

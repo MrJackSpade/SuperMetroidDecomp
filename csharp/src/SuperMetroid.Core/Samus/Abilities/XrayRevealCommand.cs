@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The seven bank-$91 revealed-block commands named by the X-ray reveal tables.</summary>
-public enum XrayRevealCommand : ushort
+public enum XrayRevealCommand
 {
     /// <summary>RevealedBlockCommand_VerticalExtension at $91:CE79.</summary>
     VerticalExtension,

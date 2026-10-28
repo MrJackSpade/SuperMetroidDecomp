@@ -463,7 +463,7 @@ public sealed class GameplayMessageBoxState
 
     /// <summary>Whether the ordinary message coroutine shows <paramref name="messageId"/>.</summary>
     internal static bool IsOrdinary(GameplayMessageId messageId) =>
-        messageId is (>= GameplayMessageId.EnergyTank and <= GameplayMessageId.GravitySuit) or GameplayMessageId.GunshipSaveConfirmation;
+        messageId != GameplayMessageId.None && Enum.IsDefined(messageId);
 
     /// <summary>The messages the ordinary message coroutine shows.</summary>
     internal static IEnumerable<GameplayMessageId> OrdinaryMessages => Enum.GetValues<GameplayMessageId>().Where(IsOrdinary);

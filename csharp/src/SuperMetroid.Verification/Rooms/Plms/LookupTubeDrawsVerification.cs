@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -77,7 +78,7 @@ internal static class LookupTubeDrawsVerification
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
-                        AssertEqual(header, part.DirectionAndCount, "Tube native DTO geometry");
+                        AssertRunHeader(header, part, "Tube native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Tube native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Tube native DTO offset");
                     }

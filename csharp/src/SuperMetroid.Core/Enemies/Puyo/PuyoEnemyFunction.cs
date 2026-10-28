@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// The routine Puyo's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum PuyoEnemyFunction : ushort
+public enum PuyoEnemyFunction
 {
     /// <summary>$A2:9B65, <c>Function_Puyo_Grounded</c>: decrements the hop cooldown and selects an airborne hop when the countdown becomes negative.</summary>
     Grounded = 1,

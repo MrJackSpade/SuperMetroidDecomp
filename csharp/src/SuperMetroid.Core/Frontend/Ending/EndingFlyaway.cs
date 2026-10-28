@@ -147,7 +147,7 @@ internal sealed class EndingFlyaway
 
     /// <summary>Fixed-color addition active only during visible planet flyaway phases.</summary>
     internal FixedColorAddRenderLayer? FlyawayFixedColor => flyawayWhite != 0
-        && _stage.Phase >= EndingCreditsPhase.PlanetEscapeFast && _stage.Phase <= EndingCreditsPhase.FadeOutToCredits
+        && EndingCreditsPhaseGroups.PlanetEscape.Contains(_stage.Phase)
         ? WhiteAddition(flyawayWhite) : null;
 
     /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>

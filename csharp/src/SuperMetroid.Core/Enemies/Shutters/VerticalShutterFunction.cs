@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// The routines the three vertical shutter definitions share.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum VerticalShutterFunction : ushort
+public enum VerticalShutterFunction
 {
     /// <summary><c>$A2:EF09 Function_Shutter_Kamer_Initial</c>: calls the trigger-mode table entry during this same AI update until activation replaces the function.</summary>
     Initial = 1,

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// that shares their word in the cartridge is <see cref="KraidEnemyState.PendingMouthReopens"/>.
 /// </summary>
 [Flags]
-public enum KraidMouthFlags : ushort
+public enum KraidMouthFlags
 {
     /// <summary>No latch is set and no reopen is pending.</summary>
     None = 0,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The routine a wall Space Pirate's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum WallSpacePirateFunction : ushort
+public enum WallSpacePirateFunction
 {
     /// <summary>Watch Samus while continuing the left-wall climbing animation.</summary>
     ClimbingLeftWall = 1,

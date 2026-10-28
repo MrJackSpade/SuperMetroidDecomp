@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -59,12 +60,12 @@ internal static class LookupColoredCapVerification
                 AssertEqual(ids[index], ColoredDoorCaps.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap published ID");
                 AssertTrue(ColoredDoorCaps.TryGetByVisualId(ids[index], out var byId), "Colored cap reverse ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Colored cap ID identity");
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.DirectionAndCount, "Colored cap native geometry");
+                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.Direction, 4, "Colored cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Colored cap native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})
                 {
                     AssertEqual(1, frame.Runs.Length, "Colored cap one run");
-                    AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0].DirectionAndCount, "Colored cap DTO geometry");
+                    AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Colored cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Colored cap DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Colored cap DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Colored cap DTO final Y");

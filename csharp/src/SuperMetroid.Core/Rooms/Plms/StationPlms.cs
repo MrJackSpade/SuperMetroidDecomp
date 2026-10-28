@@ -1004,7 +1004,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>Phases of the non-save station's access-arm PLM list.</summary>
-    internal enum StationOperationPhase : byte
+    internal enum StationOperationPhase
     {
         /// <summary>No access sequence is in progress.</summary>
         Idle,

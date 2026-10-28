@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// The routine a Sbug enemy's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum SbugEnemyFunction : ushort
+public enum SbugEnemyFunction
 {
     /// <summary><c>Function_Sbug_WaitForSamusToGetNear</c> at <c>$A3:A2D7</c>; selects an activation handler only when both axis distances are strictly below the spawn radius.</summary>
     WaitForSamus = 1,

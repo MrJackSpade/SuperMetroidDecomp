@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// The five routines Spore Spawn's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
 /// </summary>
-public enum SporeSpawnFunction : ushort
+public enum SporeSpawnFunction
 {
     /// <summary><c>RTS_A5EB1A</c> at <c>$A5:EB1A</c>; performs no main-AI movement while instruction lists control the idle or open phase.</summary>
     Idle = 1,

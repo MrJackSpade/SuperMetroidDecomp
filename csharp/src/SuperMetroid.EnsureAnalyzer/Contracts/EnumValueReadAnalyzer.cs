@@ -11,7 +11,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// An identity's backing value is arbitrary and nothing reads it (SME6450, #1418): in <c>SuperMetroid.Core</c>, no code
 /// outside a type marked <c>[EncodingOwner]</c> converts an enum to an integral type or an integral value to an enum
 /// (an explicit cast, <c>Enum.ToObject</c> or a <c>Convert</c> call), or combines an enum-typed value with an integral
-/// literal in arithmetic or a comparison. Each such read is a translation that belongs in a codec, a dispatch that
+/// literal in arithmetic or a comparison, or orders two values of one enum with <c>&lt;</c>, <c>&lt;=</c>, <c>&gt;</c> or
+/// <c>&gt;=</c>, which compares their backing values (#1452). Each such read is a translation that belongs in a codec, a dispatch that
 /// belongs to a behaviour reference, or a table index that belongs to a typed lookup by identity.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -28,7 +29,8 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Identities are semantic names whose backing values are arbitrary and unread. A cast between an enum " +
-            "and an integral type, or an enum value combined with an integral literal, reads that value: a translation " +
+            "and an integral type, an enum value combined with an integral literal, or two values of one enum ordered with " +
+            "<, <=, > or >=, reads that value: a translation " +
             "moves to the codec that owns the encoding (marked [EncodingOwner]), a dispatch becomes a behaviour " +
             "reference or capability, and a table index becomes a typed lookup by identity (#1418).");
 
@@ -46,6 +48,7 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
                 return;
             start.RegisterOperationAction(AnalyzeConversion, OperationKind.Conversion);
             start.RegisterOperationAction(AnalyzeBinary, OperationKind.Binary);
+            start.RegisterOperationAction(AnalyzeRelationalPattern, OperationKind.RelationalPattern);
             start.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
         });
     }
@@ -61,15 +64,28 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
             Report(context, conversion.Syntax, $"The cast '{conversion.Syntax}'", enumType);
     }
 
-    /// <summary>Reports arithmetic or a comparison between an enum-typed value and an integral literal.</summary>
+    /// <summary>
+    /// Reports arithmetic or a comparison between an enum-typed value and an integral literal, and an ordering
+    /// comparison between two values of one enum, which reads their backing values as surely as a cast.
+    /// </summary>
     private static void AnalyzeBinary(OperationAnalysisContext context)
     {
         var binary = (IBinaryOperation)context.Operation;
         ITypeSymbol? enumType =
             EnumOperand(binary.LeftOperand) is { } left && IsIntegralLiteral(binary.RightOperand) ? left :
-            EnumOperand(binary.RightOperand) is { } right && IsIntegralLiteral(binary.LeftOperand) ? right : null;
+            EnumOperand(binary.RightOperand) is { } right && IsIntegralLiteral(binary.LeftOperand) ? right :
+            IsOrdering(binary.OperatorKind) && EnumOperand(binary.LeftOperand) is { } first &&
+                EnumOperand(binary.RightOperand) is { } second && SymbolEqualityComparer.Default.Equals(first, second) ? first : null;
         if (enumType is not null)
             Report(context, binary.Syntax, $"'{binary.Syntax}'", enumType);
+    }
+
+    /// <summary>Reports a relational pattern (<c>is &lt;= Draw.Wave</c>) ordering a value against an enum constant.</summary>
+    private static void AnalyzeRelationalPattern(OperationAnalysisContext context)
+    {
+        var pattern = (IRelationalPatternOperation)context.Operation;
+        if (IsOrdering(pattern.OperatorKind) && EnumOperand(pattern.Value) is { } enumType)
+            Report(context, pattern.Syntax, $"The pattern '{pattern.Syntax}'", enumType);
     }
 
     /// <summary>Reports <c>Enum.ToObject</c> and a <c>Convert</c> call given an enum value.</summary>
@@ -118,6 +134,10 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
     /// <summary>Whether an operand is an integral literal, looking through implicit conversions.</summary>
     private static bool IsIntegralLiteral(IOperation operand) =>
         Unconverted(operand) is ILiteralOperation { Type: { } type } && IsIntegral(type);
+
+    /// <summary>Whether an operator orders its operands by value.</summary>
+    private static bool IsOrdering(BinaryOperatorKind kind) => kind is BinaryOperatorKind.LessThan
+        or BinaryOperatorKind.LessThanOrEqual or BinaryOperatorKind.GreaterThan or BinaryOperatorKind.GreaterThanOrEqual;
 
     /// <summary>The operand beneath any implicit conversions.</summary>
     private static IOperation Unconverted(IOperation operand)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The two native stage-three/stage-six variants of the shared transformation.</summary>
-public enum SamusSuitPickupKind : byte
+public enum SamusSuitPickupKind
 {
     /// <summary>The $91:D4E4 Varia pickup: stage three equips and collects the Varia suit, and the shrinking beam's fixed color returns toward orange.</summary>
     Varia,

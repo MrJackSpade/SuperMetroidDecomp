@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The routines Shitroid's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
 /// </summary>
-public enum ShitroidAiFunction : ushort
+public enum ShitroidAiFunction
 {
     /// <summary>$A9:EFDF, keeps the encounter actor inactive in the alternate camera state.</summary>
     Dormant = 1,

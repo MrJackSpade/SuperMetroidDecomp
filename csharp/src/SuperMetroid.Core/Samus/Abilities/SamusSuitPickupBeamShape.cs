@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Mutually exclusive outlines the suit-pickup light beam takes across its bank-$88 stages.</summary>
-public enum SamusSuitPickupBeamShape : byte
+public enum SamusSuitPickupBeamShape
 {
     /// <summary>No lit scanline: the setup calls before stage zero leave the beam window empty.</summary>
     None,

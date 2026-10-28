@@ -122,7 +122,7 @@ internal sealed class RoomPlmLinkedRestoreDefinition
     {
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
-            runs[run] = new(draw.Vertical ? (ushort)0x8002 : (ushort)2,
+            runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
                 new ushort[] { draw.WordAt(run, 0), draw.WordAt(run, 1) },
                 new(0, run + 1 < runs.Length ? (sbyte)1 : (sbyte)0));
         return new(draw.Id, runs);

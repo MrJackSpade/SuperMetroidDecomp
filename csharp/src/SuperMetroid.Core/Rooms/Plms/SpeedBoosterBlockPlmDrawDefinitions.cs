@@ -32,7 +32,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
         new(BombRevealDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { BombRevealWord }, new(0, 0)),
+                new(PlmRunDirection.Horizontal, new ushort[] { BombRevealWord }, new(0, 0)),
             });
 
     /// <summary>Enumerates the sole calculated bomb-reveal record for artwork import/export.</summary>

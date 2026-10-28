@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// is deliberately bytecode-owned: the body list advances it only after its complete
 /// charge/fire/hold animation has elapsed.
 /// </summary>
-public enum MotherBrainHandBeamPhase : ushort
+public enum MotherBrainHandBeamPhase
 {
     /// <summary>Index 0 requests the slow backward gait toward X $28, then sets the charging neck targets.</summary>
     BackUp = 0,

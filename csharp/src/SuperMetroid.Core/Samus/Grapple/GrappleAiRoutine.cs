@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// enemy selects one of the seven shared bank-$A0 reactions except the elevator, whose
 /// main AI doubles as its grapple AI.
 /// </summary>
-public enum GrappleAiRoutine : ushort
+public enum GrappleAiRoutine
 {
     /// <summary>No definition: the zero word of an empty enemy slot's default header.</summary>
     None,

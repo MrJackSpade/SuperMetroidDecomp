@@ -23,7 +23,7 @@ internal static class EscapeAnimalPlmDrawDefinitions
         };
         draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(0x8003, Enumerable.Repeat(checked((ushort)word), 3).ToArray(), new(0, 0)),
+            new(PlmRunDirection.Vertical, Enumerable.Repeat(checked((ushort)word), 3).ToArray(), new(0, 0)),
         });
         return true;
     }

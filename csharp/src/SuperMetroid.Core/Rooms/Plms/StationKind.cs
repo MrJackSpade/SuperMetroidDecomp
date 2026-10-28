@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The resident station family that owns access animation, resource changes, and frontend activation events.</summary>
-public enum StationKind : byte
+public enum StationKind
 {
     /// <summary>Acquires the current area's map and keeps Samus input locked until map-screen unpause releases it.</summary>
     Map,

@@ -164,9 +164,8 @@ public sealed class SamusXrayState
 
         // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
         // type is otherwise standing. The range comparisons are unsigned 16-bit compares.
-        if (samus.Pose is >= SamusPoseId.NormalLandingRightPose and
-            <= SamusPoseId.SpinLandingLeftPose or
-            >= SamusPoseId.LandingAimUpRightPose and <= SamusPoseId.FiringLandingLeftPose)
+        if (SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose) ||
+            SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.LandingAimUpRightPose, SamusPoseId.FiringLandingLeftPose))
             return false;
 
         if (conditions.GameState != SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||

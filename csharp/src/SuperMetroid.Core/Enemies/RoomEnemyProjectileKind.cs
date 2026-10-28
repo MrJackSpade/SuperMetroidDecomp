@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The definition occupying one live room-enemy projectile slot. The values are arbitrary (#1452); verification's
 /// native view names each member's bank-$86 definition word, which a native snapshot's <c>eproj_id</c> holds.
 /// </summary>
-public enum RoomEnemyProjectileKind : ushort
+public enum RoomEnemyProjectileKind
 {
     /// <summary>No projectile: the physical slot is available for allocation.</summary>
     None = 0,

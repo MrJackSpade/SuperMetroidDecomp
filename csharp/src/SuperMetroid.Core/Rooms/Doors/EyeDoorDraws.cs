@@ -113,7 +113,7 @@ internal static class EyeDoorDraws
         for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(cell);
         list = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new((ushort)((draw.Vertical ? EyeDoorPlmDrawDefinitions.VerticalRunBit : 0) | words.Length), words, new(0, 0)),
+            new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words, new(0, 0)),
         });
         return true;
     }

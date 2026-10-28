@@ -114,7 +114,8 @@ public static class RoomPlmGrappleBlockVisualFiles
         {
             int pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer)) !=
-                    RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount ||
+                    PlmRunHeaderCodec.Encode(RoomPlmGrappleBlockDrawDefinitions.DrawList.Direction,
+                        RoomPlmGrappleBlockDrawDefinitions.DrawList.Count) ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (unchecked((ushort)(pointer + 2))))) != draw.LevelWord ||
                 bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, unchecked((ushort)(pointer + 4)))) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX ||

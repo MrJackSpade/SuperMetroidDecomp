@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
@@ -12,7 +10,8 @@ internal static class ClosedEnumWordDecoding
     public static TEnum Decode<TEnum>(ushort word, string meaning)
         where TEnum : struct, Enum
     {
-        TEnum value = Unsafe.BitCast<ushort, TEnum>(word);
+        // Converted by value, so the identity's own width does not matter (#1452).
+        TEnum value = (TEnum)Enum.ToObject(typeof(TEnum), word);
         return Enum.IsDefined(value)
             ? value
             : throw new InvalidDataException($"${word:X4} is not a {meaning} ({typeof(TEnum).Name}).");

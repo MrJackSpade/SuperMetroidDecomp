@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Progression;
 /// These are sequential states, not combinable bits. Keeping every native numeric value
 /// makes debugger watches and future save-state comparison line up with the original game.
 /// </remarks>
-public enum SuperMetroidGameState : ushort
+public enum SuperMetroidGameState
 {
     /// <summary>Initializes the title-sequence dispatcher and demo set; native <c>GameState_0_ResetStart</c> at <c>$82:8AE4</c>.</summary>
     Reset = 0x00,

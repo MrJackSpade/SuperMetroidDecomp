@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <c>$1000</c>. Bank <c>$86:8390/$83B2</c> traverses the same physical pool once for
 /// each value, on opposite sides of Samus's OAM submission.
 /// </summary>
-public enum EnemyProjectileDrawPriority : byte
+public enum EnemyProjectileDrawPriority
 {
     /// <summary>Property bit $1000 is clear; the projectile is submitted in the low-priority pass after Samus.</summary>
     Low = 0,

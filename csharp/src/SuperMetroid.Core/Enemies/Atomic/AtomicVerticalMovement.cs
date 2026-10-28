@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// though both targets update Y; the name describes the behaviour instead of perpetuating that label error.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum AtomicVerticalMovement : ushort
+public enum AtomicVerticalMovement
 {
     /// <summary>$A8:E405, Function_Atomic_MoveUp: add the stored negative whole/fraction speed to Y without terrain collision, selected when wrapped Samus-minus-enemy Y is signed-negative.</summary>
     MoveUp = 1,

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>The animated-tile objects rooms, room effects and the Tourian statues animate their characters with.
 /// Its values are arbitrary; verification's native view names each member's cartridge word (#1415).
 /// </summary>
-public enum AnimatedTileObject : ushort
+public enum AnimatedTileObject
 {
     /// <summary>No animated-tile object is loaded.</summary>
     None = 0,

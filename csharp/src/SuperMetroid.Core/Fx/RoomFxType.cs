@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// The room effect a room-FX record selects. Its values are arbitrary; the import decodes the record's dispatcher
 /// byte (#1415).
 /// </summary>
-public enum RoomFxType : ushort
+public enum RoomFxType
 {
     /// <summary>No animated bank-$83 room-FX object is present.</summary>
     None = 0,

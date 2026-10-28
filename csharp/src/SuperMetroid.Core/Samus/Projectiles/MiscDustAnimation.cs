@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <c>MiscDust_InstListPointers</c> ($86:E42C). The spawn parameter of
 /// <c>EprojInit_DustCloudOrExplosion</c> is this index.
 /// </summary>
-public enum MiscDustAnimation : ushort
+public enum MiscDustAnimation
 {
     /// <summary>Unused beam-charge sparkle ($86:E0EE).</summary>
     UnusedBeamCharge,

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <c>$0A78</c>, leaving this complete set suspended to create G-Mode.
 /// </remarks>
 [Flags]
-public enum XraySuspendedSubsystems : byte
+public enum XraySuspendedSubsystems
 {
     /// <summary>No independent X-ray subsystem disable is retained; this does not establish whether the separate shared time-freeze word is clear.</summary>
     None = 0,

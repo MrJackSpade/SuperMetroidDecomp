@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// Bits in each area's byte at SRAM mirror <c>$7E:D828-$7E:D82F</c>.
 /// </summary>
 [Flags]
-public enum BossBits : byte
+public enum BossBits
 {
     /// <summary>Empty boss-state mask: setting or clearing it leaves the area unchanged, and querying it reports no matching boss.</summary>
     None = 0,

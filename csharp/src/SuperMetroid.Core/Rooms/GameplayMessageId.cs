@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 /// Native one-based indices into <c>$85:869B</c>. Ordinary definitions run through Gravity
 /// Suit; the gunship uses its additional confirmation definition after the terminator.
 /// </summary>
-public enum GameplayMessageId : byte
+public enum GameplayMessageId
 {
     /// <summary>No gameplay message; zero is outside the one-based definition table.</summary>
     None = 0x00,

@@ -43,11 +43,11 @@ internal static class SamusHudDefinitions
     /// </remarks>
     internal static byte PostureObservation(SamusPoseId pose, SamusOverreadCatalog? overreads)
     {
-        if (pose >= NonFiringTransitionStart)
+        if (!SamusPoseNumbering.Precedes(pose, NonFiringTransitionStart))
             throw new ArgumentOutOfRangeException(nameof(pose));
-        if (pose < FirstTransitionPose)
+        if (SamusPoseNumbering.Precedes(pose, FirstTransitionPose))
             return RequireOverreads(overreads).HudPrecedingPostureByte(SamusPoseNumbering.Number(pose));
-        if (pose > SamusPoseId.UnusedPose40)
+        if (!SamusPoseNumbering.InRange(pose, FirstTransitionPose, SamusPoseId.UnusedPose40))
             return RequireOverreads(overreads).HudFollowingPostureByte(SamusPoseNumbering.Number(pose) - (SamusPoseNumbering.Number(SamusPoseId.UnusedPose40) + 1));
         return pose switch
         {

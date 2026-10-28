@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The routine each Baby Turtle's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum BabyTurtleAiFunction : ushort
+public enum BabyTurtleAiFunction
 {
     /// <summary>$A2:9142, crawls along the shell without carrying Samus.</summary>
     CrawlingNotCarryingSamus = 1,

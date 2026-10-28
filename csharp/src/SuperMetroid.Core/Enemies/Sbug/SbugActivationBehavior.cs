@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>The parameter-two high-byte behaviors accepted by Sbug's activation table.</summary>
-public enum SbugActivationBehavior : byte
+public enum SbugActivationBehavior
 {
     /// <summary>Selector zero in <c>$A3:A121</c>: continuously moves along the spawn angle without block collision checks.</summary>
     MoveForward = 0,

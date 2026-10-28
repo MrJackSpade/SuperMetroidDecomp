@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>Counter-forty audio recovery selected by native movement/grapple state.</summary>
-public enum SamusHurtFlashRecoveryAction : byte
+public enum SamusHurtFlashRecoveryAction
 {
     /// <summary>No recovery sound or deferred charging request was selected for the current movement/grapple state.</summary>
     None,

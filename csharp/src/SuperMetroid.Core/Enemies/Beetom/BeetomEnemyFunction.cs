@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// begins.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum BeetomEnemyFunction : ushort
+public enum BeetomEnemyFunction
 {
     /// <summary><c>$A8:B814 Function_Beetom_DecideAction</c>: selects the near or distant decision entry from a strict 96-pixel horizontal proximity check.</summary>
     DecideAction = 1,

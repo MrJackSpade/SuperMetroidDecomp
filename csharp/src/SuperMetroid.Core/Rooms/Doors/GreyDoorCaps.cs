@@ -13,11 +13,8 @@ internal static class GreyDoorCaps
     {
         /// <summary>Left and right caps use a vertical four-cell run.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
-        /// <summary>Encodes four blocks and the native vertical-run flag for the draw interpreter.</summary>
-        internal int DirectionAndCount => Vertical ? DoorPlmDrawListDefinitions.VerticalCapRun : DoorPlmDrawListDefinitions.HorizontalCapRun;
-
-        /// <summary>The cap run\'s native direction-and-count word.</summary>
-        public int DirectionAndCountWord() => DirectionAndCount;
+        /// <summary>The direction the cap's four-block run writes in.</summary>
+        public PlmRunDirection Direction => Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
 
         /// <summary>The level word of <paramref name="cell"/>, one of the cap's four cells in native run order.</summary>
         public ushort WordAt(int cell)

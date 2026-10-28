@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
@@ -14,7 +12,8 @@ internal static class ClosedEnumWords
     {
         if ((uint)value > byte.MaxValue)
             throw new InvalidDataException($"${value:X} is not a {meaning} byte ({typeof(TEnum).Name}).");
-        TEnum decoded = Unsafe.BitCast<byte, TEnum>((byte)value);
+        // Converted by value, so the identity's own width does not matter (#1452).
+        TEnum decoded = (TEnum)Enum.ToObject(typeof(TEnum), value);
         return Enum.IsDefined(decoded)
             ? decoded
             : throw new InvalidDataException($"${value:X2} is not a {meaning} ({typeof(TEnum).Name}).");

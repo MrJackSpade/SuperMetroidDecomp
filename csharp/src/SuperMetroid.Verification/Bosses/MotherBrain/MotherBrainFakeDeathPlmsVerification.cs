@@ -99,7 +99,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
                 draw.Runs.Span[runIndex - 1].Next.X);
             int y = 3 + (runIndex == 0 ? 0 :
                 draw.Runs.Span[runIndex - 1].Next.Y);
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
+            bool vertical = run.Direction == PlmRunDirection.Vertical;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 expected[(y + (vertical ? block : 0)) * width +
                     x + (vertical ? 0 : block)] = run.LevelWords.Span[block];

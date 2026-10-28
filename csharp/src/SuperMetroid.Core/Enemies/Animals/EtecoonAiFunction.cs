@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// routine; animation is owned by the Etecoon's typed programs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum EtecoonAiFunction : ushort
+public enum EtecoonAiFunction
 {
     /// <summary>$A7:E9AF, Function_Etecoon_Initial: waits for Samus within 128 vertical room pixels, runs the $0100 wake/flex countdown, and defers activation during elevator-door transition.</summary>
     WaitingForSamus = 1,

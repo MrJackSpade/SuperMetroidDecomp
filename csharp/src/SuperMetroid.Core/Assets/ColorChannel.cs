@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>The three five-bit channels of a <see cref="RgbColor"/>, in packed order.</summary>
-public enum ColorChannel : byte
+public enum ColorChannel
 {
     /// <summary>Bits 0-4.</summary>
     Red = 0,

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// already proven by the live room-enemy path.
 /// </summary>
 [Flags]
-public enum EnemyExtraProperties : ushort
+public enum EnemyExtraProperties
 {
     /// <summary>No translated extra-property behavior is enabled.</summary>
     None = 0,

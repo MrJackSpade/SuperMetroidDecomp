@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <see cref="Complete"/> once the list has installed <c>PreInstruction_Xray_Main</c>.
 /// Native code keeps this as the instruction-list position; the port names each call.
 /// </summary>
-public enum XraySetupStage : byte
+public enum XraySetupStage
 {
     /// <summary>All eight calls ran; the main pre-instruction <c>$91:D27F</c> successor owns the beam.</summary>
     Complete = 0,

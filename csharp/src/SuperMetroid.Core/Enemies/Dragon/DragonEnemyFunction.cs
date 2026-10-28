@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// The routine Dragon's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum DragonEnemyFunction : ushort
+public enum DragonEnemyFunction
 {
     /// <summary><c>$A2:E654</c>: waits below the lava, then selects facing and begins the 48-update rise.</summary>
     WaitToRise = 1,

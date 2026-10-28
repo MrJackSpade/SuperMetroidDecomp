@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Native equipment-screen categories: the low byte of the selector index ($82:AC58 dispatch).</summary>
-public enum PauseEquipmentCategory : byte
+public enum PauseEquipmentCategory
 {
     /// <summary>Reserve-tank controls, selector byte zero.</summary>
     Reserves = 0,

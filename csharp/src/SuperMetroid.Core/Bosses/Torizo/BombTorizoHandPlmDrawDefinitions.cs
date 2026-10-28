@@ -100,7 +100,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         {
             var words = new ushort[draw.WordCount(run)];
             for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
-            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
+            runs[run] = new(PlmRunDirection.Horizontal, words, new(draw.NextX(run), draw.NextY(run)));
         }
         list = new(request, runs);
         return true;

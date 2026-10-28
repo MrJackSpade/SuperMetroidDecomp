@@ -94,7 +94,7 @@ internal static class PirateHitboxShotActions
         family is SamusProjectileFamily.Beam or SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile;
 
     /// <summary>Outcome chosen from a Pirate component's shot callback before ordinary damage processing.</summary>
-    internal enum PirateHitboxShotAction : byte
+    internal enum PirateHitboxShotAction
     {
         /// <summary>Continue through the Pirate's normal shot reaction.</summary>
         Normal,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// The routine a Choot's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum ChootEnemyFunction : ushort
+public enum ChootEnemyFunction
 {
     /// <summary><c>$A2:E035</c>, native <c>Function_Choot_WaitForSamusToGetNear</c>: waits for Samus within 80 horizontal pixels, then loads the population's jump delay.</summary>
     WaitingForSamus = 1,

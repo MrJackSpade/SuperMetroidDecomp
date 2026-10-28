@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// bit zero for facing and sets/clears bit one for the temporary spin family.
 /// </summary>
 [Flags]
-public enum WaverAnimationSelector : ushort
+public enum WaverAnimationSelector
 {
     /// <summary>Neither bit set: steady left-facing art, selected by the first pointer at $A3:86DB.</summary>
     None = 0,

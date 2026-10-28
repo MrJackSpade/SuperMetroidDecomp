@@ -438,7 +438,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         // $8B:D46B follows cinematic actors even while a text-only TM masks OBJ.
         // F734 enables the already-initialized records when the credits finish.
-        if (Stage.Phase >= EndingCreditsPhase.PostCreditsBlank)
+        if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
         Flyaway.CinematicFrame++;
     }
@@ -472,7 +472,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
     /// <summary>Whether the explosion currently uses its dedicated color-math composition.</summary>
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
-        && Stage.Phase < EndingCreditsPhase.PlanetEscapeFast;
+        && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
     /// <summary>What <paramref name="layer"/> shows reading <paramref name="depth"/> characters: their pre-coloured tiles (#1392).</summary>
     internal ScreenLayerPictures LayerTiles(EndingTileLayer layer, BgBitDepth depth) => screen.Tiles(InstalledArtwork.Sheets, layer, depth);
@@ -545,6 +545,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>
-    internal bool EscapeBackgroundEnabled => Stage.Phase is < EndingCreditsPhase.ZebesExplosionTileUpload
-        or >= EndingCreditsPhase.PlanetEscapeFast;
+    internal bool EscapeBackgroundEnabled => EndingCreditsPhaseGroups.BeforeZebesExplosionTileUpload.Contains(Stage.Phase)
+        || !EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 }

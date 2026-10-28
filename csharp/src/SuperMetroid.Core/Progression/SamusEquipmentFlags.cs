@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// that order.
 /// </summary>
 [Flags]
-public enum SamusEquipmentFlags : ushort
+public enum SamusEquipmentFlags
 {
     /// <summary>No suit, mobility, explosive, or exploration item bits are enabled.</summary>
     None = 0,

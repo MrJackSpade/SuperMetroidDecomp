@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -69,11 +70,11 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertEqual(count, shape.DirectionAndCount(run), "Gate native count/direction");
+                    AssertRunHeader(count, shape.Direction, shape.WordCount(run), "Gate native count/direction");
                     AssertEqual(length, shape.WordCount(run), "Gate native run width");
                     AssertEqual((count & 0x8000) != 0, shape.Column, "Gate runtime direction");
-                    AssertEqual(count, dto.Runs.Span[run].DirectionAndCount, "Gate DTO count/direction");
-                    AssertEqual(count, exported[index].Runs.Span[run].DirectionAndCount, "Gate export count/direction");
+                    AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
+                    AssertRunHeader(count, exported[index].Runs.Span[run], "Gate export count/direction");
                     AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Gate DTO width");
                     AssertEqual(length, exported[index].Runs.Span[run].LevelWords.Length, "Gate export width");
                     foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
@@ -116,7 +117,7 @@ internal static class LookupDownwardGateDrawsVerification
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Gate run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Gate offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.DirectionAndCount(invalid), "Gate direction bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Gate run-width bounds");
                 }
             }
         }

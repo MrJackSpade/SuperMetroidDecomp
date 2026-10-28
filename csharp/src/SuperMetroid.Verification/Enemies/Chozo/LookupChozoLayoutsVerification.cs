@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
@@ -91,7 +92,7 @@ internal static class LookupChozoLayoutsVerification
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
-                        AssertEqual(header, part.DirectionAndCount, "Chozo layout native DTO geometry");
+                        AssertRunHeader(header, part, "Chozo layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Chozo layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Chozo layout native DTO offset");
                     }

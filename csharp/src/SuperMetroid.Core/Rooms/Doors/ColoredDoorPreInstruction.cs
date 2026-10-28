@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The pre-instructions a coloured cap installs (#1296). The values are arbitrary (#1414).</summary>
-internal enum ColoredDoorPreInstruction : ushort
+internal enum ColoredDoorPreInstruction
 {
     /// <summary>No pre-instruction.</summary>
     None = 1,

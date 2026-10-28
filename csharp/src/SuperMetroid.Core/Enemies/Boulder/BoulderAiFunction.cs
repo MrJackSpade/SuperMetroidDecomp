@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// The six routines Boulder's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum BoulderAiFunction : ushort
+public enum BoulderAiFunction
 {
     /// <summary>$A6:879A, <c>Function_Boulder_WaitForSamusToGetNear</c>: waits for Samus to enter the direction-dependent X window and vertical trigger range before selecting an initial fall or immediate roll.</summary>
     WaitingForSamus = 1,

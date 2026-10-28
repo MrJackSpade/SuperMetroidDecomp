@@ -99,7 +99,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertTrue(ColoredDoorCaps.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(firstDraw), out var selected),
                 $"resident colored-door header {header} selects compiled art");
             plms.Step(level);
-            bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
+            bool vertical = selected.Runs.Span[0].Direction == PlmRunDirection.Vertical;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// facing enum, this word also dispatches the underground animation. The all-ones value is
 /// a real one-frame table-underflow state produced by retail code at the left patrol bound.
 /// </summary>
-public enum OwtchBehaviorState : ushort
+public enum OwtchBehaviorState
 {
     /// <summary>Index 0, $A2:A4B0 Function_Owtch_0_MovingLeft: applies the negative 16.16 patrol velocity, then samples the burial gate; crossing the minimum X bound decrements the index to $FFFF.</summary>
     MovingLeft = 0,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 /// The movement routine a Stoke projectile runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-internal enum StokeProjectileFunction : ushort
+internal enum StokeProjectileFunction
 {
     /// <summary>$86:DB62.</summary>
     MoveLeft,

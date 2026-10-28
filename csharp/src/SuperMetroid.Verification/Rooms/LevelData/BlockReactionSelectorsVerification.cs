@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -49,7 +50,7 @@ internal static class BlockReactionSelectorsVerification
             AssertEqual(1, draw.Runs.Length, "bombed reveal single native run");
             var run = draw.Runs.Span[0];
             ushort count = ReadRomWord(rom,0x840000 | pointer);
-            AssertEqual(count,run.DirectionAndCount,"bombed reveal native direction/count");
+            AssertRunHeader(count,run,"bombed reveal native direction/count");
             AssertEqual(count & 0x7fff,run.LevelWords.Length,"bombed reveal native word count");
             AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),run.LevelWords.Span[0],
                 "bombed reveal native physical parent and visual tile");

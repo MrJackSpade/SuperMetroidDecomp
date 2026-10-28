@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Twenty-one entries shared by all three retail permanent-item header tables.</summary>
-public enum InWorldCollectibleKind : byte
+public enum InWorldCollectibleKind
 {
     /// <summary>Header-table entry zero: adds 100 maximum health and refills health to the new maximum.</summary>
     EnergyTank,

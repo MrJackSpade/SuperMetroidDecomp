@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// The five Choot falling paths.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-internal enum ChootFallingPath : ushort
+internal enum ChootFallingPath
 {
     /// <summary>$A2:D84C, normal falling motion.</summary>
     Normal = 1,

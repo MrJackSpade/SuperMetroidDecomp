@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// settling animation.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum MaridiaLargeSnailBounceFunction : ushort
+public enum MaridiaLargeSnailBounceFunction
 {
     /// <summary>Function_Oum_Falling, $A2:CF66: increases the quadratic-speed selector by $0180 per update up to $4000; a floor impact consumes a bounce, subtracts $1000, and selects rising.</summary>
     Falling = 1,

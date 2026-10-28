@@ -99,7 +99,8 @@ internal static class LookupEscapeGateVerification
                 foreach (var frame in new[] {dto,exported[index],byId})
                 {
                     AssertEqual(1, frame.Runs.Length, "Escape gate one run");
-                    AssertEqual(0x8004, frame.Runs.Span[0].DirectionAndCount, "Escape gate DTO geometry");
+                    AssertEqual(PlmRunDirection.Vertical, frame.Runs.Span[0].Direction, "Escape gate DTO runs down its column");
+                    AssertEqual(4, frame.Runs.Span[0].Count, "Escape gate DTO block count");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Escape gate DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Escape gate DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Escape gate DTO final Y");

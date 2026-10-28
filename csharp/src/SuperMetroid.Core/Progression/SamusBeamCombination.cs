@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Progression;
 /// only through glitched equipment, and their native table reads run past the twelve retail
 /// rows (Chainsaw $D and SpaceTime $E read adjacent data as artwork).
 /// </summary>
-public enum SamusBeamCombination : byte
+public enum SamusBeamCombination
 {
     /// <summary>$0: the unmodified Power Beam.</summary>
     Power = 0x0,

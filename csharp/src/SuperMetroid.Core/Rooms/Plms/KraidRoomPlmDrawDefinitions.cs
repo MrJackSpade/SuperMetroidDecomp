@@ -71,7 +71,7 @@ internal static class KraidRoomPlmDrawDefinitions
                 ushort[] words = new ushort[draw.BlockCount];
                 for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(block);
                 yield return new(PlmDraw.Of(frame),
-                    new RoomPlmShotBlockDrawDefinitions.Run[] { new((ushort)words.Length, words, new(0, 0)) });
+                    new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, words, new(0, 0)) });
             }
         }
     }

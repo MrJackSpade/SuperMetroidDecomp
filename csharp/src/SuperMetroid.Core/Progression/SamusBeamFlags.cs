@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// be combined; Charge occupies bit twelve just as it does in the cartridge word.
 /// </summary>
 [Flags]
-public enum SamusBeamFlags : ushort
+public enum SamusBeamFlags
 {
     /// <summary>The unmodified Power Beam, with no optional beam components enabled.</summary>
     None = 0,

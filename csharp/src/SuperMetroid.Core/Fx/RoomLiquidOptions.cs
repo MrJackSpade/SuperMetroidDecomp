@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// things to water and to lava or acid; their names say both. Options no liquid tests are kept as loaded.
 /// </summary>
 [Flags]
-public enum RoomLiquidOptions : byte
+public enum RoomLiquidOptions
 {
     /// <summary>No option: a still liquid with no BG2 wave and no tide.</summary>
     None = 0,

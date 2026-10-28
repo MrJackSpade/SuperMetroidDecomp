@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// Puyo's airborne routines; entries zero through six of its hop table select them.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum PuyoAirborneFunction : ushort
+public enum PuyoAirborneFunction
 {
     /// <summary>$A2:9D0B, <c>Function_Puyo_Airborne_Normal_ShortHop</c>: moves the small normal hop and selects the slow grounded animation on landing or terrain collision.</summary>
     NormalShortHop = 1,

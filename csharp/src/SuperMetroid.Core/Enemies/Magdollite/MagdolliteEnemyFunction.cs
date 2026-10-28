@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// The routine Magdollite's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum MagdolliteEnemyFunction : ushort
+public enum MagdolliteEnemyFunction
 {
     /// <summary>$A8:B11A, Function_Magdollite_WaitForSamusToGetNear: faces Samus and submerges when the hand cooldown has expired and Samus is within the configured horizontal range.</summary>
     HeadWaiting = 1,

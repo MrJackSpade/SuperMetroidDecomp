@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Plms;
@@ -40,9 +41,9 @@ internal static class LookupCrocomireDrawsVerification
             {
                 ushort count = ReadWord(cursor);
                 cursor += 2;
-                AssertEqual(count, shape.DirectionAndCount, "Crocomire native direction/count");
-                AssertEqual(count, dto.Runs.Span[run].DirectionAndCount, "Crocomire DTO direction/count");
-                AssertEqual(count, exported[index].Runs.Span[run].DirectionAndCount, "Crocomire export direction/count");
+                AssertRunHeader(count, shape.Direction, shape.WordsPerRun, "Crocomire native direction/count");
+                AssertRunHeader(count, dto.Runs.Span[run], "Crocomire DTO direction/count");
+                AssertRunHeader(count, exported[index].Runs.Span[run], "Crocomire export direction/count");
                 int length = count & 0x7fff;
                 AssertEqual(length, shape.WordsPerRun, "Crocomire native width");
                 AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Crocomire DTO width");

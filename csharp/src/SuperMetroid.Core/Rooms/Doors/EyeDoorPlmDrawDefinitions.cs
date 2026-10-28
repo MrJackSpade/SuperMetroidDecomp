@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class EyeDoorPlmDrawDefinitions
 {
-    /// <summary>The native run header's vertical direction bit, set for the eye and the clear.</summary>
-    internal const int VerticalRunBit = 0x8000;
-
     /// <summary>The left side's opening clear, which shares the right side's clearing artwork.</summary>
     internal static PlmFrameDraw<EyeDoorDraws.Draw> MirroredOpeningClear { get; } =
         PlmDraw.Of(new EyeDoorDraws.Draw(EyeDoorDraws.Component.Clear, 0, Left: true));

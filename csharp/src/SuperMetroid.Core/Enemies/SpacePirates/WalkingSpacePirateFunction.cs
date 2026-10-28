@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The routine a walking Space Pirate's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum WalkingSpacePirateFunction : ushort
+public enum WalkingSpacePirateFunction
 {
     /// <summary>The shared bank-$B2 RTS copied by initialization and flinch lists.</summary>
     NoOperation = 1,

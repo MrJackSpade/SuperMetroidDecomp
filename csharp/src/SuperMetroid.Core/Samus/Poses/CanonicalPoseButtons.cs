@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The values are arbitrary bits: <c>SamusPoseInputDefinitions</c> maps each to the controller button standing for it.
 /// </summary>
 [Flags]
-internal enum CanonicalPoseButtons : ushort
+internal enum CanonicalPoseButtons
 {
     /// <summary>Canonical aim diagonally up.</summary>
     AimUp = 1 << 0,

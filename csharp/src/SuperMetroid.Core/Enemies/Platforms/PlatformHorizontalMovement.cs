@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// platform). These values are indexes, not bank-$A3 function pointers: the ROM doubles
 /// each word before indexing the pointer table at <c>$A3:9C97</c>.
 /// </summary>
-public enum PlatformHorizontalMovement : ushort
+public enum PlatformHorizontalMovement
 {
     /// <summary>Dispatcher index zero selects negative/left horizontal motion; a wall collision switches to index one and installs right-facing artwork.</summary>
     Left = 0,

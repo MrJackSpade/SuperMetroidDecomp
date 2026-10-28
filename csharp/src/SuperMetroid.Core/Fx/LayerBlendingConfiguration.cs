@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// The layer-blending configuration a room-FX record or an effect selects. Its values are arbitrary; the import decodes
 /// the record's dispatcher byte (#1415).
 /// </summary>
-public enum LayerBlendingConfiguration : ushort
+public enum LayerBlendingConfiguration
 {
     /// <summary>
     /// <c>LayerBlending_Config</c> zero: <c>LayerBlending_Handler</c> branches past initialization

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 /// producer. Omitting it is intentional; casting its raw nibble to this enum still preserves
 /// the value for diagnostics without blessing a guess as domain terminology.
 /// </remarks>
-public enum SamusProjectileFamily : ushort
+public enum SamusProjectileFamily
 {
     /// <summary>Beam family, including charged and uncharged beam payload bits.</summary>
     Beam = 0x0000,

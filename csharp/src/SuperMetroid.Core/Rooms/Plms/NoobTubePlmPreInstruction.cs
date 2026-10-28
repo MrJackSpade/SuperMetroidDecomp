@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// Pre-instructions the n00b-tube PLM installs. The values are arbitrary (#1452); verification's native view names each
 /// member's routine word.
 /// </summary>
-public enum NoobTubePlmPreInstruction : ushort
+public enum NoobTubePlmPreInstruction
 {
     /// <summary>Wake the linked list on a newly pressed face button or horizontal direction.</summary>
     WakeOnAcceptedInput = 1,

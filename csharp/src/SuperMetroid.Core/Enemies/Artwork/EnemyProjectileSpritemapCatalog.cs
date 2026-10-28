@@ -84,7 +84,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         if (!Versions.TryDecode(document.Version, out EnemyProjectileSpritemapVersion version))
             throw new InvalidDataException(
                 $"Enemy-projectile compositions have unknown schema version {document.Version}.");
-        bool legacyOverride = version < EnemyProjectileSpritemapVersion.Current && stock is not null;
+        bool legacyOverride = version != EnemyProjectileSpritemapVersion.Current && stock is not null;
         int expectedFrames = version == EnemyProjectileSpritemapVersion.CeresOnly && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.FrameNames.Length;
@@ -108,7 +108,7 @@ public sealed class EnemyProjectileSpritemapCatalog
                     $"Enemy-projectile composition {name} is missing.");
             compiled[EnemyProjectileFrames.Identity(name)] = CompileParts(name, visual);
         }
-        if (version >= EnemyProjectileSpritemapVersion.FirstProgramFrame)
+        if (version is not (EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames))
         {
             EnemyProjectilePresentationFrameDefinition[] definitions = version switch
             {

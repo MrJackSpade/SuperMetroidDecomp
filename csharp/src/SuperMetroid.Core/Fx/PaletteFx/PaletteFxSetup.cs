@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>The setup a palette effect runs when it starts.
 /// Its values are arbitrary; verification's native view names each member's cartridge word (#1415).
 /// </summary>
-public enum PaletteFxSetup : ushort
+public enum PaletteFxSetup
 {
     /// <summary><c>PaletteFxSetup_Null</c> at $8D:C685.</summary>
     Null = 1,

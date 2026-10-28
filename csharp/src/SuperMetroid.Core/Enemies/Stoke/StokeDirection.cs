@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 /// <c>$8990</c> or <c>$899D</c>; the enum therefore describes cartridge storage, not merely
 /// the sign of the current velocity.
 /// </summary>
-public enum StokeDirection : ushort
+public enum StokeDirection
 {
     /// <summary>Native direction word zero: left-facing latch installed with the moving-left function by instruction $A2:8990.</summary>
     Left = 0,

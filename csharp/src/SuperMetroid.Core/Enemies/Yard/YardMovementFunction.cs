@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// Yard's movement routine.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum YardMovementFunction : ushort
+public enum YardMovementFunction
 {
     /// <summary>$A3:CF5F, RTL stub: main movement remains idle until an animation instruction installs a movement pointer.</summary>
     InstructionPending = 1,

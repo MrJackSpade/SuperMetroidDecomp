@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -78,7 +79,7 @@ internal static class LookupCannonLayoutsVerification
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
-                        AssertEqual(header, part.DirectionAndCount, "Cannon layout native DTO geometry");
+                        AssertRunHeader(header, part, "Cannon layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Cannon layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Cannon layout native DTO offset");
                     }

@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -68,7 +69,7 @@ internal static class LookupBombTorizoHandDrawVerification
                     AssertEqual(y, shape.OriginY(run), "Torizo hand original origin-relative Y");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
-                        AssertEqual(count, frame.Runs.Span[run].DirectionAndCount, "Torizo hand DTO count");
+                        AssertRunHeader(count, frame.Runs.Span[run], "Torizo hand DTO direction/count");
                         AssertEqual(count, frame.Runs.Span[run].LevelWords.Length, "Torizo hand DTO width");
                     }
                     foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})

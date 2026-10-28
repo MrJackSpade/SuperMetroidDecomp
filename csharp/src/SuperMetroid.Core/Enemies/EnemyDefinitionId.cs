@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the pinned disassembly is a member. The values are arbitrary and nothing reads them; the import pipeline translates
 /// the cartridge's header pointers to these members (#1412).
 /// </summary>
-public enum EnemyDefinitionId : ushort
+public enum EnemyDefinitionId
 {
     /// <summary>A cleared or inactive slot.</summary>
     None,

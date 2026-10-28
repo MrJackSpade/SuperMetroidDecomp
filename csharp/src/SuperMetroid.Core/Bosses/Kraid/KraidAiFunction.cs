@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// member names the bank-$A7 routine it ports; the word stores the member, not the routine's address. Members are
 /// declared in the cartridge's address order, which Kraid's death tests compare, and start at one.
 /// </summary>
-public enum KraidAiFunction : ushort
+public enum KraidAiFunction
 {
     /// <summary>A cleared record holds no function.</summary>
     None = 0,

@@ -40,8 +40,8 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
         ushort[] column = [0x00ff, 0x00ff, 0x00ff];
         draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(0x8003, column, new(1, 0)),
-            new(0x8003, column, new(0, 0)),
+            new(PlmRunDirection.Vertical, column, new(1, 0)),
+            new(PlmRunDirection.Vertical, column, new(0, 0)),
         });
         return true;
     }

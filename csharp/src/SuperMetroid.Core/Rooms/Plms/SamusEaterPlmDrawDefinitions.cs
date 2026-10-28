@@ -138,7 +138,7 @@ internal static class SamusEaterPlmDrawDefinitions
         {
             var words = new ushort[Draw.Count(run)];
             for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
-            runs[run] = new((ushort)words.Length, words, new(Draw.NextX(run), draw.NextY(run)));
+            runs[run] = new(PlmRunDirection.Horizontal, words, new(Draw.NextX(run), draw.NextY(run)));
         }
         list = new(request, runs);
         return true;

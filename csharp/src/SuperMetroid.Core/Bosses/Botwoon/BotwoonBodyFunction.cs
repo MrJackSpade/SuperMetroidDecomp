@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's body-segment phases, each naming the bank-$86 routine it ports; the segment's state holds the member (#1413).</summary>
-internal enum BotwoonBodyFunction : ushort
+internal enum BotwoonBodyFunction
 {
     /// <summary><c>Function_EnemyProjectile_BotwoonsBody_Main</c> at $86:EA98.</summary>
     Main = 1,

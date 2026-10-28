@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Hud;
 
 /// <summary>The native bank-$90 HUD selection handlers that movement types dispatch to, valued by handler address.</summary>
-internal enum SamusHudHandler : ushort
+internal enum SamusHudHandler
 {
     /// <summary>$90:DD3D standard HUD handler.</summary>
     Standard,

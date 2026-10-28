@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// Pre-instruction callbacks used by the resident gate coroutine. The values are arbitrary (#1452); verification's
 /// native view names each member's routine word.
 /// </summary>
-internal enum DownwardGatePreInstruction : ushort
+internal enum DownwardGatePreInstruction
 {
     /// <summary>No pre-instruction installed in the PLM slot yet.</summary>
     None = 0,

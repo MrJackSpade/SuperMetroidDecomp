@@ -373,7 +373,7 @@ internal sealed class CrocomireFight
                     state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
                     return CrocomireBodyProgram.NearSpikeWallCharge;
                 }
-                return continuation >= CrocomireBodyProgram.SteppingBack
+                return !CrocomireBodyProgramGroups.BeforeSteppingBack.Contains(continuation)
                     ? CrocomireBodyProgram.StepForward
                     : null;
 
@@ -567,7 +567,7 @@ internal sealed class CrocomireFight
             state.FightFunction = damagedDestination;
             return CrocomireBodyProgram.StepBack;
         }
-        return continuation >= CrocomireBodyProgram.RoarCloseMouthLoop
+        return !CrocomireBodyProgramGroups.BeforeRoarCloseMouthLoop.Contains(continuation)
             ? CrocomireBodyProgram.Roar
             : null;
     }

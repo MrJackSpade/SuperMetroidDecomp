@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -73,7 +74,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 var run = view.Runs.Span[0];
                 if (field == 0)
                 {
-                    AssertEqual(header,run.DirectionAndCount,"Eye door DTO direction/count");
+                    AssertRunHeader(header,run,"Eye door DTO direction/count");
                     AssertEqual(count,run.LevelWords.Length,"Eye door DTO length");
                     AssertEqual(0,(int)run.Next.X,"Eye door terminal X");
                     AssertEqual(0,(int)run.Next.Y,"Eye door terminal Y");

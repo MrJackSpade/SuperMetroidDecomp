@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -43,7 +44,7 @@ internal static class BombBlockProgramsVerification
                 AssertEqual(2, count, "bomb restoration two words per native run");
                 AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "bomb restoration native orientation");
                 var exportedRun = list.Runs.Span[run];
-                AssertEqual(nativeCount, exportedRun.DirectionAndCount, "bomb restoration exported direction/count");
+                AssertRunHeader(nativeCount, exportedRun, "bomb restoration exported direction/count");
                 AssertEqual(count, exportedRun.LevelWords.Length, "bomb restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>What a special-air block does to Samus when she is inside or touches it.
 /// Its values are arbitrary; verification's native view names each member's cartridge word (#1415).
 /// </summary>
-public enum SpecialAirReactionSetup : ushort
+public enum SpecialAirReactionSetup
 {
     /// <summary><c>$84:B3CF RTS</c>: no reaction.</summary>
     Nothing = 1,

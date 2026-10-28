@@ -52,5 +52,5 @@ internal static class PlmVisualDomainDefinitions
 
     /// <summary>Wraps a collectible or grapple-block level word as a one-cell draw run for domain comparison.</summary>
     private static RoomPlmShotBlockDrawDefinitions.DrawList SingleWord(PlmDraw draw, ushort levelWord) =>
-        new(draw, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { levelWord }, new(0, 0)) });
+        new(draw, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new ushort[] { levelWord }, new(0, 0)) });
 }

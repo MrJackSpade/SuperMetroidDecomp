@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.Kraid;
+﻿using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 

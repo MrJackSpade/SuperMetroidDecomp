@@ -32,7 +32,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int offset = 0; offset < 32; offset += 8)
         {
             ushort native = ReadRomWord(rom, 0xb3949d + offset);
-            AssertEqual(native, BotwoonNavigationDefinitions.HoleAt(offset / RecordBytes).BottomRight.X, "Botwoon native right boundary");
+            AssertEqual(native, BotwoonNavigation.HoleAt(offset / RecordBytes).BottomRight.X, "Botwoon native right boundary");
             var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeY(ReadRomWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
@@ -45,7 +45,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
         AssertEqual(4, BotwoonNavigationDefinitions.HoleCount, "Botwoon has four holes");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleAt(invalid), "Botwoon hole index domain");
+            AssertThrows<InvalidDataException>(() => BotwoonNavigation.HoleAt(invalid), "Botwoon hole index domain");
     }
 
     /// <summary>Checks each hole's exclusive bottom edge through the production detection routine.</summary>
@@ -55,7 +55,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int offset = 0; offset < 32; offset += 8)
         {
             ushort native = ReadRomWord(rom, 0xb394a1 + offset);
-            AssertEqual(native, BotwoonNavigationDefinitions.HoleAt(offset / RecordBytes).BottomRight.Y, "Botwoon native bottom boundary");
+            AssertEqual(native, BotwoonNavigation.HoleAt(offset / RecordBytes).BottomRight.Y, "Botwoon native bottom boundary");
             var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeX(ReadRomWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
@@ -92,7 +92,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
         AssertEqual(32, BotwoonNavigationDefinitions.PathChoiceCount, "Botwoon has 32 path choices");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.PathForChoice(invalid), "Botwoon descriptor rejects every invalid path choice");
+            AssertThrows<InvalidDataException>(() => BotwoonNavigation.PathForChoice(invalid), "Botwoon descriptor rejects every invalid path choice");
         Console.WriteLine("Botwoon path descriptors: all 32 sample, direction and destination fields and production installations match native records; invalid choices rejected.");
     }
 
@@ -105,12 +105,12 @@ internal static class BotwoonNavigationDefinitionsVerification
         foreach (ushort pointer in boundaries)
         {
             AssertEqual((ushort)0x0080, ReadRomWord(rom, 0xb30000 | pointer), "Botwoon native stream separator");
-            AssertEqual(new Offset16<RoomPixels>(sbyte.MinValue, 0), BotwoonNavigationDefinitions.MovementSample(SampleIndexOf(pointer)), "Botwoon compiled stream separator");
+            AssertEqual(new Offset16<RoomPixels>(sbyte.MinValue, 0), BotwoonNavigation.MovementSample(SampleIndexOf(pointer)), "Botwoon compiled stream separator");
         }
         AssertEqual((ushort)0xf080, ReadRomWord(rom, 0xb3a6b4), "Botwoon early terminal is distinct from stream separator");
         for (int offset = 0; offset < 256; offset += 8)
             AssertEqual(SampleIndexOf(ReadRomWord(rom, 0xb3e150 + offset)),
-                BotwoonNavigationDefinitions.PathForChoice(offset / RecordBytes).FirstSampleIndex, "Botwoon native forward/reverse descriptor start");
+                BotwoonNavigation.PathForChoice(offset / RecordBytes).FirstSampleIndex, "Botwoon native forward/reverse descriptor start");
     }
 
     /// <summary>Checks forward and reverse traversal words for every authored path choice.</summary>
@@ -118,7 +118,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     {
         for (int offset = 0; offset < 256; offset += 8)
             AssertEqual((short)ReadRomWord(rom, 0xb3e152 + offset),
-                BotwoonNavigationDefinitions.PathForChoice(offset / RecordBytes).Direction, "Botwoon native traversal direction");
+                BotwoonNavigation.PathForChoice(offset / RecordBytes).Direction, "Botwoon native traversal direction");
     }
 
     /// <summary>Checks destination holes, including the repeated hidden choice in the native table.</summary>
@@ -126,7 +126,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     {
         for (int offset = 0; offset < 256; offset += 8)
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset),
-                RecordBytes * BotwoonNavigationDefinitions.PathForChoice(offset / RecordBytes).TargetHoleIndex, "Botwoon native destination including repeated hidden choice");
+                RecordBytes * BotwoonNavigation.PathForChoice(offset / RecordBytes).TargetHoleIndex, "Botwoon native destination including repeated hidden choice");
     }
 
     /// <summary>Compares hole rectangles and movement samples against retail words while guarding compiled source ranges during production navigation.</summary>
@@ -139,7 +139,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
         {
             int address = 0xb3949b + RecordBytes * holeIndex;
-            BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleAt(holeIndex);
+            BotwoonHoleDefinition hole = BotwoonNavigation.HoleAt(holeIndex);
             holes[holeIndex] = hole;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), hole.TopLeft.X, $"Botwoon hole {holeIndex} left");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), hole.TopLeft.Y, $"Botwoon hole {holeIndex} top");
@@ -150,7 +150,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             int address = 0xb3e150 + RecordBytes * choice;
             BotwoonPathDescriptorDefinition descriptor =
-                BotwoonNavigationDefinitions.PathForChoice(choice);
+                BotwoonNavigation.PathForChoice(choice);
             AssertEqual(SampleIndexOf(CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), descriptor.FirstSampleIndex,
                 $"Botwoon path {choice} first sample");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), descriptor.Direction,
@@ -193,7 +193,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             sbyte expectedX = unchecked((sbyte)rom.ReadCartridgeByte(0xb30000 | pointer));
             sbyte expectedY = unchecked((sbyte)rom.ReadCartridgeByte(0xb30000 | pointer + 1));
             Offset16<RoomPixels> compiled =
-                BotwoonNavigationDefinitions.MovementSample(sampleIndex);
+                BotwoonNavigation.MovementSample(sampleIndex);
             AssertEqual(expectedX, compiled.X, $"Botwoon movement ${pointer:X4} X");
             AssertEqual(expectedY, compiled.Y, $"Botwoon movement ${pointer:X4} Y");
 
@@ -289,22 +289,22 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigationDefinitions.HoleAt(-1),
+            () => BotwoonNavigation.HoleAt(-1),
             "Botwoon hole index before table");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigationDefinitions.HoleAt(4),
+            () => BotwoonNavigation.HoleAt(4),
             "Botwoon hole index past table");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigationDefinitions.PathForChoice(-1),
+            () => BotwoonNavigation.PathForChoice(-1),
             "Botwoon path choice before table");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigationDefinitions.PathForChoice(32),
+            () => BotwoonNavigation.PathForChoice(32),
             "Botwoon path choice past table");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigationDefinitions.MovementSample(-1),
+            () => BotwoonNavigation.MovementSample(-1),
             "Botwoon movement sample before corpus");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigationDefinitions.MovementSample(BotwoonMovementSampleData.Count),
+            () => BotwoonNavigation.MovementSample(BotwoonMovementSampleData.Count),
             "Botwoon movement sample after corpus");
 
         var invalidEnemies = new RoomEnemySystem(new EnemySession());

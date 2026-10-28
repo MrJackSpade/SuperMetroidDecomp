@@ -17,24 +17,6 @@ internal static class BotwoonHealthPaletteDefinitions
     /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
     public const int CompletePhase = 8;
 
-    /// <summary>
-    /// Returns whether the current health is below the threshold selected by an even native
-    /// byte offset $00..$0E. The signed subtraction matches the cartridge's CMP/BPL result.
-    /// </summary>
-    /// <remarks>
-    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_B3.asm:
-    /// $B3:981B has threshold(i)=375*(8-i), i=0..7. Divide the validated even byte
-    /// offset by two before multiplying; subtract in sixteen bits and interpret the
-    /// result as signed, matching CMP/BPL at $B3:983B. All ushort health values remain
-    /// supported, including wrapped differences. Offset 16 is caller-owned completion,
-    /// not an extrapolated threshold.
-    /// </remarks>
-    public static bool ShouldAdvance(int phase, int health)
-    {
-        if (phase is < 0 or >= CompletePhase)
-            throw new InvalidDataException($"Botwoon palette phase {phase} is outside the eight retail threshold entries.");
-
-        int threshold = 375 * (8 - phase);
-        return unchecked((short)(health - threshold)) < 0;
-    }
+    /// <summary>The health between successive thresholds: threshold(i) = 375 * (8 - i).</summary>
+    public const int HealthPerThreshold = 375;
 }

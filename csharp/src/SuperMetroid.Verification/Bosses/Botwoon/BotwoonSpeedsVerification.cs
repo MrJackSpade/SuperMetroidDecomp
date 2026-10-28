@@ -21,7 +21,7 @@ internal static class BotwoonSpeedsVerification
     {
         for (byte phase = 0; phase < 3; phase++)
         {
-            var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
+            var speed = BotwoonSpeeds.ForHealthPhase(phase);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb394bb + phase * 4)), speed.MovementSpeed, "Botwoon native movement speed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39e77 + phase * 2)), speed.SpitSpeed, "Botwoon native spit speed");
         }
@@ -41,8 +41,8 @@ internal static class BotwoonSpeedsVerification
             update(head, state);
             AssertEqual(phase, state.HealthPhase, "Botwoon preserves phase inside hole");
         }
-        AssertThrows<InvalidDataException>(() => BotwoonSpeedDefinitions.ForHealthPhase(3), "Botwoon invalid phase");
-        AssertThrows<InvalidDataException>(() => BotwoonSpeedDefinitions.ForHealthPhase(byte.MaxValue), "Botwoon maximum invalid phase");
+        AssertThrows<InvalidDataException>(() => BotwoonSpeeds.ForHealthPhase(3), "Botwoon invalid phase");
+        AssertThrows<InvalidDataException>(() => BotwoonSpeeds.ForHealthPhase(byte.MaxValue), "Botwoon maximum invalid phase");
         Console.WriteLine("Botwoon speed algorithm: both three-word native views and 3,001 real health transitions match; hidden phases remain held.");
     }
 
@@ -53,11 +53,11 @@ internal static class BotwoonSpeedsVerification
         {
             int address = BotwoonSpeedDefinitions.MovementReferenceAddress + phase * 4 + 2;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, BotwoonSpeedDefinitions.ForHealthPhase(phase).SegmentSpacingBytes,
+            AssertEqual(expected, BotwoonSpeeds.ForHealthPhase(phase).SegmentSpacingBytes,
                 $"Botwoon native body spacing phase {phase}");
         }
-        AssertThrows<InvalidDataException>(() => BotwoonSpeedDefinitions.ForHealthPhase(3), "Botwoon spacing invalid phase");
-        AssertThrows<InvalidDataException>(() => BotwoonSpeedDefinitions.ForHealthPhase(byte.MaxValue), "Botwoon spacing maximum invalid phase");
+        AssertThrows<InvalidDataException>(() => BotwoonSpeeds.ForHealthPhase(3), "Botwoon spacing invalid phase");
+        AssertThrows<InvalidDataException>(() => BotwoonSpeeds.ForHealthPhase(byte.MaxValue), "Botwoon spacing maximum invalid phase");
         Console.WriteLine("Botwoon spacing algorithm: all three native body-history spacings and phase bounds match.");
     }
 }

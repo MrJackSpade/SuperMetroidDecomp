@@ -117,7 +117,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
         state.InitialDelayTimer = WrappingCountdown.Start(256);
-        var initialSpeed = BotwoonSpeedDefinitions.ForHealthPhase(0);
+        var initialSpeed = BotwoonSpeeds.ForHealthPhase(0);
         state.Speed = initialSpeed.MovementSpeed;
         state.SegmentSpacingEntries = initialSpeed.SegmentSpacingEntries;
         state.InsideHole = true;
@@ -332,7 +332,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         BotwoonHoleDefinition hole =
-            BotwoonNavigationDefinitions.HoleAt(state.TargetHoleIndex);
+            BotwoonNavigation.HoleAt(state.TargetHoleIndex);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
         Bearing bearing = EnemyMath.CalculateBearing(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
@@ -373,7 +373,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (head.Health != 0 && head.Health < state.HalfHealth)
             phase = head.Health < state.QuarterHealth ? 2 : 1;
         state.HealthPhase = phase;
-        var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
+        var speed = BotwoonSpeeds.ForHealthPhase(phase);
         state.Speed = speed.MovementSpeed;
         state.SegmentSpacingEntries = speed.SegmentSpacingEntries;
     }
@@ -382,7 +382,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
     {
         BotwoonPathDescriptorDefinition descriptor =
-            BotwoonNavigationDefinitions.PathForChoice(state.PathChoice);
+            BotwoonNavigation.PathForChoice(state.PathChoice);
         state.PathSampleIndex = descriptor.FirstSampleIndex;
         state.PathDirection = descriptor.Direction;
         state.TargetHoleIndex = descriptor.TargetHoleIndex;
@@ -401,7 +401,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int sample = 0; sample < state.Speed; sample++)
         {
             Offset16<RoomPixels> movement =
-                BotwoonNavigationDefinitions.MovementSample(state.PathSampleIndex);
+                BotwoonNavigation.MovementSample(state.PathSampleIndex);
             if (movement.X == sbyte.MinValue)
             {
                 state.PathComplete = true;
@@ -499,7 +499,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cartridge tests the holes from the last to the first and latches the first it finds.
         for (int holeIndex = BotwoonNavigationDefinitions.HoleCount - 1; holeIndex >= 0; holeIndex--)
         {
-            BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleAt(holeIndex);
+            BotwoonHoleDefinition hole = BotwoonNavigation.HoleAt(holeIndex);
             Offset16<RoomPixels> fromTopLeft = head.Position.Whole - hole.TopLeft;
             Offset16<RoomPixels> fromBottomRight = head.Position.Whole - hole.BottomRight;
             if (fromTopLeft.X >= 0 && fromBottomRight.X < 0 &&
@@ -678,7 +678,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int count,
         int startOffset)
     {
-        int speed = BotwoonSpeedDefinitions.ForHealthPhase(state.HealthPhase).SpitSpeed;
+        int speed = BotwoonSpeeds.ForHealthPhase(state.HealthPhase).SpitSpeed;
         ByteAngle angle = state.SpitAngle.AddTableUnits(startOffset).ToByteAngle();
         for (int projectile = 0; projectile < count; projectile++)
         {
@@ -692,7 +692,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.PalettePhase == BotwoonHealthPaletteDefinitions.CompletePhase)
             return;
-        if (!BotwoonHealthPaletteDefinitions.ShouldAdvance(state.PalettePhase, head.Health))
+        if (!BotwoonHealthPalette.ShouldAdvance(state.PalettePhase, head.Health))
             return;
 
         int destinationColor = state.PaletteFirstColour;

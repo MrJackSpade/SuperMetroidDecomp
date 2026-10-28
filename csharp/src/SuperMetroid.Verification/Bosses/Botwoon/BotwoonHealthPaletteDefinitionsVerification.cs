@@ -25,7 +25,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
             {
                 bool expected = unchecked((short)((ushort)health - threshold)) < 0;
                 AssertEqual(expected,
-                    BotwoonHealthPaletteDefinitions.ShouldAdvance(phase, health),
+                    BotwoonHealthPalette.ShouldAdvance(phase, health),
                     $"Botwoon phase ${phase:X2} health {health} threshold decision");
             }
         }
@@ -33,7 +33,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         foreach (int invalid in new[] { -1, 8, 9, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(
-                () => BotwoonHealthPaletteDefinitions.ShouldAdvance(invalid, 0),
+                () => BotwoonHealthPalette.ShouldAdvance(invalid, 0),
                 $"Botwoon rejects restored palette phase {invalid}");
         }
 

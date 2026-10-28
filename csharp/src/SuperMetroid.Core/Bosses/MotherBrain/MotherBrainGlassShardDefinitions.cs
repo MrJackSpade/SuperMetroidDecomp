@@ -13,7 +13,7 @@ internal static class MotherBrainGlassShardDefinitions
     /// The three horizontal emitter positions on the glass: $86:CE61 right, half a block right of the PLM origin;
     /// $86:CE63 left, two and a half blocks left; $86:CE65 centre, one block left.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainGlassShard, short> EmitterXs = new()
+    internal static readonly Dictionary<MotherBrainGlassShard, int> EmitterXs = new()
     {
         [MotherBrainGlassShard.Right] = 8,
         [MotherBrainGlassShard.Left] = -40,

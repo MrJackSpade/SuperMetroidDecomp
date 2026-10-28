@@ -522,8 +522,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
 
             int frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
-            int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(frozenVulnerability);
-            if (!EnemyVulnerabilityDefinitions.IsSentinel(frozenVulnerability) && frozenDamage != 0)
+            int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityEntries.Multiplier(frozenVulnerability);
+            if (!EnemyVulnerabilityEntries.IsSentinel(frozenVulnerability) && frozenDamage != 0)
             {
                 enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
                 enemy.AiStates |= EnemyAiStates.Hurt;

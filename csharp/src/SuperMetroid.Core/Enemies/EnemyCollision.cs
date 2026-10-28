@@ -592,9 +592,9 @@ internal sealed class EnemyCollision
         bool runGenericDeath = true)
     {
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        int vulnerability = EnemyVulnerabilityDefinitions.Read(
+        int vulnerability = EnemyVulnerabilityEntries.Read(
             table, EnemyVulnerabilityDefinitions.BombOffset);
-        int damage = (bomb.Damage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
+        int damage = (bomb.Damage >> 1) * EnemyVulnerabilityEntries.Multiplier(vulnerability);
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
         // the bomb. Native emits a dud sprite/sound here; those presentation queues are not
@@ -658,10 +658,10 @@ internal sealed class EnemyCollision
             // The radius actor is family `$0300` (power bomb), not the ordinary bomb
             // family `$0500`. Using `$0500` silently indexed byte 14 and made every enemy
             // whose bomb and power-bomb vulnerabilities differ behave incorrectly.
-            int vulnerability = EnemyVulnerabilityDefinitions.Read(
+            int vulnerability = EnemyVulnerabilityEntries.Read(
                 enemy.Definition.Vulnerability,
                 FamilyVulnerabilityOffset(SamusProjectileFamily.PowerBomb));
-            if (EnemyVulnerabilityDefinitions.Multiplier(vulnerability) == 0)
+            if (EnemyVulnerabilityEntries.Multiplier(vulnerability) == 0)
                 continue;
 
             int xDistance = Math.Abs(unchecked((short)(explosionCenter.X - enemy.Position.X.Whole)));
@@ -692,9 +692,9 @@ internal sealed class EnemyCollision
             // `$FF` reaches the reaction dispatcher because the outer admission check masks
             // bit seven, then common AI explicitly returns without damage. It still receives
             // property $0800 afterward, an observable quirk preserved below.
-            if (!EnemyVulnerabilityDefinitions.IsSentinel(vulnerability))
+            if (!EnemyVulnerabilityEntries.IsSentinel(vulnerability))
             {
-                int damage = 100 * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
+                int damage = 100 * EnemyVulnerabilityEntries.Multiplier(vulnerability);
                 if (damage != 0)
                 {
                     enemy.InvincibilityTimer = WrappingCountdown.Start(48);
@@ -738,38 +738,38 @@ internal sealed class EnemyCollision
         if (family != SamusProjectileFamily.Beam)
         {
             int byteOffset = FamilyVulnerabilityOffset(family);
-            int familyEntry = EnemyVulnerabilityDefinitions.Read(table, byteOffset);
+            int familyEntry = EnemyVulnerabilityEntries.Read(table, byteOffset);
             return new NormalShotVulnerability(
-                Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
+                Multiplier: EnemyVulnerabilityEntries.Multiplier(familyEntry),
                 FreezeImmediately: false,
                 PreventsLethalFreeze: false);
         }
 
-        int beamEntry = EnemyVulnerabilityDefinitions.Read(
+        int beamEntry = EnemyVulnerabilityEntries.Read(
             table, projectileType.BeamCombination.TableIndex);
-        if (EnemyVulnerabilityDefinitions.IsSentinel(beamEntry))
+        if (EnemyVulnerabilityEntries.IsSentinel(beamEntry))
         {
             return new NormalShotVulnerability(
                 Multiplier: 0,
                 FreezeImmediately: true,
-                PreventsLethalFreeze: EnemyVulnerabilityDefinitions.PreventsLethalFreeze(beamEntry));
+                PreventsLethalFreeze: EnemyVulnerabilityEntries.PreventsLethalFreeze(beamEntry));
         }
 
-        int multiplier = EnemyVulnerabilityDefinitions.Multiplier(beamEntry);
+        int multiplier = EnemyVulnerabilityEntries.Multiplier(beamEntry);
         if (projectileType.IsChargedBeam)
         {
             // Charged-beam vulnerability is a dedicated byte, not another beam-combination
             // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
             // than that sentinel do not contribute to the damage multiplier.
-            int chargedEntry = EnemyVulnerabilityDefinitions.Read(
+            int chargedEntry = EnemyVulnerabilityEntries.Read(
                 table, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
-            multiplier = EnemyVulnerabilityDefinitions.IsSentinel(chargedEntry) ? 0 : EnemyVulnerabilityDefinitions.LowNibbleMultiplier(chargedEntry);
+            multiplier = EnemyVulnerabilityEntries.IsSentinel(chargedEntry) ? 0 : EnemyVulnerabilityEntries.LowNibbleMultiplier(chargedEntry);
         }
 
         return new NormalShotVulnerability(
             multiplier,
             FreezeImmediately: false,
-            PreventsLethalFreeze: EnemyVulnerabilityDefinitions.PreventsLethalFreeze(beamEntry));
+            PreventsLethalFreeze: EnemyVulnerabilityEntries.PreventsLethalFreeze(beamEntry));
     }
 
     /// <summary>
@@ -801,7 +801,7 @@ internal sealed class EnemyCollision
         int byteOffset = family == SamusProjectileFamily.Beam
             ? projectileType.BeamCombination.TableIndex
             : FamilyVulnerabilityOffset(family);
-        return EnemyVulnerabilityDefinitions.Read(table, byteOffset);
+        return EnemyVulnerabilityEntries.Read(table, byteOffset);
     }
 
     /// <summary>The vulnerability byte a missile, Super Missile, bomb or Power Bomb family reads.</summary>
@@ -953,9 +953,9 @@ internal sealed class EnemyCollision
                 throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {contactDamageIndex}.");
         }
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        int vulnerability = EnemyVulnerabilityDefinitions.Read(
+        int vulnerability = EnemyVulnerabilityEntries.Read(
             table, vulnerabilityOffset);
-        int damage = (baseDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
+        int damage = (baseDamage >> 1) * EnemyVulnerabilityEntries.Multiplier(vulnerability);
         if (damage == 0)
             return;
 

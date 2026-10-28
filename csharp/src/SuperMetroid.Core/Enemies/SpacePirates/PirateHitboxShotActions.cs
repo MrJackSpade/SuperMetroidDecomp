@@ -57,7 +57,7 @@ internal static class PirateHitboxShotActions
             _ => throw new InvalidDataException(
                 $"Gold Ninja projectile family {family} has no vulnerability field."),
         };
-        int multiplier = EnemyVulnerabilityDefinitions.LowNibbleMultiplier(EnemyVulnerabilityDefinitions.Read(
+        int multiplier = EnemyVulnerabilityEntries.LowNibbleMultiplier(EnemyVulnerabilityEntries.Read(
             table, vulnerabilityOffset));
         return multiplier is not (0 or 15)
             ? PirateHitboxShotAction.Normal

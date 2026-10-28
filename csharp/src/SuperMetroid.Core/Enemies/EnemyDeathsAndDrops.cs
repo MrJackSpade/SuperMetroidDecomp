@@ -288,7 +288,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its program.</summary>
     internal static EnemyDeathProjectileProgram ConfigurePickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind)
     {
-        EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
+        EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.Variable0 = animation.TableOffset;
         projectile.Variable1 = EnemyPickupLifetime;
         projectile.PreInstruction = EnemyPickupPreInstruction;
@@ -490,7 +490,7 @@ internal sealed class EnemyDeathsAndDrops
     private static EnemyPickupKind PickupKindAt(RoomEnemyProjectileSlot projectile)
     {
         foreach (EnemyPickupKind kind in EnemyPickupDefinitions.TableKinds)
-            if (EnemyPickupDefinitions.Animation(kind).TableOffset == projectile.Variable0)
+            if (EnemyPickups.Animation(kind).TableOffset == projectile.Variable0)
                 return kind;
         throw new InvalidDataException(
             $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");

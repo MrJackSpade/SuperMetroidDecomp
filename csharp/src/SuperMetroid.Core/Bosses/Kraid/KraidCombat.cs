@@ -165,7 +165,7 @@ internal sealed class KraidCombat
                 // A vulnerability entry's multiplier is its low nibble for charged beams and its low seven bits otherwise.
                 int multiplier = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilityDefinitions.Read(
+                    SamusProjectileFamily.Beam => EnemyVulnerabilityEntries.Read(
                         body.Definition.Vulnerability, EnemyVulnerabilityDefinitions.ChargedBeamOffset) & 15,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>

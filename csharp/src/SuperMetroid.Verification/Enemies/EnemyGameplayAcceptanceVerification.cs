@@ -59,7 +59,7 @@ internal static class EnemyGameplayAcceptanceVerification
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
                 ? auxiliary : RoomEnemyDefinitionCatalog.Get(pointer);
             for (int field = 0; field < EnemyVulnerabilityDefinitions.RecordSize; field++)
-                _ = EnemyVulnerabilityDefinitions.Read(definition.Vulnerability, field);
+                _ = EnemyVulnerabilityEntries.Read(definition.Vulnerability, field);
             if (definition.DropChances is { } table)
                 EnemyDropTables.Copy(table, drop);
         }

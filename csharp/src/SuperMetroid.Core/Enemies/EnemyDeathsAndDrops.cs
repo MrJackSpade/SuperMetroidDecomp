@@ -203,8 +203,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
-                unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16)),
-                unchecked((ushort)(origin.Y + (SharedRandomState.UpperByte(random) & EnemyDropMasks.ScatterBits) - 16))), definitionId);
+                unchecked((ushort)(origin.X + EnemyDropMasks.HorizontalScatter.Of(random) - 16)),
+                unchecked((ushort)(origin.Y + EnemyDropMasks.VerticalScatter.Of(random) - 16))), definitionId);
         }
     }
 

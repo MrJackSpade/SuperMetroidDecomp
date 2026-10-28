@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Drop availability bits, one per drop column in the enemy's chance table (small energy, big energy, missile, nothing,
-/// Super Missile, Power Bomb), and the bits that scatter a multi-drop's positions.
+/// Super Missile, Power Bomb), and the random selections that scatter a multi-drop's positions.
 /// </summary>
 internal static class EnemyDropMasks
 {
@@ -21,6 +21,9 @@ internal static class EnemyDropMasks
     /// <summary>The Power Bomb drop.</summary>
     internal const byte PowerBomb = 0x20;
 
-    /// <summary>The random bits that scatter each drop 0-31 pixels on an axis before the 16-pixel centring.</summary>
-    internal const int ScatterBits = 0x1f;
+    /// <summary>The random selection that scatters each drop 0-31 pixels horizontally before the 16-pixel centring.</summary>
+    internal static readonly RandomSampleField HorizontalScatter = new(Shift: 0, Width: 5);
+
+    /// <summary>The random selection that scatters each drop 0-31 pixels vertically before the 16-pixel centring.</summary>
+    internal static readonly RandomSampleField VerticalScatter = new(Shift: 8, Width: 5);
 }

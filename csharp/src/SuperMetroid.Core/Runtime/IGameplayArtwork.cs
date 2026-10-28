@@ -132,9 +132,6 @@ internal interface IGameplayArtwork
     /// <summary>Room PLM collectible visuals.</summary>
     InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; }
 
-    /// <summary>Room PLM dynamic collectible artwork.</summary>
-    InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; }
-
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }
 

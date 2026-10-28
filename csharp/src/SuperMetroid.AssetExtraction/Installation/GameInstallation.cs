@@ -372,16 +372,6 @@ public sealed record GameInstallation(string Root)
     public InstalledRoomPlmCollectibleVisuals LoadRoomPlmCollectibleVisuals() =>
         RoomPlmCollectibleVisualFiles.Load(RoomPlmCollectibleVisualDirectory,
             RoomPlmCollectibleVisualOverrideDirectory);
-    /// <summary>Stock collectible character PNGs and tile-palette selectors under the replaceable content tree.</summary>
-    public string RoomPlmDynamicCollectibleArtDirectory => Path.Combine(ContentDirectory,
-        GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName);
-    /// <summary>Persistent collectible character PNG and tile-palette selector replacements, preserved during stock rebuilds.</summary>
-    public string RoomPlmDynamicCollectibleArtOverrideDirectory => Path.Combine(Root,
-        "overrides", GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName);
-    /// <summary>Editable item character PNGs and tile-palette selectors.</summary>
-    public InstalledDynamicCollectibleArt LoadRoomPlmDynamicCollectibleArt() =>
-        RoomPlmDynamicCollectibleArtFiles.Load(RoomPlmDynamicCollectibleArtDirectory,
-            RoomPlmDynamicCollectibleArtOverrideDirectory);
     /// <summary>Stock definitions for X-ray reveal metatile selections under the replaceable content tree.</summary>
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Persistent replacements for X-ray reveal metatile selections, preserved during stock rebuilds.</summary>
@@ -464,7 +454,6 @@ public sealed record GameInstallation(string Root)
             RoomPlmCrocomireVisuals = LoadRoomPlmCrocomireVisuals(),
             RoomPlmMotherBrainFakeDeathVisuals = LoadRoomPlmMotherBrainFakeDeathVisuals(),
             RoomPlmCollectibleVisuals = LoadRoomPlmCollectibleVisuals(),
-            RoomPlmDynamicCollectibleArt = LoadRoomPlmDynamicCollectibleArt(),
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             RoomBackgroundTilemapArt = LoadRoomBackgroundTilemaps(),
             RoomSkyTilemapArt = LoadRoomSkyTilemaps(),

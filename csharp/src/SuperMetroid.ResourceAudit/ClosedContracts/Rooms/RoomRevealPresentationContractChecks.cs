@@ -11,10 +11,10 @@ using SuperMetroid.ResourceAudit.Resources;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 
-/// <summary>Confirms the identified X-ray identity boundary and complete item stores, without gameplay.</summary>
+/// <summary>Confirms the identified X-ray identity boundary and complete overlay stores, without gameplay.</summary>
 internal static class RoomRevealPresentationContractChecks
 {
-    /// <summary>Checks X-ray reveal identity and verifies only reviewed reveal and item calls gain closed presentation adapters.</summary>
+    /// <summary>Checks X-ray reveal identity and verifies only reviewed reveal and overlay calls gain closed presentation adapters.</summary>
     internal static void Run()
     {
         ConfirmSingleXrayIdentity();
@@ -24,12 +24,10 @@ internal static class RoomRevealPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Rooms.LevelData;
-            using SuperMetroid.Core.Rooms.Plms;
             using SuperMetroid.Core.Rooms.Xray;
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
-                void Inspect(InstalledXrayReveals reveals, InstalledXrayOverlays overlays,
-                    InstalledDynamicCollectibleArt items) {
+                void Inspect(InstalledXrayReveals reveals, InstalledXrayOverlays overlays) {
                     reveals.Apply(RoomCollisionType.ShootableBlock, 2);
                     reveals.Apply(RoomCollisionType.SolidBlock, 0);
                     reveals.Apply(RoomCollisionType.HorizontalExtension, 3);
@@ -37,9 +35,6 @@ internal static class RoomRevealPresentationContractChecks
                     overlays.ItemMetatile(7);
                     overlays.ItemMetatile(8);
                     overlays.RoomTiles(XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks);
-                    items.Resolve(InWorldCollectibleKind.Bombs);
-                    items.Resolve(InWorldCollectibleKind.ReserveTank);
-                    items.Resolve(InWorldCollectibleKind.EnergyTank);
                 }
             }
             """, path: "fixture-room-reveal-consumer.cs");
@@ -60,9 +55,9 @@ internal static class RoomRevealPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 8 && after.UnresolvedCount == 2 && after.MissingCount == 0 &&
-            after.Consumers.Count == 10, "complete reveals, item slots and required overlays qualify, not invalid slots or non-dynamic kinds" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 7, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 6 && after.UnresolvedCount == 1 && after.MissingCount == 0 &&
+            after.Consumers.Count == 7, "complete reveals, item slots and required overlays qualify, not invalid slots" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Confirms one collision/BTS pair selects both its compiled reveal command and matching installed visual words.</summary>

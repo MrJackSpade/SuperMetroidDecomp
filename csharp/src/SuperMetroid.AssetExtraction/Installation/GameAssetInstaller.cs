@@ -328,8 +328,6 @@ public static class GameAssetInstaller
             Step("Extracting Mother Brain fake-death room visuals...", (bus, d) => RoomPlmMotherBrainFakeDeathVisualFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock)),
         new(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
             Step("Extracting collectible PLM visuals...", (bus, d) => RoomPlmCollectibleVisualFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomPlmCollectibleVisualFiles.ValidateStock)),
-        new(GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName,
-            Step("Extracting permanent-item tile PNGs...", (bus, d) => RoomPlmDynamicCollectibleArtFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomPlmDynamicCollectibleArtFiles.ValidateStock)),
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256), XrayRevealVisualFiles.ValidateStock)),
         new(GameInstallationLayout.SpriteSheetDirectoryName,

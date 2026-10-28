@@ -245,7 +245,6 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.RoomPlmCrocomireVisuals, value => ShotBlockVisuals.RoomPlmCrocomireVisuals = value);
         Bind(a => a.RoomPlmMotherBrainFakeDeathVisuals, value => ShotBlockVisuals.RoomPlmMotherBrainFakeDeathVisuals = value);
         Bind(a => a.RoomPlmCollectibleVisuals, value => ShotBlockVisuals.RoomPlmCollectibleVisuals = value);
-        Bind(a => a.RoomPlmDynamicCollectibleArt, value => ShotBlockVisuals.RoomPlmDynamicCollectibleArt = value);
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
         Bind(a => a.RoomBackgroundTilemapArt, value => Artwork.RoomBackgroundTilemapArt = value);
         Bind(a => a.RoomSkyTilemapArt, value => Artwork.RoomSkyTilemapArt = value);

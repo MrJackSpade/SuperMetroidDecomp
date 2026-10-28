@@ -92,7 +92,4 @@ public sealed record RoomPlmVisualCatalogSet
 
     /// <summary>Collectible.</summary>
     public required InstalledRoomPlmCollectibleVisuals Collectible { get; init; }
-
-    /// <summary>Dynamic collectible art.</summary>
-    public required InstalledDynamicCollectibleArt DynamicCollectibleArt { get; init; }
 }

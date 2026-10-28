@@ -6,7 +6,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -19,7 +18,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Metatiles">The tilesets' and common room elements' block definitions.</param>
 /// <param name="Palettes">The tilesets' palettes.</param>
 /// <param name="AnimatedTiles">The animated tiles' frames.</param>
-/// <param name="Collectibles">The collectibles' graphics.</param>
 /// <param name="Bosses">The bosses' artwork, Kraid's room backdrop among it.</param>
 /// <param name="Hud">The HUD's characters, which Kraid's library background moves under BG1.</param>
 /// <param name="BackgroundTilemaps">The library backgrounds' tilemaps.</param>
@@ -31,7 +29,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// palettes, whose sprite rows every room load restores.
 /// </param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
-    RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, InstalledDynamicCollectibleArt Collectibles,
+    RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles,
     BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
     EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentation Maps, EnemySheetInputs Objects)
 {
@@ -46,7 +44,6 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
             RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName)),
             RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName), null),
             maps.RoomFxAnimatedTiles,
-            RoomPlmDynamicCollectibleArtFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName), null),
             objects.Bosses,
             maps.HudTiles,
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),

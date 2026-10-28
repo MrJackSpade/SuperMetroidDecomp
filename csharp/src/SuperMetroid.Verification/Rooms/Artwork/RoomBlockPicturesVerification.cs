@@ -30,7 +30,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -549,10 +548,6 @@ internal static class RoomBlockPicturesVerification
     /// <summary>Tiles a block's picture paints: top left, top right, bottom left, bottom right.</summary>
     private const int BlockTiles = 4;
 
-    /// <summary>The installed collectible graphics, whose palette selectors colour a collectible slot's blocks.</summary>
-    private static readonly Lazy<InstalledDynamicCollectibleArt> CollectibleArt =
-        new(() => RepositoryInstallation.Installation.LoadRoomPlmDynamicCollectibleArt());
-
     /// <summary>
     /// The tile words of collectible slot <paramref name="slot"/>'s block <paramref name="block"/>, as the collectible
     /// <paramref name="characters"/> show bound over the slot writes them (#1431).
@@ -562,7 +557,8 @@ internal static class RoomBlockPicturesVerification
         BgArtworkIdentity bound = characters.Artwork.Showing(
             RoomTileCharacters.CollectiblesFirst + slot * RoomTileCharacters.CollectibleSlotCharacters, RoomTileCharacters.CollectibleSlotCharacters).Artwork;
         InWorldCollectibleKind kind = RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds.Single(candidate => RoomBgArtwork.Collectible(candidate) == bound);
-        BackgroundTile[] tiles = CollectibleSlotBlocks.Tiles(slot, CollectibleArt.Value.Resolve(kind).PaletteOffsets.Span);
+        // The collectible's cartridge palette selectors colour the slot's blocks.
+        BackgroundTile[] tiles = CollectibleSlotBlocks.Tiles(slot, DynamicCollectibleGraphics.Get(kind).PaletteOffsets.Span);
         int first = (block - CollectibleSlotBlocks.FirstBlockOf(slot)) * BlockTiles;
         return BackgroundTileWordBytes.Words(tiles.AsSpan(first, BlockTiles));
     }

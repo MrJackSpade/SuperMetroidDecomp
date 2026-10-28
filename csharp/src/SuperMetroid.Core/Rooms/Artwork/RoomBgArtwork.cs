@@ -21,9 +21,9 @@ public static class RoomBgArtwork
     /// <summary>The characters a library background transfers from <paramref name="source"/>.</summary>
     public static BgArtworkIdentity Library(LibraryBackgroundSource source) => new($"library characters {source.Name}");
 
-    /// <summary>The installed graphics of collectible <paramref name="kind"/>, two animation frames of four characters.</summary>
+    /// <summary>
+    /// Collectible <paramref name="kind"/> over a collectible graphics slot, two animation frames of four characters: the
+    /// slot's blocks show the room block sheet's pictures named for it.
+    /// </summary>
     public static BgArtworkIdentity Collectible(InWorldCollectibleKind kind) => new($"collectible {kind}");
-
-    /// <summary>Graphics a constructed population supplied for collectible <paramref name="kind"/> in place of the installed ones.</summary>
-    public static BgArtworkIdentity SuppliedCollectible(InWorldCollectibleKind kind) => new($"supplied collectible {kind}");
 }

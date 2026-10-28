@@ -12,7 +12,7 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// </summary>
 internal static class RoomPlmPopulationImporter
 {
-    /// <summary>Imports bounded PLM placements, header words, scroll programs, and dynamic collectible graphics.</summary>
+    /// <summary>Imports bounded PLM placements, header words and scroll programs.</summary>
     public static RoomPlmPopulation Read(ISnesAddressSpace source, ushort pointer)
     {
         Ensure.NotNull(source);
@@ -35,24 +35,8 @@ internal static class RoomPlmPopulationImporter
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
             var metadata = new RoomPlmHeaderDefinition(header);
             byte[] scroll = header == PlmHeaderId.ScrollTrigger ? Scroll(argument) : [];
-            RoomPlmDynamicCollectibleGraphic? graphic = null;
-            if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out var kind, out _) &&
-                kind >= InWorldCollectibleKind.Bombs)
-            {
-                ushort instruction = Word(0x84, unchecked((ushort)(headerWord + 2)));
-                if (Word(0x84, instruction) != RoomPlmInstruction.LoadItemGraphics)
-                    throw new InvalidDataException($"Imported collectible $84:{headerWord:X4} lacks its item-graphics instruction.");
-                ushort graphicsPointer = Word(0x84, unchecked((ushort)(instruction + 2)));
-                var palettes = new byte[8];
-                var tiles = new byte[0x100];
-                for (int offset = 0; offset < palettes.Length; offset++)
-                    palettes[offset] = Byte(0x84, unchecked((ushort)(instruction + 4 + offset)));
-                for (int offset = 0; offset < tiles.Length; offset++)
-                    tiles[offset] = Byte(0x89, unchecked((ushort)(graphicsPointer + offset)));
-                graphic = new RoomPlmDynamicCollectibleGraphic(kind, palettes, tiles);
-            }
             records.Add(new RoomPlmPlacement(metadata,
-                new(blockX, blockY), PlmRoomArgumentWords.Decode(header, argument), scroll, graphic,
+                new(blockX, blockY), PlmRoomArgumentWords.Decode(header, argument), scroll,
                 DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonCannonControlWordAddresses.Decode(argument) : null));
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }

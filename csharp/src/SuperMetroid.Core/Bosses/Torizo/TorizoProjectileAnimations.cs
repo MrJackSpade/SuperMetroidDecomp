@@ -19,7 +19,7 @@ internal static class TorizoProjectileAnimations
         [P.ExplosionLowHealthInitial] =
         [
             Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.HarmlessToSamus)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             SetCounter(3),
             FallInto(P.ExplosionLowHealthInitialLoop),
         ],
@@ -40,7 +40,7 @@ internal static class TorizoProjectileAnimations
         [P.ExplosionDeathInitial] =
         [
             Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.HarmlessToSamus)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.GoToSometimes(Target: P.ExplosionDeathSmokeSetup)),
             SetCounter(2),
             FallInto(P.ExplosionDeathInitialLoop),
@@ -91,9 +91,9 @@ internal static class TorizoProjectileAnimations
         [P.DroolNoDelay] =
         [
             Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.HarmlessToSamus)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Show(P.DroolNoDelay, 0, 5),
-            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HighPriority)),
+            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus)),
             FallInto(P.DroolFallingLoop),
         ],
         [P.DroolFallingLoop] =
@@ -284,7 +284,7 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbWallImpact] =
         [
             Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.PersistsOnContact)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Show(P.ChozoOrbWallImpact, 0, 4),
             Show(P.ChozoOrbWallImpact, 1, 4),
             Show(P.ChozoOrbWallImpact, 2, 4),
@@ -297,7 +297,7 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.PersistsOnContact)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library3Sound.ProjectileImpact, MaximumQueued: SoundQueueLimit.Max6)),
             Show(P.ChozoOrbFloorImpact, 0, 4),
             Show(P.ChozoOrbFloorImpact, 1, 5),
@@ -311,7 +311,7 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbShot] =
         [
             Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.PersistsOnContact)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Show(P.ChozoOrbShot, 0, 4),
             Show(P.ChozoOrbShot, 1, 4),
             Show(P.ChozoOrbShot, 2, 4),
@@ -517,7 +517,7 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.SetRadius(Radius: new(16, 16))),
             Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HighPriority | EnemyProjectilePropertyFlags.PersistsOnContact)),
+            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.BlocksShots)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.SmallExplosion, MaximumQueued: SoundQueueLimit.Max6)),
             Show(P.SuperMissileImpact, 0, 5),

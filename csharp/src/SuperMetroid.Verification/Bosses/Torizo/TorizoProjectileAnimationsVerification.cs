@@ -228,12 +228,18 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual(first, EnemyProjectilePreInstructionAccess.Word(setPreInstruction.PreInstruction), $"{at}: movement routine");
                 return 2;
             case TorizoProjectileCue.SetProperties setProperties:
-                // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores.
-                AssertEqual(first, EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties), $"{at}: property bits set");
+                // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores;
+                // setting the depth bit moves the projectile in front of Samus.
+                AssertEqual(first, unchecked((ushort)(EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties) |
+                    (setProperties.Depth is { } setDepth ? EnemyProjectilePropertyWords.ToNativeWord(setDepth) : 0))), $"{at}: property bits set");
+                AssertTrue(setProperties.Depth is null or EnemyProjectileDepth.InFrontOfSamus, $"{at}: a property OR can only move the projectile in front of Samus");
                 return 2;
             case TorizoProjectileCue.ClearProperties clearProperties:
-                // The cue's behaviours, encoded by the import's property-word bits, are the bits the cartridge's AND mask clears.
-                AssertEqual(first, unchecked((ushort)~EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties)), $"{at}: property bits kept");
+                // The cue's behaviours, encoded by the import's property-word bits, are the bits the cartridge's AND mask clears;
+                // clearing the depth bit moves the projectile behind Samus.
+                AssertEqual(first, unchecked((ushort)~(EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties) |
+                    (clearProperties.Depth is not null ? EnemyProjectilePropertyWords.ToNativeWord(EnemyProjectileDepth.InFrontOfSamus) : 0))), $"{at}: property bits kept");
+                AssertTrue(clearProperties.Depth is null or EnemyProjectileDepth.BehindSamus, $"{at}: a property AND can only move the projectile behind Samus");
                 return 2;
             case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
                 AssertEqual(first, ProjectileEntry(goToIfEyeBeamExplosionsDisabled.Target), $"{at}: branch target");

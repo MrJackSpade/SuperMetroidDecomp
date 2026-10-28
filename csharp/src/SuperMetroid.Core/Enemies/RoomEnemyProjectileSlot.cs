@@ -52,10 +52,10 @@ public sealed class RoomEnemyProjectileSlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>
-    /// Draw pass selected by native enemy-projectile property bit <c>$1000</c>.
-    /// This is independent of the two-bit priority stored in each spritemap's OAM word.
+    /// Whether the projectile is drawn in front of or behind Samus. Its definition sets the starting depth; Torizo's
+    /// programs move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
-    public EnemyProjectileDrawPriority DrawPriority { get; internal set; }
+    public EnemyProjectileDepth Depth { get; internal set; }
     /// <summary>
     /// Bank $86's independent <c>eproj_timers</c> word. This is not the frame-list
     /// instruction timer: projectile bytecode explicitly initializes and decrements this
@@ -160,7 +160,7 @@ public sealed class RoomEnemyProjectileSlot
         Radius = Extent16<RoomPixels>.Zero;
         Graphics = default;
         Damage = InvincibilityFrames = GeneralTimer = 0;
-        DrawPriority = EnemyProjectileDrawPriority.Low;
+        Depth = EnemyProjectileDepth.BehindSamus;
         RemainingAfterburns = 0;
         NextAfterburnKind = RoomEnemyProjectileKind.None;
         DirectionParameter = Variable0 = Variable1 = 0;

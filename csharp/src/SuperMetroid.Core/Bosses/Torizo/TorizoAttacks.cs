@@ -119,9 +119,13 @@ internal sealed class TorizoAttacks
                 return null;
             case TorizoProjectileCue.SetProperties setProperties:
                 EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
+                if (setProperties.Depth is { } setDepth)
+                    projectile.Depth = setDepth;
                 return null;
             case TorizoProjectileCue.ClearProperties clearProperties:
                 EnemyProjectileEngine.ClearPropertyFlags(projectile, clearProperties.Properties);
+                if (clearProperties.Depth is { } clearedDepth)
+                    projectile.Depth = clearedDepth;
                 return null;
             case TorizoProjectileCue.PlaySound playSound:
                 _audio.QueueEnemySound(playSound.Sound, playSound.MaximumQueued);
@@ -168,7 +172,7 @@ internal sealed class TorizoAttacks
                 projectile.CanDamageSamus = false;
                 return null;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.DrawInFront }:
-                projectile.DrawPriority = EnemyProjectileDrawPriority.High;
+                projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
                 return null;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.NoOperation }:
                 return null;

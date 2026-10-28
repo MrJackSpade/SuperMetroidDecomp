@@ -37,10 +37,10 @@ internal static class ProjectileQuakeVerification
         foreach (ushort type in Enumerable.Range(0, 37).Select(x => (ushort)x))
         foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4 })
         foreach (bool frozen in new[] { false, true })
-        foreach (var priority in new[] { EnemyProjectileDrawPriority.High, EnemyProjectileDrawPriority.Low })
+        foreach (var depth in new[] { EnemyProjectileDepth.InFrontOfSamus, EnemyProjectileDepth.BehindSamus })
         foreach (short position in new short[] { -129, -128, -1, 0, 128, 255, 383, 384 })
         {
-            actor.DrawPriority = priority;
+            actor.Depth = depth;
             actor.Position = actor.Position.WithWhole(new(unchecked((ushort)position), unchecked((ushort)position)));
             enemies.Earthquake.EarthquakeType = type;
             enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
@@ -68,11 +68,11 @@ internal static class ProjectileQuakeVerification
             expected.FinalizeFrame();
             var actual = new OamBuffer();
             actual.BeginFrame();
-            if (priority == EnemyProjectileDrawPriority.High)
-                enemies.Projectiles.DrawHighPriorityEnemyProjectilesAsOam(actual, new(0, 0), frozen);
-            else enemies.Projectiles.DrawLowPriorityEnemyProjectilesAsOam(actual, new(0, 0), frozen);
+            if (depth == EnemyProjectileDepth.InFrontOfSamus)
+                enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamusAsOam(actual, new(0, 0), frozen);
+            else enemies.Projectiles.DrawEnemyProjectilesBehindSamusAsOam(actual, new(0, 0), frozen);
             actual.FinalizeFrame();
-            string quakeCase = $"type={type}, timer={timer}, priority={priority}, origin={position}";
+            string quakeCase = $"type={type}, timer={timer}, depth={depth}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
             AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
             AssertEqual(timer, enemies.Earthquake.EarthquakeTimer.RawValue, "drawing leaves quake timer untouched");

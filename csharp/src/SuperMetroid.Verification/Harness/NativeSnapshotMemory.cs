@@ -196,8 +196,8 @@ internal static class NativeSnapshotMemory
     public const int EnemyProjectileVariableF = 0x1b23;
     /// <summary>$1BFB: enemy-projectile G, including collision projectile type.</summary>
     public const int EnemyProjectileVariableG = 0x1bfb;
-    /// <summary>$1BD7 bit $1000: enemy-projectile high draw pass.</summary>
-    public const ushort EnemyProjectileHighDraw = 0x1000;
+    /// <summary>$1BD7 bit $1000: enemy projectile drawn in front of Samus.</summary>
+    public const ushort EnemyProjectileInFrontOfSamus = 0x1000;
     /// <summary>$1BD7 bit $2000: enemy-projectile Samus contact disabled.</summary>
     public const ushort EnemyProjectileNoContact = 0x2000;
     /// <summary>$1BD7 bit $4000: enemy-projectile persists on Samus contact.</summary>

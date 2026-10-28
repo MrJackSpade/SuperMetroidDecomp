@@ -23,7 +23,7 @@ internal enum TorizoProjectileCueKind
     StopBlockingShots,
     /// <summary>Stops damaging Samus.</summary>
     StopHarmingSamus,
-    /// <summary>Draws the projectile at high priority.</summary>
+    /// <summary>Moves the projectile in front of Samus.</summary>
     DrawInFront,
     /// <summary>Does nothing: the sonic boom's wall-impact loop calls the bare return at $86:81DE.</summary>
     NoOperation,

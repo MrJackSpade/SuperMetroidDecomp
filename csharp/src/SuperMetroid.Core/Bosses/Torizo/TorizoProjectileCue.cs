@@ -10,13 +10,15 @@ internal abstract record TorizoProjectileCue
     {
     }
 
-    /// <summary>Clears property bits (<c>Instruction_EnemyProjectile_Properties_AndY</c>, $86:823C).</summary>
-    /// <param name="Properties">The property bits a property cue sets or clears.</param>
-    internal sealed record ClearProperties(EnemyProjectilePropertyFlags Properties) : TorizoProjectileCue;
+    /// <summary>Turns behaviours off (<c>Instruction_EnemyProjectile_Properties_AndY</c>, $86:823C).</summary>
+    /// <param name="Properties">The behaviours a property cue turns on or off.</param>
+    /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
+    internal sealed record ClearProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
 
-    /// <summary>Sets property bits (<c>Instruction_EnemyProjectile_Properties_OrY</c>, $86:8230).</summary>
-    /// <param name="Properties">The property bits a property cue sets or clears.</param>
-    internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties) : TorizoProjectileCue;
+    /// <summary>Turns behaviours on (<c>Instruction_EnemyProjectile_Properties_OrY</c>, $86:8230).</summary>
+    /// <param name="Properties">The behaviours a property cue turns on or off.</param>
+    /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
+    internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
 
     /// <summary>Continues at the target while Golden Torizo's eye-beam explosions are disabled.</summary>
     /// <param name="Target">The program a conditional cue continues at.</param>

@@ -2,18 +2,20 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// An enemy projectile's definition: the per-frame callback it starts with, its collision half-extents, the damage it
-/// deals Samus, its behaviour flags and whether touching Samus starts a touch reaction.
+/// deals Samus, its behaviour flags, where it is drawn relative to Samus and whether touching Samus starts a touch reaction.
 /// </summary>
 /// <param name="PreInstruction">Per-frame callback installed before the first frame-list tick.</param>
 /// <param name="Radius">The collision half-extents in room pixels.</param>
 /// <param name="Damage">Samus contact damage, 0 through 4095.</param>
-/// <param name="Properties">The draw priority, Samus-damage, contact-persistence and shot-blocking behaviours.</param>
+/// <param name="Properties">The Samus-damage, contact-persistence and shot-blocking behaviours.</param>
+/// <param name="Depth">Whether the projectile starts drawn in front of or behind Samus.</param>
 /// <param name="SamusTouch">What touching Samus does to the projectile's program.</param>
 internal readonly record struct EnemyProjectileDefinition(
     EnemyProjectilePreInstruction PreInstruction,
     Extent16<RoomPixels> Radius,
     int Damage,
     EnemyProjectilePropertyFlags Properties,
+    EnemyProjectileDepth Depth,
     EnemyProjectileSamusTouch SamusTouch)
 {
     /// <summary>Whether the projectile's damage value affects Samus.</summary>

@@ -72,8 +72,8 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production radius");
             AssertEqual(definition.Damage, projectile.Damage,
                 $"{kind} production damage");
-            AssertEqual(EnemyProjectileKinds.DrawPriority(definition), projectile.DrawPriority,
-                $"{kind} production draw priority");
+            AssertEqual(definition.Depth, projectile.Depth,
+                $"{kind} production depth relative to Samus");
             AssertEqual(definition.CanDamageSamus, projectile.CanDamageSamus,
                 $"{kind} production Samus-damage property");
             AssertEqual(definition.PersistsOnSamusContact, projectile.PersistsOnSamusContact,
@@ -530,15 +530,19 @@ internal static class EnemyProjectileDefinitionsVerification
             ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
             AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");
             AssertEqual(NativeProjectileProperties(propertyWord), definition.Properties, $"{kind} behaviour properties");
+            AssertEqual(NativeProjectileDepth(propertyWord), definition.Depth, $"{kind} depth relative to Samus");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0,
                 definition.SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction,
                 $"{kind} touch reaction");
         }
         return forbidden;
 
-        // Each behaviour bit of the native property word, highest four bits, as its named flag.
+        // The native property word's bit 12, set when the projectile is drawn in front of Samus.
+        static EnemyProjectileDepth NativeProjectileDepth(ushort word) =>
+            word / 4096 % 2 != 0 ? EnemyProjectileDepth.InFrontOfSamus : EnemyProjectileDepth.BehindSamus;
+
+        // Each behaviour bit of the native property word, highest three bits, as its named flag.
         static EnemyProjectilePropertyFlags NativeProjectileProperties(ushort word) =>
-            (word / 4096 % 2 != 0 ? EnemyProjectilePropertyFlags.HighPriority : EnemyProjectilePropertyFlags.None) |
             (word / 8192 % 2 != 0 ? EnemyProjectilePropertyFlags.HarmlessToSamus : EnemyProjectilePropertyFlags.None) |
             (word / 16384 % 2 != 0 ? EnemyProjectilePropertyFlags.PersistsOnContact : EnemyProjectilePropertyFlags.None) |
             (word / 32768 != 0 ? EnemyProjectilePropertyFlags.BlocksShots : EnemyProjectilePropertyFlags.None);

@@ -69,19 +69,17 @@ internal sealed class GameplayActorDrawing
             room.Projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
         }
 
-        // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
-        // layer loop reaches Samus at layer three. Room-specific actors may supply this
-        // pass without teaching the reusable Landing Site runtime how to own enemies.
+        // Enemy projectiles in front of Samus follow bomb/projectile explosions and precede the
+        // layer loop reaching Samus at layer three. Room-specific actors may draw in front of Samus
+        // here without teaching the reusable Landing Site runtime how to own enemies.
         if (!deathOwnsSamus && !_player.Samus.Xray.AreEnemyProjectilesSuspended)
         {
-            // Both Ceres elevator definitions carry properties $3000, including bit
-            // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
-            // That named pass occurs here, before enemy layers zero through two and
-            // Samus; lower OAM indices retain their native same-priority overlap win.
+            // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
+            // Samus are drawn here, before enemy layers zero through two and Samus.
             _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
             if (room.Enemies.IsLoaded)
             {
-                room.Enemies.Projectiles.DrawHighPriorityEnemyProjectiles(
+                room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
                     _sprites,
                     _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
             }
@@ -392,7 +390,7 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus && room.Enemies.IsLoaded &&
             !_player.Samus.Xray.AreEnemyProjectilesSuspended)
         {
-            room.Enemies.Projectiles.DrawLowPriorityEnemyProjectiles(
+            room.Enemies.Projectiles.DrawEnemyProjectilesBehindSamus(
                 _sprites,
                 _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
         }

@@ -372,9 +372,8 @@ internal static class RoomEnemySystemAccess
         }
 
         /// <summary>
-        /// Emits both native enemy-projectile priority passes for focused diagnostics which do
-        /// not draw Samus between them. Gameplay must call the two phase-specific methods so
-        /// property bit <c>$1000</c> determines which side of Samus owns each OAM record.
+        /// Draws the projectiles in front of Samus and then those behind her, for focused diagnostics which do
+        /// not draw Samus between them. Gameplay calls the two depth-specific methods around Samus.
         /// </summary>
         internal void DrawEnemyProjectiles(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false)
         {
@@ -382,8 +381,8 @@ internal static class RoomEnemySystemAccess
             self.Room.EnsureLoaded();
 
             self.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
-            self.Projectiles.DrawEnemyProjectilePassAsOam(oam, camera, EnemyProjectileDrawPriority.High, timeIsFrozen);
-            self.Projectiles.DrawEnemyProjectilePassAsOam(oam, camera, EnemyProjectileDrawPriority.Low, timeIsFrozen);
+            self.Projectiles.DrawEnemyProjectilesAtAsOam(oam, camera, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen);
+            self.Projectiles.DrawEnemyProjectilesAtAsOam(oam, camera, EnemyProjectileDepth.BehindSamus, timeIsFrozen);
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>

@@ -12,7 +12,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -57,8 +56,6 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                    !CeresEscapeVramTransferDefinitions.IsTerminator(0xc4ca),
             "non-record Ceres transfer pointer is not classified");
 
-        using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
-            writable: false);
         RoomCharacterAtlas[] escapePages = ImportCeresEscapeTilePages(rom);
         CeresEscapeOverlays overlay =
             CeresEscapeOverlays.Load(new MemoryStream(
@@ -68,7 +65,6 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             services: japaneseOverlay.Services())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
-            BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng) },
         };
         // The timer-sprite list shows exactly the ROM-checked records' characters over the OBJ characters, one an update.
         TileTransferDefinition[] spriteList = [.. records
@@ -115,20 +111,6 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], japaneseOverlay.Overlay.Words[word] != RoomTilemapOverlay.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");
-        system.BossArtworkBinding.EscapeTimerArtwork = null;
-        try
-        {
-            system.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(new RidleyEnemyState
-            {
-                CeresEscapePages = CeresEscapePageCursor.Objects,
-            });
-            throw new InvalidOperationException(
-                "Installed Ceres escape accepted missing timer PNG artwork.");
-        }
-        catch (InvalidDataException)
-        {
-            // Installed presentation loss is explicit, never a ROM-art fallback.
-        }
         Console.WriteLine(
             "Ceres escape transfers: 19 native records and three terminators match; " +
             "both installed timer lists show their pages and the Japanese overlay is written with descriptor reads blocked.");

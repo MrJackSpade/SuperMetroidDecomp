@@ -20,8 +20,6 @@ public static class IntroCinematicDefinitions
         public const int SamusHeadTilemapCells = 32 * 32;
         /// <summary>The cells of the scenes' four 32-by-32 background tilemap pages.</summary>
         public const int BackgroundPageTilemapCells = 4 * 32 * 32;
-        /// <summary>The cinematic sprites' 288 four-bit characters.</summary>
-        public const int ObjectCharacterBytes = 288 * FourBitCharacterBytes;
         /// <summary>The cells of one 32-by-32 narration tilemap.</summary>
         public const int NarrationTilemapCells = 32 * 32;
         /// <summary>The 96 two-bit characters the Japanese narration blanks with its blank glyph.</summary>

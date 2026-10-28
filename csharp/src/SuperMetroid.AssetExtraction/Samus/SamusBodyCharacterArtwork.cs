@@ -112,9 +112,6 @@ public sealed class SamusBodyCharacterArtwork
         }
     }
 
-    /// <summary>The characters' identity, as the body catalog names it.</summary>
-    public string ContentIdentity => Body.BodyCharactersContentIdentity;
-
     /// <summary>Resolves each definition's native transfer geometry against the selected frame tables.</summary>
     private void BindTransfers(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
     {
@@ -129,10 +126,6 @@ public sealed class SamusBodyCharacterArtwork
     public IReadOnlyList<SamusBodyTileTransfer> TopSet(int set) => top[set];
     /// <summary>Gets a lower-body definition group by pointer-table index.</summary>
     public IReadOnlyList<SamusBodyTileTransfer> BottomSet(int set) => bottom[set];
-
-    /// <summary>Resolves a native set and position to its physical body tile definition.</summary>
-    public SamusBodyTileTransfer GetDefinition(bool upperHalf, int set, int position) =>
-        DefinitionAt(Body.DefinitionRecord(upperHalf ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, set, position));
 
     /// <summary>
     /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer

@@ -76,7 +76,7 @@ internal static class SpriteArtworkBytes
     /// <summary>The installed characters one Torizo artwork swap shows.</summary>
     private static ReadOnlyMemory<byte> TorizoSwap(TorizoArtworkSwapCharacters swap, IInstalledArtworkContent installed)
     {
-        TorizoArtworkSwapDefinition definition = TorizoArtworkSwapPages.Entries[swap.Entry];
+        TorizoArtworkSwapDefinition definition = TorizoArtworkSwapPageDefinitions.Entries[swap.Entry];
         return (Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork swaps require installed artwork."))
             .Characters(definition.Page, definition.PageByte, definition.ByteCount);
     }

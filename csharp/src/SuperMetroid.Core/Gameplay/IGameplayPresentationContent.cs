@@ -22,10 +22,7 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
     GameplayHudPresentation GameplayHud { get; }
 
-    /// <summary>Selected character bytes for the two escape-timer VRAM transfers.</summary>
-    EscapeTimerTileAtlas EscapeTimerTiles { get; }
-
-    /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
+    /// <summary>Escape countdown visual layout and digit presentation.</summary>
     EscapeTimerPresentation EscapeTimer { get; }
 
     /// <summary>Gameplay-message title text and tile presentation, separate from message panels and short notices.</summary>

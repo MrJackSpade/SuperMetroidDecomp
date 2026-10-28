@@ -43,7 +43,7 @@ internal static class IntroCinematicRomDataVerification
             "intro text tilemap is 32x32 words");
         AssertTrue(
             (IntroVramLayout.CinematicObjectCharacters.Offset * 2) +
-                IntroCinematicDefinitions.Artwork.ObjectCharacterBytes <= SnesVram.ByteCount,
+                IntroCinematicArtworkConstants.ObjectCharacterBytes <= SnesVram.ByteCount,
             "intro object DMA fits VRAM");
 
         AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay, "gameplay");

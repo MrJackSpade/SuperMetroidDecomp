@@ -52,7 +52,7 @@ internal static class SamusBodySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(artwork);
         characters.AddOrUpdate(artwork.Body, artwork);
-        registeredByIdentity[artwork.ContentIdentity] = artwork;
+        registeredByIdentity[artwork.Body.BodyCharactersContentIdentity] = artwork;
         return artwork.Body;
     }
 
@@ -66,7 +66,7 @@ internal static class SamusBodySheetFixtures
             return registered;
         SamusBodyCharacterArtwork stock = registeredByIdentity.TryGetValue(body.BodyCharactersContentIdentity, out SamusBodyCharacterArtwork? named)
             ? named : inputs.Value.SamusBody;
-        if (body.BodyCharactersContentIdentity != stock.ContentIdentity)
+        if (body.BodyCharactersContentIdentity != stock.Body.BodyCharactersContentIdentity)
             throw new InvalidOperationException("A fixture body with its own characters registers them before composing its sheets.");
         return characters.GetValue(body, key => new SamusBodyCharacterArtwork(key,
             [.. Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(set => stock.TopSet(set).ToArray())],

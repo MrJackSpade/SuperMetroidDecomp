@@ -18,6 +18,6 @@ internal static class TorizoArtworkSwapDefinitionsAccess
     extension(TorizoArtworkSwapDefinitions)
     {
         /// <summary>Compiled native VRAM transfer records in source order.</summary>
-        internal static ReadOnlySpan<TorizoArtworkSwapDefinition> All => TorizoArtworkSwapPages.Entries;
+        internal static ReadOnlySpan<TorizoArtworkSwapDefinition> All => TorizoArtworkSwapPageDefinitions.Entries;
     }
 }

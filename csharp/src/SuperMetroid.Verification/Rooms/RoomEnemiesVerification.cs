@@ -1186,15 +1186,6 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0x6200, cgram.Colors[0xf1],
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
-    using (var timerPng = new MemoryStream())
-    {
-        IndexedPng.Write(timerPng,
-            new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height),
-            new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
-            SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
-        timerPng.Position = 0;
-        enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng);
-    }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
             new SoundRequest(Library2Sound.CeresRidleyGetaway, MaximumQueued: SoundQueueLimit.Max6)),
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");

@@ -37,7 +37,7 @@ internal static class IntroScreenMemory
         }
         intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(artwork.BackgroundPages.Span[..IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells]));
         intro.IntroObjectCharacters.Load(sources.IntroObjectCharacters.Characters.Span);
-        intro.CinematicObjectCharacters.Load(sources.CinematicObjectCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.ObjectCharacterBytes]);
+        intro.CinematicObjectCharacters.Load(sources.CinematicObjectCharacters.Characters.Span[..IntroCinematicArtworkConstants.ObjectCharacterBytes]);
         return vram.CaptureImage();
     }
 

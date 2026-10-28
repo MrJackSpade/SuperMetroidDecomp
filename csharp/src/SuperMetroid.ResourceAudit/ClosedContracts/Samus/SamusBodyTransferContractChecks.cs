@@ -30,10 +30,13 @@ internal static class SamusBodyTransferContractChecks
         InstalledSamusBodyArtwork body = characters.Body;
         SamusBodyFrameSelection frame = body.Frame(0, 0);
         int record = body.DefinitionRecord(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
-        Require(ReferenceEquals(characters.DefinitionAt(record), characters.GetDefinition(true, 0, 0)),
+        // A set and position resolve through the body's record numbering to the physical definition.
+        SamusBodyTileTransfer Definition(bool upperHalf, int set, int position) =>
+            characters.DefinitionAt(body.DefinitionRecord(upperHalf ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, set, position));
+        Require(ReferenceEquals(characters.DefinitionAt(record), Definition(true, 0, 0)),
             "a published frame resolves an admitted physical definition");
-        Require(ReferenceEquals(characters.GetDefinition(true, 0, 2), characters.GetDefinition(true, 1, 0)) &&
-            ReferenceEquals(characters.GetDefinition(true, InstalledSamusBodyArtwork.TopSetCount - 1, 1), characters.GetDefinition(false, 0, 0)),
+        Require(ReferenceEquals(Definition(true, 0, 2), Definition(true, 1, 0)) &&
+            ReferenceEquals(Definition(true, InstalledSamusBodyArtwork.TopSetCount - 1, 1), Definition(false, 0, 0)),
             "native position arithmetic can cross set and half boundaries");
         body = Body(shortFirstGroup: false, invalidAdjacentFrame: true).Body;
         _ = body.Frame(0, 0);

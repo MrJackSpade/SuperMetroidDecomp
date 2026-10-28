@@ -89,7 +89,7 @@ internal static class IntroContentIdentityVerification
     }
 
     /// <summary>Builds a complete synthetic opening asset bundle with one selected edit or encoding-only change.</summary>
-    private static IntroCinematicArtwork CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
+    private static IntroCinematicSourceArtwork CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
         // Serialize a fixture document, optionally changing only whitespace formatting.
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,

@@ -201,7 +201,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas,
-            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters, new EnemyTileTransfers(stock, timer: timer));
 

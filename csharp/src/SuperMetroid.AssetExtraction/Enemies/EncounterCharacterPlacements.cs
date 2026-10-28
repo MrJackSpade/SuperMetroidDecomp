@@ -32,7 +32,7 @@ internal static class EncounterCharacterPlacements
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
         TorizoArtworkSwapCharacters swap =>
-            new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapPages.Entries[swap.Entry].ByteCount)),
+            new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapPageDefinitions.Entries[swap.Entry].ByteCount)),
         CrocomireSkeletonChunkCharacters chunk => new(source, SkeletonFirstCharacter(chunk.Entry),
             Characters(SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonTransferDefinitions.ChunkByteCount)),
         EnemyTileCharacters { Enemy: EnemyDefinitionId.Evir } => new(source, EncounterCharacterPlacementDefinitions.EvirFirstCharacter,

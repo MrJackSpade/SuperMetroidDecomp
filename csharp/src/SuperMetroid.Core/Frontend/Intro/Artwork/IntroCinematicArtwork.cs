@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// from belong to the import pipeline that reads the installed artwork, which also names the content's identity (#1463).
 /// Scene timing remains compiled game logic.
 /// </summary>
-[ArchitectureReview("context-bag", "The opening cinematic's installed artwork; every member is immutable artwork data the cinematic draws, not a service.")]
 public abstract class IntroCinematicArtwork
 {
     /// <summary>Assembles the selected opening-art bundle, validating and concatenating its four background pages and retaining edited portrait and narration tilemaps.</summary>

@@ -10,7 +10,7 @@ internal static class TorizoArtworkSwapDefinitionsConstants
     public const byte Bank = 0xaa;
 
     /// <summary>
-    /// The cartridge site of each transfer, in <see cref="TorizoArtworkSwapPages.Entries"/> order:
+    /// The cartridge site of each transfer, in <see cref="TorizoArtworkSwapPageDefinitions.Entries"/> order:
     /// the cartridge oracle finds each descriptor by its instruction.
     /// </summary>
     internal static readonly TransferSite[] Sites =

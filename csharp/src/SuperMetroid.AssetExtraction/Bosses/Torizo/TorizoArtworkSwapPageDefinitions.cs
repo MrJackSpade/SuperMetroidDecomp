@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// #1463), in the order of <see cref="SuperMetroid.Core.Bosses.Torizo.TorizoArtworkSwapDefinitions.Sources"/>: the import's
 /// knowledge of the bytes each swap's pictures are composed from.
 /// </summary>
-internal static class TorizoArtworkSwapPages
+internal static class TorizoArtworkSwapPageDefinitions
 {
     /// <summary>The swaps in instruction-list order: each one's page, the byte of the page it starts at and its bytes.</summary>
     internal static readonly TorizoArtworkSwapDefinition[] Entries =

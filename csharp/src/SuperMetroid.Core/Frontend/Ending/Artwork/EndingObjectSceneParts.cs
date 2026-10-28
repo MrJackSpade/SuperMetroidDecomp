@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>The ending's object character atlases and tilemaps the game binds (#633, #1463).</summary>
+[ArchitectureReview("context-bag", "A record of the ending scene's installed artwork; its members are data, not services.")]
 public record EndingObjectSceneParts
 {
     /// <summary>$4000-byte atmospheric-cloud OBJ character sheet.</summary>

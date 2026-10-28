@@ -216,7 +216,7 @@ public static class EndingObjectArtworkFiles
     /// <param name="overrideDirectory">Optional directory with independently selected replacement files; every absent file falls back to verified stock.</param>
     /// <returns>The selected artwork and OAM-composition catalog, retaining fixed transfer sizes while actor instructions, timing, and palette selection remain engine-owned.</returns>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected sheet, map, or sprite composition is invalid.</exception>
-    public static EndingObjectArtwork Load(string stockDirectory,
+    public static EndingObjectSourceArtwork Load(string stockDirectory,
         string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);

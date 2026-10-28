@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -220,7 +220,8 @@ internal sealed class EyeDoorBehavior
             EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightShotOrigin,
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
-        projectile.Variable1 = request.DoorBit;
+        projectile.Variable1 = request.DoorBit ?? throw new InvalidOperationException(
+            $"The eye-door attack at block {request.PlmBlockIndex} was spawned without its door bit.");
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 

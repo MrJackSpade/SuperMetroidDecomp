@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -509,8 +509,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
             definition,
             facing,
             slot.BlockIndex,
-            (slot.Argument as DoorBitArgument ?? throw new InvalidOperationException(
-                $"Eye door at block {slot.BlockIndex} spawns a projectile without its door bit.")).DoorBit));
+            (slot.Argument as DoorBitArgument)?.DoorBit));
     }
 
     /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>

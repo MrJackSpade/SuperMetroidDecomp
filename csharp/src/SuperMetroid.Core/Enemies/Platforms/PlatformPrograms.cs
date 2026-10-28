@@ -8,5 +8,7 @@ internal static class PlatformPrograms
     /// programs, and every nonzero direction word selects the right-moving program.
     /// </summary>
     internal static PlatformProgram SelectProgram(bool isKamer, Axis axis, PlatformHorizontalMovement direction) =>
-        PlatformAnimationDefinitions.Programs[new PlatformPose(isKamer, axis, direction)];
+        // The native test is zero against nonzero: any direction word other than left's moves right.
+        PlatformAnimationDefinitions.Programs[new PlatformPose(isKamer, axis,
+            direction == PlatformHorizontalMovement.Left ? PlatformHorizontalMovement.Left : PlatformHorizontalMovement.Right)];
 }

@@ -154,7 +154,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slotTable.Slots
-            .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.StationIndex)
+            .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.SaveStationNumber)
             .Select(slot => slot.Family as StationPlmState)
             .OfType<StationPlmState>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
@@ -946,7 +946,7 @@ internal sealed class StationPlms : IPlmFamilySource
             station.Kind,
             message,
             station.AreaIndex,
-            StationNumber(slot),
+            (slot.Argument as StationArgument)?.Station,
             slot.BlockIndex));
     }
 

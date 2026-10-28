@@ -1153,7 +1153,7 @@ internal static class RoomPlmPopulationVerification
         plms.Step(level);
         AssertEqual(StationKind.Save, plms.Stations.StationActivationEvents.Single().Kind,
             "save trigger publishes typed confirmation request");
-        AssertEqual(3, plms.Stations.StationActivationEvents.Single().StationIndex,
+        AssertEqual(3, plms.Stations.StationActivationEvents.Single().SaveStationNumber,
             "save request preserves native room argument/station index");
 
         StationActivationEvent saveRequest = plms.Stations.StationActivationEvents.Single();

@@ -134,10 +134,10 @@ internal sealed class MessageBoxFlow
                     level.Size.X);
                 _system.MarkSaveStationUsed(
                     saveStation.AreaIndex,
-                    saveStation.StationIndex & 7);
+                    saveStation.SaveStationNumber & 7);
                 _completedSaveStation = new SaveStationPersistenceRequest(
                     saveStation.AreaIndex,
-                    saveStation.StationIndex);
+                    saveStation.SaveStationNumber);
             }
             return;
         }

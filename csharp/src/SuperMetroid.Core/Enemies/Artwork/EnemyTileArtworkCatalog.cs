@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
@@ -20,7 +21,19 @@ public sealed class EnemyTileArtworkCatalog
     /// The installed artwork: ordinary enemy tile sheets keyed by enemy definition, the palette paired with each sheet,
     /// and the special catalogs.
     /// </summary>
-    internal EnemyTileArtworkParts installed;
+    private EnemyTileArtworkParts installed;
+
+    /// <summary>Each installed sheet with its palette, in definition order.</summary>
+    internal IEnumerable<(EnemyDefinitionId Definition, RoomCharacterAtlas Sheet, EnemyPaletteSheet Palette)> SheetsInDefinitionOrder =>
+        installed.Sheets.OrderBy(pair => pair.Key).Select(pair => (pair.Key, pair.Value, installed.Palettes[pair.Key]));
+
+    /// <summary>Finds the installed tile sheet of <paramref name="enemy"/>.</summary>
+    internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>
+        installed.Sheets.TryGetValue(enemy, out sheet);
+
+    /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
+    internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
+        installed.Palettes.TryGetValue(enemy, out palette);
 
     /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors => installed.AuxiliaryColors;

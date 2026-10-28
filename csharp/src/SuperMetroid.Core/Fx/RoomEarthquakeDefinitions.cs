@@ -11,8 +11,8 @@ public static class RoomEarthquakeDefinitions
     /// <summary>First earthquake type whose displacement is not shown.</summary>
     public const ushort FirstNonRenderedType = 36;
 
-    /// <summary>Timer bit selecting the alternating shake direction.</summary>
-    public const ushort AlternatingDirectionTimerMask = 2;
+    /// <summary>Timer steps the shake shows on one side of the origin before it switches to the other.</summary>
+    public const ushort StepsPerShakeSide = 2;
 
     /// <summary>Updates for which an enemy retains one applied shake displacement.</summary>
     public const ushort EnemyShakeDuration = 2;

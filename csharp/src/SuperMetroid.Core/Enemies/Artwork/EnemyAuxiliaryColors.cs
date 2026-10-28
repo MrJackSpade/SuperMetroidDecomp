@@ -24,14 +24,10 @@ internal static class EnemyAuxiliaryColors
         });
 
     /// <summary>Selects one of the four installed auxiliary color families by its defined identity.</summary>
-    private static EnemyAuxiliaryPaletteRows RowsFor(EnemyAuxiliaryColorCatalog colors, EnemyAuxiliaryPalette palette) => palette switch
-    {
-        EnemyAuxiliaryPalette.FaceBlock => colors.faceBlock,
-        EnemyAuxiliaryPalette.DeadSidehopper => colors.deadSidehopper,
-        EnemyAuxiliaryPalette.GoldenTorizoBody => colors.torizoBody,
-        EnemyAuxiliaryPalette.GoldenTorizoBelly => colors.torizoBelly,
-        _ => throw new ArgumentOutOfRangeException(nameof(palette)),
-    };
+    private static EnemyAuxiliaryPaletteRows RowsFor(EnemyAuxiliaryColorCatalog colors, EnemyAuxiliaryPalette palette) =>
+        colors.rows.TryGetValue(palette, out EnemyAuxiliaryPaletteRows? rows)
+            ? rows
+            : throw new ArgumentOutOfRangeException(nameof(palette));
 
     /// <summary>Resolves one selected RGB5 word, rejecting a row or colour outside the family.</summary>
     internal static RgbColor Resolve(EnemyAuxiliaryColorCatalog colors, EnemyAuxiliaryPalette palette, int frame, int color)

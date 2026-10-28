@@ -28,8 +28,8 @@ internal sealed class BabyMetroidFade
     internal static string ContentIdentity(BabyMetroidCutsceneColorCatalog colors) =>
         SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
         {
-            colors.initial.AppendIdentity(content);
-            colors.fade.AppendIdentity(content);
+            colors.selection.Initial.AppendIdentity(content);
+            colors.selection.Fade.AppendIdentity(content);
         });
 
     /// <summary>

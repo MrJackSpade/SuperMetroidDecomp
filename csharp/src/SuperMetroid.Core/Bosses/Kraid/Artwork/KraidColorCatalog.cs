@@ -8,16 +8,12 @@ public sealed class KraidColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => KraidColors.ContentIdentity(this);
 
-    /// <summary>Target colors for Kraid's room-backdrop fade.</summary>
-    internal readonly IReadOnlyList<RgbColor> roomBackdrop;
-    /// <summary>Rock sprite target colors staged during initial setup.</summary>
-    internal readonly IReadOnlyList<RgbColor> initialTarget;
-    /// <summary>White hurt flash and eight body health bands.</summary>
-    internal readonly KraidHealthBands health;
-    /// <summary>Independently editable sprite flash and health bands.</summary>
-    internal readonly IReadOnlyList<RgbColor> secondary;
-    /// <summary>Arm and body death colors installed before the fade.</summary>
-    internal readonly IReadOnlyList<RgbColor> deathArm;
+    /// <summary>
+    /// Each named editable source: the room-backdrop fade targets, the rock sprite targets staged during initial setup,
+    /// the white hurt flash and eight body health bands, the independently editable sprite flash and health bands, and
+    /// the arm and body death colours installed before the fade.
+    /// </summary>
+    internal readonly IReadOnlyDictionary<KraidPaletteSource, IReadOnlyList<RgbColor>> sources;
 
     /// <summary>Compiles five authored sources, sharing health-band storage only when secondary colors match exactly.</summary>
     internal KraidColorCatalog(RgbColor[] roomBackdrop, RgbColor[] initialTarget, RgbColor[] health,
@@ -32,8 +28,14 @@ public sealed class KraidColorCatalog
     /// <summary>Retains the compiled sources, sharing the health bands as the secondary bands when they match.</summary>
     private KraidColorCatalog(KraidStockBand roomBackdrop, KraidStockBand initialTarget, KraidHealthBands health,
         RgbColor[] secondary, KraidStockBand deathArm) =>
-        (this.roomBackdrop, this.initialTarget, this.health, this.secondary, this.deathArm) =
-            (roomBackdrop, initialTarget, health, KraidHealthBands.Secondary(secondary, health), deathArm);
+        sources = new Dictionary<KraidPaletteSource, IReadOnlyList<RgbColor>>
+        {
+            [KraidPaletteSource.RoomBackdrop] = roomBackdrop,
+            [KraidPaletteSource.InitialTarget] = initialTarget,
+            [KraidPaletteSource.Health] = health,
+            [KraidPaletteSource.Secondary] = KraidHealthBands.Secondary(secondary, health),
+            [KraidPaletteSource.DeathArm] = deathArm,
+        };
 
     /// <summary>
     /// Selects one of five named editable sources directly. Each source keeps its

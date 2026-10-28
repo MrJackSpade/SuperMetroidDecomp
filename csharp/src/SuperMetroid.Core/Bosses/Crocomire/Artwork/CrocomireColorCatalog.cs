@@ -28,13 +28,13 @@ public sealed class CrocomireColorCatalog
     }
 
     /// <summary>The five transfers in native order, each with the label its content identity hashes it under.</summary>
-    internal static readonly (Band Band, string Label)[] IdentityOrder =
+    internal static readonly CrocomireTransferLabel[] IdentityOrder =
     [
-        (Band.FightBody, "fightBody"),
-        (Band.InitialWall, "initialWall"),
-        (Band.InitialProjectile, "initialProjectile"),
-        (Band.SkeletonArm, "skeletonArm"),
-        (Band.WallSpikes, "wallSpikes"),
+        new(Band.FightBody, "fightBody"),
+        new(Band.InitialWall, "initialWall"),
+        new(Band.InitialProjectile, "initialProjectile"),
+        new(Band.SkeletonArm, "skeletonArm"),
+        new(Band.WallSpikes, "wallSpikes"),
     ];
 
     /// <summary>Each named material's calculated native paint; supplied edits never alias across fields.</summary>

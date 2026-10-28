@@ -5,22 +5,8 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// <summary>Editable Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
-    /// <summary>Startup colors also supply the unchanged retreat door/container entries.</summary>
-    internal readonly CeresRidleyStartColors start;
-    /// <summary>Three-color fade rows used by the eyes and the retreat background composition.</summary>
-    internal readonly CeresRidleyFade eyeFade;
-    /// <summary>Eleven-color fade rows shared by the body shadow and retreat background.</summary>
-    internal readonly CeresRidleyFade bodyFade;
-    /// <summary>Health paint resolves its unchanged colors through the body and eye fade families.</summary>
-    internal readonly CeresRidleyHealthPaint health;
-    /// <summary>The reflected self-destruct text cycle is independent of Ridley's body fades.</summary>
-    internal readonly CeresRidleyAlarmColors alarm;
-    /// <summary>Only retreat BG colors that differ from the body, eye, and neutral composition.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> retreatBg;
-    /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> retreatShared;
-    /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>
-    internal readonly CeresBabyPaint baby;
+    /// <summary>The selected colour families.</summary>
+    internal readonly CeresRidleyColorSelection selection;
 
     /// <summary>Retains independent palette edits and collapses unchanged retreat colors onto their startup and fade owners.</summary>
     internal CeresRidleyColorCatalog(CeresRidleyColorParts parts)
@@ -30,10 +16,17 @@ public sealed class CeresRidleyColorCatalog
 
     /// <summary>Retains the compiled families, keeping only the retreat colours that differ from their owners.</summary>
     private CeresRidleyColorCatalog(CeresRidleyColorParts parts, CeresRidleyStartColors start) =>
-        (this.start, eyeFade, bodyFade, health, alarm, retreatBg, retreatShared, baby) =
-            (start, parts.EyeFade, parts.BodyFade, new CeresRidleyHealthPaint(parts.Health, parts.BodyFade, parts.EyeFade),
-                parts.Alarm, CeresRidleyColors.RetreatBgEdits(parts), CeresRidleyColors.RetreatSharedEdits(parts.RetreatShared, start),
-                parts.Baby);
+        selection = new CeresRidleyColorSelection
+        {
+            Start = start,
+            EyeFade = parts.EyeFade,
+            BodyFade = parts.BodyFade,
+            Health = new CeresRidleyHealthPaint(parts.Health, parts.BodyFade, parts.EyeFade),
+            Alarm = parts.Alarm,
+            RetreatBg = CeresRidleyColors.RetreatBgEdits(parts),
+            RetreatShared = CeresRidleyColors.RetreatSharedEdits(parts.RetreatShared, start),
+            Baby = parts.Baby,
+        };
 
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
     public RgbColor ResolveRetreatBg(int color) => CeresRidleyColors.RetreatBg(this, color);

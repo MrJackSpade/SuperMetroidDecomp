@@ -13,7 +13,7 @@ internal static class DachoraColors
     internal static string ContentIdentity(DachoraColorCatalog colors) =>
         SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
         {
-            content.AppendColors("normal", colors.normal);
+            content.AppendColors("normal", colors.selection.Normal);
             content.AppendColorFrames("speed", Frames(colors, DachoraPalettePhase.Speed));
             content.AppendColorFrames("shine", Frames(colors, DachoraPalettePhase.Shine));
         });
@@ -84,9 +84,9 @@ internal static class DachoraColors
         var key = new ColourCell(frame, color);
         return phase switch
         {
-            DachoraPalettePhase.Speed => colors.speedEdits.TryGetValue(key, out RgbColor speed) ? speed : SpeedColor(colors.normal, frame, color),
-            DachoraPalettePhase.Shine => colors.shineEdits.TryGetValue(key, out RgbColor shine) ? shine : ShineColor(colors.normal, frame, color),
-            DachoraPalettePhase.Default => colors.normal[color],
+            DachoraPalettePhase.Speed => colors.selection.SpeedEdits.TryGetValue(key, out RgbColor speed) ? speed : SpeedColor(colors.selection.Normal, frame, color),
+            DachoraPalettePhase.Shine => colors.selection.ShineEdits.TryGetValue(key, out RgbColor shine) ? shine : ShineColor(colors.selection.Normal, frame, color),
+            DachoraPalettePhase.Default => colors.selection.Normal[color],
             _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined Dachora palette phase."),
         };
     }

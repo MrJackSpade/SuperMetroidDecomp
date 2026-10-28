@@ -10,13 +10,13 @@ internal static class NorfairRidleyColors
         SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
         {
             Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyPaletteDefinitions.InitialColorCount];
-            for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.initial.ColorAt(color);
+            for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.selection.Initial.ColorAt(color);
             content.AppendColors("initial", initialWords);
             RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealRowCount][];
             for (int row = 0; row < revealWords.Length; row++)
             {
                 revealWords[row] = new RgbColor[NorfairRidleyPaletteDefinitions.RevealColorCount];
-                for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = colors.reveal.ColorAt(row, color);
+                for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = colors.selection.Reveal.ColorAt(row, color);
             }
             content.AppendColorFrames("reveal", revealWords);
         });

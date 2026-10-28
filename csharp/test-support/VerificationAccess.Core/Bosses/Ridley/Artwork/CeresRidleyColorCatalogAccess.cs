@@ -9,21 +9,21 @@ internal static class CeresRidleyColorCatalogAccess
     extension(CeresRidleyColorCatalog self)
     {
         /// <summary>Reads an initial Ceres Ridley color before the fade phases.</summary>
-        internal RgbColor ResolveStart(int color) => self.start.Resolve(color);
+        internal RgbColor ResolveStart(int color) => self.selection.Start.Resolve(color);
 
         /// <summary>Reads one eye-fade row and color independently of body fade.</summary>
-        internal RgbColor ResolveEyeFade(int row, int color) => self.eyeFade.Resolve(row, color);
+        internal RgbColor ResolveEyeFade(int row, int color) => self.selection.EyeFade.Resolve(row, color);
 
         /// <summary>Reads one body-fade row and color independently of eye fade.</summary>
-        internal RgbColor ResolveBodyFade(int row, int color) => self.bodyFade.Resolve(row, color);
+        internal RgbColor ResolveBodyFade(int row, int color) => self.selection.BodyFade.Resolve(row, color);
 
         /// <summary>Reads a health-dependent paint row from the installed catalog.</summary>
-        internal RgbColor ResolveHealth(int row, int color) => self.health.Resolve(row, color);
+        internal RgbColor ResolveHealth(int row, int color) => self.selection.Health.Resolve(row, color);
 
         /// <summary>Reads the Ceres alarm-paint sequence at a selected row.</summary>
-        internal RgbColor ResolveAlarm(int row, int color) => self.alarm.Resolve(row, color);
+        internal RgbColor ResolveAlarm(int row, int color) => self.selection.Alarm.Resolve(row, color);
 
         /// <summary>Reads the baby-Metroid paint sequence at a selected row.</summary>
-        internal RgbColor ResolveBaby(int row, int color) => self.baby.Resolve(row, color);
+        internal RgbColor ResolveBaby(int row, int color) => self.selection.Baby.Resolve(row, color);
     }
 }

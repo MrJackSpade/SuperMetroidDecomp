@@ -798,7 +798,7 @@ internal static class LookupStream5Verification
         PhantoonColorDocument document = RequiredJson.Deserialize<PhantoonColorDocument>(bytes,
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         PhantoonColorCatalog stock = Check(document);
-        var edits = stock.fadeOutEdits;
+        var edits = stock.selection.FadeOutEdits;
         AssertEqual(0, edits.Count, "Stock fade stores no target table");
         for (int color = 0; color < PhantoonColorDefinitions.FadeOutCount; color++)
         {
@@ -810,7 +810,7 @@ internal static class LookupStream5Verification
             }
             document.FadeOut[color] = new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 };
         }
-        var healthEdits = stock.healthEdits;
+        var healthEdits = stock.selection.HealthEdits;
         AssertEqual(0, healthEdits.Count, "All health colors calculate without stock overrides");
         AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic),
             "No per-channel native residual samples remain");
@@ -833,7 +833,7 @@ internal static class LookupStream5Verification
             }
             document.HealthBands[band][color] = original;
         }
-        var powerEdits = stock.powerEdits;
+        var powerEdits = stock.selection.PowerEdits;
         AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic), "Power targets retain no stock color dictionary");
         AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
         for (int color = 0; color < PhantoonColorDefinitions.PowerOnCount; color++)

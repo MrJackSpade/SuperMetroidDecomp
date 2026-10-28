@@ -31,6 +31,19 @@ internal sealed class IntroEggSlimeDrop
         sprite.InstallPreInstruction(definition.PreInstruction);
     }
 
+    /// <summary>
+    /// The actor's timer word holds the drop's trajectory number below the frames it has fallen, which each fall step
+    /// counts up by one; the frames wrap within their eight bits without touching the trajectory. The two stay in the
+    /// actor's one timer word because instruction-program counter steps also count that word.
+    /// </summary>
+    private const int TrajectoryBits = 8;
+
+    /// <summary>The drop's horizontal trajectory number, 0 through 3; it never changes.</summary>
+    private int Drop => unchecked((byte)sprite.GeneralTimer);
+
+    /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
+    private int FramesFallen => unchecked((byte)(sprite.GeneralTimer >> TrajectoryBits));
+
     /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y $A8, then runs the puddle list in place.</summary>
     public void Step()
     {
@@ -44,12 +57,12 @@ internal sealed class IntroEggSlimeDrop
                 throw new InvalidDataException(
                     $"Intro egg slime names invalid pre-instruction {sprite.PreInstruction}.");
             }
-            AddVelocity(axis: Axis.Horizontal, IntroEggMotionDefinitions.SlimeX(SnesLittleEndian.LowByte(sprite.GeneralTimer)));
+            AddVelocity(axis: Axis.Horizontal, IntroEggMotionDefinitions.SlimeX(Drop));
 
             // BIT #1 selects two different gravity curves. This is the parameter's parity,
             // not an animation-frame toggle: odd drops begin at -2 px/frame, evens at -3.
             AddVelocity(axis: Axis.Vertical, IntroEggMotionDefinitions.SlimeY(
-                SnesLittleEndian.HighByte(sprite.GeneralTimer), odd: (sprite.GeneralTimer & 1) != 0));
+                FramesFallen, odd: (sprite.GeneralTimer & 1) != 0));
 
             if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
             {

@@ -40,6 +40,9 @@ public static class WrappingCounter
     /// byte countdown packed beside independent state. The low byte wraps from <c>$00</c> to <c>$FF</c>
     /// without borrowing into the high byte, which is kept unchanged; the step's flags are byte-width.
     /// </summary>
-    public static LowByteCountdownStep DecrementLowByte(ushort word) =>
-        new(SnesLittleEndian.Word(unchecked((byte)(SnesLittleEndian.LowByte(word) - 1)), SnesLittleEndian.HighByte(word)));
+    public static LowByteCountdownStep DecrementLowByte(ushort word)
+    {
+        byte count = unchecked((byte)word);
+        return new((ushort)(word - count + unchecked((byte)(count - 1))));
+    }
 }

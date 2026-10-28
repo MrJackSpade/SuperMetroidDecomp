@@ -92,7 +92,7 @@ internal sealed class GatePlms : IPlmFamilySource
     {
         _ = level.GetCollisionBlockByIndex(blockIndex);
         level.SetForegroundEntry(blockIndex, word);
-        level.SetBehavior(blockIndex, SnesLittleEndian.LowByte(word));
+        level.SetBehavior(blockIndex, RoomLevelWord.FromRaw(word).VisualBlockIndexLowByte);
     }
 
     /// <summary>Runs the shootable BTS $46-$4D dispatcher and wakes its adjacent gate.</summary>

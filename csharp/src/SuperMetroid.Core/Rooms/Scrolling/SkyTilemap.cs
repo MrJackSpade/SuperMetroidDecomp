@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Rooms.Scrolling;
@@ -36,7 +37,7 @@ public sealed class SkyTilemap
                 continue;
             ReadOnlySpan<byte> bytes = RoomSkyTilemapCatalog.Row(pages, page, row % RowsPerChunk);
             for (int column = 0; column < Columns; column++)
-                words[row * Columns + column] = SnesLittleEndian.Word(bytes[column * 2], bytes[column * 2 + 1]);
+                words[row * Columns + column] = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(column * sizeof(ushort))..]);
             shown[row] = true;
         }
     }

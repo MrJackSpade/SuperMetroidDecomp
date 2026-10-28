@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -79,7 +80,7 @@ internal static class EndingScreenPlanes
     private static void Load(ReadOnlySpan<byte> littleEndianWords, Span<ushort> words)
     {
         for (int word = 0; word < littleEndianWords.Length / sizeof(ushort) && word < words.Length; word++)
-            words[word] = SnesLittleEndian.Word(littleEndianWords[word * 2], littleEndianWords[word * 2 + 1]);
+            words[word] = BinaryPrimitives.ReadUInt16LittleEndian(littleEndianWords[(word * sizeof(ushort))..]);
     }
 
     /// <summary>The bound OBJ artwork, which a plane's artwork uploads require.</summary>

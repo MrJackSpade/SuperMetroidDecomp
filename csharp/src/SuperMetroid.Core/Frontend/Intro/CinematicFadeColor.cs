@@ -34,7 +34,7 @@ internal readonly record struct CinematicFadeColor(ushort Red, ushort Green, ush
 
     /// <summary>The visible colour: each component's high byte, as the following NMI upload writes it into CGRAM.</summary>
     internal RgbColor Visible => new(
-        SnesLittleEndian.HighByte(Red) & RgbColor.MaxChannel,
-        SnesLittleEndian.HighByte(Green) & RgbColor.MaxChannel,
-        SnesLittleEndian.HighByte(Blue) & RgbColor.MaxChannel);
+        UnsignedEightEight.Whole(Red) & RgbColor.MaxChannel,
+        UnsignedEightEight.Whole(Green) & RgbColor.MaxChannel,
+        UnsignedEightEight.Whole(Blue) & RgbColor.MaxChannel);
 }

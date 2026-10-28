@@ -116,14 +116,13 @@ public sealed class ScreenFade
     }
 
     /// <summary>8-bit LDA $0725 : STA $0723.</summary>
-    private void ReloadSlowDelay() => Delay = WrappingCountdown.FromRaw(
-        (ushort)(SnesLittleEndian.HighByteInPlace(Delay.RawValue) | SnesLittleEndian.LowByte(Counter.RawValue)));
+    private void ReloadSlowDelay() => Delay = Delay.WithEightBitCount(Counter.EightBitCount);
 
     /// <summary>8-bit STZ $0723 and $0725 on reaching the fade's end.</summary>
     private void ClearSlowTiming()
     {
-        Delay = WrappingCountdown.FromRaw((ushort)SnesLittleEndian.HighByteInPlace(Delay.RawValue));
-        Counter = WrappingCountdown.FromRaw((ushort)SnesLittleEndian.HighByteInPlace(Counter.RawValue));
+        Delay = Delay.WithEightBitCount(0);
+        Counter = Counter.WithEightBitCount(0);
     }
 
     /// <summary>DEC/BMI on the 16-bit counter; returns true when this dispatch only counts down.</summary>

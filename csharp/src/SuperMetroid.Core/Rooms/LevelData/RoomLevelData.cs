@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using System.Collections.Immutable;
@@ -512,8 +513,8 @@ public sealed class RoomLevelData
         if ((uint)byteOffset >= (uint)(_blockDefinitions.Length - 1))
             throw new ArgumentOutOfRangeException(nameof(wordIndex));
 
-        _blockDefinitions[byteOffset] = SnesLittleEndian.LowByte(tilemapWord);
-        _blockDefinitions[byteOffset + 1] = SnesLittleEndian.HighByte(tilemapWord);
+        BinaryPrimitives.WriteUInt16LittleEndian(
+            _blockDefinitions.AsSpan(byteOffset), checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, tilemapWord)));
         foregroundPlane = null;
         backgroundPlane = null;
     }

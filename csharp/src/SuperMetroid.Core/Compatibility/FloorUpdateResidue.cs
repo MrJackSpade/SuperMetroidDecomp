@@ -22,6 +22,9 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
     /// </summary>
     public const int ResidueWindowEnd = 32768;
 
+    /// <summary>The bits of one descriptor byte: a word field's high byte follows its low byte.</summary>
+    private const int DescriptorByteBits = 8;
+
     /// <summary>The bytes one update's descriptor takes.</summary>
     private const int UpdateBytes = 9;
 
@@ -85,11 +88,11 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
         };
     }
 
-    /// <summary>The low eight bits of <paramref name="value"/>.</summary>
-    private static byte Low(int value) => SnesLittleEndian.LowByte(unchecked((ushort)value));
+    /// <summary>The descriptor byte <paramref name="value"/>'s low eight bits fill, the first of its two.</summary>
+    private static byte Low(int value) => unchecked((byte)value);
 
-    /// <summary>The high eight bits of a sixteen-bit <paramref name="value"/>.</summary>
-    private static byte High(int value) => SnesLittleEndian.HighByte(unchecked((ushort)value));
+    /// <summary>The descriptor byte a sixteen-bit <paramref name="value"/>'s high eight bits fill, after its low byte.</summary>
+    private static byte High(int value) => unchecked((byte)(value >> DescriptorByteBits));
 
     /// <summary>What one descriptor position holds.</summary>
     /// <param name="Update">The floor update written there last.</param>

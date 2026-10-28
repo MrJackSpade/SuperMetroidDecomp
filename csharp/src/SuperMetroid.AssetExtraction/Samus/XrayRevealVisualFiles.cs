@@ -289,7 +289,7 @@ public static class XrayRevealVisualFiles
     }
 
     /// <summary>The marker words of the reveal tables, beside the block types and BTS values they hold.</summary>
-    private enum RevealTableMarker : ushort
+    private enum RevealTableMarker
     {
         /// <summary>The BTS wildcard: matches any BTS in the selected block family.</summary>
         AnyBts = 0xff00,

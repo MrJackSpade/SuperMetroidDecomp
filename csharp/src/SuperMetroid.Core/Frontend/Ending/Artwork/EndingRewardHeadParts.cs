@@ -13,15 +13,17 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
     private static bool IsHead(Pose pose) => pose is Pose.LargeSamusHelmetFromEndingFrame1 or Pose.LargeSamusHelmetFromEndingFrame2
         or Pose.JumpingSamusHeadFromEnding or Pose.SamusHeadWithHelmetFromEnding || FaceFrame(pose) is not null;
 
-    /// <summary>The face frame, 0 through 3, a bare-head reward pose shows; null for every other pose.</summary>
-    private static int? FaceFrame(Pose pose) => pose switch
+    /// <summary>The face frame, 0 through 3, each bare-head reward pose shows.</summary>
+    private static readonly Dictionary<Pose, int> FaceFrames = new()
     {
-        Pose.SamusHeadFromEndingFrame1 => 0,
-        Pose.SamusHeadFromEndingFrame2 => 1,
-        Pose.SamusHeadFromEndingFrame3 => 2,
-        Pose.SamusHeadFromEndingFrame4 => 3,
-        _ => null,
+        [Pose.SamusHeadFromEndingFrame1] = 0,
+        [Pose.SamusHeadFromEndingFrame2] = 1,
+        [Pose.SamusHeadFromEndingFrame3] = 2,
+        [Pose.SamusHeadFromEndingFrame4] = 3,
     };
+
+    /// <summary>The face frame a bare-head reward pose shows; null for every other pose.</summary>
+    private static int? FaceFrame(Pose pose) => FaceFrames.TryGetValue(pose, out int frame) ? frame : null;
 
     /// <summary>Recalculates a reward head only when its pose belongs to this head family.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)

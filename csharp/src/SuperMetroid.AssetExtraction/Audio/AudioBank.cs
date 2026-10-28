@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// room-header data indexes and the data set of each bank are mapped from this identity only by
 /// <see cref="AudioAssetCatalogDefinitions"/>.
 /// </remarks>
-public enum AudioBank : byte
+public enum AudioBank
 {
     /// <summary><c>SPC_Engine</c>: the resident driver, sound-effect programs and shared samples, uploaded at reset.</summary>
     SpcEngine,

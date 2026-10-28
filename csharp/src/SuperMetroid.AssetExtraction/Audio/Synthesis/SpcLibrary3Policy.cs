@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Exclusive library-three policies; ordinary handlers preserve the low-health mode.</summary>
-internal enum SpcLibrary3Policy : byte
+internal enum SpcLibrary3Policy
 {
     /// <summary>SPC $4DD0, sound3Configurations_sound1: one voice, mode zero, priority one.</summary>
     CancelAndClearLowHealthMode = 0,

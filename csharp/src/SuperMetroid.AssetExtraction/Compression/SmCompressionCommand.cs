@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Compression;
 /// there is the long-header marker, so <see cref="RelativeCopyInverted"/> is encodable only in
 /// a long header's bits 2-4.
 /// </summary>
-public enum SmCompressionCommand : byte
+public enum SmCompressionCommand
 {
     /// <summary>Copy literal bytes from the compressed stream.</summary>
     Literal = 0x00,

@@ -57,7 +57,7 @@ public static class RoomFxLayer3TilemapExtractor
             pages.Add(type.ToString(), cells);
         }
         using var output = new MemoryStream();
-        RoomFxLayer3TilemapCatalog.Write(output, new RoomFxLayer3TilemapDocument
+        RoomFxLayer3Pages.Write(output, new RoomFxLayer3TilemapDocument
         {
             Version = RoomFxLayer3TilemapFormat.Version,
             Pages = pages,

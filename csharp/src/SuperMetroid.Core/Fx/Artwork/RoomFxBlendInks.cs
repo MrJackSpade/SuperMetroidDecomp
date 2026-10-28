@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Editable three-color room-FX blends selected by native FX records.</summary>
-public sealed class RoomFxPaletteBlendCatalog
+public sealed class RoomFxBlendInks
 {
     /// <summary>Three installed CGRAM inks for the lava selector.</summary>
     private readonly RoomFxBlendColors lava;
@@ -23,7 +23,7 @@ public sealed class RoomFxPaletteBlendCatalog
     private readonly RoomFxBlendColors maridiaWaterD;
 
     /// <summary>Retains each validated room-FX ink and both optional Ceres haze tints.</summary>
-    internal RoomFxPaletteBlendCatalog(RoomFxPaletteBlendParts parts)
+    internal RoomFxBlendInks(RoomFxPaletteBlendParts parts)
     {
         this.lava = parts.Lava;
         this.landingSiteRain = parts.LandingSiteRain;

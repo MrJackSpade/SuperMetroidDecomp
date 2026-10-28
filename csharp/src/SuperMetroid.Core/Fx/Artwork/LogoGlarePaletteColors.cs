@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// OBJ index0 is transparent before CGRAM lookup, so this source payload has no
 /// visible color-generation rule. Both are retained narrowly under #1165's nonsense
 /// exception; no intermediate animation color is included in that disposition.</summary>
-internal static class LogoGlarePaletteColorDefinitions
+internal static class LogoGlarePaletteColors
 {
     /// <summary>Calculate only intermediate colors from the final supplied row.
     /// The caller resolves explicit per-frame edits first. No generated row is cached.</summary>

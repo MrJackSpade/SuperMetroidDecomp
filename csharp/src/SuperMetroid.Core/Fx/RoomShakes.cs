@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Exact bounded geometry and recipient policy for the 36 rendered earthquake types.</summary>
-internal static class RoomShakeDefinitions
+/// <summary>
+/// Decodes a rendered earthquake type into the displacement it applies to BG1, BG2 and projectiles.
+/// </summary>
+internal static class RoomShakes
 {
-
     /// <summary>Returns the physical displacement record for earthquake type 0..35.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A0/86.asm.

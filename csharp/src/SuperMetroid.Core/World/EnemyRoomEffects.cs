@@ -193,7 +193,7 @@ internal sealed class EnemyRoomEffects
         {
             // The pending native LoadFxEntry call is applied once, on the pass that requested it. Reapplying it
             // each frame would reset its delay and prevent the acid from moving.
-            RoomFxDefinition fx = _room.LoadedRoom.State.Fx
+            RoomFxHeader fx = _room.LoadedRoom.State.Fx
                 ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
             _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(_colours.BackgroundSets,
                 fx.Records[requests.MotherBrainFxEntry]);

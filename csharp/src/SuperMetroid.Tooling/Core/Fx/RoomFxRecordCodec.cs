@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -45,7 +46,7 @@ internal static class RoomFxRecordCodec
     });
 
     /// <summary>The record that ends a list: every field cleared.</summary>
-    internal static RoomFxRecordDefinition Terminator { get; } = new(null, true, 0, 0, 0, 0, RoomFxType.None,
+    internal static RoomFxRecordDefinition Terminator { get; } = new(null, true, 0, 0, default, 0, RoomFxType.None,
         LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None,
         RoomFxEffectSlots.None, RoomFxEffectSlots.None, RoomFxPaletteBlend.None);
 
@@ -55,9 +56,9 @@ internal static class RoomFxRecordCodec
     {
         Ensure.LengthEqual(native, RoomFxToolingRomData.Record.ByteCount);
         return new(door, false,
-            Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset),
-            Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset),
-            Word(native, RoomFxRomDataRecordTooling.YVelocityOffset),
+            SurfaceY(Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset)),
+            SurfaceY(Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset)),
+            new SignedEightEight(Word(native, RoomFxRomDataRecordTooling.YVelocityOffset)),
             native[RoomFxRomDataRecordTooling.TimerOffset],
             RoomFxRecordWords.Types.Decode(native[RoomFxRomDataRecordTooling.TypeOffset], $"{context} room-FX type"),
             LayerBlends.Decode(native[RoomFxRomDataRecordTooling.DefaultLayerBlendConfigurationOffset], $"{context} default layer blend"),
@@ -69,6 +70,12 @@ internal static class RoomFxRecordCodec
 
         static ushort Word(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);
     }
+
+    /// <summary>The height word a record holds where it names no surface height.</summary>
+    internal const ushort UnnamedSurfaceWord = ushort.MaxValue;
+
+    /// <summary>The surface height a record's height word names, or null for <see cref="UnnamedSurfaceWord"/>.</summary>
+    internal static int? SurfaceY(ushort word) => word == UnnamedSurfaceWord ? null : word;
 
     /// <summary>The liquid options a record's options byte selects; every bit is kept, tested or not.</summary>
     internal static RoomLiquidOptions LiquidOptions(byte value) => (RoomLiquidOptions)value;

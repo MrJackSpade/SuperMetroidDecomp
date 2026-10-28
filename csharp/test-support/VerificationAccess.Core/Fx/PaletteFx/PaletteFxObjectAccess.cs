@@ -117,7 +117,7 @@ internal static class PaletteFxObjectAccess
     extension(RoomPaletteFxDefinitions)
     {
         /// <summary>The definition at <paramref name="pointer"/>.</summary>
-        internal static RoomPaletteFxDefinition Get(ushort pointer) => RoomPaletteFxDefinitions.Get(FromNative(pointer));
+        internal static RoomPaletteFxDefinition Get(ushort pointer) => RoomPaletteFxSelection.Get(FromNative(pointer));
     }
 
     /// <summary>Native view of a Tourian statue release.</summary>

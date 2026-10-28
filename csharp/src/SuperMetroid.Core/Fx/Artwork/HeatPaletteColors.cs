@@ -1,9 +1,12 @@
 using SuperMetroid.Core.Fx.PaletteFx;
-
 using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Calculated repeated-row aliases for the three native Samus heat palettes.</summary>
+/// <summary>
+/// Calculates the heat palette effects' colours: the canonical rows, the suit rows and the red ramps shared between
+/// programs.
+/// </summary>
 /// <remarks>Each suit's program has sixteen fifteen-color phases.
 /// Interior phase p selects row (min(p,15-p)+1)/2. Row zero first occurs at phase0;
 /// row r=1..4 first occurs at phase2*r-1. Phase15 returns to row1 for Power and
@@ -15,14 +18,8 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// These original columns are unchanged across the complete animation. Endpoint component
 /// ownership is documented by HeatPaletteInputView; underlying suit artwork has its own
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
-internal static class HeatPaletteColorDefinitions
+internal static class HeatPaletteColors
 {
-    /// <summary>Power phase zero, color three: the base heat color supplying <see cref="HeatPaletteEndpoint.Red"/>'s unselected channels.</summary>
-    internal static PaletteFxColorKey RedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 3);
-
-    /// <summary>Power phase zero, color four: the base heat color supplying <see cref="HeatPaletteEndpoint.Mixed"/>'s blue.</summary>
-    internal static PaletteFxColorKey MixedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 4);
-
     /// <summary>The heat palette color <paramref name="endpoint"/> names.</summary>
     internal static PaletteFxColorKey Key(HeatPaletteEndpoint endpoint) => endpoint switch
     {
@@ -79,7 +76,7 @@ internal static class HeatPaletteColorDefinitions
         {
             if (Rows(suit).TryLocate(key, out int phase, out int color) && phase == 0)
             {
-                source = LoadingPaletteColorDefinitions.Rows(suit).Color(0, color + 1);
+                source = LoadingPaletteColors.Rows(suit).Color(0, color + 1);
                 return true;
             }
         }
@@ -92,7 +89,7 @@ internal static class HeatPaletteColorDefinitions
     {
         value = RgbColor.Black;
         return TryBasePalette(key, out PaletteFxColorKey source) &&
-            LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value);
+            LoadingPaletteColors.TryReadColor(source, colors, out value);
     }
 
     /// <summary>Prefers a supplied color, then tries a base-palette alias or calculated highlight endpoint.</summary>
@@ -228,4 +225,10 @@ internal static class HeatPaletteColorDefinitions
         value = original.WithRed(red);
         return true;
     }
+
+    /// <summary>Power phase zero, color three: the base heat color supplying <see cref="HeatPaletteEndpoint.Red"/>'s unselected channels.</summary>
+    internal static PaletteFxColorKey RedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 3);
+
+    /// <summary>Power phase zero, color four: the base heat color supplying <see cref="HeatPaletteEndpoint.Mixed"/>'s blue.</summary>
+    internal static PaletteFxColorKey MixedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 4);
 }

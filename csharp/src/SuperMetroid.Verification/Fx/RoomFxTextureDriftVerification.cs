@@ -72,7 +72,7 @@ internal static class RoomFxTextureDriftVerification
         };
         RoomLayer3FxState state;
         var record = new RoomFxRecordDefinition(Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
-            PackedYVelocity: 0, Timer: 0, Type: type, DefaultLayerBlend: blend, Layer3LayerBlend: blend,
+            YVelocity: default, Timer: 0, Type: type, DefaultLayerBlend: blend, Layer3LayerBlend: blend,
             LiquidOptions: options, PaletteFxSlots: RoomFxEffectSlots.None, AnimatedTileSlots: RoomFxEffectSlots.None,
             PaletteBlend: RoomFxPaletteBlend.None);
         state = RoomLayer3FxState.ForDefinition(stateSession, new GameplayColours(new SpriteColourSets()), record, checked((ushort)randomNumber));

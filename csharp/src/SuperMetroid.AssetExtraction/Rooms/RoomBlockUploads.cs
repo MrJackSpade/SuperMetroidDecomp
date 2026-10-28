@@ -146,7 +146,7 @@ internal static class RoomBlockUploads
             {
                 if (!record.AnimatedTileSlots.Includes(bit))
                     continue;
-                foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, AreaAnimatedTileObjectDefinitions.Read(room.AreaIndex, bit)))
+                foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, AreaAnimatedTileObjects.Read(room.AreaIndex, bit)))
                     yield return frame;
             }
         }
@@ -295,7 +295,7 @@ internal static class RoomBlockUploads
         AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
         if (animatedObject == AnimatedTileObject.None)
             yield break;
-        RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
@@ -362,7 +362,7 @@ internal static class RoomBlockUploads
     /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
     {
-        if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))
+        if (WreckedShipTreadmills.TryResolve(animatedObject, out WreckedShipTreadmillLoop? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
                 yield return Animated(inputs, animatedObject, frame, treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
@@ -371,7 +371,7 @@ internal static class RoomBlockUploads
         }
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
             yield break;
-        RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));

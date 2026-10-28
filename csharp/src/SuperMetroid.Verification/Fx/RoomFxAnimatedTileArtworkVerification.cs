@@ -29,8 +29,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         var provider = new RoomFxArtworkTestProvider(atlas);
         int frameCount = 0;
-        foreach (RoomFxAnimatedTileObjectDefinition definition in
-                 RoomFxAnimatedTileMechanicsDefinitions.All)
+        foreach (RoomFxAnimatedTileLoop definition in
+                 RoomFxAnimatedTiles.All)
         {
             var state = new RoomFxAnimatedTilesState();
             var frames = new ArtworkFrameSelections();
@@ -64,7 +64,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             var treadmillFrames = new ArtworkFrameSelections();
             treadmill.Start(direction);
             treadmill.Step(areaBossDefeated: false, treadmillFrames);
-            AnimatedTileObject treadmillObject = WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction).AnimatedObject;
+            AnimatedTileObject treadmillObject = WreckedShipTreadmills.ForDirection(direction).AnimatedObject;
             AssertTrue(!treadmillFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out _),
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
             for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount;
@@ -149,7 +149,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         var treadmillFrames = new ArtworkFrameSelections();
         treadmill.Start(WreckedShipTreadmillDirection.Rightwards);
         treadmill.Step(areaBossDefeated: true, treadmillFrames);
-        AnimatedTileObject rightwards = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards).AnimatedObject;
+        AnimatedTileObject rightwards = WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards).AnimatedObject;
         AssertTrue(treadmillFrames.TryShown(AnimatedTileFrames.Of(rightwards), out ArtworkFrame shownTreadmill) &&
                 shownTreadmill == AnimatedTileFrames.Frame(rightwards, 0),
             "the edited first frame is the frame the treadmill shows");

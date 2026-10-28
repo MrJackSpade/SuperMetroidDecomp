@@ -20,14 +20,14 @@ public sealed class RoomSandAnimatedTilesState
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="area">The room's area, which selects each bit's object.</param>
-    public RoomSandAnimatedTilesState(RoomFxDefinition? fx, DoorDefinition? door, AreaId area)
+    public RoomSandAnimatedTilesState(RoomFxHeader? fx, DoorDefinition? door, AreaId area)
     {
         if (fx?.Select(door) is not { } record) return;
         RoomFxEffectSlots slots = record.AnimatedTileSlots;
         for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
         {
             if (!slots.Includes(bit)) continue;
-            AnimatedTileObject definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
+            AnimatedTileObject definition = AreaAnimatedTileObjects.Read(area, bit);
             if (definition is not (AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
                 continue;
             var animation = new RoomFxAnimatedTilesState();

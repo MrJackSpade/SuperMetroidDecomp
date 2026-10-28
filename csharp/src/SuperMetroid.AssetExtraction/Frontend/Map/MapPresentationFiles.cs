@@ -138,8 +138,8 @@ public static class MapPresentationFiles
             "Mother Brain room colors", (s, current) => MotherBrainRoomColorFile.Read(s, current), StockFingerprint.StockAndSelected);
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles = MigratingResource<RoomFxAnimatedTileAtlas>(RoomFxAnimatedTileAtlasFormat.FileName,
             "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlasPng.Read(s, current), StockFingerprint.SelectedOnly);
-        RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3TilemapCatalog.Load(s));
-        RoomFxPaletteBlendCatalog roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendFile.Read(s));
+        RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
+        RoomFxBlendInks roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendFile.Read(s));
         PowerBombFixedColorCatalog powerBombFixedColors = Resource(PowerBombFixedColorFormat.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
         SamusVisorColorCatalog samusVisorColors = Resource(SamusVisorColorFormat.FileName, "Samus visor colors", s => SamusVisorColorFile.Read(s));
         SamusHurtColorCatalog samusHurtColors = Resource(SamusHurtColorFormat.FileName, "Samus hurt colors", s => SamusHurtColorFile.Read(s));

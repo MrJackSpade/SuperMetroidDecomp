@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// Color zero changes immediately to its final value. Endpoints remain supplied
 /// inputs; their independent artwork choices are outside this interpolation conversion.
 /// </summary>
-internal static class TourianStatueGreyColorDefinitions
+internal static class TourianStatueGreyPaint
 {
     /// <summary>Explicit supplied edits take precedence; generated colors are never cached.</summary>
     internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)

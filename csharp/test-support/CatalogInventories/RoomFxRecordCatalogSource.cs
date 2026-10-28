@@ -131,6 +131,10 @@ internal static class RoomFxRecordCatalogSource
             : string.Join(" | ", set);
     }
 
+    /// <summary>Renders a surface height as the generated catalog spells it: its pixel row, or null where the record names none.</summary>
+    private static string SurfaceY(int? y) =>
+        y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
+
     /// <summary>Renders the named headers for the generated Core catalog.</summary>
     internal static string RenderRoomFxDefinitions(RetailRoomFxCapture capture)
     {
@@ -154,14 +158,15 @@ internal static class RoomFxRecordCatalogSource
             first = false;
             string name = RoomFxSources.Fx(header).Name;
             source.AppendLine($"    /// <summary>The {name} room FX.</summary>");
-            source.AppendLine($"    public static RoomFxDefinition {name} {{ get; }} = new(nameof({name}),");
+            source.AppendLine($"    public static RoomFxHeader {name} {{ get; }} = new(nameof({name}),");
             source.AppendLine("    [");
             foreach (ushort pointer in pointers)
             {
                 RoomFxRecordDefinition record = capture.Records[pointer];
                 source.AppendLine($"        new({RenderDoor(record)}, " +
-                    $"0x{record.BaseYPosition:X4}, 0x{record.TargetYPosition:X4}, " +
-                    $"0x{record.PackedYVelocity:X4}, 0x{record.Timer:X2}, {Member(record.Type)}, " +
+                    $"{SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
+                    $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
+                    $"0x{record.Timer:X2}, {Member(record.Type)}, " +
                     $"{Member(record.DefaultLayerBlend)}, {Member(record.Layer3LayerBlend)}, " +
                     $"{Flags(record.LiquidOptions)}, {Flags(record.PaletteFxSlots)}, " +
                     $"{Flags(record.AnimatedTileSlots)}, {Member(record.PaletteBlend)}),");

@@ -118,8 +118,8 @@ internal static class AnimatedTileInstructionCodesVerification
         WreckedShipTreadmillDirection direction,
         int[] expectedSources)
     {
-        WreckedShipTreadmillObjectDefinition definition =
-            WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
+        WreckedShipTreadmillLoop definition =
+            WreckedShipTreadmills.ForDirection(direction);
         var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
         var state = new WreckedShipTreadmillAnimatedTilesState();
         var frames = new ArtworkFrameSelections();
@@ -178,7 +178,7 @@ internal static class AnimatedTileInstructionCodesVerification
     /// <summary>Rejects compiled treadmill control reads and counts obsolete frame-source operand reads.</summary>
     private static CartridgeReadGuard NewWreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
-        WreckedShipTreadmillObjectDefinition definition,
+        WreckedShipTreadmillLoop definition,
         out StrongBox<int> presentationReads)
     {
         var reads = new StrongBox<int>();

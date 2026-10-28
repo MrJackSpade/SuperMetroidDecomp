@@ -57,8 +57,8 @@ internal static class ClosedPresentationIdentityDefinitions
             .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
             .Select(frame => frame.Pose.Index).Distinct().ToArray(),
         ("ProjectileTrailCatalog", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
-        ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
-        ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
+        ("RoomFxLayer3Pages", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
+        ("RoomFxBlendInks", "Apply", "selection") => RoomFxPaletteBlendRules.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>
             [(int)InstalledArtworkId.StandardHudTiles, (int)InstalledArtworkId.KraidBg3RestoreQuarter0,
              (int)InstalledArtworkId.KraidBg3RestoreQuarter1, (int)InstalledArtworkId.KraidBg3RestoreQuarter2,

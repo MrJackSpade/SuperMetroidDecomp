@@ -34,12 +34,12 @@ internal static class RoomFxLayer3TilemapsVerification
         Suite(nameof(VerifyFxTilemapTypeEnumeration), () => VerifyFxTilemapTypeEnumeration());
         Suite(nameof(VerifyFxTilemapSourceAddresses), () => VerifyFxTilemapSourceAddresses(rom));
         byte[] json = RoomFxLayer3TilemapExtractor.Extract(NewLiquidTilemapSourceGuard(rom));
-        RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
+        RoomFxLayer3Pages catalog = RoomFxLayer3Pages.Load(new MemoryStream(json));
         Suite(nameof(VerifyLiquidTilemaps), () => VerifyLiquidTilemaps(rom, catalog));
         Suite(nameof(VerifySporeTilemapAttributes), () => VerifySporeTilemapAttributes(rom, catalog));
         Suite(nameof(VerifyAtmosphereTilemapFields), () => VerifyAtmosphereTilemapFields(rom, catalog));
         Suite(nameof(VerifyFxTilemapPageDispatch), () => VerifyFxTilemapPageDispatch(rom, catalog));
-        RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendFile.Read(
+        RoomFxBlendInks paletteColors = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
@@ -56,7 +56,7 @@ internal static class RoomFxLayer3TilemapsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"room-FX {type} installed load reads no tilemap ROM or pointer table");
         }
-        AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapCatalog.Load(
+        AssertThrows<InvalidDataException>(() => RoomFxLayer3Pages.Load(
             new MemoryStream([1, 2, 3])), "corrupt room-FX BG3 tilemap JSON fails loudly");
         Console.WriteLine("  Room-FX BG3 tilemaps: six complete native pages and five guarded installed loads pass.");
     }
@@ -75,7 +75,7 @@ internal static class RoomFxLayer3TilemapsVerification
             TileColumn = (originalCell.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
         };
         using (var output = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-            RoomFxLayer3TilemapCatalog.Write(output, document);
+            RoomFxLayer3Pages.Write(output, document);
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX BG3 edit changes installed content identity");
@@ -95,7 +95,7 @@ internal static class RoomFxLayer3TilemapsVerification
         {
             document.Pages[nameof(RoomFxType.Lava)][0] = originalCell with { TileColumn = 32 };
             using var invalid = new MemoryStream();
-            RoomFxLayer3TilemapCatalog.Write(invalid, document);
+            RoomFxLayer3Pages.Write(invalid, document);
         }, "invalid room-FX BG3 tile index fails loudly");
         File.Delete(path);
         AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
@@ -106,7 +106,7 @@ internal static class RoomFxLayer3TilemapsVerification
 
     /// <summary>Loads one compiled default FX record with native tilemap reads forbidden; returns the BG3 plane it shows under a blank HUD.</summary>
     private static Layer3Plane LoadConstructedRoomFxTilemap(RoomFxType type,
-        RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
+        RoomFxLayer3Pages catalog, RoomFxBlendInks paletteColors,
         out CartridgeReadGuard guarded)
     {
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>

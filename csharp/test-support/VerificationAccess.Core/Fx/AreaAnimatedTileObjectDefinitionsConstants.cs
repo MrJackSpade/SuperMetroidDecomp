@@ -7,7 +7,7 @@ internal static class AreaAnimatedTileObjectDefinitionsConstants
 {
     /// <summary>
     /// The cartridge stores an eighth non-retail list after the seven typed areas.
-    /// Production <see cref="AreaAnimatedTileObjectDefinitions.Read(AreaId, int)"/> deliberately accepts only typed retail
+    /// Production <see cref="AreaAnimatedTileObjects.Read(AreaId, int)"/> deliberately accepts only typed retail
     /// areas, while verification retains this row so every native table word is audited.
     /// </summary>
     public const int NativeAreaCount = 8;

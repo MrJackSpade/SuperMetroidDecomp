@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// values remain calculated. Visible shared channels and shade arithmetic are calculated
 /// by EndingGunshipPaletteInputView; its remaining independent artwork parameters have
 /// a separate, narrowly documented nonsense disposition.</remarks>
-internal static class EndingGunshipPaletteColorDefinitions
+internal static class EndingGunshipPaletteColors
 {
 
     /// <summary>Defaults are calculated only after explicit supplied edits have been
@@ -29,7 +29,7 @@ internal static class EndingGunshipPaletteColorDefinitions
             return false;
         if (frame == 0)
         {
-            value = color == 0 ? RgbColor.Black : RgbColor.FromWord(0x7fff);
+            value = color == 0 ? RgbColor.Black : RgbColor.White;
             return true;
         }
         if (frame is 7 or 8)

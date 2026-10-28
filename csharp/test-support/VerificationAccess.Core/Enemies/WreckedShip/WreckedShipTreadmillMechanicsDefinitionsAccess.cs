@@ -10,12 +10,12 @@ internal static class WreckedShipTreadmillMechanicsDefinitionsAccess
     extension(WreckedShipTreadmillMechanicsDefinitions)
     {
         /// <summary>Both named directions in native header order, without a stored roster.</summary>
-        internal static IEnumerable<WreckedShipTreadmillObjectDefinition> All
+        internal static IEnumerable<WreckedShipTreadmillLoop> All
         {
             get
             {
-                yield return WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);
-                yield return WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Leftwards);
+                yield return WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards);
+                yield return WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Leftwards);
             }
         }
     }

@@ -37,56 +37,56 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
-            if (HeatPaletteColorDefinitions.TryCanonical(key, out PaletteFxColorKey canonical) &&
+            if (HeatPaletteColors.TryCanonical(key, out PaletteFxColorKey canonical) &&
                 canonical != key && colors[key] == colors[canonical]) colors.Remove(key);
         }
         foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
             if (colors.TryGetValue(key, out RgbColor supplied) &&
-                HeatPaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
+                HeatPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
                 colors.Remove(key);
         }
         foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
-            if (LoadingPaletteColorDefinitions.TryCanonical(key, out PaletteFxColorKey canonical) &&
+            if (LoadingPaletteColors.TryCanonical(key, out PaletteFxColorKey canonical) &&
                 canonical != key && colors[key] == colors[canonical]) colors.Remove(key);
         }
         foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
             if (colors.TryGetValue(key, out RgbColor supplied) &&
-                LoadingPaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
+                LoadingPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
                 colors.Remove(key);
         }
         // Only matching samples are discarded. If the player edits a base color,
         // unchanged intermediate samples that no longer fit remain explicit values.
         foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.Rows, lastFrame: PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount - 1))
         {
-            if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) &&
+            if (LogoGlarePaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.Rows, lastFrame: ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount - 1))
         {
-            if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) &&
+            if (EndingGunshipPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         // Keep both endpoints and independent sample edits. Only values matching
         // their supplied endpoints can be reconstructed on demand.
         foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.Rows, firstFrame: 1, lastFrame: TourianStatueGreyPaletteFxColorDefinitions.FrameCount - 1))
         {
-            if (TourianStatueGreyColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) &&
+            if (TourianStatueGreyPaint.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.SurfaceProgram.Rows))
         {
-            if (CrateriaLightningColorDefinitions.TryCalculatedColor(key, out RgbColor calculated) &&
+            if (CrateriaLightningColors.TryCalculatedColor(key, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.DarkProgram.Rows, firstFrame: 1))
         {
-            if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(key, colors, out RgbColor calculated) &&
+            if (CrateriaLightningColors.TryCalculatedDarkColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
@@ -94,14 +94,14 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame; index++)
         {
             PaletteFxColorKey key = program.Color(frame, index);
-            if (key != PlanetZebesTextColorDefinitions.Endpoint(index)
-                && PlanetZebesTextColorDefinitions.TryCalculate(key, colors, out RgbColor calculated)
+            if (key != PlanetZebesTextColors.Endpoint(index)
+                && PlanetZebesTextColors.TryCalculate(key, colors, out RgbColor calculated)
                 && colors[key] == calculated) colors.Remove(key);
         }
         foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
-            if (MaridiaEnvironmentalColorDefinitions.TrySource(key, out PaletteFxColorKey source)
+            if (MaridiaEnvironmentalColors.TrySource(key, out PaletteFxColorKey source)
                 && source != key && colors[key] == colors[source]) colors.Remove(key);
         }
         return new RoomPaletteFxPresentation(colors);
@@ -110,17 +110,17 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     /// <inheritdoc />
     public bool TryReadColor(PaletteFxColorKey key, out RgbColor color) =>
         gunshipInputs.TryGetValue(key, out color) ||
-        PlanetZebesTextColorDefinitions.TryCalculate(key, colors, out color) ||
-        MaridiaEnvironmentalColorDefinitions.TryReadColor(key, colors, out color) ||
-        CrateriaLightningColorDefinitions.TryCalculatedColor(key, out color) ||
-        CrateriaLightningColorDefinitions.TryCalculatedDarkColor(key, colors, out color) ||
-        TourianStatueGreyColorDefinitions.TryCalculatedColor(key, colors, out color) ||
-        LoadingPaletteColorDefinitions.TryReadColor(key, loadingInputs, out color) ||
-        LogoGlarePaletteColorDefinitions.TryCalculatedColor(key, colors, out color) ||
-        EndingGunshipPaletteColorDefinitions.TryCalculatedColor(key, gunshipInputs, out color) ||
-        (HeatPaletteColorDefinitions.TryCanonical(key, out PaletteFxColorKey canonical) &&
+        PlanetZebesTextColors.TryCalculate(key, colors, out color) ||
+        MaridiaEnvironmentalColors.TryReadColor(key, colors, out color) ||
+        CrateriaLightningColors.TryCalculatedColor(key, out color) ||
+        CrateriaLightningColors.TryCalculatedDarkColor(key, colors, out color) ||
+        TourianStatueGreyPaint.TryCalculatedColor(key, colors, out color) ||
+        LoadingPaletteColors.TryReadColor(key, loadingInputs, out color) ||
+        LogoGlarePaletteColors.TryCalculatedColor(key, colors, out color) ||
+        EndingGunshipPaletteColors.TryCalculatedColor(key, gunshipInputs, out color) ||
+        (HeatPaletteColors.TryCanonical(key, out PaletteFxColorKey canonical) &&
          (heatInputs.TryGetValue(canonical, out color) ||
-          HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
+          HeatPaletteColors.TryCalculatedColor(canonical, heatInputs, out color)));
 
     /// <summary>Every color of <paramref name="rows"/> from <paramref name="firstFrame"/> up to <paramref name="lastFrame"/>, by row then color.</summary>
     private static IEnumerable<PaletteFxColorKey> Keys(PaletteFxColorRows rows, int firstFrame = 0, int? lastFrame = null)

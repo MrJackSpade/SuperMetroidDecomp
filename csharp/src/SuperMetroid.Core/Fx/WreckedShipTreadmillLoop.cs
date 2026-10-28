@@ -3,11 +3,11 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
-public sealed class WreckedShipTreadmillObjectDefinition
+public sealed class WreckedShipTreadmillLoop
 {
 
     /// <summary>Builds one direction's boss-gated header.</summary>
-    internal WreckedShipTreadmillObjectDefinition(
+    internal WreckedShipTreadmillLoop(
         WreckedShipTreadmillDirection direction,
         AnimatedTileObject animatedObject)
     {

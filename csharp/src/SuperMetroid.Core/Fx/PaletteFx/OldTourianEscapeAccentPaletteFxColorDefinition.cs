@@ -1,30 +1,21 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>One complete old-Tourian escape accent control program.</summary>
-public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
-{
-    /// <summary>Records one accent destination, its object and first record.</summary>
-    internal OldTourianEscapeAccentPaletteFxColorDefinition(
+public sealed class OldTourianEscapeAccentPaletteFxColorDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
         int colorByteIndex)
-    {
-        Owner = owner;
-        Object = paletteFxObject;
-        Rows = PaletteFxColorRows.Of(program, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame);
-        ColorByteIndex = colorByteIndex;
-    }
-
+{
     /// <summary>The mutually exclusive escape-accent owner.</summary>
-    public OldTourianEscapeAccentPaletteOwner Owner { get; }
+    public OldTourianEscapeAccentPaletteOwner Owner { get; } = owner;
 
     /// <summary>The palette-FX object that installs this program.</summary>
-    public PaletteFxObject Object { get; }
+    public PaletteFxObject Object { get; } = paletteFxObject;
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public int ColorByteIndex { get; }
+    public int ColorByteIndex { get; } = colorByteIndex;
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows { get; }
+    public PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(program, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame);
 }

@@ -155,10 +155,10 @@ internal sealed record AreaMapPresentationParts
     public required RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; init; }
 
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    public required RoomFxLayer3TilemapCatalog RoomFxLayer3Tilemaps { get; init; }
+    public required RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; init; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
-    public required RoomFxPaletteBlendCatalog RoomFxPaletteBlends { get; init; }
+    public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public required PowerBombFixedColorCatalog PowerBombFixedColors { get; init; }

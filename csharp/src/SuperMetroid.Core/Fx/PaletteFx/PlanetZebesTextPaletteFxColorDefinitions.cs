@@ -27,6 +27,9 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
 
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxColorDefinition> All { get; } =
-        [new(PlanetZebesTextPaletteFxProgramOwner.FadeIn), new(PlanetZebesTextPaletteFxProgramOwner.FadeOut)];
+        [
+            new(PlanetZebesTextPaletteFxProgramOwner.FadeIn, PaletteFxProgram.FadeInPlanetZebesText),
+            new(PlanetZebesTextPaletteFxProgramOwner.FadeOut, PaletteFxProgram.FadeOutPlanetZebesText),
+        ];
 
 }

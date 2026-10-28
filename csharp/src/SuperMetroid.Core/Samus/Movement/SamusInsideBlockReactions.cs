@@ -38,12 +38,12 @@ public static class SamusInsideBlockReactions
                 return;
             }
             SpecialAirReactionDefinition areaReaction =
-                SpecialAirReactionDefinitions.ResolveInside(
+                SpecialAirReactions.ResolveInside(
                     area,
                     block.Bts.AreaReactionIndex);
             PlmHeaderId header = areaReaction.Header;
             if (header == PlmHeaderId.None) return;
-            bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
+            bool hasCompiledReaction = QuicksandReactions.TryGetReaction(
                 header,
                 out QuicksandReactionDefinition reaction);
             SpecialAirReactionSetup setup = hasCompiledReaction
@@ -76,7 +76,7 @@ public static class SamusInsideBlockReactions
                     speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & (ushort)short.MaxValue);
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
-                        QuicksandDefinitions.SurfacePhysics(
+                        QuicksandReactions.SurfacePhysics(
                             samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
                     // $84:B433 indexes a four-entry table with the direction's low two bits;
                     // its fourth entry repeats the grounded handler, but $0B36 only ever
@@ -169,12 +169,12 @@ public static class SamusInsideBlockReactions
         surfaceContact = false;
         if (!block.Bts.UsesAreaReactionTable) return false;
         SpecialAirReactionDefinition areaReaction =
-            SpecialAirReactionDefinitions.ResolveCollision(
+            SpecialAirReactions.ResolveCollision(
                 body.SandCollisionArea,
                 block.Bts.AreaReactionIndex);
         PlmHeaderId header = areaReaction.Header;
         if (header == PlmHeaderId.None) return false;
-        bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
+        bool hasCompiledReaction = QuicksandReactions.TryGetReaction(
             header,
             out QuicksandReactionDefinition reaction);
         SpecialAirReactionSetup setup = hasCompiledReaction

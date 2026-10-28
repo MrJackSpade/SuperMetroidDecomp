@@ -29,9 +29,9 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
     /// <summary>The sand-pit, sand-fall, and waterfall programs in native definition order, calculated without cached records.</summary>
     public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } =
     [
-        new(MaridiaEnvironmentalPaletteOwner.SandPits),
-        new(MaridiaEnvironmentalPaletteOwner.SandFalls),
-        new(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
+        new(MaridiaEnvironmentalPaletteOwner.SandPits, PaletteFxProgram.Maridia11, SandRotationColors, SandRotationColors * SandPitBandCount),
+        new(MaridiaEnvironmentalPaletteOwner.SandFalls, PaletteFxProgram.Maridia21, SandRotationColors, SandRotationColors),
+        new(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls, PaletteFxProgram.Maridia41, WaterfallRotationColors, WaterfallRotationColors),
     ];
 
 }

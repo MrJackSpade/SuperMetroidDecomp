@@ -13,23 +13,23 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupLiquidTilemapsVerification
 {
     /// <summary>Compares the tile index field of every lava, acid, and water cell.</summary>
-    private static void VerifyLiquidTileCharacters(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
+    private static void VerifyLiquidTileCharacters(ISnesAddressSpace rom, RoomFxLayer3Pages catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x03ff));
     /// <summary>Compares the palette selection field of every liquid cell.</summary>
-    private static void VerifyLiquidTilePalettes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
+    private static void VerifyLiquidTilePalettes(ISnesAddressSpace rom, RoomFxLayer3Pages catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x1c00));
     /// <summary>Compares the priority bit of every liquid cell.</summary>
-    private static void VerifyLiquidTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
+    private static void VerifyLiquidTilePriority(ISnesAddressSpace rom, RoomFxLayer3Pages catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x2000));
     /// <summary>Compares the horizontal flip bit of every liquid cell.</summary>
-    private static void VerifyLiquidTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
+    private static void VerifyLiquidTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3Pages catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x4000));
     /// <summary>Compares the vertical flip bit of every liquid cell.</summary>
-    private static void VerifyLiquidTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
+    private static void VerifyLiquidTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3Pages catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x8000));
 
     /// <summary>Checks one native tile-word field against calculated and installed transfers across all three liquids.</summary>
-    private static void VerifyLiquidTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog, int mask)
+    private static void VerifyLiquidTileField(ISnesAddressSpace rom, RoomFxLayer3Pages catalog, int mask)
     {
         foreach (RoomFxType type in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water })
         {
@@ -51,7 +51,7 @@ internal static class LookupLiquidTilemapsVerification
     }
 
     /// <summary>Rejects unknown liquid identities and partial pages, and confirms the stock pages are the cartridge's pages.</summary>
-    private static void VerifyLiquidTilemapDomainAndStorage(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    private static void VerifyLiquidTilemapDomainAndStorage(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         var valid = new HashSet<RoomFxType> { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water };
         for (int value = 0; value <= ushort.MaxValue; value++)
@@ -88,7 +88,7 @@ internal static class LookupLiquidTilemapsVerification
     private static byte LiquidTilemapDomainAndStorageRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs field-by-field page comparisons and the identity, bounds, and storage checks.</summary>
-    internal static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         Suite(nameof(VerifyLiquidTileCharacters), () => VerifyLiquidTileCharacters(rom, stock));
         Suite(nameof(VerifyLiquidTilePalettes), () => VerifyLiquidTilePalettes(rom, stock));

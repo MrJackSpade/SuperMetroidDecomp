@@ -341,7 +341,7 @@ public static class GameplayEffectCapture
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
     public static ScanlineColorAddRenderLayer CaptureCeresHaze(bool ridleyIsDead,
         int intensity = CeresHazeRenderDefinitions.MaximumComponent,
-        RoomFxPaletteBlendCatalog? colors = null)
+        RoomFxBlendInks? colors = null)
     {
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);

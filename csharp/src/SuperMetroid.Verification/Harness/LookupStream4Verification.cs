@@ -425,7 +425,7 @@ internal static class LookupStream4Verification
             {
                 ushort pointer = (ushort)(first + frame * (colors + 2) * 2 + color * 2);
                 sites.Add(new LookupStream4Site(owner, frame, color, pointer));
-                AssertTrue(MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out ushort source), "native rotation domain");
+                AssertTrue(MaridiaEnvironmentalColors.TrySourcePointer(pointer, out ushort source), "native rotation domain");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), rom.ReadCartridgeWordFixedBank(0x8D0000 | source), "direct native color rotation relationship");
                 AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
                 AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed environmental color resolves");
@@ -434,7 +434,7 @@ internal static class LookupStream4Verification
         }
         AssertEqual(112, sites.Count, "native environmental color domain");
         AssertEqual(16, sites.Count(site => stored.ContainsKey(site.Pointer)), "sixteen required first-row colors");
-        var pointers = stock.ColorPointers.Where(pointer => MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out _)).ToArray();
+        var pointers = stock.ColorPointers.Where(pointer => MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _)).ToArray();
         AssertEqual(112, pointers.Length, "environmental identities remain published");
         AssertEqual(112, pointers.Distinct().Count(), "environmental identities remain unique");
         foreach (var edit in sites)
@@ -470,7 +470,7 @@ internal static class LookupStream4Verification
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
             AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
             foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
-                AssertTrue(!MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
+                AssertTrue(!MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
         }
         Console.WriteLine("Maridia colors:112 native words,16 required inputs,96 rotated/shared colors,all112 independent edits and three actual installed cycles pass.");
     }
@@ -495,7 +495,7 @@ internal static class LookupStream4Verification
         {
             ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
             AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
-            AssertTrue(PlanetZebesTextColorDefinitions.TryCalculate(pointer, stored, out RgbColor calculated), "native text interpolation domain");
+            AssertTrue(PlanetZebesTextColors.TryCalculate(pointer, stored, out RgbColor calculated), "native text interpolation domain");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), calculated, "direct calculated native text color");
             bool required = owner == 0 && frame == 7;
             AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
@@ -504,7 +504,7 @@ internal static class LookupStream4Verification
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "installed native text color");
         }
         AssertEqual(3, storedCount, "three required selected endpoint colors");
-        var pointers = stock.ColorPointers.Where(pointer => PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _)).ToArray();
+        var pointers = stock.ColorPointers.Where(pointer => PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _)).ToArray();
         AssertEqual(48, pointers.Length, "all text pointer identities remain published");
         AssertEqual(48, pointers.Distinct().Count(), "text pointer identities are unique");
         for (int edit = 0; edit < 48; edit++)
@@ -547,7 +547,7 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
         foreach (ushort pointer in new ushort[] { 0xC90E, 0xC912, 0xC91A, 0xC962, 0xC964, 0xC968, 0xC9B8 })
-            AssertTrue(!PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
+            AssertTrue(!PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
         Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
     }
 
@@ -2100,7 +2100,7 @@ internal static class LookupStream4Verification
         for (int address = 0xec6e; address <= 0xed83; address++)
         {
             bool expected = Enumerable.Range(1, 13).Any(frame => Enumerable.Range(0, 7).Any(index => program.ColorPointer(frame, index) == address));
-            AssertEqual(expected, CrateriaLightningColorDefinitions.TryCalculatedDarkColor((ushort)address, stored, out _), "dark lightning exact calculated address domain");
+            AssertEqual(expected, CrateriaLightningColors.TryCalculatedDarkColor((ushort)address, stored, out _), "dark lightning exact calculated address domain");
         }
     }
 
@@ -2141,7 +2141,7 @@ internal static class LookupStream4Verification
         for (int address = 0xeb3b; address <= 0xec58; address++)
         {
             bool expected = Enumerable.Range(0, 13).Any(frame => Enumerable.Range(0, 8).Any(index => program.ColorPointer(frame, index) == address));
-            AssertEqual(expected, CrateriaLightningColorDefinitions.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
+            AssertEqual(expected, CrateriaLightningColors.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
         }
     }
 
@@ -2195,9 +2195,9 @@ internal static class LookupStream4Verification
         {
             ushort pointer = (ushort)raw;
             bool owned = native.ContainsKey(pointer);
-            AssertEqual(owned, TourianStatueGreyColorDefinitions.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
+            AssertEqual(owned, TourianStatueGreyPaint.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
             bool intermediate = owned && frame is > 0 and < 7;
-            AssertEqual(intermediate, TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, ToColors(native), out RgbColor calculated), "stream4 statue intermediate domain");
+            AssertEqual(intermediate, TourianStatueGreyPaint.TryCalculatedColor(pointer, ToColors(native), out RgbColor calculated), "stream4 statue intermediate domain");
             if (owned) AssertEqual((ushort)(0xe240 + 20 * frame + 2 * color), pointer, "stream4 statue color coordinates");
             if (intermediate) AssertEqual(native[pointer], calculated, "stream4 every original statue interpolation sample");
         }
@@ -2231,7 +2231,7 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual, "stream4 endpoints and independent intermediate edits preserved");
             }
         }
-        AssertTrue(!TourianStatueGreyColorDefinitions.TryCalculatedColor(0xe254, ToColors(new Dictionary<ushort, ushort>()), out _), "stream4 absent statue endpoints are not invented");
+        AssertTrue(!TourianStatueGreyPaint.TryCalculatedColor(0xe254, ToColors(new Dictionary<ushort, ushort>()), out _), "stream4 absent statue endpoints are not invented");
     }
 
     /// <summary>Checks the burial presentation constants against the cartridge layout.</summary>

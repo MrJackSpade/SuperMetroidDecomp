@@ -44,7 +44,7 @@ internal static class RoomFxAnimatedTileSources
         return first.AddWithinBank(image.Index * byteCount);
 
         PictureRun Simple(SnesAddress start) =>
-            new(start, RoomFxAnimatedTileMechanicsDefinitions.Require(image.Object).FrameByteCount);
+            new(start, RoomFxAnimatedTiles.Require(image.Object).FrameByteCount);
     }
 
     /// <summary>An object's first picture and the bytes between consecutive pictures.</summary>

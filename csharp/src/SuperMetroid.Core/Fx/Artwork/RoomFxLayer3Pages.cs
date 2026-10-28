@@ -6,18 +6,18 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Editable BG3 tiles for the six room-FX pages, as their installed document places them.</summary>
-public sealed class RoomFxLayer3TilemapCatalog
+public sealed class RoomFxLayer3Pages
 {
     /// <summary>Each authored page's tiles, row-major, by the effect that shows it.</summary>
     private readonly Dictionary<RoomFxType, BackgroundTile[]> pages;
 
     /// <summary>Keeps every authored page.</summary>
-    private RoomFxLayer3TilemapCatalog(Dictionary<RoomFxType, BackgroundTile[]> pages) => this.pages = pages;
+    private RoomFxLayer3Pages(Dictionary<RoomFxType, BackgroundTile[]> pages) => this.pages = pages;
 
     /// <summary>Validates the six named pages and places every cell's tile.</summary>
     /// <param name="json">The document stream, read from its current position.</param>
     /// <exception cref="InvalidDataException">The version, a page or a cell is invalid.</exception>
-    public static RoomFxLayer3TilemapCatalog Load(Stream json)
+    public static RoomFxLayer3Pages Load(Stream json)
     {
         Ensure.NotNull(json);
         RoomFxLayer3TilemapDocument document = JsonAssetDocument.Read<RoomFxLayer3TilemapDocument>(

@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>A room FX header: the records LoadFXHeader walks for the entry door, in native order.</summary>
 /// <remarks>Door-specific records come first and the list ends at its default record or terminator. Mother Brain's
 /// header keeps, after its default, the records her FX entries select by index.</remarks>
-public sealed class RoomFxDefinition
+public sealed class RoomFxHeader
 {
     /// <summary>Holds a header's records in native order.</summary>
     /// <param name="name">The header's name, the disassembly's label for it without its prefix, or a fixture's description.</param>
     /// <param name="records">The header's records in native order.</param>
-    public RoomFxDefinition(string name, RoomFxRecordDefinition[] records)
+    public RoomFxHeader(string name, RoomFxRecordDefinition[] records)
     {
         Name = Ensure.NotNull(name);
         Records = Array.AsReadOnly(Ensure.NotNull(records).ToArray());

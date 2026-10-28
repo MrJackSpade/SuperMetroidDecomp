@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
@@ -19,35 +18,21 @@ public static class WreckedShipTreadmillMechanicsDefinitions
     /// <summary>The passes each treadmill frame is shown for: every pass shows the next frame.</summary>
     public const int FrameDuration = 1;
 
-    /// <summary>Dispatches the two physical conveyor directions to their native headers.</summary>
-    public static WreckedShipTreadmillObjectDefinition ForDirection(
-        WreckedShipTreadmillDirection direction) => direction switch
-    {
-        WreckedShipTreadmillDirection.Rightwards => new(direction,
-            AnimatedTileObject.WreckedShipTreadmillRightwards),
-        WreckedShipTreadmillDirection.Leftwards => new(direction,
-            AnimatedTileObject.WreckedShipTreadmillLeftwards),
-        _ => throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}."),
-    };
-
-    /// <summary>Resolves either named header; all other bank87 identities return false/null.</summary>
-    public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out WreckedShipTreadmillObjectDefinition? definition)
-    {
-        definition = animatedObject switch
+    /// <summary>The two physical conveyor directions' native headers (<see cref="WreckedShipTreadmills"/>).</summary>
+    internal static readonly IReadOnlyDictionary<WreckedShipTreadmillDirection, WreckedShipTreadmillLoop> Directions =
+        new Dictionary<WreckedShipTreadmillDirection, WreckedShipTreadmillLoop>
         {
-            AnimatedTileObject.WreckedShipTreadmillRightwards => ForDirection(WreckedShipTreadmillDirection.Rightwards),
-            AnimatedTileObject.WreckedShipTreadmillLeftwards => ForDirection(WreckedShipTreadmillDirection.Leftwards),
-            AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or
-                AnimatedTileObject.TourianStatueRidley or AnimatedTileObject.TourianStatueKraid or
-                AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty or
-                AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.VerticalSpikes or
-                AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava or
-                AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen or
-                AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling or
-                AnimatedTileObject.Lava or AnimatedTileObject.Acid or AnimatedTileObject.Rain or
-                AnimatedTileObject.Spores => null,
-            _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}."),
+            [WreckedShipTreadmillDirection.Rightwards] =
+                new(WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.WreckedShipTreadmillRightwards),
+            [WreckedShipTreadmillDirection.Leftwards] =
+                new(WreckedShipTreadmillDirection.Leftwards, AnimatedTileObject.WreckedShipTreadmillLeftwards),
         };
-        return definition is not null;
-    }
+
+    /// <summary>The direction each treadmill object runs.</summary>
+    internal static readonly IReadOnlyDictionary<AnimatedTileObject, WreckedShipTreadmillDirection> ObjectDirections =
+        new Dictionary<AnimatedTileObject, WreckedShipTreadmillDirection>
+        {
+            [AnimatedTileObject.WreckedShipTreadmillRightwards] = WreckedShipTreadmillDirection.Rightwards,
+            [AnimatedTileObject.WreckedShipTreadmillLeftwards] = WreckedShipTreadmillDirection.Leftwards,
+        };
 }

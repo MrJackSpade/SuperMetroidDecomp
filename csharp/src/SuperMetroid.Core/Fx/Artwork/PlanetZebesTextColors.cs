@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>PLANET ZEBES text colors from three independently required bright endpoints.</summary>
-internal static class PlanetZebesTextColorDefinitions
+internal static class PlanetZebesTextColors
 {
     /// <summary>The fade owner, frame, and RGB endpoint slot of a text color.</summary>
     internal static bool TryCoordinates(PaletteFxColorKey key, out PlanetZebesTextPaletteFxProgramOwner owner, out int frame, out int color)

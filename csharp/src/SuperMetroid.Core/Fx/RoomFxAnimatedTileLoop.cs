@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>One engine-owned room-FX animated-tile object: its frame size, frame schedule and the pictures its frames show.</summary>
-public sealed class RoomFxAnimatedTileObjectDefinition
+public sealed class RoomFxAnimatedTileLoop
 {
     /// <summary>Arithmetic view of timed records, retaining no presentation source pointers.</summary>
     internal readonly CalculatedFrames frames;
@@ -17,7 +17,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// The distinct pictures the frames show. A loop with fewer pictures than frames plays them forward and back:
     /// the horizontal spikes' four frames show pictures 0, 1, 2 and 1.
     /// </param>
-    internal RoomFxAnimatedTileObjectDefinition(
+    internal RoomFxAnimatedTileLoop(
         AnimatedTileObject animatedObject,
         int frameByteCount,
         int frameCount,

@@ -26,7 +26,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         [AnimatedTileObject.TourianStatuePhantoon] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatuePhantoon,
-            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
+            FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
             AnimatingFlag = TourianStatueAnimationState.PhantoonAnimating,
             GreyEvent = EventNumber.PhantoonStatueGrey,
             FirstFrameDuration = 6,
@@ -40,7 +40,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         [AnimatedTileObject.TourianStatueRidley] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueRidley,
-            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
+            FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
             AnimatingFlag = TourianStatueAnimationState.RidleyAnimating,
             GreyEvent = EventNumber.RidleyStatueGrey,
             FirstFrameDuration = 10,
@@ -54,7 +54,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         [AnimatedTileObject.TourianStatueKraid] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueKraid,
-            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
+            FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
             AnimatingFlag = TourianStatueAnimationState.KraidAnimating,
             GreyEvent = EventNumber.KraidStatueGrey,
             FirstFrameDuration = 4,
@@ -68,7 +68,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         [AnimatedTileObject.TourianStatueDraygon] = new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueDraygon,
-            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
+            FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
             AnimatingFlag = TourianStatueAnimationState.DraygonAnimating,
             GreyEvent = EventNumber.DraygonStatueGrey,
             FirstFrameDuration = 8,

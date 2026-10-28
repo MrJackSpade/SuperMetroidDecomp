@@ -102,11 +102,11 @@ internal static class FirefleaFxVerification
         for (ushort i = 0; i < 12; i++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
-            AssertEqual(LittleEndianBytes.HighByte(word), FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
+            AssertEqual(LittleEndianBytes.HighByte(word), FirefleaShades.FlashingShade(i), $"Original Fireflea flash {i}");
             AssertEqual((byte)0, LittleEndianBytes.LowByte(word), $"Original Fireflea flash {i} carries nothing");
         }
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(12), "Flash upper bound");
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
+        AssertThrows<InvalidDataException>(() => FirefleaShades.FlashingShade(12), "Flash upper bound");
+        AssertThrows<InvalidDataException>(() => FirefleaShades.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
     }
 
     /// <summary>
@@ -117,10 +117,10 @@ internal static class FirefleaFxVerification
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
             AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + offset))),
-                FirefleaFxDefinitions.DarknessShade(offset), $"Original Fireflea darkness including the past-ramp level {offset}");
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1), "Darkness odd offset");
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
+                FirefleaShades.DarknessShade(offset), $"Original Fireflea darkness including the past-ramp level {offset}");
+        AssertThrows<InvalidDataException>(() => FirefleaShades.DarknessShade(1), "Darkness odd offset");
+        AssertThrows<InvalidDataException>(() => FirefleaShades.DarknessShade(14), "Darkness upper bound");
+        AssertThrows<InvalidDataException>(() => FirefleaShades.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
     }
 
     /// <summary>Checks that frozen time holds the flash clock while the darkness level still follows the enemies.</summary>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// nearest rounding: <c>floor(((7 - t)*q8 + t*q15)/7 + 0.5)</c>. These two
 /// rules and the boundary change match all 256 ROM colors exactly. The
 /// bright endpoint colors and frame7's final color remain presentation inputs;
-/// EndingGunshipPaletteColorDefinitions calculates matching white/dim and intermediate
+/// EndingGunshipPaletteColors calculates matching white/dim and intermediate
 /// colors while preserving independent edits. This catalog supplies controls to the
 /// palette-FX runtime. ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.

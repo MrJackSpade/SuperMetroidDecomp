@@ -134,7 +134,7 @@ internal static class MapInstallationVerification
             RoomFxPaletteBlendDefinitions.FileName);
         var roomFxBlends = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)));
-        string lavaBlendKey = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
+        string lavaBlendKey = RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.Lava);
         int lavaBlendRed = roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0).Required("red").GetValue<int>();
         roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0)["red"] = (lavaBlendRed + 1) % 32;
         File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());

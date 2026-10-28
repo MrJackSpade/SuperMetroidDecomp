@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupFxTilemapDispatchVerification
 {
     /// <summary>Compares native page bytes, verifies independent edited pages, and rejects missing or unknown page keys.</summary>
-    internal static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         var native = new Dictionary<RoomFxType, byte[]>();
         var markers = new Dictionary<RoomFxType, ushort>();
@@ -29,7 +29,7 @@ internal static class LookupFxTilemapDispatchVerification
             markers.Add(type, marker);
             document.Pages.Add(type.ToString(), Enumerable.Repeat(TilemapContractCell(marker), 32 * 33).ToArray());
         }
-        RoomFxLayer3TilemapCatalog Load() => RoomFxLayer3TilemapCatalog.Load(
+        RoomFxLayer3Pages Load() => RoomFxLayer3Pages.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document)));
         var edited = Load();
         native.Add(RoomFxType.TourianEntranceStatue, native[RoomFxType.Water]);

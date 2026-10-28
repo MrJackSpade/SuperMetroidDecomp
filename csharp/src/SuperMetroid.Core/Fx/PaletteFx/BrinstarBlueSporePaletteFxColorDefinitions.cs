@@ -18,10 +18,10 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
 {
     /// <summary>The ordinary Brinstar entry without a boss-death pre-instruction.</summary>
     private static readonly BrinstarBlueSporePaletteFxColorDefinition Standard =
-        new(BrinstarBlueSporePaletteOwner.StandardRooms);
+        new(BrinstarBlueSporePaletteOwner.StandardRooms, PaletteFxProgram.Brinstar11);
     /// <summary>The Spore Spawn entry that deletes itself after the area's mini-boss dies.</summary>
     private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawn =
-        new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
+        new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom, PaletteFxProgram.Brinstar81);
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 3;

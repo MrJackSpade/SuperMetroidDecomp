@@ -18,12 +18,12 @@ internal static class AnimatedTileImageSources
 
     /// <summary>The cartridge address the import reads the picture of the rightward treadmill's frame <paramref name="frame"/> from.</summary>
     internal static int Treadmill(int frame) =>
-        Of(WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards).Image(frame));
+        Of(WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards).Image(frame));
 
     /// <summary>The cartridge address <paramref name="picture"/> of <paramref name="statue"/> starts at in the shared statue strip.</summary>
     internal static int TourianStatue(AnimatedTileObject statue, TourianStatueTilePicture picture) =>
         RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.AddWithinBank(
-            TourianStatueTileStripDefinitions.FirstTile(statue, picture) * TourianStatueTileStripDefinitions.BytesPerTile).Value;
+            TourianStatueTileStrip.FirstTile(statue, picture) * TourianStatueTileStripDefinitions.BytesPerTile).Value;
 
     /// <summary>The cartridge address the shared Tourian statue strip starts at.</summary>
     internal static int TourianStatueStripStart => RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.Value;
@@ -59,7 +59,7 @@ internal static class AnimatedTileImageSources
 
     /// <summary>The cartridge address of the picture shown by the frame whose timed control word sits at bank-$87 <paramref name="instructionPointer"/>.</summary>
     /// <exception cref="InvalidDataException">No frame of <paramref name="definition"/> sits there.</exception>
-    internal static int OfCursor(RoomFxAnimatedTileObjectDefinition definition, ushort instructionPointer)
+    internal static int OfCursor(RoomFxAnimatedTileLoop definition, ushort instructionPointer)
     {
         foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
             if (frame.InstructionPointer == instructionPointer)

@@ -57,11 +57,11 @@ internal static class TilemapJsonContractsEnvironmentVerification
             Pages = fxWords.ToDictionary(pair => pair.Key.ToString(), pair => Enumerable.Range(0, pair.Value.Length / 2)
                 .Select(index => TilemapContractCell(BinaryPrimitives.ReadUInt16LittleEndian(pair.Value.AsSpan(index * 2)))).ToArray()) };
         using var fxEncoded = new MemoryStream();
-        RoomFxLayer3TilemapCatalog.Write(fxEncoded, fx);
+        RoomFxLayer3Pages.Write(fxEncoded, fx);
         string fxJson = Encoding.UTF8.GetString(fxEncoded.ToArray());
         void LoadFx(string text)
         {
-            RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(TilemapContractStream(text));
+            RoomFxLayer3Pages catalog = RoomFxLayer3Pages.Load(TilemapContractStream(text));
             foreach (var pair in fxWords) AssertTrue(catalog.ResolveBytes(pair.Key).AsSpan().SequenceEqual(pair.Value),
                 "all six BG3 effect pages retain every compiled word");
         }
@@ -69,7 +69,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         foreach (string corrupt in TilemapContractCorruptions(fxJson, root => (JsonObject)root.Required("pages").Required("Lava").Required(0))
             .Concat(new[] { fxJson.Replace("\"Lava\":", "\"Lava\":[],\"Lava\":", StringComparison.Ordinal),
                 TilemapContractMutate(fxJson, root => root.Required("pages")["Rain"] = new JsonArray()) }))
-            Reject("room FX BG3", corrupt, text => RoomFxLayer3TilemapCatalog.Load(TilemapContractStream(text)));
+            Reject("room FX BG3", corrupt, text => RoomFxLayer3Pages.Load(TilemapContractStream(text)));
 
         var eyeWords = TilemapContractWords(IntroEyeTilemapFormat.FrameCount * IntroEyeTilemapFormat.CellsPerFrame);
         var eyes = new IntroEyeTilemapDocument { Version = IntroEyeTilemapFormat.Version,

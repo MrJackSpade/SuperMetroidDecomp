@@ -23,7 +23,7 @@ internal static class CeresHazeRenderDefinitions
     /// counter remain compiled and are shared by software and captured-PPU rendering.
     /// </summary>
     internal static RgbColor ResolveComponents(
-        int screenY, int intensity, bool ridleyIsDead, RoomFxPaletteBlendCatalog? colors)
+        int screenY, int intensity, bool ridleyIsDead, RoomFxBlendInks? colors)
     {
         int component = screenY < RampFirstLine
             ? InitialComponent
@@ -31,7 +31,7 @@ internal static class CeresHazeRenderDefinitions
                 RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
         component = Math.Max(0, component + intensity - MaximumComponent);
         RgbColor tint = colors is null
-            ? RoomFxPaletteBlendDefinitions.StockCeresHazeTint(ridleyIsDead)
+            ? RoomFxPaletteBlendRules.StockCeresHazeTint(ridleyIsDead)
             : ridleyIsDead ? colors.CeresHazeRed : colors.CeresHazeBlue;
         static int Scale(int component, int channel) =>
             Math.Min(RgbColor.MaxChannel, (component * channel + MaximumComponent / 2) / MaximumComponent);

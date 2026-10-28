@@ -4,8 +4,14 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal CrateriaEscapeLightningPaletteFxColorDefinition(CrateriaEscapeLightningPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame) =>
-        (Owner, Object, ColorByteIndex, ColorsPerFrame, Rows) = (owner, paletteFxObject, colorByteIndex, colorsPerFrame, PaletteFxColorRows.Of(program, colorsPerFrame));
+    internal CrateriaEscapeLightningPaletteFxColorDefinition(CrateriaEscapeLightningPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame)
+    {
+        Owner = owner;
+        Object = paletteFxObject;
+        ColorByteIndex = colorByteIndex;
+        ColorsPerFrame = colorsPerFrame;
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
+    }
 
     /// <summary>The mutually exclusive palette owner.</summary>
     public CrateriaEscapeLightningPaletteOwner Owner { get; }

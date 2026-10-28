@@ -32,8 +32,5 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
             });
 
     /// <summary>Enumerates the sole calculated bomb-reveal record for artwork import/export.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get { yield return BombReveal; }
-    }
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => [BombReveal];
 }

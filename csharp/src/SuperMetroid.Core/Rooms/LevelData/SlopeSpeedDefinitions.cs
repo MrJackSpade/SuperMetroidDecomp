@@ -22,43 +22,44 @@ public static class SlopeSpeedDefinitions
 
     /// <summary>
     /// $94:8588 + 4*shape, adjustedDistanceMultiplier in the non-square horizontal
-    /// collision consumer, by slope shape 0..31. Selects geometric families with eight fractional bits.
+    /// collision consumer, by slope shape 0..31: one entry per shape, in shape order, each
+    /// naming the family whose constant documents its profiles. Selects geometric families with eight fractional bits.
     /// BTS orientation, airborne admission and native signed multiplication stay in callers.
     /// Interleaved speedModifiers participate only in discarded native calculations.
     /// </summary>
     internal static IReadOnlyList<ushort> HorizontalMultipliers { get; } =
     [
-        Unscaled, // 0
-        Unscaled, // 1
-        Unscaled, // 2
-        Unscaled, // 3
-        Unscaled, // 4
-        Unscaled, // 5
-        Unscaled, // 6
-        Unscaled, // 7
-        Unscaled, // 8
-        Unscaled, // 9
-        Unscaled, // 10
-        Unscaled, // 11
-        Unscaled, // 12
-        Unscaled, // 13
-        DescendingStairs, // 14
-        DescendingStairs, // 15
-        Unscaled, // 16
-        Unscaled, // 17
-        UnitRise, // 18
-        Unscaled, // 19
-        UnitRise, // 20
-        UnitRise, // 21
-        HalfRise, // 22
-        HalfRise, // 23
-        ThirdRise, // 24
-        ThirdRise, // 25
-        ThirdRise, // 26
-        DoubleRise, // 27
-        DoubleRise, // 28
-        TripleRise, // 29
-        TripleRise, // 30
-        TripleRise, // 31
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        Unscaled,
+        DescendingStairs,
+        DescendingStairs,
+        Unscaled,
+        Unscaled,
+        UnitRise,
+        Unscaled,
+        UnitRise,
+        UnitRise,
+        HalfRise,
+        HalfRise,
+        ThirdRise,
+        ThirdRise,
+        ThirdRise,
+        DoubleRise,
+        DoubleRise,
+        TripleRise,
+        TripleRise,
+        TripleRise,
     ];
 }

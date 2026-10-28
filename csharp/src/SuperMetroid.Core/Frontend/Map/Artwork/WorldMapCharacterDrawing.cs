@@ -72,7 +72,7 @@ internal static class WorldMapCharacterDrawing
         if (!IsOutlinedDigit(tile) || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));
         value = Outside;
-        if (Array.IndexOf(OutlinedDigitOpenPixels, new WorldMapCellPixel(tile, point.X, point.Y)) >= 0) return false;
+        if (Array.IndexOf(OutlinedDigitOpenPixels, new WorldMapCellPixel(tile, point)) >= 0) return false;
         bool Inside(int px, int py) => (uint)px < Side && (uint)py < Side &&
             (footprint & (1UL << (py * Side + px))) != 0;
         if (Inside(point.X, point.Y)) { value = Edge; return true; }
@@ -148,7 +148,10 @@ internal static class WorldMapCharacterDrawing
                 return true;
             case WorldMapBackgroundShape.AntiDiagonalCut: value = x + y != Side - 1 ? Fill : (byte)0; return true;
             case WorldMapBackgroundShape.TopRowCut: value = y == 0 ? (byte)0 : Fill; return true;
-            default:
+            case WorldMapBackgroundShape.UpperRightWedge or WorldMapBackgroundShape.LowerRightWedge or
+                WorldMapBackgroundShape.RightQuarterWedge or WorldMapBackgroundShape.TopQuarterWedge or
+                WorldMapBackgroundShape.UpperRightWedgeBelowTop or WorldMapBackgroundShape.LowerRightWedgeWithEdge or
+                WorldMapBackgroundShape.RightQuarterWedgeWithEdge or WorldMapBackgroundShape.UpperRightWedgeWithDiagonal:
                 bool filled = shape switch
                 {
                     WorldMapBackgroundShape.UpperRightWedge => x > y && x + y != Side - 1,
@@ -162,6 +165,8 @@ internal static class WorldMapCharacterDrawing
                     _ => throw new InvalidOperationException($"Unknown background shape {shape}."),
                 };
                 value = filled ? Fill : (byte)0; return true;
+            default:
+                throw new InvalidOperationException($"Unknown background shape {shape}.");
         }
     }
 
@@ -238,13 +243,13 @@ internal static class WorldMapCharacterDrawing
                 return diagonal is < 7 or > 14 ? -1 : At(DotCell, 7, diagonal is >= 9 and <= 12 ? 5 : 4);
             }
             case WorldMapForegroundShape.Cross:
-                return CrossPixel(Ensure.Listed(CrossCells, tile), x, y);
+                return CrossPixel(Ensure.Listed(CrossCells, tile), Position16<CharacterPixels>.Of(x, y));
             case WorldMapForegroundShape.GlowRightWedge or WorldMapForegroundShape.GlowLowerAndLeft or WorldMapForegroundShape.GlowLowerHalf or
                 WorldMapForegroundShape.GlowLowerLeftWedge or WorldMapForegroundShape.GlowRightHalf or WorldMapForegroundShape.GlowLeftStrip or
                 WorldMapForegroundShape.GlowLowerRightCorner or WorldMapForegroundShape.GlowLowerLeftCorner or
                 WorldMapForegroundShape.GlowUpperRightTip or WorldMapForegroundShape.GlowTopStrip or WorldMapForegroundShape.GlowUpperLeftCorner or
                 WorldMapForegroundShape.GlowRightEdge or WorldMapForegroundShape.GlowTopAndLeft or WorldMapForegroundShape.GlowTopLeftTip:
-                return GlowPixel(shape, index, x, y);
+                return GlowPixel(shape, index, Position16<CharacterPixels>.Of(x, y));
             case WorldMapForegroundShape.BevelledButton:
                 if (x == 0 || y == 0 || x == Side - 1 || y == Side - 1) return -1;
                 return y == Side - 2 || x == Side - 2 ? At(tile, Side - 2, 1)
@@ -356,8 +361,9 @@ internal static class WorldMapCharacterDrawing
         cell % WorldMapArtworkFormat.TileColumns * Side + px;
 
     /// <summary>One pixel of a plus-icon quadrant: outline, shading and the highlighted arms of its state.</summary>
-    private static int CrossPixel(WorldMapIconQuadrant quadrant, int x, int y)
+    private static int CrossPixel(WorldMapIconQuadrant quadrant, Position16<CharacterPixels> point)
     {
+        int x = point.X, y = point.Y;
         int px = x + (quadrant.Right ? Side : 0), py = y + (quadrant.Lower ? Side : 0);
         static bool Inside(int gx, int gy) => gx is >= 0 and <= 14 && gy is >= 0 and <= 14 &&
             (gx is >= 4 and <= 10 || gy is >= 4 and <= 10);
@@ -379,8 +385,9 @@ internal static class WorldMapCharacterDrawing
     }
 
     /// <summary>One pixel of a glow ramp: the lit region of its shape, inked by its periodic phase.</summary>
-    private static int GlowPixel(WorldMapForegroundShape shape, int index, int x, int y)
+    private static int GlowPixel(WorldMapForegroundShape shape, int index, Position16<CharacterPixels> point)
     {
+        int x = point.X, y = point.Y;
         bool present = shape switch
         {
             WorldMapForegroundShape.GlowRightWedge => x >= 4 && x >= y,

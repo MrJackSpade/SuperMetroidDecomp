@@ -44,6 +44,10 @@ internal static class PlmRoomArgumentWords
         PlmHeaderId.SpeedBoosterEscape, PlmHeaderId.WreckedShipAttic,
     ];
 
+    /// <summary>Whether a door word's opening is remembered: its sign bit set means it never is.</summary>
+    private static DoorOpeningPersistence Persistence(int word) =>
+        (word & NeverPersists) == 0 ? DoorOpeningPersistence.Persistent : DoorOpeningPersistence.Transient;
+
     /// <summary>Decodes a cartridge placement's word into the argument the import gives the placement.</summary>
     /// <exception cref="InvalidDataException">The word does not decode for the header.</exception>
     internal static PlmRoomArgument? Decode(PlmHeaderId header, int word)
@@ -56,12 +60,12 @@ internal static class PlmRoomArgumentWords
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == PlmHeaderId.BombTorizoGreyDoor)
         {
             return new GreyDoorArgument((word >> GreyConditionShift) & GreyConditionMask,
-                new DoorBitArgument(word & GreyDoorBitMask, (word & NeverPersists) == 0));
+                new DoorBitArgument(word & GreyDoorBitMask, Persistence(word)));
         }
         if (name.StartsWith("RedDoor", StringComparison.Ordinal) || name.StartsWith("GreenDoor", StringComparison.Ordinal) ||
             name.StartsWith("YellowDoor", StringComparison.Ordinal) || name.StartsWith("EyeDoor", StringComparison.Ordinal))
         {
-            return new DoorBitArgument(word & ~NeverPersists, (word & NeverPersists) == 0);
+            return new DoorBitArgument(word & ~NeverPersists, Persistence(word));
         }
         if (header is PlmHeaderId.EnergyStation or PlmHeaderId.MissileStation or PlmHeaderId.SaveStation)
             return new StationArgument(word);

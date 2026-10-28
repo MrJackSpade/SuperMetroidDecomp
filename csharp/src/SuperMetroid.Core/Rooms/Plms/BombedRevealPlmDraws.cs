@@ -18,10 +18,10 @@ internal static class BombedRevealPlmDraws
             return false;
         }
         RoomPlmBombedRevealDraw frame = PlmDraw.FrameOf<RoomPlmBombedRevealDraw>(request, "RoomPlmBombedRevealDraw");
-        int word = Words.TryGetValue(frame, out ushort found)
+        RoomLevelWord word = Words.TryGetValue(frame, out RoomLevelWord found)
             ? found
             : throw new InvalidOperationException($"Undefined bombed-reveal draw {request}.");
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new ushort[] { RoomLevelWord.FromRaw(word).Raw }, new(0, 0)) });
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new ushort[] { word.Raw }, new(0, 0)) });
         return true;
     }
 }

@@ -5,8 +5,11 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class PaletteFxHeatProgramDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit, PaletteFxProgram program) =>
-        (Suit, Rows) = (suit, PaletteFxColorRows.Of(program, ColorsPerFrame));
+    internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit, PaletteFxProgram program)
+    {
+        Suit = suit;
+        Rows = PaletteFxColorRows.Of(program, ColorsPerFrame);
+    }
 
     /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;

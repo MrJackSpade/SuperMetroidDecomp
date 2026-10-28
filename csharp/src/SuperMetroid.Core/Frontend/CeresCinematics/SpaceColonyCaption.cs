@@ -13,6 +13,6 @@ internal static class SpaceColonyCaption
         string text = SpaceColonyCaptionDefinitions.Text;
         int column = index + (index >= text.IndexOf(' ') ? 1 : 0);
         return new SpaceColonyCaptionLetter(SpaceColonyCaptionDefinitions.FirstColumn + column,
-            Ensure.Listed(SpaceColonyCaptionDefinitions.Glyphs, text[column], nameof(index)));
+            Ensure.Listed(SpaceColonyCaptionDefinitions.Glyphs, text[column]));
     }
 }

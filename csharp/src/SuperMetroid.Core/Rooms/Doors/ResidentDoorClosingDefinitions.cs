@@ -15,13 +15,12 @@ public static class ResidentDoorClosingDefinitions
     /// <summary>
     /// The closing start of each resident closer that keeps one by identity: the original bank-84 header+4 word consumed
     /// by bank-82 E91C for the escape gate and the eye door bodies. Typed grey and coloured caps close through their own
-    /// animation.
+    /// animation. The eye doors ($84:DB4C/DB5A) carry $84:AAE3 as their secondary list: $82:E91C deletes a resident eye
+    /// door on entry instead of animating a closing cap.
     /// </summary>
     internal static IReadOnlyDictionary<PlmHeaderId, PlmProgramStart> Closings { get; } = new Dictionary<PlmHeaderId, PlmProgramStart>
     {
         [PlmHeaderId.MotherBrainEscapeRoomGate] = PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing),
-        // $84:DB4C/DB5A carry $84:AAE3 as their secondary list: $82:E91C deletes a resident
-        // eye door on entry instead of animating a closing cap.
         [PlmHeaderId.EyeDoorFacingRight] = PlmProgramStart.Delete,
         [PlmHeaderId.EyeDoorFacingLeft] = PlmProgramStart.Delete,
     };

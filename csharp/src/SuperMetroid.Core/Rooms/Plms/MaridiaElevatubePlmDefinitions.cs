@@ -33,8 +33,5 @@ internal static class MaridiaElevatubePlmDefinitions
     internal const string VisualId = "elevatube-block";
 
     /// <summary>Exposes the sole elevatube draw list to artwork export.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws
-    {
-        get { yield return BlockDrawList; }
-    }
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws => [BlockDrawList];
 }

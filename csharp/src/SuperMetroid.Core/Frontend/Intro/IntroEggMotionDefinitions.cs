@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed egg-shell and slime trajectories, independent of cinematic artwork.</summary>
@@ -18,12 +20,12 @@ internal static class IntroEggMotionDefinitions
     /// <summary>The values <see cref="IntroEggMotion.FragmentX"/> selects, in index order.</summary>
     internal static readonly SignedSixteenSixteen[] FragmentXVelocities =
     [
-        Split(-0xc000),
-        Split(0x4000),
-        Split(-0x8000),
-        Split(-0xe000),
-        Split(0x8000),
-        Split(0x2000),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-12),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(4),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-14),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(8),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(2),
     ];
 
     /// <summary>
@@ -45,6 +47,9 @@ internal static class IntroEggMotionDefinitions
     /// to the bounded curve, not an extension of its formula. Other frame
     /// indices, including 41 and negative values, throw.
     /// </remarks>
+    [SuppressMessage("Design", "SME6447", Justification =
+        "The unsigned fractional words of the overread records, instruction bytes read as a fraction of a pixel; no " +
+        "natural-unit factory expresses them, and they are not cartridge addresses.")]
     internal static readonly SignedSixteenSixteen[] FragmentOverreads =
     [
         SignedSixteenSixteen.FromParts(unchecked((short)0x9dad), 0x991b),
@@ -64,11 +69,11 @@ internal static class IntroEggMotionDefinitions
     /// <summary>The values <see cref="IntroEggMotion.SlimeX"/> selects, in index order.</summary>
     internal static readonly SignedSixteenSixteen[] SlimeXVelocities =
     [
-        Split(-0x10000),
-        Split(-0x8000),
-        Split(0x10000),
-        Split(0x8000),
-        Split(-0x8000),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-16),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(16),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(8),
+        SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
     ];
 
     /// <summary>One signed fixed-point step.</summary>

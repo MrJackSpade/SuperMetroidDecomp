@@ -64,6 +64,6 @@ internal static class GameOverText
     private static ushort LargeLetter(char letter, int row)
     {
         GameOverLargeGlyph glyph = Ensure.Listed(LargeLetters, letter);
-        return row == 0 ? glyph.Top : glyph.Bottom;
+        return checked((ushort)(row == 0 ? glyph.Top : glyph.Bottom));
     }
 }

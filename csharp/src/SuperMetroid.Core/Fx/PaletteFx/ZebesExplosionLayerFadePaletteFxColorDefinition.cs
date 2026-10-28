@@ -4,8 +4,14 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal ZebesExplosionLayerFadePaletteFxColorDefinition(ZebesExplosionLayerFadePaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int frameDuration) =>
-        (Owner, Object, ColorByteIndex, FrameDuration, Rows) = (owner, paletteFxObject, colorByteIndex, frameDuration, PaletteFxColorRows.Of(program, ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame));
+    internal ZebesExplosionLayerFadePaletteFxColorDefinition(ZebesExplosionLayerFadePaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int frameDuration)
+    {
+        Owner = owner;
+        Object = paletteFxObject;
+        ColorByteIndex = colorByteIndex;
+        FrameDuration = frameDuration;
+        Rows = PaletteFxColorRows.Of(program, ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame);
+    }
 
     /// <summary>The mutually exclusive faded layer.</summary>
     public ZebesExplosionLayerFadePaletteFxProgramOwner Owner { get; }

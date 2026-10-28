@@ -8,8 +8,13 @@ public sealed class CrateriaLightningPaletteFxColorDefinition
     /// <param name="firstRecord">The first colour record its program shows.</param>
     /// <param name="colorsPerFrame">Live BGR555 words per timed record.</param>
     /// <param name="neutralCount">The 240-update neutral records before the last flash group.</param>
-    internal CrateriaLightningPaletteFxColorDefinition(CrateriaLightningPaletteOwner owner, int firstRecord, int colorsPerFrame, int neutralCount) =>
-        (Owner, ColorsPerFrame, NeutralCount, Rows) = (owner, colorsPerFrame, neutralCount, new(firstRecord, 12 + neutralCount, colorsPerFrame));
+    internal CrateriaLightningPaletteFxColorDefinition(CrateriaLightningPaletteOwner owner, int firstRecord, int colorsPerFrame, int neutralCount)
+    {
+        Owner = owner;
+        ColorsPerFrame = colorsPerFrame;
+        NeutralCount = neutralCount;
+        Rows = new(firstRecord, 12 + neutralCount, colorsPerFrame);
+    }
 
     /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
     public CrateriaLightningPaletteOwner Owner { get; }

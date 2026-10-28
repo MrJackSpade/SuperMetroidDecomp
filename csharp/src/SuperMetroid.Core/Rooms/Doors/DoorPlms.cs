@@ -279,7 +279,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PreInstruction = PlmPreInstructions.Inert;
         // The native spawn leaves the argument zero: door bit zero, which a later closing check reads.
-        slot.Argument = new DoorBitArgument(0, Persists: true);
+        slot.Argument = new DoorBitArgument(0, DoorOpeningPersistence.Persistent);
         slot.LoopTimer = 0;
         slot.Family = null;
 

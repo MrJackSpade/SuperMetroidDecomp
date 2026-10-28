@@ -9,8 +9,14 @@ public sealed class TitleScreenAmbientPaletteFxColorDefinition
     /// <param name="firstColor">The first CGRAM color slot the program controls.</param>
     /// <param name="lastColor">The last CGRAM color slot the program controls.</param>
     /// <param name="frameCount">The timed palette-image records per loop.</param>
-    internal TitleScreenAmbientPaletteFxColorDefinition(TitleScreenAmbientPaletteFxProgramOwner owner, PaletteFxProgram program, int firstColor, int lastColor, int frameCount) =>
-        (Owner, ColorByteIndex, FrameCount, ColorsPerFrame, Rows) = (owner, firstColor * sizeof(ushort), frameCount, lastColor - firstColor + 1, PaletteFxColorRows.Of(program, lastColor - firstColor + 1));
+    internal TitleScreenAmbientPaletteFxColorDefinition(TitleScreenAmbientPaletteFxProgramOwner owner, PaletteFxProgram program, int firstColor, int lastColor, int frameCount)
+    {
+        Owner = owner;
+        ColorByteIndex = firstColor * sizeof(ushort);
+        FrameCount = frameCount;
+        ColorsPerFrame = lastColor - firstColor + 1;
+        Rows = PaletteFxColorRows.Of(program, ColorsPerFrame);
+    }
 
     /// <summary>Semantic title-palette owner selecting native definition $8D:E1A0 (tube) or $8D:E1A4 (displays); not a runtime palette-object slot index.</summary>
     public TitleScreenAmbientPaletteFxProgramOwner Owner { get; }

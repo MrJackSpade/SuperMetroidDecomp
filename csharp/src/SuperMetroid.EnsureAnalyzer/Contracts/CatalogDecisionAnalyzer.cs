@@ -32,6 +32,29 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
         "Exists", "TrueForAll", "RemoveAll",
     ];
 
+    /// <summary>The decision syntax a catalog may not hold, each with how the diagnostic names it.</summary>
+    private static readonly ImmutableDictionary<SyntaxKind, string> Decisions = new Dictionary<SyntaxKind, string>
+    {
+        [SyntaxKind.IfStatement] = "an 'if'",
+        [SyntaxKind.SwitchStatement] = "a 'switch' statement",
+        [SyntaxKind.SwitchExpression] = "a 'switch' expression",
+        [SyntaxKind.ConditionalExpression] = "a conditional '?:'",
+        [SyntaxKind.CoalesceExpression] = "a null-coalescing '??'",
+        [SyntaxKind.CoalesceAssignmentExpression] = "a null-coalescing '??'",
+        [SyntaxKind.ConditionalAccessExpression] = "a null-conditional access",
+        [SyntaxKind.ForStatement] = "a loop",
+        [SyntaxKind.ForEachStatement] = "a loop",
+        [SyntaxKind.ForEachVariableStatement] = "a loop",
+        [SyntaxKind.WhileStatement] = "a loop",
+        [SyntaxKind.DoStatement] = "a loop",
+        [SyntaxKind.GotoStatement] = "a 'goto'",
+        [SyntaxKind.GotoCaseStatement] = "a 'goto'",
+        [SyntaxKind.GotoDefaultStatement] = "a 'goto'",
+        [SyntaxKind.IsPatternExpression] = "a pattern test",
+        [SyntaxKind.IsExpression] = "a pattern test",
+        [SyntaxKind.WhereClause] = "a query predicate",
+    }.ToImmutableDictionary();
+
     private static readonly DiagnosticDescriptor Rule = new(
         CatalogDecisionId,
         "Core catalog holds a decision",
@@ -57,13 +80,7 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
         {
             if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
                 return;
-            start.RegisterSyntaxNodeAction(AnalyzeDecision,
-                SyntaxKind.IfStatement, SyntaxKind.SwitchStatement, SyntaxKind.SwitchExpression,
-                SyntaxKind.ConditionalExpression, SyntaxKind.CoalesceExpression, SyntaxKind.CoalesceAssignmentExpression,
-                SyntaxKind.ConditionalAccessExpression, SyntaxKind.ForStatement, SyntaxKind.ForEachStatement,
-                SyntaxKind.ForEachVariableStatement, SyntaxKind.WhileStatement, SyntaxKind.DoStatement,
-                SyntaxKind.GotoStatement, SyntaxKind.GotoCaseStatement, SyntaxKind.GotoDefaultStatement,
-                SyntaxKind.IsPatternExpression, SyntaxKind.IsExpression, SyntaxKind.WhereClause);
+            start.RegisterSyntaxNodeAction(AnalyzeDecision, [.. Decisions.Keys]);
             start.RegisterSyntaxNodeAction(AnalyzeComparison,
                 SyntaxKind.EqualsExpression, SyntaxKind.NotEqualsExpression, SyntaxKind.LessThanExpression,
                 SyntaxKind.LessThanOrEqualExpression, SyntaxKind.GreaterThanExpression,
@@ -82,22 +99,7 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
     {
         if (!IsCatalog(context.Node.SyntaxTree))
             return;
-        string what = context.Node.Kind() switch
-        {
-            SyntaxKind.IfStatement => "an 'if'",
-            SyntaxKind.SwitchStatement => "a 'switch' statement",
-            SyntaxKind.SwitchExpression => "a 'switch' expression",
-            SyntaxKind.ConditionalExpression => "a conditional '?:'",
-            SyntaxKind.CoalesceExpression or SyntaxKind.CoalesceAssignmentExpression => "a null-coalescing '??'",
-            SyntaxKind.ConditionalAccessExpression => "a null-conditional access",
-            SyntaxKind.ForStatement or SyntaxKind.ForEachStatement or SyntaxKind.ForEachVariableStatement or
-                SyntaxKind.WhileStatement or SyntaxKind.DoStatement => "a loop",
-            SyntaxKind.GotoStatement or SyntaxKind.GotoCaseStatement or SyntaxKind.GotoDefaultStatement => "a 'goto'",
-            SyntaxKind.IsPatternExpression or SyntaxKind.IsExpression => "a pattern test",
-            SyntaxKind.WhereClause => "a query predicate",
-            _ => throw new InvalidOperationException($"Unregistered syntax kind {context.Node.Kind()}."),
-        };
-        Report(context, context.Node.GetFirstToken().GetLocation(), what);
+        Report(context, context.Node.GetFirstToken().GetLocation(), Decisions[context.Node.Kind()]);
     }
 
     /// <summary>Reports a comparison or logical test whose value is not a compile-time constant.</summary>
@@ -124,10 +126,21 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
             MemberBindingExpressionSyntax binding => binding.Name.Identifier.Text,
             _ => null,
         };
-        if (name is null || !PredicateMethods.Contains(name) || invocation.ArgumentList.Arguments.Count == 0)
+        if (name is null || !PredicateMethods.Contains(name) ||
+            !invocation.ArgumentList.Arguments.Any(argument => IsPredicate(context, argument)))
+        {
             return;
+        }
         Report(context, invocation.ArgumentList.GetLocation(), $"a predicate passed to '{name}'");
     }
+
+    /// <summary>
+    /// Whether <paramref name="argument"/> is a predicate: it converts to a delegate that answers yes or no. A lookup
+    /// that shares a predicate method's name but takes a key, such as a name, decides nothing.
+    /// </summary>
+    private static bool IsPredicate(SyntaxNodeAnalysisContext context, ArgumentSyntax argument) =>
+        context.SemanticModel.GetTypeInfo(argument.Expression, context.CancellationToken).ConvertedType is
+            INamedTypeSymbol { TypeKind: TypeKind.Delegate, DelegateInvokeMethod.ReturnType.SpecialType: SpecialType.System_Boolean };
 
     /// <summary>
     /// Reports a body with statements beyond a single <c>return</c>: a method, constructor, accessor, operator,

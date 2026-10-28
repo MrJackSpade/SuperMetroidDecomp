@@ -47,6 +47,9 @@ internal static class CatalogDecisionAnalyzerTests
             "The catalog 'DoorDefinitions' holds a loop" + Advice, count: 3);
         Expect(Types + "static class DoorDefinitions { static readonly Door[] All = [new(Side.Left, 4)]; static Door Left => System.Linq.Enumerable.First(All, door => door.Side == Side.Left); }",
             "The catalog 'DoorDefinitions' holds a predicate passed to 'First'" + Advice, count: 2);
+        // A lookup by key that shares a predicate method's name decides nothing.
+        Expect(Types + "static class DoorDefinitions { static Door Find(string name) => new(Side.Left, name.Length); static Door Left { get; } = DoorDefinitions.Find(nameof(Left)); }",
+            count: 0);
         // A constructor that assigns state runs a procedure.
         Expect(Types + "sealed class DoorDefinitions { private readonly int frames; DoorDefinitions(int frames) { this.frames = frames; } }",
             "The catalog 'DoorDefinitions' holds a body with statements" + Advice);

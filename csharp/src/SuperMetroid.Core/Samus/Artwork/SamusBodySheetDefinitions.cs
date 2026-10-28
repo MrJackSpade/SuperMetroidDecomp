@@ -12,6 +12,6 @@ public static class SamusBodySheetDefinitions
     /// <summary>The body's characters; any beyond them come from the standard OBJ sheet.</summary>
     internal const int BodyCharacterCount = 32;
 
-    /// <summary>The character bit set in the bottom half's characters.</summary>
-    internal const int BottomHalfBit = 8;
+    /// <summary>The columns of each character row the top half holds; the bottom half holds the rest of the row.</summary>
+    internal const int TopHalfColumns = 8;
 }

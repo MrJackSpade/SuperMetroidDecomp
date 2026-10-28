@@ -1,10 +1,15 @@
-using static SuperMetroid.Core.Samus.Movement.SquareSlopeDefinitions;
-
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Which quadrants of a square slope block are solid, for Samus and for enemies.</summary>
+/// <summary>
+/// Which quadrants of a square slope block are solid, for Samus and for enemies. This type builds the native quadrant
+/// bytes and is the one reader of their solidity bit (#1461).
+/// </summary>
+[EncodingOwner("square-slope quadrant bytes")]
 public static class SquareSlopes
 {
+    /// <summary>The bit a solid quadrant's byte sets: bit seven.</summary>
+    private const byte SolidBit = 0x80;
+
     /// <summary>
     /// Reads the Samus solidity byte at native flattened index 0..19 (4*shape+quadrant).
     /// $94:8E54 encodes bottom half, right half, bottom-right quarter, all but top-left,

@@ -67,8 +67,8 @@ public static class GrappleBeamDefinitions
         public const int SegmentSpacing = 8;
         /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
         public const int SegmentSampleToFixedPoint = SegmentSpacing * 256;
-        /// <summary>$94:B048, DrawGrappleBeam: mask applied to the hardware length quotient.</summary>
-        public const int SegmentCountMask = 15;
+        /// <summary>$94:B048, DrawGrappleBeam: the segment counts the length quotient wraps through, one per animation slot.</summary>
+        public const int SegmentCountCycle = 16;
         /// <summary>$94:B051, DrawGrappleBeam: first animation slot, traversed downward.</summary>
         public const int FirstSegmentSlot = 15;
         /// <summary>$94:B016/B025, DrawGrappleBeam: center an eight-pixel character on its beam coordinate.</summary>

@@ -27,7 +27,7 @@ public static class SamusBodySheets
                     int character = part.Character + row * SpriteArtwork.CharactersPerRow + column;
                     if (character >= BodyCharacterCount)
                         continue;
-                    if ((character & BottomHalfBit) == 0)
+                    if (Column(character) < TopHalfColumns)
                         top = true;
                     else
                         bottom = true;
@@ -35,6 +35,13 @@ public static class SamusBodySheets
             }
         }
         return new SamusBodyFrameKey(spritemap, top ? topRecord : null, bottom ? bottomRecord : null);
+    }
+
+    /// <summary>The column of <paramref name="character"/> within its sixteen-wide character row, 0 through 15.</summary>
+    private static int Column(int character)
+    {
+        int remainder = character % SpriteArtwork.CharactersPerRow;
+        return remainder < 0 ? remainder + SpriteArtwork.CharactersPerRow : remainder;
     }
 
     /// <summary>The sheet that holds a frame: the bottom sheet for frames reading only the bottom half, the top sheet otherwise.</summary>

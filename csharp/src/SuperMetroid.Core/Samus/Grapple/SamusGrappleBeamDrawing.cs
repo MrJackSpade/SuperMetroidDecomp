@@ -218,7 +218,7 @@ public static class SamusGrappleBeamDrawing
         // Native enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing)
-            & GrappleBeamDefinitions.Rendering.SegmentCountMask);
+            % GrappleBeamDefinitions.Rendering.SegmentCountCycle);
         for (int segment = 0; segment < segmentCount; segment++)
         {
             // $94:AFBA walks instruction slots from 15 downward regardless of rope length.

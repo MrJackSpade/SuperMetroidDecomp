@@ -3,9 +3,13 @@ using static SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>How a pose's animation delay list is found and read.</summary>
+/// <summary>How a pose's animation delay list is found and read: the one reader of a delay-stream byte's command bit (#1461).</summary>
+[EncodingOwner("Samus animation delay stream bytes")]
 internal static class SamusAnimationDelays
 {
+    /// <summary>Bit 7 of a delay-stream byte: set for an animation command (<c>$80-$FF</c>), clear for a frame delay.</summary>
+    private const byte CommandBit = 0x80;
+
     /// <summary>Whether a delay-stream byte is an animation command rather than a frame delay (the handler's <c>BMI</c>).</summary>
     internal static bool IsCommand(int delayOrCommand) => (delayOrCommand & CommandBit) != 0;
 

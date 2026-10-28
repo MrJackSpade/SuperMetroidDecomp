@@ -35,12 +35,24 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
     internal const int DisplayLastColor = 47;
     /// <summary>$8D:E1A0 / $C7FA: the eight-frame baby-Metroid tube light.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition TubeLight { get; } =
-        new(TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight, PaletteFxProgram.TitleScreenBabyMetroidTubeLight1,
-            firstColor: TubeFirstColor, lastColor: TubeLastColor, frameCount: 2 * TubeDimmingSteps);
+        new()
+        {
+            Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
+            ColorByteIndex = TubeFirstColor * sizeof(ushort),
+            FrameCount = 2 * TubeDimmingSteps,
+            ColorsPerFrame = TubeLastColor - TubeFirstColor + 1,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeLastColor - TubeFirstColor + 1),
+        };
     /// <summary>$8D:E1A4 / $C862: the two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
-        new(TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays, PaletteFxProgram.TitleScreenFlickeringDisplays1,
-            firstColor: TubeLastColor + 1, lastColor: DisplayLastColor, frameCount: DisplayStates);
+        new()
+        {
+            Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
+            ColorByteIndex = (TubeLastColor + 1) * sizeof(ushort),
+            FrameCount = DisplayStates,
+            ColorsPerFrame = DisplayLastColor - (TubeLastColor + 1) + 1,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayLastColor - (TubeLastColor + 1) + 1),
+        };
 
     /// <summary>The two semantic palette owners in native definition order.</summary>
     public static IReadOnlyList<TitleScreenAmbientPaletteFxColorDefinition> All { get; } = [TubeLight, Displays];

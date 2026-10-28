@@ -3,25 +3,20 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete late-Crateria escape palette control program.</summary>
 public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
 {
-    /// <summary>Builds the definition from its owner's program values.</summary>
-    internal CrateriaEscapeLightningPaletteFxColorDefinition(CrateriaEscapeLightningPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame)
+    /// <summary>Only the catalog creates definitions.</summary>
+    internal CrateriaEscapeLightningPaletteFxColorDefinition()
     {
-        Owner = owner;
-        Object = paletteFxObject;
-        ColorByteIndex = colorByteIndex;
-        ColorsPerFrame = colorsPerFrame;
-        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
     }
 
     /// <summary>The mutually exclusive palette owner.</summary>
-    public CrateriaEscapeLightningPaletteOwner Owner { get; }
+    public required CrateriaEscapeLightningPaletteOwner Owner { get; init; }
     /// <summary>The palette-FX object that installs this program.</summary>
-    public PaletteFxObject Object { get; }
+    public required PaletteFxObject Object { get; init; }
     /// <summary>The first destination byte in CGRAM.</summary>
-    public int ColorByteIndex { get; }
+    public required int ColorByteIndex { get; init; }
     /// <summary>The number of live BGR555 colors in every record.</summary>
-    public int ColorsPerFrame { get; }
+    public required int ColorsPerFrame { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows { get; }
+    public required PaletteFxColorRows Rows { get; init; }
 }

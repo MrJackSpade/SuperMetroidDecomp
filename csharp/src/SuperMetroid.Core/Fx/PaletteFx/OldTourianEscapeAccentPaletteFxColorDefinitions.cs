@@ -19,7 +19,19 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
     /// <summary>The orange-railing and yellow-panel programs in definition order, projecting the two palette destinations onto their separate but rhythm-matched lists.</summary>
     public static IReadOnlyList<OldTourianEscapeAccentPaletteFxColorDefinition> All { get; } =
     [
-        new(OldTourianEscapeAccentPaletteOwner.OrangeRailings, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, PaletteFxProgram.Crateria101, RailingsColorByteIndex),
-        new(OldTourianEscapeAccentPaletteOwner.YellowPanels, PaletteFxObject.OldTourianBackgroundPanelsFlashYellow, PaletteFxProgram.Crateria201, PanelsColorByteIndex),
+        new()
+        {
+            Owner = OldTourianEscapeAccentPaletteOwner.OrangeRailings,
+            Object = PaletteFxObject.OldTourianBackgroundRailingsFlashYellow,
+            ColorByteIndex = RailingsColorByteIndex,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.Crateria101, ColorsPerFrame),
+        },
+        new()
+        {
+            Owner = OldTourianEscapeAccentPaletteOwner.YellowPanels,
+            Object = PaletteFxObject.OldTourianBackgroundPanelsFlashYellow,
+            ColorByteIndex = PanelsColorByteIndex,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.Crateria201, ColorsPerFrame),
+        },
     ];
 }

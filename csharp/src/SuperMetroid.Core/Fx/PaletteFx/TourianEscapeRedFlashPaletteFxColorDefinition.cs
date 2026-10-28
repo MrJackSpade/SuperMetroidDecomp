@@ -3,32 +3,26 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete early Tourian escape red-flash control program.</summary>
 public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
 {
-    /// <summary>Builds the definition from its owner's program values.</summary>
-    internal TourianEscapeRedFlashPaletteFxColorDefinition(TourianEscapeRedFlashPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int duration, int colorsPerFrame)
+    /// <summary>Only the catalog creates definitions.</summary>
+    internal TourianEscapeRedFlashPaletteFxColorDefinition()
     {
-        Owner = owner;
-        Object = paletteFxObject;
-        ColorByteIndex = colorByteIndex;
-        Duration = duration;
-        ColorsPerFrame = colorsPerFrame;
-        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
     }
 
     /// <summary>The mutually exclusive escape-palette owner.</summary>
-    public TourianEscapeRedFlashPaletteOwner Owner { get; }
+    public required TourianEscapeRedFlashPaletteOwner Owner { get; init; }
 
     /// <summary>The palette-FX object that installs this program.</summary>
-    public PaletteFxObject Object { get; }
+    public required PaletteFxObject Object { get; init; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public int ColorByteIndex { get; }
+    public required int ColorByteIndex { get; init; }
 
     /// <summary>The uniform display duration for every record.</summary>
-    public int Duration { get; }
+    public required int Duration { get; init; }
 
     /// <summary>The number of live BGR555 colors in every record.</summary>
-    public int ColorsPerFrame { get; }
+    public required int ColorsPerFrame { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows { get; }
+    public required PaletteFxColorRows Rows { get; init; }
 }

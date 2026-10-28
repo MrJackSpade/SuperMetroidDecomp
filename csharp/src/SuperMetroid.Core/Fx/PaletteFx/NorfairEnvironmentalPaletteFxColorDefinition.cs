@@ -3,26 +3,21 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete Norfair environmental palette control program.</summary>
 public sealed class NorfairEnvironmentalPaletteFxColorDefinition
 {
-    /// <summary>Builds the definition from its owner's program values.</summary>
-    internal NorfairEnvironmentalPaletteFxColorDefinition(NorfairEnvironmentalPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, bool publishesHeatPhase)
+    /// <summary>Only the catalog creates definitions.</summary>
+    internal NorfairEnvironmentalPaletteFxColorDefinition()
     {
-        Owner = owner;
-        Object = paletteFxObject;
-        ColorByteIndex = colorByteIndex;
-        PublishesHeatPhase = publishesHeatPhase;
-        Rows = PaletteFxColorRows.Of(program, NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame);
     }
 
 
     /// <summary>The mutually exclusive environmental palette owner.</summary>
-    public NorfairEnvironmentalPaletteOwner Owner { get; }
+    public required NorfairEnvironmentalPaletteOwner Owner { get; init; }
     /// <summary>The palette-FX object that installs this program.</summary>
-    public PaletteFxObject Object { get; }
+    public required PaletteFxObject Object { get; init; }
     /// <summary>The first destination byte in CGRAM.</summary>
-    public int ColorByteIndex { get; }
+    public required int ColorByteIndex { get; init; }
     /// <summary>Whether each record begins with a byte-sized heat-phase publication.</summary>
-    public bool PublishesHeatPhase { get; }
+    public required bool PublishesHeatPhase { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows { get; }
+    public required PaletteFxColorRows Rows { get; init; }
 }

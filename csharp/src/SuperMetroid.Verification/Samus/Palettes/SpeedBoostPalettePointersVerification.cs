@@ -49,7 +49,7 @@ internal static class SpeedBoostPalettePointersVerification
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
-                    installedColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                    installedColors.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(2, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");

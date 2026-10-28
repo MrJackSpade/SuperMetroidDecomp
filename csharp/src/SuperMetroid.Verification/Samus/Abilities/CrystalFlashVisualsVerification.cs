@@ -40,7 +40,7 @@ internal static class CrystalFlashVisualsVerification
 
         var pixels = DisplayRendering.Render(packet);
         var colors = packet.Paint.Colors.ToArray();
-        Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColorsPerObjPalette);
+        Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColoursPerRow);
         var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
         var mutedBody = DisplayRendering.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));

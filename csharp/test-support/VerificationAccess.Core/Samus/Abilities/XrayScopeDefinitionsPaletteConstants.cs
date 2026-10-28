@@ -12,7 +12,7 @@ internal static class XrayScopeDefinitionsPaletteConstants
     /// <summary>Bank expanded around a normal-suit palette pointer.</summary>
     public static readonly int PaletteBank = SamusSourceDefinitions.PaletteBank.Value;
     /// <summary>Number of colors copied when restoring the normal suit palette.</summary>
-    public const int SuitColorCount = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
+    public const int SuitColorCount = SamusPaletteDefinitions.Common.ColoursPerRow;
     /// <summary><c>$9B:A3C0</c>, X-ray visor palette words.</summary>
     /// <remarks>Alias of <see cref="SamusSourceDefinitions.VisorColors"/>;
     /// the six-word proof is issue #865 / #625.</remarks>
@@ -31,7 +31,7 @@ internal static class XrayScopeDefinitionsPaletteConstants
         internal static int VisorWords => XrayScopeDefinitionsPaletteConstants.VisorWords;
     }
         /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
-        public const int SamusCgramIndex = SamusPaletteDefinitions.Common.SamusObjPaletteStart;
+        public const int SamusCgramIndex = SamusPaletteDefinitions.Common.SuitFirstColour;
         /// <summary>CGRAM color within Samus's palette occupied by the visor.</summary>
         public const int VisorCgramIndex =
             SamusCgramIndex + SamusPaletteDefinitions.Common.VisorColorOffset;

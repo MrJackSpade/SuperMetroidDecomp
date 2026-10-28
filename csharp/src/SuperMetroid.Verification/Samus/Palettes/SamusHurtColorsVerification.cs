@@ -73,7 +73,7 @@ internal static class SamusHurtColorsVerification
         for (int call = 1; call <= 7; call++)
         {
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                cgram.SetColor(SamusPaletteDefinitions.Common.SamusObjPaletteStart + index, RgbColor.FromWord(checked(sentinel)));
+                cgram.SetColor(SamusPaletteDefinitions.Common.SuitFirstColour + index, RgbColor.FromWord(checked(sentinel)));
             SamusHurtFlashPalette.Update(
                 cgram.Samus.Suit, samus, 0, catalog);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
@@ -82,7 +82,7 @@ internal static class SamusHurtColorsVerification
             {
                 for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                     AssertEqual(sentinel,
-                        cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
+                        cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + index],
                         $"{(cinematic ? "intro" : "ordinary")} hurt call {call} leaves CGRAM {index} unchanged");
                 continue;
             }
@@ -93,7 +93,7 @@ internal static class SamusHurtColorsVerification
                     : SamusSourceDefinitions.PowerSuitPalette.Value;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual((ushort)(ReadNativeHurtCycleColor(rom, expectedPaletteAddress, index) & 0x7fff),
-                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + index],
                     $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source CGRAM {index}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -129,7 +129,7 @@ internal static class SamusHurtColorsVerification
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual(edited.SamusHurtColors.Resolve(variant, index),
-                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + index],
                     $"edited {variant} path remains selected by native counter (CGRAM {index})");
             AssertEqual(edited.SamusHurtColors.Resolve(variant, 5), cgram.Colors[197],
                 $"edited {variant} color reaches CGRAM");

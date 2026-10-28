@@ -162,7 +162,7 @@ internal static class SamusSpritemapFrameDefinitions
     /// <summary>Resolves authored pose-half image sharing to an earlier physical composition slot.</summary>
     internal static int SourceIndex(int index)
     {
-        if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= SamusSpritemapArtworkCatalog.EntryCount) throw new ArgumentOutOfRangeException(nameof(index));
         static int Top(SamusPoseId pose) => SamusSpritemapPoseDefinitions.TopBase(pose);
         static int Bottom(SamusPoseId pose) => SamusSpritemapPoseDefinitions.BottomBase(pose);
         int Alias(Func<SamusPoseId, int> halfBase, SamusPoseId target, SamusPoseId source, int count)

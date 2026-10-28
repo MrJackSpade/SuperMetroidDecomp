@@ -1207,7 +1207,8 @@ internal static class LookupStream3Verification
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
-        AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(GrappleSegmentAttributeAddresses),
+        AssertTrue(Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount)
+                .Select(SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress).SequenceEqual(GrappleSegmentAttributeAddresses),
             "stream 3 segment address enumeration");
         for (int frame = 0; frame < 4; frame++)
         {
@@ -1241,7 +1242,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = GrappleSpriteDefinitions.SegmentAttributeAddresses[invalid], "stream 3 rope operand address bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(

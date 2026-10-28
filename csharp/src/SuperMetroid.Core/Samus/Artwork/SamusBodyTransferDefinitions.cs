@@ -7,8 +7,8 @@ internal static class SamusBodyTransferDefinitions
 {
     /// <summary>Bytes in one 4bpp OBJ tile, used to calculate transfer row sizes.</summary>
     private const int TileBytes = 32;
-    /// <summary>Number of 8-pixel tiles across one large 16-pixel Samus sprite part.</summary>
-    private const int LargeObjTilesAcross = 16 / 8;
+    /// <summary>The 8-pixel tiles across one large 16-pixel Samus sprite part.</summary>
+    private const int LargePartTilesAcross = 16 / 8;
 
     /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
     internal static bool TryFirstSize(SamusBodyArtworkCatalog body, SamusBodyTileSlot slot,
@@ -36,7 +36,7 @@ internal static class SamusBodyTransferDefinitions
                 foreach (SpritePart part in map.Parts)
                 {
                     int tile = part.Character - (upper ? 0 : 8);
-                    int width = part.Large ? LargeObjTilesAcross : 1;
+                    int width = part.Large ? LargePartTilesAcross : 1;
                     for (int x = 0; x < width; x++)
                         if ((uint)(tile + x) < 8) firstTiles = Math.Max(firstTiles, tile + x + 1);
                 }
@@ -63,7 +63,7 @@ internal static class SamusBodyTransferDefinitions
         };
         if (largeBlocks != 0)
         {
-            int first = payloadBytes - largeBlocks * LargeObjTilesAcross * TileBytes;
+            int first = payloadBytes - largeBlocks * LargePartTilesAcross * TileBytes;
             firstSize = Math.Max(0, first);
             return first > 0;
         }

@@ -45,13 +45,13 @@ public static class SamusPoseTransitionTable
         ControllerButton held = canonicalHeldInput & ~StartAndSelectMask;
         ControllerButton newlyPressed = canonicalNewInput & ~StartAndSelectMask;
 
-        if (!SamusPoseInputDefinitions.TryGetInputList(currentPose, out SamusPoseInputList tablePointer))
+        if (!SamusPoseInputDefinitions.TryGetInputList(currentPose, out SamusPoseInputList inputList))
         {
             throw new InvalidDataException(
                 $"Pose {currentPose} has no authored input-transition graph; " +
                 "adjacent bank-$91 code is not mechanics metadata.");
         }
-        SamusPoseInputMatch match = SamusPoseInputDefinitions.Match(tablePointer, held, newlyPressed);
+        SamusPoseInputMatch match = SamusPoseInputDefinitions.Match(inputList, held, newlyPressed);
         if (match.Rule is not { } rule)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 

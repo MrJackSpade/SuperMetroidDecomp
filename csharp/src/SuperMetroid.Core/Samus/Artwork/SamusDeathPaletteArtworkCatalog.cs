@@ -45,7 +45,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Three suited families in $9B:B7D3's pointer-table order: Power, Varia, then Gravity.</summary>
     public const int SuitCount = 3;
     /// <summary>Sixteen RGB5 words per OBJ palette row, including the transparent sprite ink at index zero.</summary>
-    public const int ColorCount = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
+    public const int ColorCount = SamusPaletteDefinitions.Common.ColoursPerRow;
 
     /// <summary>Native9B9420 yellow flash: full red and green,zero blue in RGB5.</summary>
     private static readonly RgbColor YellowFlashColor = new(31, 31, 0);

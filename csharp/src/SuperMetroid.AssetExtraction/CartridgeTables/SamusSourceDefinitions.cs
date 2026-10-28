@@ -53,6 +53,12 @@ internal static class SamusSourceDefinitions
     /// <summary>$94:B13D: immediate endpoint attributes in DrawGrappleBeamEnd_NotConnected.</summary>
     internal static readonly SnesAddress GrappleEndpointAttributes = new(0x94, 0xb13d);
 
+    /// <summary>$94:B18D: the attribute word of the first of the rope's four timed segment records.</summary>
+    internal static readonly SnesAddress GrappleSegmentAttributes = new(0x94, 0xb18d);
+
+    /// <summary>The bytes of one timed rope segment record: its duration word, then its attribute word.</summary>
+    internal const int GrappleSegmentRecordBytes = 4;
+
     /// <summary>Bank <c>$9B</c>, which owns Samus BGR555 color data.</summary>
     internal static readonly SnesAddress PaletteBank = new(0x9b, 0x0000);
 

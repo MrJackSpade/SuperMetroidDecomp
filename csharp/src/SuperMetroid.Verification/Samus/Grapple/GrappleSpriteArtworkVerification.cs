@@ -28,7 +28,7 @@ internal static class GrappleSpriteArtworkVerification
         AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.GrappleEndpointAttributes.Value)).ToSinglePart(),
             catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
-            AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.SegmentAttributeAddresses[i])).ToSinglePart(),
+            AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteExtractor.SegmentAttributeAddress(i))).ToSinglePart(),
                 catalog.Segment(i), "Extracted segment attributes match timed native record");
         // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:
         // the endpoint as one small OBJ, and each rope segment with the rope direction's flips ORed into its own.

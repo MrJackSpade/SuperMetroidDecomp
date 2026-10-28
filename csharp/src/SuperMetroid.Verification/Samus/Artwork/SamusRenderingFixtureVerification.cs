@@ -98,7 +98,7 @@ internal static class SamusRenderingFixtureVerification
             }
             return groups;
         }
-        ushort[] spritePointers = Words(SamusSpritemapArtworkCatalog.PointerTableAddress, SamusSpritemapArtworkCatalog.PointerCount);
+        ushort[] spritePointers = Words(SamusSpritemapArtworkCatalog.PointerTableAddress, SamusSpritemapArtworkCatalog.EntryCount);
         SamusSpritemapDefinition[] maps = SamusSpritemapNative.Compositions(spritePointers).Select(pointer =>
         {
             int address = 0x920000 | pointer;

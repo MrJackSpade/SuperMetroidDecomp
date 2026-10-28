@@ -23,7 +23,7 @@ internal static class SamusContentIdentityVerification
         string[] edits =
         [
             "top-characters", "bottom-characters", "pose-pointer", "graphics-offset", "landing-offset",
-            "posture-offset", "drained-offset", "frame-selector", "transfer-split", "body-source",
+            "posture-offset", "drained-offset", "frame-selector", "transfer-split",
             "spritemap-top", "spritemap-bottom", "spritemap-entry", "spritemap-part",
             "atmosphere-one", "atmosphere-shared", "death-suit", "death-suitless", "death-whiteout",
             "death-selector", "death-tiles", "cannon-pose", "cannon-drawing", "cannon-attributes",
@@ -73,8 +73,7 @@ internal static class SamusContentIdentityVerification
             {
                 var bytes = new byte[RoomCharacterAtlasFormat.BytesPerTile];
                 if (edit == family && index == 0) bytes[0] = 1;
-                return new[] { new SamusBodyTileDefinition(edit == "body-source" ? 0x9a9000 : 0x9a8000,
-                    edit == "transfer-split" ? (ushort)16 : (ushort)32,
+                return new[] { new SamusBodyTileDefinition(edit == "transfer-split" ? (ushort)16 : (ushort)32,
                     edit == "transfer-split" ? (ushort)16 : (ushort)0, bytes) };
             }).ToArray();
 
@@ -82,7 +81,7 @@ internal static class SamusContentIdentityVerification
         var bottomBases = new ushort[SamusBodyArtworkCatalog.PoseCount];
         if (edit == "spritemap-top") topBases[0] = 1;
         if (edit == "spritemap-bottom") bottomBases[0] = 1;
-        SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapArtworkCatalog.PointerCount)];
+        SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapArtworkCatalog.EntryCount)];
         if (edit == "spritemap-entry") entries[0] = new SamusSpritemapId(1);
         SamusSpritemapDefinition[] definitions =
         [

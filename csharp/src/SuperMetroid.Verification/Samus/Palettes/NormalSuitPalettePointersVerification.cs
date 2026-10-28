@@ -51,7 +51,7 @@ internal static class NormalSuitPalettePointersVerification
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
                         SamusSourceDefinitions.PaletteBank.Value | (nativePointer + color * sizeof(ushort))) & 0x7fff),
-                    installedColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                    installedColors.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                     $"normal suit CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(3, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");

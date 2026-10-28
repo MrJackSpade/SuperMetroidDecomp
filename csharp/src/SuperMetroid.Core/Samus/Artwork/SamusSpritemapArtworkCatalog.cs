@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusSpritemapArtworkCatalog
 {
     /// <summary>Number of entries in the pose-half table, including repeated compositions and entries with none; not the number of unique compositions or poses.</summary>
-    public const int PointerCount = 2096;
+    public const int EntryCount = 2096;
 
     /// <summary>Upper-half pose base indices whose selected values differ from calculated stock values.</summary>
     internal readonly Dictionary<int, ushort> topBases;
@@ -25,8 +25,8 @@ public sealed class SamusSpritemapArtworkCatalog
     internal readonly SamusSpritemapDefinition[] definitions;
 
     /// <summary>Validates pose selectors, table entries, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
-    /// <param name="topBases">253 upper-half table element indices in native pose order, each below <see cref="PointerCount"/>.</param>
-    /// <param name="bottomBases">253 lower-half table element indices in native pose order, each below <see cref="PointerCount"/>.</param>
+    /// <param name="topBases">253 upper-half table element indices in native pose order, each below <see cref="EntryCount"/>.</param>
+    /// <param name="bottomBases">253 lower-half table element indices in native pose order, each below <see cref="EntryCount"/>.</param>
     /// <param name="entries">2,096 table entries; each names a supplied composition, or none for a slot that draws nothing.</param>
     /// <param name="definitions">Non-null compositions, each identified by its position, with at most 128 non-null-array sprite parts.</param>
     /// <exception cref="InvalidDataException">Selector dimensions or indices, compositions, or entry coverage are invalid.</exception>
@@ -39,7 +39,7 @@ public sealed class SamusSpritemapArtworkCatalog
         Ensure.NotNull(definitions);
         if (topBases.Length != SamusBodyArtworkCatalog.PoseCount ||
             bottomBases.Length != SamusBodyArtworkCatalog.PoseCount ||
-            entries.Length != PointerCount)
+            entries.Length != EntryCount)
             throw new InvalidDataException("Samus spritemap selector tables have an invalid length.");
         this.topBases = Enumerable.Range(0, topBases.Length)
             .Where(pose => topBases[pose] != SamusSpritemapPoseDefinitions.TopBase(SamusPoseNumbering.FromNumber(pose)))
@@ -60,7 +60,7 @@ public sealed class SamusSpritemapArtworkCatalog
                 : !SamusSpritemapFrameDefinitions.TryComposition(index, this.definitions.Length, out SamusSpritemapId? calculated) || entries[index] != calculated)
             .ToDictionary(index => index, index => entries[index]);
         foreach (int index in topBases.Concat(bottomBases))
-            if (index >= PointerCount)
+            if (index >= EntryCount)
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
     }
 
@@ -84,7 +84,7 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Materializes all 253 lower-half element-index bases in pose order, including poses sharing the upper/lower composition.</summary>
     public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
     /// <summary>Materializes the complete table in native order, preserving repeated compositions and entries with none.</summary>
-    public ReadOnlySpan<SamusSpritemapId?> Entries => Enumerable.Range(0, PointerCount).Select(Entry).ToArray();
+    public ReadOnlySpan<SamusSpritemapId?> Entries => Enumerable.Range(0, EntryCount).Select(Entry).ToArray();
     /// <summary>Resolves a table entry through an override, shared source entry, or calculated stock composition.</summary>
     private SamusSpritemapId? Entry(int index) => entries.TryGetValue(index, out SamusSpritemapId? value)
         ? value : SamusSpritemapFrameDefinitions.SourceIndex(index) != index
@@ -147,7 +147,7 @@ public sealed class SamusSpritemapArtworkCatalog
     }
 
     /// <summary>Requires <paramref name="index"/> to be a table entry.</summary>
-    private static int Checked(int index) => index is < 0 or >= PointerCount
+    private static int Checked(int index) => index is < 0 or >= EntryCount
         ? throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.")
         : index;
 }

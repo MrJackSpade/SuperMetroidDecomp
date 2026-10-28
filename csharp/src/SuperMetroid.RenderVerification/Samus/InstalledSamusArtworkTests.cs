@@ -104,8 +104,8 @@ internal static class InstalledSamusArtworkTests
                 for (int position = 0; position < stock.Count; position++)
                 {
                     SamusBodyTileDefinition a = stock[position], b = edited[position];
-                    Require(a.SourceAddress == b.SourceAddress && a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
-                        "PNG changed definition identity or split size");
+                    Require(a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
+                        "PNG changed definition split size");
                     int record = fixture.Stock.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
                     var va = new SnesVram(); var vb = new SnesVram();
                     va.LoadBytes(ObjectCharacterByte(0), fixture.Stock.BodyArtwork(upper ? record : null, upper ? null : record).Characters);

@@ -504,7 +504,7 @@ public sealed class SamusProjectileSystem
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction ==
-                SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
+                SamusProjectilePreInstruction.ChargedChainsawOverrun)
             {
                 // Charged combination thirteen does not point at ROM code. Its table
                 // overrun stores $0A0A, so native JSR enters the low-WRAM mirror and begins

@@ -1500,7 +1500,7 @@ internal static class RidleyFullMovieVerification
                         SamusProjectilePreInstruction.ShinesparkEcho or
                         SamusProjectilePreInstruction.SpacetimePaletteCopyTail or
                         SamusProjectilePreInstruction.ChainsawPowerBomb or
-                        SamusProjectilePreInstruction.ChargedChainsawLowWramExecution or
+                        SamusProjectilePreInstruction.ChargedChainsawOverrun or
                         SamusProjectilePreInstruction.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
                     _ => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
                 };

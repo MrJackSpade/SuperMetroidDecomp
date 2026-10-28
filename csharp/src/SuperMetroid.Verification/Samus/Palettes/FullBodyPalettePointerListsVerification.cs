@@ -200,11 +200,11 @@ internal static class FullBodyPalettePointerListsVerification
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SamusColourRig actual, int pointer, string context)
     {
-        for (int color = 0; color < SamusPaletteDefinitions.Common.ColorsPerObjPalette; color++)
+        for (int color = 0; color < SamusPaletteDefinitions.Common.ColoursPerRow; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(rom),
                     SamusSourceDefinitions.PaletteBank.Value | (pointer + color * sizeof(ushort))) & 0x7fff),
-                actual.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                actual.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                 $"{context} CGRAM color {color} matches ROM");
     }
 

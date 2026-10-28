@@ -396,9 +396,9 @@ internal static class SamusArmCannonPlacementDefinitions
         // No second descriptor-position or pose-selection table is introduced.
         for (int candidate = 0; candidate < SamusBodyArtworkCatalog.PoseCount; candidate++)
         {
-            int pointer = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
-            if (pointer > position || pointer <= start) continue;
-            start = pointer;
+            int descriptorStart = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
+            if (descriptorStart > position || descriptorStart <= start) continue;
+            start = descriptorStart;
             pose = SamusPoseNumbering.FromNumber(candidate);
         }
         if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out int selector)) return false;

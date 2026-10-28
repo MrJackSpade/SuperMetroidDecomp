@@ -84,7 +84,7 @@ public static class SamusBodyArtworkFiles
         ushort[] spritemapBottomBases = ReadPointers(bus,
             SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodyArtworkCatalog.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapArtworkCatalog.PointerCount);
+            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapArtworkCatalog.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
         ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
         SpriteVisualPart[][] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
@@ -278,7 +278,7 @@ public static class SamusBodyArtworkFiles
                     if (slot[byteCount..].IndexOfAnyExcept((byte)0) >= 0)
                         throw new InvalidDataException($"Samus body PNG {name} paints unused tiles in definition {position}.");
                     definitions[position] = new SamusBodyTileDefinition(
-                        entry.SourceAddress, checked((ushort)entry.FirstSize), checked((ushort)entry.SecondSize),
+                        checked((ushort)entry.FirstSize), checked((ushort)entry.SecondSize),
                         slot[..byteCount].ToArray());
                 }
                 return definitions;

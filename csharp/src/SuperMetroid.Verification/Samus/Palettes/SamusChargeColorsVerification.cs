@@ -91,7 +91,7 @@ internal static class SamusChargeColorsVerification
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                     AssertEqual(edited.SamusChargeColors.ResolveCharge(family != 0, suit, phase, color),
-                        cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                        cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                         $"edited charge CGRAM {family}/{suit}/{phase}/{color}");
             }
         }
@@ -118,7 +118,7 @@ internal static class SamusChargeColorsVerification
             AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                 AssertEqual(edited.SamusChargeColors.ResolveHyper(frame, color),
-                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
                     $"edited Hyper-shot CGRAM {frame}/{color}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

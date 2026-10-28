@@ -608,7 +608,7 @@ internal static class LookupStream1Verification
         {
             int next = Array.IndexOf(starts, pointer) + 1;
             int end = next == starts.Length ? 0xd7d3 : starts[next];
-            return Enumerable.Range(0, (end - pointer) / 7).Select(_ => new SamusBodyTileDefinition(0x9a8000, 32, 0, new byte[32])).ToArray();
+            return Enumerable.Range(0, (end - pointer) / 7).Select(_ => new SamusBodyTileDefinition(32, 0, new byte[32])).ToArray();
         }).ToArray();
         var upper = Groups(top); var lower = Groups(bottom);
         var template = CreateSamusIdentityFixture();
@@ -920,7 +920,7 @@ internal static class LookupStream1Verification
                 .Concat(lower.SelectMany((pointer, set) => lowerGroups[set].Select((definition, position) => new LookupStream1Definition(Address:SamusBodyNative.Record(pointer) + position, Definition:definition))));
             foreach (var item in definitions.OrderBy(item => item.Address))
             {
-                content.Append("definition record", item.Address); content.Append("source address", item.Definition.SourceAddress);
+                content.Append("definition record", item.Address);
                 content.Append("first transfer size", item.Definition.FirstSize); content.Append("second transfer size", item.Definition.SecondSize);
                 content.Append("characters", item.Definition.Planar.Span);
             }
@@ -1069,11 +1069,11 @@ internal static class LookupStream1Verification
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.DrainedYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
             .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
-                new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
+                new SamusBodyTileDefinition(definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.DrainedYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
         SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
@@ -1137,11 +1137,11 @@ internal static class LookupStream1Verification
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.PostureYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
             .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
-                new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
+                new SamusBodyTileDefinition(definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.PostureYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
         SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
@@ -2863,7 +2863,7 @@ internal static class LookupStream1Verification
         var empty = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var zero = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.EntryCount], []);
         var shifted = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(
                 map.Parts.Select(part => part with { Offset = Offset16<ScreenPixels>.Of(SpritePart.WrapX(part.Offset.X + 1), unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray())).ToArray());
@@ -3111,7 +3111,6 @@ internal static class LookupStream1Verification
                 ushort first = Word(address + 3), second = Word(address + 5);
                 AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out int calculated), "Every native record has a direct row calculation");
                 AssertEqual(first, calculated, $"Direct native row geometry {upper}/{set:X}/{position:X}");
-                AssertEqual(source, value.SourceAddress, "Installed native source");
                 AssertEqual(first, value.FirstSize, "Installed native first row");
                 AssertEqual(second, value.SecondSize, "Installed native remaining row");
                 AssertTrue(value.firstSizeOverride is null, "Zero stock metadata overrides");
@@ -3119,11 +3118,10 @@ internal static class LookupStream1Verification
                 for (int index = 0; index < pixels.Length; index++) AssertEqual(LookupStream1BodyTransfersRomByte(rom, source + index), pixels[index], "Separate native pixel payload preserved");
                 // Preserve schema-valid non-tile-aligned individual row splits too.
                 ushort editedFirst = (ushort)(second == 0 ? first - 1 : first + 1);
-                var supplied = new SamusBodyTileDefinition(source ^ 0x123456, editedFirst,
+                var supplied = new SamusBodyTileDefinition(editedFirst,
                     (ushort)(pixels.Length - editedFirst), pixels);
                 (upper ? changedTop : changedBottom)[set][position] = supplied;
                 var edited = supplied.WithTransferGeometry(body, upper, set, position);
-                AssertEqual(supplied.SourceAddress, edited.SourceAddress, "Independent source identity edit");
                 AssertEqual(supplied.FirstSize, edited.FirstSize, "Independent row split edit");
                 AssertEqual(supplied.SecondSize, edited.SecondSize, "Edited complementary row");
                 AssertTrue(edited.Planar.Span.SequenceEqual(pixels), "Metadata edit preserves every pixel");

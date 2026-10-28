@@ -34,8 +34,8 @@ internal static class SamusArtworkPresentationContractChecks
                     sprites.TopBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
                     sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
                     sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
-                    sprites.TryGet(SamusSpritemapArtworkCatalog.PointerCount - 1, out _);
-                    sprites.TryGet(SamusSpritemapArtworkCatalog.PointerCount, out _);
+                    sprites.TryGet(SamusSpritemapArtworkCatalog.EntryCount - 1, out _);
+                    sprites.TryGet(SamusSpritemapArtworkCatalog.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
                     arm.PoseDescriptor(252);
                     arm.PoseDescriptor(253);

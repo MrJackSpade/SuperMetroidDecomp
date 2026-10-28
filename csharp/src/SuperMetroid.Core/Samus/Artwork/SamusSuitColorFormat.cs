@@ -11,5 +11,5 @@ public static class SamusSuitColorFormat
     /// <summary>Supported normal-suit color schema version.</summary>
     public const int Version = 1;
     /// <summary>Number of OBJ palette colors stored for each suit, including the transparent slot.</summary>
-    public const int ColorsPerSuit = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
+    public const int ColorsPerSuit = SamusPaletteDefinitions.Common.ColoursPerRow;
 }

@@ -450,7 +450,7 @@ internal static class SamusBodyPlacementDefinitions
         {
             int baseIndex = half == 0 ? art.Spritemaps.TopBase(pose) : art.Spritemaps.BottomBase(pose);
             int index = baseIndex + frame;
-            if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||
+            if ((uint)index >= SamusSpritemapArtworkCatalog.EntryCount ||
                 !art.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map)) return false;
             foreach (SpritePart part in map.Parts)
             {

@@ -420,7 +420,6 @@ public sealed class SamusBodyArtworkCatalog
         foreach ((int record, SamusBodyTileDefinition definition) in definitionsByRecord.OrderBy(pair => pair.Key))
         {
             content.Append("definition record", record);
-            content.Append("source address", definition.SourceAddress);
             content.Append("first transfer size", definition.FirstSize);
             content.Append("second transfer size", definition.SecondSize);
             content.Append("characters", definition.Planar.Span);

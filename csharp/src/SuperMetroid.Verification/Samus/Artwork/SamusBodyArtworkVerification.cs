@@ -70,7 +70,6 @@ internal static class SamusBodyArtworkVerification
                     int source = (CartridgeImportSource.Require(bus).ReadCartridgeLong(definitionAddress));
                     ushort first = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 3);
                     ushort second = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 5);
-                    AssertEqual(source, entry.SourceAddress, $"Samus definition {definitionAddress:X6} source");
                     AssertEqual(first, entry.FirstSize, $"Samus definition {definitionAddress:X6} first size");
                     AssertEqual(second, entry.SecondSize, $"Samus definition {definitionAddress:X6} second size");
                     for (int i = 0; i < entry.Planar.Length; i++)
@@ -94,10 +93,10 @@ internal static class SamusBodyArtworkVerification
         }
         var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
-        ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapArtworkCatalog.PointerCount).Select(index =>
+        ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapArtworkCatalog.EntryCount).Select(index =>
             CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2))];
         SamusSpritemapId?[] nativeEntries = SamusSpritemapNative.Entries(nativePointers);
-        for (int index = 0; index < SamusSpritemapArtworkCatalog.PointerCount; index++)
+        for (int index = 0; index < SamusSpritemapArtworkCatalog.EntryCount; index++)
         {
             ushort pointer = nativePointers[index];
             AssertEqual(nativeEntries[index], sprites.Entries[index], $"Samus OAM pointer index {index}");
@@ -504,7 +503,7 @@ internal static class SamusBodyArtworkVerification
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathPalettes);
         AssertEqual((ushort)(originalDeathColor + 1),
-            editedDeathColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart],
+            editedDeathColors.Colors[SamusPaletteDefinitions.Common.SuitFirstColour],
             "edited death suit color reaches the production CGRAM write");
         AssertTrue(!stockDeathTiles.Explosion.Characters.SequenceEqual(replacementDeathTiles.Explosion.Characters),
             "edited death explosion PNG reaches the explosion characters its sheet is composed from");

@@ -27,7 +27,7 @@ public sealed class SamusBodyTileDefinition
     /// <summary>Seven-byte record position within the native definition group.</summary>
     private readonly int position;
 
-    /// <summary>The owning catalog; a definition reconstructs shared bytes and addresses only once bound to it.</summary>
+    /// <summary>The owning catalog; a definition reconstructs shared bytes only once bound to it.</summary>
     private SamusBodyArtworkCatalog BoundCatalog => body ??
         throw new InvalidOperationException("This Samus body transfer is standalone; it is not bound to its catalog.");
 
@@ -40,15 +40,13 @@ public sealed class SamusBodyTileDefinition
         throw new InvalidOperationException("This Samus body transfer is standalone; it has no contour edits.");
 
     /// <summary>Creates one standalone native body-transfer definition.</summary>
-    /// <param name="sourceAddress">SNES source address of the first planar payload.</param>
     /// <param name="firstSize">Byte count of the first VRAM transfer.</param>
     /// <param name="secondSize">Byte count of the optional second VRAM transfer.</param>
     /// <param name="planar">Combined SNES planar character bytes.</param>
-    public SamusBodyTileDefinition(int sourceAddress, int firstSize, int secondSize,
+    public SamusBodyTileDefinition(int firstSize, int secondSize,
         byte[] planar)
     {
         Ensure.NotNull(planar);
-        SourceAddress = sourceAddress;
         firstSizeOverride = firstSize;
         SecondSize = secondSize;
         standalonePlanar = (byte[])planar.Clone();
@@ -104,19 +102,16 @@ public sealed class SamusBodyTileDefinition
             System.Buffers.ArrayPool<byte>.Shared.Return(scratchValues);
         }
         int first = supplied.FirstSize;
-        SourceAddress = supplied.SourceAddress;
         if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out int calculated))
             calculatedFirstSize = calculated;
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
 
-    /// <summary>Creates a catalog-bound definition with native transfer size and source address.</summary>
+    /// <summary>Creates a catalog-bound definition with native transfer size.</summary>
     internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position,
         ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
         new(this, body, upper, set, position, poseFirstFrames, frames);
 
-    /// <summary>Gets the SNES source address of the definition's first payload.</summary>
-    public int SourceAddress { get; }
     /// <summary>Gets the byte count of the first VRAM transfer, at most one definition's payload.</summary>
     public int FirstSize => firstSizeOverride ?? calculatedFirstSize ??
         throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");

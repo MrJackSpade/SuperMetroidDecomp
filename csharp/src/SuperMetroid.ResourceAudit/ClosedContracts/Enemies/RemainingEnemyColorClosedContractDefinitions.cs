@@ -40,6 +40,8 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyPaletteDefinitions.cs")]),
         new("SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColorCatalog", "enemy-auxiliary-complete-color-images", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColorCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColors.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryPaletteRows.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaint.cs"),

@@ -64,22 +64,6 @@ public static class ReadOnlySpanQueries
             throw new InvalidOperationException("Sequence contains no matching element");
         }
 
-        /// <summary>The only element satisfying <paramref name="predicate"/>; throws when none or several do.</summary>
-        public T Single(Func<T, bool> predicate)
-        {
-            Ensure.NotNull(predicate);
-            int match = -1;
-            for (int index = 0; index < span.Length; index++)
-            {
-                if (!predicate(span[index]))
-                    continue;
-                if (match >= 0)
-                    throw new InvalidOperationException("Sequence contains more than one matching element");
-                match = index;
-            }
-            return match >= 0 ? span[match] : throw new InvalidOperationException("Sequence contains no matching element");
-        }
-
         /// <summary>The checked sum of <paramref name="selector"/> over the elements; overflow throws, as in <see cref="Enumerable"/>.</summary>
         public int Sum(Func<T, int> selector)
         {

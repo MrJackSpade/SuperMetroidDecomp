@@ -69,6 +69,7 @@ internal static class PlmDoorPresentationContractChecks
             platforms.Append(typeof(InstalledRoomPlmBlueDoorVisuals).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        FixtureConsumerBinding.Require(compilation, calls, "PlmDoorPresentationContractChecks");
         var exports = new ResourceIndex();
         var adapter = new ClosedPresentationAudit(compilation, exports);
         var before = new AuditReport();

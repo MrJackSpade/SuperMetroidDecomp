@@ -107,6 +107,7 @@ internal static class ClosedPresentationContractChecks
             platforms.Append(typeof(GameplayHudPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        FixtureConsumerBinding.Require(compilation, calls, "ClosedPresentationContractChecks");
         var exports = new ResourceIndex();
         var adapter = new ClosedPresentationAudit(compilation, exports);
         var before = new AuditReport();

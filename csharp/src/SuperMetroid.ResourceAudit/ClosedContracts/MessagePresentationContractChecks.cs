@@ -44,6 +44,7 @@ internal static class MessagePresentationContractChecks
             platforms.Append(typeof(GameplayMessageTitlePresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        FixtureConsumerBinding.Require(compilation, calls, "MessagePresentationContractChecks");
         var exports = new ResourceIndex();
         var adapter = new ClosedPresentationAudit(compilation, exports);
         var before = new AuditReport();

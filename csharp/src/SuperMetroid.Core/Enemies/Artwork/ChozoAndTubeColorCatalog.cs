@@ -24,9 +24,6 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public RgbColor ResolveTubeCracks(int color) => ChozoAndTubeColors.TubeCrack(this, color);
 
-    /// <summary>Resolves a statue ink from an authored edit or the selected variant's calculated paint.</summary>
-    internal RgbColor ResolveStatue(ChozoStatuePalette palette, int color) => ChozoAndTubeColors.Statue(this, palette, color);
-
     /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
     public void ApplyTubeCracks(ColourRun destination) => ChozoAndTubeColors.ApplyTubeCracks(this, destination);
     /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>

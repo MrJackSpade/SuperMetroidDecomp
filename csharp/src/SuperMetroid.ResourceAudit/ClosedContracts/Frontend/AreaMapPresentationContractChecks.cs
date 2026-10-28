@@ -55,6 +55,7 @@ internal static class AreaMapPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "AreaMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 6 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&

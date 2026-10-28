@@ -25,7 +25,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/GoldenTorizoStrideGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/GoldenTorizoStride.cs"),
              new("csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrames.cs"),
+             new("csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameBounds.cs"),
              new("csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameSequence.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Artwork/BossSpriteFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCompositions.cs"),

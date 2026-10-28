@@ -18,10 +18,6 @@ public sealed class EnemyExtendedFrameCatalog
         Dictionary<EnemyFrameId, EnemyFrameId> displayFrames) =>
         selection = new(frames, displayFrames);
 
-    /// <summary>Finds a frame's components, including the shared empty extended frame's.</summary>
-    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
-        EnemyExtendedFrames.TryGet(this, frame, out components);
-
     /// <summary>Maps the frame gameplay shows to the editable draw components displayed for it.</summary>
     internal bool TryGetDisplay(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
         EnemyExtendedFrames.TryGetDisplay(this, frame, out components);

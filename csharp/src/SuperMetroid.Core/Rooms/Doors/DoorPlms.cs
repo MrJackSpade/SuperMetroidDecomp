@@ -192,7 +192,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             // The native routine leaves the door-bit window it just updated in the argument, marked spent.
             SharedGameState system = RequireSystem();
             system.SetOpenedDoorBit(cap.DoorBit);
-            slot.Argument = new SpentDoorArgument(cap.DoorBit, system.GetOpenedDoorWordRaw(cap.DoorBit / 8));
+            slot.Argument = new SpentDoorArgument(system.GetOpenedDoorWordRaw(cap.DoorBit / 8));
         }
         slot.PreInstruction = PlmPreInstructions.Inert;
     }

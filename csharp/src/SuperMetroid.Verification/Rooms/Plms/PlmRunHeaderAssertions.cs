@@ -13,8 +13,8 @@ internal static class PlmRunHeaderAssertions
     /// <summary>Asserts that <paramref name="direction"/> and <paramref name="count"/> are those <paramref name="nativeHeader"/> states.</summary>
     internal static void AssertRunHeader(int nativeHeader, PlmRunDirection direction, int count, string context)
     {
-        AssertEqual(PlmRunHeaderCodec.Direction(nativeHeader), direction, $"{context}: direction");
-        AssertEqual(PlmRunHeaderCodec.Count(nativeHeader), count, $"{context}: block count");
+        AssertEqual(PlmRunHeaderCodecConstants.Direction(nativeHeader), direction, $"{context}: direction");
+        AssertEqual(PlmRunHeaderCodecConstants.Count(nativeHeader), count, $"{context}: block count");
     }
 
     /// <summary>Asserts that <paramref name="run"/> has the direction and block count <paramref name="nativeHeader"/> states.</summary>

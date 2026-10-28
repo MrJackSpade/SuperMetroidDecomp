@@ -56,7 +56,7 @@ internal static class TorizoCollisionDefinitionsAccess
                 for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
                 {
                     yield return cursor;
-                    cursor = TorizoCollisionDefinitions.Next(cursor, TorizoCollision.LeftFacing(index).Length);
+                    cursor = TorizoCollisionDefinitions.Next(cursor, TorizoCollisionConstants.LeftFacing(index).Length);
                 }
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.JumpBackFrames)
                 {

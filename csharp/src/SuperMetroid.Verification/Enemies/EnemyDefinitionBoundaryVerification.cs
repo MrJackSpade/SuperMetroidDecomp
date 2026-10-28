@@ -130,7 +130,7 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             ushort left = TorizoCollisionDefinitions.FramePointers
                 .Skip(2).ElementAt(index);
-            GoldenTorizoCollisionComponent[] leftComponents = TorizoCollision.LeftFacing(index);
+            GoldenTorizoCollisionComponent[] leftComponents = TorizoCollisionConstants.LeftFacing(index);
             for (int i = 0; i < leftComponents.Length; i++)
             {
                 int leftList = bank | rom.ReadCartridgeWordFixedBank(bank | (left + 2 + i * 8 + 6));

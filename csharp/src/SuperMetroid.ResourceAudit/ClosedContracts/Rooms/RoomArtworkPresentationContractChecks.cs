@@ -51,6 +51,7 @@ internal static class RoomArtworkPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "RoomArtworkPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 7, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
         // The sky copies whole pages only; its rows are read from the pages, not transferred (#1347). So the first and

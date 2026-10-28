@@ -77,6 +77,7 @@ internal static class TextAndMapPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "TextAndMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 23, "all twenty-three calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 14 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&

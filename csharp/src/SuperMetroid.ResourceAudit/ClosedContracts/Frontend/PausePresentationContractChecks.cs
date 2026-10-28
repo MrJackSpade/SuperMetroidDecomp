@@ -75,6 +75,7 @@ internal static class PausePresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "PausePresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 26, "twenty-six calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 16 && after.UnresolvedCount == 10 && after.MissingCount == 0 &&

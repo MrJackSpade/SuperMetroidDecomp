@@ -14,9 +14,6 @@ internal static class CrocomireArenaDraws
         /// <summary>Whether the draw writes wall columns rather than a bridge run.</summary>
         internal bool Wall => Shape != CrocomireArenaShape.Bridge;
 
-        /// <summary>Whether the wall columns are solid.</summary>
-        internal bool Solid => Shape == CrocomireArenaShape.SolidWall;
-
         /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
         internal int RunCount => CrocomireArenaPlmDrawDefinitions.Cells[Frame].Length;
         /// <summary>Wall columns write down their column; the bridge writes along its row.</summary>

@@ -71,6 +71,7 @@ internal static class SamusColorPresentationContractChecks
             platforms.Append(typeof(InstalledSamusSuitColors).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        FixtureConsumerBinding.Require(compilation, calls, "Samus color provider confirmation");
         var exports = new ResourceIndex();
         var adapter = new ClosedPresentationAudit(compilation, exports);
         var before = new AuditReport();

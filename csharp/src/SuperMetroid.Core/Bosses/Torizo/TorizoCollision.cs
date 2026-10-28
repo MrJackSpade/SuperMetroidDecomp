@@ -11,7 +11,4 @@ internal static class TorizoCollision
         frame is { } shown && TorizoCollisionDefinitions.FrameComponents.TryGetValue(shown, out GoldenTorizoCollisionComponent[]? components)
             ? components
             : throw new InvalidDataException($"Torizo frame {frame} is not compiled.");
-
-    /// <summary>The <paramref name="index"/>th left-facing frame in mirror order.</summary>
-    internal static GoldenTorizoCollisionComponent[] LeftFacing(int index) => TorizoCollisionDefinitions.LeftFacingFrames[index];
 }

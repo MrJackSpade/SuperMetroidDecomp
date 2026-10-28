@@ -57,6 +57,7 @@ internal static class ProjectilePresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "ProjectilePresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 10 && before.MissingCount == 1,
             "eleven constructed calls must first expose absent adapters and the known missing composition (" + before.Describe() + ")");

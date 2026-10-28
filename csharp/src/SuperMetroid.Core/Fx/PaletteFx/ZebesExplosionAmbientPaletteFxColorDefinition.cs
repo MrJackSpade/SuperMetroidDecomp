@@ -18,9 +18,6 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>The first destination byte in CGRAM.</summary>
     public required int ColorByteIndex { get; init; }
 
-    /// <summary>The number of timed records in the loop.</summary>
-    public int FrameCount => Rows.FrameCount;
-
     /// <summary>The number of live BGR555 colors written by each timed record.</summary>
     public required int ColorsPerFrame { get; init; }
 

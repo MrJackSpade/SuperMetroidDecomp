@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Tells which layout each of Mother Brain's fake-death mutation programs draws.</summary>
 internal static class MotherBrainFakeDeathPrograms

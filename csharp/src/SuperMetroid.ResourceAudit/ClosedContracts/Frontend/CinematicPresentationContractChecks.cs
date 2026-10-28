@@ -80,6 +80,7 @@ internal static class CinematicPresentationContractChecks
             return report;
         }
         CSharpCompilation compilation = Compile(trees);
+        FixtureConsumerBinding.Require(compilation, calls, "CinematicPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 23, "twenty-three constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 15 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&

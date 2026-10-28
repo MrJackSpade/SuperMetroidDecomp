@@ -151,7 +151,7 @@ internal static class CartridgeEncodingScanner
                     occurrences.Add(new(CartridgeEncodingRule.CountdownSignTest, CartridgeEncodingClass.ComposableBits,
                         $"'{sign}' tests a countdown's sign bit by hand", sign.OperatorToken.GetLocation()));
                     break;
-                case BinaryExpressionSyntax mask when !catalog && CatalogHexMask(mask, model, cancellationToken) is { } field:
+                case BinaryExpressionSyntax mask when !catalog && CatalogMask(mask, model, cancellationToken) is { } field:
                 {
                     string line = text.Lines.GetLineFromPosition(mask.SpanStart).ToString();
                     CartridgeEncodingRule rule = IsInEncodingOwner(mask, model, cancellationToken)
@@ -159,7 +159,7 @@ internal static class CartridgeEncodingScanner
                         : AllowanceMarkers.Any(marker => HasAllowance(line, marker)) ? CartridgeEncodingRule.JustifiedWidthOperation
                         : CartridgeEncodingRule.RawWidthOperation;
                     occurrences.Add(new(rule, CartridgeEncodingClass.ComposableBits,
-                        $"'{mask}' masks with {field.ContainingType.Name}.{field.Name}, a hexadecimal mask its catalog declares",
+                        $"'{mask}' masks with {field.ContainingType.Name}.{field.Name}, a mask its catalog declares",
                         mask.OperatorToken.GetLocation()));
                     break;
                 }
@@ -369,12 +369,13 @@ internal static class CartridgeEncodingScanner
     }
 
     /// <summary>
-    /// The catalog mask a bitwise AND applies (#1452), or null: an integral constant or static read-only field of a
-    /// class or struct, written as a hexadecimal literal in a catalog file. The catalog exemption covers definition data;
-    /// a hexadecimal mask is a field layout, so applying one outside its catalog decodes a packed field by hand, as a
-    /// literal byte mask does. The field belongs to the type that owns the encoding, or is decoded at import.
+    /// The catalog mask a bitwise AND applies (#1452, #1461), or null: an integral constant of a class or struct declared
+    /// in a catalog file, however its value is spelled (hexadecimal, decimal or a constant expression), or a static
+    /// read-only field initialised there with a numeric literal. The catalog exemption covers definition data; a value
+    /// used as a mask is a field layout, so applying one outside its catalog decodes a packed field by hand, as a literal
+    /// byte mask does. The field belongs to the type that owns the encoding, or is decoded at import.
     /// </summary>
-    internal static IFieldSymbol? CatalogHexMask(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
+    internal static IFieldSymbol? CatalogMask(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
     {
         if (!binary.IsKind(SyntaxKind.BitwiseAndExpression) || model.GetConstantValue(binary, cancellationToken).HasValue)
             return null;
@@ -382,13 +383,13 @@ internal static class CartridgeEncodingScanner
         {
             if (model.GetSymbolInfo(StripWrappers(operand, stripCasts: true), cancellationToken).Symbol is IFieldSymbol field &&
                 field.ContainingType.TypeKind is TypeKind.Class or TypeKind.Struct &&
-                (field.IsConst || field.IsStatic && field.IsReadOnly) &&
                 IsIntegralPrimitive(field.Type) &&
                 field.DeclaringSyntaxReferences.Length == 1 &&
                 field.DeclaringSyntaxReferences[0].GetSyntax(cancellationToken) is VariableDeclaratorSyntax { Initializer.Value: { } value } declarator &&
                 IsCatalogFile(declarator.SyntaxTree.FilePath) &&
-                StripWrappers(value, stripCasts: true) is LiteralExpressionSyntax literal &&
-                literal.IsKind(SyntaxKind.NumericLiteralExpression) && IsHex(literal.Token.Text))
+                (field.HasConstantValue ||
+                 field.IsStatic && field.IsReadOnly &&
+                 StripWrappers(value, stripCasts: true) is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NumericLiteralExpression)))
             {
                 return field;
             }

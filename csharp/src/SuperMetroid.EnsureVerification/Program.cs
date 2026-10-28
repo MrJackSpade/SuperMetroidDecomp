@@ -38,6 +38,11 @@ internal static class Program
                 VerifyMemberDocumentationAnalyzer();
                 return 0;
             }
+            if (args is ["--cartridge-encoding"])
+            {
+                VerifyCartridgeEncodingAnalyzer();
+                return 0;
+            }
             // Every suite runs even after one fails, so a single run reports every failure in full.
             AnalyzerSuite[] suites =
             [

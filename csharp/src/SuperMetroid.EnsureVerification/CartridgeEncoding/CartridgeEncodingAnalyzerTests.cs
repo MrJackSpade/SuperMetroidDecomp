@@ -96,7 +96,13 @@ internal static class CartridgeEncodingAnalyzerTests
         const string hexMask = "static class WalkerLayout { public const int DoorIndexMask = 0x7f; }";
         ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/Game/WalkerLayout.cs", hexMask),
                 new AnalyzerTestSource(functional, "class C { int M(int bts) => bts & WalkerLayout.DoorIndexMask; }")],
-            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "a hexadecimal mask its catalog declares"));
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "a mask its catalog declares"));
+        // The spelling does not matter (#1461): a decimal or computed catalog constant applied as a mask is the same layout.
+        foreach (string spelling in new[] { "127", "(1 << 7) - 1", "0b111_1111" })
+            ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/Game/WalkerLayout.cs",
+                    $"static class WalkerLayout {{ public const int DoorIndexMask = {spelling}; }}"),
+                    new AnalyzerTestSource(functional, "class C { int M(int bts) => bts & WalkerLayout.DoorIndexMask; }")],
+                new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "a mask its catalog declares"));
         // Inside the type that owns the encoding the same mask is the definition.
         ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/Game/WalkerLayout.cs", hexMask),
             new AnalyzerTestSource(functional,

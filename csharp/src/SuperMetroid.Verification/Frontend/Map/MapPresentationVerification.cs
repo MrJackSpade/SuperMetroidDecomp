@@ -130,7 +130,7 @@ internal static class MapPresentationVerification
         var system = new SharedGameState();
         byte[] projected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank, MapRevealMode.Secret));
         ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
-            projected.AsSpan(AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
+            projected.AsSpan(AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
         AssertEqual(map.GetTile(new(5, 6)).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
         AssertEqual(MapTileWords.PauseBlank.Raw, Word(4, 6), "secret reveal uses rules, not painted cells");
         AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new(5, 6)), "projection never mutates exploration");

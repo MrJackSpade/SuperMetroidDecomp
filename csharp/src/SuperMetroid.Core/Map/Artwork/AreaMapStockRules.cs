@@ -16,7 +16,7 @@ internal sealed class AreaMapStockRules(IAreaMapView stock, IReadOnlySet<int> st
     /// <summary>Validates the map cell before testing its row-major station reveal mask.</summary>
     public bool IsRevealedByMapStation(Position16<MapTiles> cell)
     {
-        _ = AreaMapLayout.GetTilemapWordIndex(cell);
+        _ = AreaMapPages.GetTilemapWordIndex(cell);
         return stationCells.Contains(AreaMapLayout.Size.RowMajorIndex(cell));
     }
 }

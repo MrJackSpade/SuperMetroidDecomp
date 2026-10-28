@@ -255,11 +255,11 @@ internal static void VerifyHudState()
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
     SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-        0xb58000 + AreaMapLayout.GetTilemapWordIndex(tile) * 2);
+        0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2);
 
 /// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>
 static void SeedFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile, ushort word) =>
-    WriteTestWord(bus, 0xb58000 + AreaMapLayout.GetTilemapWordIndex(tile) * 2, word);
+    WriteTestWord(bus, 0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2, word);
 
 /// <summary>
 /// Clears <paramref name="tile"/>'s bit in the synthetic Crateria map-station mask at $82:9000,
@@ -267,8 +267,8 @@ static void SeedFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile, 
 /// </summary>
 static void ClearFixtureMapStationBit(TestAddressSpace bus, Position16<MapTiles> tile)
 {
-    int address = 0x829000 + AreaMapLayout.GetBitByteIndex(tile);
-    WriteTestByte(bus, address, (byte)(bus.ReadByte(address) & ~AreaMapLayout.GetBitMask(tile.X)));
+    int address = 0x829000 + AreaMapPages.GetBitByteIndex(tile);
+    WriteTestByte(bus, address, (byte)(bus.ReadByte(address) & ~AreaMapPages.GetBitMask(tile.X)));
 }
 
 /// <summary>Clears the whole synthetic Crateria map-station mask at $82:9000, then sets only <paramref name="tile"/>'s bit.</summary>
@@ -276,7 +276,7 @@ static void ResetFixtureMapStationBitsToSingleTile(TestAddressSpace bus, Positio
 {
     for (int index = 0; index < 0x100; index++)
         WriteTestByte(bus, 0x829000 + index, 0);
-    WriteTestByte(bus, 0x829000 + AreaMapLayout.GetBitByteIndex(tile), AreaMapLayout.GetBitMask(tile.X));
+    WriteTestByte(bus, 0x829000 + AreaMapPages.GetBitByteIndex(tile), AreaMapPages.GetBitMask(tile.X));
 }
 
 /// <summary>

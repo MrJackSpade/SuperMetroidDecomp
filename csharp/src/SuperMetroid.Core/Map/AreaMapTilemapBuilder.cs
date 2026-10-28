@@ -28,7 +28,7 @@ public static class AreaMapTilemapBuilder
             else if (!AreaMapVisibility.IsVisible(explored, downloaded,
                          map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode))
                 word = hiddenCell;
-            tiles[AreaMapLayout.GetTilemapWordIndex(cell)] = word.ToTile();
+            tiles[AreaMapPages.GetTilemapWordIndex(cell)] = word.ToTile();
         }
         return tiles;
     }

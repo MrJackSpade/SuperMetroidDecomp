@@ -48,15 +48,15 @@ public sealed class ImportedAreaMap : IAreaMapView
     /// <summary>Reads one decoded tilemap word in logical 64-by-32 coordinates.</summary>
     public MapTileWord GetTile(Position16<MapTiles> cell)
     {
-        _ = AreaMapLayout.GetTilemapWordIndex(cell);
+        _ = AreaMapPages.GetTilemapWordIndex(cell);
         return tilemap[AreaMapLayout.Size.RowMajorIndex(cell)];
     }
 
     /// <summary>Whether the area's ordinary map station reveals this coordinate.</summary>
     public bool IsRevealedByMapStation(Position16<MapTiles> cell)
     {
-        int byteIndex = AreaMapLayout.GetBitByteIndex(cell);
-        return (StationRevealMaskBytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0;
+        int byteIndex = AreaMapPages.GetBitByteIndex(cell);
+        return (StationRevealMaskBytes[byteIndex] & AreaMapPages.GetBitMask(cell.X)) != 0;
     }
 
     /// <summary>

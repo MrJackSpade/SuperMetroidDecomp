@@ -55,10 +55,10 @@ internal static class PauseMenuVerification
         const int publicMapX = 9;
         const int exploredSecretMapX = 10;
         const int revealTestMapY = 3;
-        int secretMapByte = AreaMapLayout.GetBitByteIndex(new(secretMapX, revealTestMapY));
+        int secretMapByte = AreaMapPages.GetBitByteIndex(new(secretMapX, revealTestMapY));
         byte secretAndExploredSecretMasks = (byte)(
-            AreaMapLayout.GetBitMask(secretMapX) |
-            AreaMapLayout.GetBitMask(exploredSecretMapX));
+            AreaMapPages.GetBitMask(secretMapX) |
+            AreaMapPages.GetBitMask(exploredSecretMapX));
         WriteRomByte(
             rom,
             0x828500 + secretMapByte,
@@ -67,7 +67,7 @@ internal static class PauseMenuVerification
         {
             WriteRomWord(
                 rom,
-                0xb59000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
+                0xb59000 + AreaMapPages.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
                 0x0403);
         }
 

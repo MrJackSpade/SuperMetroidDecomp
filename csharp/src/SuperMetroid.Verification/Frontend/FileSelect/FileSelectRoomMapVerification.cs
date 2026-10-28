@@ -58,7 +58,7 @@ internal static class FileSelectRoomMapVerification
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
-                int offset = AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2;
+                int offset = AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2;
                 ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(original.AsSpan(offset));
                 bool explored = (x + y) % 7 == 0;
                 // Independent transcription of $82:9517's two branches.
@@ -315,7 +315,7 @@ internal static class FileSelectRoomMapVerification
             var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
             var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Station 0 has no room.")).Pointer);
             var cell = room.MapPosition + new Offset16<MapTiles>(checked(LittleEndianBytes.HighByte(station.SamusPosition.X)), checked((short)((LittleEndianBytes.HighByte(station.SamusPosition.Y)) + 1)));
-            snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
+            snapshot.ExploredMapBytes[savedArea * 256 + AreaMapPages.GetBitByteIndex(cell)] |= AreaMapPages.GetBitMask(cell.X);
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);

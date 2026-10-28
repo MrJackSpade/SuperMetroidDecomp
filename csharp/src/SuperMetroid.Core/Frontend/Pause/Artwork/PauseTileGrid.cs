@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -27,10 +27,10 @@ internal static class PauseTileGrid
         };
     }
 
-    /// <summary>Validates atlas cells and writes their packed little-endian PPU words for installation.</summary>
-    public static byte[] Compile(PauseBackdropCell[] cells, string name)
+    /// <summary>Validates atlas cells and places the tile each selects.</summary>
+    public static BackgroundTile[] Compile(PauseBackdropCell[] cells, string name)
     {
-        var bytes = new byte[cells.Length * sizeof(ushort)];
+        var tiles = new BackgroundTile[cells.Length];
         for (int index = 0; index < cells.Length; index++)
         {
             var cell = cells[index];
@@ -40,10 +40,8 @@ internal static class PauseTileGrid
                 throw new InvalidDataException($"Pause artwork {name} cell {index} has an invalid atlas, coordinate or palette.");
             int character = cell.TileRow * PauseBackdropDefinitions.AtlasColumns + cell.TileColumn;
             if (cell.Atlas == PauseAtlas.Interface) character += PauseBackdropDefinitions.AtlasTileCount;
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), (ushort)(character | cell.Palette << MapPresentationFormat.PaletteShift |
-                (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
-                (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) | (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
+            tiles[index] = new BackgroundTile(character, cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
         }
-        return bytes;
+        return tiles;
     }
 }

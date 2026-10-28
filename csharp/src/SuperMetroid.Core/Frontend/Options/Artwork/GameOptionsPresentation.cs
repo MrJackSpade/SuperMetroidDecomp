@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -16,12 +15,12 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// </summary>
 public sealed class GameOptionsPresentation
 {
-    /// <summary>Compiled BG tilemap bytes for each named options page.</summary>
-    private readonly Dictionary<GameOptionsTilemap, byte[]> pages;
+    /// <summary>Compiled tiles of each named options page.</summary>
+    private readonly Dictionary<GameOptionsTilemap, BackgroundTile[]> pages;
     /// <summary>The common BG2 background page.</summary>
-    private readonly byte[] background;
+    private readonly BackgroundTile[] background;
     /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
-    internal readonly Dictionary<ControllerButton, ushort[]> controllerLabels;
+    internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
     /// <summary>Edited controller-label anchors by action, or null for the native destinations.</summary>
     internal readonly Position16<TilemapCells>[]? controllerLabelAnchors;
     /// <summary>Edited primary-language highlight regions, or null for the native regions.</summary>
@@ -39,9 +38,9 @@ public sealed class GameOptionsPresentation
 
     /// <summary>Retains compiled pages and only visual edits that depart from stock geometry.</summary>
     private GameOptionsPresentation(
-        Dictionary<GameOptionsTilemap, byte[]> pages,
-        byte[] background,
-        Dictionary<ControllerButton, ushort[]> controllerLabels,
+        Dictionary<GameOptionsTilemap, BackgroundTile[]> pages,
+        BackgroundTile[] background,
+        Dictionary<ControllerButton, BackgroundTile[]> controllerLabels,
         Dictionary<GameOptionsPage, SpriteComposition> headingSprites,
         SpriteComposition[] cursorSprites,
         GameOptionsPresentationDocument document,
@@ -49,8 +48,8 @@ public sealed class GameOptionsPresentation
     {
         this.pages = pages;
         this.background = background;
-        this.controllerLabels = controllerLabels.Where(pair => pair.Value.Where((word, cell) =>
-            word != GameOptionsPresentationDefinitions.ControllerLabelWord(pair.Key, cell)).Any())
+        this.controllerLabels = controllerLabels.Where(pair => pair.Value.Where((tile, cell) =>
+            tile != GameOptionsPresentationDefinitions.ControllerLabelTile(pair.Key, cell)).Any())
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         this.headingSprites = headingSprites;
         this.cursorSprites = cursorSprites;
@@ -95,14 +94,14 @@ public sealed class GameOptionsPresentation
     public int CursorFrameDuration { get; }
 
     /// <summary>Returns an independent mutable copy of one compiled foreground or background page.</summary>
-    internal byte[] CreatePage(GameOptionsTilemap tilemap) => (byte[])pages[tilemap].Clone();
+    internal BackgroundTile[] CreatePage(GameOptionsTilemap tilemap) => (BackgroundTile[])pages[tilemap].Clone();
 
     /// <summary>Copies the common BG2 background page into the menu's BG2 tilemap.</summary>
     internal void LoadBackground(MenuTilemaps tilemaps) =>
         MenuTilemaps.Load(tilemaps.Bg2, background);
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
-    internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
+    internal void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
     {
         if (languageRegions is null)
         {
@@ -123,27 +122,25 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
-    internal void ApplyControllerLabel(Span<byte> page, int action, int button)
+    internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, int button)
     {
         if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
         ControllerButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
-        controllerLabels.TryGetValue(label, out ushort[]? cells);
+        controllerLabels.TryGetValue(label, out BackgroundTile[]? cells);
         Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPresentationDefinitions.ControllerLabelWidth; column++)
         {
             int destination = (anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth +
                 anchor.X + column;
-            BinaryPrimitives.WriteUInt16LittleEndian(
-                page.Slice(destination * sizeof(ushort)),
-                cells is not null ? cells[row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column]
-                    : GameOptionsPresentationDefinitions.ControllerLabelWord(label, row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column));
+            page[destination] = cells is not null ? cells[row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column]
+                : GameOptionsPresentationDefinitions.ControllerLabelTile(label, row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column);
         }
     }
 
     /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>
-    internal void ApplySpecialToggle(Span<byte> page, GameOptionsToggle name, bool enabled)
+    internal void ApplySpecialToggle(Span<BackgroundTile> page, GameOptionsToggle name, bool enabled)
     {
         if (specialToggles is null)
         {
@@ -247,21 +244,16 @@ public sealed class GameOptionsPresentation
 
         var pages = GameOptionsPresentationDefinitions.Tilemaps.ToDictionary(tilemap => tilemap,
             tilemap => CompilePage(document, GameOptionsPresentationDefinitions.TilemapName(tilemap)));
-        byte[] background = CompilePage(document, GameOptionsPresentationDefinitions.BackgroundPageName);
+        BackgroundTile[] background = CompilePage(document, GameOptionsPresentationDefinitions.BackgroundPageName);
 
-        var labels = new Dictionary<ControllerButton, ushort[]>();
+        var labels = new Dictionary<ControllerButton, BackgroundTile[]>();
         foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
         {
             string name = GameOptionsPresentationDefinitions.ControllerLabelName(button);
             MapPresentationCell[] cells = document.ControllerLabels[name];
             if (cells is null || cells.Length != GameOptionsPresentationDefinitions.ControllerLabelCellCount)
                 throw new InvalidDataException($"Options controller label {name} requires six cells.");
-            byte[] compiled = CompileCells(cells, $"options controller label {name}");
-            var words = new ushort[cells.Length];
-            for (int index = 0; index < words.Length; index++)
-                words[index] = BinaryPrimitives.ReadUInt16LittleEndian(
-                    compiled.AsSpan(index * sizeof(ushort)));
-            labels.Add(button, words);
+            labels.Add(button, CompileCells(cells, $"options controller label {name}"));
         }
 
         foreach (Position16<TilemapCells> anchor in document.ControllerLabelAnchors)
@@ -318,9 +310,8 @@ public sealed class GameOptionsPresentation
         output.Write(bytes);
     }
 
-    /// <summary>Validates authored atlas cells and packs them into little-endian BG tilemap words.</summary>
     /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
-    private static byte[] CompilePage(GameOptionsPresentationDocument document, string name)
+    private static BackgroundTile[] CompilePage(GameOptionsPresentationDocument document, string name)
     {
         MapPresentationCell[] cells = document.Pages[name];
         if (cells is null || cells.Length != GameOptionsPresentationDefinitions.PageCellCount)
@@ -332,10 +323,10 @@ public sealed class GameOptionsPresentation
     private static SpriteComposition CompileSprite(GameOptionsPresentationDocument document, string name) =>
         MenuSpriteCompiler.Compile(document.Sprites[name], $"options {name}");
 
-    /// <summary>Compiles each authored cell of <paramref name="owner"/> to its little-endian tilemap word.</summary>
-    private static byte[] CompileCells(MapPresentationCell[] cells, string owner)
+    /// <summary>Validates each authored atlas cell of <paramref name="owner"/> and places its tile.</summary>
+    private static BackgroundTile[] CompileCells(MapPresentationCell[] cells, string owner)
     {
-        var bytes = new byte[cells.Length * sizeof(ushort)];
+        var tiles = new BackgroundTile[cells.Length];
         for (int index = 0; index < cells.Length; index++)
         {
             MapPresentationCell? cell = cells[index];
@@ -345,27 +336,17 @@ public sealed class GameOptionsPresentation
                 (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"{owner} cell {index} has an invalid atlas coordinate or palette.");
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), checked((ushort)(
-                cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn |
-                cell.Palette << MapPresentationFormat.PaletteShift |
-                (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
-                (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) |
-                (cell.FlipY ? MapPresentationFormat.FlipYBit : 0))));
+            tiles[index] = new BackgroundTile(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn, cell.Palette,
+                cell.FlipX, cell.FlipY, cell.Priority);
         }
-        return bytes;
+        return tiles;
     }
 
-    /// <summary>Changes only palette bits of selected tilemap cells, preserving their artwork and flips.</summary>
-    private static void ApplyPalette(Span<byte> page, IEnumerable<int> cells, int palette)
+    /// <summary>Changes only the colour variant of selected tilemap cells, preserving their artwork and mirroring.</summary>
+    private static void ApplyPalette(Span<BackgroundTile> page, IEnumerable<int> cells, int palette)
     {
         foreach (int cell in cells)
-        {
-            int offset = cell * sizeof(ushort);
-            var word = new SnesBgTilemapWord(
-                BinaryPrimitives.ReadUInt16LittleEndian(page[offset..]));
-            BinaryPrimitives.WriteUInt16LittleEndian(page[offset..],
-                word.WithPaletteIndex(palette).Raw);
-        }
+            page[cell] = page[cell] with { ColourVariant = palette };
     }
 
     /// <summary>Requires exactly the names prescribed for one options document collection.</summary>

@@ -7,6 +7,6 @@ internal static class MenuTilemapsAccess
     extension(MenuTilemaps self)
     {
         /// <summary>All four screens, for the capture.</summary>
-        internal ReadOnlySpan<ushort> All => self.words;
+        internal ReadOnlySpan<SuperMetroid.Core.Assets.BackgroundTile> All => self.tiles;
     }
 }

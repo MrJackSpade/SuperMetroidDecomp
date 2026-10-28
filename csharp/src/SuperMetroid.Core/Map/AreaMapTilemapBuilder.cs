@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Map;
@@ -10,12 +10,12 @@ public static class AreaMapTilemapBuilder
     /// Projects immutable cartridge cells into native two-page VRAM order. The caller
     /// supplies its screen's hidden-cell character; reveal overrides never modify SRAM.
     /// </summary>
-    public static byte[] Build(IAreaMapView map, SharedGameState system,
+    public static BackgroundTile[] Build(IAreaMapView map, SharedGameState system,
         MapTileWord hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
-        var bytes = new byte[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles * sizeof(ushort)];
+        var tiles = new BackgroundTile[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
         bool downloaded = system.HasAreaMap(map.Area);
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
@@ -28,9 +28,8 @@ public static class AreaMapTilemapBuilder
             else if (!AreaMapVisibility.IsVisible(explored, downloaded,
                          map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode))
                 word = hiddenCell;
-            BinaryPrimitives.WriteUInt16LittleEndian(
-                bytes.AsSpan(AreaMapLayout.GetTilemapWordIndex(cell) * 2), word.Raw);
+            tiles[AreaMapLayout.GetTilemapWordIndex(cell)] = word.ToTile();
         }
-        return bytes;
+        return tiles;
     }
 }

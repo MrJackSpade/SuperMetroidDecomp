@@ -702,7 +702,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         "Ceres destruction rendering requires installed cinematic artwork."), Uploads, WithSamus);
 
     /// <summary>The Zebes reveal's tilemap, once its upload is made.</summary>
-    private ushort[] ZebesTilemap() => CeresDestructionScenery.ZebesTilemap(Artwork ?? throw new InvalidOperationException(
+    private BackgroundTile[] ZebesTilemap() => CeresDestructionScenery.ZebesTilemap(Artwork ?? throw new InvalidOperationException(
         "Ceres destruction rendering requires installed cinematic artwork."), Uploads);
 
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>

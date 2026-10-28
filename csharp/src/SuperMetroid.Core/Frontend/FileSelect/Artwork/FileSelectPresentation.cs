@@ -15,15 +15,15 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 public sealed class FileSelectPresentation
 {
     /// <summary>Named, compiled 32-by-32 BG2 tilemaps for the menu pages.</summary>
-    private readonly Dictionary<FileSelectPage, ushort[]> pages;
+    private readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
     /// <summary>The common BG2 background tilemap.</summary>
-    private readonly ushort[] background;
+    private readonly BackgroundTile[] background;
     /// <summary>Each slot-field patch.</summary>
     internal readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
     /// <summary>Edited digit glyphs, or null when every digit is the native consecutive glyph.</summary>
-    internal readonly ushort[]? digits;
+    internal readonly BackgroundTile[]? digits;
     /// <summary>Edited slot-letter glyphs, or null when every letter is the native consecutive glyph.</summary>
-    internal readonly ushort[]? slotLetters;
+    internal readonly BackgroundTile[]? slotLetters;
     /// <summary>Each bordered heading's sprite.</summary>
     internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
     /// <summary>The missile cursor's sprite by animation frame.</summary>
@@ -41,8 +41,8 @@ public sealed class FileSelectPresentation
     private FileSelectPresentation(
         FileSelectPages pages,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches,
-        ushort[] digits,
-        ushort[] slotLetters,
+        BackgroundTile[] digits,
+        BackgroundTile[] slotLetters,
         FileSelectSprites sprites,
         FileSelectPresentationDocument document,
         string contentIdentity)
@@ -63,11 +63,11 @@ public sealed class FileSelectPresentation
         ContentIdentity = contentIdentity;
     }
 
-    /// <summary>Returns null when every glyph matches its stock consecutive tile word.</summary>
-    private static ushort[]? PreserveEditedGlyphs(ushort[] values, int first)
+    /// <summary>Returns null when every glyph matches its stock consecutive tile.</summary>
+    private static BackgroundTile[]? PreserveEditedGlyphs(BackgroundTile[] values, BackgroundTile first)
     {
         for (int index = 0; index < values.Length; index++)
-            if (values[index] != first + index)
+            if (values[index] != first with { Tile = first.Tile + index })
                 return values;
         return null;
     }
@@ -83,7 +83,7 @@ public sealed class FileSelectPresentation
         background.CopyTo(tilemaps.Bg2);
 
     /// <summary>Copies one named full page into a 1024-cell destination tilemap.</summary>
-    internal void CopyPage(FileSelectPage page, Span<ushort> destination)
+    internal void CopyPage(FileSelectPage page, Span<BackgroundTile> destination)
     {
         Ensure.LengthEqual(destination, FileSelectPresentationDefinitions.CellCount);
         pages[page].CopyTo(destination);
@@ -101,32 +101,32 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Places an ENERGY, NO DATA, or time-colon patch relative to its tile anchor.</summary>
-    internal void ApplyPatch(Span<ushort> tilemap, FileSelectPatch name, Position16<TilemapCells> anchor)
+    internal void ApplyPatch(Span<BackgroundTile> tilemap, FileSelectPatch name, Position16<TilemapCells> anchor)
     {
         FileSelectCompiledPatch patch = patches[name];
         for (int index = 0; index < patch.Count; index++)
         {
             FileSelectCompiledPatchCell cell = patch.Cell(index);
-            tilemap[FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset)] = cell.Word;
+            tilemap[FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset)] = cell.Tile;
         }
     }
 
     /// <summary>Writes one decimal digit using edited glyph art when supplied.</summary>
-    internal void WriteDigit(Span<ushort> tilemap, Position16<TilemapCells> anchor, int offset, int digit)
+    internal void WriteDigit(Span<BackgroundTile> tilemap, Position16<TilemapCells> anchor, int offset, int digit)
     {
         if ((uint)digit >= FileSelectPresentationDefinitions.DigitCount)
             throw new ArgumentOutOfRangeException(nameof(digit));
         tilemap[anchor.Y * FileSelectPresentationDefinitions.Width + anchor.X + offset] =
-            digits is null ? (ushort)(FileSelectLayout.DigitTileBase + digit) : digits[digit];
+            digits is null ? FileSelectLayout.Digit(digit) : digits[digit];
     }
 
     /// <summary>Writes the selected slot's letter at its dynamic tile anchor.</summary>
-    internal void WriteSlotLetter(Span<ushort> tilemap, Position16<TilemapCells> anchor, int slot)
+    internal void WriteSlotLetter(Span<BackgroundTile> tilemap, Position16<TilemapCells> anchor, int slot)
     {
         if ((uint)slot >= FileSelectPresentationDefinitions.SlotLetterCount)
             throw new ArgumentOutOfRangeException(nameof(slot));
         tilemap[anchor.Y * FileSelectPresentationDefinitions.Width + anchor.X] =
-            slotLetters is null ? (ushort)(FileSelectLayout.SamusLetterTileBase + slot) : slotLetters[slot];
+            slotLetters is null ? FileSelectLayout.SlotLetter(slot) : slotLetters[slot];
     }
 
     /// <summary>Resolves a named dynamic field location in the menu tilemap.</summary>
@@ -220,7 +220,7 @@ public sealed class FileSelectPresentation
 
         var pages = FileSelectPresentationDefinitions.Pages.ToDictionary(page => page,
             page => CompilePage(document, FileSelectPresentationDefinitions.PageName(page)));
-        ushort[] background = CompilePage(document, FileSelectPresentationDefinitions.BackgroundPageName);
+        BackgroundTile[] background = CompilePage(document, FileSelectPresentationDefinitions.BackgroundPageName);
         var patches = new Dictionary<FileSelectPatch, FileSelectCompiledPatch>();
         foreach (FileSelectPatch kind in FileSelectPresentationDefinitions.Patches)
         {
@@ -245,9 +245,9 @@ public sealed class FileSelectPresentation
             patches.Add(kind, new(kind, compiled));
         }
 
-        ushort[] digits = document.Digits.Select((cell, index) =>
+        BackgroundTile[] digits = document.Digits.Select((cell, index) =>
             CompileCell(cell, $"file-select digit {index}")).ToArray();
-        ushort[] letters = document.SlotLetters.Select((cell, index) =>
+        BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
             border => MenuHeadingBorderDefinitions.CalculateIfMatching(FileSelectPresentationDefinitions.Heading(border),
@@ -303,9 +303,8 @@ public sealed class FileSelectPresentation
         }
     }
 
-    /// <summary>Converts authored page cells into native BG tilemap words.</summary>
     /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
-    private static ushort[] CompilePage(FileSelectPresentationDocument document, string name)
+    private static BackgroundTile[] CompilePage(FileSelectPresentationDocument document, string name)
     {
         MapPresentationCell[] cells = document.Pages[name];
         if (cells is null || cells.Length != FileSelectPresentationDefinitions.CellCount)
@@ -317,29 +316,25 @@ public sealed class FileSelectPresentation
     private static SpriteComposition CompileSprite(FileSelectPresentationDocument document, string name) =>
         MenuSpriteCompiler.Compile(document.Sprites[name], $"file-select {name}");
 
-    /// <summary>Compiles each authored cell of <paramref name="owner"/> to its tilemap word.</summary>
-    private static ushort[] CompileCells(MapPresentationCell[] cells, string owner)
+    /// <summary>Compiles each authored cell of <paramref name="owner"/> to the tile it places.</summary>
+    private static BackgroundTile[] CompileCells(MapPresentationCell[] cells, string owner)
     {
-        var words = new ushort[cells.Length];
-        for (int index = 0; index < words.Length; index++)
-            words[index] = CompileCell(cells[index], $"{owner} cell {index}");
-        return words;
+        var tiles = new BackgroundTile[cells.Length];
+        for (int index = 0; index < tiles.Length; index++)
+            tiles[index] = CompileCell(cells[index], $"{owner} cell {index}");
+        return tiles;
     }
 
-    /// <summary>Validates tile coordinates and packs palette, priority, and flip flags into one word.</summary>
-    private static ushort CompileCell(MapPresentationCell? cell, string owner)
+    /// <summary>Validates an authored cell's tile coordinates and palette and places its tile.</summary>
+    private static BackgroundTile CompileCell(MapPresentationCell? cell, string owner)
     {
         if (cell is null ||
             (uint)cell.TileColumn >= FileSelectPresentationDefinitions.CharacterColumns ||
             (uint)cell.TileRow >= FileSelectPresentationDefinitions.CharacterRows ||
             (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException($"{owner} has an invalid character or palette.");
-        return checked((ushort)(
-            cell.TileRow * FileSelectPresentationDefinitions.CharacterColumns + cell.TileColumn |
-            cell.Palette << MapPresentationFormat.PaletteShift |
-            (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
-            (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) |
-            (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
+        return new BackgroundTile(cell.TileRow * FileSelectPresentationDefinitions.CharacterColumns + cell.TileColumn,
+            cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
     }
 
     /// <summary>Requires every save-slot field anchor to remain within a menu page.</summary>
@@ -397,9 +392,9 @@ public sealed class FileSelectPresentation
             throw new ArgumentOutOfRangeException(owner);
 
     /// <summary>The compiled foreground menu pages and the common background page.</summary>
-    /// <param name="Foreground">Each foreground page's tilemap words.</param>
-    /// <param name="Background">The common BG2 background's tilemap words.</param>
-    private sealed record FileSelectPages(Dictionary<FileSelectPage, ushort[]> Foreground, ushort[] Background);
+    /// <param name="Foreground">Each foreground page's tiles.</param>
+    /// <param name="Background">The common BG2 background's tiles.</param>
+    private sealed record FileSelectPages(Dictionary<FileSelectPage, BackgroundTile[]> Foreground, BackgroundTile[] Background);
 
     /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
     /// <param name="Borders">Each bordered heading's composition.</param>

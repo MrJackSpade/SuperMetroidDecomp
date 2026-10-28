@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>File select's selection counts, cursor positions and the menu tile words its fields are drawn with.</summary>
+/// <summary>File select's selection counts, cursor positions and the menu tiles its fields are drawn with.</summary>
 /// <remarks>Shared missile animation is defined by <see cref="MenuMissileAnimationDefinitions"/>.</remarks>
 internal static class FileSelectLayout
 {
@@ -51,10 +52,16 @@ internal static class FileSelectLayout
         return (ushort)(MainSelectionY(slot) - 1);
     }
 
-    /// <summary>Blank bank-$81 menu tile.</summary>
-    public const ushort BlankTile = 0x000f;
-    /// <summary>First numeric menu tile; a decimal digit is added to this word.</summary>
-    public const ushort DigitTileBase = 0x2060;
-    /// <summary>First letter tile used to draw a save-slot name in Copy and Clear prompts.</summary>
-    public const ushort SamusLetterTileBase = 0x206a;
+    /// <summary>The blank menu tile.</summary>
+    public static BackgroundTile BlankTile { get; } = new(0x0f, 0, highPriority: false);
+    /// <summary>The first numeric menu tile: the digits follow it in order.</summary>
+    public static BackgroundTile DigitTileBase { get; } = new(0x60, 0, highPriority: true);
+    /// <summary>The first letter tile used to draw a save slot's name in the Copy and Clear prompts: the slots' letters follow it.</summary>
+    public static BackgroundTile SamusLetterTileBase { get; } = new(0x6a, 0, highPriority: true);
+
+    /// <summary>The menu tile of decimal digit <paramref name="digit"/>.</summary>
+    public static BackgroundTile Digit(int digit) => DigitTileBase with { Tile = DigitTileBase.Tile + digit };
+
+    /// <summary>The menu tile of save slot <paramref name="slot"/>'s letter.</summary>
+    public static BackgroundTile SlotLetter(int slot) => SamusLetterTileBase with { Tile = SamusLetterTileBase.Tile + slot };
 }

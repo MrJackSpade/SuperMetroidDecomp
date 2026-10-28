@@ -671,7 +671,7 @@ internal static class LookupStream3Verification
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), word), FileSelectPresentationDefinitions.PatchCell(patch, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectPresentationDefinitions.PatchCell(patch, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -704,7 +704,8 @@ internal static class LookupStream3Verification
             void Confirm(FileSelectPresentation presentation, FileSelectPatchCellDocument[] cells)
             {
                 var expected = new ushort[1024];
-                var actual = new ushort[1024];
+                var actual = new BackgroundTile[1024];
+                Array.Fill(actual, BackgroundTileWords.ToTile(0));
                 var compiled = Compiled(presentation);
                 AssertEqual(cells.Length, compiled.Count, "file-select supplied patch count");
                 for (int index = 0; index < cells.Length; index++)
@@ -714,12 +715,12 @@ internal static class LookupStream3Verification
                     ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
                         cell.Palette, cell.Priority, (cell.FlipX ? TileFlip.Horizontal : TileFlip.None) |
                         (cell.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
-                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<TilemapCells>.Zero, word), compiled.Cell(index),
+                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<TilemapCells>.Zero, BackgroundTileWords.ToTile(word)), compiled.Cell(index),
                         "file-select independent supplied order and coordinates");
                     expected[(3 + source.Y) * 32 + 4 + source.X] = word;
                 }
                 presentation.ApplyPatch(actual, patch, new Position16<TilemapCells>(4, 3));
-                AssertTrue(actual.SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
+                AssertTrue(BackgroundTileWordBytes.Words(actual).SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
             }
         }
     }
@@ -741,13 +742,14 @@ internal static class LookupStream3Verification
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
         Confirm(Load());
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapWord(-1), "game-over text negative cell");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapWord(1024), "game-over text final cell boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapTile(-1), "game-over text negative cell");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapTile(1024), "game-over text final cell boundary");
 
         void Confirm(GameOverPresentation presentation)
         {
-            var words = new ushort[GameOverPresentationDefinitions.TilemapCellCount];
-            presentation.LoadTilemapTo(words);
+            var tiles = new BackgroundTile[GameOverPresentationDefinitions.TilemapCellCount];
+            presentation.LoadTilemapTo(tiles);
+            ushort[] words = BackgroundTileWordBytes.Words(tiles);
             for (int cell = 0; cell < document.Tilemap.Length; cell++)
             {
                 MapPresentationCell source = document.Tilemap[cell];
@@ -796,7 +798,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                GameOptionsPresentationDefinitions.ControllerLabelWord(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell),
+                BackgroundTileWords.ToWord(GameOptionsPresentationDefinitions.ControllerLabelTile(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell)),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();
@@ -826,7 +828,7 @@ internal static class LookupStream3Verification
         {
             foreach (bool japanese in new[] { false, true })
             {
-                byte[] actual = presentation.CreatePage(GameOptionsTilemap.Primary);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.Primary);
                 byte[] expected = (byte[])actual.Clone();
                 foreach (var region in document.LanguageRegions)
                     Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
@@ -837,7 +839,7 @@ internal static class LookupStream3Verification
             foreach (bool enabled in new[] { false, true })
             {
                 GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(toggle)];
-                byte[] actual = presentation.CreatePage(GameOptionsTilemap.SpecialEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.SpecialEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
                 Paint(expected, visual.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
@@ -847,7 +849,7 @@ internal static class LookupStream3Verification
             for (int action = 0; action < 7; action++)
             for (int button = 0; button < 7; button++)
             {
-                byte[] actual = presentation.CreatePage(GameOptionsTilemap.ControllerEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.ControllerEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
@@ -1254,7 +1256,7 @@ internal static class LookupStream3Verification
         var fileSelect = FileSelectPresentation.Load(new MemoryStream(fileSelectJson));
         foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
             AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
-        var glyphTilemap = new ushort[1024];
+        var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {
             bool digit = glyph < 10;
@@ -1263,7 +1265,7 @@ internal static class LookupStream3Verification
             var anchor = new Position16<TilemapCells>(4, 3);
             if (digit) fileSelect.WriteDigit(glyphTilemap, anchor, 2, index);
             else fileSelect.WriteSlotLetter(glyphTilemap, anchor, index);
-            AssertEqual(expected, glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 actual file-select calculated glyph write");
+            AssertEqual(expected, BackgroundTileWords.ToWord(glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)]), "stream 3 actual file-select calculated glyph write");
             foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
             {
                 var node = RequiredJson.Parse(fileSelectJson);
@@ -1274,7 +1276,7 @@ internal static class LookupStream3Verification
                 var edited = FileSelectPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 if (digit) edited.WriteDigit(glyphTilemap, anchor, 2, index);
                 else edited.WriteSlotLetter(glyphTilemap, anchor, index);
-                AssertEqual((ushort)(expected ^ bit), glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 independent file-select glyph attribute edit");
+                AssertEqual((ushort)(expected ^ bit), BackgroundTileWords.ToWord(glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)]), "stream 3 independent file-select glyph attribute edit");
             }
         }
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
@@ -3078,7 +3080,7 @@ internal static class LookupStream3Verification
                 IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
+            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
             IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
@@ -3265,7 +3267,7 @@ internal static class LookupStream3Verification
                 IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
+            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             IntroCinematicArtworkCatalog Copy(byte[] background)
             {
                 RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
@@ -3412,7 +3414,7 @@ BranchesToSharedBody:true),
                 IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
+            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
             IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "all 1024 calculated portrait words match native");

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -40,5 +41,5 @@ internal static class CeresFlightScreenMemory
     /// <summary>The image <paramref name="flight"/> shows: its view with the SPACE COLONY caption over it.</summary>
     internal static byte[] Compose(IntroCeresFlightState flight) =>
         WithCaption(View(flight.Artwork ?? throw new InvalidOperationException("Ceres approach rendering requires installed cinematic artwork."),
-            flight.ShowsRearView), flight.SpaceColonyTilemap);
+            flight.ShowsRearView), BackgroundTileWordBytes.Words(flight.SpaceColonyTilemap));
 }

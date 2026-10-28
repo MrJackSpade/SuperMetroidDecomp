@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -61,8 +61,8 @@ public static class PauseWireframeDefinitions
     private const int RegularFootToe = 0x1ad;
     /// <summary>$82:D61D/D62D: outer regular foot strip uses $1EE/$1FE.</summary>
     private const int RegularFootOuter = 0x1ee;
-    /// <summary>Common native wireframe words use BG palette one with priority; StockWord expresses the chosen layering.</summary>
-    internal const ushort CommonPieceAttributes = 0x2400;
+    /// <summary>Common wireframe pieces use palette one with priority; StockTile expresses the chosen layering.</summary>
+    internal const int CommonPiecePalette = 1;
 
     /// <summary>$82:D5B3: hand tip at the end of the common arm strip.</summary>
     private const int HandTip = 0x1c9;
@@ -74,26 +74,23 @@ public static class PauseWireframeDefinitions
     private const int PowerHiJumpInnerCollar = 0x18c;
     /// <summary>$82:D60F and counterparts: diagonal equipment-guide connector.</summary>
     private const int DiagonalConnector = 0x155;
-    /// <summary>Native BG word priority and reflected connector attributes.</summary>
-    private const int Priority = 0x2000;
-    /// <summary>The diagonal connector is drawn in front and mirrored both ways.</summary>
-    private const int ConnectorAttributes =
-        SnesBgTilemapWord.PriorityMask | SnesBgTilemapWord.HorizontalFlipMask | SnesBgTilemapWord.VerticalFlipMask;
 
     /// <summary>Compose one cell of the four authored equipment diagrams at $82:D521/D631/D741/D851.</summary>
     /// <remarks>The thirty named pieces, placements, variant membership and layering specify these
     /// drawings. Atlas strips, shared knee/foot pieces and reflections calculate their repeated cells.
     /// Connector palette six versus two is preserved copied metadata: stock colors coincide, but
     /// independently edited palettes can distinguish them. This does not exempt the glyph pixels.</remarks>
-    internal static ushort StockWord(PauseWireframeKind kind, int cell)
+    internal static BackgroundTile StockTile(PauseWireframeKind kind, int cell)
     {
         bool piece = TryStockTile(kind, cell, out int tile);
         int row = cell / Columns, column = cell % Columns;
         bool varia = kind is PauseWireframeKind.VariaSuit or PauseWireframeKind.VariaSuitHiJump;
         bool hiJump = kind is PauseWireframeKind.PowerSuitHiJump or PauseWireframeKind.VariaSuitHiJump;
-        if (row == 9 && column == 6) return 0; // Cannon-side negative space.
+        if (row == 9 && column == 6) return default; // Cannon-side negative space.
+        // The diagonal connector is drawn in front and mirrored both ways.
         if (row == 14 && column == 7)
-            return (ushort)(DiagonalConnector | ConnectorAttributes | (kind is PauseWireframeKind.PowerSuit or PauseWireframeKind.VariaSuitHiJump ? 6 : 2) << 10);
+            return new BackgroundTile(DiagonalConnector, kind is PauseWireframeKind.PowerSuit or PauseWireframeKind.VariaSuitHiJump ? 6 : 2,
+                highPriority: true, TileFlip.Horizontal | TileFlip.Vertical);
         if (!piece)
         {
             if (!varia && row == 6 && column == 2) tile = PowerTorso - PieceRowStride;
@@ -106,24 +103,24 @@ public static class PauseWireframeDefinitions
             else if (varia && !hiJump && row == 16 && column == 7) tile = RegularFootOuter + PieceRowStride + 1;
             else tile = -1;
         }
-        int word;
-        if (tile >= 0) word = CommonPieceAttributes | tile;
-        else if (column < Columns / 2) word = 0;
+        BackgroundTile placed;
+        if (tile >= 0) placed = new BackgroundTile(tile, CommonPiecePalette, highPriority: true);
+        else if (column < Columns / 2) placed = default;
         else
         {
-            int paired = StockWord(kind, row * Columns + Columns - 1 - column);
-            word = paired == 0 ? 0 : paired ^ MapPresentationFormat.FlipXBit;
+            BackgroundTile paired = StockTile(kind, row * Columns + Columns - 1 - column);
+            placed = paired == default ? default : paired.WithFlipsToggled(TileFlip.Horizontal);
         }
         bool underlay = (row == 13 && column == 3 && !(varia && hiJump))
             || (!varia && hiJump && column == 1 && row is 13 or 14)
             || (hiJump && column == 3 && row == 15)
             || (varia && !hiJump && column is 1 or 4 && row is 11 or 12);
-        if (underlay) word &= ~Priority;
-        if (varia && !hiJump && column == 6 && row is 11 or 12) word |= Priority;
-        return (ushort)word;
+        if (underlay) placed = placed with { HighPriority = false };
+        if (varia && !hiJump && column == 6 && row is 11 or 12) placed = placed with { HighPriority = true };
+        return placed;
     }
     /// <summary>Calculate tile references within identified rectangular body pieces.</summary>
-    /// <remarks>The named piece composition is authored drawing content; StockWord completes its
+    /// <remarks>The named piece composition is authored drawing content; StockTile completes its
     /// shared glyphs and layering. This strip-only operation also serves the separately
     /// accounted equipment base page.</remarks>
     internal static bool TryStockTile(PauseWireframeKind kind, int cell, out int tile)

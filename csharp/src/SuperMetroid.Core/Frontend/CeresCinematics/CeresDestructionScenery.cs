@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -39,15 +40,13 @@ internal static class CeresDestructionScenery
     }
 
     /// <summary>The Zebes reveal's tilemap once <paramref name="uploads"/> include it; an empty plane before.</summary>
-    internal static ushort[] ZebesTilemap(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads)
+    internal static BackgroundTile[] ZebesTilemap(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads)
     {
-        var words = new ushort[CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort)];
+        var tiles = new BackgroundTile[CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort)];
         if (!uploads.Contains(CeresDestructionUpload.ZebesReveal))
-            return words;
-        ReadOnlySpan<byte> bytes = artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionArtworkFormat.ZebesMapByteCount];
-        for (int word = 0; word < words.Length; word++)
-            words[word] = SnesLittleEndian.Word(bytes[word * 2], bytes[word * 2 + 1]);
-        return words;
+            return tiles;
+        artwork.CeresDestruction.ZebesMap.Tiles.Span[..tiles.Length].CopyTo(tiles);
+        return tiles;
     }
 
     /// <summary>The installed Ceres flight and destruction maps joined into the native contiguous transfer source.</summary>

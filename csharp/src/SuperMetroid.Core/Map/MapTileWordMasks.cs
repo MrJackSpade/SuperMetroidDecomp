@@ -12,8 +12,14 @@ internal static class MapTileWordMasks
     /// <summary>Native BG priority bit preserved when presenting a tile.</summary>
     internal const ushort PriorityMask = 0x2000;
 
+    /// <summary>The map cell's horizontal-mirror bit.</summary>
+    internal const ushort HorizontalFlipMask = 0x4000;
+
+    /// <summary>The map cell's vertical-mirror bit.</summary>
+    internal const ushort VerticalFlipMask = 0x8000;
+
     /// <summary>Horizontal and vertical BG flip bits preserved by HUD projection.</summary>
-    internal const ushort FlipMask = SnesBgTilemapWord.HorizontalFlipMask | SnesBgTilemapWord.VerticalFlipMask;
+    internal const ushort FlipMask = HorizontalFlipMask | VerticalFlipMask;
 
     /// <summary>Downloaded-map palette bit cleared when a cell has been explored.</summary>
     internal const ushort ExploredPaletteBit = 0x0400;

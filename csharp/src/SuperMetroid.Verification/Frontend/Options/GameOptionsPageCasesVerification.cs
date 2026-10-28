@@ -42,7 +42,7 @@ internal static class GameOptionsPageCasesVerification
             AssertEqual(expected.Description, actual.Description, "preserved resource diagnostic name");
             byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(rom), source, maximumOutputBytes: 0x800);
             AssertEqual(0x800, bytes.Length, "original options page size");
-            AssertTrue(bytes.SequenceEqual(presentation.CreatePage(expected.Page)),
+            AssertTrue(bytes.SequenceEqual(presentation.CreatePageBytes(expected.Page)),
                 "named installed page matches independently selected native resource");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })

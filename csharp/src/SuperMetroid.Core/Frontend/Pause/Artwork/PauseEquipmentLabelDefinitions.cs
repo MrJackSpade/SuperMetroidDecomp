@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Semantic identities and native extraction sources for pause equipment labels.</summary>
@@ -179,10 +181,10 @@ public static class PauseEquipmentLabelDefinitions
 
     /// <summary>Assembles named equipment text from its packed atlas runs, shared suffixes and padding.</summary>
     /// <remarks>The referenced glyph pixels remain independently authored interface artwork.</remarks>
-    internal static ushort StockWord(PauseEquipmentLabelId label, int index)
+    internal static BackgroundTile StockTile(PauseEquipmentLabelId label, int index)
     {
         if ((uint)index >= StockWordCount(label)) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == 0) return LabelPalette << 10 | Marker;
+        if (index == 0) return new BackgroundTile(Marker, LabelPalette, highPriority: false);
         int text = index - 1;
         int glyph = label switch
         {
@@ -204,7 +206,7 @@ public static class PauseEquipmentLabelDefinitions
             PauseEquipmentLabelId.Hyper => text < 3 ? HyperText + text : text == 3 ? HyperEndcap : Padding,
             _ => throw new ArgumentOutOfRangeException(nameof(label)),
         };
-        return (ushort)(LabelPalette << 10 | glyph);
+        return new BackgroundTile(glyph, LabelPalette, highPriority: false);
     }
 
     /// <summary>Advances through a contiguous glyph run, then pads the remaining strip with the native background tile.</summary>

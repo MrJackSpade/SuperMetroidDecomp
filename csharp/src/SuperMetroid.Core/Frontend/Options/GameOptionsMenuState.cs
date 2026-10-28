@@ -33,17 +33,17 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     /// <summary>Mutable primary page whose language palette bits can change in place.</summary>
-    private readonly byte[] primaryTilemap;
+    private readonly BackgroundTile[] primaryTilemap;
     /// <summary>English controller page updated with current button labels.</summary>
-    private readonly byte[] controllerEnglishTilemap;
+    private readonly BackgroundTile[] controllerEnglishTilemap;
     /// <summary>Japanese controller page updated with current button labels.</summary>
-    private readonly byte[] controllerJapaneseTilemap;
+    private readonly BackgroundTile[] controllerJapaneseTilemap;
     /// <summary>English special page updated with toggle palette bits.</summary>
-    private readonly byte[] specialEnglishTilemap;
+    private readonly BackgroundTile[] specialEnglishTilemap;
     /// <summary>Japanese special page updated with toggle palette bits.</summary>
-    private readonly byte[] specialJapaneseTilemap;
+    private readonly BackgroundTile[] specialJapaneseTilemap;
     /// <summary>Page currently loaded into BG1.</summary>
-    private byte[] visibleTilemap;
+    private BackgroundTile[] visibleTilemap;
     /// <summary>Page whose input and cursor policy currently apply.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>
@@ -118,7 +118,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
 
-        static void Copy(byte[] source, byte[] destination)
+        static void Copy(BackgroundTile[] source, BackgroundTile[] destination)
         {
             if (source.Length != destination.Length)
                 throw new InvalidDataException("Rebound options page size changed.");

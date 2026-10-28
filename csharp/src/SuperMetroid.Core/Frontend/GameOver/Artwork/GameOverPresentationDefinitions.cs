@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>Schema names and geometry for <c>game-over.json</c>.</summary>
@@ -15,8 +17,6 @@ public static class GameOverPresentationDefinitions
     public const int TilemapCellCount = TilemapWidth * TilemapHeight;
     /// <summary>The menu atlas cell of the blank glyph, shown by every page cell no text element writes.</summary>
     public const ushort BlankTile = 15;
-    /// <summary>2048 bytes required to transfer the page's sixteen-bit tilemap words.</summary>
-    public const int TilemapByteCount = TilemapCellCount * sizeof(ushort);
     /// <summary>The sprite row the Baby's animated colours change.</summary>
     public const int BabySpriteRow = 4;
     /// <summary>Four frames in the looping missile-cursor animation.</summary>
@@ -57,8 +57,11 @@ public static class GameOverPresentationDefinitions
     /// <summary>$81:937E/$939C, answer explanation opening/closing glyphs occupy adjacent atlas cells.</summary>
     private const int OpeningParenthesisTile = 0x8a;
 
-    /// <summary>Blank page plus the five native game-over text elements; no stored tilemap rows.</summary>
-    internal static ushort TilemapWord(int cell)
+    /// <summary>The tile page cell <paramref name="cell"/> shows: the blank page plus the five native game-over text elements; no stored tilemap rows.</summary>
+    internal static BackgroundTile TilemapTile(int cell) => new(TilemapCharacter(cell), 0, highPriority: false);
+
+    /// <summary>The menu atlas cell page cell <paramref name="cell"/> shows.</summary>
+    private static ushort TilemapCharacter(int cell)
     {
         if ((uint)cell >= TilemapCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         foreach (GameOverTextElement element in Enum.GetValues<GameOverTextElement>())
@@ -93,7 +96,7 @@ public static class GameOverPresentationDefinitions
         return BlankTile;
     }
 
-    /// <summary>Maps a character in the native small-font text lines to its tile word.</summary>
+    /// <summary>Maps a character in the native small-font text lines to its menu atlas cell.</summary>
     private static ushort SmallLetter(char letter) => letter switch
     {
         >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),

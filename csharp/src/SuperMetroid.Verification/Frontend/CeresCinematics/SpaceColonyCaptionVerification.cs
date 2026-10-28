@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -21,7 +22,7 @@ internal static class SpaceColonyCaptionVerification
             AssertEqual((byte)24, rom.ReadCartridgeByte(instruction + 3), "native caption row unchanged");
             int drawing = 0x8c0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 4));
             AssertEqual(0x0101, CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 2)), "one-cell character drawing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), actual.Tile, "native caption tile and attributes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), BackgroundTileWords.ToWord(actual.Tile), "native caption tile and attributes");
         }
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaptionDefinitions.Letter(invalid), "caption domain");

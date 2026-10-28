@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
@@ -8,15 +9,15 @@ public static class FileSelectPresentationDefinitions
     /// <summary>$81:B4AC-B4C0, the literal small-font empty-slot label including its padding.</summary>
     private const string NoDataLabel = " NO DATA   ";
     /// <summary>$81:B4B6: tile $6A is the small-font A; following alphabet glyphs are consecutive.</summary>
-    private const ushort SmallLetterA = 0x206a;
-    /// <summary>$81:B4B2 and B4BC-B4C0: the small-font paletted space.</summary>
-    private const ushort SmallSpace = 0x200f;
+    private static readonly BackgroundTile SmallLetterA = new(0x6a, 0, highPriority: true);
+    /// <summary>$81:B4B2 and B4BC-B4C0: the small-font space.</summary>
+    private static readonly BackgroundTile SmallSpace = new(0x0f, 0, highPriority: true);
     /// <summary>$81:B496-B49A: three consecutive tiles composing the ENERGY label.</summary>
-    private const ushort EnergyLabelFirst = 0x209d;
+    private static readonly BackgroundTile EnergyLabelFirst = new(0x9d, 0, highPriority: true);
     /// <summary>$81:B49C: the separately placed final glyph of the ENERGY patch.</summary>
-    private const ushort EnergyLabelFinal = 0x20cc;
+    private static readonly BackgroundTile EnergyLabelFinal = new(0xcc, 0, highPriority: true);
     /// <summary>$81:B4A8: the time-field colon glyph.</summary>
-    private const ushort TimeColonGlyph = 0x208c;
+    private static readonly BackgroundTile TimeColonGlyph = new(0x8c, 0, highPriority: true);
 
     /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
     internal static int PatchCellCount(FileSelectPatch patch) => patch switch
@@ -33,11 +34,11 @@ public static class FileSelectPresentationDefinitions
         if ((uint)index >= PatchCellCount(patch)) throw new ArgumentOutOfRangeException(nameof(index));
         return new(new Offset16<TilemapCells>(checked((short)index), 0), patch switch
         {
-            FileSelectPatch.Energy => index < 3 ? (ushort)(EnergyLabelFirst + index) : EnergyLabelFinal,
+            FileSelectPatch.Energy => index < 3 ? EnergyLabelFirst with { Tile = EnergyLabelFirst.Tile + index } : EnergyLabelFinal,
             FileSelectPatch.TimeColon => TimeColonGlyph,
             FileSelectPatch.NoData => index == 0 ? FileSelectLayout.BlankTile
                 : NoDataLabel[index] == ' ' ? SmallSpace
-                : (ushort)(SmallLetterA + NoDataLabel[index] - 'A'),
+                : SmallLetterA with { Tile = SmallLetterA.Tile + NoDataLabel[index] - 'A' },
             _ => throw new ArgumentOutOfRangeException(nameof(patch)),
         });
     }

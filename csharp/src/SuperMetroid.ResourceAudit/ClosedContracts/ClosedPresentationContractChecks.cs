@@ -50,7 +50,7 @@ internal static class ClosedPresentationContractChecks
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
                     SamusDeathPaletteArtworkCatalog samusDeath,
-                    SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes,
+                    SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
                     hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));
@@ -59,7 +59,7 @@ internal static class ClosedPresentationContractChecks
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
                     colors.ApplyFlash(cgram, 14);
                     options.CreatePage(GameOptionsTilemap.Primary);
-                    options.ApplySpecialToggle(bytes, dynamicIndex > 0
+                    options.ApplySpecialToggle(cells, dynamicIndex > 0
                         ? GameOptionsToggle.IconCancel
                         : GameOptionsToggle.Moonwalk, false);
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);

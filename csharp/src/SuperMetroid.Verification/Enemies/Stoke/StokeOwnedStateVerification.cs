@@ -23,8 +23,8 @@ internal static class StokeOwnedStateVerification
             slot.SetSpawnParameter2((ushort)record);
             StokeBehavior.InitializeStoke(slot);
             state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
-            SignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize);
-            SignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize + 4);
+            SignedSixteenSixteen right = EnemyLinearSpeeds.Read(record * EnemyLinearSpeedDefinitions.RecordSize);
+            SignedSixteenSixteen left = EnemyLinearSpeeds.Read(record * EnemyLinearSpeedDefinitions.RecordSize + 4);
             AssertEqual(right, state.RightVelocity, $"record {record} rightward speed");
             AssertEqual(left, state.LeftVelocity, $"record {record} leftward speed");
             AssertEqual(StokeAiFunction.Moving, state.Function, $"record {record} walks");

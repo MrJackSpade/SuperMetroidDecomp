@@ -356,7 +356,7 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Blends the first room color toward warm flood and dims the remaining colors by flash strength.</summary>
         private RgbColor Calculate(int frame, int color)
         {
-            int strength = MotherBrainRoomPaletteProgramDefinitions.FlashStrength(frame);
+            int strength = MotherBrainRoomFlashes.FlashStrength(frame);
             // The first level color joins the background highlight; the remaining
             // level colors dim by one quarter per strength step, rounding nearest.
             return basis[color].Zip(MotherBrainRoomFlashPaintDefinitions.WarmFlood, (_, channel, warm) =>

@@ -702,7 +702,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
         stalk.Position = stalk.Position.WithWholeY(unchecked((ushort)(
             body.Position.Y.Whole +
-            SporeSpawnProjectileDefinitions.StalkYOffset(spawnArgument))));
+            SporeSpawnProjectiles.StalkYOffset(spawnArgument))));
     }
 
     /// <summary>Ports projectile definition $86:DE88 and initializer $86:DCD4.</summary>
@@ -719,7 +719,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.SporeSpawnSpawner,
             body.Graphics);
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
-        spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument));
+        spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectiles.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);
     }
 
@@ -747,7 +747,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int movementOffset = unchecked((byte)spore.Variable0);
         Offset16<RoomPixels> movement =
-            SporeSpawnProjectileDefinitions.MovementAt(movementOffset);
+            SporeSpawnProjectiles.MovementAt(movementOffset);
         int xDelta = movement.X;
         if (RoomGridConversions.OffsetWithinScreen(spore.Variable1) >= 128)
             xDelta = -xDelta;
@@ -834,14 +834,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-            SporeSpawnCollisionDefinitions.IsFrame(enemy.Frame)))
+            SporeSpawnCollision.IsFrame(enemy.Frame)))
             return null;
 
         // These twelve OAM frames are selected by Spore Spawn. Old visual
         // overrides may carry Draygon-prefixed keys, but every rectangle
         // and callback comes from the compiled gameplay catalog.
         foreach (SporeSpawnCollisionComponent component in
-                 SporeSpawnCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (SporeSpawnCollisionHitbox hitbox in component.Hitboxes)

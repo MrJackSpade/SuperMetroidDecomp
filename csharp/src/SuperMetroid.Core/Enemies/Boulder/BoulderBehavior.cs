@@ -222,7 +222,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The third impact still installs the leading zero sample before the counter
             // underflows. Preserve that write even though this impact enters rolling.
-            state.BounceSpeedAccumulator = BoulderBounceDefinitions.SpeedIndex(state.BounceCounter.RawValue);
+            state.BounceSpeedAccumulator = BoulderBounces.SpeedIndex(state.BounceCounter.RawValue);
             state.BounceCounter = state.BounceCounter.Decrement().Remaining;
             if (state.BounceCounter.IsNegative)
             {

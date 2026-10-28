@@ -251,7 +251,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The first 24 contour words describe Samus to the left; the second 24 describe
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
-        int contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
+        int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(unchecked((ushort)-contourOffset));
         mama.Properties = mama.Properties.With(EnemyProperties.SolidToSamus);
 
@@ -634,7 +634,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int distance = Math.Abs(signedDifference);
         int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
-            : MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
+            : MamaTurtleShell.GetOffset(signedDifference);
         _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(contourOffset));
 
         if (carryingSamus)

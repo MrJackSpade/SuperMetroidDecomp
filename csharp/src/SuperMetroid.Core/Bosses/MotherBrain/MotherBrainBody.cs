@@ -335,7 +335,7 @@ internal sealed class MotherBrainBody
     {
         Offset16<RoomPixels> fromOrigin = samus.Position.Whole - origin;
         foreach (EnemyHitboxRectangle hitbox in
-            MotherBrainContactHitboxDefinitions.Get(contactPart))
+            MotherBrainContacts.Get(contactPart))
         {
             bool belowOrigin = fromOrigin.Y >= 0;
             int yDistance = Math.Abs(fromOrigin.Y);
@@ -500,7 +500,7 @@ internal sealed class MotherBrainBody
             MotherBrainTurretDefinitions.Graphics);
 
         MotherBrainTurretDefinition definition =
-            MotherBrainTurretDefinitions.ForTurret(parameter);
+            MotherBrainTurrets.ForTurret(parameter);
         MotherBrainTurretDirection direction = definition.InitialDirection;
         turret.DirectionParameter = parameter;
         turret.Position = turret.Position.WithWhole(definition.Position);

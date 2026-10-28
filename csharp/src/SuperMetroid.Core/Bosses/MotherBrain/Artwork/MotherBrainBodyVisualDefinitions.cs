@@ -39,8 +39,8 @@ internal static class MotherBrainBodyVisualDefinitions
         new(EnemyFrameId.MotherBrainBodyDeathBeam3, "mother_brain_body_bg2_death_beam_3"),
     ];
 
-    /// <summary>Whether <paramref name="frame"/> is a body frame with a BG2 stream.</summary>
-    internal static bool HasBg2(EnemyFrameId frame) => Bg2Frames.Any(definition => definition.Frame == frame);
+    /// <summary>The body frames with a BG2 stream.</summary>
+    internal static IReadOnlySet<EnemyFrameId> Bg2FrameIds { get; } = Bg2Frames.Select(definition => definition.Frame).ToHashSet();
 
     /// <summary>The installed frame each <see cref="MotherBrainBodyFrame"/> shows.</summary>
     internal static EnemyFrameTable<MotherBrainBodyFrame> ShownFrames { get; } = new()

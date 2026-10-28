@@ -26,16 +26,21 @@ internal static class KraidArmCollisionDefinitionsAccess
             ? (KraidArmHitboxList)index
             : throw new InvalidDataException($"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled.");
 
-    /// <summary>Calculates Kraid arm collision frame roots from the native record stride.</summary>
-    extension(KraidArmCollisionDefinitions)
+    /// <summary>Reads Kraid arm collision by native address.</summary>
+    extension(KraidArmCollision)
     {
         /// <summary>The hitboxes of the list at bank-$A7 address <paramref name="pointer"/>.</summary>
         internal static ImmutableArray<KraidCollisionHitbox> HitboxesAt(ushort pointer) =>
-            KraidArmCollisionDefinitions.HitboxesAt(HitboxListAt(pointer));
+            KraidArmCollision.HitboxesAt(HitboxListAt(pointer));
 
         /// <summary>The components of the arm frame at native address <paramref name="pointer"/>, when it is one.</summary>
         internal static bool TryGetComponents(ushort pointer, out ImmutableArray<KraidCollisionComponent> components) =>
-            KraidArmCollisionDefinitions.TryGetComponents(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer), out components);
+            KraidArmCollision.TryGetComponents(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer), out components);
+    }
+
+    /// <summary>Calculates Kraid arm collision frame roots from the native record stride.</summary>
+    extension(KraidArmCollisionDefinitions)
+    {
 
         /// <summary>Calculates the ordered physical frame roots from native component-record sizes.</summary>
         /// <remarks>Independently reviewed for #1165 against bank_A7.asm and every original

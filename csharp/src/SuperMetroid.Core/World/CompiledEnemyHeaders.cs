@@ -12,5 +12,5 @@ internal static class CompiledEnemyHeaders
     internal static RoomEnemyDefinition Read(EnemyDefinitionId definitionId) =>
         RoomEnemyAuxiliaryDefinitionCatalog.TryGet(definitionId, out RoomEnemyDefinition auxiliary)
             ? auxiliary
-            : RoomEnemyDefinitionCatalog.Get(definitionId);
+            : RoomEnemyHeaders.Get(definitionId);
 }

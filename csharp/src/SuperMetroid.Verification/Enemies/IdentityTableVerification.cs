@@ -37,7 +37,7 @@ internal static class IdentityTableVerification
 
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];
         var spawned = new List<int>();
-        RidleyExplosionDefinitions.SpawnInBreakupOrder(spawned.Add);
+        RidleyBreakup.SpawnInBreakupOrder(spawned.Add);
         AssertEqual(breakupOrder.Length, spawned.Count, "Ridley breakup spawns twelve parts");
         for (int index = 0; index < breakupOrder.Length; index++)
             AssertEqual(breakupOrder[index], spawned[index], $"Ridley breakup spawn {index} carries its authored parameter");

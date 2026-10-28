@@ -15,14 +15,15 @@ internal static class NuclearWaffleDefinitions
     private const int TurnRadius = 0x40;
     /// <summary>$A6:95FE separates same-kind links by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
-    /// <summary>Derives one of the two mirrored sweeps, including endpoints, link spacing, and turn thresholds.</summary>
-    internal static NuclearWaffleSweepDefinition Sweep(int direction)
-    {
-        if (direction >= 2)
-            throw new InvalidDataException($"Nuclear Waffle direction {direction} is outside the two native sweeps.");
-        int sign = 1 - direction * 2;
-        return new(SweepCenter + sign * SweepRadius, SweepCenter - sign * SweepRadius,
-            (short)(-sign * SegmentPitch), (short)(-sign * SegmentPitch / 2),
-            SweepCenter + sign * TurnRadius, SweepCenter - sign * TurnRadius);
-    }
+    /// <summary>
+    /// The two mirrored sweeps, by direction, each with its endpoints, link spacing and turn thresholds: the first sweeps
+    /// from the far side of the center back, its links trailing; the second is its mirror.
+    /// </summary>
+    internal static readonly NuclearWaffleSweepDefinition[] Sweeps =
+    [
+        new(SweepCenter + SweepRadius, SweepCenter - SweepRadius, -SegmentPitch, -SegmentPitch / 2,
+            SweepCenter + TurnRadius, SweepCenter - TurnRadius),
+        new(SweepCenter - SweepRadius, SweepCenter + SweepRadius, SegmentPitch, SegmentPitch / 2,
+            SweepCenter - TurnRadius, SweepCenter + TurnRadius),
+    ];
 }

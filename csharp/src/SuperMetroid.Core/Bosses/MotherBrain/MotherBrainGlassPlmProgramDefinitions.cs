@@ -35,13 +35,9 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         MotherBrainGlassDraw.Shatter3,
     ];
 
-    /// <summary>Every glass program.</summary>
-    internal static AnimationProgramSet<MotherBrainGlassPlmProgram, MotherBrainGlassDraw, MotherBrainGlassPlmCue> Programs { get; } = new(Build());
-
-    /// <summary>Builds the entry, the nine stages and the two already-resolved states.</summary>
-    private static Dictionary<MotherBrainGlassPlmProgram, Step[]> Build()
-    {
-        var programs = new Dictionary<MotherBrainGlassPlmProgram, Step[]>
+    /// <summary>Every glass program: the entry, the nine stages and the two already-resolved states.</summary>
+    internal static AnimationProgramSet<MotherBrainGlassPlmProgram, MotherBrainGlassDraw, MotherBrainGlassPlmCue> Programs { get; } = new(
+        new Dictionary<MotherBrainGlassPlmProgram, Step[]>
         {
             [MotherBrainGlassPlmProgram.Entry] =
             [
@@ -52,49 +48,53 @@ internal static class MotherBrainGlassPlmProgramDefinitions
             ],
             [MotherBrainGlassPlmProgram.BossDead] = [Step.Show(MotherBrainGlassDraw.Cleared, 1), Step.Stop],
             [MotherBrainGlassPlmProgram.NoGlass] = [Step.Show(MotherBrainGlassDraw.Shatter3, 1), Step.Stop],
-        };
-        for (int stage = 0; stage < Stages.Length; stage++)
-            programs[Stages[stage]] = Stage(stage);
-        return programs;
-    }
+            [MotherBrainGlassPlmProgram.Stage0] = Stage(0),
+            [MotherBrainGlassPlmProgram.Stage1] = Stage(1),
+            [MotherBrainGlassPlmProgram.Stage2] = BurstStage(2, new(MotherBrainGlassPlmCue.Burst(R, R, R, R), MotherBrainGlassPlmCue.Burst(R, R, R, R))),
+            [MotherBrainGlassPlmProgram.Stage3] = Stage(3),
+            [MotherBrainGlassPlmProgram.Stage4] = Stage(4),
+            [MotherBrainGlassPlmProgram.Stage5] = BurstStage(5, new(MotherBrainGlassPlmCue.Burst(L, L, L, L), MotherBrainGlassPlmCue.Burst(L, L, L, L))),
+            [MotherBrainGlassPlmProgram.Stage6] = BurstStage(6, new(MotherBrainGlassPlmCue.Burst(R, R, L, L), MotherBrainGlassPlmCue.Burst(C, C, C, C))),
+            [MotherBrainGlassPlmProgram.Stage7] = BurstStage(7, new(MotherBrainGlassPlmCue.Burst(L, L, C, C), MotherBrainGlassPlmCue.Burst(L, L, C, C))),
+            [MotherBrainGlassPlmProgram.Stage8] = FinalStage(8, new(MotherBrainGlassPlmCue.Burst(L, L, C, C), MotherBrainGlassPlmCue.Burst(L, L, C, C))),
+        });
 
-    /// <summary>Shows a stage and holds it until enough hits; a burst stage then spawns its shards around the next image.</summary>
-    private static Step[] Stage(int stage)
-    {
-        List<Step> steps =
-        [
-            Step.Show(StageDraws[stage], 1),
-            Step.Publish(MotherBrainGlassPlmCue.RepeatUntil(HitsPerStage * (stage + 1))),
-        ];
-        if (BurstOf(stage) is { } burst)
-        {
-            steps.Add(Step.Publish(burst.First));
-            steps.Add(Step.Show(StageDraws[stage + 1], BurstFrameDuration));
-            steps.Add(Step.Publish(burst.Second));
-        }
-        if (stage + 1 < Stages.Length)
-        {
-            steps.Add(Step.FallInto(Stages[stage + 1]));
-            return [.. steps];
-        }
-        steps.Add(Step.Show(StageDraws[stage + 1], FinalShatterDuration));
-        steps.Add(Step.Publish(MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed)));
-        steps.Add(Step.Stop);
-        return [.. steps];
-    }
+    /// <summary>The right emitter.</summary>
+    private const MotherBrainGlassShard R = MotherBrainGlassShard.Right;
+    /// <summary>The left emitter.</summary>
+    private const MotherBrainGlassShard L = MotherBrainGlassShard.Left;
+    /// <summary>The centre emitter.</summary>
+    private const MotherBrainGlassShard C = MotherBrainGlassShard.Centre;
 
-    /// <summary>A burst stage's two groups of four shards, or null for a stage that does not burst.</summary>
-    private static MotherBrainGlassBurst? BurstOf(int stage)
-    {
-        const MotherBrainGlassShard R = MotherBrainGlassShard.Right, L = MotherBrainGlassShard.Left, C = MotherBrainGlassShard.Centre;
-        return stage switch
-        {
-            0 or 1 or 3 or 4 => null,
-            2 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(R, R, R, R), MotherBrainGlassPlmCue.Burst(R, R, R, R)),
-            5 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(L, L, L, L), MotherBrainGlassPlmCue.Burst(L, L, L, L)),
-            6 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(R, R, L, L), MotherBrainGlassPlmCue.Burst(C, C, C, C)),
-            7 or 8 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(L, L, C, C), MotherBrainGlassPlmCue.Burst(L, L, C, C)),
-            _ => throw new ArgumentOutOfRangeException(nameof(stage)),
-        };
-    }
+    /// <summary>Shows a stage and holds it until enough hits, then falls into the next stage.</summary>
+    private static Step[] Stage(int stage) =>
+    [
+        Step.Show(StageDraws[stage], 1),
+        Step.Publish(MotherBrainGlassPlmCue.RepeatUntil(HitsPerStage * (stage + 1))),
+        Step.FallInto(Stages[stage + 1]),
+    ];
+
+    /// <summary>Shows a stage, holds it until enough hits, spawns its two shard groups around the next image, then falls into the next stage.</summary>
+    private static Step[] BurstStage(int stage, MotherBrainGlassBurst burst) =>
+    [
+        Step.Show(StageDraws[stage], 1),
+        Step.Publish(MotherBrainGlassPlmCue.RepeatUntil(HitsPerStage * (stage + 1))),
+        Step.Publish(burst.First),
+        Step.Show(StageDraws[stage + 1], BurstFrameDuration),
+        Step.Publish(burst.Second),
+        Step.FallInto(Stages[stage + 1]),
+    ];
+
+    /// <summary>The last stage: its burst, then the final shatter shown before the destroyed event.</summary>
+    private static Step[] FinalStage(int stage, MotherBrainGlassBurst burst) =>
+    [
+        Step.Show(StageDraws[stage], 1),
+        Step.Publish(MotherBrainGlassPlmCue.RepeatUntil(HitsPerStage * (stage + 1))),
+        Step.Publish(burst.First),
+        Step.Show(StageDraws[stage + 1], BurstFrameDuration),
+        Step.Publish(burst.Second),
+        Step.Show(StageDraws[stage + 1], FinalShatterDuration),
+        Step.Publish(MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed)),
+        Step.Stop,
+    ];
 }

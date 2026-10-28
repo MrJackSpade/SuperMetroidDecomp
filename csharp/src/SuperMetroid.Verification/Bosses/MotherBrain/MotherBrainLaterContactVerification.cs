@@ -21,7 +21,7 @@ internal static class MotherBrainLaterContactVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
-        body.Bind(body.DefinitionId, RoomEnemyDefinitionCatalog.Get(body.DefinitionId));
+        body.Bind(body.DefinitionId, RoomEnemyHeaders.Get(body.DefinitionId));
         var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckJoints[1] = new(250, 80);

@@ -32,7 +32,7 @@ internal sealed class CeresRidleyFades
         state.FunctionTimer = WrappingCountdown.Start(0);
 
         CeresRidleyEyeFadeStep fadeStep =
-            CeresRidleyEyeFadeDefinitions.Get(state.FadePaletteOffset);
+            CeresRidleyEyeFade.Get(state.FadePaletteOffset);
         if (fadeStep.IsComplete)
         {
             state.FadePaletteOffset = 0;

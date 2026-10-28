@@ -27,7 +27,7 @@ internal static class SparkMovementDefinitionsVerification
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.InstructionListTable + selector * 2);
             var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
-            SparkMovementDefinition definition = SparkMovementDefinitions.InitialState(selector);
+            SparkMovementDefinition definition = SparkStarts.InitialState(selector);
             ushort list = definition.Program is { } program
                 ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
                 : SparksNativeWords.SparkEnemyFunctions.Word(SparkEnemyFunction.AlwaysActive);
@@ -43,7 +43,7 @@ internal static class SparkMovementDefinitionsVerification
             AssertEqual(nativeFunction, state.Function, $"Spark production function selector {selector}");
         }
         foreach (ushort highBits in new ushort[] { 4, 0x0100, 0xffff })
-            AssertEqual(SparkMovementDefinitions.InitialState((ushort)(highBits & 3)), SparkMovementDefinitions.InitialState(highBits),
+            AssertEqual(SparkStarts.InitialState((ushort)(highBits & 3)), SparkStarts.InitialState(highBits),
                 $"Spark selector mask {highBits:X4}");
 
         foreach (SparkProgram loop in new[] { SparkProgram.Active, SparkProgram.Emitter })

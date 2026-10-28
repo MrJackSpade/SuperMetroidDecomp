@@ -112,7 +112,7 @@ internal static class LookupStream2Verification
             foreach (var frame in selected)
             {
                 AssertTrue(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "Chozo actual installed display binding");
-                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "Chozo source/supplied part ordering and every visual field remain exact");
             }
             string expected = SelectedPresentationHash.Create("enemy-oam-v2", content =>
@@ -123,7 +123,7 @@ internal static class LookupStream2Verification
                 foreach (var frame in ordered)
                 {
                     content.AppendName("frame", EnemyFrameSheetKeys.Of(frame.Frame));
-                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                    content.AppendEnemyParts(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
                 foreach (var frame in ordered)
                 {
@@ -149,12 +149,12 @@ internal static class LookupStream2Verification
                 Check(Load());
                 visual[index] = original;
                 // Gameplay geometry must not follow an independently edited display anchor.
-                AssertEqual(ChozoCarryMotionDefinitions.Read(5).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
-                AssertEqual(ChozoCarryMotionDefinitions.Read(6).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
+                AssertEqual(ChozoCarry.Read(5).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
+                AssertEqual(ChozoCarry.Read(6).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
             }
         }
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.SupportFootX(4), "Chozo support-phase upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStride.SupportFootX(4), "Chozo support-phase upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
@@ -174,7 +174,7 @@ internal static class LookupStream2Verification
         for (int color = 0; color < native.Length; color++)
         {
             native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
-            AssertEqual(native[color], WreckedShipGhostAppearanceDefinitions.PaletteColor(color), "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], WreckedShipGhostAppearance.PaletteColor(color), "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
             cgram.SetColor(128 + color, RgbColor.FromWord(0x7fff));
@@ -222,8 +222,8 @@ internal static class LookupStream2Verification
             kagoUsage[color]++;
         }
         AssertTrue(kagoUsage.SequenceEqual(expectedKagoUsage), "Exact native Kago pixel-label usage supports each shared paint role; slot0 is transparent");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.PaletteColor(-1), "Ghost color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.PaletteColor(16), "Ghost color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.PaletteColor(-1), "Ghost color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.PaletteColor(16), "Ghost color upper bound");
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 
@@ -1085,7 +1085,7 @@ internal static class LookupStream2Verification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
-            AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Native calculated speed ramp");
+            AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Native calculated speed ramp");
             speedParameter = parameter;
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
@@ -1107,7 +1107,7 @@ internal static class LookupStream2Verification
                     yard.CrawlingVelocity.Y.RawValue, "Actual Yard reset Y magnitude");
             }
         }
-        AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");
+        AssertThrows<InvalidDataException>(() => CrawlerSpeeds.ForParameter(32), "Crawler parameter upper bound");
         Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
     }
     /// <summary>Checks lava-jumper control and visual selectors, parent/follower programs, and handshake.</summary>
@@ -1236,7 +1236,7 @@ internal static class LookupStream2Verification
         {
             var lint = enemies.SlotTable.Slots[slot];
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
-            AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
+            AssertEqual(expected, KraidLints.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
             AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer, "Actual post-growth timer write");
             AssertEqual(0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
@@ -1250,7 +1250,7 @@ internal static class LookupStream2Verification
             }
         }
         foreach (KraidLintPart invalid in new[] { (KraidLintPart)0, (KraidLintPart)1, (KraidLintPart)5 })
-            AssertThrows<InvalidOperationException>(() => KraidLintInitializationDefinitions.InitialDelay(invalid), "Only lint slots have launch policy");
+            AssertThrows<InvalidOperationException>(() => KraidLints.InitialDelay(invalid), "Only lint slots have launch policy");
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
 
@@ -1263,21 +1263,21 @@ internal static class LookupStream2Verification
         for (int column = 0; column < 6; column++)
         {
             EnemyPickupKind expected = (EnemyPickupKind)rom.ReadCartridgeByte(0x86f25e + column);
-            AssertEqual(expected, EnemyDropSelectionDefinitions.ForProbabilityColumn(column),
+            AssertEqual(expected, EnemyDropTables.ForProbabilityColumn(column),
                 "Native probability-column pickup identity");
             var samus = CreateDropTestSamus();
             samus.Health = 50;
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
             var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
-            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(NativeDropChances);
+            projectile.DropChancesOverride = EnemyDropTables.At(NativeDropChances);
             AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
-        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(-1),
+        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropTables.ForProbabilityColumn(-1),
             "Drop column lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(6),
+        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropTables.ForProbabilityColumn(6),
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
@@ -1297,9 +1297,9 @@ internal static class LookupStream2Verification
     {
         for (int member = 0; member < 5; member++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugFormation.NorfairStaggerTarget(member),
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugDefinitions.NorfairPostRiseFunction(member)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugFormation.NorfairPostRiseFunction(member)),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -1332,8 +1332,8 @@ internal static class LookupStream2Verification
                     "Only leader loop counter resets");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugDefinitions.NorfairStaggerTarget(-1), "Formation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugDefinitions.NorfairPostRiseFunction(5), "Formation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairStaggerTarget(-1), "Formation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairPostRiseFunction(5), "Formation upper bound");
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 
@@ -1654,7 +1654,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
-        AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
+        AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
@@ -1810,7 +1810,7 @@ internal static class LookupStream2Verification
         {
             short originalX = unchecked((short)ReadVerificationWord(rom, 0xa89aa8 + 4 * index));
             short originalY = unchecked((short)ReadVerificationWord(rom, 0xa89aaa + 4 * index));
-            var calculated = WreckedShipGhostAppearanceDefinitions.SpawnOffset(index);
+            var calculated = WreckedShipGhostAppearance.SpawnOffset(index);
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
             state.SpawnColumn = index % 3;
@@ -1825,7 +1825,7 @@ internal static class LookupStream2Verification
         for (int offset = 0; offset < 34; offset++)
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
-            AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
+            AssertEqual(original, WreckedShipGhostAppearance.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = WrappingCountdown.Start(1);
             state.FlickerTableOffset = offset;
@@ -1851,10 +1851,10 @@ internal static class LookupStream2Verification
         state.SpawnColumn = 3;
         state.SpawnRow = 0;
         AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(-1), "Ghost spawn lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(17), "Ghost flicker upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(-1), "Ghost spawn lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(9), "Ghost spawn upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.FlickerDuration(-1), "Ghost flicker lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.FlickerDuration(17), "Ghost flicker upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
@@ -1983,8 +1983,8 @@ internal static class LookupStream2Verification
         {
             int deviations = band switch
             {
-                KraidColorCatalog.StockBand stored => stored.deviations.Count,
-                KraidColorCatalog.HealthPalette palette => palette.deviations.Count,
+                KraidStockBand stored => stored.deviations.Count,
+                KraidHealthBands palette => palette.deviations.Count,
                 _ => throw new InvalidDataException($"Stock Kraid {name} is not a deviation-storing band."),
             };
             AssertEqual(0, deviations, $"Stock Kraid {name} stores no colors beyond the calculated paint");
@@ -1992,7 +1992,7 @@ internal static class LookupStream2Verification
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPalettes.ColorCount(source); index++)
             AssertEqual(ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index),
-                KraidPaintDefinitions.Color(source, index), $"Kraid {source} stock paint {index}");
+                KraidPaint.Color(source, index), $"Kraid {source} stock paint {index}");
         Check(stock, document);
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
@@ -2198,7 +2198,7 @@ internal static class LookupStream2Verification
                 {
                     var wanted = expected[component];
                     var found = actual.Span[component];
-                    var parts = EnemySpritemapCatalog.CompileParts(wanted.Parts, frame.Name);
+                    var parts = EnemySpritemaps.CompileParts(wanted.Parts, frame.Name);
                     AssertEqual((short)wanted.OffsetX, found.Offset.X, "Golden Torizo independent component X");
                     AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
@@ -2223,7 +2223,7 @@ internal static class LookupStream2Verification
                     foreach (var component in components)
                     {
                         content.Append("offset-x", component.OffsetX); content.Append("offset-y", component.OffsetY);
-                        content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(component.Parts, frame.Name));
+                        content.AppendEnemyParts(EnemySpritemaps.CompileParts(component.Parts, frame.Name));
                     }
                 }
                 foreach (var frame in orderedFrames)
@@ -2248,7 +2248,7 @@ internal static class LookupStream2Verification
                 parts[index] = original with { OffsetX = original.OffsetX + 1 };
                 Check(Load());
                 for (ushort offset = 0; offset <= 38; offset++)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalk.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
                 parts[index] = original;
                 edits++;
             }
@@ -2257,7 +2257,7 @@ internal static class LookupStream2Verification
         (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[selected[0].Name] = selected[1].Name;
         Check(Load());
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(10), "Golden Torizo phase upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStride.HorizontalAdvance(10), "Golden Torizo phase upper bound");
         Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,36independent foot-X edits,display rebind/hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
     }
 

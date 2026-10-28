@@ -123,7 +123,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)animation) < 0 || animation >= 4)
             animation = 0;
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(
-            WorkRobotInitializationDefinitions.InitialProgram(animation));
+            WorkRobotPoses.InitialProgram(animation));
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -369,7 +369,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             "Work Robot palette animation requires installed artwork."))
             .ApplyFrame(animated, record);
         WorkRobotPaletteAnimationTimer =
-            WrappingCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(recordByteOffset));
+            WrappingCountdown.FromRaw(WorkRobotPaletteTiming.DurationForByteOffset(recordByteOffset));
         WorkRobotPaletteAnimationRecord = record + 1;
     }
 

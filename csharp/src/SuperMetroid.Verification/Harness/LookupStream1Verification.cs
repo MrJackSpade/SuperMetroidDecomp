@@ -1697,26 +1697,26 @@ internal static class LookupStream1Verification
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1PowampMotionRomByte(rom, address), LookupStream1PowampMotionRomByte(rom, address + 1))));
         for (int phase = 0; phase < 12; phase++)
-            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotionDefinitions.WiggleOffset(phase), "Powamp native wiggle triangle");
+            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotion.WiggleOffset(phase), "Powamp native wiggle triangle");
         for (int pose = 0; pose < 3; pose++)
         {
-            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotionDefinitions.BalloonOffset(pose, false), "Powamp native rising balloon offset");
-            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotionDefinitions.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
+            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonOffset(pose, false), "Powamp native rising balloon offset");
+            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
         }
         for (int direction = 0; direction < 8; direction++)
         {
-            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotionDefinitions.SpikeXAcceleration(direction), "Powamp native spike X acceleration");
-            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotionDefinitions.SpikeYAcceleration(direction), "Powamp native spike Y acceleration");
+            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeXAcceleration(direction), "Powamp native spike X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeYAcceleration(direction), "Powamp native spike Y acceleration");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.WiggleOffset(invalid), "Powamp wiggle domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             for (int sinking = 0; sinking < 2; sinking++)
-                AssertThrows<ArgumentOutOfRangeException>(() => PowampMotionDefinitions.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
+                AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeXAcceleration(invalid), "Powamp X direction domain");
-            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeYAcceleration(invalid), "Powamp Y direction domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeXAcceleration(invalid), "Powamp X direction domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeYAcceleration(invalid), "Powamp Y direction domain");
         }
     }
 
@@ -1728,23 +1728,23 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1EnemyMovementRomByte(rom, address), LookupStream1EnemyMovementRomByte(rom, address + 1));
         for (ushort index = 0; index < 13; index++)
         {
-            var intervals = BullMovementDefinitions.Intervals(index);
+            var intervals = BullMotion.Intervals(index);
             AssertEqual(Word(0xa8d895 + 4 * index), intervals.Acceleration, "stream1 Bull acceleration interval");
             AssertEqual(Word(0xa8d897 + 4 * index), intervals.Deceleration, "stream1 Bull deceleration interval");
         }
         for (int direction = 0; direction < 10; direction++)
-            AssertEqual(Word(0xa8d871 + 2 * direction), BullMovementDefinitions.ShotAngle(direction), "stream1 Bull compass angle");
+            AssertEqual(Word(0xa8d871 + 2 * direction), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BullMovementDefinitions.ShotAngle(invalid), "stream1 Bull invalid direction");
-        AssertThrows<InvalidDataException>(() => BullMovementDefinitions.Intervals(13), "stream1 Bull invalid interval");
+            AssertThrows<InvalidDataException>(() => BullMotion.ShotAngle(invalid), "stream1 Bull invalid direction");
+        AssertThrows<InvalidDataException>(() => BullMotion.Intervals(13), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
-            AssertEqual(Word(0xa29f36 + 2 * index), CacatacMovementDefinitions.TravelDistance(index), "stream1 Cacatac patrol blocks");
+            AssertEqual(Word(0xa29f36 + 2 * index), CacatacPatrol.TravelDistance(index), "stream1 Cacatac patrol blocks");
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })
-            AssertThrows<InvalidDataException>(() => CacatacMovementDefinitions.TravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
+            AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
         for (ushort direction = 0; direction < 20; direction += 2)
-            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacProjectileDefinitions.Program((CacatacSpikeDirection)direction)), "stream1 Cacatac named direction program");
+            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Program((CacatacSpikeDirection)direction)), "stream1 Cacatac named direction program");
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.Program((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
+            AssertThrows<InvalidDataException>(() => CacatacSpikes.Program((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
     }
 
     /// <summary>Reads native Bull and related enemy motion words.</summary>
@@ -1825,16 +1825,16 @@ internal static class LookupStream1Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForSlot(invalid), "spread native slot rejection");
         for (int index = 0; index < 22; index++)
         {
-            var frame = HibashiDefinitions.ActivityFrame(index);
+            var frame = HibashiEruption.ActivityFrame(index);
             AssertEqual(Word(0xa68dbb + index * 2), frame.YOffset, "Hibashi native collision rise");
             AssertEqual(Word(0xa68de7 + index * 2), frame.YRadius, "Hibashi native collision radius");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 22, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HibashiDefinitions.ActivityFrame(invalid), "Hibashi native frame rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(invalid), "Hibashi native frame rejection");
         for (ushort selector = 0; selector < 6; selector++)
         {
-            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonAnimationDefinitions.Program((DragonAnimationSelector)selector)), "Dragon native phase/facing program");
-            var role = EscapeEtecoonDefinitions.Initialization(selector);
+            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program((DragonAnimationSelector)selector)), "Dragon native phase/facing program");
+            var role = EscapeEtecoons.Initialization(selector);
             int offset = selector & ~1;
             AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
             AssertEqual(Word(0xb3e71e + offset), role.Position.Y, "Etecoon native role Y");
@@ -1844,8 +1844,8 @@ internal static class LookupStream1Verification
         }
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => DragonAnimationDefinitions.Program((DragonAnimationSelector)invalid), "Dragon invalid selector rejection");
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoonDefinitions.Initialization(invalid), "Etecoon invalid role rejection");
+            AssertThrows<InvalidDataException>(() => DragonPhases.Program((DragonAnimationSelector)invalid), "Dragon invalid selector rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoons.Initialization(invalid), "Etecoon invalid role rejection");
         }
     }
 

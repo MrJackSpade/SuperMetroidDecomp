@@ -74,7 +74,7 @@ internal sealed class CrocomireBg2
     internal void UpdateCrocomireBg2Scroll(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
+        CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2Alignment.VerticalScroll(
             body.Position.Y.Whole, body.Frame));
         UpdateCrocomireTongueAndBg2Horizontal(state);
     }

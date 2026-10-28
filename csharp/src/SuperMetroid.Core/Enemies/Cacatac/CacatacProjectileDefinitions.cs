@@ -43,39 +43,37 @@ internal static class CacatacProjectileDefinitions
         SignedEightEight.FromSignedRaw(384));
 
     /// <summary>
-    /// $86:D96A CacatacSpike_InstListPointers: dispatch the spike direction and
-    /// facing to its corresponding named animation program.
+    /// $86:D96A CacatacSpike_InstListPointers: each spike direction and facing's named animation program.
     /// </summary>
-    internal static CacatacProjectileProgram Program(CacatacSpikeDirection direction)
+    internal static readonly Dictionary<CacatacSpikeDirection, CacatacProjectileProgram> Programs = new()
     {
-        return direction switch
-        {
-            CacatacSpikeDirection.LeftFacingUp => CacatacProjectileProgram.LeftFacingUp,
-            CacatacSpikeDirection.Up => CacatacProjectileProgram.Up,
-            CacatacSpikeDirection.RightFacingUp => CacatacProjectileProgram.RightFacingUp,
-            CacatacSpikeDirection.LeftFacingDown => CacatacProjectileProgram.LeftFacingDown,
-            CacatacSpikeDirection.Down => CacatacProjectileProgram.Down,
-            CacatacSpikeDirection.RightFacingDown => CacatacProjectileProgram.RightFacingDown,
-            CacatacSpikeDirection.UpLeft => CacatacProjectileProgram.UpLeft,
-            CacatacSpikeDirection.UpRight => CacatacProjectileProgram.UpRight,
-            CacatacSpikeDirection.DownLeft => CacatacProjectileProgram.DownLeft,
-            CacatacSpikeDirection.DownRight => CacatacProjectileProgram.DownRight,
-            _ => throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten native selectors."),
-        };
-    }
+        [CacatacSpikeDirection.LeftFacingUp] = CacatacProjectileProgram.LeftFacingUp,
+        [CacatacSpikeDirection.Up] = CacatacProjectileProgram.Up,
+        [CacatacSpikeDirection.RightFacingUp] = CacatacProjectileProgram.RightFacingUp,
+        [CacatacSpikeDirection.LeftFacingDown] = CacatacProjectileProgram.LeftFacingDown,
+        [CacatacSpikeDirection.Down] = CacatacProjectileProgram.Down,
+        [CacatacSpikeDirection.RightFacingDown] = CacatacProjectileProgram.RightFacingDown,
+        [CacatacSpikeDirection.UpLeft] = CacatacProjectileProgram.UpLeft,
+        [CacatacSpikeDirection.UpRight] = CacatacProjectileProgram.UpRight,
+        [CacatacSpikeDirection.DownLeft] = CacatacProjectileProgram.DownLeft,
+        [CacatacSpikeDirection.DownRight] = CacatacProjectileProgram.DownRight,
+    };
 
     /// <summary>
-    /// The native initializer compares its even direction selector to $000C
-    /// at $86:D9CA. For directions $00..$0A, magnitude is $0200; for
-    /// $0C..$12, magnitude is $0180. The positive word is that signed 8.8
-    /// magnitude and the negative word is its 16-bit two's complement.
+    /// Each spike direction's launch speeds. The native initializer compares its even direction selector to $000C at
+    /// $86:D9CA: directions $00..$0A are cardinal, with magnitude $0200; $0C..$12 are diagonal, with magnitude $0180.
     /// </summary>
-    internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction)
+    internal static readonly Dictionary<CacatacSpikeDirection, CacatacSpikeSpeedPair> Speeds = new()
     {
-        _ = Program(direction); // Apply the identical native direction domain.
-        return direction is CacatacSpikeDirection.UpLeft or CacatacSpikeDirection.UpRight or
-                CacatacSpikeDirection.DownLeft or CacatacSpikeDirection.DownRight
-            ? DiagonalSpeeds
-            : CardinalSpeeds;
-    }
+        [CacatacSpikeDirection.LeftFacingUp] = CardinalSpeeds,
+        [CacatacSpikeDirection.Up] = CardinalSpeeds,
+        [CacatacSpikeDirection.RightFacingUp] = CardinalSpeeds,
+        [CacatacSpikeDirection.LeftFacingDown] = CardinalSpeeds,
+        [CacatacSpikeDirection.Down] = CardinalSpeeds,
+        [CacatacSpikeDirection.RightFacingDown] = CardinalSpeeds,
+        [CacatacSpikeDirection.UpLeft] = DiagonalSpeeds,
+        [CacatacSpikeDirection.UpRight] = DiagonalSpeeds,
+        [CacatacSpikeDirection.DownLeft] = DiagonalSpeeds,
+        [CacatacSpikeDirection.DownRight] = DiagonalSpeeds,
+    };
 }

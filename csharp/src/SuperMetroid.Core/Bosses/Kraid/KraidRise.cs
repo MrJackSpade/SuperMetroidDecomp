@@ -120,8 +120,8 @@ internal sealed class KraidRise
     {
         for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
             _room.Services.RoomScroll.Write(index, layout == KraidScrollLayout.Grown
-                ? KraidCameraDefinitions.GrownScroll(index)
-                : KraidCameraDefinitions.InitialScroll(index));
+                ? KraidCamera.GrownScroll(index)
+                : KraidCamera.InitialScroll(index));
     }
 
     /// <summary>
@@ -198,7 +198,7 @@ internal sealed class KraidRise
                 if ((body.Position.Y.Whole & 3) == 0 && state.Parts[body.SlotIndex].CeilingRockOffset < 18)
                 {
                     int ceilingIndex = state.Parts[body.SlotIndex].CeilingRockOffset / 2;
-                    int rockX = KraidCeilingRockPositionDefinitions.AtByteOffset(state.Parts[body.SlotIndex].CeilingRockOffset);
+                    int rockX = KraidCeilingRocks.AtByteOffset(state.Parts[body.SlotIndex].CeilingRockOffset);
                     if (_background.SpawnKraidCeilingRock(rockX))
                         state.CeilingRockSpawnCount++;
                     _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
@@ -308,7 +308,7 @@ internal sealed class KraidRise
         {
             int slot = KraidLintInitializationDefinitions.Slot[part];
             RoomEnemySlot lint = _slotTable.Slots[slot];
-            state.Parts[lint.SlotIndex].FunctionTimer = KraidLintInitializationDefinitions.InitialDelay(part);
+            state.Parts[lint.SlotIndex].FunctionTimer = KraidLints.InitialDelay(part);
             state.Parts[lint.SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
             state.Parts[slot].NextFunction = KraidAiFunction.LintProduce;
             state.Parts[lint.SlotIndex].LintTravel = 0;

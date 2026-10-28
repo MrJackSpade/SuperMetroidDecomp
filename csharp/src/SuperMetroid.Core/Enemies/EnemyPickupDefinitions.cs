@@ -18,18 +18,13 @@ internal static class EnemyPickupDefinitions
     /// <c>$86:EF04-$86:EF0F</c>: each kind's table offset and drop program. <see cref="EnemyPickupKind.None"/> has no
     /// program, and <see cref="EnemyPickupKind.NoDrop"/> is not part of the table; the dormant pickup path handles both.
     /// </summary>
-    internal static EnemyPickupAnimationDefinition Animation(EnemyPickupKind kind)
+    internal static readonly Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new()
     {
-        return kind switch
-        {
-            EnemyPickupKind.None => new(0, null),
-            EnemyPickupKind.SmallEnergy => new(2, EnemyDeathProjectileProgram.SmallEnergy),
-            EnemyPickupKind.BigEnergy => new(4, EnemyDeathProjectileProgram.BigEnergy),
-            EnemyPickupKind.PowerBomb => new(6, EnemyDeathProjectileProgram.PowerBombs),
-            EnemyPickupKind.Missile => new(8, EnemyDeathProjectileProgram.Missiles),
-            EnemyPickupKind.SuperMissile => new(10, EnemyDeathProjectileProgram.SuperMissiles),
-            EnemyPickupKind.NoDrop => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
-            _ => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
-        };
-    }
+        [EnemyPickupKind.None] = new(0, null),
+        [EnemyPickupKind.SmallEnergy] = new(2, EnemyDeathProjectileProgram.SmallEnergy),
+        [EnemyPickupKind.BigEnergy] = new(4, EnemyDeathProjectileProgram.BigEnergy),
+        [EnemyPickupKind.PowerBomb] = new(6, EnemyDeathProjectileProgram.PowerBombs),
+        [EnemyPickupKind.Missile] = new(8, EnemyDeathProjectileProgram.Missiles),
+        [EnemyPickupKind.SuperMissile] = new(10, EnemyDeathProjectileProgram.SuperMissiles),
+    };
 }

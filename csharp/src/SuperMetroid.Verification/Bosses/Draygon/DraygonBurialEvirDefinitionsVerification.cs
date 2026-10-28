@@ -21,7 +21,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         for (int entry = 0; entry < 6; entry++)
         {
             DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirDefinitions.ForEntry(entry);
+                DraygonBurialEvirs.ForEntry(entry);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4)), definition.SubspeedMagnitude.X.Fraction,
                 $"Draygon burial Evir {entry} X subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4 + 2)), definition.SubspeedMagnitude.Y.Fraction,
@@ -37,10 +37,10 @@ internal static class DraygonBurialEvirDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonBurialEvirDefinitions.ForEntry(-1),
+            () => DraygonBurialEvirs.ForEntry(-1),
             "Draygon burial Evir negative entry");
         AssertThrows<InvalidDataException>(
-            () => DraygonBurialEvirDefinitions.ForEntry(6),
+            () => DraygonBurialEvirs.ForEntry(6),
             "Draygon burial Evir entry past table");
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
@@ -55,7 +55,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[
                 spriteSlotCount - 1 - (5 - entry)];
             DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirDefinitions.ForEntry(entry);
+                DraygonBurialEvirs.ForEntry(entry);
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
             AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
             AssertEqual(definition.Initial.X, sprite.Position.X.Whole,
@@ -72,7 +72,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[
                 spriteSlotCount - 1 - (5 - entry)];
             DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirDefinitions.ForEntry(entry);
+                DraygonBurialEvirs.ForEntry(entry);
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(
                 definition.Initial.X,
                 definition.SubspeedMagnitude.X.Fraction,

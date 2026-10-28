@@ -23,22 +23,9 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
     /// <exception cref="ArgumentNullException"><paramref name="sheets"/> is null.</exception>
     /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the native page extent, or the mapping contains additional identities.</exception>
     public MotherBrainSpecialSpriteArtworkCatalog(
-        IReadOnlyDictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets)
-    {
-        Ensure.NotNull(sheets);
-        this.sheets = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>(sheets);
-        if (this.sheets.Count != MotherBrainSpecialSpriteArtworkDefinitions.All.Count ||
-            MotherBrainSpecialSpriteArtworkDefinitions.All.Any(definition =>
-                !this.sheets.TryGetValue(definition.Sheet, out RoomCharacterAtlas? artwork) ||
-                artwork is null || artwork.Characters.Length != definition.ByteCount))
-            throw new InvalidDataException(
-                "Mother Brain special artwork requires all four nonnull native source sheets with complete transfer pages.");
-    }
+        IReadOnlyDictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets) =>
+        this.sheets = MotherBrainSpecialSprites.Validated(sheets);
 
     /// <summary>Returns the validated installed characters of <paramref name="sheet"/>.</summary>
-    public RoomCharacterAtlas Get(MotherBrainSpritePageSheet sheet) =>
-        sheets.TryGetValue(sheet, out RoomCharacterAtlas? artwork)
-            ? artwork
-            : throw new InvalidDataException(
-                $"Installed Mother Brain special artwork is missing the {sheet} sheet.");
+    public RoomCharacterAtlas Get(MotherBrainSpritePageSheet sheet) => MotherBrainSpecialSprites.Get(sheets, sheet);
 }

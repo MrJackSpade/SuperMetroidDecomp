@@ -16,11 +16,6 @@ internal readonly record struct EnemyProjectileDefinition(
     EnemyProjectilePropertyFlags Properties,
     EnemyProjectileSamusTouch SamusTouch)
 {
-    /// <summary>The draw pass: high priority when the definition says so.</summary>
-    internal EnemyProjectileDrawPriority DrawPriority =>
-        Properties.HasFlag(EnemyProjectilePropertyFlags.HighPriority)
-            ? EnemyProjectileDrawPriority.High
-            : EnemyProjectileDrawPriority.Low;
     /// <summary>Whether the projectile's damage value affects Samus.</summary>
     internal bool CanDamageSamus => !Properties.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus);
     /// <summary>Whether the projectile is retained after touching Samus.</summary>

@@ -23,8 +23,8 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Mother Brain glass", MotherBrainGlassPlmDrawDefinitions.All,
-            MotherBrainGlassPlmDrawDefinitions.VisualId);
+            VisualFileName, "Mother Brain glass", MotherBrainGlassDraws.All,
+            MotherBrainGlassDraws.VisualId);
 
     /// <summary>Validates installed stock glass appearance and selects an optional complete visual replacement while preserving glass mechanics.</summary>
     /// <param name="stockDirectory">Family directory containing the required stock JSON and version-one manifest.</param>
@@ -36,7 +36,7 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     public static RoomPlmMotherBrainGlassVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", MotherBrainGlassPlmDrawDefinitions.All, MotherBrainGlassPlmDrawDefinitions.VisualId, entries => new RoomPlmMotherBrainGlassVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", MotherBrainGlassDraws.All, MotherBrainGlassDraws.VisualId, entries => new RoomPlmMotherBrainGlassVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Runs stock glass manifest, integrity, schema, and compiled-appearance checks without overrides, cartridge reads, or file writes.</summary>

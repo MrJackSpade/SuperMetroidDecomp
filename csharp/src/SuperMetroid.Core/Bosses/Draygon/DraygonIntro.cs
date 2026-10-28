@@ -40,7 +40,7 @@ internal sealed class DraygonIntro
         {
             if (state.FunctionTimer.IsZero)
             {
-                RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir);
+                RoomEnemyDefinition evir = RoomEnemyHeaders.Get(EnemyDefinitionId.Evir);
                 if (evir.TileByteCount != DraygonIntroPresentationDefinitions.EvirTilesByteCount)
                     throw new InvalidDataException(
                         "Draygon opening Evir sheet no longer has the compiled transfer length.");
@@ -98,12 +98,12 @@ internal sealed class DraygonIntro
         {
             RoomSpriteObjectSlot sprite = _spriteObjects.Slots[slotIndex];
             int streamIndex = state.FightIntroDanceIndex +
-                DraygonIntroDanceDefinitions.MovementLatencyForSlot(slotIndex);
+                DraygonIntroDance.MovementLatencyForSlot(slotIndex);
             if (streamIndex < 0 || !sprite.IsActive)
                 continue;
 
             DraygonIntroMovement movement =
-                DraygonIntroDanceDefinitions.ResolveMovement(streamIndex);
+                DraygonIntroDance.ResolveMovement(streamIndex);
 
             if (movement.DeletesSprite)
             {

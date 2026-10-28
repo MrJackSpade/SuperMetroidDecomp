@@ -313,7 +313,7 @@ internal sealed class TorizoCombat
             return null;
 
         foreach (GoldenTorizoCollisionComponent component in
-                 TorizoCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 TorizoCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             IReadOnlyList<GoldenTorizoCollisionHitbox> rectangles = component.Hitboxes.Rectangles;

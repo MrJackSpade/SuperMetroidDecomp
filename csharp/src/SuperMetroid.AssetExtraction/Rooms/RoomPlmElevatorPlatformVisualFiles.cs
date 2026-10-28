@@ -104,7 +104,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 ElevatorPlatformDraws.DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
@@ -135,7 +135,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                ElevatorPlatformPlmDefinitions.VisualId(list.Draw), visuals.ToArray()));
+                ElevatorPlatformDraws.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
@@ -146,7 +146,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ElevatorPlatformPlmDefinitions.DrawLists)
+                 ElevatorPlatformDraws.DrawLists)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
         {
@@ -155,7 +155,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
             if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock elevator-platform visuals {path} differ from compiled frame " +
-                    ElevatorPlatformPlmDefinitions.VisualId(list.Draw) + ".");
+                    ElevatorPlatformDraws.VisualId(list.Draw) + ".");
         }
     }
 

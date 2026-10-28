@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -9,121 +9,101 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 internal static class DraygonCannonPlmDrawDefinitions
 {
+    /// <summary>The facing, shield state and frame of each of the twelve reachable cannon draws.</summary>
+    internal static readonly Dictionary<DraygonCannonDraw, DraygonCannonDraws.Draw> Draws = new()
+    {
+        [DraygonCannonDraw.RightShieldA] = new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0),
+        [DraygonCannonDraw.RightShieldB] = new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1),
+        [DraygonCannonDraw.RightDamagedA] = new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 0),
+        [DraygonCannonDraw.RightDamagedB] = new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 1),
+        [DraygonCannonDraw.RightDamagedC] = new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 2),
+        [DraygonCannonDraw.RightDamagedD] = new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 3),
+        [DraygonCannonDraw.LeftShieldA] = new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 0),
+        [DraygonCannonDraw.LeftShieldB] = new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 1),
+        [DraygonCannonDraw.LeftDamagedA] = new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 0),
+        [DraygonCannonDraw.LeftDamagedB] = new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1),
+        [DraygonCannonDraw.LeftDamagedC] = new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2),
+        [DraygonCannonDraw.LeftDamagedD] = new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3),
+    };
+
     /// <summary>
-    /// Twelve 2x2 cannon frames. Right lists have two horizontal rows; left lists
-    /// split the first row into origin and left cells, preserving native write order.
-    /// Shield frames advance two tiles; damaged frames advance one. Lower tiles
-    /// are one tileset row (32 tiles) below their upper partners. Right art mirrors X.
+    /// The cells of each of the twelve 2x2 cannon frames, one row per run in native write order. Right lists have two
+    /// horizontal rows; left lists split the first row into origin and left cells. Shield frames advance two tiles;
+    /// damaged frames advance one and leave the cells beside the core empty. Lower tiles are one tileset row (32 tiles)
+    /// below their upper partners. Right art mirrors X.
     /// </summary>
-    internal readonly record struct Draw(HorizontalDirection Side, DraygonCannonCondition Condition, int Frame) : IPlmRunDrawShape
+    internal static readonly Dictionary<DraygonCannonDraws.Draw, RoomLevelWord[][]> Cells = new()
     {
-        /// <summary>Whether the cannon faces right.</summary>
-        internal bool Right => Side == HorizontalDirection.Right;
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0)] = RightShield(0),
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1)] = RightShield(1),
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 0)] = RightDamaged(0),
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 1)] = RightDamaged(1),
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 2)] = RightDamaged(2),
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 3)] = RightDamaged(3),
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 0)] = LeftShield(0),
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 1)] = LeftShield(1),
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 0)] = LeftDamaged(0),
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1)] = LeftDamaged(1),
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2)] = LeftDamaged(2),
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3)] = LeftDamaged(3),
+    };
 
-        /// <summary>Whether the frame shows the shield.</summary>
-        internal bool Shield => Condition == DraygonCannonCondition.Shielded;
-
-        /// <summary>Right frames draw two horizontal runs; left frames split the first row.</summary>
-        public int RunCount => Right ? 2 : 3;
-        /// <summary>Rejects a draw-run index outside this frame's native write order.</summary>
-        private void CheckRun(int run)
-        {
-            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-        }
-        /// <summary>Counts cells in a horizontal cannon row or split left-side run.</summary>
-        public int WordCount(int run)
-        {
-            CheckRun(run);
-            return Right || run == 2 ? 2 : 1;
-        }
-        /// <summary>Moves left between split top-row cells and otherwise keeps the X cursor.</summary>
-        public sbyte NextX(int run)
-        {
-            CheckRun(run);
-            return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
-        }
-        /// <summary>Advances to the lower row after the right row or left split pair.</summary>
-        public sbyte NextY(int run)
-        {
-            CheckRun(run);
-            return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
-        }
-        /// <summary>Calculates a cannon cell's collision nibble, mirror bit, and shield or damage tile.</summary>
-        public ushort WordAt(int run, int cell)
-        {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            int row = Right ? run : run == 2 ? 1 : 0;
-            bool core = Right ? cell == 0 : run == 0 || run == 2 && cell == 1;
-            if (!Shield && !core) return 0x00ff;
-            int tile = Shield ? 0x113 + Frame * 2 + (core ? 1 : 0) : 0x180 + Frame;
-            int collision = !core ? 0 : Shield ? 12 + row : 10;
-            return (ushort)(collision << 12 | (Right ? 0x400 : 0) | (tile + row * 32));
-        }
-    }
-
-    /// <summary>Decodes one of the twelve reachable cannon draw pointers into facing, shield state, and frame.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    /// <summary>Each reachable cannon draw's editable artwork key: its facing, condition and pose.</summary>
+    internal static readonly Dictionary<DraygonCannonDraw, string> VisualIds = new()
     {
-        if (request is not PlmFrameDraw<DraygonCannonDraw>) { draw = default; return false; }
-        draw = PlmDraw.FrameOf<DraygonCannonDraw>(request, "DraygonCannonDraw") switch
-        {
-            DraygonCannonDraw.RightShieldA => new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0),
-            DraygonCannonDraw.RightShieldB => new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1),
-            DraygonCannonDraw.RightDamagedA => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 0),
-            DraygonCannonDraw.RightDamagedB => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 1),
-            DraygonCannonDraw.RightDamagedC => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 2),
-            DraygonCannonDraw.RightDamagedD => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 3),
-            DraygonCannonDraw.LeftShieldA => new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 0),
-            DraygonCannonDraw.LeftShieldB => new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 1),
-            DraygonCannonDraw.LeftDamagedA => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 0),
-            DraygonCannonDraw.LeftDamagedB => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1),
-            DraygonCannonDraw.LeftDamagedC => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2),
-            DraygonCannonDraw.LeftDamagedD => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3),
-            _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}."),
-        };
-        return true;
-    }
+        [DraygonCannonDraw.RightShieldA] = "right-shield-a",
+        [DraygonCannonDraw.RightShieldB] = "right-shield-b",
+        [DraygonCannonDraw.RightDamagedA] = "right-damaged-a",
+        [DraygonCannonDraw.RightDamagedB] = "right-damaged-b",
+        [DraygonCannonDraw.RightDamagedC] = "right-damaged-c",
+        [DraygonCannonDraw.RightDamagedD] = "right-damaged-d",
+        [DraygonCannonDraw.LeftShieldA] = "left-shield-a",
+        [DraygonCannonDraw.LeftShieldB] = "left-shield-b",
+        [DraygonCannonDraw.LeftDamagedA] = "left-damaged-a",
+        [DraygonCannonDraw.LeftDamagedB] = "left-damaged-b",
+        [DraygonCannonDraw.LeftDamagedC] = "left-damaged-c",
+        [DraygonCannonDraw.LeftDamagedD] = "left-damaged-d",
+    };
 
-    /// <summary>Enumerates only the right and left cannon lists reached by the PLM programs.</summary>
-    private static IEnumerable<PlmDraw> Draws()
-    {
-        foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return PlmDraw.Of(draw);
-    }
-    /// <summary>Builds temporary draw-list views for all reachable cannon frames.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (PlmDraw draw in Draws())
-            {
-                TryGet(draw, out var list);
-                yield return list;
-            }
-        }
-    }
-    /// <summary>Builds a temporary artwork draw-list DTO; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.TryCompile<Draw>(request, TryDescribe, out list);
-    /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
-    /// <summary>Maps a native cannon draw pointer to its facing, condition, and pose ID.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        PlmDraw.FrameOf<DraygonCannonDraw>(request, "Draygon cannon draw with a visual ID") switch
-        {
-            DraygonCannonDraw.RightShieldA => "right-shield-a",
-            DraygonCannonDraw.RightShieldB => "right-shield-b",
-            DraygonCannonDraw.RightDamagedA => "right-damaged-a",
-            DraygonCannonDraw.RightDamagedB => "right-damaged-b",
-            DraygonCannonDraw.RightDamagedC => "right-damaged-c",
-            DraygonCannonDraw.RightDamagedD => "right-damaged-d",
-            DraygonCannonDraw.LeftShieldA => "left-shield-a",
-            DraygonCannonDraw.LeftShieldB => "left-shield-b",
-            DraygonCannonDraw.LeftDamagedA => "left-damaged-a",
-            DraygonCannonDraw.LeftDamagedB => "left-damaged-b",
-            DraygonCannonDraw.LeftDamagedC => "left-damaged-c",
-            DraygonCannonDraw.LeftDamagedD => "left-damaged-d",
-            _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}."),
-        };
+    /// <summary>The empty cell a damaged frame leaves beside its core.</summary>
+    private static RoomLevelWord Empty => RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air);
 
+    /// <summary>A right shield frame: the shootable core then its rim, over the core's extension and the lower rim.</summary>
+    private static RoomLevelWord[][] RightShield(int frame) =>
+    [
+        [
+            RoomLevelWord.Create(0x114 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.ShootableBlock),
+            RoomLevelWord.Create(0x113 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
+        ],
+        [
+            RoomLevelWord.Create(0x134 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
+            RoomLevelWord.Create(0x133 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
+        ],
+    ];
+
+    /// <summary>A right damaged frame: the spiked core over its lower half, each beside an empty cell.</summary>
+    private static RoomLevelWord[][] RightDamaged(int frame) =>
+    [
+        [RoomLevelWord.Create(0x180 + frame, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock), Empty],
+        [RoomLevelWord.Create(0x1a0 + frame, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock), Empty],
+    ];
+
+    /// <summary>A left shield frame: the shootable core, the rim to its left, then the lower rim and core extension.</summary>
+    private static RoomLevelWord[][] LeftShield(int frame) =>
+    [
+        [RoomLevelWord.Create(0x114 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock)],
+        [RoomLevelWord.Create(0x113 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.Air)],
+        [
+            RoomLevelWord.Create(0x133 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+            RoomLevelWord.Create(0x134 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
+        ],
+    ];
+
+    /// <summary>A left damaged frame: the spiked core, an empty cell to its left, then an empty cell and the lower half.</summary>
+    private static RoomLevelWord[][] LeftDamaged(int frame) =>
+    [
+        [RoomLevelWord.Create(0x180 + frame, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock)],
+        [Empty],
+        [Empty, RoomLevelWord.Create(0x1a0 + frame, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock)],
+    ];
 }

@@ -22,7 +22,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
             AssertEqual(expected,
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosionDefinitions.Program(animation)),
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(animation)),
                 $"enemy death explosion program {animation}");
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -35,7 +35,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
                 $"production enemy death explosion kind {animation}");
-            AssertEqual(EnemyDeathExplosionDefinitions.Program(animation), ProgramOf(explosion),
+            AssertEqual(EnemyDeathExplosions.Program(animation), ProgramOf(explosion),
                 $"production enemy death explosion program {animation}");
             AssertEqual(unchecked((ushort)(0xfff0 + animation)), explosion.Position.X.Whole,
                 $"production enemy death explosion X {animation}");
@@ -52,7 +52,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
             "production enemy death out-of-range animation clamps to small explosion");
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EnemyDeathExplosionDefinitions.Program(5),
+            () => EnemyDeathExplosions.Program(5),
             "enemy death animation past table");
         Console.WriteLine(
             "Enemy death explosion definitions: five native selectors, five real variants and the generic clamp path pass with the pointer table forbidden.");

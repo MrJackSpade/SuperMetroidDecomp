@@ -20,7 +20,7 @@ internal static class BombTorizoAttackDefinitionsVerification
         for (ushort index = 0; index < 11; index++)
         {
             Offset16<RoomPixels> definition =
-                BombTorizoAttackDefinitions.Swipe(unchecked((ushort)(index * 2)));
+                BombTorizoAttacks.Swipe(unchecked((ushort)(index * 2)));
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((swipeXAddress + index * 2))),
                 definition.X,
                 $"Bomb Torizo swipe {index} X offset");
@@ -28,14 +28,14 @@ internal static class BombTorizoAttackDefinitionsVerification
                 definition.Y,
                 $"Bomb Torizo swipe {index} Y offset");
             AssertEqual(definition,
-                BombTorizoAttackDefinitions.Swipe(unchecked((ushort)(index * 2 + 1))),
+                BombTorizoAttacks.Swipe(unchecked((ushort)(index * 2 + 1))),
                 $"Bomb Torizo bounded odd swipe {index}");
         }
 
         for (int index = 0; index < 6; index++)
         {
             Offset16<RoomPixels> definition =
-                BombTorizoAttackDefinitions.RawExplosionRow(index);
+                BombTorizoAttacks.RawExplosionRow(index);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionXAddress + index * 2))),
                 definition.X,
                 $"Bomb Torizo explosion {index} X offset");
@@ -45,10 +45,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttackDefinitions.Swipe(22),
+            () => BombTorizoAttacks.Swipe(22),
             "Bomb Torizo swipe outside translated bounds");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => BombTorizoAttackDefinitions.RawExplosionRow(6),
+            () => BombTorizoAttacks.RawExplosionRow(6),
             "Bomb Torizo raw explosion outside table");
 
         var guarded = NewBombTorizoAttackReadGuard(rom);
@@ -58,7 +58,7 @@ internal static class BombTorizoAttackDefinitionsVerification
         {
             ushort parameter = unchecked((ushort)(index * 2));
             Offset16<RoomPixels> expected =
-                BombTorizoAttackDefinitions.Swipe(parameter);
+                BombTorizoAttacks.Swipe(parameter);
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                 CreateBombTorizoAttackFixture(facingRight);
             enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, parameter);
@@ -79,7 +79,7 @@ internal static class BombTorizoAttackDefinitionsVerification
             for (ushort parameter = 0; parameter <= maximumParameter; parameter++)
             {
                 Offset16<RoomPixels> expected =
-                    BombTorizoAttackDefinitions.LowHealthExplosion(parameter, facingRight);
+                    BombTorizoAttacks.LowHealthExplosion(parameter, facingRight);
                 (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                     CreateBombTorizoAttackFixture(facingRight);
                 enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
@@ -99,10 +99,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttackDefinitions.LowHealthExplosion(10, facingRight: true),
+            () => BombTorizoAttacks.LowHealthExplosion(10, facingRight: true),
             "Bomb Torizo right explosion outside bounds");
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttackDefinitions.LowHealthExplosion(8, facingRight: false),
+            () => BombTorizoAttacks.LowHealthExplosion(8, facingRight: false),
             "Bomb Torizo left explosion outside bounds");
 
         Console.WriteLine(

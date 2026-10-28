@@ -502,10 +502,10 @@ internal static class RidleyFullMovieVerification
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
         AssertEqual((ushort)2, state.IntangibilityTimer.RawValue, "onscreen AI resumes release timer");
-        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
-        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
-        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
-        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 542), new(0, 287)), "last lower pixel is admitted");
+        AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
+        AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
+        AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
+        AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 542), new(0, 287)), "last lower pixel is admitted");
         Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
     }
 

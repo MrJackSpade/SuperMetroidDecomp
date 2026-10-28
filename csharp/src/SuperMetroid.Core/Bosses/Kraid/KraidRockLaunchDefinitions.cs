@@ -21,11 +21,21 @@ public static class KraidRockLaunchDefinitions
     /// sample or chronological random-number generator. Preserve the original
     /// branch assignment even though each speed has the same one-quarter weight.
     /// </remarks>
-    public static SignedEightEight FromRandom(int random) => (random & 0x000e) switch
+    public static SignedEightEight FromRandom(int random) => Speeds[random & ChoiceMask];
+
+    /// <summary>Keeps RNG bits 1..3, the eight even launch choices.</summary>
+    private const int ChoiceMask = 0x000e;
+
+    /// <summary>The launch speed of each of the eight even RNG choices.</summary>
+    private static readonly Dictionary<int, SignedEightEight> Speeds = new()
     {
-        0 or 10 => NormalLeft,
-        4 or 8 => FastestLeft,
-        6 or 12 => FastLeft,
-        _ => SlowLeft,
+        [0] = NormalLeft,
+        [2] = SlowLeft,
+        [4] = FastestLeft,
+        [6] = FastLeft,
+        [8] = FastestLeft,
+        [10] = NormalLeft,
+        [12] = FastLeft,
+        [14] = SlowLeft,
     };
 }

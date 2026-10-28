@@ -101,7 +101,7 @@ internal sealed class PhantoonPatterns
             : bodyWords.SpeedWhole;
         for (int step = 0; step < steps; step++)
         {
-            Offset16<RoomPixels> pathStep = PhantoonPathDefinitions.Step(bodyWords.PathCursor);
+            Offset16<RoomPixels> pathStep = PhantoonPath.Step(bodyWords.PathCursor);
             if (eyeWords.FigureEightReversed)
             {
                 body.Position -= pathStep;
@@ -238,13 +238,13 @@ internal sealed class PhantoonPatterns
             bool exhausted = remaining <= 0;
             state.Parts[mouth.SlotIndex].CasualFlameCount = exhausted ? PhantoonCasualFlameDefinitions.NoActiveSchedule : remaining;
             int timerIndex = exhausted ? 1 : remaining + 1;
-            state.Parts[mouth.SlotIndex].CasualFlameHold = PhantoonCasualFlameDefinitions.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern)[timerIndex];
+            state.Parts[mouth.SlotIndex].CasualFlameHold = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern)[timerIndex];
             PhantoonPresentation.InstallPhantoonProgram(state, mouth, PhantoonPartProgram.MouthSpawnFlame);
             return;
         }
 
         state.Parts[mouth.SlotIndex].CasualFlamePattern = unchecked((ushort)(_room.Random.Generate() & 3));
-        PhantoonCasualFlameDefinitions.Schedule pattern = PhantoonCasualFlameDefinitions.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
+        PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
         state.Parts[mouth.SlotIndex].CasualFlameCount = pattern[0];
         state.Parts[mouth.SlotIndex].CasualFlameHold = pattern[state.Parts[mouth.SlotIndex].CasualFlameCount + 1];
     }
@@ -458,7 +458,7 @@ internal sealed class PhantoonPatterns
             return;
 
         int pattern = _room.Random.Generate() & 7;
-        var placement = PhantoonPatternDefinitions.RainPlacement(pattern);
+        var placement = PhantoonFlameRain.RainPlacement(pattern);
         state.Parts[body.SlotIndex].PathCursor = placement.Cursor;
         body.Position = body.Position.WithWhole(placement.Position);
         state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
@@ -664,7 +664,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(
             state,
             state.Eye,
-            PhantoonPatternDefinitions.EyeProgram(direction));
+            PhantoonEyeGaze.EyeProgram(direction));
     }
 
     /// <summary>Blends the body palette toward hidden colors over the selected interval.</summary>
@@ -701,7 +701,7 @@ internal sealed class PhantoonPatterns
     /// <remarks>Eight flames start sixteen updates apart, so the delay reaches at most 128 and packs beside the column.</remarks>
     private void SpawnPhantoonFlameRain(RoomEnemySlot body, int pattern)
     {
-        int column = PhantoonPatternDefinitions.FirstRainColumns[pattern];
+        int column = PhantoonFlameRain.FirstRainColumns[pattern];
         int delay = 16;
         for (int flame = 0; flame < 8; flame++)
         {
@@ -786,7 +786,7 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Enraged:
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight(unchecked((ushort)(index >= 8
                     ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep))));
-                flame.Variable0 = PhantoonFlameSpawnDefinitions.RageAngle(index);
+                flame.Variable0 = PhantoonFlameSpawns.RageAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
@@ -799,7 +799,7 @@ internal sealed class PhantoonPatterns
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight((ushort)(index / 16 * 8)));
-                flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawnDefinitions.RainX(column));
+                flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
                 flame.Position = flame.Position.WithWholeY(40);
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
@@ -809,7 +809,7 @@ internal sealed class PhantoonPatterns
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight(128));
-                flame.Variable0 = PhantoonFlameSpawnDefinitions.SpiralAngle(index);
+                flame.Variable0 = PhantoonFlameSpawns.SpiralAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;

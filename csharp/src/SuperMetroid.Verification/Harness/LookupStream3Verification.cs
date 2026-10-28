@@ -1155,7 +1155,7 @@ internal static class LookupStream3Verification
             int offset = 2 * (parameter & 3);
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
-            SparkMovementDefinition definition = SparkMovementDefinitions.InitialState((ushort)parameter);
+            SparkMovementDefinition definition = SparkStarts.InitialState((ushort)parameter);
             // Selector three's list word is the following main-AI function pointer, which starts no animation.
             AssertEqual(list, definition.Program is { } program
                     ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
@@ -1167,13 +1167,13 @@ internal static class LookupStream3Verification
         {
             ushort direction = (ushort)bucket;
             if ((bucket & 31) != 0 || bucket > 224)
-                AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.ForOrientationBucket(direction),
+                AssertThrows<InvalidDataException>(() => ShaktoolPrograms.ForOrientationBucket(direction),
                     "stream 3 invalid Shaktool orientation");
             else
             {
                 int address = 0xaadd15 + 2 * (bucket >> 5);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.ForOrientationBucket(direction)),
+                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(direction)),
                     "stream 3 native Shaktool orientation");
             }
         }
@@ -1181,12 +1181,12 @@ internal static class LookupStream3Verification
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.CollisionForSegment(segment)),
+            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(segment)),
                 "stream 3 native Shaktool collision program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.CollisionForSegment(invalid),
+            AssertThrows<InvalidDataException>(() => ShaktoolPrograms.CollisionForSegment(invalid),
                 "stream 3 invalid Shaktool collision segment");
         }
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
@@ -1308,7 +1308,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
-            var regions = MotherBrainContactHitboxDefinitions.Get(part);
+            var regions = MotherBrainContacts.Get(part);
             foreach (int invalid in new[] { -1, regions.Count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
         }
@@ -1319,10 +1319,10 @@ internal static class LookupStream3Verification
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Program(parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Program(parameter)),
                 "stream 3 native death explosion variant");
         foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.Program(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosions.Program(invalid),
                 "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)
@@ -1374,15 +1374,15 @@ internal static class LookupStream3Verification
     {
         for (int stage = 0; stage < 8; stage++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalkingDefinitions.AnimationDelay(stage), "stream 3 native stagger animation delay");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalkingDefinitions.FunctionTimer(stage), "stream 3 native stagger pause timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalking.AnimationDelay(stage), "stream 3 native stagger animation delay");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalking.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalking.FunctionTimer(stage), "stream 3 native stagger pause timer");
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.AnimationDelay(invalid), "stream 3 stagger delay bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.FunctionTimer(invalid), "stream 3 stagger timer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.AnimationDelay(invalid), "stream 3 stagger delay bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.FunctionTimer(invalid), "stream 3 stagger timer bounds");
         }
         foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
@@ -1390,7 +1390,7 @@ internal static class LookupStream3Verification
             sequence.State.Body.Position = sequence.State.Body.Position.WithX(0);
             sequence.DrainedByBaby.PainfulWalkingStage = stage;
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
-            sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalkingDefinitions.AnimationDelay(Math.Min(stage, (ushort)7));
+            sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalking.AnimationDelay(Math.Min(stage, (ushort)7));
             sequence.DrainedByBaby.StepPainfulWalking();
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.DrainedByBaby.PainfulWalkingFunctionTimer.RawValue,
                 "stream 3 real stagger timer clamps terminal stages");
@@ -1469,7 +1469,7 @@ internal static class LookupStream3Verification
                 rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
-            AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseArtworkDefinitions.PageOffset(row)),
+            AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
             SpriteArtworkPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
@@ -1478,7 +1478,7 @@ internal static class LookupStream3Verification
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)
-            AssertEqual(minimumY[column], MotherBrainCorpseArtworkDefinitions.ColumnMinimumY(column), "stream 3 corpse native outline gate");
+            AssertEqual(minimumY[column], MotherBrainCorpseSheet.ColumnMinimumY(column), "stream 3 corpse native outline gate");
         // Confirm the changed row/column geometry through the real pixel-copy path.
         for (ushort y = 0; y < 48; y++)
         foreach (bool move in new[] { false, true })
@@ -1490,8 +1490,8 @@ internal static class LookupStream3Verification
                 expectedTiles[offset] = (byte)(offset * 37 + 11);
             byte[] atlas = new byte[MotherBrainCorpseArtworkDefinitions.ByteCount];
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-                expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row))
-                    .CopyTo(atlas.AsSpan(MotherBrainCorpseArtworkDefinitions.InitialCopyOffset(row)));
+                expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseSheet.InitialCopyLength(row))
+                    .CopyTo(atlas.AsSpan(MotherBrainCorpseSheet.InitialCopyOffset(row)));
             CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
@@ -1525,15 +1525,15 @@ internal static class LookupStream3Verification
             {
                 int first = row * MotherBrainCorpseArtworkDefinitions.RowBytes;
                 byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + first,
-                    MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
+                    MotherBrainCorpseSheet.InitialCopyLength(row), 0));
                 for (int offset = 0; offset < staged.Length; offset++)
                     AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");
             }
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageOffset(invalid), "stream 3 corpse page offset bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 corpse page character bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseSheet.PageOffset(invalid), "stream 3 corpse page offset bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseSheet.PageFirstCharacter(invalid), "stream 3 corpse page character bounds");
         }
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
@@ -1981,12 +1981,12 @@ internal static class LookupStream3Verification
         }
         for (int color = 0; color < 14; color++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidCutsceneColorCatalog.ColorFade.Endpoint(color)).ToWord(), 6),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidFade.Endpoint(color)).ToWord(), 6),
                 "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
             int healthAddress = color < 4 ? 0xade870 + 2 * color :
                 color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
             ushort nativeHealth = CartridgeImportSource.Require(rom).ReadCartridgeWord(healthAddress);
-            AssertEqual(nativeHealth, BabyMetroidCutsceneColorCatalog.ColorFade.Endpoint(color), "stream 3 exact native final-health endpoint");
+            AssertEqual(nativeHealth, BabyMetroidFade.Endpoint(color), "stream 3 exact native final-health endpoint");
             for (int frame = 0; frame < fade.Length; frame++)
                 AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
                     "stream 3 native final health colors produce the exact seven-part fade");
@@ -2129,10 +2129,10 @@ internal static class LookupStream3Verification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
             AssertEqual(new ChootPatternDefinition(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
-                ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
+                ChootFalls.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
         }
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChootPatternDefinitions.ForIndex(invalid),
+            AssertThrows<InvalidDataException>(() => ChootFalls.ForIndex(invalid),
                 "stream 3 Choot rejects alias and invalid patterns");
     }
 
@@ -2141,19 +2141,19 @@ internal static class LookupStream3Verification
     {
         for (int kind = 0; kind < 6; kind++)
         {
-            EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation((EnemyPickupKind)kind);
+            EnemyPickupAnimationDefinition animation = EnemyPickups.Animation((EnemyPickupKind)kind);
             AssertEqual((ushort)(2 * kind), animation.TableOffset, "stream 3 pickup kind table offset");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
                 animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
         }
         for (ushort animation = 0; animation < 5; animation++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)),
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosionDefinitions.Program(animation)), "stream 3 death variant dispatch");
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(animation)), "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => EnemyPickupDefinitions.Animation((EnemyPickupKind)invalid),
+            AssertThrows<InvalidDataException>(() => EnemyPickups.Animation((EnemyPickupKind)invalid),
                 "stream 3 invalid pickup kind");
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosionDefinitions.Program(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosions.Program(invalid),
                 "stream 3 invalid death variant");
     }
 
@@ -2689,7 +2689,7 @@ internal static class LookupStream3Verification
             foreach (var frame in selected)
             {
                 AssertTrue(catalog.TryGet(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby view remains installed");
-                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "stream 3 exact supplied Baby part order and every visual field");
             }
             // The catalog names each frame by its identity (#1402), in identity-name order; every frame here shows itself.
@@ -2698,7 +2698,7 @@ internal static class LookupStream3Verification
                 foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
                     content.AppendName("frame", frame.Frame.ToString());
-                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                    content.AppendEnemyParts(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
                 foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
@@ -2743,7 +2743,7 @@ internal static class LookupStream3Verification
             original[upper] = upperPart with { OffsetY = upperPart.OffsetY + 1 };
             original[opposite] = oppositePart with { OffsetY = oppositePart.OffsetY + 1 };
             Check(Load());
-            AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(
+            AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(
                 original.Select((value, index) => index == upper ? upperPart : index == opposite ? oppositePart : value).ToArray(), frame.Name)),
                 "previous Baby component remains immutable after a symmetric supplied edit");
             original[upper] = upperPart;

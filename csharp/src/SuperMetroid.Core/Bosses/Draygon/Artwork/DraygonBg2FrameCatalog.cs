@@ -28,6 +28,6 @@ public sealed class DraygonBg2FrameCatalog
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON properties/schema, required pose identities, command counts, destinations, or tiles are invalid.</exception>
     public static DraygonBg2FrameCatalog Load(Stream json) =>
-        new(EnemyBg2FrameCatalog.Load(json, DraygonBg2FrameDefinitions.Frames,
+        new(EnemyBg2Frames.Load(json, DraygonBg2FrameDefinitions.Frames,
             DraygonBg2FrameDefinitions.Version, "Draygon"));
 }

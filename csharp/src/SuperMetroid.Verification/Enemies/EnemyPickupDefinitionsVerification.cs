@@ -17,7 +17,7 @@ internal static class EnemyPickupDefinitionsVerification
         for (int index = 0; index < 6; index++)
         {
             var kind = (EnemyPickupKind)index;
-            EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
+            EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
             AssertEqual(index * 2, animation.TableOffset,
                 $"enemy pickup table offset {kind}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
@@ -37,7 +37,7 @@ internal static class EnemyPickupDefinitionsVerification
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
-            EnemyPickupAnimationDefinition expected = EnemyPickupDefinitions.Animation(kind);
+            EnemyPickupAnimationDefinition expected = EnemyPickups.Animation(kind);
             AssertEqual(expected.TableOffset, projectile.Variable0,
                 $"production pickup table offset {kind}");
             AssertEqual(expected.Program, ProgramOf(projectile),
@@ -54,7 +54,7 @@ internal static class EnemyPickupDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => EnemyPickupDefinitions.Animation(EnemyPickupKind.NoDrop),
+            () => EnemyPickups.Animation(EnemyPickupKind.NoDrop),
             "no-drop pickup has no animation entry");
         Console.WriteLine(
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");

@@ -13,13 +13,12 @@ internal static class EnemyDeathExplosionDefinitions
     /// normal explosion, three Mini-Kraid's explosion and four a big explosion. The selector is a number because
     /// callers pass computed values (some pass the enemy's remaining health), and its range check is observable.
     /// </summary>
-    internal static EnemyDeathProjectileProgram Program(int animation) => animation switch
-    {
-        0 => EnemyDeathProjectileProgram.SmallExplosion,
-        1 => EnemyDeathProjectileProgram.KilledBySamusContact,
-        2 => EnemyDeathProjectileProgram.NormalExplosion,
-        3 => EnemyDeathProjectileProgram.MiniKraidExplosion,
-        4 => EnemyDeathProjectileProgram.BigExplosion,
-        _ => throw new ArgumentOutOfRangeException(nameof(animation), animation, "Enemy death animation must be zero through four."),
-    };
+    internal static readonly EnemyDeathProjectileProgram[] Programs =
+    [
+        EnemyDeathProjectileProgram.SmallExplosion,
+        EnemyDeathProjectileProgram.KilledBySamusContact,
+        EnemyDeathProjectileProgram.NormalExplosion,
+        EnemyDeathProjectileProgram.MiniKraidExplosion,
+        EnemyDeathProjectileProgram.BigExplosion,
+    ];
 }

@@ -28,8 +28,8 @@ internal static class PlatformOwnedStateVerification
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
-        SignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
-        SignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        SignedSixteenSixteen right = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SignedSixteenSixteen left = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
         AssertEqual(right, state.RightSpeed, "rightward speed is the record's positive half");
         AssertEqual(left, state.LeftSpeed, "leftward speed is the record's negative half");
         AssertEqual((ushort)0, state.RestingHeight.Y, "one pixel below the last row wraps to the top row");

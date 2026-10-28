@@ -10,16 +10,16 @@ internal static class KraidFootCoordinateMappingsVerification
 {
     /// <summary>Checks the first foot component's horizontal offset.</summary>
     internal static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollisionDefinitions.FirstX));
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollision.FirstX));
     /// <summary>Checks the first foot component's vertical offset.</summary>
     internal static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollisionDefinitions.FirstY));
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollision.FirstY));
     /// <summary>Checks the second foot component's horizontal offset.</summary>
     internal static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollisionDefinitions.SecondX));
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollision.SecondX));
     /// <summary>Checks the second foot component's vertical offset.</summary>
     internal static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY));
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollision.SecondY));
 
     /// <summary>$A7:8F35, ExtendedSpritemap_KraidFoot_21, which no instruction list shows.</summary>
     private const ushort UnshownFrame = 0x8f35;
@@ -39,7 +39,7 @@ internal static class KraidFootCoordinateMappingsVerification
                 AssertTrue(RoomEnemySlotFrameAccess.TryFrameAt(KraidFootCollisionDefinitions.Bank, pointer) is null, "Unshown foot frame has no identity");
                 continue;
             }
-            AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(pointer, out var components), "Native foot components exist");
+            AssertTrue(KraidFootCollision.TryGetComponents(pointer, out var components), "Native foot components exist");
             AssertEqual(2, components.Length, "Foot has two components");
             var actual = components[component];
             AssertEqual(expected, vertical ? actual.Offset.Y : actual.Offset.X, "Foot coordinate through production view");
@@ -75,7 +75,7 @@ internal static class KraidFootCoordinateMappingsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool expectedMember = raw == 0xa565 || (raw >= 0x8ce3 && raw <= 0x8f47 && (raw - 0x8ce3) % 18 == 0 && raw != UnshownFrame);
-            AssertEqual(expectedMember, KraidFootCollisionDefinitions.TryGetComponents((ushort)raw, out var components),
+            AssertEqual(expectedMember, KraidFootCollision.TryGetComponents((ushort)raw, out var components),
                 "Complete native foot frame membership");
             if (!expectedMember) { AssertEqual(0, components.Length, "Rejected frame has no components"); continue; }
             AssertEqual(Word(raw), components.Length, "Native component count");

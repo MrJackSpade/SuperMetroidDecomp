@@ -3,19 +3,9 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>Yard's native eight-direction crawling sign selection.</summary>
 public static class YardVelocityDefinitions
 {
+    /// <summary>The sign of each direction's horizontal crawl, by direction number.</summary>
+    internal static readonly int[] XSigns = [-1, -1, 1, 1, -1, 1, -1, 1];
 
-    /// <summary>Equivalent to native XOR $FFFF then increment; negation wraps at sixteen bits.</summary>
-    public static EightEightVector<RoomPixels> Apply(int magnitude, int direction)
-    {
-        var positive = new SignedEightEight(checked((ushort)magnitude));
-        var negative = new SignedEightEight(unchecked((ushort)-magnitude));
-        return direction switch
-        {
-            0 or 4 => new(negative, negative),
-            1 or 6 => new(negative, positive),
-            2 or 5 => new(positive, negative),
-            3 or 7 => new(positive, positive),
-            _ => throw new InvalidDataException($"Yard direction ${direction:X4} exceeds the eight native sign records."),
-        };
-    }
+    /// <summary>The sign of each direction's vertical crawl, by direction number.</summary>
+    internal static readonly int[] YSigns = [-1, 1, -1, 1, -1, -1, 1, 1];
 }

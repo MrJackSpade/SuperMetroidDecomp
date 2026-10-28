@@ -20,7 +20,7 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>$A5:DDBF and $A5:DDC3 are the two aligned 8080 delete commands,
     /// at offsets0FB8/0FBC from DraygonFightIntroDanceData_KeikoLove.</summary>
-    private const ushort FirstDeleteOffset = 0x0fb8;
+    internal const ushort FirstDeleteOffset = 0x0fb8;
 
     /// <summary>Signed X/Y deltas of the handwritten Keiko Love path, packed as biased nibbles.</summary>
     /// <remarks>Independently reviewed for #1165: integrating the original aligned
@@ -30,7 +30,7 @@ internal static class DraygonIntroDanceDefinitions
     /// This is not a sampled physical trajectory. The supported post-delete continuation
     /// remains exact; the two delete commands themselves are decoded as control cases and
     /// occupy no packed entries. See draygonIntroTraceReview in the #1165 inventory.</remarks>
-    private const string PackedMovementHex =
+    internal const string PackedMovementHex =
         "B8B8B8B8B7A7A6A6A59596969898898A8A8A7B8B8B8C8C7C7C8D7C7C7D7C7C7B7B7B7B7A8989788787878685958584949484959595A59595A695A696A6A7B6B6" +
         "B6B6B6B6B7A7A7A8A8A8998A8A8B7B7B6B6B6B6B6B6A5A69696959596857575757667696A6B6C7B8B8B8AAAAAAAA9B9B9BAB9A9B9B9B9AAAAAAAAAA9A9B9B9B8" +
         "B9A8A8A898979797A89797A797A79797979797979696969686869687878686768776767677776778786969697979797A7979898A7A8A8A8A89898A8A898A8A99" +
@@ -51,51 +51,14 @@ internal static class DraygonIntroDanceDefinitions
         "777879696A7A7B8B7A8A8B9A9AAA9AAA";
 
     /// <summary>Decoded biased-nibble trajectory with the two delete sentinels excluded from the packed entries.</summary>
-    private static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
+    internal static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
 
-    /// <summary>Returns the signed stream latency for native sprite slot 28 through 31.</summary>
-    /// <remarks>
-    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A5.asm:
-    /// the four reachable signed words are the arithmetic progression 128*(slot-35).
-    /// The caller adds this byte-stream latency with 16-bit wrap, then tests the sign.
-    /// Keep the first four native words (including the 128-frame initial delay); the
-    /// unused following four words do not extend the domain. Packed motion is separate.
-    /// </remarks>
-    public static short MovementLatencyForSlot(int slotIndex)
-    {
-        int index = slotIndex - 28;
-        if ((uint)index >= 4)
-            throw new ArgumentOutOfRangeException(nameof(slotIndex));
-        return (short)(128 * (slotIndex - 35));
-    }
+    /// <summary>A packed movement byte holds the X delta's nibble above the Y delta's.</summary>
+    internal const int MovementXShift = 4;
 
-    /// <summary>
-    /// Resolves one supported, four-byte-aligned Evir movement record from the
-    /// compiled <c>$A5:CE07-$A5:DF44</c> trajectory. The native 1,232-frame owner can
-    /// address these 1,104 records after applying the four sprite latencies; active
-    /// sprites stop consuming movement at the first delete command. Preserve the full
-    /// existing decoder domain, including its post-delete continuation.
-    /// A restored index outside that domain is corrupt state, not permission to interpret
-    /// adjacent executable or presentation bytes as signed movement.
-    /// </summary>
-    public static DraygonIntroMovement ResolveMovement(int streamOffset)
-    {
-        if ((streamOffset & 3) != 0 || streamOffset is < 0 or > LastMovementStreamOffset)
-        {
-            throw new InvalidDataException(
-                $"Draygon intro movement offset ${streamOffset:X4} is outside the compiled " +
-                "four-byte-aligned retail trajectory.");
-        }
+    /// <summary>Keeps one packed movement nibble.</summary>
+    internal const int MovementComponentMask = 0x0f;
 
-        if (streamOffset is FirstDeleteOffset or FirstDeleteOffset + StreamIndexAdvance)
-            return new DraygonIntroMovement(Offset16<RoomPixels>.Zero, DeletesSprite: true);
-
-        int index = streamOffset / StreamIndexAdvance;
-        if (streamOffset > FirstDeleteOffset) index -= 2;
-        int packed = PackedMovement[index];
-
-        return new DraygonIntroMovement(
-            new((short)((packed >> 4) - 8), (short)((packed & 0x0f) - 8)),
-            DeletesSprite: false);
-    }
+    /// <summary>The bias a packed nibble carries above its signed delta.</summary>
+    internal const int MovementBias = 8;
 }

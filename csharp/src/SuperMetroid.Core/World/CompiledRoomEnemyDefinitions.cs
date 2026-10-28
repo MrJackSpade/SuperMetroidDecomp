@@ -19,5 +19,5 @@ public sealed class CompiledRoomEnemyDefinitions : IRoomEnemyDefinitionSource
 
     /// <inheritdoc />
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece) =>
-        MotherBrainFallingTubePopulationDefinitions.Get(piece);
+        MotherBrainFallingTubes.Get(piece);
 }

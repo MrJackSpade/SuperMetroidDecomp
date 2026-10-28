@@ -12,75 +12,75 @@ internal static class MotherBrainCollisionDefinitions
 {
 
     /// <summary>$A9:A4AC, <c>Hitbox_MotherBrainBody_0</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA4AC =
+    internal static readonly MotherBrainCollisionHitbox[] ListA4AC =
     [
         new(-20, -21, 16, 23, MotherBrainHitboxTouch.Head, MotherBrainHitboxShot.Head),
     ];
 
     /// <summary>$A9:A4C8, <c>Hitbox_MotherBrainBody_2</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA4C8 =
+    internal static readonly MotherBrainCollisionHitbox[] ListA4C8 =
         [];
 
     /// <summary>$A9:A4CA, <c>Hitbox_MotherBrainBody_3</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA4CA =
+    internal static readonly MotherBrainCollisionHitbox[] ListA4CA =
     [
         new(-23, -1, 23, 7, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A4D8, <c>Hitbox_MotherBrainBody_4</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA4D8 =
+    internal static readonly MotherBrainCollisionHitbox[] ListA4D8 =
         [];
 
     /// <summary>$A9:A4DA, <c>Hitbox_MotherBrainBody_5</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA4DA =
+    internal static readonly MotherBrainCollisionHitbox[] ListA4DA =
     [
         new(-23, -2, 23, 7, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A4E8, <c>Hitbox_MotherBrainBody_6</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA4E8 =
+    internal static readonly MotherBrainCollisionHitbox[] ListA4E8 =
     [
         new(-32, -24, 20, 52, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
         new(-24, -42, 13, -25, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A504, <c>Hitbox_MotherBrainBody_8</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA504 =
+    internal static readonly MotherBrainCollisionHitbox[] ListA504 =
     [
         new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
         new(28, -41, 57, -30, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A51E, <c>Hitbox_MotherBrainBody_9</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA51E =
+    internal static readonly MotherBrainCollisionHitbox[] ListA51E =
     [
         new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
         new(28, -41, 54, -30, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A538, <c>Hitbox_MotherBrainBody_A</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA538 =
+    internal static readonly MotherBrainCollisionHitbox[] ListA538 =
     [
         new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
         new(29, -43, 45, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A552, <c>Hitbox_MotherBrainBody_B</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA552 =
+    internal static readonly MotherBrainCollisionHitbox[] ListA552 =
     [
         new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
         new(29, -48, 68, -40, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A56C, <c>Hitbox_MotherBrainBody_C</c>.</summary>
-    private static readonly MotherBrainCollisionHitbox[] ListA56C =
+    internal static readonly MotherBrainCollisionHitbox[] ListA56C =
     [
         new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
         new(28, -41, 58, -31, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:9FA0, <c>ExtendedSpritemap_MotherBrainBody_Standing</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] Frame9FA0 =
+    internal static readonly MotherBrainCollisionComponent[] Frame9FA0 =
     [
         new(new(18, 58), ListA4CA),
         new(new(30, 29), ListA4C8),
@@ -94,7 +94,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:9FEA, <c>ExtendedSpritemap_MotherBrainBody_Walking_0</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] Frame9FEA =
+    internal static readonly MotherBrainCollisionComponent[] Frame9FEA =
     [
         new(new(28, 47), ListA4CA),
         new(new(38, 19), ListA4C8),
@@ -109,7 +109,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A03C, <c>ExtendedSpritemap_MotherBrainBody_Walking_1</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA03C =
+    internal static readonly MotherBrainCollisionComponent[] FrameA03C =
     [
         new(new(40, 48), ListA4CA),
         new(new(38, 19), ListA4C8),
@@ -124,7 +124,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A08E, <c>ExtendedSpritemap_MotherBrainBody_Walking_2</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA08E =
+    internal static readonly MotherBrainCollisionComponent[] FrameA08E =
     [
         new(new(40, 51), ListA4CA),
         new(new(38, 21), ListA4C8),
@@ -139,7 +139,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A0E0, <c>ExtendedSpritemap_MotherBrainBody_Walking_3</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA0E0 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA0E0 =
     [
         new(new(36, 58), ListA4CA),
         new(new(33, 29), ListA4C8),
@@ -153,7 +153,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A12A, <c>ExtendedSpritemap_MotherBrainBody_Walking_4</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA12A =
+    internal static readonly MotherBrainCollisionComponent[] FrameA12A =
     [
         new(new(21, 60), ListA4CA),
         new(new(29, 31), ListA4C8),
@@ -167,7 +167,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A174, <c>ExtendedSpritemap_MotherBrainBody_Walking_5</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA174 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA174 =
     [
         new(new(15, 64), ListA4CA),
         new(new(30, 35), ListA4C8),
@@ -181,7 +181,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A1BE, <c>ExtendedSpritemap_MotherBrainBody_Walking_6</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA1BE =
+    internal static readonly MotherBrainCollisionComponent[] FrameA1BE =
     [
         new(new(17, 60), ListA4CA),
         new(new(30, 32), ListA4C8),
@@ -195,7 +195,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A208, <c>ExtendedSpritemap_MotherBrainBody_Walking_7</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA208 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA208 =
     [
         new(new(18, 58), ListA4CA),
         new(new(31, 30), ListA4C8),
@@ -209,7 +209,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A252, <c>ExtendedSpritemap_MotherBrainBody_Crouched</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA252 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA252 =
     [
         new(new(18, 20), ListA4CA),
         new(new(34, -9), ListA4C8),
@@ -221,7 +221,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A28C, <c>ExtendedSpritemap_MotherBrainBody_Uncrouching</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA28C =
+    internal static readonly MotherBrainCollisionComponent[] FrameA28C =
     [
         new(new(18, 30), ListA4CA),
         new(new(36, 2), ListA4C8),
@@ -235,7 +235,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A2D6, <c>ExtendedSpritemap_MotherBrainBody_LeaningDown</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA2D6 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA2D6 =
     [
         new(new(18, 46), ListA4CA),
         new(new(31, 17), ListA4C8),
@@ -249,13 +249,13 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A320, <c>UNUSED_ExtendedSpritemap_MotherBrainBrain_A9A320</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA320 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA320 =
     [
         new(new(0, 0), ListA4AC),
     ];
 
     /// <summary>$A9:A384, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_0</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA384 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA384 =
     [
         new(new(18, 58), ListA4CA),
         new(new(30, 29), ListA4C8),
@@ -269,7 +269,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A3CE, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_1</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA3CE =
+    internal static readonly MotherBrainCollisionComponent[] FrameA3CE =
     [
         new(new(18, 58), ListA4CA),
         new(new(30, 29), ListA4C8),
@@ -283,7 +283,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A418, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_2</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA418 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA418 =
     [
         new(new(18, 58), ListA4CA),
         new(new(30, 29), ListA4C8),
@@ -297,7 +297,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>$A9:A462, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_3</c>.</summary>
-    private static readonly MotherBrainCollisionComponent[] FrameA462 =
+    internal static readonly MotherBrainCollisionComponent[] FrameA462 =
     [
         new(new(18, 58), ListA4CA),
         new(new(30, 29), ListA4C8),
@@ -311,7 +311,7 @@ internal static class MotherBrainCollisionDefinitions
     ];
 
     /// <summary>Each Mother Brain body frame's components.</summary>
-    private static readonly Dictionary<EnemyFrameId, MotherBrainCollisionComponent[]> FrameComponents = new()
+    internal static readonly Dictionary<EnemyFrameId, MotherBrainCollisionComponent[]> FrameComponents = new()
     {
         [EnemyFrameId.MotherBrainBodyStanding] = Frame9FA0,
         [EnemyFrameId.MotherBrainBodyWalking0] = Frame9FEA,
@@ -331,12 +331,4 @@ internal static class MotherBrainCollisionDefinitions
         [EnemyFrameId.MotherBrainBodyDeathBeam2] = FrameA418,
         [EnemyFrameId.MotherBrainBodyDeathBeam3] = FrameA462,
     };
-
-    /// <summary>The collision components of Mother Brain body frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Mother Brain's body frames.</exception>
-    internal static ReadOnlySpan<MotherBrainCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out MotherBrainCollisionComponent[]? components)
-            ? components
-            : throw new InvalidDataException($"Mother Brain has no extended frame {frame}.");
-
 }

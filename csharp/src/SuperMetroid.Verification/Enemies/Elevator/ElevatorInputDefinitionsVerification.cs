@@ -72,10 +72,10 @@ internal static class ElevatorInputDefinitionsVerification
         {
             int address = 0xa394e2 + offset;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual((ControllerButton)native, ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator named direction matches native mask");
+            AssertEqual((ControllerButton)native, ElevatorTravel.RequiredDirectionInput(offset), "elevator named direction matches native mask");
         }
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
-            AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
+            AssertThrows<InvalidDataException>(() => ElevatorTravel.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
 
 }

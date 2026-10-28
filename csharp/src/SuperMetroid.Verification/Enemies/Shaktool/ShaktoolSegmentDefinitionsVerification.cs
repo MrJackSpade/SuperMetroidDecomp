@@ -22,7 +22,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {
-            ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(index);
+            ShaktoolSegmentDefinition definition = ShaktoolSegments.ForIndex(index);
             definitions[index] = definition;
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadef7 + index * 2)),
                 $"Shaktool segment {index} initialization subtrahend");
@@ -73,10 +73,10 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ShaktoolSegmentDefinitions.ForIndex(-1),
+            () => ShaktoolSegments.ForIndex(-1),
             "negative Shaktool segment definition");
         AssertThrows<InvalidDataException>(
-            () => ShaktoolSegmentDefinitions.ForIndex(7),
+            () => ShaktoolSegments.ForIndex(7),
             "Shaktool segment definition past table");
         Console.WriteLine(
             "Shaktool segment definitions: 56 native words, all seven real initializers and the group callback reset pass with source tables forbidden.");
@@ -120,11 +120,11 @@ internal static class ShaktoolSegmentDefinitionsVerification
         {
             int address = nativeAddress + 2 * index;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, select(ShaktoolSegmentDefinitions.ForIndex(index)),
+            AssertEqual(expected, select(ShaktoolSegments.ForIndex(index)),
                 $"Shaktool {label} original word {index}");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => select(ShaktoolSegmentDefinitions.ForIndex(invalid)),
+            AssertThrows<InvalidDataException>(() => select(ShaktoolSegments.ForIndex(invalid)),
                 $"Shaktool {label} rejects {invalid}");
     }
 

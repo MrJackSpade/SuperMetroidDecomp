@@ -83,7 +83,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {
-            CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromIndex(index);
+            CeresRidleyGetawayFrame frame = CeresRidleyGetaway.FromIndex(index);
             int row = LittleEndianBytes.HighByte(frame.Zoom);
             visited.Add(row);
             select(checked((ushort)frame.Zoom));

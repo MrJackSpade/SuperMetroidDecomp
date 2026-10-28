@@ -54,7 +54,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngularSpeed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
 
         int radiusIndex = slot.Spawn.Population.Parameter2Settings.Second;
-        state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
+        state.Radius = FirefleaOrbit.Radius(radiusIndex);
 
         if (state.UsesCircularMovement)
         {

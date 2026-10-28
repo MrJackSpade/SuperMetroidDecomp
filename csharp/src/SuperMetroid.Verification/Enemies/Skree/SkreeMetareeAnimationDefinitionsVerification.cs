@@ -19,10 +19,10 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         {
             var phase = (SkreeMetareeAnimationPhase)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationDefinitions.MetareeProgram(phase)),
+                NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram(phase)),
                 $"Metaree animation phase {phase}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationDefinitions.SkreeProgram(phase)),
+                NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram(phase)),
                 $"Skree animation phase {phase}");
         }
 
@@ -32,10 +32,10 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
 
         var invalid = (SkreeMetareeAnimationPhase)4;
         AssertThrows<InvalidDataException>(
-            () => SkreeMetareeAnimationDefinitions.MetareeProgram(invalid),
+            () => SkreeMetareePrograms.MetareeProgram(invalid),
             "Metaree animation phase past table");
         AssertThrows<InvalidDataException>(
-            () => SkreeMetareeAnimationDefinitions.SkreeProgram(invalid),
+            () => SkreeMetareePrograms.SkreeProgram(invalid),
             "Skree animation phase past table");
         Console.WriteLine(
             "Skree/Metaree animation definitions: eight native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
@@ -60,7 +60,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 metareeState.InstalledInstructionListIndex,
                 phase,
                 metareeState.Program,
-                SkreeMetareeAnimationDefinitions.MetareeProgram(phase),
+                SkreeMetareePrograms.MetareeProgram(phase),
                 $"Metaree {phase}");
 
             var skreeSlot = NewSkreeMetareeAnimationSlot();
@@ -75,7 +75,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 skreeState.InstalledInstructionIndex,
                 phase,
                 skreeState.Program,
-                SkreeMetareeAnimationDefinitions.SkreeProgram(phase),
+                SkreeMetareePrograms.SkreeProgram(phase),
                 $"Skree {phase}");
         }
     }
@@ -101,7 +101,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 state.InstalledInstructionListIndex,
                 SkreeMetareeAnimationPhase.PreparingAttack,
                 state.Program,
-                SkreeMetareeAnimationDefinitions.MetareeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
+                SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
             "live Metaree preparation");
 
         state.AttackReady = true;
@@ -111,7 +111,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 state.InstalledInstructionListIndex,
                 SkreeMetareeAnimationPhase.Diving,
                 state.Program,
-                SkreeMetareeAnimationDefinitions.MetareeProgram(SkreeMetareeAnimationPhase.Diving),
+                SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.Diving),
             "live Metaree dive");
     }
 
@@ -136,7 +136,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 state.InstalledInstructionIndex,
                 SkreeMetareeAnimationPhase.PreparingAttack,
                 state.Program,
-                SkreeMetareeAnimationDefinitions.SkreeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
+                SkreeMetareePrograms.SkreeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
             "live Skree preparation");
 
         state.AttackReady = true;
@@ -146,7 +146,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 state.InstalledInstructionIndex,
                 SkreeMetareeAnimationPhase.Diving,
                 state.Program,
-                SkreeMetareeAnimationDefinitions.SkreeProgram(SkreeMetareeAnimationPhase.Diving),
+                SkreeMetareePrograms.SkreeProgram(SkreeMetareeAnimationPhase.Diving),
             "live Skree dive");
     }
 

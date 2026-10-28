@@ -33,7 +33,7 @@ internal static class YardTurnDefinitionsVerification
         foreach ((YardMovementFunction movement, bool disabled, int address) in records)
         {
             YardTurnDefinition definition =
-                YardTurnDefinitions.ForMovement(movement, disabled);
+                YardTurns.ForMovement(movement, disabled);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{disabled} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
@@ -54,12 +54,12 @@ internal static class YardTurnDefinitionsVerification
         })
         {
             AssertEqual(
-                YardTurnDefinitions.ForMovement(movement, false),
-                YardTurnDefinitions.ForMovement(movement, true),
+                YardTurns.ForMovement(movement, false),
+                YardTurns.ForMovement(movement, true),
                 $"Yard vertical turn {movement} ignores suppression flag");
         }
         AssertThrows<InvalidDataException>(
-            () => YardTurnDefinitions.ForMovement(YardMovementFunction.Airborne, false),
+            () => YardTurns.ForMovement(YardMovementFunction.Airborne, false),
             "Yard airborne state has no surface-turn definition");
 
         Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(records));
@@ -80,7 +80,7 @@ internal static class YardTurnDefinitionsVerification
         foreach ((YardMovementFunction movement, bool disabled, _) in records)
         {
             YardTurnDefinition definition =
-                YardTurnDefinitions.ForMovement(movement, disabled);
+                YardTurns.ForMovement(movement, disabled);
             VerifyYardTurnProductionBranch(
                 movement, disabled, empty, definition.OutsideTurnProgram,
                 $"Yard outside turn {movement}/{disabled}");

@@ -168,7 +168,7 @@ internal static class ShutterBehaviorVerification
     {
         for (int index = 0; index < GrowingShutterSpeedRecordCount; index++)
         {
-            SignedSixteenSixteen speed = GrowingShutterDefinitions.Speed((ushort)index);
+            SignedSixteenSixteen speed = GrowingShutters.Speed((ushort)index);
             short whole = speed.WholePixels;
             ushort fraction = speed.Fraction;
             SignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(speed);

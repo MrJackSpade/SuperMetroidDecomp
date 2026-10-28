@@ -23,7 +23,7 @@ internal sealed class SidehopperCorpsePalette
     {
         Count = colors.Length;
         if (Count is not (15 or 16)) throw new ArgumentException("Corpse palette requires15 or16 colors.", nameof(colors));
-        if (Count == 16 && Enumerable.Range(0, Count).All(color => colors[color] == SidehopperCorpsePaintDefinitions.Color(color)))
+        if (Count == 16 && Enumerable.Range(0, Count).All(color => colors[color] == SidehopperCorpsePaint.Color(color)))
         {
             stockTarget = true;
             independentOrSupplied = [];
@@ -72,7 +72,7 @@ internal sealed class SidehopperCorpsePalette
     internal RgbColor Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
-        if (stockTarget) return SidehopperCorpsePaintDefinitions.Color(color);
+        if (stockTarget) return SidehopperCorpsePaint.Color(color);
         if (!calculated) return independentOrSupplied[color];
         if (color == 5) return new RgbColor(31, 31, 31);
         if (color < 8) return independentOrSupplied[color < 5 ? color : color - 1];

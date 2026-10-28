@@ -26,7 +26,7 @@ internal static class MotherBrainHitboxCallbacksVerification
         {
             NativeEnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitionsConstants.Frame(index);
             int root = (int)new SnesAddress(frame.Bank, frame.Pointer);
-            ReadOnlySpan<MotherBrainCollisionComponent> components = MotherBrainCollisionDefinitions.ComponentsAt(frame.Pointer);
+            ReadOnlySpan<MotherBrainCollisionComponent> components = MotherBrainCollision.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), components.Length, $"frame {frame.Name} component count");
             for (int component = 0; component < components.Length; component++)
             {
@@ -36,7 +36,7 @@ internal static class MotherBrainHitboxCallbacksVerification
                     $"frame {frame.Name} component {component} X");
                 AssertEqual(cartridge.ReadCartridgeWord(record + 2), unchecked((ushort)compiled.Offset.Y),
                     $"frame {frame.Name} component {component} Y");
-                int list = (int)new SnesAddress(MotherBrainCollisionDefinitions.Bank, cartridge.ReadCartridgeWord(record + 6));
+                int list = (int)new SnesAddress(MotherBrainCollision.Bank, cartridge.ReadCartridgeWord(record + 6));
                 AssertEqual(cartridge.ReadCartridgeWord(list), compiled.Hitboxes.Count,
                     $"frame {frame.Name} component {component} rectangle count");
                 for (int box = 0; box < compiled.Hitboxes.Count; box++)

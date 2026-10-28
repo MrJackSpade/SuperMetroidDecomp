@@ -318,7 +318,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             // $A3:ABAF deliberately reads at table+1: the word consists of the subspeed's
             // high byte and speed's low byte. A naturally aligned 16-bit read changes every
             // initial jump index, so retain this odd unaligned cartridge access literally.
-            int heightIncrement = EnemyQuadraticSpeedDefinitions.ReadWord(tableIndex * 8 + 1);
+            int heightIncrement = EnemyQuadraticSpeeds.ReadWord(tableIndex * 8 + 1);
             accumulatedHeight = unchecked((ushort)(accumulatedHeight + heightIncrement));
             if (unchecked((short)(accumulatedHeight - jumpHeight)) >= 0)
                 return tableIndex;
@@ -333,7 +333,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperEnemyState state,
         HopperSurface surface,
         HopperPhase phase) =>
-        HopperAnimationDefinitions.Program(state.Variant, surface, phase);
+        HopperPrograms.Program(state.Variant, surface, phase);
 
     /// <summary>The surface the population's first parameter placed this hopper on.</summary>
     private static HopperSurface SurfaceOf(HopperEnemyState state) =>

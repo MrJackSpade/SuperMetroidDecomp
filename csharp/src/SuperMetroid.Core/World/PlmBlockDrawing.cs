@@ -140,7 +140,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             DrawCompiledBlockInstruction(level, openWall, origin);
             return;
         }
-        if (EscapeAnimalPlmDrawDefinitions.TryGet(draw, out var animalWall))
+        if (EscapeAnimalWalls.TryGet(draw, out var animalWall))
         {
             DrawCompiledBlockInstruction(level, animalWall, origin);
             return;
@@ -167,7 +167,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             DrawPlmWordAt(level, draw, origin, MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, MaridiaElevatubeVisuals?.GetWord(draw, 0, 0));
             return;
         }
-        if (CrocomireArenaPlmDrawDefinitions.TryDescribe(draw,
+        if (CrocomireArenaDraws.TryDescribe(draw,
                 out var crocomireDraw))
         {
             for (int run = 0; run < crocomireDraw.RunCount; run++)
@@ -175,13 +175,13 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(crocomireDraw.Wall ? run : block)), checked((short)(crocomireDraw.Wall ? block : 0))), crocomireDraw.WordAt(run, block), CrocomireVisuals?.GetWord(draw, run, block));
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(draw, out var backgroundFakeDeath))
+        if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
         {
             for (int column = 0; column < 13; column++)
                 DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), 0), backgroundFakeDeath.WordAt(column), MotherBrainFakeDeathVisuals?.GetWord(draw, 0, column));
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(draw, out var regularFakeDeath))
+        if (MotherBrainFakeDeathDraws.TryDescribeRegular(draw, out var regularFakeDeath))
         {
             for (int run = 0; run < regularFakeDeath.RunCount; run++)
                 for (int block = 0; block < regularFakeDeath.Count(run); block++)
@@ -192,7 +192,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 }
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(draw, out var boundaryFakeDeath))
+        if (MotherBrainFakeDeathDraws.TryDescribeBoundary(draw, out var boundaryFakeDeath))
         {
             for (int run = 0; run < 2; run++)
                 for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
@@ -207,7 +207,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianWord, TourianAccessVisuals?.GetWord(draw, row, column));
             return;
         }
-        if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw, out RoomLevelWord sporeCeilingWord))
+        if (SporeSpawnCeilingDraws.TryGetWord(draw, out RoomLevelWord sporeCeilingWord))
         {
             for (int row = 0; row < 2; row++)
                 for (int column = 0; column < 2; column++)
@@ -268,7 +268,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.WordAt(cell), EyeDoorVisuals?.GetWord(draw, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
             return;
         }
-        if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(draw, out var motherBrainGlass))
+        if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
         {
             Position16<RoomBlocks> glass = origin;
             for (int run = 0; run < motherBrainGlass.RunCount; run++)
@@ -317,7 +317,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (ElevatorPlatformPlmDefinitions.TryDescribe(draw, out var elevator))
+        if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))
         {
             Position16<RoomBlocks> elevatorCursor = origin;
             for (int run = 0; run < elevator.RunCount; run++)
@@ -349,7 +349,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(draw, out var escapeGate))
+        if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
         {
             for (int row = 0; row < 4; row++)
             {
@@ -360,7 +360,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (BombTorizoHandPlmDrawDefinitions.TryDescribe(draw, out var bombTorizoHand))
+        if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))
         {
             for (int run = 0; run < bombTorizoHand.RunCount; run++)
                 for (int word = 0; word < bombTorizoHand.WordCount(run); word++)
@@ -372,7 +372,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 }
             return;
         }
-        if (DraygonCannonPlmDrawDefinitions.TryDescribe(draw, out var draygonCannon))
+        if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
         {
             Position16<RoomBlocks> cannon = origin;
             for (int run = 0; run < draygonCannon.RunCount; run++)
@@ -388,7 +388,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (ChozoStatuePlmDrawDefinitions.TryDescribe(draw, out var chozoStatue))
+        if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
         {
             Position16<RoomBlocks> chozo = origin;
             for (int run = 0; run < chozoStatue.RunCount; run++)

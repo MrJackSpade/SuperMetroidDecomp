@@ -43,7 +43,7 @@ internal static class SpriteArtworkBytes
                 "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk.Entry),
             MotherBrainCorpseCharacters corpse => (Bosses(installed).MotherBrainCorpse ?? throw new InvalidDataException(
                 "Installed enemy artwork is missing mother-brain-corpse-tiles.png.")).Characters.Slice(
-                MotherBrainCorpseArtworkDefinitions.PageOffset(corpse.Page), MotherBrainCorpseArtworkDefinitions.PageByteCount),
+                MotherBrainCorpseSheet.PageOffset(corpse.Page), MotherBrainCorpseArtworkDefinitions.PageByteCount),
             MotherBrainEscapeTextCharacters text => (Bosses(installed).MotherBrainEscapeText ?? throw new InvalidDataException(
                 "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.")).Characters.Slice(
                 EscapeTextPages.PageOffset(text.Page), EscapeTextPages.PageByteCount(text.Page)),

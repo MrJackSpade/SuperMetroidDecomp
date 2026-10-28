@@ -1208,7 +1208,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         if (curveIndex != 0)
             GetawayFrame();
-        var curve = CeresRidleyGetawayDefinitions.FromIndex(curveIndex);
+        var curve = CeresRidleyGetaway.FromIndex(curveIndex);
         expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
         expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
         AssertEqual(curve.Zoom, state.FloorZoom, "Ceres real getaway zoom publication");

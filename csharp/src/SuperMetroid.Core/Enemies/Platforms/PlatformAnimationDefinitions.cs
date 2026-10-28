@@ -3,22 +3,16 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// <summary>Animation selection for the Tripper and Kamer platforms.</summary>
 internal static class PlatformAnimationDefinitions
 {
-    /// <summary>
-    /// Program choice at $A3:9E47-9EBA, called by the zero/nonzero direction branches at $A3:9ECB and $A3:9EF1.
-    /// Initialization uses the still cases. Every nonzero direction word selects the right-moving program.
-    /// </summary>
-    internal static PlatformProgram SelectProgram(bool isKamer, Axis axis, PlatformHorizontalMovement direction)
+    /// <summary>Program choice at $A3:9E47-9EBA for each platform pose; initialization uses the still poses.</summary>
+    internal static readonly Dictionary<PlatformPose, PlatformProgram> Programs = new()
     {
-        bool moving = axis == Axis.Vertical;
-        bool left = direction == PlatformHorizontalMovement.Left;
-        if (isKamer)
-        {
-            return moving
-                ? left ? PlatformProgram.KamerMovingLeft : PlatformProgram.KamerMovingRight
-                : left ? PlatformProgram.KamerStillLeft : PlatformProgram.KamerStillRight;
-        }
-        return moving
-            ? left ? PlatformProgram.TripperMovingLeft : PlatformProgram.TripperMovingRight
-            : left ? PlatformProgram.TripperStillMovingLeft : PlatformProgram.TripperStillMovingRight;
-    }
+        [new(true, true, true)] = PlatformProgram.KamerMovingLeft,
+        [new(true, true, false)] = PlatformProgram.KamerMovingRight,
+        [new(true, false, true)] = PlatformProgram.KamerStillLeft,
+        [new(true, false, false)] = PlatformProgram.KamerStillRight,
+        [new(false, true, true)] = PlatformProgram.TripperMovingLeft,
+        [new(false, true, false)] = PlatformProgram.TripperMovingRight,
+        [new(false, false, true)] = PlatformProgram.TripperStillMovingLeft,
+        [new(false, false, false)] = PlatformProgram.TripperStillMovingRight,
+    };
 }

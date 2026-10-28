@@ -157,7 +157,7 @@ internal sealed class DraygonDeath
     internal void SpawnDraygonDeathEvir(int entry, RoomSpriteObjectKind kind)
     {
         DraygonBurialEvirDefinition definition =
-            DraygonBurialEvirDefinitions.ForEntry(entry);
+            DraygonBurialEvirs.ForEntry(entry);
         RoomSpriteObjectSlot? sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
             kind,
@@ -186,8 +186,8 @@ internal sealed class DraygonDeath
             }
 
             DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirDefinitions.ForEntry(entry);
-            sprite.Position = sprite.Position.Advance(definition.Velocity);
+                DraygonBurialEvirs.ForEntry(entry);
+            sprite.Position = sprite.Position.Advance(DraygonBurialEvirs.Velocity(definition));
         }
     }
 

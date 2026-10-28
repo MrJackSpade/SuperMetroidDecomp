@@ -19,8 +19,8 @@ public static class RoomPlmDraygonCannonVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Draygon cannon", DraygonCannonPlmDrawDefinitions.All,
-            DraygonCannonPlmDrawDefinitions.VisualId);
+            VisualFileName, "Draygon cannon", DraygonCannonDraws.All,
+            DraygonCannonDraws.VisualId);
 
     /// <summary>Validates stock cannon art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the cannon JSON and its provenance/digest manifest.</param>
@@ -30,7 +30,7 @@ public static class RoomPlmDraygonCannonVisualFiles
     public static RoomPlmDraygonCannonVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", DraygonCannonPlmDrawDefinitions.All, DraygonCannonPlmDrawDefinitions.VisualId, entries => new RoomPlmDraygonCannonVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", DraygonCannonDraws.All, DraygonCannonDraws.VisualId, entries => new RoomPlmDraygonCannonVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled visual words; ignores overrides.</summary>

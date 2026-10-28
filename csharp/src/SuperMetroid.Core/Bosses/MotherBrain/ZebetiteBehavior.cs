@@ -131,12 +131,12 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ZebetiteGenerationDefinition definition = ZebetiteDefinitions.Generation(generation);
+        ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
         slot.Radius = slot.Radius.WithY(checked((ushort)definition.YRadius));
         state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(definition.Program);
         slot.Position = slot.Position.WithWholeX(checked((ushort)definition.XPosition));
-        slot.Position = slot.Position.WithWholeY(checked((ushort)definition.YPosition(state.IsSecondaryHalf)));
+        slot.Position = slot.Position.WithWholeY(checked((ushort)Zebetites.YPosition(definition, state.IsSecondaryHalf)));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
@@ -249,7 +249,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Zebetite progression exhausted the 32-slot enemy pool.");
 
         RoomEnemyPopulationRecord population =
-            ZebetiteDefinitions.SpawnPopulation(half);
+            Zebetites.SpawnPopulation(half);
         if (population.DefinitionId != EnemyDefinitionId.Zebetite)
         {
             throw new InvalidDataException(

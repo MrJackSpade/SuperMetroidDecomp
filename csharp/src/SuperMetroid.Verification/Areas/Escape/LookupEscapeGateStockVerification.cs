@@ -27,7 +27,7 @@ internal static class LookupEscapeGateStockVerification
         var stock = RoomPlmEscapeGateVisualCatalog.Stock();
         var imported = new RoomPlmEscapeGateVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmEscapeGateVisualCatalog), words.ToDictionary(pair => MotherBrainEscapeGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmEscapeGateVisualCatalog), words.ToDictionary(pair => MotherBrainEscapeGateDraws.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Escape gate original stock identity");

@@ -46,8 +46,8 @@ public static class EnemyExtendedFrameDocuments
                     : definition.Name;
             if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
-                visual is null || visual.Length > EnemyExtendedFrames.MaximumSpriteComponents(definition) ||
-                (visual.Length == 0 && !EnemyExtendedFrames.IsBg2Only(definition)))
+                visual is null || visual.Length > EnemyExtendedFrameBounds.MaximumSpriteComponents(definition) ||
+                (visual.Length == 0 && !EnemyExtendedFrameBounds.IsBg2Only(definition)))
                 throw new InvalidDataException(
                     $"Extended enemy frame {authoredName} is missing or exceeds component capacity.");
             var compiled = new EnemyExtendedDrawComponent[visual.Length];
@@ -60,7 +60,7 @@ public static class EnemyExtendedFrameDocuments
                     component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
-                SpritePart[] parts = EnemySpritemapCatalog.CompileParts(
+                SpritePart[] parts = EnemySpritemaps.CompileParts(
                     component.Parts, $"{definition.Name} component {index}");
                 totalParts += parts.Length;
                 if (totalParts > EnemySpritemapCatalog.MaximumParts)
@@ -68,7 +68,7 @@ public static class EnemyExtendedFrameDocuments
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
                     new((short)component.OffsetX, (short)component.OffsetY),
-                    GoldenTorizoStrideGeometryDefinitions.Compile(definition.Frame,
+                    GoldenTorizoStride.Compile(definition.Frame,
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
             if (!frames.TryAdd(definition.Frame, compiled))

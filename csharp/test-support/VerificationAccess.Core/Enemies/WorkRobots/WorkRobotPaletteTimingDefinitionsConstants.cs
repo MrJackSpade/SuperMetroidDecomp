@@ -26,7 +26,7 @@ internal static class WorkRobotPaletteTimingDefinitionsConstants
         if (byteOffset == WorkRobotPaletteTimingDefinitions.RecordCount * WorkRobotPaletteTimingDefinitions.RecordByteCount)
             return 0;
 
-        _ = WorkRobotPaletteTimingDefinitions.DurationForByteOffset(byteOffset);
+        _ = WorkRobotPaletteTiming.DurationForByteOffset(byteOffset);
         return byteOffset;
     }
 }

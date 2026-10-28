@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>
@@ -17,74 +16,21 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 internal static class PhantoonHealthPaintDefinitions
 {
     /// <summary>$A7:CC23: olive hide's brightest red/green level and blue channel.</summary>
-    private const int HideGlint = 27, HideGlintBlue = 17;
+    internal const int HideGlint = 27, HideGlintBlue = 17;
     /// <summary>$A7:CC25: mid-light hide is the selected two-thirds shade of the glint, with floor rounding.</summary>
-    private const int HideMidNumerator = 2, HideMidDenominator = 3;
+    internal const int HideMidNumerator = 2, HideMidDenominator = 3;
     /// <summary>$A7:CC27-CC29: deepest yellow hide contour, followed by its half-intensity outline.</summary>
-    private const int HideDeep = 6;
+    internal const int HideDeep = 6;
     /// <summary>$A7:CC2B-CC31: olive body surface red/green ramp, clipped at its selected shadow floor.</summary>
-    private const int OlivePeak = 21, OliveStep = 5, OliveFloor = 8;
+    internal const int OlivePeak = 21, OliveStep = 5, OliveFloor = 8;
     /// <summary>$A7:CC2B/CC31: body surface blue endpoints are the corresponding olive endpoints minus this yellow tint; intermediate blue uses nearest gamma-two interpolation.</summary>
-    private const int YellowSeparation = 7;
+    internal const int YellowSeparation = 7;
     /// <summary>$A7:CC35-CC39: iris shares the selected olive peak but has a distinct shade step, floor and blue endpoints.</summary>
-    private const int IrisStep = 8, IrisFloor = 9, IrisBlueLight = 13, IrisBlueDark = 2;
+    internal const int IrisStep = 8, IrisFloor = 9, IrisBlueLight = 13, IrisBlueDark = 2;
     /// <summary>$A7:CC3B-CC3F: saturated-red eye-surround shade endpoints and clipped blue falloff.</summary>
-    private const int SurroundLight = 29, SurroundDark = 10, SurroundBlue = 14, SurroundBlueStep = 8;
+    internal const int SurroundLight = 29, SurroundDark = 10, SurroundBlue = 14, SurroundBlueStep = 8;
     /// <summary>$A7:CB41-CC40: retained healthy-color weight starts at8/15 and increases by one fifteenth per band.</summary>
-    private const int MinimumWeight = 8, WeightDenominator = 15;
+    internal const int MinimumWeight = 8, WeightDenominator = 15;
     /// <summary>$A7:CB41-CC40: global green/blue quantization bias, applied before division to every ink/band. It accounts for all nine products whose remainder is14; there is no exceptional channel list.</summary>
-    private const int CoolChannelNumeratorBias = 1;
-
-    /// <summary>Blends one material ink toward red using the selected health band and cool-channel quantization bias.</summary>
-    internal static RgbColor Color(int band, int ink)
-    {
-        if ((uint)band >= 8) throw new ArgumentOutOfRangeException(nameof(band));
-        RgbColor healthy = Healthy(ink);
-        int weight = MinimumWeight + band;
-        int red = (31 * WeightDenominator + ((healthy.Red) - 31) * weight) / WeightDenominator;
-        int green = ((healthy.Green) * weight + CoolChannelNumeratorBias) / WeightDenominator;
-        int blue = ((healthy.Blue) * weight + CoolChannelNumeratorBias) / WeightDenominator;
-        return Rgb(red, green, blue);
-    }
-
-    /// <summary>Chooses the untinted hide, pupil, iris, or eye-surround material shade.</summary>
-    private static RgbColor Healthy(int ink) => ink switch
-    {
-        0 => RgbColor.Black,
-        1 => Olive(HideGlint, HideGlintBlue),
-        2 => Olive(HideGlint * HideMidNumerator / HideMidDenominator,
-            HideGlintBlue * HideMidNumerator / HideMidDenominator),
-        3 => Olive(HideDeep, 0),
-        4 => Olive(HideDeep / 2, 0),
-        >= 5 and <= 8 => BodyShade(ink - 5),
-        9 => Rgb(31, 31, 31),
-        >= 10 and <= 12 => IrisShade(ink - 10),
-        >= 13 and <= 15 => SurroundShade(ink - 13),
-        _ => throw new ArgumentOutOfRangeException(nameof(ink)),
-    };
-
-    /// <summary>Calculates the olive body ramp with a clipped red-green floor and gamma-spaced blue.</summary>
-    private static RgbColor BodyShade(int shade) => Olive(
-        Math.Max(OliveFloor, OlivePeak - OliveStep * shade),
-        GammaShade(OlivePeak - YellowSeparation, OliveFloor - YellowSeparation, shade, 3));
-    /// <summary>Calculates iris shades with their own channel step and blue endpoints.</summary>
-    private static RgbColor IrisShade(int shade) => Olive(
-        Math.Max(IrisFloor, OlivePeak - IrisStep * shade),
-        GammaShade(IrisBlueLight, IrisBlueDark, shade, 2));
-    /// <summary>Calculates the saturated red eye surround and its clipped blue falloff.</summary>
-    private static RgbColor SurroundShade(int shade) => Rgb(
-        (SurroundLight * (2 - shade) + SurroundDark * shade + 1) / 2,
-        0, Math.Max(0, SurroundBlue - SurroundBlueStep * shade));
-    /// <summary>Interpolates channel intensity in gamma-two space and rounds the interior shade.</summary>
-    private static int GammaShade(int from, int to, int shade, int intervals)
-    {
-        if (shade == 0) return from;
-        if (shade == intervals) return to;
-        double intensity = (Math.Sqrt(from) * (intervals - shade) + Math.Sqrt(to) * shade) / intervals;
-        return (int)Math.Floor(intensity * intensity + 0.5);
-    }
-    /// <summary>Uses equal red and green channels for Phantoon's olive materials.</summary>
-    private static RgbColor Olive(int intensity, int blue) => Rgb(intensity, intensity, blue);
-    /// <summary>Forms one five-bit material color from its calculated channels.</summary>
-    private static RgbColor Rgb(int red, int green, int blue) => new RgbColor(red, green, blue);
+    internal const int CoolChannelNumeratorBias = 1;
 }

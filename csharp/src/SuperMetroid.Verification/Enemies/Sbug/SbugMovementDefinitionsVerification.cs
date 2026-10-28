@@ -28,7 +28,7 @@ internal static class SbugMovementDefinitionsVerification
         {
             int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, SbugMovementDefinitions.FacingProgram(facing)),
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, SbugMovement.FacingProgram(facing)),
                 $"compiled Sbug facing selector {facing}");
         }
 
@@ -36,7 +36,7 @@ internal static class SbugMovementDefinitionsVerification
         {
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
-            AssertEqual(native, SbugMovementDefinitions.ActivationFunction((SbugActivationBehavior)behavior),
+            AssertEqual(native, SbugMovement.ActivationFunction((SbugActivationBehavior)behavior),
                 $"compiled Sbug activation selector {behavior}");
         }
 
@@ -51,7 +51,7 @@ internal static class SbugMovementDefinitionsVerification
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             AssertEqual(selector, state.ForwardFacing,
                 $"Sbug production facing {selector}");
-            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram(selector)), state.Program,
+            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(selector)), state.Program,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Program.Program),
                 $"Sbug production facing list {selector}");
@@ -79,13 +79,13 @@ internal static class SbugMovementDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.FacingProgram(8),
+            () => SbugMovement.FacingProgram(8),
             "Sbug facing selector beyond authored table");
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.FacingProgram(-1),
+            () => SbugMovement.FacingProgram(-1),
             "Sbug facing selector below the authored table");
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.ActivationFunction((SbugActivationBehavior)7),
+            () => SbugMovement.ActivationFunction((SbugActivationBehavior)7),
             "Sbug activation selector beyond authored table");
 
         Console.WriteLine(
@@ -121,7 +121,7 @@ internal static class SbugMovementDefinitionsVerification
         state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(1, state.CustomFacing, "the reversal folds facing 7 into facing 1");
-        AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram(1)), state.Program,
+        AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(1)), state.Program,
             "the folded facing installs its loop");
         Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
     }

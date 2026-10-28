@@ -237,7 +237,7 @@ internal sealed class CeresRidleyHits
         int subjectTop = unchecked((ushort)(subject.Y - subjectRadius.Y));
         int subjectBottom = unchecked((ushort)(subject.Y + subjectRadius.Y));
         var components =
-            RidleyCollisionDefinitions.ComponentsAt(slot.Frame);
+            RidleyCollision.ComponentsAt(slot.Frame);
         foreach (RidleyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;

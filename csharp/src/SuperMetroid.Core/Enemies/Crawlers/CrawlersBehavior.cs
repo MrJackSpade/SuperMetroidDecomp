@@ -68,7 +68,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation orientation = CrawlerAnimationDefinitions.Orientations.At((animationFamily == CrawlerAnimationFamily.Viola
             ? slot.Properties.FamilyData
             : slot.CurrentInstruction) & 3);
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -92,7 +92,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Crawler speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
             }
-            int speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
+            int speed = CrawlerSpeeds.ForParameter(checked((ushort)speedParameter));
             velocity = new(new SignedEightEight(checked((ushort)speed)), new SignedEightEight(checked((ushort)speed)));
         }
 
@@ -124,11 +124,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         Bind(slot, state);
         CrawlerSurfaceOrientation orientation = CrawlerAnimationDefinitions.Orientations.At(slot.CurrentInstruction & 3);
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        int velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
+        int velocity = CrawlerSpeeds.ForParameter(checked((ushort)speedParameter));
         state.Velocity = new(new SignedEightEight(checked((ushort)velocity)), new SignedEightEight(checked((ushort)velocity)));
         state.Velocity = (slot.Properties.FamilyData & 3) switch
         {
@@ -266,9 +266,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             state,
             state.Velocity.Y.SignedRawValue < 0
-                ? CrawlerAnimationDefinitions.InitialProgram(
+                ? CrawlerSurfaceAnimations.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
-                : CrawlerAnimationDefinitions.InitialProgram(
+                : CrawlerSurfaceAnimations.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
     /// <summary>Selects orange Zoomer's floor or ceiling animation from its horizontal velocity sign.</summary>
@@ -279,9 +279,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             state,
             state.Velocity.X.SignedRawValue < 0
-                ? CrawlerAnimationDefinitions.InitialProgram(
+                ? CrawlerSurfaceAnimations.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
-                : CrawlerAnimationDefinitions.InitialProgram(
+                : CrawlerSurfaceAnimations.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
     /// <summary>Starts the chosen orange-Zoomer animation with fresh instruction and loop timers.</summary>
@@ -466,7 +466,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Crawler instruction-table offset ${state.SurfaceTableOffset:X4} is invalid.");
         }
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
             checked((ushort)state.SurfaceTableOffset), orientation));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -500,7 +500,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             int slopeShape = block.Bts.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
-                return CrawlerSlopeDefinitions.Scale(velocity.X.RawValue, slopeShape);
+                return CrawlerSlopes.Scale(velocity.X.RawValue, slopeShape);
             }
         }
         return SixteenSixteen.FromEightEight(velocity.X.SignedRawValue);

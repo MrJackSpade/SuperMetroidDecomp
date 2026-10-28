@@ -69,7 +69,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             // Property $0400 keeps the cosmetic record out of touch/shot collision passes.
             state.RequestedInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
             state.InstalledInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
-            state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
+            state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
                 DragonAnimationSelector.WingsFacingLeft));
             slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
             state.Function = DragonEnemyFunction.WingNoOp;
@@ -78,7 +78,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.RequestedInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
         state.InstalledInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
-        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
+        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
             DragonAnimationSelector.IdleFacingLeft));
         state.Function = DragonEnemyFunction.WaitToRise;
     }
@@ -138,10 +138,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // edits use that sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole)) < 0;
         bodyState.FacingLeft = facingLeft;
-        bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
+        bodyState.RequestedInstructionListIndex = DragonPhases.WithFacing(
             bodyState.RequestedInstructionListIndex,
             facingLeft);
-        wingState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
+        wingState.RequestedInstructionListIndex = DragonPhases.WithFacing(
             wingState.RequestedInstructionListIndex,
             facingLeft);
         InstallDragonInstructionList(body, bodyState);
@@ -155,7 +155,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (bodyState.FunctionTimer.IsNegative)
         {
             bodyState.RequestedInstructionListIndex =
-                DragonAnimationDefinitions.AttackingWithSameFacing(
+                DragonPhases.AttackingWithSameFacing(
                     bodyState.RequestedInstructionListIndex);
             bodyState.AttackCounter = WrappingCountdown.Start(DragonShotCount);
             bodyState.Function = DragonEnemyFunction.Attacking;
@@ -188,7 +188,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bodyState.RequestedInstructionListIndex =
-            DragonAnimationDefinitions.IdleWithSameFacing(
+            DragonPhases.IdleWithSameFacing(
                 bodyState.RequestedInstructionListIndex);
         bodyState.FunctionTimer = WrappingCountdown.Start(DragonWaitBeforeSinkFrames);
         bodyState.Function = DragonEnemyFunction.WaitToSink;
@@ -275,7 +275,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RequestedInstructionListIndex == state.InstalledInstructionListIndex)
             return;
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
-        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
+        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
             state.RequestedInstructionListIndex));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

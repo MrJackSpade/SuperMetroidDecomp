@@ -37,7 +37,7 @@ internal static class BoyonSpeedDefinitionsVerification
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;
-            AssertEqual(sample, BoyonSpeedDefinitions.Sample((ushort)index), "Boyon native curve/saturation");
+            AssertEqual(sample, BoyonBounceCurve.Sample((ushort)index), "Boyon native curve/saturation");
             state.SpeedTableIndex = (ushort)index;
             for (int multiplier = 0; multiplier < 256; multiplier++)
             {

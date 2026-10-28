@@ -66,17 +66,17 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
         int undergroundTimer =
-            OwtchMovementDefinitions.UndergroundTimer((byte)undergroundTimerIndex);
+            OwtchPatrol.UndergroundTimer((byte)undergroundTimerIndex);
         int travelDistance =
-            OwtchMovementDefinitions.TravelDistance((byte)distanceIndex);
+            OwtchPatrol.TravelDistance((byte)distanceIndex);
 
         // The initializer masks the raw state only for its two-entry facing table. Thus
         // states two and four begin with the left list, while state three begins right.
         OwtchProgram initialProgram = (initialState & 1) == 0 ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
 
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
-        var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
+        var right = EnemyLinearSpeeds.Read(speedRecord);
+        var left = EnemyLinearSpeeds.Read(speedRecord + 4);
         var state = new OwtchEnemyState
         {
             RightVelocity = right,
@@ -128,7 +128,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = WrappingCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
+                    state.UndergroundTimer = WrappingCountdown.FromRaw(OwtchPatrol.UndergroundTimer(
                         slot.Spawn.Population.Parameter1Settings.Second));
                 }
                 return;

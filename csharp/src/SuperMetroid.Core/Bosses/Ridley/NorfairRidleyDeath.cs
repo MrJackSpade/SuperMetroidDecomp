@@ -48,7 +48,7 @@ internal sealed class NorfairRidleyDeath
         if (state.FightMode != RidleyFightMode.Dying)
         {
             SamusMovementType movement = samus is null ? SamusMovementType.Standing : SamusPoseMetadata.ReadMovementType(samus);
-            state.IntangibilityTimer = WrappingCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
+            state.IntangibilityTimer = WrappingCountdown.FromRaw(RidleyGrabs.ReleaseIntangibilityFrames(movement));
         }
     }
 
@@ -191,7 +191,7 @@ internal sealed class NorfairRidleyDeath
             return;
         state.DeathBreakupSpawned = true;
 
-        RidleyExplosionDefinitions.SpawnInBreakupOrder(SpawnPart);
+        RidleyBreakup.SpawnInBreakupOrder(SpawnPart);
 
         void SpawnPart(int parameter)
         {
@@ -249,14 +249,14 @@ internal sealed class NorfairRidleyDeath
             int tailTipOrientation =
                 unchecked((byte)(unchecked((byte)tail.Angle) +
                     unchecked((byte)state.TailSegments[5].Angle) + 8)) / 16;
-            StartRidleyBreakupProgram(state, fragment, RidleyExplosionDefinitions.SelectTailFrame(
+            StartRidleyBreakupProgram(state, fragment, RidleyBreakup.SelectTailFrame(
                 part,
                 tailTipOrientation));
             return;
         }
 
         RidleyExplosionBodyPartDefinition bodyPart =
-            RidleyExplosionDefinitions.SelectBodyPart(
+            RidleyBreakup.SelectBodyPart(
                 part,
                 facingRight: state.FacingDirection != RidleyFacing.Left);
         fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);

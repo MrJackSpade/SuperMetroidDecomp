@@ -25,7 +25,7 @@ internal static class CrawlerSpeedsVerification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Yard/crawler native speed mirror");
-            AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Compiled crawling speed");
+            AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Compiled crawling speed");
             speedParameter = parameter;
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
@@ -58,13 +58,13 @@ internal static class CrawlerSpeedsVerification
             for (ushort direction = 0; direction < 8; direction++)
             {
                 int address = 0xa3cd82 + direction * 8;
-                var actual = YardVelocityDefinitions.Apply((ushort)magnitude, direction);
+                var actual = YardCrawlVelocity.Apply((ushort)magnitude, direction);
                 AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), actual.X.RawValue, "Yard exhaustive native X sign");
                 AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), actual.Y.RawValue, "Yard exhaustive native Y sign");
             }
         }
-        AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler invalid speed");
-        AssertThrows<InvalidDataException>(() => YardVelocityDefinitions.Apply(1, 8), "Yard invalid direction");
+        AssertThrows<InvalidDataException>(() => CrawlerSpeeds.ForParameter(32), "Crawler invalid speed");
+        AssertThrows<InvalidDataException>(() => YardCrawlVelocity.Apply(1, 8), "Yard invalid direction");
         Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, 262144 sentinel resets and 524288 Yard sign pairs match native values without a bus.");
     }
 

@@ -39,13 +39,13 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // These are definition selectors, not live timers or editable presentation data.
         // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
-        var intervals = BullMovementDefinitions.Intervals(checked((ushort)slot.Spawn.Population.Parameter1));
+        var intervals = BullMotion.Intervals(checked((ushort)slot.Spawn.Population.Parameter1));
         state.AccelerationIntervalTimerReset = intervals.Acceleration;
         state.AccelerationIntervalTimer = WrappingCountdown.Start(state.AccelerationIntervalTimerReset);
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = WrappingCountdown.Start(BullMovementDelayFrames);
         state.Function = BullEnemyFunction.MovementDelay;
-        state.MaxSpeed = BullMovementDefinitions.MaximumSpeed(checked((ushort)slot.Spawn.Population.Parameter2));
+        state.MaxSpeed = BullMotion.MaximumSpeed(checked((ushort)slot.Spawn.Population.Parameter2));
     }
 
     /// <summary>Ports <c>MainAI_Bull</c> and all four indirect function targets.</summary>
@@ -219,7 +219,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         bull.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
         int direction = projectileDirection & SamusProjectileDirectionMasks.Direction;
-        state.Angle = BullMovementDefinitions.ShotAngle(direction);
+        state.Angle = BullMotion.ShotAngle(direction);
         state.Acceleration = 256;
         state.Speed = 1536;
         state.Function = BullEnemyFunction.Decelerating;

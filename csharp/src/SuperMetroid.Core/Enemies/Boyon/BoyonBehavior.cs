@@ -65,8 +65,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoyonEnemyState
         {
             BounceMovement = BoyonBounceMovement.Rising,
-            SpeedMultiplier = BoyonSpeedDefinitions.InitialMultiplier(multiplierIndex),
-            JumpHeight = BoyonSpeedDefinitions.InitialHeight(jumpHeightIndex),
+            SpeedMultiplier = BoyonBounceCurve.InitialMultiplier(multiplierIndex),
+            JumpHeight = BoyonBounceCurve.InitialHeight(jumpHeightIndex),
             DistanceAccumulator = 0,
             SpeedTableIndex = 0,
             Bouncing = false,
@@ -196,7 +196,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the stored table use the explicit saturated byte rather than reading adjacent ROM.
     /// </summary>
     internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
-        BoyonSpeedDefinitions.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
+        BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
 
     /// <summary>Ports <c>IsSamusWithinAPixelColumnsOfEnemy</c> for Boyon's init1 radius.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(

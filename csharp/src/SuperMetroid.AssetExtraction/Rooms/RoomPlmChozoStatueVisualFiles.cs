@@ -19,8 +19,8 @@ public static class RoomPlmChozoStatueVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Chozo statue", ChozoStatuePlmDrawDefinitions.All,
-            ChozoStatuePlmDrawDefinitions.VisualId);
+            VisualFileName, "Chozo statue", ChozoStatueDraws.All,
+            ChozoStatueDraws.VisualId);
 
     /// <summary>Validates stock Chozo art against its manifest and compiled layouts, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the Chozo JSON and its provenance/digest manifest.</param>
@@ -30,7 +30,7 @@ public static class RoomPlmChozoStatueVisualFiles
     public static RoomPlmChozoStatueVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", ChozoStatuePlmDrawDefinitions.All, ChozoStatuePlmDrawDefinitions.VisualId, entries => new RoomPlmChozoStatueVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", ChozoStatueDraws.All, ChozoStatueDraws.VisualId, entries => new RoomPlmChozoStatueVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Checks stock Chozo provenance, digest, schema, complete layout coverage, and equality with compiled visual words; ignores overrides.</summary>

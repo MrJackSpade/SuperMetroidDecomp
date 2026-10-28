@@ -13,7 +13,7 @@ internal static class PuyoHopDefinitionsVerification
         var state = new PuyoEnemyState();
         for (ushort index = 0; index < 56; index += 8)
         {
-            var hop = PuyoHopDefinitions.FromByteIndex(index);
+            var hop = PuyoHops.FromByteIndex(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.Height, "Puyo native hop height");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.XSpeed, "Puyo native horizontal speed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0b + index)), hop.YIndexDelta, "Puyo native gravity/drop delta");
@@ -35,7 +35,7 @@ internal static class PuyoHopDefinitionsVerification
             AssertEqual(time / 2 + time / 4, state.InitialYSpeedTableIndexThreeQuarters, "Puyo three-quarter threshold");
         }
         foreach (ushort invalid in new ushort[] { 1, 7, 49, 56, 65535 })
-            AssertThrows<InvalidDataException>(() => PuyoHopDefinitions.FromByteIndex(invalid), "Puyo invalid byte selector");
+            AssertThrows<InvalidDataException>(() => PuyoHops.FromByteIndex(invalid), "Puyo invalid byte selector");
         Console.WriteLine("Puyo definitions: all seven native records and six real initial hop integrations match without a bus; dropping remains a separate constant-speed path.");
     }
 }

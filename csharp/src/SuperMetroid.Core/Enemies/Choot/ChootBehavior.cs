@@ -37,7 +37,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // ROM table word points back into the pointer table and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
         int patternIndex = slot.Spawn.Population.Parameter1Settings.Second;
-        ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
+        ChootPatternDefinition pattern = ChootFalls.ForIndex(patternIndex);
         state.FallingPath = pattern.FallingPath;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
@@ -140,7 +140,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Follows authored path offsets, advancing its origin at terminators and restoring the exact spawn state after the final loop.</summary>
     internal static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
-        ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
+        ChootFallingPathPoint point = ChootFalls.At(
             state.FallingPath ?? throw new InvalidDataException("A falling Choot has no falling pattern."),
             state.FallingPatternFrame);
         if (point.IsTerminator)

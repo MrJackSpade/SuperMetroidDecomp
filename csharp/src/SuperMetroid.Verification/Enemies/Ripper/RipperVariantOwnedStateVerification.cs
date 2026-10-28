@@ -23,8 +23,8 @@ internal static class RipperVariantOwnedStateVerification
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
-        SignedSixteenSixteen negative = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
-        SignedSixteenSixteen positive = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SignedSixteenSixteen negative = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        SignedSixteenSixteen positive = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
         AssertEqual(speedRecord * EnemyLinearSpeedDefinitions.RecordSize, state.SpeedTableByteOffset, "the speed record's byte offset");
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
         enemies.RipperBehavior.ReverseRipperVariant(slot, RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight);

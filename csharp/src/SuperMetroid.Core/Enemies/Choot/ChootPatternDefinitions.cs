@@ -18,14 +18,12 @@ internal static class ChootPatternDefinitions
     /// The advances are not the paths' final offsets (31/29/32 against 30/28/32), so they
     /// stay authored inputs of each drawn trajectory (see residualScalarInputsReview).
     /// </summary>
-    internal static ChootPatternDefinition ForIndex(int patternIndex) => patternIndex switch
-    {
-        0 => new(ChootFallingPath.Normal, NormalLoopYDistance),
-        1 => new(ChootFallingPath.Wide, WideLoopYDistance),
-        2 => new(ChootFallingPath.VeryWide, VeryWideLoopYDistance),
-        3 => new(ChootFallingPath.Slow, NormalLoopYDistance),
-        4 => new(ChootFallingPath.VerySlow, NormalLoopYDistance),
-        _ => throw new InvalidDataException(
-            $"Choot falling-pattern index {patternIndex} exceeds its five real streams."),
-    };
+    internal static readonly ChootPatternDefinition[] Patterns =
+    [
+        new(ChootFallingPath.Normal, NormalLoopYDistance),
+        new(ChootFallingPath.Wide, WideLoopYDistance),
+        new(ChootFallingPath.VeryWide, VeryWideLoopYDistance),
+        new(ChootFallingPath.Slow, NormalLoopYDistance),
+        new(ChootFallingPath.VerySlow, NormalLoopYDistance),
+    ];
 }

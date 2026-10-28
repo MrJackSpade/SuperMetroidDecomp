@@ -40,7 +40,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         foreach (ushort selectedFrame in KraidAnimationsTooling.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
                      KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
                      KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop))
-            AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(selectedFrame, out _),
+            AssertTrue(KraidFootCollision.TryGetComponents(selectedFrame, out _),
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
         System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> hitboxes =
@@ -58,7 +58,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         {
             installedFoot.SpritemapPointer = frame;
             installedFoot.Position = installedFoot.Position.WithWhole(new(originX, originY));
-            KraidFootCollisionDefinitions.TryGetComponents(frame, out var components);
+            KraidFootCollision.TryGetComponents(frame, out var components);
             foreach (KraidCollisionComponent component in components)
             {
                 ushort componentX = unchecked((ushort)(originX + component.Offset.X));
@@ -81,7 +81,7 @@ internal static class KraidFootCollisionDefinitionsVerification
             }
         }
 
-        AssertTrue(!KraidFootCollisionDefinitions.TryGetComponents(0x8000, out _),
+        AssertTrue(!KraidFootCollision.TryGetComponents(0x8000, out _),
             "uncompiled Kraid foot frame is rejected");
         AssertThrows<InvalidDataException>(
             () => KraidFootCollisionDefinitionsConstants.HitboxesAt(0x8000).ToArray(),

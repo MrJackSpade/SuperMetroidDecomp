@@ -6,43 +6,22 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class SidehopperCorpsePaintDefinitions
 {
     /// <summary>$A9:F8A8, ink1: pale yellow limb/ligament highlight.</summary>
-    private static readonly RgbColor LimbLight = new(31, 31, 21);
+    internal static readonly RgbColor LimbLight = new(31, 31, 21);
     /// <summary>$A9:F8AC, ink3: medium olive head/limb details, equal red/green.</summary>
-    private static readonly RgbColor OliveMedium = new(9, 9, 2);
+    internal static readonly RgbColor OliveMedium = new(9, 9, 2);
     /// <summary>$A9:F8AE, ink4: dark olive head/limb contours.</summary>
-    private static readonly RgbColor OliveDark = new(5, 5, 0);
+    internal static readonly RgbColor OliveDark = new(5, 5, 0);
     /// <summary>$A9:F8B2, ink6: warm gray eyes visible on the Zoomer corpse.</summary>
-    private static readonly RgbColor EyeGray = new(17, 17, 16);
+    internal static readonly RgbColor EyeGray = new(17, 17, 16);
     /// <summary>$A9:F8B6, ink8: ochre shell/body light, visible on the Ripper corpse.</summary>
-    private static readonly RgbColor BodyLight = new(31, 25, 18);
+    internal static readonly RgbColor BodyLight = new(31, 25, 18);
     /// <summary>$A9:F8C4, ink15: ochre shell/body darkest shade, visible on the Skree corpse.</summary>
-    private static readonly RgbColor BodyDark = new(5, 3, 1);
+    internal static readonly RgbColor BodyDark = new(5, 3, 1);
     /// <summary>$A9:F8A6 copied by EFAC-EFB5: standalone transparent-slot compatibility payload.
     /// The shifted auxiliary copy uses its first word as visible ink1 and is excluded.</summary>
-    private static readonly RgbColor TransparentSlot = new(0, 0, 14);
+    internal static readonly RgbColor TransparentSlot = new(0, 0, 14);
     /// <summary>$A9:F8AA, ink2 is the selected nearest three-quarter pale-limb shade.</summary>
-    private const int LimbShadeNumerator = 3, LimbShadeDenominator = 4;
+    internal const int LimbShadeNumerator = 3, LimbShadeDenominator = 4;
     /// <summary>$A9:F8B4, ink7 is the selected floor two-thirds dark-body outline/mouth shade.</summary>
-    private const int OutlineNumerator = 2, OutlineDenominator = 3;
-
-    /// <summary>Selects the standalone corpse palette ink, including derived limb and body shades.</summary>
-    internal static RgbColor Color(int color) => color switch
-    {
-        0 => TransparentSlot,
-        1 => LimbLight,
-        2 => Scale(LimbLight, LimbShadeNumerator, LimbShadeDenominator, LimbShadeDenominator / 2),
-        3 => OliveMedium,
-        4 => OliveDark,
-        5 => RgbColor.White,
-        6 => EyeGray,
-        7 => Scale(BodyDark, OutlineNumerator, OutlineDenominator, 0),
-        >= 8 and <= 15 => SidehopperCorpsePalette.Interpolate(BodyLight, BodyDark, color - 8),
-        _ => throw new ArgumentOutOfRangeException(nameof(color)),
-    };
-
-    /// <summary>Scales each five-bit channel with the authored integer rounding for a corpse shade.</summary>
-    private static RgbColor Scale(RgbColor color, int numerator, int denominator, int rounding)
-    {
-        return color.Map((_, a) => ((a * numerator + rounding) / denominator));
-    }
+    internal const int OutlineNumerator = 2, OutlineDenominator = 3;
 }

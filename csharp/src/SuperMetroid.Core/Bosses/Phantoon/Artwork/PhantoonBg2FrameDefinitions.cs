@@ -47,6 +47,6 @@ internal static class PhantoonBg2FrameDefinitions
         new(EnemyFrameId.PhantoonMouth2, "mouth_2"),
     ];
 
-    /// <summary>Whether <paramref name="frame"/> is one of Phantoon's BG2 frames.</summary>
-    internal static bool IsFrame(EnemyFrameId frame) => Frames.Any(definition => definition.Frame == frame);
+    /// <summary>The frames Phantoon draws on BG2.</summary>
+    internal static IReadOnlySet<EnemyFrameId> FrameIds { get; } = Frames.Select(definition => definition.Frame).ToHashSet();
 }

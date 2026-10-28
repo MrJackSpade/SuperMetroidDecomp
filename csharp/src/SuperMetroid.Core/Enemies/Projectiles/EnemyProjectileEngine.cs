@@ -440,7 +440,7 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileKind kind,
         SpriteGraphics graphics)
     {
-        EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
+        EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
         projectile.Kind = kind;
         projectile.PreInstruction = definition.PreInstruction;
         // SpawnEprojInner starts the instruction timer at one, so the first step runs on the first pass. A kind without
@@ -455,7 +455,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.InvincibilityFrames = 96;
-        projectile.DrawPriority = definition.DrawPriority;
+        projectile.DrawPriority = EnemyProjectileKinds.DrawPriority(definition);
         projectile.CanDamageSamus = definition.CanDamageSamus;
         projectile.PersistsOnSamusContact = definition.PersistsOnSamusContact;
         projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
@@ -727,7 +727,7 @@ internal sealed class EnemyProjectileEngine
         // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
         // but immediately changes to its smoke list. Keeping this in the common path also
         // prevents later persistent projectile families from needing bespoke hit effects.
-        bool hasTouchList = EnemyProjectileDefinitionCatalog.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
+        bool hasTouchList = EnemyProjectileKinds.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
         // Every touch list without a typed reaction of its own is the shared delete list.
         if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
             projectile.StartAnimation(touchAnimation());
@@ -916,7 +916,7 @@ internal sealed class EnemyProjectileEngine
     internal void SpawnGunshipLiftoffDustCloud(int parameter, SamusState samus)
     {
         // Validate before allocation, including when the native projectile pool is full.
-        var definition = GunshipDustDefinitions.ForParameter(parameter);
+        var definition = GunshipDust.ForParameter(parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)

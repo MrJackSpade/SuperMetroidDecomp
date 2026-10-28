@@ -6,14 +6,20 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomirePowerBombReactionDefinitions
 {
-    /// <summary>Selects the reaction program for the frame shown, rejecting skeleton frames, which never take one.</summary>
-    internal static CrocomireBodyProgram ForFrame(CrocomireBodyFrame frame) => frame switch
-    {
-        { Set: CrocomireBodyFrameSet.Body, Index: 25 or 35 } => CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen,
-        { Set: CrocomireBodyFrameSet.Body, Index: 26 or (>= 28 and <= 34) or (>= 37 and <= 41) } =>
-            CrocomireBodyProgram.PowerBombReactionMouthFullyOpen,
-        { Set: CrocomireBodyFrameSet.Body, Index: (>= 0 and <= 24) or 27 or 36 or (>= 42 and <= 49) } =>
-            CrocomireBodyProgram.PowerBombReactionMouthNotOpen,
-        _ => throw new InvalidDataException($"Crocomire power-bomb frame {frame} has no compiled reaction."),
-    };
+    /// <summary>
+    /// The reaction program for each fight-body frame index: frames 25 and 35 show the mouth partly open, 26, 28-34
+    /// and 37-41 fully open, and every other frame closed.
+    /// </summary>
+    internal static readonly CrocomireBodyProgram[] ByBodyFrame =
+    [
+        .. Enumerable.Repeat(CrocomireBodyProgram.PowerBombReactionMouthNotOpen, 25),
+        CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen,
+        CrocomireBodyProgram.PowerBombReactionMouthFullyOpen,
+        CrocomireBodyProgram.PowerBombReactionMouthNotOpen,
+        .. Enumerable.Repeat(CrocomireBodyProgram.PowerBombReactionMouthFullyOpen, 7),
+        CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen,
+        CrocomireBodyProgram.PowerBombReactionMouthNotOpen,
+        .. Enumerable.Repeat(CrocomireBodyProgram.PowerBombReactionMouthFullyOpen, 5),
+        .. Enumerable.Repeat(CrocomireBodyProgram.PowerBombReactionMouthNotOpen, 8),
+    ];
 }

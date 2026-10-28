@@ -79,11 +79,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         bool upsideUp = slot.Spawn.Population.Parameter1Settings.Second != 0;
         slot.Frame = EnemyFrameId.Empty;
 
-        var travel = new Offset16<RoomPixels>(checked((short)CacatacMovementDefinitions.TravelDistance((byte)distanceIndex)), 0);
+        var travel = new Offset16<RoomPixels>(checked((short)CacatacPatrol.TravelDistance((byte)distanceIndex)), 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
-        var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
+        var right = EnemyLinearSpeeds.Read(speedRecord);
+        var left = EnemyLinearSpeeds.Read(speedRecord + 4);
         var state = new CacatacEnemyState
         {
             RightVelocity = right,
@@ -213,7 +213,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
         // Rejects an odd or out-of-table direction before allocating, as the native selector check does.
-        CacatacProjectileProgram program = CacatacProjectileDefinitions.Program(direction);
+        CacatacProjectileProgram program = CacatacSpikes.Program(direction);
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -228,7 +228,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Variable0 = selector;
         projectile.InstallAnimation(new CacatacProjectileAnimation(program));
         projectile.Position = source.Position;
-        CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
+        CacatacSpikeSpeedPair speeds = CacatacSpikes.SpeedPair(direction);
         projectile.Velocity = new(speeds.Positive, speeds.Negative);
     }
 

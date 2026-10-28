@@ -57,11 +57,11 @@ internal static class EnemyGameplayAcceptanceVerification
         foreach (EnemyDefinitionId pointer in RoomEnemyDefinitionCatalog.Pointers.Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers))
         {
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
-                ? auxiliary : RoomEnemyDefinitionCatalog.Get(pointer);
+                ? auxiliary : RoomEnemyHeaders.Get(pointer);
             for (int field = 0; field < EnemyVulnerabilityDefinitions.RecordSize; field++)
-                _ = EnemyVulnerabilityDefinitions.Read(definition.Vulnerability, field);
+                _ = EnemyVulnerabilityEntries.Read(definition.Vulnerability, field);
             if (definition.DropChances is { } table)
-                EnemyDropChanceDefinitions.Copy(table, drop);
+                EnemyDropTables.Copy(table, drop);
         }
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
@@ -93,7 +93,7 @@ internal static class EnemyGameplayAcceptanceVerification
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
             AssertEqual(index * EnemySlotTable.EnemyIndexStride, slot.EnemyIndex, "linked population physical slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
-            AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
+            AssertEqual(RoomEnemyHeaders.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)
             {
@@ -107,7 +107,7 @@ internal static class EnemyGameplayAcceptanceVerification
         // Each definition shows its own installed sheet (#1412): editing one body variant's sheet changes that
         // variant's uploads alone, though the cartridge's three variants share one tile source.
         EnemyDefinitionId editedPointer = EnemyDefinitionId.KihunterGreen;
-        RoomEnemyDefinition editedDefinition = RoomEnemyDefinitionCatalog.Get(editedPointer);
+        RoomEnemyDefinition editedDefinition = RoomEnemyHeaders.Get(editedPointer);
         Directory.CreateDirectory(overridePath);
         foreach (EnemyDefinitionId alias in new[] { editedPointer })
         {

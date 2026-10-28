@@ -102,8 +102,8 @@ internal static class PlmDoorPresentationContractChecks
         ConfirmCoverage(EyeDoorDraws.Editable, frame =>
             new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new InstalledRoomPlmEyeDoorVisuals(entries));
-        ConfirmCoverage(MotherBrainEscapeGatePlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
+        ConfirmCoverage(MotherBrainEscapeGateDraws.All, frame =>
+            new RoomPlmVisualEntry(MotherBrainEscapeGateDraws.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
             (PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmCollectibleVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomPlmCollectibleVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmCollectibleVisuals).FullName ?? thr...."));

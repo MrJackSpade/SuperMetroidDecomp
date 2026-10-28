@@ -19,11 +19,10 @@ internal static class KraidLintInitializationDefinitions
     /// $A7:B923-B93E aligns it while its timer counts down to LintProduce.
     /// These cases express independent per-part policies, not a calculated sequence.
     /// </summary>
-    internal static ushort InitialDelay(KraidLintPart part) => part switch
+    internal static readonly FrozenDictionary<KraidLintPart, ushort> InitialDelays = new Dictionary<KraidLintPart, ushort>
     {
-        KraidLintPart.Top => 288,
-        KraidLintPart.Middle => 160,
-        KraidLintPart.Bottom => 64,
-        _ => throw new InvalidOperationException($"Undefined KraidLintPart {part}."),
-    };
+        [KraidLintPart.Top] = 288,
+        [KraidLintPart.Middle] = 160,
+        [KraidLintPart.Bottom] = 64,
+    }.ToFrozenDictionary();
 }

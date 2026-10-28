@@ -29,9 +29,13 @@ internal static class KraidFootCollisionDefinitionsAccess
 
         /// <summary>Computes a foot collision frame root from the fixed native record stride.</summary>
         internal static ushort FramePointer(int index) => checked((ushort)(NativeFirstFrame + index * NativeFrameByteCount));
+    }
 
+    /// <summary>Reads Kraid foot collision by native address.</summary>
+    extension(KraidFootCollision)
+    {
         /// <summary>The components of the foot frame at native address <paramref name="pointer"/>, when it is one.</summary>
         internal static bool TryGetComponents(ushort pointer, out ImmutableArray<KraidCollisionComponent> components) =>
-            KraidFootCollisionDefinitions.TryGetComponents(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer), out components);
+            KraidFootCollision.TryGetComponents(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer), out components);
     }
 }

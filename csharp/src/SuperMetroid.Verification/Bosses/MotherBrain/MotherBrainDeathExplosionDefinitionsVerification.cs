@@ -18,7 +18,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + parameter * 2)),
-                MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Program(parameter)),
+                MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Program(parameter)),
                 $"Mother Brain death explosion instruction {parameter}");
         }
 
@@ -39,7 +39,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
             AssertTrue(projectile.Animation is MiscDustProjectileAnimation started &&
-                    started.Cursor.Program == MotherBrainDeathExplosionDefinitions.Program(parameter),
+                    started.Cursor.Program == MotherBrainDeathExplosions.Program(parameter),
                 $"production Mother Brain death explosion instruction {parameter}");
             AssertEqual(0x00f9, projectile.Position.X.Whole,
                 $"production Mother Brain death explosion X {parameter}");
@@ -52,7 +52,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainDeathExplosionDefinitions.Program(3),
+            () => MotherBrainDeathExplosions.Program(3),
             "Mother Brain death explosion parameter past table");
         Console.WriteLine(
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");

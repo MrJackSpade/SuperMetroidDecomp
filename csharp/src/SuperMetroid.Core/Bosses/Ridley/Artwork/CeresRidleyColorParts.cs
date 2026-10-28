@@ -8,16 +8,16 @@ internal sealed record CeresRidleyColorParts
     public required RgbColor[] Start { get; init; }
 
     /// <summary>Eye fade.</summary>
-    public required CeresRidleyFadeColorDefinitions EyeFade { get; init; }
+    public required CeresRidleyFade EyeFade { get; init; }
 
     /// <summary>Body fade.</summary>
-    public required CeresRidleyFadeColorDefinitions BodyFade { get; init; }
+    public required CeresRidleyFade BodyFade { get; init; }
 
     /// <summary>Health.</summary>
     public required RgbColor[][] Health { get; init; }
 
     /// <summary>Alarm.</summary>
-    public required CeresRidleyAlarmColorDefinitions Alarm { get; init; }
+    public required CeresRidleyAlarmColors Alarm { get; init; }
 
     /// <summary>Retreat bg.</summary>
     public required RgbColor[] RetreatBg { get; init; }
@@ -26,5 +26,5 @@ internal sealed record CeresRidleyColorParts
     public required RgbColor[] RetreatShared { get; init; }
 
     /// <summary>Baby.</summary>
-    public required CeresBabyPaintDefinitions Baby { get; init; }
+    public required CeresBabyPaint Baby { get; init; }
 }

@@ -93,7 +93,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int variantIndex = slot.Spawn.Population.Parameter1 / 2;
         DeadTourianCorpseDefinition definition =
-            DeadTourianCorpseDefinitions.For(profile.Species, variantIndex);
+            DeadTourianCorpses.For(profile.Species, variantIndex);
         // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
         if (definition.EntryCount < 2)
             throw new InvalidDataException($"Dead {profile.Species} has fewer than two corpse rows.");

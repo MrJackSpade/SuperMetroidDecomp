@@ -14,21 +14,21 @@ internal static class LookupMotherBrainBackgroundVerification
     internal static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        var exports = MotherBrainFakeDeathPlmDrawDefinitions.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
+        var exports = MotherBrainFakeDeathDraws.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
         AssertEqual(12, exports.Length, "Mother Brain background export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             int row = Array.IndexOf(pointers, (ushort)value);
-            AssertEqual(row >= 0, MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)value), out var shape),
+            AssertEqual(row >= 0, MotherBrainFakeDeathDraws.TryDescribeBackground(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)value), out var shape),
                 "Mother Brain background ownership");
             if (row < 0)
             {
-                AssertEqual(default(MotherBrainFakeDeathPlmDrawDefinitions.BackgroundDraw), shape, "Mother Brain missing background descriptor");
+                AssertEqual(default(MotherBrainFakeDeathDraws.BackgroundDraw), shape, "Mother Brain missing background descriptor");
                 continue;
             }
             AssertEqual(row, shape.Row, "Mother Brain native row order");
             AssertEqual((ushort)value, PlmDrawAddressCodec.Of(exports[row].Draw), "Mother Brain background export order");
-            MotherBrainFakeDeathPlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)value), out var dto);
+            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)value), out var dto);
             foreach (var draw in new[] {dto, exports[row]})
             {
                 AssertEqual(1, draw.Runs.Length, "Mother Brain single background row");
@@ -52,8 +52,8 @@ internal static class LookupMotherBrainBackgroundVerification
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
         foreach (ushort pointer in pointers)
         {
-            MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathPlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
+            MotherBrainFakeDeathDraws.TryDescribeBackground(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
+            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
             for (int column = 0; column < 13; column++)
             {
                 ushort original = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + column * 2));

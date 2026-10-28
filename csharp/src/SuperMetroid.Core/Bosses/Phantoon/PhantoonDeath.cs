@@ -91,7 +91,7 @@ internal sealed class PhantoonDeath
             return;
 
         RoomEnemySlot tentacles = state.Tentacles;
-        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosionDefinitions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
+        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
         state.Parts[body.SlotIndex].FunctionTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 

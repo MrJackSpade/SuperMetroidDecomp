@@ -143,19 +143,22 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Number of left and awakening frames whose right-facing counterparts derive by reflection.</summary>
     internal static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
+    /// <summary>The left-facing frames in mirror order: the left frames, then the awakening frames.</summary>
+    internal static readonly GoldenTorizoCollisionComponent[][] LeftFacingFrames = [.. LeftFrames, .. AwakeningFrames];
+
     /// <summary>
     /// The right-facing counterparts of the left and awakening frames, in mirror order: each component's X reflected and
     /// each hitbox list replaced by its right-facing counterpart.
     /// </summary>
     private static readonly GoldenTorizoCollisionComponent[][] MirroredFrames =
-        [.. Enumerable.Range(0, MirroredCount).Select(index => LeftFacing(index)
+        [.. Enumerable.Range(0, MirroredCount).Select(index => LeftFacingFrames[index]
             .Select(part => part with { Offset = part.Offset.MirroredX(), Hitboxes = part.Hitboxes.RightFacing }).ToArray())];
 
     /// <summary>
     /// Each Torizo frame's components: the blank and turning frames carry one empty component; left-facing, awakening
     /// and jump-back frames their own components; right-facing frames the precomputed mirror images.
     /// </summary>
-    private static readonly Dictionary<EnemyFrameId, GoldenTorizoCollisionComponent[]> FrameComponents = new()
+    internal static readonly Dictionary<EnemyFrameId, GoldenTorizoCollisionComponent[]> FrameComponents = new()
     {
         [EnemyFrameId.BombTorizoDormant] = SingleEmpty,
         [EnemyFrameId.GoldenTorizoRightward0] = SingleEmpty,
@@ -264,16 +267,4 @@ internal static class TorizoCollisionDefinitions
         [EnemyFrameId.TorizoJumpBack1] = JumpBackFrames[4],
         [EnemyFrameId.TorizoJumpBack2] = JumpBackFrames[5],
     };
-
-    /// <summary>The collision components of Torizo frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Torizo's frames.</exception>
-    internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out GoldenTorizoCollisionComponent[]? components)
-            ? components
-            : throw new InvalidDataException($"Torizo frame {frame} is not compiled.");
-
-    /// <summary>The <paramref name="index"/>th left-facing frame in mirror order.</summary>
-    internal static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
-        index < LeftFrames.Length ? LeftFrames[index] : AwakeningFrames[index - LeftFrames.Length];
-
 }

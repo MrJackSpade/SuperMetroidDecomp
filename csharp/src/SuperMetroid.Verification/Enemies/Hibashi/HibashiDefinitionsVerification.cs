@@ -36,7 +36,7 @@ internal static class HibashiDefinitionsVerification
 
         for (int frameIndex = 0; frameIndex < 22; frameIndex++)
         {
-            HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
+            HibashiActivityDefinition frame = HibashiEruption.ActivityFrame(frameIndex);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
                 $"Hibashi Y offset {frameIndex}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
@@ -52,9 +52,9 @@ internal static class HibashiDefinitionsVerification
                 $"Hibashi production X radius {frameIndex}");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(() => HibashiDefinitions.ActivityFrame(-1),
+        AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(-1),
             "Hibashi negative activity index");
-        AssertThrows<ArgumentOutOfRangeException>(() => HibashiDefinitions.ActivityFrame(22),
+        AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(22),
             "Hibashi activity index beyond authored table");
         AssertThrows<ArgumentOutOfRangeException>(() => applyFrame(graphics, 22),
             "Hibashi production activity index beyond authored table");

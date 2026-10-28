@@ -425,7 +425,7 @@ public sealed class BabyMetroidCutsceneState
                 // `$CA24-$CA64` is eight overlapping records. The fixed targets, divisor
                 // indexes, and callback identities are compiled mechanics definitions;
                 // sprite/instruction presentation remains separately cartridge-backed.
-                BabyMetroidRouteRecord record = BabyMetroidRouteDefinitions.GetRecord(RouteLeg);
+                BabyMetroidRouteRecord record = BabyMetroidRoute.GetRecord(RouteLeg);
                 Position16<RoomPixels> target = record.Target;
                 int divisorIndex = record.AccelerationDivisorIndex;
 
@@ -438,7 +438,7 @@ public sealed class BabyMetroidCutsceneState
                         $"Baby route leg {RouteLeg} has invalid divisor index {divisorIndex}.");
                 }
                 int accelerationDivisor = 16 - divisorIndex;
-                int wrongWayExtra = BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(
+                int wrongWayExtra = BabyMetroidRoute.GetWrongWayOffScreenXSpeed(
                     record.MovementFunction);
 
                 GraduallyAccelerateTowardsPoint(
@@ -862,7 +862,7 @@ public sealed class BabyMetroidCutsceneState
         // `$A9:CDFC` holds the scatter shared with Ridley's death. The handler increments its
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
         return new DustExplosionRequest(
-            Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
+            Position: Position.Whole + DeathExplosionScatter.Offset(DeathExplosionPatternIndex),
             Animation: MiscDustAnimation.SmallExplosion,
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }

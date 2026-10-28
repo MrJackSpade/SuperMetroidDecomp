@@ -78,7 +78,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     public bool TrySpawnChozoStatuePlm(RoomLevelData level, ChozoStatuePlmRequest request)
     {
         ChozoStatuePlmDefinition definition =
-            ChozoStatuePlmDefinitions.Resolve(request.Header);
+            ChozoStatuePlmHeaders.Resolve(request.Header);
         int index = level.GetBlockIndex(request.Block);
         if ((request.IsHardcoded ? _slotTable.SpawnHardcoded() : _slotTable.SpawnAtCurrentBlock()) is not { } slot)
             return false;

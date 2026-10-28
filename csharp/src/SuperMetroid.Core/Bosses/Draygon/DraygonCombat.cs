@@ -181,7 +181,7 @@ internal sealed class DraygonCombat
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
     internal void UpdateDraygonHealthPalette(DraygonEnemyState state)
     {
-        int band = DraygonHealthPaletteDefinitions.BandForHealth(state.Body.Health);
+        int band = DraygonHealthPalette.BandForHealth(state.Body.Health);
 
         if (band == state.HealthPaletteBand)
             return;
@@ -242,7 +242,7 @@ internal sealed class DraygonCombat
         // Both OAM and BG2 art are replaceable presentation. Their native
         // component offsets and hitbox pointers remain fixed gameplay data.
         foreach (DraygonCollisionComponent component in
-                 DraygonCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 DraygonCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (DraygonCollisionHitbox hitbox in component.Hitboxes)

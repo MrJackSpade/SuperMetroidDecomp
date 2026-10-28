@@ -11,12 +11,16 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class BombTorizoHandPlmProgramDefinitions
 {
-    /// <summary>How many fragments the hand drops.</summary>
-    internal const int FragmentCount = 8;
     /// <summary>How long the woken hand holds before it crumbles.</summary>
     private const int CrumbleDelay = 120;
 
-    /// <summary>Both hand programs.</summary>
+    /// <summary>How long the hand shows before each fragment drops: a long first wait and a shorter second, then each wait one frame quicker.</summary>
+    internal static readonly int[] FragmentDelays = [96, 48, 15, 14, 13, 12, 11, 10];
+
+    /// <summary>
+    /// Both hand programs. The crumble program holds, drops the eight fragments, then shows the cleared hand and queues
+    /// the music.
+    /// </summary>
     internal static AnimationProgramSet<BombTorizoHandProgram, BombTorizoHandDraw, BombTorizoHandCue> Programs { get; } = new(
         new Dictionary<BombTorizoHandProgram, Step[]>
         {
@@ -26,40 +30,35 @@ internal static class BombTorizoHandPlmProgramDefinitions
                 Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake)),
                 Step.Hold,
             ],
-            [BombTorizoHandProgram.Crumble] = Crumble(),
+            [BombTorizoHandProgram.Crumble] =
+            [
+                Step.Show(BombTorizoHandDraw.Intact, CrumbleDelay),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[0]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 0)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[1]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 1)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[2]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 2)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[3]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 3)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[4]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 4)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[5]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 5)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[6]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 6)),
+                Step.Show(BombTorizoHandDraw.Intact, FragmentDelays[7]),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, 7)),
+                Step.Show(BombTorizoHandDraw.Cleared, 1),
+                Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic)),
+                Step.Stop,
+            ],
         });
 
-    /// <summary>How long the hand shows before fragment <paramref name="fragment"/> drops.</summary>
-    internal static int FragmentDelay(int fragment) => fragment switch
+    /// <summary>The program a wake past each program's sleep continues with; the crumble program has none.</summary>
+    internal static readonly Dictionary<BombTorizoHandProgram, BombTorizoHandProgram?> ProgramsAfterSleep = new()
     {
-        0 => 96,
-        1 => 48,
-        _ => 17 - fragment,
-    };
-
-    /// <summary>The hold, the eight fragments, the cleared hand and the music.</summary>
-    private static Step[] Crumble()
-    {
-        List<Step> steps =
-        [
-            Step.Show(BombTorizoHandDraw.Intact, CrumbleDelay),
-        ];
-        for (int fragment = 0; fragment < FragmentCount; fragment++)
-        {
-            steps.Add(Step.Show(BombTorizoHandDraw.Intact, FragmentDelay(fragment)));
-            steps.Add(Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, fragment)));
-        }
-        steps.Add(Step.Show(BombTorizoHandDraw.Cleared, 1));
-        steps.Add(Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic)));
-        steps.Add(Step.Stop);
-        return [.. steps];
-    }
-
-    /// <summary>The program a wake past <paramref name="program"/>'s sleep continues with.</summary>
-    internal static BombTorizoHandProgram? ProgramAfterSleep(BombTorizoHandProgram program) => program switch
-    {
-        BombTorizoHandProgram.Sleeping => BombTorizoHandProgram.Crumble,
-        BombTorizoHandProgram.Crumble => null,
-        _ => throw new InvalidOperationException($"Undefined {nameof(BombTorizoHandProgram)} {program}."),
+        [BombTorizoHandProgram.Sleeping] = BombTorizoHandProgram.Crumble,
+        [BombTorizoHandProgram.Crumble] = null,
     };
 }

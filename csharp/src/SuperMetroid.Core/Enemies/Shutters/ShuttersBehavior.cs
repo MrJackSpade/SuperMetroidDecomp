@@ -36,13 +36,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // selector before clearing the latter. Keep native dispatch ordering independent
         // of the origin direction encoded below.
         int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 + slot.CurrentInstruction;
-        state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
+        state.Function = GrowingShutters.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties.ToWord() != 0;
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
-        state.GrowthSpeed = GrowingShutterDefinitions.Speed(checked((ushort)slot.Spawn.Population.Parameter2));
+        state.GrowthSpeed = GrowingShutters.Speed(checked((ushort)slot.Spawn.Population.Parameter2));
 
         slot.ExtraProperties = default;
         InstallGrowingShutterProgram(

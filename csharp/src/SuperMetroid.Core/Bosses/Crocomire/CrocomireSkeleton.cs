@@ -96,7 +96,7 @@ internal sealed class CrocomireSkeleton
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         CrocomireRumbleDefinition definition =
-            CrocomireRumbleDefinitions.AtOffset(state.RumbleTableOffset);
+            CrocomireRumble.AtOffset(state.RumbleTableOffset);
         int target = definition.TargetYOffset;
         if (definition.IsTerminator)
         {

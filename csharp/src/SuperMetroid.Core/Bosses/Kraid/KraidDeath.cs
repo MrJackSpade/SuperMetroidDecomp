@@ -303,7 +303,7 @@ internal sealed class KraidDeath
             // deliberately empty RTS used by rows whose only job is the BG2 strip upload.
             // Do not merge that address with the adjacent $C6A7 crumble routine: they are
             // distinct legal indirect-JSR targets in the retail table.
-            if (KraidPlmDefinitions.ForSinkCallback(function) is { } request)
+            if (KraidPlms.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
                 _ = _background.SpawnKraidCeilingRock(request.Block.X * 16);

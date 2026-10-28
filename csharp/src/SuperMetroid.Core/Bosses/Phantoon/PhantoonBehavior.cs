@@ -364,7 +364,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case PhantoonPartCue.PlayMaterializationSound:
                 state.LastMaterializationSound =
-                    PhantoonSoundDefinitions.MaterializationSound(
+                    PhantoonSounds.MaterializationSound(
                         state.MaterializationSoundIndex);
                 state.MaterializationSoundIndex++;
                 if (state.MaterializationSoundIndex >= PhantoonSoundDefinitions.MaterializationSoundCount)

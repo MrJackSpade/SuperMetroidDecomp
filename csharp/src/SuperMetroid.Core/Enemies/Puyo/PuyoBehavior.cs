@@ -177,7 +177,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             // that misaligned value produces an 8.8 distance estimate used only to find
             // the initial curve index.
             distanceAccumulator = unchecked((ushort)(distanceAccumulator +
-                EnemyQuadraticSpeedDefinitions.ReadWord(speedRow + 1)));
+                EnemyQuadraticSpeeds.ReadWord(speedRow + 1)));
             if (!EnemyMath.IsNegative16(unchecked((ushort)(swappedJumpHeight - distanceAccumulator))))
                 continue;
 
@@ -195,7 +195,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The hop-table record <paramref name="state"/> has selected.</summary>
     private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
-        PuyoHopDefinitions.FromByteIndex(checked((ushort)(state.HopRecord * PuyoHopDefinitions.RecordSize)));
+        PuyoHops.FromByteIndex(checked((ushort)(state.HopRecord * PuyoHopDefinitions.RecordSize)));
 
     /// <summary>Ports the indirect airborne dispatcher at $A2:9B81.</summary>
     private void RunAirbornePuyo(
@@ -316,7 +316,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
         int speedRow = EightEight.WholeOf(cappedIndex) * QuadraticSpeedRecordSize;
         int verticalOffset = state.Falling ? 0 : 4;
-        int verticalDisplacement = EnemyQuadraticSpeedDefinitions.ReadDisplacement(speedRow + verticalOffset);
+        int verticalDisplacement = EnemyQuadraticSpeeds.ReadDisplacement(speedRow + verticalOffset);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
         {

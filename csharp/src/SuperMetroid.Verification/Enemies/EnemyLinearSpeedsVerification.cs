@@ -21,12 +21,12 @@ internal static class EnemyLinearSpeedsVerification
         {
             var expected = SignedSixteenSixteen.FromParts(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset))), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + offset)));
             AssertEqual(expected, shared((ushort)offset), "compiled linear native byte window");
-            AssertEqual(expected, EnemyLinearSpeedDefinitions.Read(offset), "linear catalog window");
+            AssertEqual(expected, EnemyLinearSpeeds.Read(offset), "linear catalog window");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa28187 + offset)), "Ripper bank mirror whole");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + offset)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa28189 + offset)), "Ripper bank mirror fraction");
         }
-        AssertThrows<InvalidDataException>(() => EnemyLinearSpeedDefinitions.Read(-1), "negative linear offset");
-        AssertThrows<InvalidDataException>(() => EnemyLinearSpeedDefinitions.Read(517), "partial linear pair");
+        AssertThrows<InvalidDataException>(() => EnemyLinearSpeeds.Read(-1), "negative linear offset");
+        AssertThrows<InvalidDataException>(() => EnemyLinearSpeeds.Read(517), "partial linear pair");
         AssertThrows<InvalidDataException>(() => shared(ushort.MaxValue), "unclassified linear overread");
 
         if (definitionsOnly) return;

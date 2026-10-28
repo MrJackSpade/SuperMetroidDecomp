@@ -27,7 +27,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     {
         for (int direction = 0; direction < 8; direction++)
         {
-            YappingMawProgram entry = YappingMawAnimationDefinitions.AttackForDirection(direction);
+            YappingMawProgram entry = YappingMawBites.AttackForDirection(direction);
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =

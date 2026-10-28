@@ -14,13 +14,17 @@ internal static class SporeSpawnCollisionDefinitionsAccess
 
         /// <summary>Number of distinct cartridge hitbox lists the twelve frames' components name, including the mirrored trailing point that shares the active point's rectangles.</summary>
         internal static int ListCount => 12;
+    }
 
+    /// <summary>Reads Spore Spawn collision by native address.</summary>
+    extension(SporeSpawnCollision)
+    {
         /// <summary>Whether the frame at native bank-$A5 address <paramref name="frame"/> is one of Spore Spawn's.</summary>
         internal static bool IsFrame(ushort frame) =>
-            SporeSpawnCollisionDefinitions.IsFrame(RoomEnemySlotFrameAccess.TryFrameAt(0xa5, frame));
+            SporeSpawnCollision.IsFrame(RoomEnemySlotFrameAccess.TryFrameAt(0xa5, frame));
 
         /// <summary>The components of the frame at native bank-$A5 address <paramref name="frame"/>.</summary>
         internal static ReadOnlySpan<SporeSpawnCollisionComponent> ComponentsAt(ushort frame) =>
-            SporeSpawnCollisionDefinitions.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(0xa5, frame));
+            SporeSpawnCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(0xa5, frame));
     }
 }

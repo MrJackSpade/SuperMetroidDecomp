@@ -13,10 +13,10 @@ internal static class KraidCameraMappingsVerification
         int[] operandAddresses = [0xa7a9eb, 0xa7a9ec, 0xa7a9f2, 0xa7a9f3];
         AssertEqual(operandAddresses.Length, KraidCameraDefinitions.ScreenCount, "Kraid initial screen count");
         for (int screen = 0; screen < operandAddresses.Length; screen++)
-            AssertEqual(KraidInitialScrollMappingRomByte(rom, operandAddresses[screen]), (byte)KraidCameraDefinitions.InitialScroll(screen),
+            AssertEqual(KraidInitialScrollMappingRomByte(rom, operandAddresses[screen]), (byte)KraidCamera.InitialScroll(screen),
                 $"Kraid initial scroll screen {screen}");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidCameraDefinitions.InitialScroll(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidCamera.InitialScroll(invalid),
                 "Initial scroll preserves span index bounds");
     }
 
@@ -29,10 +29,10 @@ internal static class KraidCameraMappingsVerification
         int[] operandAddresses = [0xa7c0a8, 0xa7c0a9, 0xa7c0af, 0xa7c0b0];
         AssertEqual(operandAddresses.Length, KraidCameraDefinitions.ScreenCount, "Kraid grown screen count");
         for (int screen = 0; screen < operandAddresses.Length; screen++)
-            AssertEqual(KraidGrownScrollMappingRomByte(rom, operandAddresses[screen]), (byte)KraidCameraDefinitions.GrownScroll(screen),
+            AssertEqual(KraidGrownScrollMappingRomByte(rom, operandAddresses[screen]), (byte)KraidCamera.GrownScroll(screen),
                 $"Kraid grown scroll screen {screen}");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidCameraDefinitions.GrownScroll(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidCamera.GrownScroll(invalid),
                 "Grown scroll preserves span index bounds");
     }
 

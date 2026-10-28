@@ -56,7 +56,7 @@ internal static class EnemyDefinitionsVerification
         foreach (EnemyDefinitionId pointer in referencedPointers)
         {
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer),
-                RoomEnemyDefinitionCatalog.Get(pointer),
+                RoomEnemyHeaders.Get(pointer),
                 $"compiled enemy header {pointer} retains every gameplay field");
         }
         EnemyDefinitionId[] auxiliaryPointers =
@@ -90,7 +90,7 @@ internal static class EnemyDefinitionsVerification
                 $"auxiliary enemy header {pointer} retains every gameplay field");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomEnemyDefinitionCatalog.Get(0),
+            () => RoomEnemyHeaders.Get(0),
             "compiled enemy headers reject an unrecognized pointer");
         AssertTrue(!RoomEnemyAuxiliaryDefinitionCatalog.TryGet(0, out _),
             "auxiliary enemy headers reject an unrecognized pointer");
@@ -120,7 +120,7 @@ internal static class EnemyDefinitionsVerification
                 .ToArray();
             // The native record's instruction list is unused: the piece runs its typed program (#641).
             var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), 0, EnemyPropertyWord.FromWord(words[4]), EnemyExtraPropertyWord.FromWord(words[5]), words[6], words[7]);
-            AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(piece),
+            AssertEqual(native, MotherBrainFallingTubes.Get(piece),
                 $"Mother Brain falling-tube record {piece} matches the native placement words");
 
             enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(piece);

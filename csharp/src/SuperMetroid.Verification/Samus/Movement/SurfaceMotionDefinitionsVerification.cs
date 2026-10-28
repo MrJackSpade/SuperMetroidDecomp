@@ -13,23 +13,23 @@ internal static class SurfaceMotionDefinitionsVerification
         for (int shape = 0; shape < 32; shape++)
         {
             ushort multiplier = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e931 + shape * 4));
-            AssertEqual(multiplier, CrawlerSlopeDefinitions.Multiplier(shape), "Crawler native slope multiplier");
+            AssertEqual(multiplier, CrawlerSlopes.Multiplier(shape), "Crawler native slope multiplier");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 int speed = unchecked((short)raw);
                 int magnitude = Math.Abs(speed) * multiplier;
                 AssertEqual(speed < 0 ? -magnitude : magnitude,
-                    CrawlerSlopeDefinitions.Scale((ushort)raw, shape), "Crawler signed slope displacement");
+                    CrawlerSlopes.Scale((ushort)raw, shape), "Crawler signed slope displacement");
             }
         }
         for (int speed = 0; speed <= ushort.MaxValue; speed++)
         {
             int address = 0xa3d517 + Math.Min(speed, 15) * 4;
-            var actual = YardKickDefinitions.ForHorizontalSpeed((ushort)speed);
+            var actual = YardKicks.ForHorizontalSpeed((ushort)speed);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Fraction, "Yard native capped kick fraction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), actual.WholeWord, "Yard native capped kick whole");
         }
-        AssertThrows<InvalidDataException>(() => CrawlerSlopeDefinitions.Multiplier(32), "Crawler invalid slope");
+        AssertThrows<InvalidDataException>(() => CrawlerSlopes.Multiplier(32), "Crawler invalid slope");
         Console.WriteLine("Surface motion definitions: 32 native slope multipliers, 2097152 signed displacements and 65536 Yard kick selectors match.");
     }
 }

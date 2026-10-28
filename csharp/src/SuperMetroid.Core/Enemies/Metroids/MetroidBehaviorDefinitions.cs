@@ -10,21 +10,17 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>Library-two cry $5A, selected by native random slots2/5/7 at $A3:EADA/$EAE0/$EAE4.</summary>
     private static readonly SoundEffectId ThirdCry = Library2Sound.ShotMetroid;
 
-    /// <summary><c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements.</summary>
-    internal static Offset16<RoomPixels> EscapeDisplacement(int countdown)
-    {
-        int phase = countdown & 3;
-        int signedRadius = 2 - 2 * (phase & 2);
-        return (phase & 1) == 0 ? new((short)signedRadius, 0) : new(0, (short)-signedRadius);
-    }
+    /// <summary>
+    /// <c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements, right, up, left and
+    /// down, by escape countdown phase.
+    /// </summary>
+    internal static readonly Offset16<RoomPixels>[] EscapeDisplacements = [new(2, 0), new(0, -2), new(-2, 0), new(0, 2)];
 
-    /// <summary><c>Instruction_Metroid_PlayRandomMetroidSFX.SFX</c> at $A3:EAD6 preserves the native2/3/3 choice distribution and order.</summary>
-    internal static SoundEffectId RandomCrySoundEffect(int random) => (random & 7) switch
-    {
-        0 or 3 => FirstCry,
-        1 or 4 or 6 => SecondCry,
-        _ => ThirdCry,
-    };
+    /// <summary>
+    /// <c>Instruction_Metroid_PlayRandomMetroidSFX.SFX</c> at $A3:EAD6: the cry each of the eight random slots plays,
+    /// preserving the native 2/3/3 choice distribution and order.
+    /// </summary>
+    internal static readonly SoundEffectId[] RandomCries = [FirstCry, SecondCry, ThirdCry, FirstCry, SecondCry, ThirdCry, SecondCry, ThirdCry];
 
     /// <summary>A sixteenth of a health point, in the units of the drain accumulator.</summary>
     private const ushort SixteenthHealth = 0x1000;

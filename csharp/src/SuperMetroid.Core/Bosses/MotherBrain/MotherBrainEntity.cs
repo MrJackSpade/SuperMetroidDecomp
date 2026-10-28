@@ -47,7 +47,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (Slot.DefinitionId != EnemyDefinitionId.MotherBrainBody || !MotherBrainBodyVisualDefinitions.HasBg2(selected))
+        if (Slot.DefinitionId != EnemyDefinitionId.MotherBrainBody || !MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;

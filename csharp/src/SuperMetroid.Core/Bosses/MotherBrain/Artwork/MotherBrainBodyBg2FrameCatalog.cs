@@ -27,6 +27,6 @@ public sealed class MotherBrainBodyBg2FrameCatalog
     /// <returns>Installed visual writes keyed by the same native extended-frame roots used by the body's compiled instruction programs.</returns>
     /// <exception cref="InvalidDataException">JSON properties/schema, required pose identities, command counts, destinations, or tiles are invalid.</exception>
     public static MotherBrainBodyBg2FrameCatalog Load(Stream json) => new(
-        EnemyBg2FrameCatalog.Load(json, MotherBrainBodyVisualDefinitions.Bg2Frames,
+        EnemyBg2Frames.Load(json, MotherBrainBodyVisualDefinitions.Bg2Frames,
             MotherBrainBodyVisualDefinitions.Bg2Version, "Mother Brain body"));
 }

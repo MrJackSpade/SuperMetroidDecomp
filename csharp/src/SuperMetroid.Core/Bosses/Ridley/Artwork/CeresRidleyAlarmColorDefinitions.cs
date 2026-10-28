@@ -1,69 +1,16 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-/// <summary>
-/// Native $A6:C1DF-C23E EMERGENCY colors, uniformly copied to CGRAM97..99 by
-/// $A6:C19C-C1DE. The reflected gold-to-muted-red trajectory calculates every
-/// sample. The five initial paint magnitudes and these specific channel rates are
-/// selected text-color composition: replacing them invents different paint.
-/// The middle shade is copied target data, absent from the nine $A6:C164 glyphs.
-/// The separate NMI cadence and glyph pixels are not defined here.
-/// </summary>
-internal sealed class CeresRidleyAlarmColorDefinitions
+/// <summary>The selected alarm channels of Ceres Ridley's escape alarm; <see cref="CeresRidleyAlarmColors"/> calculates the alarm rows from them.</summary>
+internal static class CeresRidleyAlarmColorDefinitions
 {
     /// <summary>Initial green component of the bright gold warning text.</summary>
-    private const int BrightGreen = 22;
+    internal const int BrightGreen = 22;
     /// <summary>Fixed red component of the middle alarm shade.</summary>
-    private const int MiddleRed = 23;
+    internal const int MiddleRed = 23;
     /// <summary>Initial green component of the middle alarm shade.</summary>
-    private const int MiddleGreen = 14;
+    internal const int MiddleGreen = 14;
     /// <summary>Initial red component of the dark warning shade.</summary>
-    private const int DarkRed = 12;
+    internal const int DarkRed = 12;
     /// <summary>Initial green component of the dark warning shade.</summary>
-    private const int DarkGreen = 5;
-    /// <summary>Independent supplied colors that differ from the reflected sixteen-row trajectory.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
-
-    /// <summary>Compares supplied warning colors with calculated rows and retains only independently edited cells.</summary>
-    internal CeresRidleyAlarmColorDefinitions(RgbColor[][] rows)
-    {
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmRowCount; row++)
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
-            if (Calculate(row, color) != rows[row][color])
-                edits.Add(new ColourCell(row, color), rows[row][color]);
-    }
-
-    /// <summary>$A6:C1DF-C23E: sixteen rows ascend through row8, then revisit rows7..1.</summary>
-    internal static int SourceRow(int row)
-    {
-        if ((uint)row >= CeresRidleyPaletteDefinitions.AlarmRowCount)
-            throw new ArgumentOutOfRangeException(nameof(row));
-        return Math.Min(row, CeresRidleyPaletteDefinitions.AlarmRowCount - row);
-    }
-
-    /// <summary>Uses an edited cell when supplied; otherwise computes its bright, middle, or dark warning shade.</summary>
-    internal RgbColor Resolve(int row, int color)
-    {
-        _ = SourceRow(row);
-        if ((uint)color >= CeresRidleyPaletteDefinitions.AlarmColorCount)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        var key = new ColourCell(row, color);
-        return edits.TryGetValue(key, out RgbColor value) ? value : Calculate(row, color);
-    }
-
-    /// <summary>Builds the three copied target colors from the rising and reflected phase's channel rates.</summary>
-    private static RgbColor Calculate(int row, int color)
-    {
-        int phase = SourceRow(row), halfStep = (phase + 1) / 2;
-        int blue = phase * 6 / 5;
-        (int red, int green) = color switch
-        {
-            0 => new RedGreenLevels(31 - halfStep, BrightGreen - phase),
-            1 => new RedGreenLevels(MiddleRed, MiddleGreen - halfStep),
-            2 => new RedGreenLevels(DarkRed + phase * 4 / 5, DarkGreen + phase / 8),
-            _ => throw new ArgumentOutOfRangeException(nameof(color)),
-        };
-        return new(red, green, blue);
-    }
+    internal const int DarkGreen = 5;
 }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -328,12 +328,12 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.
             slot.HitCounter = DraygonCannonDefinitions.HitsToDestroy;
-            slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.DestroyProgram(orientation)));
+            slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPrograms.DestroyProgram(orientation)));
             return;
         }
 
         slot.HitCounter = 0;
-        slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.StartProgram(orientation)));
+        slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPrograms.StartProgram(orientation)));
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,

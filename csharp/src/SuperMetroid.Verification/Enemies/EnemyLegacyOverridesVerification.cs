@@ -66,7 +66,7 @@ internal static class EnemyLegacyOverridesVerification
                     ?? stockDocument.Frames[frame.Name];
                 AssertTrue(merged.TryGet(frame.Bank, frame.Pointer, out var nativeParts),
                     prefix + frame.Name + " retains its native identity");
-                AssertTrue(nativeParts.SequenceEqual(EnemySpritemapCatalog.CompileParts(expectedNative, frame.Name)),
+                AssertTrue(nativeParts.SequenceEqual(EnemySpritemaps.CompileParts(expectedNative, frame.Name)),
                     prefix + frame.Name + " preserves authored art or inherits new stock art");
 
                 string selectedName = document.DisplayFrames?.GetValueOrDefault(frame.Name)
@@ -75,7 +75,7 @@ internal static class EnemyLegacyOverridesVerification
                     ?? stockDocument.Frames[selectedName];
                 AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var displayed),
                     prefix + frame.Name + " resolves its presentation binding");
-                AssertTrue(displayed.SequenceEqual(EnemySpritemapCatalog.CompileParts(expectedDisplay, selectedName)),
+                AssertTrue(displayed.SequenceEqual(EnemySpritemaps.CompileParts(expectedDisplay, selectedName)),
                     prefix + frame.Name + " preserves the exact selected display frame");
             }
             AssertTrue(merged.TryGetDisplay(native.Bank, native.Pointer, out var remapped),

@@ -36,7 +36,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
             {
                 DeadTourianCorpseDefinition definition =
-                    DeadTourianCorpseDefinitions.For(family.Species, variantIndex);
+                    DeadTourianCorpses.For(family.Species, variantIndex);
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
                     NativeEnemyProgramOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
@@ -48,12 +48,12 @@ internal static class DeadTourianCorpseDefinitionsVerification
             }
 
             AssertThrows<ArgumentOutOfRangeException>(
-                () => DeadTourianCorpseDefinitions.For(family.Species, family.VariantCount),
+                () => DeadTourianCorpses.For(family.Species, family.VariantCount),
                 $"dead {family.Species} selector past definitions");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DeadTourianCorpseDefinitions.For((DeadTourianCorpseSpecies)3, 0),
+            () => DeadTourianCorpses.For((DeadTourianCorpseSpecies)3, 0),
             "unknown dead Tourian corpse species");
         Console.WriteLine(
             "Dead Tourian corpse definitions: 16 selectors, 64 configuration words, eight derived wrap offsets, and all eight real initializers pass with migrated metadata reads forbidden.");

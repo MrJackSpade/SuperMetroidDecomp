@@ -39,7 +39,7 @@ public sealed class KraidEnemyState
     /// <summary>Returns the cartridge threshold for the selected eighth of the initializer's captured health.</summary>
     /// <param name="index">A zero-based table index from zero through seven, selecting one through eight eighths.</param>
     /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
-    public int HealthEighthThreshold(int index) => KraidHealthThresholdDefinitions.Eighth(InitialHealth, index);
+    public int HealthEighthThreshold(int index) => KraidHealthThresholds.Eighth(InitialHealth, index);
     /// <summary>
     /// Gets the room position the second-phase body walks to: X from 208 to 384. Only the X axis is meaningful; the
     /// body's position is compared with it by the wrapped spatial difference on X.

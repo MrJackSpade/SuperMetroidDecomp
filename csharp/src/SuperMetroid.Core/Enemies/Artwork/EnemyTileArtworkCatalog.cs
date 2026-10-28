@@ -14,29 +14,12 @@ public sealed class EnemyTileArtworkCatalog
     /// bindings, special uploads and colors. Gameplay definitions are excluded.
     /// This is computed rather than persisted in an exact debugger snapshot.
     /// </summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-bundle-v1", content =>
-        {
-            foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet) in sheets.OrderBy(pair => pair.Key))
-            {
-                content.Append("definition", System.Text.Encoding.UTF8.GetBytes(definition.ToString()));
-                content.Append("tiles", sheet.Characters.Span);
-                content.AppendIdentity("palette", palettes[definition].ContentIdentity);
-            }
-            content.AppendIdentity("Spritemaps", Spritemaps?.ContentIdentity);
-            content.AppendIdentity("ExtendedFrames", ExtendedFrames?.ContentIdentity);
-            content.AppendIdentity("GunshipLiftoff", GunshipLiftoff?.ContentIdentity);
-            content.AppendIdentity("ProjectileSpritemaps", ProjectileSpritemaps?.ContentIdentity);
-            content.AppendIdentity("MagdollitePaletteCycle", MagdollitePaletteCycle?.ContentIdentity);
-            content.AppendIdentity("WorkRobotPaletteCycle", WorkRobotPaletteCycle?.ContentIdentity);
-            content.AppendIdentity("ChozoAndTubeColors", ChozoAndTubeColors?.ContentIdentity);
-            content.AppendIdentity("DachoraColors", DachoraColors?.ContentIdentity);
-            content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
-        });
+    public string ContentIdentity => EnemyTileArtwork.ContentIdentity(this);
 
     /// <summary>Ordinary enemy tile sheets keyed by enemy definition.</summary>
     internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
     /// <summary>Palette paired with each installed ordinary enemy tile sheet.</summary>
-    private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
+    internal readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
 
     /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
@@ -67,68 +50,21 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>The installed tiles of <paramref name="enemy"/>, as its room's graphics set shows them (#1406).</summary>
     /// <exception cref="InvalidDataException">The installed artwork holds no tile set for the enemy.</exception>
-    public ReadOnlyMemory<byte> TilesOf(EnemyDefinitionId enemy) => sheets.TryGetValue(enemy, out RoomCharacterAtlas? atlas) ? atlas.Characters
-        : throw new InvalidDataException($"Installed enemy artwork holds no {enemy} tile set.");
+    public ReadOnlyMemory<byte> TilesOf(EnemyDefinitionId enemy) => EnemyTileArtwork.TilesOf(this, enemy);
 
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
-    public void LoadPaletteTo(EnemyDefinitionId definitionId, ColourRun destination)
-    {
-        if (!palettes.TryGetValue(definitionId, out EnemyPaletteSheet? palette))
-            throw new InvalidDataException($"Enemy {definitionId} has no installed palette.");
-        palette.LoadTo(destination);
-    }
+    public void LoadPaletteTo(EnemyDefinitionId definitionId, ColourRun destination) =>
+        EnemyTileArtwork.LoadPaletteTo(this, definitionId, destination);
 
     /// <summary>Publishes complete ordinary enemy sheets and palettes.</summary>
-    public static EnemyTileArtworkCatalog FromInstalledArtwork(EnemyTileArtworkParts parts)
-    {
-        Ensure.NotNull(parts);
-        Ensure.NotNull(parts.Sheets);
-        Ensure.NotNull(parts.Palettes);
-        var installedSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
-        var installedPalettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
-        ValidateInstalledSheets(installedSheets, installedPalettes);
-        return new EnemyTileArtworkCatalog(parts with
-        {
-            Sheets = installedSheets,
-            Palettes = installedPalettes,
-        });
-    }
+    public static EnemyTileArtworkCatalog FromInstalledArtwork(EnemyTileArtworkParts parts) => EnemyTileArtwork.FromInstalledArtwork(parts);
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
-    internal EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
-    {
-        Ensure.NotNull(parts);
-        Ensure.NotNull(parts.Sheets);
-        Ensure.NotNull(parts.Palettes);
-        if (parts.Sheets.Count != parts.Palettes.Count || parts.Sheets.Keys.Any(definition => !parts.Palettes.ContainsKey(definition)))
-            throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
-        this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
-        this.palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
-        Spritemaps = parts.Spritemaps;
-        ExtendedFrames = parts.ExtendedFrames;
-        GunshipLiftoff = parts.GunshipLiftoff;
-        ProjectileSpritemaps = parts.ProjectileSpritemaps;
-        MagdollitePaletteCycle = parts.MagdollitePaletteCycle;
-        WorkRobotPaletteCycle = parts.WorkRobotPaletteCycle;
-        ChozoAndTubeColors = parts.ChozoAndTubeColors;
-        DachoraColors = parts.DachoraColors;
-        AuxiliaryColors = parts.AuxiliaryColors;
-    }
-
-    /// <summary>Requires a complete, correctly sized tile sheet and palette for every retail definition.</summary>
-    private static void ValidateInstalledSheets(Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
-        Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
-    {
-        Ensure.NotNull(sheets);
-        Ensure.NotNull(palettes);
-        if (sheets.Count != EnemyTileSourceDefinitions.All.Count ||
-            palettes.Count != EnemyTileSourceDefinitions.All.Count)
-            throw new InvalidDataException("Installed enemy artwork must contain every required sheet and palette.");
-        foreach (EnemyTileSourceDefinition definition in EnemyTileSourceDefinitions.All)
-            if (!sheets.TryGetValue(definition.DefinitionId, out RoomCharacterAtlas? sheet) || sheet is null ||
-                sheet.Characters.Length != definition.ByteCount ||
-                !palettes.TryGetValue(definition.DefinitionId, out EnemyPaletteSheet? palette) || palette is null)
-                throw new InvalidDataException(
-                    $"Installed enemy {definition.DefinitionId} lacks its complete tile sheet or palette.");
-    }
+    internal EnemyTileArtworkCatalog(EnemyTileArtworkParts parts) =>
+        (sheets, palettes, Spritemaps, ExtendedFrames, GunshipLiftoff, ProjectileSpritemaps, MagdollitePaletteCycle,
+            WorkRobotPaletteCycle, ChozoAndTubeColors, DachoraColors, AuxiliaryColors) =
+            (new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(EnemyTileArtwork.Paired(parts).Sheets),
+                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes), parts.Spritemaps, parts.ExtendedFrames,
+                parts.GunshipLiftoff, parts.ProjectileSpritemaps, parts.MagdollitePaletteCycle, parts.WorkRobotPaletteCycle,
+                parts.ChozoAndTubeColors, parts.DachoraColors, parts.AuxiliaryColors);
 }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -223,7 +224,7 @@ internal sealed class MotherBrainAscent
             state.BodySubFunctionTimer = WrappingCountdown.Start(7);
 
         int random = _room.Random.Read();
-        MiscDustAnimation animation = (SnesLittleEndian.HighByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
+        MiscDustAnimation animation = (SharedRandomState.UpperByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(MotherBrainBehavior.MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue], 212), animation);
         state.LastSoundEffect = MotherBrainSoundDefinitions.AscentDust;

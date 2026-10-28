@@ -20,6 +20,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
+    /// <summary>
+    /// The previous-subposition bits the routine's eight-bit fraction store replaces: the fraction's upper eight bits,
+    /// above the 1/65536ths it leaves as they were.
+    /// </summary>
+    private const int PreviousFractionUpperBits = ushort.MaxValue - byte.MaxValue;
+
     /// <summary>Mother Brain body extra words <c>$0FB2/$0FB4</c>: Samus's forced signed 8.8 velocity.</summary>
     public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 
@@ -139,7 +145,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
         // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
         // exit stores the new Y into SamusPreviousYPosition: the camera sees no movement.
-        samus.WritePreviousYSubposition(SnesLittleEndian.Word(0, byte.MaxValue), moved.Fraction);
+        samus.WritePreviousYSubposition(PreviousFractionUpperBits, moved.Fraction);
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
@@ -166,7 +172,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.Fraction);
         // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
-        samus.WritePreviousXSubposition(SnesLittleEndian.Word(0, byte.MaxValue), moved.Fraction);
+        samus.WritePreviousXSubposition(PreviousFractionUpperBits, moved.Fraction);
 
         if (unchecked((short)(moved.Whole - 235)) >= 0)
         {

@@ -752,7 +752,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             var position = new Position16<RoomPixels>(
                 unchecked((ushort)((random & 127) + 64)),
-                unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128)));
+                unchecked((ushort)((SharedRandomState.UpperByte(random) & 63) + 128)));
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 position,
                 head.Definition.DropChances);

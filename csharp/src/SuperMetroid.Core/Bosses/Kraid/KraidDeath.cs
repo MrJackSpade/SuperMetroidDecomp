@@ -288,7 +288,7 @@ internal sealed class KraidDeath
             xBase: 128,
             xMask: byte.MaxValue,
             yBase: 352,
-            yMask: SnesLittleEndian.Word(0, 63));
+            yMask: 63);
         state.DeathDropRequestCount = 16;
         // $A7:C59B continues into DrawKraidsRoomBackground, which zeroes the shared numerator.
         _presentation.GradualColorChange.Reset();

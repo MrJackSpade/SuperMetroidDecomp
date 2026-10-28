@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Compiled ceiling-break projectile placement data.</summary>
@@ -25,8 +27,13 @@ public static class KraidCeilingRockPositionDefinitions
     {
         if ((uint)offset > 18) throw new ArgumentOutOfRangeException(nameof(offset));
         int index = offset >> 1;
-        return (offset & 1) == 0 ? Word(index)
-            : SnesLittleEndian.Word(SnesLittleEndian.HighByte(Word(index)), unchecked((byte)Word(index + 1)));
+        if ((offset & 1) == 0)
+            return Word(index);
+        // An odd offset reads the little-endian word straddling two table words.
+        Span<byte> table = stackalloc byte[2 * sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(table, Word(index));
+        BinaryPrimitives.WriteUInt16LittleEndian(table[sizeof(ushort)..], Word(index + 1));
+        return BinaryPrimitives.ReadUInt16LittleEndian(table[1..]);
     }
 
     /// <summary>Alternates left and right ceiling gaps, taking outer edges inward and placing each rock at its block center.</summary>

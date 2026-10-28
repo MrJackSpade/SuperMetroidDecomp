@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
@@ -45,11 +46,11 @@ internal static class KraidBodyTilemap
         // enabled priority, character zero became a conspicuous repeated rectangle above
         // Kraid's head.
         for (int word = 0; word < KraidBackgroundDefinitions.WorkingMapCells; word++)
-            working[word] = SnesLittleEndian.Word(lower[word * 2], lower[word * 2 + 1]);
+            working[word] = BinaryPrimitives.ReadUInt16LittleEndian(lower[(word * sizeof(ushort))..]);
         for (int word = 0; word < KraidBackgroundDefinitions.LowerSourceCopiedCells; word++)
             working[KraidBackgroundDefinitions.LowerPageFirstCell + word] = WithoutPriority(working[word]);
         for (int word = 0; word < KraidBackgroundDefinitions.PageCells; word++)
-            working[word] = WithoutPriority(SnesLittleEndian.Word(upper[word * 2], upper[word * 2 + 1]));
+            working[word] = WithoutPriority(BinaryPrimitives.ReadUInt16LittleEndian(upper[(word * sizeof(ushort))..]));
         working.AsSpan(KraidBackgroundDefinitions.BlankRowFirstCell, ScreenGeometry.TilemapScreenWidthInTiles)
             .Fill(KraidBackgroundDefinitions.BlankTile);
         return working;

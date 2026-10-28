@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -13,7 +14,13 @@ public static class GoldenTorizoWalkDefinitions
     public static ushort Velocity(int byteOffset)
     {
         if (byteOffset is < 0 or > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
-        int value = unchecked((ushort)Displacement(byteOffset >> 1));
-        return (byteOffset & 1) == 0 ? (ushort)value : SnesLittleEndian.Word(SnesLittleEndian.HighByte(value), unchecked((byte)Displacement((byteOffset >> 1) + 1)));
+        ushort value = unchecked((ushort)Displacement(byteOffset >> 1));
+        if ((byteOffset & 1) == 0)
+            return value;
+        // An odd offset reads the little-endian word straddling two table words.
+        Span<byte> table = stackalloc byte[2 * sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(table, value);
+        BinaryPrimitives.WriteUInt16LittleEndian(table[sizeof(ushort)..], unchecked((ushort)Displacement((byteOffset >> 1) + 1)));
+        return BinaryPrimitives.ReadUInt16LittleEndian(table[1..]);
     }
 }

@@ -102,10 +102,8 @@ internal sealed class TorizoCombat
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
         // the upper half to row seven. Deriving the row start algebraically preserves the
         // original descending copy while keeping the loop natural for debugger inspection.
-        int selector = SnesLittleEndian.HighByte(checked((ushort)health)) & TorizoCombatDefinitions.HealthPaletteRowBits;
-        if ((selector & TorizoCombatDefinitions.HealthPaletteUpperHalf) != 0)
-            selector = 56;
-        int sourceWord = selector * 2;
+        int row = (checked((ushort)health) & TorizoCombatDefinitions.HealthPaletteRowBits) >> TorizoCombatDefinitions.HealthPaletteRowShift;
+        int sourceWord = Math.Min(row, TorizoCombatDefinitions.LastHealthPaletteRow) * 16;
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Golden Torizo health palettes require installed artwork.");
         for (int color = 0; color < 16; color++)

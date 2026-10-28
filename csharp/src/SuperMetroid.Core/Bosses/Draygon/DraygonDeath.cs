@@ -113,7 +113,7 @@ internal sealed class DraygonDeath
             xBase: 128,
             xMask: byte.MaxValue,
             yBase: 352,
-            yMask: SnesLittleEndian.Word(0, 63));
+            yMask: 63);
         EnemyPropertyWord deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;
         state.Eye.Properties = deletedProperties;
@@ -133,7 +133,7 @@ internal sealed class DraygonDeath
             return;
 
         int random = _room.Random.Generate();
-        Position16<RoomPixels> smoke = new((ushort)((random & 127) + 192), (ushort)((SnesLittleEndian.HighByte(random) & 63) + 400));
+        Position16<RoomPixels> smoke = new((ushort)((random & 127) + 192), (ushort)((SharedRandomState.UpperByte(random) & 63) + 400));
         if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default) is not null)
             state.DeathSmokeObjectsSpawned++;
     }

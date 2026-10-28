@@ -235,7 +235,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         // $A6:B669 uses the existing RNG byte; it does not advance the generator.
-        if ((SnesLittleEndian.LowByte(_room.Random.Read())) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
+        if (SharedRandomState.LowerByte(_room.Random.Read()) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
 
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
@@ -511,7 +511,7 @@ internal sealed class NorfairRidleyCombat
         // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
         // the low X byte, not the sign of the full coordinate. Keep an inward
         // facing actor's current animation and timer untouched.
-        bool rightHalf = SnesLittleEndian.LowByte(slot.Position.X.Whole) >= 128;
+        bool rightHalf = RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) >= 128;
         if (state.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
         CeresRidleyFlight.StartRidleyProgram(
@@ -636,7 +636,7 @@ internal sealed class NorfairRidleyCombat
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         if (state.Velocity.X.RawValue == 0)
-            state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(SnesLittleEndian.LowByte(slot.Position.X.Whole) < 128 ? (short)192 : (short)-192));
+            state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) < 128 ? (short)192 : (short)-192));
         bool negative = state.Velocity.X.SignedRawValue < 0;
         bool reverse;
         if ((short)(slot.Position.X.Whole - state.MovementMinimum.X) < 0) reverse = negative;

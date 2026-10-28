@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
@@ -160,7 +161,7 @@ internal sealed class DraygonGrab
 
         // The current RNG word is sampled without advancing it. Turret cadence and other
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
-        if ((SnesLittleEndian.LowByte(_room.Random.Read())) == 0)
+        if (SharedRandomState.LowerByte(_room.Random.Read()) == 0)
         {
             state.TailWhipTimer = WrappingCountdown.Start(DraygonBehavior.DraygonTailWhipDuration);
             state.Function = DraygonAiFunction.TailWhipWithSamus;

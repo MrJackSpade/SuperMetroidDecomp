@@ -324,7 +324,7 @@ internal sealed class DraygonParts
         RoomSpriteObjectKind kind)
     {
         int random = _room.Random.Generate();
-        Offset16<RoomPixels> scatter = new((short)((random & 127) - 64), (short)((SnesLittleEndian.HighByte(random) & 127) - 64));
+        Offset16<RoomPixels> scatter = new((short)((random & 127) - 64), (short)((SharedRandomState.UpperByte(random) & 127) - 64));
         if (_spriteObjects.SpawnRoomSpriteObject(
                 state.Body.Position.Whole + scatter,
                 kind,

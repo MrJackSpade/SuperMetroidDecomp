@@ -226,7 +226,7 @@ internal sealed class CrocomireSkeleton
             xBase: 576,
             xMask: 127,
             yBase: 96,
-            yMask: SnesLittleEndian.Word(0, 63));
+            yMask: 63);
         _access.RequireCrocomireDeath().ItemDropRequested = true;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }

@@ -76,7 +76,7 @@ internal sealed class WorldMapLabelComposition
         for (int index = 0; regular && index < parts.Length; index++)
         {
             var part = parts[index];
-            int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
+            int tile = WorldMapCharacterDrawing.LabelLetterACell + text[text.Length - 1 - index] - 'A';
             regular = part is not null && part.OffsetX is >= -256 and <= 255 &&
                 part.OffsetY == VerticalOffset(id, index) && part.TileColumn == tile % 16 && part.TileRow == tile / 16 &&
                 part.Size == 8 && part.Priority == 3 && part.Palette is null && !part.FlipX && !part.FlipY;
@@ -104,7 +104,7 @@ internal sealed class WorldMapLabelComposition
         string text = Text(identity);
         return new(name, [.. Enumerable.Range(0, text.Length).Select(index =>
         {
-            int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
+            int tile = WorldMapCharacterDrawing.LabelLetterACell + text[text.Length - 1 - index] - 'A';
             return SpritePart.Create(Offset16<ScreenPixels>.Of(HorizontalOffset(index, text.Length), VerticalOffset(identity, index)), false, tile, 0, 3)
                 .ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true);
         })]);

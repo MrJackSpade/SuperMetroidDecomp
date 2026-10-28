@@ -25,7 +25,7 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>The menus' presentation.</summary>
     private readonly Lazy<AreaMapPresentationCatalog> maps;
     /// <summary>The opening cinematic's artwork.</summary>
-    private readonly Lazy<IntroCinematicArtworkCatalog> intro;
+    private readonly Lazy<IntroCinematicArtwork> intro;
 
     /// <summary>The ending's sprite artwork.</summary>
     private readonly Lazy<EndingObjectArtwork> ending;

@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class CinematicSheetFixtures
 {
     /// <summary>Installed sheets with an intro sheet already composed, by intro artwork.</summary>
-    private static readonly ConditionalWeakTable<IntroCinematicArtworkCatalog, InstalledSpriteSheets> intros = new();
+    private static readonly ConditionalWeakTable<IntroCinematicArtwork, InstalledSpriteSheets> intros = new();
 
     /// <summary>Drawers already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<object, CinematicSpriteSheet> drawers = new();
@@ -38,7 +38,7 @@ internal static class CinematicSheetFixtures
     extension(CeresDestructionCinematicState self)
     {
         /// <summary>Binds <paramref name="intro"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureDestructionArtwork(IntroCinematicArtworkCatalog intro)
+        internal void BindFixtureDestructionArtwork(IntroCinematicArtwork intro)
         {
             self.BindArtwork(intro);
             self.BindSpriteSheets(WithIntro(intro));
@@ -81,7 +81,7 @@ internal static class CinematicSheetFixtures
             $"{SpriteSheetDefinitions.FileName(id)}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
 
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
-    internal static InstalledSpriteSheets WithIntro(IntroCinematicArtworkCatalog intro)
+    internal static InstalledSpriteSheets WithIntro(IntroCinematicArtwork intro)
     {
         ArgumentNullException.ThrowIfNull(intro);
         return ReferenceEquals(intro, InstalledFixtures.IntroArtwork) ? InstalledFixtures.SpriteSheets
@@ -110,7 +110,7 @@ internal static class CinematicSheetFixtures
     extension(IntroCinematicState self)
     {
         /// <summary>Binds <paramref name="intro"/> and the sheets with the intro sheet it composes, as the game rebinds both.</summary>
-        internal void BindFixtureIntroArtwork(IntroCinematicArtworkCatalog intro)
+        internal void BindFixtureIntroArtwork(IntroCinematicArtwork intro)
         {
             self.BindCharacterArtwork(intro);
             self.BindSpriteSheets(WithIntro(intro));

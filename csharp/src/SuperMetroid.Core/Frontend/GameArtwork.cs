@@ -49,7 +49,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomCharacterAtlas? StandardObjectArt { get; init; }
 
     /// <summary>Intro, Ceres destruction and Ceres flight artwork.</summary>
-    public IntroCinematicArtworkCatalog? IntroCinematicArt { get; init; }
+    public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     public SamusBodyArtworkCatalog? SamusBodyArt { get; init; }

@@ -43,12 +43,8 @@ internal static class IntroEggEffectDefinitions
     /// The generic OAM reader consumes the count, X, Y, and attribute word
     /// in that order; the bounded selector reaches only these six records.
     /// </remarks>
-    public static CinematicActorDefinition Particle(int index)
-    {
-        if ((uint)index >= ParticleCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return new(CinematicSpritePreInstruction.MetroidEggParticle, ParticlePrograms[index]);
-    }
+    public static CinematicActorDefinition Particle(int index) =>
+        new(CinematicSpritePreInstruction.MetroidEggParticle, Ensure.Element(ParticlePrograms, index));
 
     /// <summary>The six particles' programs, indexed by particle.</summary>
     private static readonly CinematicSpriteProgram[] ParticlePrograms =

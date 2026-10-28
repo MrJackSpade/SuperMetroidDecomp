@@ -317,9 +317,9 @@ internal static class CeresFlightArtworkVerification
                 new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Paint.Colors),
             "restored Ceres flight rebinds current palette without restarting phase");
 
-        IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
+        IntroCinematicArtwork stockParent = IntroCinematicArtworkFiles.Load(
             installation.IntroCinematicDirectory, null);
-        IntroCinematicArtworkCatalog editedParent = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork editedParent = installation.LoadIntroCinematicArt();
         var restoredDestruction = new CeresDestructionCinematicState(artwork: stockParent,
             spriteSheets: CinematicSheetFixtures.WithIntro(stockParent));
         var editedDestruction = new CeresDestructionCinematicState(artwork: editedParent,

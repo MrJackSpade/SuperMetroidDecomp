@@ -28,6 +28,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroCaretSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionSpriteDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionPoses.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroDiscoveryActorSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggEffectSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroRinkaSpriteDefinitions.cs"),

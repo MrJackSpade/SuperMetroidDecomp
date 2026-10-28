@@ -10,10 +10,10 @@ internal static class IntroMotherBrainCollisionSourceVerification
     internal static byte[] VerifyIntroMotherBrainCollisionSource(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cbec3, 448);
-        byte[] actual = IntroMotherBrainCollisionDefinitions.CopySourceBytes();
+        byte[] actual = IntroMotherBrainCollision.CopySourceBytes();
         AssertTrue(actual.SequenceEqual(native), "all224 Mother Brain collision words match original");
         actual.AsSpan().Fill(0xff);
-        byte[] fresh = IntroMotherBrainCollisionDefinitions.CopySourceBytes();
+        byte[] fresh = IntroMotherBrainCollision.CopySourceBytes();
         AssertTrue(!ReferenceEquals(actual, fresh) && fresh.SequenceEqual(native),
             "debugger-visible collision source remains independently mutable per flashback");
         return native;

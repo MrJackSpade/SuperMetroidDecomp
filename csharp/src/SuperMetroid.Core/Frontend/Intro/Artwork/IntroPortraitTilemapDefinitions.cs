@@ -1,78 +1,38 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>$97:88CC Samus-head BG2 composition, copied by $8B:A4A5-A4B3 to VRAM word $4800. Atlas runs and repeated cells calculate; selected drawing layout remains explicit.</summary>
 internal static class IntroPortraitTilemapDefinitions
 {
     /// <summary>$97:88CC: selected portrait atlas block begins at $300; its sixteen-cell row stride comes from the source atlas.</summary>
-    private const int AtlasOrigin = 0x300;
+    internal const int AtlasOrigin = 0x300;
     /// <summary>$97:88CC: the main sixteen-column portrait block starts at page column eight, centered in the 32-column BG page.</summary>
-    private const int AtlasSide = 16;
+    internal const int AtlasSide = 16;
     /// <summary>$97:88CC: chosen portrait top row five.</summary>
-    private const int Top = 5;
+    internal const int Top = 5;
     /// <summary>$97:88CC: chosen blank tile $3FE; RGB paint and tile pixels are separate.</summary>
-    private const int BlankTile = 0x3fe;
+    internal const int BlankTile = 0x3fe;
     /// <summary>The portrait's colour variant three, in the lower priority tier and unmirrored.</summary>
-    private const int Palette = 3;
-
-    /// <summary>Builds the centered portrait BG page from atlas occupancy and its hand-placed edge fragments.</summary>
-    internal static BackgroundTile[] Compile()
-    {
-        const int columns = IntroCinematicArtworkFormat.TileColumns;
-        int left = (columns - AtlasSide) / 2;
-        var output = new BackgroundTile[IntroCinematicArtworkFormat.BackgroundPageByteCount / sizeof(ushort)];
-        Array.Fill(output, new BackgroundTile(BlankTile, Palette, highPriority: false));
-        void Put(int x, int y, int tile) => output[y * columns + x] = new BackgroundTile(tile, Palette, highPriority: false);
-        void Run(int x, int y, int tile, int count)
-        {
-            for (int column = 0; column < count; column++) Put(x + column, y, tile + column);
-        }
-        for (int row = 0; row < AtlasSide; row++)
-        for (int column = 0; column < AtlasSide; column++)
-            if ((Silhouette(row) & (1 << column)) != 0)
-                Put(left + column, Top + row, AtlasOrigin + row * AtlasSide + column);
-
-        // Left shoulder fragments reuse free atlas cells around the main head drawing.
-        Run(4, 12, AtlasOrigin + 11, 2);
-        Put(4, 13, AtlasOrigin + 13);
-        for (int row = 0; row < 2; row++) Run(5, 13 + row, AtlasOrigin + 26 + row * AtlasSide, 3);
-        Run(5, 15, AtlasOrigin, 3);
-        Run(6, 16, AtlasOrigin + 17, 2);
-        Put(7, 17, AtlasOrigin + 49);
-        Put(7, 18, AtlasOrigin + 3);
-
-        // The near-right fin follows one atlas column, while the far-right tip
-        // stitches two vertically packed two-cell strips side by side.
-        for (int row = 0; row < 3; row++) Put(24, 11 + row, AtlasOrigin + 141 + row * AtlasSide);
-        for (int column = 0; column < 2; column++)
-        for (int row = 0; row < 2; row++)
-            Put(26 + column, 13 + row, AtlasOrigin + 191 + (column * 2 + row) * AtlasSide);
-
-        // Seven chin cells occupy two source rows because the atlas keeps other
-        // head fragments in the adjacent cells; displayed runs remain contiguous.
-        Run(13, 21, AtlasOrigin + 89, 4);
-        Run(17, 21, AtlasOrigin + 105, 3);
-        return output;
-    }
+    internal const int Palette = 3;
 
     /// <summary>$97:88CC: selected one-bit occupancy of the main sixteen-by-sixteen atlas block. Repeated adjacent rows share their silhouette; every occupied tile identity follows the same atlas position formula. This mask describes drawing placement, not collision or a sampled numeric curve.</summary>
-    private static ushort Silhouette(int row) => row switch
-    {
-        0 => 0x07f0,
-        1 => 0x03f8,
-        2 or 3 => 0x03fc,
-        4 => 0x03fe,
-        5 => 0xc1fe,
-        6 => 0xf0ff,
-        7 => 0xfcff,
-        8 => 0x9fff,
-        9 or 10 => 0xdfff,
-        11 => 0x6fff,
-        12 => 0x67ff,
-        13 => 0x73ff,
-        14 => 0x3bff,
-        15 => 0x1ff8,
-        _ => throw new ArgumentOutOfRangeException(nameof(row)),
-    };
+    /// <remarks>Bit <c>c</c> of row <c>r</c> marks atlas column <c>c</c> of the row, so each row reads right to left.</remarks>
+    internal static readonly int[] SilhouetteRows =
+    [
+        0b0000_0111_1111_0000,
+        0b0000_0011_1111_1000,
+        0b0000_0011_1111_1100,
+        0b0000_0011_1111_1100,
+        0b0000_0011_1111_1110,
+        0b1100_0001_1111_1110,
+        0b1111_0000_1111_1111,
+        0b1111_1100_1111_1111,
+        0b1001_1111_1111_1111,
+        0b1101_1111_1111_1111,
+        0b1101_1111_1111_1111,
+        0b0110_1111_1111_1111,
+        0b0110_0111_1111_1111,
+        0b0111_0011_1111_1111,
+        0b0011_1011_1111_1111,
+        0b0001_1111_1111_1000,
+    ];
 }

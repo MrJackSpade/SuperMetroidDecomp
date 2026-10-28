@@ -78,14 +78,16 @@ internal static class IntroRinkaDefinitions
     /// yielding +0.5 px/call for even p and -0.5 for odd p. The shared
     /// selector represents both native paths without an out-of-range read.
     /// </remarks>
-    public static IntroRinkaPhysicalDefinition Rinka(int parameter) => parameter switch
-    {
-        0 => new(new(0x0070, 0x0048), 0),
-        1 => new(new(0x00c0, 0x0038), -1),
-        2 => new(new(0x0080, 0x0030), 0),
-        3 => new(new(0x00e8, 0x0050), -1),
-        _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
-    };
+    public static IntroRinkaPhysicalDefinition Rinka(int parameter) => Ensure.Element(Rinkas, parameter);
+
+    /// <summary>The values <see cref="Rinka"/> selects, in index order.</summary>
+    private static readonly IntroRinkaPhysicalDefinition[] Rinkas =
+    [
+        new(new(0x0070, 0x0048), 0),
+        new(new(0x00c0, 0x0038), -1),
+        new(new(0x0080, 0x0030), 0),
+        new(new(0x00e8, 0x0050), -1),
+    ];
 
     /// <summary>The Rinkas' shared half-pixel X/Y velocity.</summary>
     public static SignedSixteenSixteen HalfPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);

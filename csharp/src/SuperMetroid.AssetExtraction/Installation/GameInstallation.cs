@@ -112,7 +112,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
     public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Loads validated opening-cinematic artwork, selecting compatible user PNG replacements where supplied.</summary>
-    public IntroCinematicArtworkCatalog LoadIntroCinematicArt() =>
+    public IntroCinematicArtwork LoadIntroCinematicArt() =>
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
     /// <summary>Stock ending Mode 7 scene artwork under the replaceable content tree.</summary>
     public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);

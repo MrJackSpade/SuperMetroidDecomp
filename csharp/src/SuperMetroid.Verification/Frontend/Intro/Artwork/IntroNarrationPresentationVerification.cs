@@ -83,7 +83,7 @@ internal static class IntroNarrationPresentationVerification
         editedState.StartEnglishPageSix();
         editedState.Step(0);
         editedState.Step(0);
-        AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
+        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             editedTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "edited UTF-8 opening narration reaches the live tilemap");
 
@@ -95,7 +95,7 @@ internal static class IntroNarrationPresentationVerification
         rebound.Step(0);
         rebound.BindNarration(edited);
         rebound.Step(0);
-        AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
+        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             reboundTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "active opening narration accepts current replacement content");
 
@@ -204,7 +204,7 @@ internal static class IntroNarrationPresentationVerification
             document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
+        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Tile,
             "catalog override changes installed opening narration");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,

@@ -62,7 +62,7 @@ internal static class IntroCinematicArtworkVerification
             GameInstallation installation = copy.Installation;
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             AssertTrue(stock.BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
@@ -174,7 +174,7 @@ internal static class IntroCinematicArtworkVerification
             };
             using (var output = File.Create(paletteOverridePath))
                 IntroCinematicPaletteFile.Write(output, paletteDocument);
-            IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
             RgbColor[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
@@ -205,7 +205,7 @@ internal static class IntroCinematicArtworkVerification
                         Green = (color.Green + 11) & 31,
                     }).ToArray(),
                 });
-            IntroCinematicArtworkCatalog visiblePalette = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork visiblePalette = installation.LoadIntroCinematicArt();
             var stockVisualState = CreateRetailIntroFixture(characterArtwork: stock);
             var editedVisualState = CreateRetailIntroFixture(characterArtwork: visiblePalette);
             bool changedVisiblePixel = false;
@@ -279,7 +279,7 @@ internal static class IntroCinematicArtworkVerification
             };
             using (var output = File.Create(dividerOverridePath))
                 IntroFinalLineTilemap.Write(output, dividerDocument);
-            IntroCinematicArtworkCatalog editedDivider = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork editedDivider = installation.LoadIntroCinematicArt();
             var editedDividerState = CreateRetailIntroFixture(characterArtwork: editedDivider);
             editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
@@ -303,7 +303,7 @@ internal static class IntroCinematicArtworkVerification
                         Palette = (cell.Palette + 3) % RoomBackgroundTilemapFormat.PaletteCount,
                     }).ToArray(),
                 });
-            IntroCinematicArtworkCatalog visibleDivider = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork visibleDivider = installation.LoadIntroCinematicArt();
             var stockDividerVisual = CreateRetailIntroFixture(characterArtwork: stock);
             var editedDividerVisual = CreateRetailIntroFixture(characterArtwork: visibleDivider);
             foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
@@ -359,7 +359,7 @@ internal static class IntroCinematicArtworkVerification
                 using (var output = File.Create(overridePath))
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
 
-                IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+                IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 var editedState = CreateRetailIntroFixture(characterArtwork: edited);
                 byte[] expected = nativeVram.ToArray();
                 // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
@@ -420,7 +420,7 @@ internal static class IntroCinematicArtworkVerification
                     RoomBackgroundTilemapAtlas.Write(output, document,
                         IntroCinematicArtworkFormat.BackgroundPageByteCount);
 
-                IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+                IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
@@ -461,7 +461,7 @@ internal static class IntroCinematicArtworkVerification
                 AssertTrue(installed.ShownVram().SequenceEqual(nativeVram),
                     $"removing {name} override restores stock BG VRAM");
             }
-            foreach ((string name, int destination, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>> transfer)
+            foreach ((string name, int destination, Func<IntroCinematicArtwork, ReadOnlyMemory<byte>> transfer)
                 in new VerifyIntroCinematicArtworkCase[]
                 {
                     new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.PortraitTilemapFileName,
@@ -488,7 +488,7 @@ internal static class IntroCinematicArtworkVerification
                     RoomBackgroundTilemapAtlas.Write(output, document,
                         IntroCinematicArtworkFormat.BackgroundPageByteCount);
 
-                IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+                IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 transfer(edited).Span.CopyTo(expected.AsSpan(destination));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
@@ -528,7 +528,7 @@ internal static class IntroCinematicArtworkVerification
                 using var output = File.Create(backgroundOverridePath);
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             }
-            IntroCinematicArtworkCatalog selected = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork selected = installation.LoadIntroCinematicArt();
             File.WriteAllBytes(backgroundStockPath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
                 "an override cannot hide corrupt stock cinematic artwork");
@@ -593,7 +593,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed eye tilemap frames and instruction timing with native VRAM output.</summary>
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeVram = new IntroTilemaps();
@@ -660,7 +660,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares caret sprite compositions and blink behavior with native OAM output.</summary>
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
@@ -775,7 +775,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Checks the installed flashback collision source without rereading its cartridge bytes.</summary>
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtworkCatalog stock)
+        IntroCinematicArtwork stock)
     {
         byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
@@ -800,7 +800,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed Mother Brain flashback sprite frames with the cartridge's OAM layout.</summary>
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         // The cartridge oracle takes the palette row as its attribute bits; the port's draw takes the row itself.
         ushort motherBrainPaletteBits = SnesObjAttributeWord.Create(0, IntroMotherBrainSpriteState.Palette, 0).PaletteBits;
@@ -836,7 +836,7 @@ internal static class IntroCinematicArtworkVerification
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroMotherBrainSpritePresentation.Write(output, document);
-        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
@@ -879,7 +879,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Checks explosion sprite compositions and rejects missing named override frames.</summary>
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicArtwork stock,
         GameInstallation installation)
     {
         const ushort x = 120;
@@ -916,7 +916,7 @@ internal static class IntroCinematicArtworkVerification
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroMotherBrainExplosionSpritePresentation.Write(output, document);
-        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
         var explosions = new IntroMotherBrainExplosionSystem();

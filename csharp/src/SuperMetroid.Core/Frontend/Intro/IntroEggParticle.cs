@@ -54,7 +54,7 @@ internal sealed class IntroEggParticle
         // frames fallen. Each velocity is a signed 16.16 pair stored high-word first in ROM,
         // exactly matching the actor's whole/subposition addition order.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotionDefinitions.FragmentX(Fragment));
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotionDefinitions.FragmentY(FramesFallen));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen));
         if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler

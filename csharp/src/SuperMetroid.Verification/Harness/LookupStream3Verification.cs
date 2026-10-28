@@ -458,7 +458,7 @@ internal static class LookupStream3Verification
                 ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
                 BackgroundTile glyphTile = BackgroundTileWordBytes.Tile(glyph);
-                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyphTile, glyphTile == IntroNarrationDefinitions.CompileGlyph(' ')));
+                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyphTile, glyphTile == IntroNarrationGlyphs.CompileGlyph(' ')));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
@@ -3055,10 +3055,10 @@ internal static class LookupStream3Verification
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+            IntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
@@ -3235,14 +3235,14 @@ internal static class LookupStream3Verification
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            IntroCinematicArtworkCatalog Copy(byte[] background)
+            IntroCinematicArtwork Copy(byte[] background)
             {
                 RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
                 return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             }
-            byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundTilemapDefinitions.Compile());
+            byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundPages.Compile());
             var mismatches = new List<string>();
             for (int cell = 0; cell < native.Length / 2; cell++)
             {
@@ -3380,10 +3380,10 @@ BranchesToSharedBody:true),
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+            IntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
             AssertTrue(stock.suppliedPortrait is null,
                 "native portrait stores no output word array");

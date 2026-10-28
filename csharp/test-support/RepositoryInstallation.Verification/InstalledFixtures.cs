@@ -63,7 +63,7 @@ internal static class InstalledFixtures
     private static readonly Lazy<SamusBodyArtworkCatalog> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
-    private static readonly Lazy<IntroCinematicArtworkCatalog> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
+    private static readonly Lazy<IntroCinematicArtwork> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
@@ -141,7 +141,7 @@ internal static class InstalledFixtures
     internal static SamusBodyArtworkCatalog SamusBody => samusBody.Value;
 
     /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
-    internal static IntroCinematicArtworkCatalog IntroArtwork => introArtwork.Value;
+    internal static IntroCinematicArtwork IntroArtwork => introArtwork.Value;
 
     /// <summary>Creates a Samus projectile system with installed frame bindings.</summary>
     internal static SamusProjectileSystem CreateProjectileSystem() =>
@@ -173,13 +173,13 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>
         new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
-        IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
+        IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
         BeamPaletteCatalog? beamPalettes = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,

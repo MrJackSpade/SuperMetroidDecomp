@@ -98,7 +98,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The floor's cells the uploads leave over the bound artwork, until an upload or a rebind changes them.</summary>
     [NonSerialized] private byte[]? floorMap;
     /// <summary>Installed art rebound after debugger restoration rather than serialized with scene state.</summary>
-    [field: NonSerialized] internal IntroCinematicArtworkCatalog? Artwork { get; private set; }
+    [field: NonSerialized] internal IntroCinematicArtwork? Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
@@ -179,7 +179,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     public CeresDestructionCinematicState(
         AudioQueues? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
-        IntroCinematicArtworkCatalog? artwork = null,
+        IntroCinematicArtwork? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
         InstalledSpriteSheets? spriteSheets = null)
@@ -221,7 +221,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// actors, audio and gameplay timeline remain untouched. The shared Ceres palette
     /// is refreshed only before the later engine-flicker palette program takes ownership.
     /// </summary>
-    internal void BindArtwork(IntroCinematicArtworkCatalog? value)
+    internal void BindArtwork(IntroCinematicArtwork? value)
     {
         Artwork = value;
         floorMap = null;
@@ -459,7 +459,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Stages Ceres Mode-7 and OBJ transfers, palettes, and three initial actors after the ninth NMI wait.</summary>
     private void SetupCeresDestruction()
     {
-        IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
+        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         RequireMinimum(content.CeresFlight.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightArtworkFormat.FloorByteCount,
             "Ceres destruction Mode-7 characters");
@@ -499,7 +499,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Stages the planet-reveal Mode-1 map and resets camera, angle, fade, and mosaic state.</summary>
     private void SetupZebesReveal()
     {
-        IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
+        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
         RequireMinimum(content.CeresDestruction.ZebesMap.Tiles.Length, CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort),
             "Zebes reveal tilemap");

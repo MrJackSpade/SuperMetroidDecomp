@@ -21,21 +21,21 @@ internal static class IntroSpriteSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>The intro's cinematic families.</summary>
-    private static IEnumerable<ICinematicSpriteFrames> Families(IntroCinematicArtworkCatalog intro) =>
+    private static IEnumerable<ICinematicSpriteFrames> Families(IntroCinematicArtwork intro) =>
     [
         intro.DiscoveryActorSprites, intro.EggEffectSprites, intro.RinkaSprites, intro.ScientistSprites,
         intro.MotherBrainSprites, intro.MotherBrainExplosionSprites, intro.CaretSprites,
     ];
 
     /// <summary>What the intro sheet composes.</summary>
-    internal static SpriteSheetSources Sources(IntroCinematicArtworkCatalog intro)
+    internal static SpriteSheetSources Sources(IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         return Sources(Families(intro), intro);
     }
 
     /// <summary>What a sheet of <paramref name="families"/> over the intro OBJ page of <paramref name="intro"/> composes.</summary>
-    internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, IntroCinematicArtworkCatalog intro)
+    internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         return Compose(families, IntroObjectPage.Of(intro), intro.Palette.LoadTo);
@@ -52,7 +52,7 @@ internal static class IntroSpriteSheetComposer
     /// What the Ceres destruction scene's sheet composes: the scene's destruction and shared Ceres flight families over
     /// the OBJ characters <paramref name="uploads"/> leave, coloured as the scene loads the flight's palette.
     /// </summary>
-    internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtworkCatalog intro, IReadOnlyList<CeresDestructionUpload> uploads)
+    internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtwork intro, IReadOnlyList<CeresDestructionUpload> uploads)
     {
         Ensure.NotNull(intro);
         SpriteArtwork page = CeresDestructionObjectPage.Of(intro, uploads);
@@ -60,11 +60,11 @@ internal static class IntroSpriteSheetComposer
     }
 
     /// <summary>The frames the Ceres destruction scene's sheets hold.</summary>
-    internal static IEnumerable<string> CeresDestructionFrameNames(IntroCinematicArtworkCatalog intro) =>
+    internal static IEnumerable<string> CeresDestructionFrameNames(IntroCinematicArtwork intro) =>
         FrameNames([Ensure.NotNull(intro).CeresFlight.Sprites, intro.CeresDestruction.Sprites]);
 
     /// <summary>The frames the intro sheet of <paramref name="intro"/> holds.</summary>
-    internal static IEnumerable<string> FrameNames(IntroCinematicArtworkCatalog intro) => FrameNames(Families(Ensure.NotNull(intro)));
+    internal static IEnumerable<string> FrameNames(IntroCinematicArtwork intro) => FrameNames(Families(Ensure.NotNull(intro)));
 
     /// <summary>The frames the Ceres flight sheet of <paramref name="flight"/> holds.</summary>
     internal static IEnumerable<string> CeresFlightFrameNames(CeresFlightArtwork flight) =>

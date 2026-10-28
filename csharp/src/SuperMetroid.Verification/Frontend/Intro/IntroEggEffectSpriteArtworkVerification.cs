@@ -25,7 +25,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
     /// <summary>Compares stock frames at visible and wrapped origins, then
     /// checks live particles use editable art without rereading cartridge maps.</summary>
     internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
@@ -68,7 +68,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroEggEffectSpritePresentation.Write(output, document);
-        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
         var fragment = new IntroEggParticle(index: 0);

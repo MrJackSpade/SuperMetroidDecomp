@@ -61,7 +61,7 @@ internal sealed class IntroEggSlimeDrop
 
             // BIT #1 selects two different gravity curves. This is the parameter's parity,
             // not an animation-frame toggle: odd drops begin at -2 px/frame, evens at -3.
-            AddVelocity(axis: Axis.Vertical, IntroEggMotionDefinitions.SlimeY(
+            AddVelocity(axis: Axis.Vertical, IntroEggMotion.SlimeY(
                 FramesFallen, odd: (sprite.GeneralTimer & 1) != 0));
 
             if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)

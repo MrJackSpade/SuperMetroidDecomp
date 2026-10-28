@@ -266,7 +266,7 @@ internal static class ScreenTileSheetComposer
         Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
-    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtworkCatalog intro)
+    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtwork intro)
     {
         var colours = new ScreenPalette();
         intro.Palette.LoadTo(colours);

@@ -30,29 +30,29 @@ public sealed class WorldMapCharacters : WorldMapArtwork
         var masks = new ulong[WorldMapArtworkFormat.ForegroundTileCount];
         for (int tile = 0; tile < masks.Length; tile++)
         {
-            if (!WorldMapTileDefinitions.IsForegroundFontTile(tile)) continue;
+            if (!WorldMapCharacterDrawing.IsForegroundFontTile(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
-                if (foreground[TilePixel(tile, new(checked((ushort)x), checked((ushort)y)))] == WorldMapTileDefinitions.ForegroundFontFace)
+                if (foreground[TilePixel(tile, new(checked((ushort)x), checked((ushort)y)))] == WorldMapCharacterDrawing.ForegroundFontFace)
                     masks[tile] |= 1UL << (y * 8 + x);
         }
         for (int tile = 0; tile < masks.Length; tile++)
         {
-            if (!WorldMapTileDefinitions.IsForegroundFontTile(tile)) continue;
-            int source = WorldMapTileDefinitions.ForegroundSourcePixel(TilePixel(tile, new(0, 0)));
+            if (!WorldMapCharacterDrawing.IsForegroundFontTile(tile)) continue;
+            int source = WorldMapCharacterDrawing.ForegroundSourcePixel(TilePixel(tile, new(0, 0)));
             int sourceTile = source < 0 ? tile : PixelTile(source);
             ulong expected = sourceTile == tile ? 0 : masks[sourceTile];
             if (masks[tile] != expected) fontFill.Add(tile, masks[tile]);
         }
         this.foreground = Enumerable.Range(0, foreground.Length).Where(index =>
         {
-            int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
+            int source = WorldMapCharacterDrawing.ForegroundSourcePixel(index);
             if (source != index) return foreground[index] != (source < 0 ? 0 : foreground[source]);
-            return !WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out int value) || foreground[index] != value;
+            return !WorldMapCharacterDrawing.TryForegroundFontPixel(index, fontMask, out int value) || foreground[index] != value;
         }).ToDictionary(index => index, index => foreground[index]);
         for (int tile = 0; tile < WorldMapArtworkFormat.BackgroundTileCount; tile++)
         {
-            if (!WorldMapTileDefinitions.IsOutlinedDigit(tile)) continue;
+            if (!WorldMapCharacterDrawing.IsOutlinedDigit(tile)) continue;
             ulong mask = 0;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
@@ -121,7 +121,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     private ulong FontMask(int tile)
     {
         if (fontFill.TryGetValue(tile, out ulong mask)) return mask;
-        int source = WorldMapTileDefinitions.ForegroundSourcePixel(TilePixel(tile, new(0, 0)));
+        int source = WorldMapCharacterDrawing.ForegroundSourcePixel(TilePixel(tile, new(0, 0)));
         int sourceTile = source < 0 ? tile : PixelTile(source);
         return sourceTile == tile ? 0 : FontMask(sourceTile);
     }
@@ -129,10 +129,10 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     private byte ForegroundPixel(int index)
     {
         if (foreground.ContainsKey(index)) return foreground[index];
-        int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
+        int source = WorldMapCharacterDrawing.ForegroundSourcePixel(index);
         if (source < 0) return 0;
         if (source != index) return ForegroundPixel(source);
-        return WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out int pen) ? (byte)pen
+        return WorldMapCharacterDrawing.TryForegroundFontPixel(index, fontMask, out int pen) ? (byte)pen
             : throw new InvalidDataException("World foreground source pixel is unavailable.");
     }
 
@@ -143,8 +143,8 @@ public sealed class WorldMapCharacters : WorldMapArtwork
         int tile = y / 8 * WorldMapArtworkFormat.TileColumns + x / 8;
         int pen;
         bool found = digitFill.TryGetValue(tile, out ulong footprint)
-            ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out pen)
-            : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out pen);
+            ? WorldMapCharacterDrawing.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out pen)
+            : WorldMapCharacterDrawing.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out pen);
         value = pen;
         return found;
     }

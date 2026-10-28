@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// cinematic. VRAM destinations and scene timing remain compiled game logic.
 /// </summary>
 [ArchitectureReview("context-bag", "The opening cinematic's installed artwork; every member is immutable artwork data the cinematic draws, not a service.")]
-public sealed class IntroCinematicArtworkCatalog
+public sealed class IntroCinematicArtwork
 {
     /// <summary>Assembles the selected opening-art bundle, validating and concatenating its four background pages and retaining edited portrait and narration tilemaps.</summary>
     /// <param name="parts">The opening cinematic's character atlases, tilemaps, sprite presentations and palette (#633).</param>
     /// <exception cref="ArgumentNullException">A required character atlas, presentation catalog, palette, or background-page collection is null.</exception>
     /// <exception cref="InvalidDataException">The background-page count is not four, a page is missing, or a background, portrait, or narration page is not $0800 bytes.</exception>
-    public IntroCinematicArtworkCatalog(IntroCinematicArtworkParts parts)
+    public IntroCinematicArtwork(IntroCinematicArtworkParts parts)
     {
         BackgroundCharacters = Ensure.NotNull(parts.BackgroundCharacters);
         IntroObjectCharacters = Ensure.NotNull(parts.IntroObjectCharacters);
@@ -32,13 +32,13 @@ public sealed class IntroCinematicArtworkCatalog
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
             page.Tiles.Span.CopyTo(pages.AsSpan(index * PageCells, PageCells));
         }
-        if (!pages.SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
+        if (!pages.SequenceEqual(IntroBackgroundPages.Compile()))
             suppliedBackgroundPages = pages;
         ReadOnlyMemory<BackgroundTile> portrait = RequirePage(parts.PortraitTilemap, "portrait");
-        if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))
+        if (!portrait.Span.SequenceEqual(IntroPortraitPage.Compile()))
             suppliedPortrait = portrait.ToArray();
         ReadOnlyMemory<BackgroundTile> narration = RequirePage(parts.InitialNarrationTilemap, "initial narration");
-        if (!narration.Span.SequenceEqual(IntroInitialNarrationTilemapDefinitions.Compile()))
+        if (!narration.Span.SequenceEqual(IntroInitialNarrationPage.Compile()))
             suppliedInitialNarration = narration.ToArray();
         FinalLine = Ensure.NotNull(parts.FinalLine);
         EyeFrames = Ensure.NotNull(parts.EyeFrames);
@@ -71,15 +71,15 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Decompressed cinematic OBJ characters uploaded to VRAM byte $DC00.</summary>
     public RoomCharacterAtlas CinematicObjectCharacters { get; }
     /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
-    public ReadOnlyMemory<BackgroundTile> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundTilemapDefinitions.Compile();
+    public ReadOnlyMemory<BackgroundTile> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundPages.Compile();
     /// <summary>Only selected scene pages differing from the compiled intro layout.</summary>
     internal readonly BackgroundTile[]? suppliedBackgroundPages;
     /// <summary>The Samus-head portrait's tiles.</summary>
-    public ReadOnlyMemory<BackgroundTile> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
+    public ReadOnlyMemory<BackgroundTile> PortraitTilemap => suppliedPortrait ?? IntroPortraitPage.Compile();
     /// <summary>Copied portrait page when authoring differs from the compiled stock map.</summary>
     internal readonly BackgroundTile[]? suppliedPortrait;
     /// <summary>The first, pre-typewriter narration card's tiles.</summary>
-    public ReadOnlyMemory<BackgroundTile> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
+    public ReadOnlyMemory<BackgroundTile> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationPage.Compile();
     /// <summary>Copied pre-typewriter narration page when authoring differs from stock.</summary>
     internal readonly BackgroundTile[]? suppliedInitialNarration;
     /// <summary>Four BG3 rows mapping Japanese subtitle glyph staging beneath illustrated-page text.</summary>
@@ -108,7 +108,7 @@ public sealed class IntroCinematicArtworkCatalog
     public CeresDestructionArtwork CeresDestruction { get; }
 
     /// <summary>Identity of the entire selected opening bundle, including its owned Ceres flight/reveal art.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroCinematicArtworkCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog", content =>
     {
         content.Append("background-characters", BackgroundCharacters.Characters.Span);
         content.Append("intro-characters", IntroObjectCharacters.Characters.Span);

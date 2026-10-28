@@ -16,16 +16,18 @@ internal static class IntroEggMotionDefinitions
     /// shell artwork, so retaining six explicit pairs is clearer than a
     /// generated sequence or polynomial encoding.
     /// </remarks>
-    public static Position16<ScreenPixels> FragmentInitialPosition(int index) => index switch
-    {
-        0 => new(0x006c, 0x0093),
-        1 => new(0x0073, 0x0093),
-        2 => new(0x0069, 0x0098),
-        3 => new(0x0070, 0x0096),
-        4 => new(0x0076, 0x0099),
-        5 => new(0x0073, 0x009b),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    public static Position16<ScreenPixels> FragmentInitialPosition(int index) => Ensure.Element(FragmentInitialPositions, index);
+
+    /// <summary>The values <see cref="FragmentInitialPosition"/> selects, in index order.</summary>
+    private static readonly Position16<ScreenPixels>[] FragmentInitialPositions =
+    [
+        new(0x006c, 0x0093),
+        new(0x0073, 0x0093),
+        new(0x0069, 0x0098),
+        new(0x0070, 0x0096),
+        new(0x0076, 0x0099),
+        new(0x0073, 0x009b),
+    ];
 
     /// <summary>$8B:A9EA: six signed 16.16 shell-fragment horizontal velocities.</summary>
     /// <remarks>
@@ -38,12 +40,18 @@ internal static class IntroEggMotionDefinitions
     /// speeds vary irregularly by shell piece, so retain the six authored
     /// launch velocities. Unknown indices throw rather than read adjacent data.
     /// </remarks>
-    public static SignedSixteenSixteen FragmentX(int index) => Split(index switch
-    {
-        0 => -0xc000, 1 => 0x4000, 2 => -0x8000,
-        3 => -0xe000, 4 => 0x8000, 5 => 0x2000,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    });
+    public static SignedSixteenSixteen FragmentX(int index) => Ensure.Element(FragmentXVelocities, index);
+
+    /// <summary>The values <see cref="FragmentX"/> selects, in index order.</summary>
+    private static readonly SignedSixteenSixteen[] FragmentXVelocities =
+    [
+        Split(-0xc000),
+        Split(0x4000),
+        Split(-0x8000),
+        Split(-0xe000),
+        Split(0x8000),
+        Split(0x2000),
+    ];
 
     /// <summary>
     /// $8B:AA02: 38 shell gravity records. Fragments zero/one also consume three
@@ -64,13 +72,21 @@ internal static class IntroEggMotionDefinitions
     /// to the bounded curve, not an extension of its formula. Other frame
     /// indices, including 41 and negative values, throw.
     /// </remarks>
-    public static SignedSixteenSixteen FragmentY(int frame) => frame switch
-    {
-        38 => SignedSixteenSixteen.FromParts(unchecked((short)0x9dad), 0x991b),
-        39 => SignedSixteenSixteen.FromParts(0x1b7d, 0x97ad),
-        40 => SignedSixteenSixteen.FromParts(unchecked((short)0x991a), 0x1a7d),
-        _ => Curve(frame, 38, 2),
-    };
+    internal static readonly SignedSixteenSixteen[] FragmentOverreads =
+    [
+        SignedSixteenSixteen.FromParts(unchecked((short)0x9dad), 0x991b),
+        SignedSixteenSixteen.FromParts(0x1b7d, 0x97ad),
+        SignedSixteenSixteen.FromParts(unchecked((short)0x991a), 0x1a7d),
+    ];
+
+    /// <summary>The shell gravity records before the overread: the bounded curve's frame count.</summary>
+    internal const int FragmentCurveFrames = 38;
+
+    /// <summary>The gravity curves' step, an eighth of a pixel per frame in 16.16.</summary>
+    internal const int GravityStep = 0x2000;
+
+    /// <summary>One whole pixel in 16.16.</summary>
+    internal const int OnePixel = 0x10000;
 
     /// <summary>$8B:AB35: five authored horizontal slime records; four actors are normally spawned.</summary>
     /// <remarks>
@@ -84,52 +100,18 @@ internal static class IntroEggMotionDefinitions
     /// explicit launch choices rather than hide this authored extra entry
     /// behind a four-item symmetry rule. Unknown indices throw.
     /// </remarks>
-    public static SignedSixteenSixteen SlimeX(int index) => Split(index switch
-    {
-        0 => -0x10000, 1 => -0x8000, 2 => 0x10000, 3 => 0x8000, 4 => -0x8000,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    });
+    public static SignedSixteenSixteen SlimeX(int index) => Ensure.Element(SlimeXVelocities, index);
 
-    /// <summary>$8B:AB49/AC41: 62 odd / 69 even gravity records, selected by actor parity, not frame parity.</summary>
-    /// <remarks>
-    /// Issues #625 and #979: the odd-actor table at $8B:AB49..AC40 has
-    /// 62 high-word-first signed 16.16 records; all 124 words match pinned
-    /// NTSC J/U v1.0 ROM and bank_8B.asm. For f=0..13, g=f/7 and r=f%7
-    /// give whole=g-2 and fraction=0 for r=0, otherwise $E000-$2000*r.
-    /// For f=14..61 the signed value is (f-14)*$2000, ending at 5.E000.
-    /// $8B:AAB3 chooses this table when the actor timer's low bit is one,
-    /// then indexes by its high byte; ordinary odd actors are IDs 1 and 3.
-    /// In the 96-pixel start fixture, fractional starts 0, 1, $7FFF, and
-    /// $FFFF all ground at frame 51, inside the table. The method rejects
-    /// frame 62 and negative frames instead of reading the adjacent even
-    /// table; fractional addition and whole-word carry stay exact.
-    ///
-    /// Issues #625 and #980: the separate even-actor table at
-    /// $8B:AC41..AD54 has 69 high-word-first signed 16.16 records; all
-    /// 138 words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. For
-    /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
-    /// otherwise $E000-$2000*r. For f=21..68 the signed value is
-    /// (f-21)*$2000, ending at 5.E000. The timer's clear low bit selects
-    /// this table for ordinary actor IDs 0 and 2, and its high byte indexes
-    /// the records. The 96-pixel start fixture with fractions 0, 1, $7FFF,
-    /// and $FFFF grounds at frame 62, within the table. Frame 69 and
-    /// negative frames throw instead of reading the adjacent routine.
-    /// </remarks>
-    public static SignedSixteenSixteen SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
-
-    /// <summary>Produces one bounded signed 16.16 gravity step for shell or parity-selected slime trajectories.</summary>
-    private static SignedSixteenSixteen Curve(int frame, int count, int negativeGroups)
-    {
-        if ((uint)frame >= count)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        int prefix = negativeGroups * 7;
-        if (frame >= prefix)
-            return Split((frame - prefix) * 0x2000);
-        int within = frame % 7;
-        int fraction = within == 0 ? 0 : 0xe000 - within * 0x2000;
-        return Split((frame / 7 - negativeGroups) * 0x10000 + fraction);
-    }
+    /// <summary>The values <see cref="SlimeX"/> selects, in index order.</summary>
+    private static readonly SignedSixteenSixteen[] SlimeXVelocities =
+    [
+        Split(-0x10000),
+        Split(-0x8000),
+        Split(0x10000),
+        Split(0x8000),
+        Split(-0x8000),
+    ];
 
     /// <summary>One signed fixed-point step.</summary>
-    private static SignedSixteenSixteen Split(int value) => SignedSixteenSixteen.FromRaw(value);
+    internal static SignedSixteenSixteen Split(int value) => SignedSixteenSixteen.FromRaw(value);
 }

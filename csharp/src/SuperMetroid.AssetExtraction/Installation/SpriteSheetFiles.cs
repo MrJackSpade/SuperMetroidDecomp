@@ -64,7 +64,7 @@ public static class SpriteSheetFiles
         var maps = new Lazy<AreaMapPresentationCatalog>(() => MapPresentationFiles.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
         // The intro sheet is named from the stock intro compositions installed beside it.
-        var intro = new Lazy<IntroCinematicArtworkCatalog>(() => IntroCinematicArtworkFiles.Load(
+        var intro = new Lazy<IntroCinematicArtwork>(() => IntroCinematicArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
         // The ending sheets are named from the stock ending compositions installed beside them.
         var ending = new Lazy<EndingObjectArtwork>(() => EndingObjectArtworkFiles.Load(
@@ -99,7 +99,7 @@ public static class SpriteSheetFiles
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
-        Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
+        Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
         SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or

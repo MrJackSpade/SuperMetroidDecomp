@@ -66,7 +66,7 @@ internal static class IntroContentIdentityVerification
                 edit + " preserves equivalent selected content");
         foreach (Type type in new[]
         {
-            typeof(IntroCinematicArtworkCatalog), typeof(IntroEyeTilemapPresentation),
+            typeof(IntroCinematicArtwork), typeof(IntroEyeTilemapPresentation),
             typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork),
             typeof(CeresFlightActorPlacements), typeof(CeresDestructionActorPlacements), typeof(CeresRevealActorPlacements),
             typeof(IntroCaretSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
@@ -87,7 +87,7 @@ internal static class IntroContentIdentityVerification
     }
 
     /// <summary>Builds a complete synthetic opening asset bundle with one selected edit or encoding-only change.</summary>
-    private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
+    private static IntroCinematicArtwork CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
         // Serialize a fixture document, optionally changing only whitespace formatting.
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
@@ -214,7 +214,7 @@ internal static class IntroContentIdentityVerification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(index => Map("page-" + index, index)).ToArray();
         if (edit == "page-order") Array.Reverse(pages);
-        return new IntroCinematicArtworkCatalog(new IntroCinematicArtworkParts { BackgroundCharacters = Characters("background", IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = Characters("intro-objects", IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = Characters("cinematic-objects", IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = pages, PortraitTilemap = Map("portrait"), InitialNarrationTilemap = Map("narration-map"), FinalLine = IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
+        return new IntroCinematicArtwork(new IntroCinematicArtworkParts { BackgroundCharacters = Characters("background", IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = Characters("intro-objects", IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = Characters("cinematic-objects", IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = pages, PortraitTilemap = Map("portrait"), InitialNarrationTilemap = Map("narration-map"), FinalLine = IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
             {
                 Version = IntroFinalLineTilemapFormat.Version, Cells = Cells("divider", IntroFinalLineTilemapFormat.CellCount),
             })), EyeFrames = IntroEyeTilemapPresentation.Load(Json(new IntroEyeTilemapDocument

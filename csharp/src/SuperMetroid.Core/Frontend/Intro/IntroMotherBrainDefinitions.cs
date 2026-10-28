@@ -28,22 +28,26 @@ internal static class IntroMotherBrainDefinitions
     public const int SmallExplosionCount = 3;
 
     /// <summary>Returns one complete <c>$8B:B98D</c> large-explosion placement record.</summary>
-    public static IntroMotherBrainExplosionPlacement BigExplosion(int index) => index switch
-    {
-        0 => new(new(0, 0), 1),
-        1 => new(new(16, -16), 16),
-        2 => new(new(-16, 8), 32),
-        3 => new(new(-8, -16), 48),
-        4 => new(new(8, 8), 64),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    public static IntroMotherBrainExplosionPlacement BigExplosion(int index) => Ensure.Element(BigExplosions, index);
+
+    /// <summary>The values <see cref="BigExplosion"/> selects, in index order.</summary>
+    private static readonly IntroMotherBrainExplosionPlacement[] BigExplosions =
+    [
+        new(new(0, 0), 1),
+        new(new(16, -16), 16),
+        new(new(-16, 8), 32),
+        new(new(-8, -16), 48),
+        new(new(8, 8), 64),
+    ];
 
     /// <summary>Returns one complete <c>$8B:B9D4</c> small-explosion placement record.</summary>
-    public static IntroMotherBrainExplosionPlacement SmallExplosion(int index) => index switch
-    {
-        0 => new(new(16, 0), 1),
-        1 => new(new(-16, 4), 8),
-        2 => new(new(-16, -8), 16),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    public static IntroMotherBrainExplosionPlacement SmallExplosion(int index) => Ensure.Element(SmallExplosions, index);
+
+    /// <summary>The values <see cref="SmallExplosion"/> selects, in index order.</summary>
+    private static readonly IntroMotherBrainExplosionPlacement[] SmallExplosions =
+    [
+        new(new(16, 0), 1),
+        new(new(-16, 4), 8),
+        new(new(-16, -8), 16),
+    ];
 }

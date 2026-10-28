@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 internal static class CeresDestructionObjectPage
 {
     /// <summary>The page's characters once <paramref name="uploads"/> have been made, in order.</summary>
-    internal static byte[] Characters(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads)
+    internal static byte[] Characters(IntroCinematicArtwork artwork, IReadOnlyList<CeresDestructionUpload> uploads)
     {
         var page = new byte[CeresFlightArtworkFormat.ObjectByteCount];
         foreach (CeresDestructionUpload upload in uploads)
@@ -39,6 +39,6 @@ internal static class CeresDestructionObjectPage
     }
 
     /// <summary>The page as the scene's sprite artwork once <paramref name="uploads"/> have been made.</summary>
-    internal static SpriteArtwork Of(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads) =>
+    internal static SpriteArtwork Of(IntroCinematicArtwork artwork, IReadOnlyList<CeresDestructionUpload> uploads) =>
         new(new SpriteArtworkId(SpriteArtworkKind.CeresDestructionObjects), Characters(artwork, uploads));
 }

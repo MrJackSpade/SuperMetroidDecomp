@@ -402,7 +402,7 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
-    public static IntroCinematicArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static IntroCinematicArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, IntroCinematicArtworkFormat.ManifestFileName);
@@ -425,7 +425,7 @@ public static class IntroCinematicArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Intro artwork manifest {manifestPath} does not describe this installation.");
 
-        return new IntroCinematicArtworkCatalog(new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        return new IntroCinematicArtwork(new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
                 .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Palette = LoadPalette(), CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction() });
 

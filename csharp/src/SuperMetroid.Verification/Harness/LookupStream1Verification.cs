@@ -119,8 +119,8 @@ internal static class LookupStream1Verification
             int x = index % size.X, y = index / size.X;
             int tile = y / 8 * 16 + x / 8;
             bool available = tile is >= 0x3c and <= 0x45
-                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out int value)
-                : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
+                ? WorldMapCharacterDrawing.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out int value)
+                : WorldMapCharacterDrawing.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
             if (available) { AssertEqual(pixels[index], value, $"Native primitive tile{y / 8 * 16 + x / 8:X2} pixel{x % 8},{y % 8}"); calculated++; }
             AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
         }
@@ -144,7 +144,7 @@ internal static class LookupStream1Verification
         byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
         AssertThrows<InvalidDataException>(() => WorldMapCharacters.Read(new MemoryStream(frontPng),
             new MemoryStream(Png(invalid, backSize.Y, 16))), "Invalid BG3 pen rejected during import, before upload");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
     }
 
@@ -2596,11 +2596,11 @@ internal static class LookupStream1Verification
         var edits = new HashSet<int>();
         for (int index = 0; index < pixels.Length; index++)
         {
-            int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
+            int source = WorldMapCharacterDrawing.ForegroundSourcePixel(index);
             if (source >= 0)
-                AssertEqual(source, WorldMapTileDefinitions.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
+                AssertEqual(source, WorldMapCharacterDrawing.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
             AssertEqual(pixels[index], source < 0 ? (byte)0 : pixels[source], $"Direct foreground relation at pixel{index}");
-            bool font = WorldMapTileDefinitions.TryForegroundFontPixel(index, NativeMask, out int fontValue);
+            bool font = WorldMapCharacterDrawing.TryForegroundFontPixel(index, NativeMask, out int fontValue);
             bool required = source == index && (!font || pixels[index] != fontValue);
             AssertEqual(required, stored.ContainsKey(index), "Exact selected source/contour basis; zero stock relation exceptions");
             if (source == index && font && pixels[index] != fontValue) fontDifferences++;
@@ -2628,8 +2628,8 @@ internal static class LookupStream1Verification
         }
         byte[] inverted = pixels.Select(p => (byte)(p ^ 15)).ToArray();
         Check(Create(inverted), inverted);
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(-1), "Foreground lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.ForegroundSourcePixel(-1), "Foreground lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
         Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences,{edits.Count} independent tile/source edits/full inversion/full uploads pass.");
     }
 

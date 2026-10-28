@@ -27,7 +27,7 @@ internal static class CeresDestructionArtworkVerification
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
         byte[] nativeMaps = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
@@ -133,7 +133,7 @@ internal static class CeresDestructionArtworkVerification
         actorsDocument.Actors[0] = actorsDocument.Actors[0] with { X = stockPlanetX + 16 };
         using (var output = File.Create(actorsOverride))
             CeresRevealActorPlacements.Write(output, actorsDocument);
-        IntroCinematicArtworkCatalog movedPlanet = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork movedPlanet = installation.LoadIntroCinematicArt();
         var stockReveal = CreateRetailDestructionFixture(artwork: stock);
         var movedReveal = CreateRetailDestructionFixture(artwork: movedPlanet);
         for (int frame = 0; frame < 4000 &&
@@ -203,7 +203,7 @@ internal static class CeresDestructionArtworkVerification
         };
         using (var output = File.Create(destructionActorsOverride))
             CeresDestructionActorPlacements.Write(output, destructionActorsDocument);
-        IntroCinematicArtworkCatalog movedAsteroid = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork movedAsteroid = installation.LoadIntroCinematicArt();
         var stockDestruction = CreateRetailDestructionFixture(artwork: stock);
         var movedDestruction = CreateRetailDestructionFixture(artwork: movedAsteroid);
         for (int frame = 0; frame < 36; frame++)
@@ -256,7 +256,7 @@ internal static class CeresDestructionArtworkVerification
             .Select(part => part with { OffsetX = part.OffsetX + 16 }).ToArray();
         using (var output = File.Create(spritesOverride))
             CeresDestructionSpritePresentation.Write(output, spriteDocument);
-        IntroCinematicArtworkCatalog editedSprites = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork editedSprites = installation.LoadIntroCinematicArt();
         var spriteState = CreateRetailDestructionFixture(artwork: stock);
         for (int frame = 0; frame < 36; frame++) spriteState.Step();
         LayeredScene beforeSprites = spriteState.CaptureRenderSnapshot();
@@ -298,7 +298,7 @@ internal static class CeresDestructionArtworkVerification
         foreach (int[] view in ceres.Views) Array.Fill(view, 0);
         using (var output = File.Create(ceresOverride))
             CeresDestructionArtwork.WriteMap(output, ceres);
-        IntroCinematicArtworkCatalog editedCeres = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork editedCeres = installation.LoadIntroCinematicArt();
         var ceresState = CreateRetailDestructionFixture(artwork: stock);
         for (int frame = 0; frame < 36; frame++) ceresState.Step();
         LayeredScene beforeCeres = ceresState.CaptureRenderSnapshot();
@@ -329,7 +329,7 @@ internal static class CeresDestructionArtworkVerification
         using (var output = File.Create(zebesMapOverride))
             RoomBackgroundTilemapAtlas.Write(output, zebesMap,
                 CeresDestructionArtworkFormat.ZebesMapByteCount);
-        IntroCinematicArtworkCatalog editedZebesMap = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork editedZebesMap = installation.LoadIntroCinematicArt();
         AssertTrue(!editedZebesMap.CeresDestruction.ZebesMap.Bytes.Span.SequenceEqual(
                 stock.CeresDestruction.ZebesMap.Bytes.Span),
             "independent Zebes tilemap JSON edit compiles into its native transfer");
@@ -346,7 +346,7 @@ internal static class CeresDestructionArtworkVerification
         using (var output = File.Create(zebesPngOverride))
             IndexedPng.Write(output, new(zebesPng.Size.X, zebesPng.Size.Y),
                 zebesPng.Pixels, zebesPng.Colours);
-        IntroCinematicArtworkCatalog editedZebesPng = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork editedZebesPng = installation.LoadIntroCinematicArt();
         File.Delete(zebesPngOverride);
 
         var zebesState = CreateRetailDestructionFixture(artwork: stock);

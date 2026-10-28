@@ -10,7 +10,7 @@ internal static class IntroDiscoveryCollisionVerification
     internal static byte[] VerifyIntroDiscoveryCollision(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cc083, 0x300);
-        ushort[] actual = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
+        ushort[] actual = IntroBabyDiscoveryCollision.CreateForeground();
         AssertEqual(32 * 16, actual.Length, "discovery room allocation");
         for (int index = 0; index < actual.Length; index++)
         {
@@ -20,7 +20,7 @@ internal static class IntroDiscoveryCollisionVerification
         }
         actual[0] = ushort.MaxValue;
         actual[10 * 32] = 0;
-        ushort[] fresh = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
+        ushort[] fresh = IntroBabyDiscoveryCollision.CreateForeground();
         AssertTrue(!ReferenceEquals(actual, fresh), "collision allocations are independently mutable");
         AssertEqual((ushort)0, fresh[0], "modified air block does not change next room");
         AssertEqual((ushort)0x1000, fresh[10 * 32], "modified strip does not change next room");

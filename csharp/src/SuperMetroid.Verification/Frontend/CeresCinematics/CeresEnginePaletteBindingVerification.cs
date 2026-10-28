@@ -29,7 +29,7 @@ internal static class CeresEnginePaletteBindingVerification
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         AreaMapPresentationCatalog stock = MapPresentationFiles.Load(installation.MapDirectory, null);
-        IntroCinematicArtworkCatalog artwork = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork artwork = installation.LoadIntroCinematicArt();
         InstalledSpriteSheets sheets = installation.LoadSpriteSheets();
         int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.

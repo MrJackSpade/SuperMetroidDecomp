@@ -444,7 +444,7 @@ public sealed class GameplayMessageBoxState
     /// <summary>Selects the Shoot or Run binding required by the installed panel before drawing it.</summary>
     private void PatchInstalledPanelButton(GameplayMessageId messageId)
     {
-        switch (GameplayMessagePanelDefinitions.ButtonBinding(messageId))
+        switch (GameplayMessagePanelDefinitions.ButtonBindings[messageId])
         {
             case GameplayMessagePanelButtonBinding.Shoot:
                 PatchConfiguredButton(messageId, _shootBinding);

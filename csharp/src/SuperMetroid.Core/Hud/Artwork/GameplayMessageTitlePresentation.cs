@@ -117,7 +117,7 @@ public sealed class GameplayMessageTitlePresentation
                 ?? throw new InvalidDataException($"Gameplay-message title {id} is null.");
             if (string.IsNullOrEmpty(value.Text) ||
                 value.Text.Length > GameplayMessageTitleDefinitions.VisibleColumns ||
-                value.Text.Any(static character => !GameplayMessageTitleDefinitions.IsSupportedGlyph(character)) ||
+                value.Text.Any(static character => !GameplayMessageGlyphs.IsSupportedGlyph(character)) ||
                 (uint)value.Palette >= 8)
             {
                 throw new InvalidDataException(

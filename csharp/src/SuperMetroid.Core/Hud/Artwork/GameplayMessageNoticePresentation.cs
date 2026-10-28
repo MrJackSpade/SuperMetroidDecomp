@@ -133,9 +133,9 @@ public sealed class GameplayMessageNoticePresentation
         {
             GameplayMessageNotice value = document.Notices[id.ToString()]
                 ?? throw new InvalidDataException($"Gameplay-message notice {id} is null.");
-            int rowCount = GameplayMessageNoticeDefinitions.ContentRows(id);
+            int rowCount = GameplayMessageNotices.ContentRows(id);
             int expectedWords = rowCount * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
-            bool save = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id);
+            bool save = GameplayMessageNotices.IsSaveConfirmation(id);
             if (value.RowCount != rowCount || value.Template is null ||
                 value.Template.Length != expectedWords || value.Text is null ||
                 value.Text.Length == 0 ||
@@ -156,7 +156,7 @@ public sealed class GameplayMessageNoticePresentation
                     region.Row < 0 || region.Row >= rowCount || region.Column < 0 ||
                     region.Column + region.Width > GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
                     region.Text.Any(static character =>
-                        !GameplayMessageTitleDefinitions.IsSupportedGlyph(character)) ||
+                        !GameplayMessageGlyphs.IsSupportedGlyph(character)) ||
                     !Enum.IsDefined(region.Alignment))
                 {
                     throw new InvalidDataException(

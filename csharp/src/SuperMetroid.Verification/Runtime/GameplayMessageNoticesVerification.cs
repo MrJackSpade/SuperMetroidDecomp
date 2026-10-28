@@ -32,7 +32,7 @@ internal static class GameplayMessageNoticesVerification
             installed.Begin(id, 0);
             comparedWords += installed.Tilemap.Length;
 
-            if (!GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
+            if (!GameplayMessageNotices.IsSaveConfirmation(id))
                 continue;
             while (installed.Phase != GameplayMessageBoxPhase.AwaitingInput)
                 installed.Step(0);

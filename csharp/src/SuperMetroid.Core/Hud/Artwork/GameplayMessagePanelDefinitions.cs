@@ -41,27 +41,38 @@ public static class GameplayMessagePanelDefinitions
     /// <summary>Exposes the seven large item-instruction messages in their published asset order.</summary>
     public static ReadOnlySpan<GameplayMessageId> MessageIds => SupportedMessageIds;
 
-    /// <summary>Classifies the binding used to patch each supported panel's controller glyph.</summary>
-    /// <param name="messageId">Message identity to classify.</param>
-    /// <returns>The shoot or run binding, or <see cref="GameplayMessagePanelButtonBinding.None"/> for another message.</returns>
-    public static GameplayMessagePanelButtonBinding ButtonBinding(GameplayMessageId messageId) =>
-        messageId switch
-        {
-            GameplayMessageId.MissileTank or
-            GameplayMessageId.SuperMissileTank or
-            GameplayMessageId.PowerBombTank or
-            GameplayMessageId.GrappleBeam or
-            GameplayMessageId.Bombs => GameplayMessagePanelButtonBinding.Shoot,
-            GameplayMessageId.XrayScope or
-            GameplayMessageId.SpeedBooster => GameplayMessagePanelButtonBinding.Run,
-            GameplayMessageId.None or GameplayMessageId.EnergyTank or GameplayMessageId.VariaSuit or
-            GameplayMessageId.SpringBall or GameplayMessageId.MorphBall or GameplayMessageId.ScrewAttack or
-            GameplayMessageId.HiJumpBoots or GameplayMessageId.SpaceJump or GameplayMessageId.ChargeBeam or
-            GameplayMessageId.IceBeam or GameplayMessageId.WaveBeam or GameplayMessageId.SpazerBeam or
-            GameplayMessageId.PlasmaBeam or GameplayMessageId.MapDataAccessCompleted or
-            GameplayMessageId.EnergyRechargeCompleted or GameplayMessageId.MissileRechargeCompleted or
-            GameplayMessageId.SaveConfirmation or GameplayMessageId.SaveCompleted or GameplayMessageId.ReserveTank or
-            GameplayMessageId.GravitySuit or GameplayMessageId.GunshipSaveConfirmation => GameplayMessagePanelButtonBinding.None,
-            _ => throw new ArgumentOutOfRangeException(nameof(messageId), messageId, "Undefined gameplay message."),
-        };
+    /// <summary>The binding used to patch each message's controller glyph: shoot or run for the large item panels that
+    /// show one, <see cref="GameplayMessagePanelButtonBinding.None"/> for every other message.</summary>
+    public static IReadOnlyDictionary<GameplayMessageId, GameplayMessagePanelButtonBinding> ButtonBindings { get; } =
+        new Dictionary<GameplayMessageId, GameplayMessagePanelButtonBinding>
+    {
+        [GameplayMessageId.MissileTank] = GameplayMessagePanelButtonBinding.Shoot,
+        [GameplayMessageId.SuperMissileTank] = GameplayMessagePanelButtonBinding.Shoot,
+        [GameplayMessageId.PowerBombTank] = GameplayMessagePanelButtonBinding.Shoot,
+        [GameplayMessageId.GrappleBeam] = GameplayMessagePanelButtonBinding.Shoot,
+        [GameplayMessageId.Bombs] = GameplayMessagePanelButtonBinding.Shoot,
+        [GameplayMessageId.XrayScope] = GameplayMessagePanelButtonBinding.Run,
+        [GameplayMessageId.SpeedBooster] = GameplayMessagePanelButtonBinding.Run,
+        [GameplayMessageId.None] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.EnergyTank] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.VariaSuit] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.SpringBall] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.MorphBall] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.ScrewAttack] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.HiJumpBoots] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.SpaceJump] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.ChargeBeam] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.IceBeam] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.WaveBeam] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.SpazerBeam] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.PlasmaBeam] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.MapDataAccessCompleted] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.EnergyRechargeCompleted] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.MissileRechargeCompleted] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.SaveConfirmation] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.SaveCompleted] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.ReserveTank] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.GravitySuit] = GameplayMessagePanelButtonBinding.None,
+        [GameplayMessageId.GunshipSaveConfirmation] = GameplayMessagePanelButtonBinding.None,
+    };
 }

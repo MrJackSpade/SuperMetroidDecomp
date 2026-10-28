@@ -1316,12 +1316,12 @@ internal static class RoomPlmPopulationVerification
             Notices = GameplayMessageNoticeDefinitions.MessageIds.ToDictionary(id => id.ToString(), id =>
                 new GameplayMessageNotice
                 {
-                    RowCount = GameplayMessageNoticeDefinitions.ContentRows(id),
-                    Template = Cells(GameplayMessageNoticeDefinitions.ContentRows(id) * GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x2800),
+                    RowCount = GameplayMessageNotices.ContentRows(id),
+                    Template = Cells(GameplayMessageNotices.ContentRows(id) * GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x2800),
                     Text = [new GameplayMessageTextRegion { Row = 0, Column = 0, Width = 4,
                         Alignment = GameplayMessageTextAlignment.Left, Text = "TEST", Palette = 0 }],
-                    YesSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,
-                    NoSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5200) : null,
+                    YesSelection = GameplayMessageNotices.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,
+                    NoSelection = GameplayMessageNotices.IsSaveConfirmation(id) ? Cells(32, 0x5200) : null,
                 }),
         };
         using var noticeJson = new MemoryStream();

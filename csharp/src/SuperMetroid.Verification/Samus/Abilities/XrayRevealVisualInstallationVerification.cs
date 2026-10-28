@@ -101,12 +101,7 @@ internal static class XrayRevealVisualInstallationVerification
         File.WriteAllText(overridePath, document.ToJsonString());
         XrayRevealVisualCatalog edited = installed.LoadXrayRevealVisuals();
 
-        var definitions = new BackgroundTile[1024 * 4];
-        for (int i = 0; i < definitions.Length; i++)
-        {
-            definitions[i] = BackgroundTileWordBytes.Tile(i);
-        }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]));
         level.SetPlmForegroundEntry(33, (int)RoomCollisionType.ShootableBlock << 12);
         level.SetPlmBehavior(33, 2);
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
@@ -123,7 +118,7 @@ internal static class XrayRevealVisualInstallationVerification
 
         var item = new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1,
             InWorldCollectibleKind.Bombs, 0);
-        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), definitions);
+        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]));
         var noRomVisualData = new TestAddressSpace();
         var itemMap = new RevealedBlock?[XrayRevealLayout.Cells];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],

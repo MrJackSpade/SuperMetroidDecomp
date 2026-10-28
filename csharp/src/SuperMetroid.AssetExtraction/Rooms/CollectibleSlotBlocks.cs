@@ -11,8 +11,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class CollectibleSlotBlocks
 {
-    /// <summary>The first block the four slots write: byte offset $0470 of the common room elements' block table.</summary>
-    internal const int FirstBlock = 0x0470 / RoomMetatileFormat.BytesPerBlock;
+    /// <summary>The first block the four slots write.</summary>
+    internal const int FirstBlock = CollectibleSlotSourceDefinitions.FirstBlockByteOffset / RoomMetatileFormat.BytesPerBlock;
 
     /// <summary>The blocks one slot writes: one per animation frame.</summary>
     internal const int BlocksPerSlot = RoomTileCharacters.CollectibleSlotCharacters / RoomMetatileFormat.TilesPerBlock;

@@ -38,12 +38,7 @@ internal static class XrayOverlaysVerification
                 entries.Add(new(type, (byte)bts, new(definition.TopLeft, definition.TopRight,
                     definition.BottomLeft, definition.BottomRight)));
         var visuals = new XrayRevealVisualCatalog(entries, overlays);
-        var definitions = new BackgroundTile[1024 * 4];
-        for (int i = 0; i < definitions.Length; i++)
-        {
-            definitions[i] = BackgroundTileWordBytes.Tile(i);
-        }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), definitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]));
         var system = new SharedGameState();
         var items = new[]
         {

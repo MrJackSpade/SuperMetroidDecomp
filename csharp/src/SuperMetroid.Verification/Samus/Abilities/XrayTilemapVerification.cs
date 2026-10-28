@@ -17,11 +17,6 @@ internal static class XrayTilemapVerification
     /// </summary>
     internal static void VerifyXrayTilemap()
     {
-        var definitions = new BackgroundTile[1024 * 4];
-        for (int i = 0; i < definitions.Length; i++)
-        {
-            definitions[i] = BackgroundTileWordBytes.Tile(i);
-        }
         // Every BG1 block shows its own index, mirrored each of the four ways in turn, so a copied cell names the one
         // location it was read from and how the level mirrors it.
         LevelBlockFlipFlags[] mirrorings =
@@ -37,7 +32,7 @@ internal static class XrayTilemapVerification
         ushort[] foreground = [.. Enumerable.Range(0, RoomSide * RoomSide)
             .Select(block => RoomLevelWord.Create(block, mirrorings[block % mirrorings.Length], RoomCollisionType.SolidBlock).Raw)];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(RoomSide, RoomSide),
-            new RoomLevelPlanes(foreground, new byte[RoomSide * RoomSide], new ushort[RoomSide * RoomSide]), definitions);
+            new RoomLevelPlanes(foreground, new byte[RoomSide * RoomSide], new ushort[RoomSide * RoomSide]));
         RevealedBlock Copied(int x, int y)
         {
             int block = y * RoomSide + x;

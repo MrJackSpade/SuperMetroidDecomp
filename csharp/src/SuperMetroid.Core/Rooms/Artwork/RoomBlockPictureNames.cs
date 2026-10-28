@@ -23,7 +23,7 @@ public static class RoomBlockPictureNames
     /// <exception cref="ArgumentException">Nothing shows over any run.</exception>
     public static string Of(int block, ReadOnlySpan<BgArtworkShown> shown)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(block);
+        Ensure.AtLeastZero(block);
         if (shown.IsEmpty)
             throw new ArgumentException("A block picture shows at least one run of characters.", nameof(shown));
         var name = new StringBuilder(block.ToString("X3", CultureInfo.InvariantCulture));

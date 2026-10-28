@@ -1081,7 +1081,7 @@ internal static class LookupStream1Verification
         SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             stock.Spritemaps.Entries.ToArray(), stock.Spritemaps.Definitions.Select((map, ordinal) => new SamusSpritemapDefinition(
-                ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
+                ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Offset = part.Offset.WithY(unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.DrainedYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
@@ -1149,7 +1149,7 @@ internal static class LookupStream1Verification
         SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             stock.Spritemaps.Entries.ToArray(), stock.Spritemaps.Definitions.Select((map, ordinal) => new SamusSpritemapDefinition(
-                ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
+                ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Offset = part.Offset.WithY(unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.PostureYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
@@ -1242,14 +1242,17 @@ internal static class LookupStream1Verification
             .Select(index => SnesLittleEndian.Word(LookupStream1BodyOamBasesRomByte(rom, address + index * 2), LookupStream1BodyOamBasesRomByte(rom, address + index * 2 + 1))).ToArray();
         ushort[] top = ReadWords(0x929263, 253), bottom = ReadWords(0x92945d, 253), pointers = ReadWords(0x92808d, 2096);
         SamusSpritemapId?[] entries = SamusSpritemapNative.Entries(pointers);
-        // Marker parts confirm selected supplied payload identity, not native artwork.
-        static SamusSpritePart Marker(ushort pointer) =>
-            new(new SnesSpritemapXWord(pointer), new SnesSpritemapYByte((byte)pointer), (ushort)(pointer ^ 0x5555));
+        // Marker parts confirm selected supplied payload identity, not native artwork: every bit of the pointer lands in
+        // the marker's character, palette row, priority or mirroring, so distinct pointers give distinct markers.
+        static SpritePart Marker(ushort pointer) =>
+            SpritePart.Create(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8)), (pointer & 1) != 0, pointer & 511,
+                (pointer >> 9) & 7, (pointer >> 12) & 3,
+                ((pointer & 0x4000) != 0 ? TileFlip.Horizontal : TileFlip.None) | ((pointer & 0x8000) != 0 ? TileFlip.Vertical : TileFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
             .Select(pointer => new SamusSpritemapDefinition([Marker(pointer)]))];
         SamusSpritemapArtworkCatalog Create(ushort[] upper, ushort[] lower) => new(upper, lower, entries, definitions);
         var stock = Create(top, bottom);
-        string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create("samus-spritemaps-v2", content =>
+        string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
         {
             content.AppendWords("top bases", upper);
             content.AppendWords("bottom bases", lower);
@@ -1257,12 +1260,7 @@ internal static class LookupStream1Verification
             foreach (SamusSpritemapDefinition definition in definitions)
             {
                 content.Append("part count", definition.Parts.Length);
-                foreach (SamusSpritePart part in definition.Parts)
-                {
-                    content.Append("x", part.X.Raw);
-                    content.Append("y", part.Y.Raw);
-                    content.Append("attributes", part.Attributes);
-                }
+                foreach (SpritePart part in definition.Parts) AppendCanonicalSpritePart(content, part);
             }
         });
         void CheckSelection(SamusSpritemapArtworkCatalog catalog, ushort selected)
@@ -1388,11 +1386,13 @@ internal static class LookupStream1Verification
         var stock = Load(document);
         Dictionary<int, int> Stored(SamusArmCannonArtworkCatalog value) => value.poseDescriptors;
         ushort Native(int pose) => SnesLittleEndian.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
-        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v2", hash =>
+        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v3", hash =>
         {
             foreach (int descriptor in value.PoseDescriptors) hash.Append("pose descriptor", descriptor);
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
-            hash.AppendWords("attributes", value.SpriteAttributes.Select(item => (ushort)item).ToArray());
+            foreach (SpriteVisualPart appearance in value.CoverAppearances)
+                AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
+                    appearance.Palette ?? 0, appearance.Priority, appearance.FlipX, appearance.FlipY));
             foreach (int[] direction in value.CoverTiles)
                 foreach (int tile in direction) hash.Append("cover tile", tile);
             hash.Append("characters", tiles.Characters.Span);
@@ -1529,7 +1529,7 @@ internal static class LookupStream1Verification
             }
             void Draw(int spritemap, Offset16<SpritePixels> anchor) =>
                 SuperMetroid.Verification.Frontend.Map.MapSpritesVerification.DrawImportedSpritemap(rom, result, spritemap,
-                    timer.PixelPosition.ToSpritePosition() + anchor, EnemyPaletteBits.Palette5);
+                    timer.PixelPosition.ToSpritePosition() + anchor, SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 5, priority: 0).PaletteBits);
         }
     }
 
@@ -2082,8 +2082,10 @@ internal static class LookupStream1Verification
         for (int direction = 0; direction < 10; direction++)
         {
             var aim = (SamusProjectileDirection)direction;
-            AssertEqual(Word(0x90c791 + direction * 2), SamusArmCannonArtworkFormat.StockSpriteAttributes(aim),
-                "Direct calculated cannon OBJ defaults match original native words");
+            // The cover appearance has no packed word: its character, palette row, priority and mirroring are compared
+            // with the native attribute word decoded by the import pipeline's codec.
+            AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), SamusArmCannonArtworkFormat.StockCoverAppearance(aim),
+                "Direct calculated cannon cover appearances match the original native attribute words");
             int list = 0x900000 | Word(0x90c7a5 + direction * 2);
             for (int frame = 0; frame < 4; frame++)
                 AssertEqual(Word(list + frame * 2), SamusArmCannonArtworkFormat.StockTileSource(aim, frame),
@@ -2097,7 +2099,7 @@ internal static class LookupStream1Verification
             var document = RequiredJson.Parse(json);
             ushort replacement = expected[(sources.IndexOf(stock.TileSource(direction, 2)) + 1) % expected.Length];
             document.Required("coverTiles").Required(direction)[1] = sources.IndexOf(replacement);
-            document.Required("spriteAttributes")[direction] = stock.SpriteAttributes(direction) ^ 0x4000;
+            document.Required("coverAppearances").Required(direction)["flipX"] = !stock.CoverAppearance(direction).FlipsHorizontally;
             byte[] changedJson = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
             var changed = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(changedJson), new MemoryStream(png));
             VerifySelectors(changed, direction, replacement);
@@ -2106,7 +2108,7 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.SpriteAttributes(invalid), "Cannon OBJ selector bounds remain exact");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.CoverAppearance(invalid), "Cannon cover appearance bounds remain exact");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TileSource(invalid, 0), "Cannon tile direction bounds remain exact");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
@@ -2129,9 +2131,9 @@ internal static class LookupStream1Verification
         {
             for (int direction = 0; direction < 10; direction++)
             {
-                ushort expectedAttributes = Word(0x90c791 + direction * 2);
-                if (direction == editedDirection) expectedAttributes ^= 0x4000;
-                AssertEqual(expectedAttributes, catalog.SpriteAttributes(direction), "Calculated OBJ reflections preserve native attributes and independent edits");
+                SpritePart expectedAppearance = new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart();
+                if (direction == editedDirection) expectedAppearance = expectedAppearance with { Flip = expectedAppearance.Flip ^ TileFlip.Horizontal };
+                AssertEqual(expectedAppearance, catalog.CoverAppearance(direction), "Calculated cover reflections preserve native appearances and independent edits");
                 int list = 0x900000 | Word(0x90c7a5 + direction * 2);
                 for (int frame = 0; frame < 4; frame++)
                 {
@@ -2145,11 +2147,19 @@ internal static class LookupStream1Verification
         {
             using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
             var root = document.RootElement;
-            return SelectedPresentationHash.Create("samus-arm-cannon-v2", content =>
+            return SelectedPresentationHash.Create("samus-arm-cannon-v3", content =>
             {
                 foreach (var descriptor in root.GetProperty("poseDescriptors").EnumerateArray()) content.Append("pose descriptor", descriptor.GetInt32());
                 content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
-                content.AppendWords("attributes", root.GetProperty("spriteAttributes").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                foreach (var appearance in root.GetProperty("coverAppearances").EnumerateArray())
+                {
+                    int palette = appearance.TryGetProperty("palette", out var paletteValue) && paletteValue.ValueKind != System.Text.Json.JsonValueKind.Null
+                        ? paletteValue.GetInt32() : 0;
+                    AppendCanonicalSpritePart(content, CannonCoverAppearance(
+                        appearance.GetProperty("tileRow").GetInt32(), appearance.GetProperty("tileColumn").GetInt32(),
+                        palette, appearance.GetProperty("priority").GetInt32(),
+                        appearance.GetProperty("flipX").GetBoolean(), appearance.GetProperty("flipY").GetBoolean()));
+                }
                 foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())
                     foreach (var tile in direction.EnumerateArray()) content.Append("cover tile", tile.GetInt32());
                 content.Append("characters", planar);
@@ -2173,6 +2183,27 @@ internal static class LookupStream1Verification
 
     /// <summary>Reads native arm-cannon tile source pointers by direction.</summary>
     private static byte LookupStream1ArmCannonTileSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>
+    /// Appends one sprite piece in the canonical field order every Samus artwork content identity frames its pieces
+    /// with: offset, size, character, both mirrorings, palette row and priority.
+    /// </summary>
+    private static void AppendCanonicalSpritePart(SelectedPresentationHash content, SpritePart part)
+    {
+        content.Append("x", part.Offset.X);
+        content.Append("y", part.Offset.Y);
+        content.Append("large", part.Large ? 1 : 0);
+        content.Append("character", part.Character);
+        content.Append("flip-horizontal", part.FlipsHorizontally ? 1 : 0);
+        content.Append("flip-vertical", part.FlipsVertically ? 1 : 0);
+        content.Append("palette", part.Palette);
+        content.Append("priority", part.Priority);
+    }
+
+    /// <summary>A cover appearance's single small piece at the origin, from its document fields.</summary>
+    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, int priority, bool flipHorizontally, bool flipVertically) =>
+        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, priority,
+            (flipHorizontally ? TileFlip.Horizontal : TileFlip.None) | (flipVertically ? TileFlip.Vertical : TileFlip.None));
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
@@ -2342,39 +2373,50 @@ internal static class LookupStream1Verification
     /// <summary>Checks atmospheric sprite attributes and independently editable shared frame words.</summary>
     internal static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
     {
-        ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
+        // The appearances are domain pieces; the native words are decoded by the import pipeline's attribute codec and
+        // compared by character, palette row, priority and mirroring.
+        ushort[] NativeWords(int address) => Enumerable.Range(0, 4).Select(frame =>
             SnesLittleEndian.Word(LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2), LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2 + 1))).ToArray();
-        ushort[] one = Native(0x908C0F), shared = Native(0x908C17);
+        ushort[] oneWords = NativeWords(0x908C0F), sharedWords = NativeWords(0x908C17);
+        SpritePart[] one = [.. oneWords.Select(word => new SnesObjAttributeWord(word).ToSinglePart())];
+        SpritePart[] shared = [.. sharedWords.Select(word => new SnesObjAttributeWord(word).ToSinglePart())];
         var stock = new SamusAtmosphericArtworkCatalog(one, shared);
-        string Identity(ushort[] first, ushort[] second) => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), hash =>
-        { hash.AppendWords("type one", first); hash.AppendWords("shared type four", second); });
+        string Identity(SpritePart[] first, SpritePart[] second) => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog) + ".v2", hash =>
+        {
+            hash.Append("type one", first.Length);
+            foreach (SpritePart part in first) AppendCanonicalSpritePart(hash, part);
+            hash.Append("shared type four", second.Length);
+            foreach (SpritePart part in second) AppendCanonicalSpritePart(hash, part);
+        });
         AssertEqual(Identity(one, shared), stock.ContentIdentity, "atmospheric canonical selected identity unchanged");
         AssertEqual(0, stock.typeOne.Count, "atmospheric footsteps contain no stock overrides");
         AssertEqual(0, stock.sharedTypeFour.Count, "atmospheric lava/dust contains no stock overrides");
         for (int kind = 0; kind < 2; kind++)
         for (int frame = 0; frame < 4; frame++)
         {
-            ushort expected = (kind == 0 ? one : shared)[frame];
-            AssertEqual(expected, SamusAtmosphericArtworkDefinitions.Attributes(kind == 0, frame), "atmospheric direct native packed default");
-            var packed = new SnesObjAttributeWord(expected);
+            ushort expectedWord = (kind == 0 ? oneWords : sharedWords)[frame];
+            SpritePart expected = (kind == 0 ? one : shared)[frame];
+            AssertEqual(expected, SamusAtmosphericArtworkDefinitions.Attributes(kind == 0, frame), "atmospheric direct native default appearance");
+            var packed = new SnesObjAttributeWord(expectedWord);
             AssertEqual(SamusAtmosphericArtworkDefinitions.Palette, packed.PaletteIndex, "atmospheric required palette basis");
             AssertEqual(SamusAtmosphericArtworkDefinitions.Priority, packed.Priority, "atmospheric required priority basis");
             AssertEqual((kind == 0 ? SamusAtmosphericArtworkDefinitions.FootstepFirstTile : SamusAtmosphericArtworkDefinitions.LavaDustFirstTile) + frame,
                 packed.TileNumber, "atmospheric nine-bit tile progression");
-            ushort[] editOne = one.ToArray(), editShared = shared.ToArray();
-            ushort changedWord = (ushort)(expected ^ 0xFFFF);
-            (kind == 0 ? editOne : editShared)[frame] = changedWord;
+            SpritePart[] editOne = one.ToArray(), editShared = shared.ToArray();
+            // Every bit of the native word inverted: character, palette row, priority and both mirrorings all change.
+            SpritePart changed = new SnesObjAttributeWord((ushort)(expectedWord ^ 0xFFFF)).ToSinglePart();
+            (kind == 0 ? editOne : editShared)[frame] = changed;
             var edited = new SamusAtmosphericArtworkCatalog(editOne, editShared);
-            AssertEqual(1, (kind == 0 ? edited.typeOne : edited.sharedTypeFour).Count, "atmospheric one full-word supplied exception");
+            AssertEqual(1, (kind == 0 ? edited.typeOne : edited.sharedTypeFour).Count, "atmospheric one whole-appearance supplied exception");
             AssertEqual(0, (kind == 0 ? edited.sharedTypeFour : edited.typeOne).Count, "atmospheric other list unchanged");
-            AssertEqual(Identity(editOne, editShared), edited.ContentIdentity, "atmospheric edited identity uses exact supplied words");
-            editOne[frame] = 0; editShared[frame] = 0;
+            AssertEqual(Identity(editOne, editShared), edited.ContentIdentity, "atmospheric edited identity uses exact supplied appearances");
+            editOne[frame] = SpritePart.Single(0, 0, 0); editShared[frame] = SpritePart.Single(0, 0, 0);
             foreach (byte type in new byte[] { 1, 4, 6, 7 })
             for (byte other = 0; other < 4; other++)
             {
-                AssertTrue(edited.TryResolve(type, other, out int value), "atmospheric admitted type/frame");
-                AssertEqual((type == 1) == (kind == 0) && other == frame ? changedWord : (type == 1 ? one : shared)[other], value,
-                    "atmospheric supplied full word and caller-input isolation");
+                AssertTrue(edited.TryResolve(type, other, out SpritePart value), "atmospheric admitted type/frame");
+                AssertEqual((type == 1) == (kind == 0) && other == frame ? changed : (type == 1 ? one : shared)[other], value,
+                    "atmospheric supplied whole appearance and caller-input isolation");
             }
         }
         AssertTrue(!stock.TryResolve(2, 0, out _), "atmospheric null pointer remains outside installed domain");
@@ -2832,7 +2874,7 @@ internal static class LookupStream1Verification
             new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
         var shifted = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(
-                map.Parts.Select(part => part with { X = new SnesSpritemapXWord((ushort)((part.X.Raw & ~511) | ((part.X.Raw + 1) & 511))), Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray())).ToArray());
+                map.Parts.Select(part => part with { Offset = Offset16<ScreenPixels>.Of(SpritePart.WrapX(part.Offset.X + 1), unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray())).ToArray());
         foreach (var maps in new[] { empty, zero, shifted })
         {
             var editedBody = WithMaps(maps);
@@ -2915,17 +2957,14 @@ internal static class LookupStream1Verification
         AssertEqual(native.Length - aliases - directPointers, stored.Count, "Exact independent pointer basis, no stock alias/allocation fallbacks");
         ushort[] top = stock.TopBases.ToArray(), bottom = stock.BottomBases.ToArray();
         SamusSpritemapDefinition[] definitions = stock.Definitions.ToArray();
-        string Canonical(SamusSpritemapId?[] entries) => SelectedPresentationHash.Create("samus-spritemaps-v2", content =>
+        string Canonical(SamusSpritemapId?[] entries) => SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
         {
             content.AppendWords("top bases", top); content.AppendWords("bottom bases", bottom);
             foreach (SamusSpritemapId? entry in entries) content.Append("entry", entry?.Ordinal ?? -1);
             foreach (var map in definitions)
             {
                 content.Append("part count", map.Parts.Length);
-                foreach (var part in map.Parts)
-                {
-                    content.Append("x", part.X.Raw); content.Append("y", part.Y.Raw); content.Append("attributes", part.Attributes);
-                }
+                foreach (SpritePart part in map.Parts) AppendCanonicalSpritePart(content, part);
             }
         });
         AssertEqual(Canonical(native), stock.ContentIdentity, "Original native OAM canonical hash");

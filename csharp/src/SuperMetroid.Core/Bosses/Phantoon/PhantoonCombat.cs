@@ -661,7 +661,7 @@ internal sealed class PhantoonCombat
         // data. Preserve the native component and rectangle order from
         // the compiled bank-$A7 definitions, including point no-ops.
         foreach (PhantoonCollisionComponent component in
-                 PhantoonCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 PhantoonCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)

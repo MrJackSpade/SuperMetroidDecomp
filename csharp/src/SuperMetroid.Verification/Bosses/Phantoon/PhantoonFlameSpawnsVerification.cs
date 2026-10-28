@@ -13,11 +13,11 @@ internal static class PhantoonFlameSpawnsVerification
     internal static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 16; i++)
-            AssertEqual(rom.ReadCartridgeByte(0x8698b4 + i), PhantoonFlameSpawnDefinitions.RageAngle(i), "All native rage start angles");
+            AssertEqual(rom.ReadCartridgeByte(0x8698b4 + i), PhantoonFlameSpawns.RageAngle(i), "All native rage start angles");
         for (int i = 0; i < 9; i++)
-            AssertEqual(rom.ReadCartridgeByte(0x8698f7 + i), PhantoonFlameSpawnDefinitions.RainX(i), "All native rain columns");
+            AssertEqual(rom.ReadCartridgeByte(0x8698f7 + i), PhantoonFlameSpawns.RainX(i), "All native rain columns");
         for (int i = 0; i < 8; i++)
-            AssertEqual(rom.ReadCartridgeByte(0x869979 + i), PhantoonFlameSpawnDefinitions.SpiralAngle(i), "All native spiral start angles");
+            AssertEqual(rom.ReadCartridgeByte(0x869979 + i), PhantoonFlameSpawns.SpiralAngle(i), "All native spiral start angles");
         var parameters = Enumerable.Range(0, 16).Select(i => (ushort)(0x200 + i))
             .Concat(Enumerable.Range(0, 8).Select(i => (ushort)(0x600 + i)))
             .Concat(Enumerable.Range(0, 16).SelectMany(delay => Enumerable.Range(0, 9).Select(column => (ushort)(0x400 + delay * 16 + column))))
@@ -61,9 +61,9 @@ internal static class PhantoonFlameSpawnsVerification
             AssertEqual((ushort)0, flame.Position.X.Fraction, "Actual flame initial fractional X");
             AssertEqual((ushort)0, flame.Position.Y.Fraction, "Actual flame initial fractional Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawnDefinitions.RageAngle(16), "Rage angle bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawnDefinitions.RainX(9), "Rain column bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawnDefinitions.SpiralAngle(8), "Spiral angle bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawns.RageAngle(16), "Rage angle bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawns.RainX(9), "Rain column bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawns.SpiralAngle(8), "Spiral angle bounds");
         Console.WriteLine("Phantoon flame spawns: 33 native bytes and 507 real initializers reject migrated table reads.");
     }
 

@@ -17,7 +17,7 @@ internal static class PhantoonCasualFlamesVerification
         for (int pattern = 0; pattern < 4; pattern++)
         {
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
-            var compiled = PhantoonCasualFlameDefinitions.Pattern(pattern);
+            var compiled = PhantoonCasualFlames.Pattern(pattern);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 2, compiled.Length, "Native casual flame schedule length");
             for (int i = 0; i < compiled.Length; i++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + i * 2)), compiled[i], "Native casual flame schedule word");

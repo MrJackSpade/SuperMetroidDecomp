@@ -19,11 +19,11 @@ internal static class PhantoonSoundDefinitionsVerification
         {
             SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Library2,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
-            AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSound(index),
+            AssertEqual(expected, PhantoonSounds.MaterializationSound(index),
                 $"Phantoon materialization sound {index}");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => PhantoonSoundDefinitions.MaterializationSound(3),
+            () => PhantoonSounds.MaterializationSound(3),
             "Phantoon materialization sound past definitions");
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -42,7 +42,7 @@ internal static class PhantoonSoundDefinitionsVerification
         {
             int index = call % 3;
             process(body, PhantoonPartCue.PlayMaterializationSound);
-            AssertEqual(PhantoonSoundDefinitions.MaterializationSound(index),
+            AssertEqual(PhantoonSounds.MaterializationSound(index),
                 (state.LastMaterializationSound ?? throw new InvalidOperationException("Verification requires state.LastMaterializationSound.")),
                 $"Phantoon materialization callback {call} sound");
             AssertEqual((index + 1) % 3, state.MaterializationSoundIndex,

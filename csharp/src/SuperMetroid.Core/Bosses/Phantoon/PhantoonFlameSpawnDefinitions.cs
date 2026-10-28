@@ -4,17 +4,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonFlameSpawnDefinitions
 {
     /// <summary>$86:98B4, PhantoonDestroyableFlameInit_Type2_Enraged. Eight clockwise angles followed by eight counterclockwise angles.</summary>
-    public static byte RageAngle(int index) => (uint)index < 16
-        ? (byte)(index < 8 ? (index + 1) * 16 : (23 - index) * 16)
-        : throw new ArgumentOutOfRangeException(nameof(index));
+    internal static readonly byte[] RageAngles = [16, 32, 48, 64, 80, 96, 112, 128, 240, 224, 208, 192, 176, 160, 144, 128];
 
     /// <summary>$86:98F7, PhantoonDestroyableFlameInit_Type4_Rain. Nine screen-X columns, 48 through 208, spaced twenty pixels apart.</summary>
-    public static byte RainX(int column) => (uint)column < 9
-        ? (byte)(48 + column * 20)
-        : throw new ArgumentOutOfRangeException(nameof(column));
+    internal static readonly byte[] RainXs = [48, 68, 88, 108, 128, 148, 168, 188, 208];
 
     /// <summary>$86:9979, PhantoonDestroyableFlameInit_Type6_Spiral. Eight equally spaced byte angles.</summary>
-    public static byte SpiralAngle(int index) => (uint)index < 8
-        ? (byte)(index * 32)
-        : throw new ArgumentOutOfRangeException(nameof(index));
+    internal static readonly byte[] SpiralAngles = [0, 32, 64, 96, 128, 160, 192, 224];
 }

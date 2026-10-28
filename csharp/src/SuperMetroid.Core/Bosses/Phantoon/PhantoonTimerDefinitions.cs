@@ -7,7 +7,7 @@ public static class PhantoonTimerDefinitions
     public const ushort InitialFlameDelayFrames = 120;
 
     /// <summary>Three selected exposure tiers used by the native RNG-bucket policies.</summary>
-    private enum DurationChoice
+    internal enum DurationChoice
     {
         /// <summary>Shortest open-eye, closed-eye, or rain-hiding interval for its phase.</summary>
         Short,
@@ -31,82 +31,43 @@ public static class PhantoonTimerDefinitions
     /// <remarks>Narrow approved nonsense retention: RNG/frame buckets have no temporal or physical ordering. These
     /// exact permutations specify the random choice policy; inventing a function for them would only re-encode the same
     /// ordering. This does not exempt any other combat phase, motion, fade, placement or flame delay.</remarks>
-    private static readonly DurationChoice[] VulnerableChoices =
+    internal static readonly DurationChoice[] VulnerableChoices =
         [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Long];
     /// <summary>$A7:CD53, RNG&amp;7 at D07C-D088; (NMI&gt;&gt;1)&amp;3 at D5A6-D5B2 for the first round.</summary>
-    private static readonly DurationChoice[] EyeClosedChoices =
+    internal static readonly DurationChoice[] EyeClosedChoices =
         [DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long,
          DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long];
     /// <summary>$A7:CD63, RNG&amp;7 at $A7:D7E7-D7F3 selects the rain hiding delay.</summary>
-    private static readonly DurationChoice[] RainHidingChoices =
+    internal static readonly DurationChoice[] RainHidingChoices =
         [DurationChoice.Medium, DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Short, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Short];
 
     /// <summary>$A7:CD45 and D03F-D075/D60D-D65B: selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
-    private const int ShortestVulnerableExposureFrames = 15;
+    internal const int ShortestVulnerableExposureFrames = 15;
     /// <summary>$A7:CD53 and D5E7-D60C: selected closed-eye moving phase lasts4 exposure units, then6 times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
-    private const int EyeShortScale = 4;
+    internal const int EyeShortScale = 4;
     /// <summary>The medium closed-eye duration is six times the phase's short base.</summary>
-    private const int EyeMediumScale = 6;
+    internal const int EyeMediumScale = 6;
     /// <summary>$A7:CD63 and D7D5-D829: selected hidden wait begins only after fading completes. Its shortest duration is two exposure units, with doubled medium/long tiers; the next location is chosen only on expiry, so neither fading nor travel determines this wait.</summary>
-    private const int RainShortScale = 2;
+    internal const int RainShortScale = 2;
     /// <summary>$A7:CD41/CD53/CD63: exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
-    private const int TierDoubling = 2;
+    internal const int TierDoubling = 2;
 
     /// <summary>Gets the eight-entry RNG-bucket schedule for Phantoon's open-eye damage opportunity.</summary>
-    public static Schedule VulnerableWindow => new(TimerKind.Vulnerable);
+    public static PhantoonTimerSchedule VulnerableWindow => new(TimerKind.Vulnerable);
 
     /// <summary>Gets the eight-entry RNG/frame-bucket schedule for the closed-eye moving phase.</summary>
-    public static Schedule EyeClosed => new(TimerKind.EyeClosed);
+    public static PhantoonTimerSchedule EyeClosed => new(TimerKind.EyeClosed);
 
     /// <summary>Gets the eight-entry RNG-bucket schedule for the hidden delay after the flame rain.</summary>
-    public static Schedule RainHiding => new(TimerKind.RainHiding);
+    public static PhantoonTimerSchedule RainHiding => new(TimerKind.RainHiding);
 
-    /// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
-    public readonly struct Schedule : IReadOnlyList<ushort>
+    /// <summary>Each phase's short/medium/long bucket permutation.</summary>
+    internal static readonly Dictionary<TimerKind, DurationChoice[]> Choices = new()
     {
-        /// <summary>Selects which native phase's buckets and duration scale this view exposes.</summary>
-        private readonly TimerKind kind;
-        /// <summary>Binds a calculated schedule to one Phantoon combat phase.</summary>
-        internal Schedule(TimerKind kind) => this.kind = kind;
-        /// <summary>Reads the authored short/medium/long permutation for this phase.</summary>
-        private DurationChoice[] Choices => kind switch
-        {
-            TimerKind.Vulnerable => VulnerableChoices,
-            TimerKind.EyeClosed => EyeClosedChoices,
-            TimerKind.RainHiding => RainHidingChoices,
-            _ => throw new InvalidOperationException(),
-        };
-        /// <summary>Gets the eight random-selection buckets in the schedule.</summary>
-        public int Count => Choices.Length;
-
-        /// <summary>Calculates the selected phase duration in gameplay updates.</summary>
-        /// <param name="index">Bucket index from zero through seven, normally selected by masked RNG or frame bits.</param>
-        /// <returns>The exact short, medium, or long duration for this schedule.</returns>
-        public ushort this[int index]
-        {
-            get
-            {
-                DurationChoice choice = Choices[index];
-                int shortest = ShortestVulnerableExposureFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
-                int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
-                return (ushort)(choice switch
-                {
-                    DurationChoice.Short => shortest,
-                    DurationChoice.Medium => medium,
-                    DurationChoice.Long => medium * TierDoubling,
-                    _ => throw new InvalidOperationException(),
-                });
-            }
-        }
-        /// <summary>Enumerates all eight calculated durations in native bucket order.</summary>
-        /// <returns>An enumerator over the phase durations.</returns>
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same eight phase buckets to non-generic collection consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+        [TimerKind.Vulnerable] = VulnerableChoices,
+        [TimerKind.EyeClosed] = EyeClosedChoices,
+        [TimerKind.RainHiding] = RainHidingChoices,
+    };
 }

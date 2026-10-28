@@ -3,57 +3,25 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Fixed Phantoon rain placements and shot-response markers.</summary>
 public static class PhantoonPatternDefinitions
 {
-    /// <summary>$A7:CDAD, Phantoon_FlameRain_PositionTable: figure-eight cursor and world X/Y; each native record also has an unused zero word.</summary>
-    /// <param name="pattern">Native random-bucket index, 0..7; patterns zero and four share the same body placement.</param>
-    /// <returns>The body variable-A path cursor and whole-pixel room coordinates; does not draw RNG or move the boss.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The pattern is outside 0..7.</exception>
-    public static PhantoonRainPlacementDefinition RainPlacement(int pattern) => pattern switch
-    {
-        0 or 4 => new(1, new(128, 96)),
-        1 => new(71, new(168, 64)),
-        2 => new(136, new(208, 96)),
-        3 => new(201, new(168, 128)),
-        5 => new(334, new(88, 64)),
-        6 => new(399, new(48, 96)),
-        7 => new(465, new(88, 128)),
-        _ => throw new ArgumentOutOfRangeException(nameof(pattern)),
-    };
-
     /// <summary>
-    /// $A7:CFC2 starts the eight-flame rain one column after the body. Wrapping nine
-    /// twenty-pixel columns leaves the gap precisely at the body's rain-placement X.
+    /// $A7:CDAD, Phantoon_FlameRain_PositionTable: the figure-eight cursor and world X/Y of each of the eight native
+    /// random buckets; each native record also has an unused zero word. Patterns zero and four share the same body
+    /// placement.
     /// </summary>
-    public static RainColumnSequence FirstRainColumns => default;
+    internal static readonly PhantoonRainPlacementDefinition[] RainPlacements =
+    [
+        new(1, new(128, 96)),
+        new(71, new(168, 64)),
+        new(136, new(208, 96)),
+        new(201, new(168, 128)),
+        new(1, new(128, 96)),
+        new(334, new(88, 64)),
+        new(399, new(48, 96)),
+        new(465, new(88, 128)),
+    ];
 
-    /// <summary>Computed $A7:CFC2 first-flame column lookup, indexed by the eight rain patterns rather than by individual flames.</summary>
-    public readonly struct RainColumnSequence : IReadOnlyList<byte>
-    {
-        /// <summary>Eight pattern-to-first-column entries; each pattern's caller subsequently emits eight flames across nine wrapping columns.</summary>
-        public int Count => 8;
-        /// <summary>First flame's zero-based column immediately after the selected body's column, wrapping from eight to zero.</summary>
-        /// <param name="pattern">Native rain-pattern index, 0..7.</param>
-        /// <returns>A column from 0..8; following eight consecutive columns leaves the body placement's column empty.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">The pattern is outside the eight-entry lookup.</exception>
-        public byte this[int pattern]
-        {
-            get
-            {
-                if ((uint)pattern >= Count) throw new ArgumentOutOfRangeException(nameof(pattern));
-                int origin = PhantoonFlameSpawnDefinitions.RainX(0);
-                int spacing = PhantoonFlameSpawnDefinitions.RainX(1) - origin;
-                int bodyColumn = (RainPlacement(pattern).Position.X - origin) / spacing;
-                return (byte)((bodyColumn + 1) % 9);
-            }
-        }
-        /// <summary>Enumerates each pattern's first flame column in native pattern order, without advancing RNG or spawning flames.</summary>
-        /// <returns>An enumerator over the eight computed column selectors.</returns>
-        public IEnumerator<byte> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same eight computed selectors through the non-generic collection interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>The rain's columns, which wrap from the last back to the first.</summary>
+    internal const int RainColumnCount = 9;
 
     /// <summary>
     /// $A7:CDA5, Phantoon_Unknown0FEAValues: the shot reaction at $A7:DE5C-DE6A
@@ -70,22 +38,19 @@ public static class PhantoonPatternDefinitions
     public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
     /// <summary>
-    /// $A7:D40D-$D41E selects the eye program from Samus's relative octant. The unused
-    /// code5 retains the native downward selection; all other values name a direction.
+    /// $A7:D40D-$D41E: the eye program of each relative-octant selector 0..8. The unused code 5 retains the native
+    /// downward selection; all other values name a direction.
     /// </summary>
-    /// <param name="direction">Native relative-direction selector, 0..8, with four and the unused five both selecting down.</param>
-    /// <returns>The eye's gaze program; the caller owns starting it and resetting its instruction timer.</returns>
-    /// <exception cref="InvalidDataException">The direction exceeds the nine authored selectors.</exception>
-    internal static PhantoonPartProgram EyeProgram(int direction) => direction switch
-    {
-        0 => PhantoonPartProgram.EyeLookingUp,
-        1 => PhantoonPartProgram.EyeLookingUpRight,
-        2 => PhantoonPartProgram.EyeLookingRight,
-        3 => PhantoonPartProgram.EyeLookingDownRight,
-        4 or 5 => PhantoonPartProgram.EyeLookingDown,
-        6 => PhantoonPartProgram.EyeLookingDownLeft,
-        7 => PhantoonPartProgram.EyeLookingLeft,
-        8 => PhantoonPartProgram.EyeLookingUpLeft,
-        _ => throw new InvalidDataException($"Phantoon eye direction {direction} exceeds nine authored selectors."),
-    };
+    internal static readonly PhantoonPartProgram[] EyePrograms =
+    [
+        PhantoonPartProgram.EyeLookingUp,
+        PhantoonPartProgram.EyeLookingUpRight,
+        PhantoonPartProgram.EyeLookingRight,
+        PhantoonPartProgram.EyeLookingDownRight,
+        PhantoonPartProgram.EyeLookingDown,
+        PhantoonPartProgram.EyeLookingDown,
+        PhantoonPartProgram.EyeLookingDownLeft,
+        PhantoonPartProgram.EyeLookingLeft,
+        PhantoonPartProgram.EyeLookingUpLeft,
+    ];
 }

@@ -13,7 +13,7 @@ internal static class PhantoonPathVerification
     {
         for (int index = 0; index < 534; index++)
         {
-            var delta = PhantoonPathDefinitions.Step(index);
+            var delta = PhantoonPath.Step(index);
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d2 + index * 2)), delta.X, "Exact Phantoon path X byte");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d3 + index * 2)), delta.Y, "Exact Phantoon path Y byte");
         }
@@ -55,8 +55,8 @@ internal static class PhantoonPathVerification
             AssertEqual((ushort)0x1234, body.Position.X.Fraction, "Discrete path leaves fractional X intact");
             AssertEqual((ushort)0x5678, body.Position.Y.Fraction, "Discrete path leaves fractional Y intact");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonPathDefinitions.Step(-1), "Negative Phantoon path cursor");
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonPathDefinitions.Step(534), "Phantoon path end boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonPath.Step(-1), "Negative Phantoon path cursor");
+        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonPath.Step(534), "Phantoon path end boundary");
         Console.WriteLine("Phantoon path: 1068 exact bytes and 25632 real multi-step movements match without a bus, including both cursor and world-coordinate wraps.");
     }
 }

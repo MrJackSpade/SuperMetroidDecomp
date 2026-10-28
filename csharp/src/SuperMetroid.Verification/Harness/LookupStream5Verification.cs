@@ -750,7 +750,7 @@ internal static class LookupStream5Verification
         foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = 0xa70000 | frame.Pointer;
-            var components = PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
+            var components = PhantoonCollision.ComponentsAt(frame.Pointer);
             AssertEqual(ReadVerificationWord(rom, root), components.Length, "Native component extent");
             for (int index = 0; index < components.Length; index++)
             {
@@ -788,7 +788,7 @@ internal static class LookupStream5Verification
         AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonTouch.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
         AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
         AssertEqual((ushort)0, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
-        AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
+        AssertThrows<InvalidDataException>(() => PhantoonCollision.ComponentsAt(0), "Frame domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }
     /// <summary>Compares Phantoon fade color rows and transition timing with cartridge palettes.</summary>
@@ -1493,12 +1493,12 @@ internal static class LookupStream5Verification
     {
         for (int i = 0; i < 8; i++)
         {
-            var placement = PhantoonPatternDefinitions.RainPlacement(i);
+            var placement = PhantoonFlameRain.RainPlacement(i);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.Cursor, "Native rain figure-eight cursor");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.Position.X, "Native rain body X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Position.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
-            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonFlameRain.FirstRainColumns[i], "Native first rain column");
         }
         for (int high = 0; high < 1; high++)
         for (int pattern = 0; pattern < 8; pattern++)
@@ -1540,7 +1540,7 @@ internal static class LookupStream5Verification
         for (ushort direction = 0; direction < 9; direction++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
-                PhantoonNativeListAddresses.PartEntry(PhantoonPatternDefinitions.EyeProgram(direction)),
+                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(direction)),
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -1555,15 +1555,15 @@ internal static class LookupStream5Verification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
-            AssertEqual(PhantoonPatternDefinitions.EyeProgram(direction),
+            AssertEqual(PhantoonEyeGaze.EyeProgram(direction),
                 eyeState.PartProgram(trackingEye).Program,
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonPatternDefinitions.EyeProgram(9),
+            () => PhantoonEyeGaze.EyeProgram(9),
             "Phantoon eye direction beyond authored table");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[-1], "rain pattern lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[8], "rain pattern upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[-1], "rain pattern lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[8], "rain pattern upper bound");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 

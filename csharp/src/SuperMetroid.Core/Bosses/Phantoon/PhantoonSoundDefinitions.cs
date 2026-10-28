@@ -31,7 +31,7 @@ internal static class PhantoonSoundDefinitions
     /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>: the library-two sounds queued in a repeating
     /// three-callback cycle.
     /// </summary>
-    private static readonly SoundEffectId[] MaterializationSounds =
+    internal static readonly SoundEffectId[] MaterializationSounds =
     [
         Library2Sound.PhantoonAppears1,
         Library2Sound.PhantoonAppears2,
@@ -40,11 +40,4 @@ internal static class PhantoonSoundDefinitions
 
     /// <summary>The number of sounds in the materialization cycle.</summary>
     internal static int MaterializationSoundCount => MaterializationSounds.Length;
-
-    /// <summary>Returns the materialization sound at a zero-through-two cycle position.</summary>
-    internal static SoundEffectId MaterializationSound(int index) =>
-        (uint)index < (uint)MaterializationSounds.Length
-            ? MaterializationSounds[index]
-            : throw new ArgumentOutOfRangeException(
-                nameof(index), index, "Phantoon materialization sound index must be zero through two.");
 }

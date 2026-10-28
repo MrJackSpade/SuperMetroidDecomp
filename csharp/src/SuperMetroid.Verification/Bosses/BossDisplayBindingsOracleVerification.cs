@@ -89,7 +89,7 @@ internal static class BossDisplayBindingsOracleVerification
         CrocomireBg2FrameDefinitionsConstants.Bank => CrocomireBodyCollision.ComponentsAt(frame.Pointer)
             .SelectToArray(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())),
-        PhantoonBg2FrameDefinitionsConstants.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
+        PhantoonBg2FrameDefinitionsConstants.Bank => PhantoonCollision.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),

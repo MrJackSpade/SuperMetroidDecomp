@@ -102,7 +102,7 @@ internal sealed class TorizoCombat
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
         // the upper half to row seven. Deriving the row start algebraically preserves the
         // original descending copy while keeping the loop natural for debugger inspection.
-        int row = (checked((ushort)health) & TorizoCombatDefinitions.HealthPaletteRowBits) >> TorizoCombatDefinitions.HealthPaletteRowShift;
+        int row = checked((ushort)health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
         int sourceWord = Math.Min(row, TorizoCombatDefinitions.LastHealthPaletteRow) * 16;
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Golden Torizo health palettes require installed artwork.");

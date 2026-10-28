@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
@@ -18,20 +20,23 @@ internal static class TorizoRandomDefinitions
     /// <summary>Golden Torizo's forward leap goes while held directions draw random bits 0 and 8 clear: one time in four.</summary>
     internal static readonly TorizoRandomBits ForwardLeap = TorizoRandomBits.At(0, 8);
 
-    /// <summary>The initial drool's added fall speed: five low bits of raw 8.8 speed.</summary>
-    internal const ushort DroolFallJitterMask = 0x001f;
+    /// <summary>The initial drool's added fall speed, 0 through 31 in raw 8.8 units: the selection of bits 0-4.</summary>
+    internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
-    /// <summary>A turning Torizo's drool angle: the low byte of a word index into the full circle.</summary>
-    internal const ushort DroolTurningAngleMask = 0x01fe;
+    /// <summary>
+    /// A turning Torizo's drool angle, any of the 256 table angles: the selection of bits 1-8, which the cartridge
+    /// reads as a word index into the full circle.
+    /// </summary>
+    internal static readonly RandomSampleField DroolTurningAngle = new(1, 8);
 
-    /// <summary>A facing Torizo's drool angle spread: four low bits about its facing angle.</summary>
-    internal const ushort DroolFacingAngleMask = 0x000f;
+    /// <summary>A facing Torizo's drool angle spread about its facing angle, 0 through 15: the selection of bits 0-3.</summary>
+    internal static readonly RandomSampleField DroolFacingSpread = new(0, 4);
 
-    /// <summary>Golden Torizo's eye-beam angle spread: bits 1-4, an even step of up to thirty.</summary>
-    internal const ushort EyeBeamSpreadMask = 0x001e;
-
-    /// <summary>The nine-bit word index of a full circle of eye-beam angles.</summary>
-    internal const int EyeBeamAngleMask = 0x01ff;
+    /// <summary>
+    /// Golden Torizo's eye-beam angle spread, 0 through 15 table angles: the selection of bits 1-4, which the
+    /// cartridge reads as an even word-index step of up to thirty.
+    /// </summary>
+    internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 
     /// <summary>Golden Torizo's dying drop scatter: the low byte across its 256-pixel strip.</summary>
     internal const ushort GoldenDropXMask = 0x00ff;

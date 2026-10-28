@@ -28,12 +28,6 @@ internal static class TorizoMotionDefinitions
     /// </summary>
     internal const int InitialDroolSideOffset = 8;
 
-    /// <summary>The angle bit that turns a thrown super missile's aim to the half of the circle away from Samus.</summary>
-    internal const byte AwayHalfTurn = 0x80;
-
-    /// <summary>The angle bits that keep a thrown super missile's aim in the half of the circle toward Samus.</summary>
-    internal const byte TowardHalfTurn = 0x7f;
-
     /// <summary>
     /// Golden Torizo's egg hatch timer. $86:B001 masks the literal opcode byte $E2 rather than a random number, an
     /// authentic bug that fixes the timer at 66 updates.

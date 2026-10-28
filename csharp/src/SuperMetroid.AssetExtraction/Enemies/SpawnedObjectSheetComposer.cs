@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;

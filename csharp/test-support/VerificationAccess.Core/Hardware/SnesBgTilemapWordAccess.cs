@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Artwork;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="SnesBgTilemapWord"/> members production does not use.</summary>

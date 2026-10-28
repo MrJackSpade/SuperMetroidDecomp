@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -97,28 +97,6 @@ internal static class AnalyzerTests
             throw new InvalidOperationException(
                 $"Expected [{string.Join(", ", expectedIds)}], got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
         }
-    }
-
-    /// <summary>Checks that frontend classes cannot hold PPU memory while structs, locals and non-frontend owners pass (#1358).</summary>
-    internal static void VerifyFrontendPpuMemoryAnalyzer()
-    {
-        var analyzer = new FrontendPpuMemoryAnalyzer();
-        void Expect(string source, string? id = null, string? message = null) =>
-            VerifySnippet(source, id, message, analyzer);
-        const string api =
-            "namespace SuperMetroid.Core.Hardware { sealed class SnesVram { } sealed class SnesCgram { } sealed class OamBuffer { } } ";
-
-        // SME6302: a frontend class field, property or primary-constructor parameter holding PPU memory.
-        Expect(api + "namespace SuperMetroid.Core.Frontend.Title { using SuperMetroid.Core.Hardware; sealed class Screen { private readonly SnesVram vram = new(); } }",
-            FrontendPpuMemoryAnalyzer.OwnedMemoryId, "Screen holds SnesVram in 'vram'");
-        Expect(api + "namespace SuperMetroid.Core.Frontend { using SuperMetroid.Core.Hardware; sealed class Screen { public SnesCgram Cgram { get; } = new(); } }",
-            FrontendPpuMemoryAnalyzer.OwnedMemoryId, "Screen holds SnesCgram in 'Cgram'");
-        Expect(api + "namespace SuperMetroid.Core.Frontend.Pause { using SuperMetroid.Core.Hardware; sealed class Screen(OamBuffer oam) { public int M() => oam.GetHashCode(); } }",
-            FrontendPpuMemoryAnalyzer.OwnedMemoryId, "Screen holds OamBuffer in 'oam'");
-        // A transient rendering view, a codec's local scratch memory and a non-frontend owner pass.
-        Expect(api + "namespace SuperMetroid.Core.Frontend.Title { using SuperMetroid.Core.Hardware; readonly struct TitleVram(SnesVram vram) { public SnesVram Memory => vram; } }");
-        Expect(api + "namespace SuperMetroid.Core.Frontend.Title { using SuperMetroid.Core.Hardware; static class Codec { public static int Compose() { var vram = new SnesVram(); return vram.GetHashCode(); } } }");
-        Expect(api + "namespace SuperMetroid.Core.Gameplay { using SuperMetroid.Core.Hardware; sealed class Runtime { private readonly SnesVram vram = new(); } }");
     }
 
     /// <summary>Checks that only XML documentation and in-body comments remain outside executable bodies (#1378).</summary>

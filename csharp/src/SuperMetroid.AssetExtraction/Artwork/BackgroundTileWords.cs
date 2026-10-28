@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Converts a <see cref="BackgroundTile"/> to and from the packed sixteen-bit tilemap entry the cartridge stores it as:
@@ -13,9 +13,9 @@ namespace SuperMetroid.Core.Assets;
 public static class BackgroundTileWords
 {
     /// <summary>The tile a packed tilemap entry places.</summary>
-    public static BackgroundTile ToTile(ushort word)
+    public static BackgroundTile ToTile(int word)
     {
-        var entry = new SnesBgTilemapWord(word);
+        var entry = new SnesBgTilemapWord(checked((ushort)word));
         return new BackgroundTile(entry.CharacterIndex, entry.PaletteIndex, entry.FlipHorizontally, entry.FlipVertically, entry.HasPriority);
     }
 

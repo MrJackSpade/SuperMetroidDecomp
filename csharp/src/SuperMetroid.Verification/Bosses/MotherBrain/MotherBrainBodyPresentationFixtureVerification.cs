@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
@@ -65,11 +66,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal ushort[] Bg2Words => [.. Inner.Enemies.Presentation.RequireBg2Image().Publish().Words];
 
         /// <summary>Writes <paramref name="word"/> at the start of her BG2 image.</summary>
-        internal void MarkBg2(ushort word) => Inner.Enemies.Presentation.RequireBg2Image().Write(0, [word]);
+        internal void MarkBg2(ushort word) => Inner.Enemies.Presentation.RequireBg2Image().Write(0, [BackgroundTileWordBytes.Tile(word)]);
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
         /// <summary>Clears her BG2 image before checking fresh publication.</summary>
         internal void ClearBg2() => Inner.Enemies.Presentation.RequireBg2Image().Write(0,
-            new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight]);
+            new BackgroundTile[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight]);
     }
 }

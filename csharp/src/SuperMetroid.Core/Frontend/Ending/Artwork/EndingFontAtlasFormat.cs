@@ -47,11 +47,11 @@ public static class EndingFontAtlasFormat
     /// <summary>Both native space cells used by the result and large text layouts.</summary>
     private static readonly SpaceCell[] SpaceCells = Enum.GetValues<SpaceCell>();
 
-    /// <summary>Maps the semantic space role to its tile word in the ending text layout.</summary>
+    /// <summary>Maps the semantic space role to the tile it shows in the ending text layout.</summary>
     private static int TileOf(SpaceCell space) => space switch
     {
-        SpaceCell.ResultBlank => EndingTextDefinitions.ResultBlankWord,
-        SpaceCell.LargeBlank => EndingTextDefinitions.LargeBlankWord,
+        SpaceCell.ResultBlank => EndingTextDefinitions.ResultBlankTile.Tile,
+        SpaceCell.LargeBlank => EndingTextDefinitions.LargeBlankTile.Tile,
         _ => throw new InvalidOperationException($"Undefined {nameof(SpaceCell)} {space}."),
     };
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED selected foreground pen1.</summary>

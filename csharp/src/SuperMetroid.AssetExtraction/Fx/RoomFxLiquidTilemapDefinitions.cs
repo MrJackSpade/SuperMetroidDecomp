@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Buffers.Binary;
 
 using SuperMetroid.Core.Fx;

@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// A lossless view over one cartridge background tilemap entry: the packed word the import pipeline decodes into a

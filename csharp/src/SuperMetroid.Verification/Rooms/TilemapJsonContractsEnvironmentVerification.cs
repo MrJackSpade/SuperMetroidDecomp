@@ -105,10 +105,10 @@ internal static class TilemapJsonContractsEnvironmentVerification
         string dividerJson = Encoding.UTF8.GetString(dividerEncoded.ToArray());
         void LoadDivider(string text)
         {
-            var actual = IntroFinalLineTilemap.Load(TilemapContractStream(text)).Words.Span;
+            ushort[] actual = BackgroundTileWordBytes.Words(IntroFinalLineTilemap.Load(TilemapContractStream(text)).Tiles.Span);
             for (int index = 0; index < actual.Length; index++)
                 AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(dividerWords.AsSpan(index * 2)), actual[index],
-                    "opening divider retains every native word");
+                    "opening divider retains every native word, encoded through the codec");
         }
         LoadDivider(dividerJson);
         Reject("opening divider (case-sensitive)", TilemapContractHistoricalCasing(dividerJson),

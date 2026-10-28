@@ -5,7 +5,6 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-SME6302 | Design | Warning | FrontendPpuMemoryAnalyzer
 SME6303 | Design | Warning | PlmSlotAllocationAnalyzer
 SME6413 | Architecture | Error | LooseCommentAnalyzer
 SME6414 | Architecture | Error | PragmaWarningDisableAnalyzer

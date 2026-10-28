@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;

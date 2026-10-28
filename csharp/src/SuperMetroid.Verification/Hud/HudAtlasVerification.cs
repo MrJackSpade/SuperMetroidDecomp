@@ -67,6 +67,8 @@ internal static class HudAtlasVerification
         displayedSnapshot.Position = 0;
         var displayed = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(displayedSnapshot);
         fixtureAssets.Bind(displayed);
+        // A restored game is rebound to the catalogs it was installed with before any other artwork is selected.
+        displayed.Artwork.MapPresentation = original;
         int characterStart = GameplayVramLayout.HudCharacterWord * 2;
         int characterEnd = characterStart + HudTileAtlasFormat.CharacterByteCount;
         displayed.Vram.LoadBytes(characterEnd, Enumerable.Repeat((byte)0x5a, HudTileAtlasFormat.CharacterByteCount).ToArray());

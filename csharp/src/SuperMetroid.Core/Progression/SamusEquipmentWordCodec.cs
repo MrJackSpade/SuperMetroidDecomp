@@ -63,6 +63,30 @@ public static class SamusEquipmentWordCodec
         return items;
     }
 
+    /// <summary>The bits of an equipment word that record an item.</summary>
+    private static readonly ushort ItemWordBits = ItemBits.Aggregate((ushort)0, (bits, entry) => (ushort)(bits | entry.Bit));
+
+    /// <summary>The bits of a beam word that record a beam.</summary>
+    private static readonly ushort BeamWordBits =
+        Enum.GetValues<SamusBeamFlags>().Aggregate((ushort)0, (bits, beam) => (ushort)(bits | (ushort)beam));
+
+    /// <summary>
+    /// The items a save slot's stored equipment word records (#1456). The cartridge accepts a checksum-valid slot whatever
+    /// else the word sets and never reads a bit that records no item, so those bits stand for nothing and are not carried:
+    /// re-encoding the slot writes them as zero.
+    /// </summary>
+    /// <param name="word">A save slot's sixteen-bit equipment word.</param>
+    /// <returns>The items whose bits are set.</returns>
+    public static SamusEquipmentFlags FromSavedEquipmentWord(ushort word) => FromEquipmentWord((ushort)(word & ItemWordBits));
+
+    /// <summary>
+    /// The beams a save slot's stored beam word records (#1456). As with <see cref="FromSavedEquipmentWord"/>, bits that
+    /// record no beam are never read by the cartridge and are not carried.
+    /// </summary>
+    /// <param name="word">A save slot's sixteen-bit beam word.</param>
+    /// <returns>The beams whose bits are set.</returns>
+    public static SamusBeamFlags FromSavedBeamWord(ushort word) => (SamusBeamFlags)(word & BeamWordBits);
+
     /// <summary>The beam set as its sixteen-bit equipment word.</summary>
     /// <param name="beams">Collected or equipped beams.</param>
     /// <returns>The beams' bits as one word.</returns>

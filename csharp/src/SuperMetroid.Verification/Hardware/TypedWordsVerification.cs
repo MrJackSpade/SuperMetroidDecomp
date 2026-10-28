@@ -44,6 +44,17 @@ internal static void VerifyTypedNativeWords()
     AssertThrows<InvalidDataException>(() => SamusEquipmentWordCodec.FromEquipmentWord(0x0080),
         "an equipment word bit that records no item is rejected");
 
+    // #1456: a checksum-valid save slot may set bits that record nothing, which the cartridge never reads. The save
+    // boundary keeps exactly the items and beams the words record, and re-encoding writes the other bits as zero.
+    AssertEqual(SamusEquipmentWordCodec.FromEquipmentWord(0xf33f), SamusEquipmentWordCodec.FromSavedEquipmentWord(0xffff),
+        "a saved equipment word decodes to the items it records");
+    AssertEqual((ushort)0xf33f, SamusEquipmentWordCodec.FromSavedEquipmentWord(0xffff).ToEquipmentWord(),
+        "a saved equipment word's unassigned bits re-encode as zero");
+    AssertEqual(SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Charge,
+        SamusEquipmentWordCodec.FromSavedBeamWord(0xffff), "a saved beam word decodes to the beams it records");
+    AssertEqual((ushort)0x100f, SamusEquipmentWordCodec.FromSavedBeamWord(0xffff).ToEquipmentWord(),
+        "a saved beam word's unassigned bits re-encode as zero");
+
     // The snapshot boundary decodes $0A76 and $0DC0 into typed state and rejects undefined words.
     AssertEqual(true, SamusSnapshotWords.DecodeHyperBeam(SamusSnapshotWords.HyperBeamEnabledWord), "hyper beam $8000 imports as enabled");
     AssertEqual(false, SamusSnapshotWords.DecodeHyperBeam(0), "hyper beam zero imports as disabled");

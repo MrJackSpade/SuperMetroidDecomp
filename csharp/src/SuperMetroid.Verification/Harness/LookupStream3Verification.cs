@@ -2129,10 +2129,10 @@ internal static class LookupStream3Verification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
             AssertEqual(new ChootPatternDefinition(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
-                ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
+                ChootFalls.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
         }
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChootPatternDefinitions.ForIndex(invalid),
+            AssertThrows<InvalidDataException>(() => ChootFalls.ForIndex(invalid),
                 "stream 3 Choot rejects alias and invalid patterns");
     }
 

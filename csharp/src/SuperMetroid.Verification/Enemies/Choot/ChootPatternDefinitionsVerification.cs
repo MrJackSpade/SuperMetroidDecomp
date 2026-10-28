@@ -17,7 +17,7 @@ internal static class ChootPatternDefinitionsVerification
 
         for (ushort patternIndex = 0; patternIndex < 5; patternIndex++)
         {
-            ChootPatternDefinition definition = ChootPatternDefinitions.ForIndex(patternIndex);
+            ChootPatternDefinition definition = ChootFalls.ForIndex(patternIndex);
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
             AssertEqual(nativePointer, ChootNativeWords.ChootFallingPaths.Word(definition.FallingPath),
@@ -29,7 +29,7 @@ internal static class ChootPatternDefinitionsVerification
             int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(definition.FallingPath);
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex]; frameIndex++)
             {
-                ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
+                ChootFallingPathPoint point = ChootFalls.At(
                     definition.FallingPath,
                     frameIndex);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
@@ -41,7 +41,7 @@ internal static class ChootPatternDefinitionsVerification
             }
 
             AssertThrows<InvalidDataException>(
-                () => ChootFallingPathDefinitions.At(
+                () => ChootFalls.At(
                     definition.FallingPath,
                     frameCounts[patternIndex]),
                 $"Choot path {patternIndex} rejects its first post-terminator frame");
@@ -84,7 +84,7 @@ internal static class ChootPatternDefinitionsVerification
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
+                ChootFallingPathPoint point = ChootFalls.At(
                     definition.FallingPath,
                     frameIndex);
                 runFall(fallSlot, fallState);
@@ -121,10 +121,10 @@ internal static class ChootPatternDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ChootPatternDefinitions.ForIndex(5),
+            () => ChootFalls.ForIndex(5),
             "sixth Choot pointer-table alias is not an authored pattern");
         AssertThrows<InvalidDataException>(
-            () => ChootPatternDefinitions.ForIndex(ushort.MaxValue),
+            () => ChootFalls.ForIndex(ushort.MaxValue),
             "restored Choot pattern index does not wrap into the catalog");
         AssertThrows<InvalidDataException>(
             () => ChootFallingPathDefinitionsConstants.At(0xffff, 0),

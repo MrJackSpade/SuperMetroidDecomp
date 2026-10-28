@@ -61,7 +61,7 @@ internal sealed class EnemyTerrain
 
         int topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
         int bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & RoomPixelMasks.BlockStart))) >> 4;
+        int spanMinusOne = unchecked((ushort)(bottomPixel - RoomGridConversions.BlockStart(topPixel))) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
         int firstIndex = unchecked((byte)(topPixel >> 4)) * level.Size.X + (targetEdge >> 4);
@@ -93,14 +93,14 @@ internal sealed class EnemyTerrain
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            int aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.X + 1));
+            int aligned = unchecked((ushort)(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.X + 1));
             if (aligned <= slot.Position.X.Whole)
                 slot.Position = slot.Position.WithWholeX(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionX(0);
         }
         else
         {
-            int aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.X));
+            int aligned = unchecked((ushort)(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.X));
             if (aligned >= slot.Position.X.Whole)
                 slot.Position = slot.Position.WithWholeX(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionX(RoomPixelMasks.LastFraction);
@@ -127,7 +127,7 @@ internal sealed class EnemyTerrain
 
         int leftPixel = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
         int rightPixel = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
-        int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & RoomPixelMasks.BlockStart))) >> 4;
+        int spanMinusOne = unchecked((ushort)(rightPixel - RoomGridConversions.BlockStart(leftPixel))) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
         int firstIndex = unchecked((byte)(targetEdge >> 4)) * level.Size.X + (leftPixel >> 4);
@@ -152,14 +152,14 @@ internal sealed class EnemyTerrain
         // The native outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            int aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.Y + 1));
+            int aligned = unchecked((ushort)(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.Y + 1));
             if (aligned <= slot.Position.Y.Whole)
                 slot.Position = slot.Position.WithWholeY(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionY(0);
         }
         else
         {
-            int aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.Y));
+            int aligned = unchecked((ushort)(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.Y));
             if (aligned >= slot.Position.Y.Whole)
                 slot.Position = slot.Position.WithWholeY(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionY(RoomPixelMasks.LastFraction);
@@ -509,15 +509,15 @@ internal sealed class EnemyTerrain
             return false;
 
         RoomBlockBehavior bts = block.Bts;
-        int xWithinBlock = (bts.SlopeFlipsHorizontally
-            ? slot.Position.X.Whole ^ RoomPixelMasks.WithinBlock
-            : slot.Position.X.Whole) & RoomPixelMasks.WithinBlock;
+        int xWithinBlock = bts.SlopeFlipsHorizontally
+            ? RoomGridConversions.OffsetFromBlockEnd(slot.Position.X.Whole)
+            : RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole);
         int height = ReadNonSquareSlopeHeight(bts, xWithinBlock);
         if (movingUp)
         {
             if (!bts.SlopeFlipsVertically)
                 return false;
-            int edgeWithinBlock = ((targetCenter - slot.Radius.Y) & RoomPixelMasks.WithinBlock) ^ RoomPixelMasks.WithinBlock;
+            int edgeWithinBlock = RoomGridConversions.OffsetFromBlockEnd(targetCenter - slot.Radius.Y);
             int adjustment = height - edgeWithinBlock - 1;
             if (adjustment > 0)
                 return false;
@@ -527,7 +527,7 @@ internal sealed class EnemyTerrain
 
         if (bts.SlopeFlipsVertically)
             return false;
-        int bottomWithinBlock = (slot.Radius.Y + targetCenter - 1) & RoomPixelMasks.WithinBlock;
+        int bottomWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Radius.Y + targetCenter - 1);
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
@@ -583,9 +583,13 @@ internal sealed class EnemyTerrain
         if ((surface == SlopeSurface.Underside) != block.Bts.SlopeFlipsVertically)
             return false;
 
-        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? pixel.X ^ RoomPixelMasks.WithinBlock : pixel.X) & RoomPixelMasks.WithinBlock;
+        int xWithinBlock = block.Bts.SlopeFlipsHorizontally
+            ? RoomGridConversions.OffsetFromBlockEnd(pixel.X)
+            : RoomGridConversions.OffsetWithinBlock(pixel.X);
         int height = ReadNonSquareSlopeHeight(block.Bts, xWithinBlock);
-        int edgeWithinBlock = surface == SlopeSurface.Underside ? (pixel.Y & RoomPixelMasks.WithinBlock) ^ RoomPixelMasks.WithinBlock : pixel.Y & RoomPixelMasks.WithinBlock;
+        int edgeWithinBlock = surface == SlopeSurface.Underside
+            ? RoomGridConversions.OffsetFromBlockEnd(pixel.Y)
+            : RoomGridConversions.OffsetWithinBlock(pixel.Y);
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
             return false;

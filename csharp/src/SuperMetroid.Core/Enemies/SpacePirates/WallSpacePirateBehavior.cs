@@ -186,9 +186,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
         // eight-pixel boundary; 11..15 round up to the next sixteen-pixel boundary.
-        slot.Position = slot.Position.WithWholeX((slot.Position.X.Whole & RoomPixelMasks.WithinBlock) < 11
-            ? unchecked((ushort)(slot.Position.X.Whole & RoomPixelMasks.HalfBlockStart))
-            : unchecked((ushort)((slot.Position.X.Whole & RoomPixelMasks.BlockStart) + 16)));
+        int x = slot.Position.X.Whole;
+        slot.Position = slot.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < 11
+            ? RoomGridConversions.HalfBlockStart(x)
+            : unchecked((ushort)(RoomGridConversions.BlockStart(x) + 16)));
     }
 
     /// <summary>Starts a selected wall-Pirate list on its first instruction frame.</summary>

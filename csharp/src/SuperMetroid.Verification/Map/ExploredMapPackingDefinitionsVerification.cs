@@ -34,7 +34,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             LittleEndianBytes.Word(ExploredMapPackingDefinitionsRomByte(retail, address), ExploredMapPackingDefinitionsRomByte(retail, address + 1)));
 
         int exportedByteCount = 0;
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
+        for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
         {
             ExploredMapPackingDefinition definition =
                 ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
@@ -63,7 +63,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         }
         AssertEqual(327, exportedByteCount, "packed map exported byte count");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => ExploredMapPackingDefinitions.Area(SaveRamLayout.PackedMapAreaCount, RetailPresentationFixture()),
+            () => ExploredMapPackingDefinitions.Area(SaveRamLayoutConstants.PackedMapAreaCount, RetailPresentationFixture()),
             "packed map excludes native Ceres list");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
@@ -77,7 +77,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             throw new InvalidOperationException("Compiled explored-map save failed checksums.");
 
         var exported = new bool[explored.Length];
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
+        for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
         {
             foreach (byte areaByteIndex in
                 ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture()).AreaByteIndexes)
@@ -113,7 +113,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             string edits = Directory.CreateDirectory(Path.Combine(root, "edits")).FullName;
             MapPresentationExtractor.Extract(native, stock, "test-provenance");
             var original = MapPresentationFiles.Load(stock, null);
-            for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
+            for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
             {
                 var document = new MapPresentationDocument
                 {
@@ -139,7 +139,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             var editedSaves = new SaveSlotStore(edited);
             editedSaves.SaveSlot(0, snapshot);
             AssertTrue(expected.SequenceEqual(SaveRamCodec.Encode(editedSaves, edited)), "blank artwork overrides preserve exact SRAM format");
-            for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
+            for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
             {
                 var a = ExploredMapPackingDefinitions.Area(area, original);
                 var b = ExploredMapPackingDefinitions.Area(area, edited);

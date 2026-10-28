@@ -15,7 +15,7 @@ internal static class SpriteCompositionAccess
         /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
         public void DrawOnScreen(OamBuffer oam, Position16<SpritePixels> origin, ushort paletteBits)
         {
-            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            _ = SnesObjAttributeWordConstants.FromPaletteBits(paletteBits);
             foreach (var part in self.parts)
             {
                 SpritemapPart encoded = SpritemapPart.From(part.Part);
@@ -26,7 +26,7 @@ internal static class SpriteCompositionAccess
         /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
         public void DrawOffScreen(OamBuffer oam, Position16<SpritePixels> origin, ushort paletteBits)
         {
-            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            _ = SnesObjAttributeWordConstants.FromPaletteBits(paletteBits);
             foreach (var part in self.parts)
             {
                 SpritemapPart encoded = SpritemapPart.From(part.Part);

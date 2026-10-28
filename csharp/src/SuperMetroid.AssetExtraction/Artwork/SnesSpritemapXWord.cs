@@ -11,11 +11,9 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public readonly record struct SnesSpritemapXWord(ushort Raw)
 {
     /// <summary>The low nine bits encode the sprite's modular horizontal displacement.</summary>
-    private const ushort OffsetMask = 0x01ff;
+    internal const ushort OffsetMask = 0x01ff;
     /// <summary>The top bit carries the spritemap's large-object selector.</summary>
     private const ushort LargeObjectMask = 0x8000;
-    /// <summary>The largest value the nine-bit X offset field holds, $1FF.</summary>
-    public const int OffsetFieldMaximum = OffsetMask;
 
     /// <summary>Gets whether bit 15 selects the larger of the PPU's configured OBJ sizes.</summary>
     public bool IsLarge => (Raw & LargeObjectMask) != 0;
@@ -30,8 +28,4 @@ public readonly record struct SnesSpritemapXWord(ushort Raw)
         if (offset is < -256 or > 255) throw new ArgumentOutOfRangeException(nameof(offset));
         return new((ushort)((offset & OffsetMask) | (large ? LargeObjectMask : 0)));
     }
-
-
-    /// <summary>This word with its nine-bit X offset replaced by <paramref name="offset"/>, keeping the size flag and every other bit.</summary>
-    public SnesSpritemapXWord WithOffset(int offset) => new(unchecked((ushort)((Raw & ~OffsetMask) | (offset & OffsetMask))));
 }

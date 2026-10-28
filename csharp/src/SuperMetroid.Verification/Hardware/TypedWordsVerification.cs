@@ -482,7 +482,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(bgEntry.HasPriority, "BG tile priority bit");
     AssertEqual(TileFlip.Horizontal | TileFlip.Vertical,
         bgEntry.FlipFlags, "BG tile flip flags");
-    AssertEqual(0x7555, bgEntry.ToggleFlips(TileFlip.Vertical),
+    AssertEqual(0x7555, bgEntry.ToggleFlips(TileFlip.Vertical).Raw,
         "BG tile toggles only vertical flip");
     SnesBgTilemapWord encodedBg = SnesBgTilemapWord.Create(
         characterIndex: 0x155,
@@ -490,7 +490,7 @@ internal static void VerifyTypedNativeWords()
         priority: true,
         TileFlip.Horizontal | TileFlip.Vertical);
     AssertEqual(bgEntry, encodedBg, "BG tile encode/decode round trip");
-    AssertEqual(0xd955, encodedBg.WithPaletteIndex(6).WithPriority(false),
+    AssertEqual(0xd955, encodedBg.WithPaletteIndex(6).WithPriority(false).Raw,
         "BG tile field replacement preserves character and flips");
 
     var objEntry = new SnesObjAttributeWord(0x6dab);
@@ -505,10 +505,10 @@ internal static void VerifyTypedNativeWords()
         priority: 2,
         TileFlip.Horizontal);
     AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
-    AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1),
+    AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1).Raw,
         "OBJ palette replacement preserves tile, priority, and flips");
     AssertEqual(0x6e00, SnesObjAttributeWord.Create(0, 7, 0).Or(
-            SnesObjAttributeWord.Create(0, 0, 2, TileFlip.Horizontal)),
+            SnesObjAttributeWord.Create(0, 0, 2, TileFlip.Horizontal)).Raw,
         "typed OBJ palette fragment composes with priority and flip fields");
     SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(
         screenX: 0x0100,
@@ -516,7 +516,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(highPair.XHigh && highPair.IsLarge && highPair.Raw == 3,
         "OAM high-table pair encodes X-high and size independently");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => SnesObjAttributeWord.FromPaletteBits(0x1000),
+        () => SnesObjAttributeWordConstants.FromPaletteBits(0x1000),
         "OBJ palette fragment rejects priority bits");
 
     // The $1000 high bit is deliberately outside every named projectile field here. Family

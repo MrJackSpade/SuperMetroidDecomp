@@ -68,14 +68,14 @@ internal static class LookupLiquidTilemapsVerification
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             var original = new byte[0x840];
             for (int offset = 0; offset < original.Length; offset++) original[offset] = LiquidTilemapDomainAndStorageRomByte(rom, source + offset);
-            AssertTrue(RoomFxLiquidTilemapDefinitions.Matches(type, original), "Full original page is recognized");
+            AssertTrue(RoomFxLiquidTilemapDefinitionsConstants.Matches(type, original), "Full original page is recognized");
             for (int index = 0; index < 1056; index++)
             {
                 original[index * 2] ^= 1;
-                AssertTrue(!RoomFxLiquidTilemapDefinitions.Matches(type, original), "An edit at any cell prevents stock substitution");
+                AssertTrue(!RoomFxLiquidTilemapDefinitionsConstants.Matches(type, original), "An edit at any cell prevents stock substitution");
                 original[index * 2] ^= 1;
             }
-            AssertTrue(!RoomFxLiquidTilemapDefinitions.Matches(type, original.AsSpan(0, original.Length - 1)),
+            AssertTrue(!RoomFxLiquidTilemapDefinitionsConstants.Matches(type, original.AsSpan(0, original.Length - 1)),
                 "Partial page cannot become stock");
             foreach (int invalid in new[] { int.MinValue, -1, 1056, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.Cell(type, invalid),

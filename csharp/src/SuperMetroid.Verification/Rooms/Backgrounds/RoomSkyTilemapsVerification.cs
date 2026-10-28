@@ -144,7 +144,7 @@ internal static class RoomSkyTilemapsVerification
     {
         var guard = new MutableCartridgeReadGuard(source);
         int firstPage = LibraryBackgroundOperands.SkyPageAddress(0);
-        guard.Forbid(address => address >= firstPage && address < firstPage + RoomSkyTilemapFormat.TotalByteCount,
+        guard.Forbid(address => address >= firstPage && address < firstPage + RoomSkyTilemapFormatConstants.TotalByteCount,
             address => $"Scrolling sky reread installed visual source ${address:X6}.");
         if (blockLandingList)
             guard.Forbid(address => address >= LandingSiteRomData.LibraryBackgroundListAddress &&

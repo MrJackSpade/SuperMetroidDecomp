@@ -40,16 +40,6 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>Gets whether rows are drawn in reverse vertical order.</summary>
     public bool FlipVertically => (FlipFlags & TileFlip.Vertical) != 0;
 
-    /// <summary>
-    /// Toggles only the requested PPU flip bits, exactly matching the XOR performed while
-    /// expanding a flipped 16×16 room block into four 8×8 entries.
-    /// </summary>
-    public SnesBgTilemapWord ToggleFlips(TileFlip flags)
-    {
-        ValidateFlips(flags);
-        return new(unchecked((ushort)(Raw ^ FlipBits(flags))));
-    }
-
     /// <summary>Encodes every documented SNES BG tilemap field into one lossless word.</summary>
     public static SnesBgTilemapWord Create(
         int characterIndex,
@@ -70,28 +60,6 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
             FlipBits(flips))));
     }
 
-    /// <summary>Replaces only the ten-bit BG character index.</summary>
-    public SnesBgTilemapWord WithCharacterIndex(int characterIndex)
-    {
-        if ((uint)characterIndex > CharacterMask)
-            throw new ArgumentOutOfRangeException(nameof(characterIndex));
-        return new(unchecked((ushort)((Raw & ~CharacterMask) | characterIndex)));
-    }
-
-    /// <summary>
-    /// Replaces only the PPU's three-bit palette field while preserving character,
-    /// priority, and flip fields in the packed word.
-    /// </summary>
-    public SnesBgTilemapWord WithPaletteIndex(int paletteIndex)
-    {
-        if ((uint)paletteIndex > PaletteMask)
-            throw new ArgumentOutOfRangeException(nameof(paletteIndex));
-
-        ushort paletteBits = unchecked((ushort)(paletteIndex << PaletteShift));
-        ushort fieldMask = unchecked(PaletteMask << PaletteShift);
-        return new SnesBgTilemapWord(unchecked((ushort)((Raw & ~fieldMask) | paletteBits)));
-    }
-
     /// <summary>The entry bits that store <paramref name="flips"/>.</summary>
     private static int FlipBits(TileFlip flips) =>
         ((flips & TileFlip.Horizontal) != 0 ? HorizontalFlipMask : 0) |
@@ -103,9 +71,4 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
         if ((flips & ~(TileFlip.Horizontal | TileFlip.Vertical)) != 0)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
-
-    /// <summary>Wraps a packed background entry without discarding or validating any bits.</summary>
-    public static implicit operator SnesBgTilemapWord(ushort raw) => new(raw);
-    /// <summary>Returns the complete background entry for storage in a native tilemap.</summary>
-    public static implicit operator ushort(SnesBgTilemapWord word) => word.Raw;
 }

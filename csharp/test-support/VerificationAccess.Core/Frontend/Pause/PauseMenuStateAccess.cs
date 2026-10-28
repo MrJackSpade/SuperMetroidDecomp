@@ -54,7 +54,7 @@ internal static class PauseMenuStateAccess
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));
 
             int tile = PauseMenuLayout.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
-            return BackgroundTileWords.ToWord(self.equipmentTilemap[tile]);
+            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(self.equipmentTilemap[tile]));
         }
     }
 }

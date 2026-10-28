@@ -16,11 +16,6 @@ public static class WrappingCounter
     public static byte DecrementByte(byte value) => unchecked((byte)(value - 1));
 
     /// <summary>
-    /// Executes one 8-bit <c>DEC</c> of a byte held as an int, 0 through 255, wrapping <c>$00</c> to <c>$FF</c>.
-    /// </summary>
-    public static int DecrementByte(int value) => (Ensure.BetweenInclusive(0, byte.MaxValue, value) - 1) & byte.MaxValue;
-
-    /// <summary>
     /// Executes one 16-bit <c>INC</c> of a word held as an int, 0 through 65535, wrapping <c>$FFFF</c> to <c>$0000</c>.
     /// </summary>
     public static int IncrementWord(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + 1) & ushort.MaxValue;

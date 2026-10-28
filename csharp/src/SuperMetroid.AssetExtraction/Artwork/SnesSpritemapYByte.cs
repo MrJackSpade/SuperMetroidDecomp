@@ -19,9 +19,6 @@ public readonly record struct SnesSpritemapYByte(byte Raw)
     /// <summary>The signed vertical displacement from the sprite origin, -128 through 127 pixels.</summary>
     public int SignedOffset => unchecked((sbyte)Raw);
 
-    /// <summary>Whether the displacement points above the origin.</summary>
-    public bool IsNegative => SignedOffset < 0;
-
     /// <summary>Encodes a signed vertical displacement.</summary>
     /// <param name="offset">The displacement from the sprite origin, from -128 through 127 pixels.</param>
     /// <exception cref="ArgumentOutOfRangeException">The displacement does not fit a signed byte.</exception>

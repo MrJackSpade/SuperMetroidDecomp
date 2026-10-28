@@ -11,9 +11,6 @@ internal static class SamusSourceDefinitions
     /// <summary>$90:C9D9, where the arm cannon drawing window starts in bank $90: its first pose descriptor.</summary>
     internal const int ArmCannonDrawingData = 0xc9d9;
 
-    /// <summary>$90:CC21, CostOfSBAsInPowerBombs: twelve word costs by beam index, the arm cannon drawing window's last bytes.</summary>
-    internal static readonly SnesAddress SpecialBeamAttackCosts = new(0x90, 0xcc21);
-
     /// <summary>Bank <c>$91</c>, which holds the pose and projectile-driven suit-palette lists.</summary>
     internal static readonly SnesAddress PoseBank = new(0x91, 0x0000);
 
@@ -28,9 +25,6 @@ internal static class SamusSourceDefinitions
 
     /// <summary>$90:C487, where the charge flare's delay programs start.</summary>
     internal static readonly SnesAddress ChargeFlarePrograms = new(0x90, 0xc487);
-
-    /// <summary>$90:C204, where the firing tables <see cref="SuperMetroid.Core.Samus.Projectiles.SamusFiringTableDefinitions"/> lays out start.</summary>
-    internal static readonly SnesAddress FiringTables = new(0x90, 0xc204);
 
     /// <summary>$90:C1A8: the charge flare's DefaultX offsets, by direction.</summary>
     internal static readonly SnesAddress ChargeFlareDefaultXOffsets = new(0x90, 0xc1a8);

@@ -12,11 +12,11 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Bits 0 through 8 select the OBJ character, including its tile page.</summary>
     private const ushort TileNumberMask = 0x01ff;
     /// <summary>The OBJ palette field follows the nine-bit tile number.</summary>
-    private const int PaletteShift = 9;
+    internal const int PaletteShift = 9;
     /// <summary>The OBJ priority field begins at bit 12.</summary>
     private const int PriorityShift = 12;
     /// <summary>OBJ palette indices and attribute priority fragments use three bits.</summary>
-    private const ushort ThreeBitMask = 0x0007;
+    internal const ushort ThreeBitMask = 0x0007;
     /// <summary>The PPU exposes four OBJ priority tiers.</summary>
     private const ushort TwoBitMask = 0x0003;
     /// <summary>Bit 14 mirrors the object left to right.</summary>
@@ -42,7 +42,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     public bool FlipVertically => (FlipFlags & TileFlip.Vertical) != 0;
 
     /// <summary>Bits 9 through 11 are the only bits accepted by palette-fragment operations.</summary>
-    private const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
+    internal const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
 
     /// <summary>Encodes every field in one standard two-byte low-OAM attribute record.</summary>
     public static SnesObjAttributeWord Create(
@@ -64,33 +64,6 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
             (paletteIndex << PaletteShift) |
             (priority << PriorityShift) |
             FlipBits(flips))));
-    }
-
-    /// <summary>Creates a word containing only a validated OBJ palette field.</summary>
-    public static SnesObjAttributeWord FromPaletteBits(int paletteBits)
-    {
-        if ((paletteBits & ~PaletteFieldMask) != 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(paletteBits), paletteBits, "OBJ palette bits must fit the three-bit field.");
-        }
-
-        return new((ushort)paletteBits);
-    }
-
-    /// <summary>Replaces only the OBJ palette field, preserving tile, priority, and flips.</summary>
-    public SnesObjAttributeWord WithPaletteBits(ushort paletteBits)
-    {
-        SnesObjAttributeWord palette = FromPaletteBits(paletteBits);
-        return new(unchecked((ushort)((Raw & ~PaletteFieldMask) | palette.Raw)));
-    }
-
-    /// <summary>Replaces the three-bit palette index.</summary>
-    public SnesObjAttributeWord WithPaletteIndex(int paletteIndex)
-    {
-        if ((uint)paletteIndex > ThreeBitMask)
-            throw new ArgumentOutOfRangeException(nameof(paletteIndex));
-        return WithPaletteBits(unchecked((ushort)(paletteIndex << PaletteShift)));
     }
 
     /// <summary>
@@ -124,6 +97,4 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
 
     /// <summary>Wraps an existing low-OAM attribute word without changing its bit pattern.</summary>
     public static implicit operator SnesObjAttributeWord(ushort raw) => new(raw);
-    /// <summary>Returns the packed tile and attribute bytes for native low-OAM storage.</summary>
-    public static implicit operator ushort(SnesObjAttributeWord word) => word.Raw;
 }

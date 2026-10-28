@@ -85,10 +85,6 @@ public readonly record struct SpritePart(
     /// <exception cref="ArgumentOutOfRangeException">The new corner is outside the range a piece may start at.</exception>
     public SpritePart At(Offset16<ScreenPixels> offset) => Create(offset, Large, Character, Palette, Priority, Flip);
 
-    /// <summary>The piece drawn in palette row <paramref name="palette"/> instead of its own.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row is outside 0 through <see cref="MaximumPalette"/>.</exception>
-    public SpritePart InPalette(int palette) => this with { Palette = Ensure.BetweenInclusive(0, MaximumPalette, palette) };
-
     /// <summary>
     /// The piece as a whole-frame part over artwork whose character 0 is sheet character <paramref name="firstCharacter"/>,
     /// on a screen whose sprites draw at <paramref name="sizes"/>.

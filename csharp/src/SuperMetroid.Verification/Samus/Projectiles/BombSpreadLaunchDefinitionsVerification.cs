@@ -68,7 +68,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
             foreach (ushort fraction in boundaries)
             {
                 // The cartridge decodes the byte-swapped word and steps the split X words with explicit carry or borrow.
-                ushort swapped = LittleEndianBytes.SwapBytes(checked((ushort)velocity.LaunchWord));
+                ushort swapped = LittleEndianBytesConstants.SwapBytes(checked((ushort)velocity.LaunchWord));
                 int subvelocity = LittleEndianBytes.HighByteInPlace(swapped);
                 int magnitude = swapped & 127;
                 bool left = (swapped & 1 << 7) != 0;

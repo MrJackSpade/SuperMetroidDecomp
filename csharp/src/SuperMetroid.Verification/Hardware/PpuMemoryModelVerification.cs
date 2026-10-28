@@ -52,7 +52,7 @@ internal static class PpuMemoryModelVerification
         var bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
         SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, TileFlip.Vertical);
         bg1.Write([tile.Raw], 0x41);
-        AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
+        AssertEqual(tile, new SnesBgTilemapWord(bg1.ReadWord(0x41)), "a tilemap word round-trips through the BG1 view");
         AssertEqual(LittleEndianBytes.LowByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
         AssertEqual(LittleEndianBytes.HighByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
 
@@ -215,7 +215,7 @@ internal static class PpuMemoryModelVerification
                 }
                 int sum = 0;
                 for (int word = 0; word < bg1.WordCount; word++)
-                    sum += ((SnesBgTilemapWord)bg1.ReadWord(word)).CharacterIndex;
+                    sum += new SnesBgTilemapWord(bg1.ReadWord(word)).CharacterIndex;
                 AssertTrue(sum >= 0, "tilemap reads complete");
                 new Mode7Vram(vram).LoadMap(mapRow, (frame & 127) * 128);
             }

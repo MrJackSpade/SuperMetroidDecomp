@@ -1684,10 +1684,10 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");
         }
         for (int address = 0x90c254; address <= 0x90c28e; address++)
-            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusSourceDefinitions.FiringTables.Value), "stream1 all native cooldown bytes including padding");
-        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291 - SamusSourceDefinitions.FiringTables.Value), "stream1 bounded spacetime beam cooldown");
+            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native cooldown bytes including padding");
+        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291 - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 bounded spacetime beam cooldown");
         foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid - SamusSourceDefinitions.FiringTables.Value), "stream1 invalid cooldown address");
+            AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 invalid cooldown address");
     }
 
     /// <summary>Reads source bytes for the broad pose and gameplay lookup comparison.</summary>
@@ -1773,9 +1773,9 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitions.FiringTables.Value), "stream1 all native projectile motion words");
+            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid - SamusSourceDefinitions.FiringTables.Value), "stream1 exact projectile motion address domain");
+            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 exact projectile motion address domain");
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)

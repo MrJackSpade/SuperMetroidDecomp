@@ -86,7 +86,7 @@ internal static class SpriteFrameBufferAccess
             {
                 if (slot == OamBuffer.SpriteCount)
                     throw new InvalidOperationException($"The frame stands for more than {OamBuffer.SpriteCount} OAM sprites.");
-                ushort wrappedX = unchecked((ushort)(x & SnesSpritemapXWord.OffsetFieldMaximum));
+                ushort wrappedX = unchecked((ushort)(x & SnesSpritemapXWordConstants.OffsetFieldMaximum));
                 low[slot * 4] = unchecked((byte)wrappedX);
                 low[slot * 4 + 1] = unchecked((byte)y);
                 low[slot * 4 + 2] = LittleEndianBytes.LowByte(attributes.Raw);

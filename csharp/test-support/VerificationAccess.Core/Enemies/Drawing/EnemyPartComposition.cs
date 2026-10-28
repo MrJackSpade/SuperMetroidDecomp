@@ -29,7 +29,7 @@ internal static class EnemyPartComposition
             throw new InvalidDataException($"Enemy frame {draw.Frame} requires an installed display composition.");
         ushort paletteBits = checked((ushort)draw.PaletteBits);
         return Parts(objects, source,
-            EnemySpriteFrames.Frame(installed, checked((ushort)draw.BaseTileIndex), SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex),
+            EnemySpriteFrames.Frame(installed, checked((ushort)draw.BaseTileIndex), SnesObjAttributeWordConstants.FromPaletteBits(paletteBits).PaletteIndex),
             new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), paletteBits);
     }
 
@@ -41,5 +41,5 @@ internal static class EnemyPartComposition
     /// <param name="paletteBits">The palette selection the frame was formed with.</param>
     internal static CharacterSpriteDraw Parts(SpriteArtwork objects, SpriteSource source,
         SpriteFrame frame, Position16<ScreenPixels> origin, ushort paletteBits) =>
-        new(source, frame, objects, origin, default, (byte)SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex, 0);
+        new(source, frame, objects, origin, default, (byte)SnesObjAttributeWordConstants.FromPaletteBits(paletteBits).PaletteIndex, 0);
 }

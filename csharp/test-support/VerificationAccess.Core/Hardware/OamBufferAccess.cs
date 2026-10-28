@@ -64,7 +64,7 @@ internal static class OamBufferAccess
             bool clipVerticalWrap = false,
             bool originYIsOnScreen = true)
         {
-            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            _ = SnesObjAttributeWordConstants.FromPaletteBits(paletteBits);
             foreach (SpritemapPart part in parts)
                 self.AppendEnemySpritemapPart(part, origin, paletteBits,
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
@@ -79,7 +79,7 @@ internal static class OamBufferAccess
             bool clipVerticalWrap = false,
             bool originYIsOnScreen = true)
         {
-            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            _ = SnesObjAttributeWordConstants.FromPaletteBits(paletteBits);
             foreach (SpritePart part in parts)
                 self.AppendEnemySpritemapPart(SpritemapPart.From(part), origin, paletteBits,
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
@@ -91,7 +91,7 @@ internal static class OamBufferAccess
             bool clipVerticalWrap = false, bool originYIsOnScreen = true)
         {
             Ensure.NotNull(parts);
-            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            _ = SnesObjAttributeWordConstants.FromPaletteBits(paletteBits);
             for (int index = 0; index < parts.Count; index++)
                 self.AppendEnemySpritemapPart(SpritemapPart.From(parts[index]), origin, paletteBits,
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
@@ -124,7 +124,7 @@ internal static class OamBufferAccess
             }
             SnesObjAttributeWord finalAttributes = part.Attributes
                 .AddPackedTileBase(baseTileIndex)
-                .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
+                .Or(SnesObjAttributeWordConstants.FromPaletteBits(paletteBits));
 
             int spriteIndex = self.NextByteOffset >> 2;
             int lowOffset = self.NextByteOffset;

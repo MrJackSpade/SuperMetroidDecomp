@@ -32,9 +32,6 @@ public static class LittleEndianBytes
     /// <summary>A packed word's high byte field kept in place, the low byte cleared.</summary>
     public static int HighByteInPlace(ushort word) => word & 0xff00;
 
-    /// <summary>The high byte field, kept in place, of a packed word held as an int, 0 through 65535.</summary>
-    public static int HighByteInPlace(int word) => HighByteInPlace(RequireWord(word));
-
     /// <summary>The byte stored second (at the word's address + 1).</summary>
     public static byte HighByte(ushort word) => unchecked((byte)(word >> BitsPerByte));
 
@@ -43,10 +40,4 @@ public static class LittleEndianBytes
 
     /// <summary>A word held as an int, checked to lie in 0 through 65535.</summary>
     private static ushort RequireWord(int word) => checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, word));
-
-    /// <summary>The word with its two bytes exchanged, as the 65816's <c>XBA</c> does.</summary>
-    public static ushort SwapBytes(ushort word) => Word(HighByte(word), unchecked((byte)word));
-
-    /// <summary>The low word of a 24-bit or wider value.</summary>
-    public static ushort LowWord(int value) => unchecked((ushort)value);
 }

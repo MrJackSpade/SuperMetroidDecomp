@@ -32,10 +32,10 @@ internal static class SamusProjectileRomDataVerification
         Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(bus));
         foreach (int originTable in new[]
         {
-            SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.DefaultXOrigins,
-            SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.DefaultYOrigins,
-            SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.RunningXOrigins,
-            SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.RunningYOrigins,
+            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.DefaultXOrigins,
+            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.DefaultYOrigins,
+            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.RunningXOrigins,
+            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.RunningYOrigins,
             SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value,
             SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value,
             SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value,
@@ -47,11 +47,11 @@ internal static class SamusProjectileRomDataVerification
                 $"projectile origin table ${originTable:X6}");
         }
 
-        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.UnchargedCooldowns,
+        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.UnchargedCooldowns,
             SamusFiringTableDefinitions.ChargedRowOffset +
                 SamusFiringTableDefinitions.CombinationCount,
             "uncharged beam cooldown rows");
-        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.AutoFireCooldowns,
+        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.AutoFireCooldowns,
             SamusFiringTableDefinitions.CombinationCount, "beam auto-fire cooldowns");
         TouchRange(bus, SamusProjectileBeamTables.UnchargedSounds,
             SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
@@ -59,10 +59,10 @@ internal static class SamusProjectileRomDataVerification
         TouchRange(bus, SamusProjectileBeamTables.ChargedSounds,
             SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
             "charged beam sounds");
-        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.BeamXAccelerations,
+        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.BeamXAccelerations,
             SamusFiringTableDefinitions.DirectionCount * sizeof(ushort),
             "beam X accelerations");
-        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.BeamYAccelerations,
+        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.BeamYAccelerations,
             SamusFiringTableDefinitions.DirectionCount * sizeof(ushort),
             "beam Y accelerations");
         TouchRange(bus, SamusSourceDefinitions.TilePointers.Value,
@@ -114,11 +114,11 @@ internal static class SamusProjectileRomDataVerification
             (SamusProjectileNonBeamTables.SuperMissileLinkDataPointers -
                 SamusProjectileNonBeamTables.DataPointers),
             "non-beam data-pointer table");
-        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.MissileAccelerations,
+        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.MissileAccelerations,
             SamusFiringTableDefinitions.DirectionCount *
                 SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "missile acceleration records");
-        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.SuperMissileAccelerations,
+        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.SuperMissileAccelerations,
             SamusFiringTableDefinitions.DirectionCount *
                 SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "Super Missile acceleration records");

@@ -36,7 +36,7 @@ internal static class EndingSheetFixtures
         return identity == stockIdentity.Value ? InstalledFixtures.SpriteSheets : composed.GetOrAdd(identity, key =>
         {
             var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-            foreach (SpriteSheetId sheet in EndingSpriteSheets.Sheets)
+            foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
                 sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont),
                     $"{SpriteSheetDefinitions.FileName(sheet)}-fixture-{key[..8]}");
             // The ending's background tiles are pre-coloured from these objects (#1392).

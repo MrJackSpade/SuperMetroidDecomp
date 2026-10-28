@@ -15,7 +15,7 @@ internal static class NativeSpriteGraphicsWords
 
     /// <summary>The palette row an enemy's native palette word selects: its palette field (#1435).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The word holds bits outside the palette field.</exception>
-    public static int PaletteRow(ushort paletteBits) => SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
+    public static int PaletteRow(ushort paletteBits) => SnesObjAttributeWordConstants.FromPaletteBits(paletteBits).PaletteIndex;
 
     /// <summary>
     /// <paramref name="graphics"/> as the cartridge's graphics word holds it: the tile base in the character field and

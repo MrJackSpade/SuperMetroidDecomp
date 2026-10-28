@@ -54,11 +54,11 @@ internal static class BeamSpeedRowsVerification
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitions.FiringTables.Value),
+            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
         foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitions.FiringTables.Value),
+                () => SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

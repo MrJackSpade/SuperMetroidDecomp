@@ -11,16 +11,16 @@ internal static class NativeByteCounterVerification
     /// <summary>Checks the int byte decrement against the byte form across the whole byte range.</summary>
     internal static void VerifyNativeByteCounter()
     {
-        AssertEqual(255, WrappingCounter.DecrementByte(0), "a byte DEC wraps from zero to 255");
-        AssertEqual(0, WrappingCounter.DecrementByte(1), "a byte DEC reaches zero from one");
+        AssertEqual(255, WrappingCounterConstants.DecrementByte(0), "a byte DEC wraps from zero to 255");
+        AssertEqual(0, WrappingCounterConstants.DecrementByte(1), "a byte DEC reaches zero from one");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
-            AssertEqual(WrappingCounter.DecrementByte((byte)value), WrappingCounter.DecrementByte(value),
+            AssertEqual(WrappingCounter.DecrementByte((byte)value), WrappingCounterConstants.DecrementByte(value),
                 $"the int byte DEC matches the byte DEC at {value}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounter.DecrementByte(256),
+        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounterConstants.DecrementByte(256),
             "an int byte DEC rejects a value above a byte");
-        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounter.DecrementByte(-1),
+        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounterConstants.DecrementByte(-1),
             "an int byte DEC rejects a negative value");
     }
 

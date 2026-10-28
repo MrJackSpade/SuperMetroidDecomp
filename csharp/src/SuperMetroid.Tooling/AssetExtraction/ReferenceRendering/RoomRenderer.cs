@@ -166,7 +166,7 @@ public static class RoomRenderer
         //   bit     13 priority
         //   bit     14 horizontal flip
         //   bit     15 vertical flip
-        SnesBgTilemapWord packedEntry = tileEntry;
+        var packedEntry = new SnesBgTilemapWord(tileEntry);
         int tileIndex = packedEntry.CharacterIndex;
         int tileOffset = tileIndex * RoomGraphicsLayoutTooling.BytesPer4BppCharacter;
         if (tileOffset + RoomGraphicsLayoutTooling.BytesPer4BppCharacter > vram.Length)

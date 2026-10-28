@@ -147,11 +147,6 @@ public sealed record GameInstallation(string Root)
     /// <summary>Validates stock room palette hashes and loads each existing replacement palette keyed by its source identity.</summary>
     public RoomStaticPaletteCatalog LoadRoomPalettes() =>
         RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory, RoomPaletteOverrideDirectory);
-    /// <summary>
-    /// Stock room block compositions under the replaceable content tree, which extraction composes the block sheets from
-    /// (#1431); a room's blocks are changed only through their pictures in the block sheet.
-    /// </summary>
-    public string RoomMetatileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomMetatileDirectoryName);
     /// <summary>Stock pre-coloured room block sheets under the replaceable content tree.</summary>
     public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
     /// <summary>Edited block pictures survive stock content replacement.</summary>

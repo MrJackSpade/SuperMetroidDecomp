@@ -14,7 +14,7 @@ public sealed class SamusProjectileListLayout
     internal const int TimedRecordByteCount = 8;
 
     /// <summary>Each step's instruction pointer, by program.</summary>
-    private readonly Dictionary<SamusProjectileProgram, ushort[]> _stepPositions;
+    internal readonly Dictionary<SamusProjectileProgram, ushort[]> stepPositions;
     /// <summary>The cursor each instruction pointer stands for: a program's entry, else the one step at that pointer.</summary>
     private readonly Dictionary<ushort, AnimationProgramCursor<SamusProjectileProgram>> _cursors;
     /// <summary>Each timed record's instruction pointer, by <see cref="SamusProjectileFrame.Record"/>.</summary>
@@ -32,7 +32,7 @@ public sealed class SamusProjectileListLayout
             else if ((uint)position.Entry > ushort.MaxValue || (uint)position.PrecedingWord > ushort.MaxValue)
                 throw new InvalidDataException($"{program}'s list position {position} lies outside a sixteen-bit bank.");
         Positions = positions;
-        _stepPositions = Enum.GetValues<SamusProjectileProgram>().ToDictionary(program => program, Layout);
+        stepPositions = Enum.GetValues<SamusProjectileProgram>().ToDictionary(program => program, Layout);
         _cursors = BuildCursors();
         _recordPositions = BuildRecordPositions();
     }
@@ -40,14 +40,11 @@ public sealed class SamusProjectileListLayout
     /// <summary>Every program's list entry and preceding word.</summary>
     public IReadOnlyDictionary<SamusProjectileProgram, SamusProjectileListPosition> Positions { get; }
 
-    /// <summary>Each step's instruction pointer, by program.</summary>
-    internal IReadOnlyDictionary<SamusProjectileProgram, ushort[]> StepPositions => _stepPositions;
-
     /// <summary>The word just before <paramref name="program"/>'s list.</summary>
     internal ushort Prefix(SamusProjectileProgram program) => (ushort)Positions[program].PrecedingWord;
 
     /// <summary>The instruction pointer <paramref name="cursor"/> stands for.</summary>
-    internal ushort Position(AnimationProgramCursor<SamusProjectileProgram> cursor) => _stepPositions[cursor.Program][cursor.Position];
+    internal ushort Position(AnimationProgramCursor<SamusProjectileProgram> cursor) => stepPositions[cursor.Program][cursor.Position];
 
     /// <summary>The instruction pointer of a projectile's cursor; a cleared projectile's is zero.</summary>
     internal ushort Position(AnimationProgramCursor<SamusProjectileProgram>? cursor) => cursor is { } live ? Position(live) : (ushort)0;
@@ -93,7 +90,7 @@ public sealed class SamusProjectileListLayout
         var cursors = ListOrder.ToDictionary(program => (ushort)Positions[program].Entry, AnimationProgramCursor<SamusProjectileProgram>.Start);
         foreach (SamusProjectileProgram program in ListOrder)
         {
-            ushort[] places = _stepPositions[program];
+            ushort[] places = stepPositions[program];
             for (int position = 0; position < places.Length; position++)
                 if (!cursors.ContainsKey(places[position]))
                     cursors.Add(places[position], new(program, position));
@@ -112,7 +109,7 @@ public sealed class SamusProjectileListLayout
             {
                 if (steps[position] is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
                     continue;
-                int place = _stepPositions[program][position];
+                int place = stepPositions[program][position];
                 int record = show.Frame.Record;
                 if (places[record] is { } known && known != place)
                     throw new InvalidDataException($"Timed projectile record {record} stands at $93:{known:X4} and $93:{place:X4}.");

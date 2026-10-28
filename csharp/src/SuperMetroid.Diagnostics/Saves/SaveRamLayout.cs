@@ -185,9 +185,6 @@ public static class SaveRamLayout
     /// <summary>Byte length of the cartridge's interleaved explored-map payload for one save slot.</summary>
     public const int CompressedMapDataByteCount = ExploredMapStorage.PackedByteCount;
 
-    /// <summary>Number of Zebes area maps packed into SRAM; the Ceres prologue has no persisted map.</summary>
-    public const int PackedMapAreaCount = ExploredMapStorage.PackedAreaCount;
-
     /// <summary>$81:812B SaveSlotOffsets: first payload begins after the sixteen-byte checksum directory.</summary>
     private const ushort FirstSlotOffset = 0x0010;
 

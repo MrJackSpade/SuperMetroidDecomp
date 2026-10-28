@@ -17,13 +17,6 @@ internal static class EndingSpriteSheets
         SpriteSheetId.EndingShootingLogoThreeQuartersSprites, SpriteSheetId.EndingLogoSprites,
     ];
 
-    /// <summary>Every ending sheet.</summary>
-    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
-    [
-        SpriteSheetId.EndingCloudSprites, SpriteSheetId.EndingExplosionSprites, SpriteSheetId.EndingSuitedRewardSprites,
-        SpriteSheetId.EndingSuitlessRewardSprites, .. ShootingSheets,
-    ];
-
     /// <summary>
     /// The sheet of <paramref name="objectSheet"/>'s page in an ending of <paramref name="reward"/>, once the post-shot
     /// has made <paramref name="logoTileTransfers"/> of the logo's character transfers.

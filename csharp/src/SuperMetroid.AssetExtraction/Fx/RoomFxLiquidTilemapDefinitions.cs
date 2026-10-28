@@ -45,18 +45,8 @@ public static class RoomFxLiquidTilemapDefinitions
         return bytes;
     }
 
-    /// <summary>Recognizes an exact stock page so its redundant input bytes need not be retained.</summary>
-    internal static bool Matches(RoomFxType type, ReadOnlySpan<byte> bytes)
-    {
-        ValidateType(type);
-        if (bytes.Length != RoomFxLayer3TilemapFormat.PageByteCount) return false;
-        for (int index = 0; index < RoomFxLayer3TilemapFormat.CellsPerPage; index++)
-            if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]) != Cell(type, index).Raw) return false;
-        return true;
-    }
-
     /// <summary>Restricts calculated BG3 page layouts to lava, acid, and water effects.</summary>
-    private static void ValidateType(RoomFxType type)
+    internal static void ValidateType(RoomFxType type)
     {
         if (type is not (RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water))
             throw new ArgumentOutOfRangeException(nameof(type));

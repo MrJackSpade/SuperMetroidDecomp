@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class BgArtworkBindings
 {
     /// <summary>The live bindings, oldest first.</summary>
-    private readonly List<BgArtworkBinding> bindings = [];
+    internal readonly List<BgArtworkBinding> bindings = [];
 
     /// <summary>What each set's characters show, as a layer reading them asks.</summary>
     [NonSerialized] private Dictionary<BgCharacterSet, IBgCharacterArtwork>? views;
@@ -68,9 +68,6 @@ public sealed class BgArtworkBindings
         shown = default;
         return false;
     }
-
-    /// <summary>The live bindings, oldest first, for verification's composition of what they show.</summary>
-    internal IReadOnlyList<BgArtworkBinding> Bound => bindings;
 
     /// <summary>What one set's characters show.</summary>
     /// <param name="bindings">The bindings.</param>

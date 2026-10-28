@@ -23,11 +23,6 @@ public static class SamusPaletteDefinitions
         public const int VisorColorOffset = 4;
     }
 
-    /// <summary>Ordinary damage-flash and intro-restoration palettes.</summary>
-    public static class HurtFlash
-    {
-    }
-
     /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
     public static class Visor
     {

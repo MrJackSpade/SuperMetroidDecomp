@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomMetatileCatalog
 {
     /// <summary>Copied lookup by block table; the RoomMetatileAtlas instances are shared and immutable.</summary>
-    private readonly Dictionary<RoomBlockSet, RoomMetatileAtlas> byRoomBlockSet;
+    internal readonly Dictionary<RoomBlockSet, RoomMetatileAtlas> byRoomBlockSet;
 
     /// <summary>Copies the lookup and requires an entry for every retail graphics set's block table.</summary>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
@@ -28,9 +28,6 @@ public sealed class RoomMetatileCatalog
 
     /// <summary>The common room elements, shared by every graphics set.</summary>
     public RoomMetatileAtlas Cre { get; }
-
-    /// <summary>Every installed block table besides the common room elements.</summary>
-    public IReadOnlyDictionary<RoomBlockSet, RoomMetatileAtlas> Atlases => byRoomBlockSet;
 
     /// <summary>The installed RoomMetatileAtlas for <paramref name="set"/>.</summary>
     /// <exception cref="InvalidDataException">None is installed for <paramref name="set"/>.</exception>

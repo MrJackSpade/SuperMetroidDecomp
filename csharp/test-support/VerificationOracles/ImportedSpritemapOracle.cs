@@ -19,7 +19,7 @@ internal static class ImportedSpritemapOracle
         Ensure.NotNull(source);
         Ensure.NotNull(oam);
         _ = SnesAddress.FromBusAddress(address);
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        _ = SnesObjAttributeWordConstants.FromPaletteBits(paletteBits);
 
         // Native pointers wrap within their data bank. The immutable reference side
         // deliberately accepts only import data; live-memory OAM has separate APIs.

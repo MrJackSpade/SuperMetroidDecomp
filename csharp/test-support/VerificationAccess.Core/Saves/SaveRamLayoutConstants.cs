@@ -1,4 +1,5 @@
 using SuperMetroid.Diagnostics.Saves;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Progression;
 
@@ -58,4 +59,6 @@ internal static class SaveRamLayoutConstants
         /// <inheritdoc cref="SaveRamLayoutConstants.WordByteCount"/>
         internal static int WordByteCount => SaveRamLayoutConstants.WordByteCount;
     }
+    /// <summary>Number of Zebes area maps packed into SRAM; the Ceres prologue has no persisted map.</summary>
+    public const int PackedMapAreaCount = ExploredMapStorage.PackedAreaCount;
 }

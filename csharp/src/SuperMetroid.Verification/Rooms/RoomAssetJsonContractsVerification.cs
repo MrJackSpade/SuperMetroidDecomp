@@ -37,7 +37,7 @@ internal static class RoomAssetJsonContractsVerification
                 new("backgrounds", installed.RoomBackgroundTilemapDirectory, RoomBackgroundTilemapArtworkFiles.ManifestFileName,
                     (stock, edited) => RoomBackgroundTilemapArtworkFiles.ContentIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock, edited))),
                 new("skies", installed.RoomBackgroundTilemapDirectory, RoomSkyTilemapFormat.ManifestFileName,
-                    (stock, edited) => RoomSkyTilemapArtworkFiles.Load(stock, edited).ContentIdentity),
+                    (stock, edited) => RoomPresentationIdentity.SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock, edited))),
                 new("metatiles", installed.RoomMetatileDirectory, RoomMetatileArtworkFiles.ManifestFileName,
                     (stock, edited) => RoomMetatileArtworkFiles.Load(stock, edited).ContentIdentity),
                 new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.ManifestFileName,

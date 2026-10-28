@@ -104,7 +104,7 @@ internal static class RoomBlockPicturesVerification
             for (int y = row * CharacterPixels; y < (row + 1) * CharacterPixels; y++)
             for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
             {
-                var word = new SnesBgTilemapWord(sky.Words[row * SkyTilemap.Columns + x / CharacterPixels]);
+                var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
                 AssertTrue(shown.RowsShown[row], $"{room.Name}: the sky shows row {row}");
                 (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
                 AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
@@ -253,7 +253,7 @@ internal static class RoomBlockPicturesVerification
         int frames = 0;
         foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
         {
-            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words,
+            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve([.. BackgroundTileWordBytes.Tiles(words.AsSpan())],
                 RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,
                 RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
             for (int tile = 0; tile < words.Length; tile++)

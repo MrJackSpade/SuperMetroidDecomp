@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -27,8 +28,11 @@ public static class RoomPresentationIdentity
             [GameInstallationLayout.RoomPaletteDirectoryName] = RoomTilesetSources.PaletteIdentity(palettes),
             [GameInstallationLayout.RoomMetatileDirectoryName] = RoomTilesetSources.BlockIdentity(metatiles),
             [GameInstallationLayout.RoomBackgroundTilemapDirectoryName] = RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
-            [nameof(RoomSkyTilemapCatalog)] = SelectedPresentationHash.Create(nameof(RoomSkyTilemapCatalog),
-                content => content.Append("pages", BackgroundTileWords.ToBytes(skies.Pages.Span))),
+            [nameof(RoomSkyTilemapCatalog)] = SkyIdentity(skies),
             [GameInstallationLayout.RoomVisualLayoutDirectoryName] = layouts.ContentIdentity,
         };
+
+    /// <summary>The content identity of the seven selected sky pages, hashed as the cartridge's tilemap words in scrolling order.</summary>
+    public static string SkyIdentity(RoomSkyTilemapCatalog skies) => SelectedPresentationHash.Create(nameof(RoomSkyTilemapCatalog),
+        content => content.Append("pages", BackgroundTileWords.ToBytes(Ensure.NotNull(skies).Pages.Span)));
 }

@@ -30,7 +30,7 @@ internal static class PauseHudLocationVerification
         foreach (byte phase in new byte[] { 0, 8 })
         {
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(28, 1), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, FrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria) });
-            BackgroundTile center = runtime.Hud.Tiles[60];
+            ushort center = runtime.Hud.Tiles[60].PackedWord;
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
@@ -48,7 +48,7 @@ internal static class PauseHudLocationVerification
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0, frame + 1, 1);
-                AssertEqual(center, pause.screen.Tilemaps.Bg3[centerWord], $"phase {phase} frame {frame} retained HUD position tile");
+                AssertEqual(center, pause.screen.Tilemaps.Bg3[centerWord].PackedWord, $"phase {phase} frame {frame} retained HUD position tile");
                 for (int color = 0; color < centerColors.Length; color++)
                     AssertEqual(centerColors[color], pause.screen.Palette.Colors[inks + 1 + color], $"phase {phase} frame {frame} HUD position ink {color + 1}");
             }

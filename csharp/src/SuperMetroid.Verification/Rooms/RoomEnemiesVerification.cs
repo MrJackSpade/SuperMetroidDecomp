@@ -1265,10 +1265,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
     AssertTrue((InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
             "Verification requires installed Ceres overlay tilemaps.")).TryResolve(emergency,
-            out ReadOnlyMemory<byte> emergencyBytes),
+            out ReadOnlyMemory<BackgroundTile> emergencyTiles),
         "Ceres EMERGENCY text resolves the cartridge tilemap words");
     for (int word = 0; word < emergency.WordCount; word++)
-        AssertEqual(LittleEndianBytes.Word(emergencyBytes.Span[word * 2], emergencyBytes.Span[word * 2 + 1]),
+        AssertEqual(emergencyTiles.Span[word].PackedWord,
             ceresOverlay.Words[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
     AssertEqual(emergency.WordCount, ceresOverlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten),
         "Ceres EMERGENCY writes only its own words over BG1");

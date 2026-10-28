@@ -75,7 +75,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             var words = new ushort[byteCount / sizeof(ushort)];
             for (int index = 0; index < words.Length; index++)
                 words[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
-            return overlay.With(destinationWord - GameplayVramLayout.Bg1TilemapWord, words);
+            return overlay.With(destinationWord - GameplayVramLayout.Bg1TilemapWord, BackgroundTileWordBytes.Tiles(words));
         }
 
         string overrideDirectory = Path.Combine(stockDirectory,

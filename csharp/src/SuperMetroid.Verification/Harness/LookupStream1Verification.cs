@@ -3019,13 +3019,14 @@ internal static class LookupStream1Verification
             for (int position = 0; position < groups[set].Length; position++)
             {
                 var glyph = groups[set][position];
+                int glyphSource = LookupStream1BodySource(rom, upper, set, position);
                 var stored = glyph.pixelInputs;
                 byte[] image = glyph.Planar.ToArray();
                 var contour = glyph.contourEdits;
                 AssertEqual(0, (contour ?? throw new InvalidOperationException("Verification requires contour.")).Count, "Zero stock morph-circle contour overrides");
                 for (int index = 0; index < image.Length; index++)
                 {
-                    byte native = LookupStream1BodyPixelsRomByte(rom, glyph.SourceAddress + index);
+                    byte native = LookupStream1BodyPixelsRomByte(rom, glyphSource + index);
                     AssertEqual(native, image[index], "Every native body pixel byte");
                     byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
                     AssertEqual((byte)0, (byte)(native & ~mask), "Exact native circular silhouette");
@@ -3037,11 +3038,11 @@ internal static class LookupStream1Verification
                     bool diagnostic = SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out int glyphByte);
                     if (diagnostic) { AssertEqual(native, glyphByte, "Direct native Ep drawing"); diagnosticBytes++; }
                     else if (blank) { AssertEqual((byte)0, native, "Direct native transparent allocation"); blankBytes++; }
-                    else if (shared) { AssertEqual(LookupStream1BodyPixelsRomByte(rom, groups[set][sourcePosition].SourceAddress + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
+                    else if (shared) { AssertEqual(LookupStream1BodyPixelsRomByte(rom, LookupStream1BodySource(rom, upper, set, sourcePosition) + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
                     else
                     {
                         retained++;
-                        basisRows.Add($"{half},{set:X},{position:X},{glyph.SourceAddress + index:X6},{native:X2},{mask:X2}");
+                        basisRows.Add($"{half},{set:X},{position:X},{glyphSource + index:X6},{native:X2},{mask:X2}");
                     }
                     AssertEqual(!diagnostic && !blank && !shared, (stored ?? throw new InvalidOperationException("Verification requires stored.")).ContainsKey(index), "Exact pixel basis; no stock defaults survive as overrides");
                     bytes++;
@@ -3062,7 +3063,7 @@ internal static class LookupStream1Verification
             var supplied = top.Select(group => group.ToArray()).ToArray();
             var original = supplied[change.Set][change.Position];
             byte[] edited = original.Planar.ToArray(); edited[change.Byte] ^= 255;
-            supplied[change.Set][change.Position] = new(original.SourceAddress, original.FirstSize, original.SecondSize, edited);
+            supplied[change.Set][change.Position] = new(original.FirstSize, original.SecondSize, edited);
             var actual = Create(supplied);
             for (int set = 0; set < supplied.Length; set++)
             for (int position = 0; position < supplied[set].Length; position++)
@@ -3074,7 +3075,7 @@ internal static class LookupStream1Verification
         {
             var glyph = cableEdits[3][position];
             byte[] pixels = glyph.Planar.ToArray(); pixels[0] ^= (byte)(1 << (position % 8));
-            cableEdits[3][position] = new(glyph.SourceAddress, glyph.FirstSize, glyph.SecondSize, pixels);
+            cableEdits[3][position] = new(glyph.FirstSize, glyph.SecondSize, pixels);
         }
         var cableBody = Create(top, cableEdits);
         for (int set = 0; set < bottom.Length; set++)
@@ -3082,6 +3083,14 @@ internal static class LookupStream1Verification
             AssertTrue(cableEdits[set][position].Planar.Span.SequenceEqual(cableBody.BottomSet(set)[position].Planar.Span), "Independent repeated/swapped cable source and target edits remain exact");
         AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, cableEdits), cableBody.ContentIdentity, "Exact cable edit hash");
         Console.WriteLine($"Body pixels: {bytes} native bytes, {blankBytes} blank and {sharedBytes} shared bytes, exact {retained} selected inputs, nine individual upper edits plus nine simultaneous distinct cable edits, {diagnosticBytes} drawn diagnostic bytes, {circleBits} circular transparency bits and canonical hashes pass.");
+    }
+
+    /// <summary>Where the cartridge stores body record <paramref name="position"/> of set <paramref name="set"/>'s planar bytes, read from its native descriptor.</summary>
+    private static int LookupStream1BodySource(ISnesAddressSpace rom, bool upper, int set, int position)
+    {
+        ushort Word(int at) => (ushort)(rom.ReadCartridgeByte(at) | rom.ReadCartridgeByte(at + 1) << 8);
+        int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
+        return (int)new SnesAddress(rom.ReadCartridgeByte(address + 2), Word(address));
     }
 
     /// <summary>Reads planar Samus body tile bytes before derived pixel expansion.</summary>
@@ -3145,7 +3154,7 @@ internal static class LookupStream1Verification
             var actual = half == 0 ? empty.TopSet(set) : empty.BottomSet(set);
             for (int index = 0; index < expected.Length; index++)
             {
-                AssertEqual(expected[index].SourceAddress, actual[index].SourceAddress, "Empty independent OAM preserves source metadata");
+                AssertTrue(expected[index].Planar.Span.SequenceEqual(actual[index].Planar.Span), "Empty independent OAM preserves every pixel");
                 AssertEqual(expected[index].FirstSize, actual[index].FirstSize, "Empty independent OAM preserves first row");
                 AssertEqual(expected[index].SecondSize, actual[index].SecondSize, "Empty independent OAM preserves second row");
             }
@@ -3153,11 +3162,11 @@ internal static class LookupStream1Verification
         var shorterTop = top.Select(group => group.ToArray()).ToArray();
         var original = top[0][0];
         AssertTrue(original.SecondSize >= 32, "Chosen payload edit has a complete removable second-row tile");
-        shorterTop[0][0] = new(original.SourceAddress, original.FirstSize, (ushort)(original.SecondSize - 32), original.Planar.Span[..^32].ToArray());
+        shorterTop[0][0] = new(original.FirstSize, (ushort)(original.SecondSize - 32), original.Planar.Span[..^32].ToArray());
         var shorter = Create(shorterTop, bottom, body.Spritemaps);
         for (int position = 0; position < top[0].Length; position++)
         {
-            AssertEqual(top[0][position].SourceAddress, shorter.TopSet(0)[position].SourceAddress, "Independent payload-length edit cannot rewrite supplied neighboring source identities");
+            AssertTrue(shorterTop[0][position].Planar.Span.SequenceEqual(shorter.TopSet(0)[position].Planar.Span), "Independent payload-length edit cannot rewrite supplied neighboring pixels");
             AssertEqual(shorterTop[0][position].FirstSize, shorter.TopSet(0)[position].FirstSize, "Independent payload length preserves supplied row split");
             AssertEqual(shorterTop[0][position].SecondSize, shorter.TopSet(0)[position].SecondSize, "Exact edited payload remainder");
         }

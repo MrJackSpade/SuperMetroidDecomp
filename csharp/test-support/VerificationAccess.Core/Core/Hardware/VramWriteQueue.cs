@@ -156,7 +156,7 @@ public sealed class VramWriteQueue
             else if (entry.Staging is { } staging)
                 WriteStaged(vram, objects, entry, staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes));
             else if (entry.StagingWords is { } words)
-                WriteStaged(vram, objects, entry, LittleEndianBytes(words, entry.SizeInBytes));
+                WriteStaged(vram, objects, entry, WordBytes(words, entry.SizeInBytes));
             else if (entry.AssetId == default)
             {
                 if (assets is not IInstalledArtworkTransferSource artwork ||
@@ -217,7 +217,7 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>The first <paramref name="byteCount"/> bytes of <paramref name="words"/>, low byte first.</summary>
-    private static byte[] LittleEndianBytes(ushort[] words, int byteCount)
+    private static byte[] WordBytes(ushort[] words, int byteCount)
     {
         var bytes = new byte[byteCount];
         for (int index = 0; index < byteCount; index += sizeof(ushort))

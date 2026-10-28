@@ -92,7 +92,7 @@ internal static class SamusRenderingFixtureVerification
                     int source = (int)new SnesAddress(bus.ReadByte(address + 2), Word(address));
                     ushort first = Word(address + 3), second = Word(address + 5);
                     byte[] bytes = Enumerable.Range(0, first + second).Select(index => bus.ReadByte(source + index)).ToArray();
-                    groups[set][position] = new(source, first, second, bytes);
+                    groups[set][position] = new(first, second, bytes);
                 }
             }
             return groups;

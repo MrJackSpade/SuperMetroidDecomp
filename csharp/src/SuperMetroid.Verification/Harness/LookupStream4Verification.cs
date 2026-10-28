@@ -3510,7 +3510,7 @@ internal static class LookupStream4Verification
         ushort[] tiles = new ushort[96];
         stock.ApplyEnergy(tiles, 100, 1400);
         for (int tank = 0; tank < 14; tank++)
-            AssertEqual(tank == 0 ? stock.FilledEnergyTank : stock.EmptyEnergyTank,
+            AssertEqual((tank == 0 ? stock.FilledEnergyTank : stock.EmptyEnergyTank).PackedWord,
                 tiles[CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2)) / 2], "native tank draw destination");
         stock.ApplyAutoReserve(tiles, containsEnergy: true);
         for (int cell = 0; cell < 6; cell++)

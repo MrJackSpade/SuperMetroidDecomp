@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -138,10 +139,10 @@ internal static class GameplayHudPresentationVerification
         rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
         rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
         ushort[] logicalMap = Enumerable.Range(0, 15)
-            .Select(i => rebind.Tiles[(i / 5) * 32 + 26 + i % 5]).ToArray();
+            .Select(i => rebind.TileWords[(i / 5) * 32 + 26 + i % 5]).ToArray();
         rebind.BindPresentation(edited.GameplayHud, samus);
         for (int i = 0; i < logicalMap.Length; i++)
-            AssertEqual(logicalMap[i], rebind.Tiles[(i / 5) * 32 + 25 + i % 5],
+            AssertEqual(logicalMap[i], rebind.TileWords[(i / 5) * 32 + 25 + i % 5],
                 "HUD content rebind carries logical minimap cells to edited anchor");
 
         File.WriteAllText(replacement, "{ broken gameplay HUD JSON");

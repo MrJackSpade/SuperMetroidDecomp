@@ -357,12 +357,9 @@ internal sealed class CeresRidleyGetaway
     {
         CeresEscapeOverlayTilemapCatalog overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The Ceres escape has no installed warning tilemaps.");
-        if (!overlays.TryResolve(page, out ReadOnlyMemory<byte> data))
+        if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
             throw new InvalidDataException($"Installed Ceres escape has no editable {page.Name} tilemap.");
-        var words = new ushort[page.WordCount];
-        for (int index = 0; index < words.Length; index++)
-            words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
-        _room.Services.DrawBg1Overlay(page.Cell, words);
+        _room.Services.DrawBg1Overlay(page.Cell, tiles.Span);
     }
 
     /// <summary>
@@ -418,7 +415,7 @@ internal sealed class CeresRidleyGetaway
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
         // The Ceres program types over the room's BG1 (#1348).
         if (glyph is { } typed)
-            _room.Services.DrawBg1Overlay(typed.Cell, [typed.Tile.Raw]);
+            _room.Services.DrawBg1Overlay(typed.Cell, [typed.Tile]);
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, maximumQueued: SoundQueueLimit.Max3);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -20,10 +21,10 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     private readonly RandomNumbers random;
 
     /// <summary>The installed target of words written over BG1, or null when the host provides none.</summary>
-    private readonly Action<int, ushort[]>? bg1Overlay;
+    private readonly Action<int, BackgroundTile[]>? bg1Overlay;
 
     /// <summary>The installed target of words written over BG2, or null when the host provides none.</summary>
-    private readonly Action<int, ushort[]>? bg2Overlay;
+    private readonly Action<int, BackgroundTile[]>? bg2Overlay;
 
     /// <summary>The installed Mode 7 map, or null when the host provides none.</summary>
     private readonly FloorMap? floorMap;
@@ -59,11 +60,11 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public Action<int> SeedRandom { init => random.Write = Ensure.NotNull(value); }
 
     /// <summary>Installs the target of words written over BG1, which the Ceres escape's warning text writes.</summary>
-    public Action<int, ushort[]> DrawBg1OverlayWords { init => bg1Overlay = Ensure.NotNull(value); }
+    public Action<int, BackgroundTile[]> DrawBg1OverlayWords { init => bg1Overlay = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
-        (bg1Overlay ?? throw Unavailable.Missing("write words over BG1"))(firstWord, words.ToArray());
+    public void DrawBg1Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
+        (bg1Overlay ?? throw Unavailable.Missing("write tiles over BG1"))(first, tiles.ToArray());
 
     /// <summary>Installs the Mode 7 map the Ceres door and Ridley's getaway write.</summary>
     public FloorMap FloorMap { init => floorMap = Ensure.NotNull(value); }
@@ -73,11 +74,11 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         (floorMap ?? throw Unavailable.Missing("write the room's Mode 7 map")).Write(firstCell, tiles);
 
     /// <summary>Installs the target of words written over BG2, which the Zebes escape typewriter writes.</summary>
-    public Action<int, ushort[]> DrawBg2OverlayWords { init => bg2Overlay = Ensure.NotNull(value); }
+    public Action<int, BackgroundTile[]> DrawBg2OverlayWords { init => bg2Overlay = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
-        (bg2Overlay ?? throw Unavailable.Missing("write words over BG2"))(firstWord, words.ToArray());
+    public void DrawBg2Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
+        (bg2Overlay ?? throw Unavailable.Missing("write tiles over BG2"))(first, tiles.ToArray());
 
     /// <summary>Routes generated values through a required fixture callback and current-word access through optional callbacks.</summary>
     private sealed class RandomNumbers(Func<int> generate) : IEnemyRandomNumbers

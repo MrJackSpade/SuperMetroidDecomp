@@ -2472,7 +2472,7 @@ internal static class LookupStream1Verification
             ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 : (ushort)0x2610;
             // The program's words are VRAM tilemap words; the port types at cells of the overlay over that tilemap.
             int tilemapWord = id == EscapeTypewriterProgramId.Ceres ? GameplayVramLayout.Bg1TilemapWord : GameplayVramLayout.Bg2TilemapWord;
-            var actual = new EscapeTypewriterState(program, tileBase);
+            var actual = new EscapeTypewriterState(program, BackgroundTileWordBytes.Tile(tileBase));
             var actualVram = new SnesVram(); var expectedVram = new SnesVram();
             int cursor = EscapeTypewriterDefinitions.SourceAddress(id), glyphs = 0;
             ushort destination = 0, delay = 0, timer = 0;

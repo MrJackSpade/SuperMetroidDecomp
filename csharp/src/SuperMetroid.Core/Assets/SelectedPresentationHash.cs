@@ -70,6 +70,20 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
+    /// <summary>Adds each placed tile's character, colour variant, mirrorings and priority tier, in order.</summary>
+    public void AppendTiles(string label, ReadOnlySpan<BackgroundTile> tiles)
+    {
+        Append(label, tiles.Length);
+        foreach (BackgroundTile tile in tiles)
+        {
+            Append("tile", tile.Tile);
+            Append("colour", tile.ColourVariant);
+            Append("horizontal", tile.FlipHorizontally ? 1 : 0);
+            Append("vertical", tile.FlipVertically ? 1 : 0);
+            Append("priority", tile.HighPriority ? 1 : 0);
+        }
+    }
+
     /// <summary>Adds a sequence of 16-bit values in little-endian order.</summary>
     public void AppendWords(string label, ReadOnlySpan<ushort> words)
     {

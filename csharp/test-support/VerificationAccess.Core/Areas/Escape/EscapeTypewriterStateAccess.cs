@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Escape;
 
@@ -16,7 +17,7 @@ internal static class EscapeTypewriterStateAccess
         {
             bool completed = state.Step(out EscapeTypewriterGlyph? glyph);
             if (glyph is { } typed)
-                vram.ExecuteWordTransfer([typed.Tile.Raw], checked((ushort)typed.Cell), 1);
+                vram.ExecuteWordTransfer([typed.Tile.PackedWord], checked((ushort)typed.Cell), 1);
             return completed;
         }
     }

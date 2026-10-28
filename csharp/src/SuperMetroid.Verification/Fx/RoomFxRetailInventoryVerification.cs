@@ -493,7 +493,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>The BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348).</summary>
     private static Layer3Plane EffectPlane(RoomLayer3FxState fx) =>
-        Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
+        Layer3Plane.Compose(new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageTiles());
 
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static RgbaPixel[] ReadRows(RgbaPixel[] frame, int firstRow, int endRow) =>

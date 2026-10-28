@@ -1,13 +1,15 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Schema and native identities for the two escape-warning text programs.</summary>
 public static class EscapeTypewriterDefinitions
 {
     /// <summary>The base character word Ceres's warning typewriter draws with.</summary>
-    internal const ushort CeresTileBase = 0x3582;
+    internal static BackgroundTile CeresTileBase { get; } = new(0x182, 5, highPriority: true);
 
     /// <summary>The base character word the Zebes warning typewriter draws with.</summary>
-    public const ushort ZebesTileBase = 0x2610;
+    public static BackgroundTile ZebesTileBase { get; } = new(0x210, 1, highPriority: true);
 
     /// <summary>The letter the base character word draws; later letters draw the characters after it, in alphabet order.</summary>
     public const byte FirstLetter = (byte)'A';

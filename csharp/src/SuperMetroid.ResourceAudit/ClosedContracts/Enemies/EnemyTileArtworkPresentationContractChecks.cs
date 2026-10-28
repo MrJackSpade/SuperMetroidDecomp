@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
         using var overlayJson = new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
-            Pages = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name, page => new ushort[page.WordCount]) }));
+            Pages = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name, page => new BackgroundTile[page.WordCount]) }));
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());

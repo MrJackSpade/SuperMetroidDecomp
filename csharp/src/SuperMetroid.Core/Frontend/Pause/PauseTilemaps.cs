@@ -29,7 +29,7 @@ internal sealed class PauseTilemaps
     private readonly BackgroundTile[] bg2 = new BackgroundTile[ScreenWords];
 
     /// <summary>BG3's two screens: the HUD rows, the rest of the first screen and the screen below it.</summary>
-    private readonly ushort[] bg3 = new ushort[2 * ScreenWords];
+    private readonly BackgroundTile[] bg3 = new BackgroundTile[2 * ScreenWords];
 
     /// <summary>The map or equipment page.</summary>
     internal Span<BackgroundTile> Bg1 => bg1;
@@ -41,18 +41,18 @@ internal sealed class PauseTilemaps
     internal Span<BackgroundTile> ButtonRows => bg2.AsSpan(ButtonRowsFirstRow * Layer3Plane.Columns, 2 * Layer3Plane.Columns);
 
     /// <summary>The HUD and FX plane.</summary>
-    internal ReadOnlySpan<ushort> Bg3 => bg3;
+    internal ReadOnlySpan<BackgroundTile> Bg3 => bg3;
 
     /// <summary>
     /// Keeps the first screen of gameplay's BG3 plane resident: <c>SetupPPUForPauseMenu</c> moves BG3SC without uploading
     /// a tilemap, so the HUD gameplay displayed stays (#1351).
     /// </summary>
-    internal void RetainHud(Layer3Plane gameplay) => Ensure.NotNull(gameplay).Words[..ScreenWords].CopyTo(bg3);
+    internal void RetainHud(Layer3Plane gameplay) => Ensure.NotNull(gameplay).Tiles[..ScreenWords].CopyTo(bg3);
 
     /// <summary>Mirrors the three mutable HUD rows of the plane gameplay displayed, keeping the static top row.</summary>
     internal void MirrorAcceptedHud(Layer3Plane gameplay) =>
-        Ensure.NotNull(gameplay).Words[Layer3Plane.Columns..FxRowsWord].CopyTo(bg3.AsSpan(Layer3Plane.Columns));
+        Ensure.NotNull(gameplay).Tiles[Layer3Plane.Columns..FxRowsWord].CopyTo(bg3.AsSpan(Layer3Plane.Columns));
 
     /// <summary>Fills every BG3 row below the HUD with <paramref name="tile"/>, as <c>QueueClearingOfFxTilemap</c> ($80:A211) does.</summary>
-    internal void ClearFx(SnesBgTilemapWord tile) => bg3.AsSpan(FxRowsWord).Fill(tile);
+    internal void ClearFx(BackgroundTile tile) => bg3.AsSpan(FxRowsWord).Fill(tile);
 }

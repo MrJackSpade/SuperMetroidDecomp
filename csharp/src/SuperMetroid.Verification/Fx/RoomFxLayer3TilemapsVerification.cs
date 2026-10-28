@@ -123,7 +123,7 @@ internal static class RoomFxLayer3TilemapsVerification
         };
         RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, new GameplayColours(new SpriteColourSets()), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
-        return Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageWords());
+        return Layer3Plane.Compose(new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageTiles());
     }
 
     /// <summary>Forbids bank-$8A tilemap payloads and the FX tilemap pointer table.</summary>

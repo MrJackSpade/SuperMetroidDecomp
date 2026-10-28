@@ -119,13 +119,13 @@ internal static class TilemapJsonContractsEnvironmentVerification
         var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());
         string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlayTilemapCatalog.Write(new()
-            { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords }));
+            { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords.ToDictionary(page => page.Key, page => BackgroundTileWordBytes.Tiles(page.Value)) }));
         var overlay = CeresEscapeOverlayTilemapCatalog.Load(TilemapContractStream(overlayJson));
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {
             AssertTrue(overlay.TryResolve(page, out var actual), "every Ceres warning page resolves");
             for (int index = 0; index < page.WordCount; index++) AssertEqual(overlayWords[page.Name][index],
-                BinaryPrimitives.ReadUInt16LittleEndian(actual.Span[(index * 2)..]), "warning words retain exact order");
+                actual.Span[index].PackedWord, "warning words retain exact order");
         }
         foreach (string corrupt in new[] { "{\"version\":1," + overlayJson[1..],
             TilemapContractMutate(overlayJson, root => root["duration"] = 7),

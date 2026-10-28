@@ -112,14 +112,7 @@ public sealed class RoomBlockSheetCatalog
         {
             content.AppendName("background", name);
             background.Sheet.AppendIdentity(content);
-            foreach (BackgroundTile tile in background.Tiles)
-            {
-                content.Append("tile", tile.Tile);
-                content.Append("colour", tile.ColourVariant);
-                content.Append("horizontal", tile.FlipHorizontally ? 1 : 0);
-                content.Append("vertical", tile.FlipVertically ? 1 : 0);
-                content.Append("priority", tile.HighPriority ? 1 : 0);
-            }
+            content.AppendTiles("tiles", background.Tiles.AsSpan());
         }
         foreach (FloorTileSheet tiles in FloorTiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
         {

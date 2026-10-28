@@ -206,7 +206,7 @@ internal static class EnemyContentIdentityFixtureVerification
             {
                 Version = CeresEscapeOverlayTilemapDefinitions.Version,
                 Pages = Ordered(CeresEscapeOverlayTilemapDefinitions.All.Select(page =>
-                    KeyValuePair.Create(page.Name, Words("ceres-overlay-" + page.Name, page.WordCount)))),
+                    KeyValuePair.Create(page.Name, BackgroundTileWordBytes.Tiles(Words("ceres-overlay-" + page.Name, page.WordCount))))),
             }));
             var auxiliary = EnemyAuxiliaryColorFiles.Read(Json(new EnemyAuxiliaryColorDocument
             {

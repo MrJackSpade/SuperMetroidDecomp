@@ -111,9 +111,9 @@ internal static class NativeSnapshotImportVerification
         }
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
         runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
-        ushort[] initialHud = runtime.Hud.Tiles;
+        BackgroundTile[] initialHud = runtime.Hud.Tiles;
         for (int index = 0; index < initialHud.Length; index++)
-            initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);
+            initialHud[index] = BackgroundTileWordBytes.Tile(W(NativeSnapshotMemory.HudTilemap + index * 2));
         runtime.Hud.PreviousSelectedItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
         runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;

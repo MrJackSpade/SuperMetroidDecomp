@@ -81,7 +81,7 @@ public static class RoomBlockSheetFiles
             new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => entry.Value.ToArray(),
                 StringComparer.Ordinal)), JsonOptions));
         var sheets = new WordManifest(WordManifestVersion, [.. wordSheets.Select(words => new WordSheetDocument(words.Layer,
-            RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(tile.Tile.Word.Raw, tile.Tile.Shown.Artwork.Name,
+            RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(BackgroundTileWords.ToWord(tile.Tile.Tile), tile.Tile.Shown.Artwork.Name,
                 tile.Tile.Shown.WordOffset, tile.Frame, tile.Corner.X, tile.Corner.Y))]))]);
         File.WriteAllBytes(Path.Combine(directory, WordManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
         var manifest = new BackgroundManifest(BackgroundManifestVersion,
@@ -170,7 +170,7 @@ public static class RoomBlockSheetFiles
     /// <summary>The tile word sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
     private static TileWordSheet Words(WordSheetDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
         new(document.Layer, tileset, store.Read(TileWordSheet.NameOf(document.Layer, tileset)),
-            document.Tiles.Select(tile => new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(checked((ushort)tile.Word)),
+            document.Tiles.Select(tile => new TileWordSheetTile(new BgTileArtwork(BackgroundTileWords.ToTile(checked((ushort)tile.Word)),
                 new BgArtworkShown(new BgArtworkIdentity(tile.Artwork), tile.Offset)), tile.Frame, new Position16<ImagePixels>(checked((ushort)tile.X), checked((ushort)tile.Y)))));
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>

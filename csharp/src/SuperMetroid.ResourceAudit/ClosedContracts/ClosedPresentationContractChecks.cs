@@ -52,7 +52,7 @@ internal static class ClosedPresentationContractChecks
                     SamusDeathPaletteArtworkCatalog samusDeath,
                     SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
-                    hud.ApplyAmmo(tiles, dynamicIndex, 123);
+                    hud.ApplyAmmo(cells, dynamicIndex, 123);
                     hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));
                     FileSelectPresentation.DrawCursor(oam, sheet, dynamicIndex, new(0,0));
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);

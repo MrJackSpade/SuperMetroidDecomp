@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,38 +5,37 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
-/// <summary>Editable visual tilemap words for Ceres's five fixed warning overlays.</summary>
+/// <summary>Editable tiles for Ceres's five fixed warning overlays.</summary>
 public sealed class CeresEscapeOverlayTilemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v1", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v2", content =>
     {
         content.Append("shared", ReadOnlySpan<byte>.Empty);
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {
             content.Append("source", Encoding.UTF8.GetBytes(page.Name));
-            content.Append("transfer", PageBytes(page));
+            content.AppendTiles("tiles", PageTiles(page));
         }
     });
 
-    /// <summary>Selected tile words differing from the calculated stock warning pages, keyed by page and word.</summary>
-    internal readonly Dictionary<CeresEscapeOverlayWord, ushort> edits;
+    /// <summary>Selected tiles differing from the calculated stock warning pages, keyed by page and position.</summary>
+    internal readonly Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits;
     /// <summary>Retains only authored deviations from the stock Ceres warning tilemaps.</summary>
-    private CeresEscapeOverlayTilemapCatalog(Dictionary<CeresEscapeOverlayWord, ushort> edits) => this.edits = edits;
+    private CeresEscapeOverlayTilemapCatalog(Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits) => this.edits = edits;
 
-    /// <summary>Expands one page's calculated and edited words into the contiguous little-endian DMA payload.</summary>
-    private byte[] PageBytes(CeresEscapeOverlayTilemapDefinition page)
+    /// <summary>One page's calculated and edited tiles, in tilemap order.</summary>
+    private BackgroundTile[] PageTiles(CeresEscapeOverlayTilemapDefinition page)
     {
-        // Ephemeral contiguous DMA/hash output, not a retained lookup definition.
-        var bytes = new byte[page.WordCount * sizeof(ushort)];
+        var tiles = new BackgroundTile[page.WordCount];
         for (int index = 0; index < page.WordCount; index++)
         {
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), edits.GetValueOrDefault(
-                new CeresEscapeOverlayWord(page.Name, index), CeresEscapeOverlayTilemapDefinitions.StockWord(page, index)));
+            tiles[index] = edits.GetValueOrDefault(
+                new CeresEscapeOverlayWord(page.Name, index), CeresEscapeOverlayTilemapDefinitions.StockTile(page, index));
         }
-        return bytes;
+        return tiles;
     }
-    /// <summary>Validates the five-page JSON document and compiles its edited words.</summary>
+    /// <summary>Validates the five-page JSON document and compiles its edited tiles.</summary>
     internal static CeresEscapeOverlayTilemapCatalog Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -53,22 +51,22 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return JsonSerializer.SerializeToUtf8Bytes(document, Options);
     }
 
-    /// <summary>Provides a page's little-endian words only when <paramref name="page"/> is one of the five overlays.</summary>
+    /// <summary>Provides a page's tiles only when <paramref name="page"/> is one of the five overlays.</summary>
     /// <param name="page">The overlay.</param>
-    /// <param name="data">Its words, two bytes each, or empty when it is not one of the overlays.</param>
-    internal bool TryResolve(CeresEscapeOverlayTilemapDefinition page, out ReadOnlyMemory<byte> data)
+    /// <param name="tiles">Its tiles, or empty when it is not one of the overlays.</param>
+    internal bool TryResolve(CeresEscapeOverlayTilemapDefinition page, out ReadOnlyMemory<BackgroundTile> tiles)
     {
         if (CeresEscapeOverlayTilemapDefinitions.All.Contains(page))
         {
-            data = PageBytes(page);
+            tiles = PageTiles(page);
             return true;
         }
-        data = default;
+        tiles = default;
         return false;
     }
 
-    /// <summary>Requires the exact five page names and dimensions while recording only words that differ from stock.</summary>
-    private static Dictionary<CeresEscapeOverlayWord, ushort> Compile(
+    /// <summary>Requires the exact five page names and dimensions while recording only tiles that differ from stock.</summary>
+    private static Dictionary<CeresEscapeOverlayWord, BackgroundTile> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
         Ensure.NotNull(document);
@@ -76,18 +74,18 @@ public sealed class CeresEscapeOverlayTilemapCatalog
             document.Pages is null ||
             document.Pages.Count != CeresEscapeOverlayTilemapDefinitions.All.Length)
             throw new InvalidDataException(
-                "Ceres escape overlay requires version 1 and five named tilemaps.");
-        var compiled = new Dictionary<CeresEscapeOverlayWord, ushort>();
+                $"Ceres escape overlay requires version {CeresEscapeOverlayTilemapDefinitions.Version} and five named tilemaps.");
+        var compiled = new Dictionary<CeresEscapeOverlayWord, BackgroundTile>();
         foreach (CeresEscapeOverlayTilemapDefinition definition in
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
-            if (!document.Pages.TryGetValue(definition.Name, out ushort[]? words) ||
-                words is null || words.Length != definition.WordCount)
+            if (!document.Pages.TryGetValue(definition.Name, out BackgroundTile[]? tiles) ||
+                tiles is null || tiles.Length != definition.WordCount)
                 throw new InvalidDataException(
-                    $"Ceres escape tilemap {definition.Name} requires {definition.WordCount} words.");
-            for (int index = 0; index < words.Length; index++)
-                if (words[index] != CeresEscapeOverlayTilemapDefinitions.StockWord(definition, index))
-                    compiled.Add(new CeresEscapeOverlayWord(definition.Name, index), words[index]);
+                    $"Ceres escape tilemap {definition.Name} requires {definition.WordCount} tiles.");
+            for (int index = 0; index < tiles.Length; index++)
+                if (tiles[index] != CeresEscapeOverlayTilemapDefinitions.StockTile(definition, index))
+                    compiled.Add(new CeresEscapeOverlayWord(definition.Name, index), tiles[index]);
         }
         if (document.Pages.Keys.Any(name =>
                 !CeresEscapeOverlayTilemapDefinitions.All

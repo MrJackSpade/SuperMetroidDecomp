@@ -30,18 +30,18 @@ internal static class Layer3PlaneVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         Layer3Plane first = Published(runtime);
-        ushort[] topRow = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException(
-            "The retail fixture installs the HUD artwork.")).GameplayHud.TopRow();
+        ushort[] topRow = BackgroundTileWordBytes.Words((runtime.Artwork.MapPresentation ?? throw new InvalidOperationException(
+            "The retail fixture installs the HUD artwork.")).GameplayHud.TopRow());
         AssertTrue(first.Words[..Layer3Plane.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
-        AssertTrue(first.Words[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.MutableRows),
+        AssertTrue(first.Words[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(BackgroundTileWordBytes.Words(runtime.Hud.MutableRows)),
             "rows one through three are the rows HudState owns");
 
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. The new word is one the HUD's
         // artwork shows, so the NMI can picture it (#1392).
         const int cell = 7;
-        ushort before = runtime.Hud.Tiles[cell];
+        ushort before = runtime.Hud.Tiles[cell].PackedWord;
         ushort changed = topRow.First(word => word != before);
-        runtime.Hud.Tiles[cell] = changed;
+        runtime.Hud.Tiles[cell] = BackgroundTileWordBytes.Tile(changed);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(changed, Published(runtime).Words[Layer3Plane.Columns + cell], "the next NMI's plane shows the HUD change");
         AssertEqual(before, first.Words[Layer3Plane.Columns + cell], "an earlier published plane keeps its rows");
@@ -62,7 +62,7 @@ internal static class Layer3PlaneVerification
         var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
         for (int index = 0; index < hudRows.Length; index++)
             hudRows[index] = (ushort)(0x2000 + index);
-        Layer3Plane plane = Layer3Plane.Compose(hudRows, water.EffectPageWords());
+        Layer3Plane plane = Layer3Plane.Compose(BackgroundTileWordBytes.Tiles(hudRows), water.EffectPageTiles());
         ReadOnlySpan<byte> page = presentation.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Water).Span;
         for (int row = Layer3Plane.HudRows; row < Layer3Plane.Rows; row++)
         for (int column = 0; column < Layer3Plane.Columns; column++)
@@ -70,7 +70,7 @@ internal static class Layer3PlaneVerification
             int pageWord = (row - Layer3Plane.EffectPageFirstRow) * Layer3Plane.Columns + column;
             ushort expected = pageWord >= 0 && pageWord * 2 < page.Length
                 ? SnesLittleEndian.Word(page[pageWord * 2], page[pageWord * 2 + 1])
-                : Layer3Plane.ClearedCell.Raw;
+                : Layer3Plane.ClearedCell.PackedWord;
             AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
         AssertTrue(plane.Words[..hudRows.Length].SequenceEqual(hudRows), "the HUD rows stay above the effect");
@@ -104,12 +104,12 @@ internal static class Layer3PlaneVerification
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
         int[] cells = [0x105, 0x106, 0x108, 0x109];
-        ushort[] tiles = [EscapeTypewriterDefinitions.ZebesTileBase, (EscapeTypewriterDefinitions.ZebesTileBase + 1),
-            (EscapeTypewriterDefinitions.ZebesTileBase + 2), (EscapeTypewriterDefinitions.ZebesTileBase + 26)];
+        ushort zebesBase = EscapeTypewriterDefinitions.ZebesTileBase.PackedWord;
+        ushort[] tiles = [zebesBase, (ushort)(zebesBase + 1), (ushort)(zebesBase + 2), (ushort)(zebesBase + 26)];
         for (int index = 0; index < typed.Count; index++)
         {
             AssertEqual(cells[index], typed[index].Cell, $"glyph {index} lands at its program's cell");
-            AssertEqual(tiles[index], typed[index].Tile.Raw, $"glyph {index} tile");
+            AssertEqual(tiles[index], typed[index].Tile.PackedWord, $"glyph {index} tile");
         }
         Console.WriteLine($"  BG3 plane: the typewriter typed {typed.Count} glyphs over {steps} steps at their destinations.");
     }

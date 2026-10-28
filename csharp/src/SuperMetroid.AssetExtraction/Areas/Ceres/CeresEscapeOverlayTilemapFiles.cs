@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -13,7 +14,7 @@ internal static class CeresEscapeOverlayTilemapFiles
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var words = new Dictionary<string, ushort[]>();
+        var pages = new Dictionary<string, BackgroundTile[]>();
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
@@ -21,13 +22,13 @@ internal static class CeresEscapeOverlayTilemapFiles
             SnesAddress first = Source(page);
             for (int index = 0; index < source.Length; index++)
                 source[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord((int)first.AddWithinBank(index * sizeof(ushort)));
-            words.Add(page.Name, source);
+            pages.Add(page.Name, BackgroundTileWords.ToTiles(source));
         }
         byte[] json = CeresEscapeOverlayTilemapCatalog.Write(
             new CeresEscapeOverlayTilemapDocument
             {
                 Version = CeresEscapeOverlayTilemapDefinitions.Version,
-                Pages = words,
+                Pages = pages,
             });
         CeresEscapeOverlayTilemapCatalog roundtrip =
             CeresEscapeOverlayTilemapCatalog.Load(
@@ -35,12 +36,13 @@ internal static class CeresEscapeOverlayTilemapFiles
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
-            if (!roundtrip.TryResolve(page, out ReadOnlyMemory<byte> data))
+            if (!roundtrip.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
                 throw new InvalidDataException(
                     $"Ceres escape tilemap {page.Name} did not reload.");
             SnesAddress first = Source(page);
+            byte[] data = BackgroundTileWords.ToBytes(tiles.Span);
             for (int offset = 0; offset < data.Length; offset++)
-                if (data.Span[offset] != bus.ReadCartridgeByte((int)first.AddWithinBank(offset)))
+                if (data[offset] != bus.ReadCartridgeByte((int)first.AddWithinBank(offset)))
                     throw new InvalidDataException(
                         $"Ceres escape tilemap {page.Name} changed byte {offset:X2} during export.");
         }

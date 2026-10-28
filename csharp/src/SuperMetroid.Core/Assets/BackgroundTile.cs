@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -43,7 +45,8 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
         init => field = Ensure.BetweenInclusive(0, ColourVariants - 1, value);
     } = Ensure.BetweenInclusive(0, ColourVariants - 1, ColourVariant);
 
-    /// <summary>The mirroring the tile is drawn with.</summary>
+    /// <summary>The mirroring the tile is drawn with; documents store its two axes.</summary>
+    [JsonIgnore]
     public TileFlip Flip => (FlipHorizontally ? TileFlip.Horizontal : TileFlip.None) | (FlipVertically ? TileFlip.Vertical : TileFlip.None);
 
     /// <summary>

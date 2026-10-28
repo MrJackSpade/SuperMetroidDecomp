@@ -28,7 +28,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
-        ushort[] stockTopRow = presentation.TopRow();
+        ushort[] stockTopRow = BackgroundTileWordBytes.Words(presentation.TopRow());
         for (int column = 0; column < GameplayHudDefinitions.TopRowCellCount; column++)
             AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2)
                     | GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2 + 1) << 8),
@@ -114,7 +114,7 @@ internal static class GameplayHudPresentationVerification
             "gameplay HUD override changes selected catalog identity");
         var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         editedTopRowRuntime.Artwork.MapPresentation = edited;
-        AssertTrue(editedTopRowRuntime.FrameBoundary.CaptureLayer3Plane().Words[..GameplayHudDefinitions.TopRowCellCount]
+        AssertTrue(editedTopRowRuntime.FrameBoundary.CaptureLayer3Plane().Tiles[..GameplayHudDefinitions.TopRowCellCount]
             .SequenceEqual(edited.GameplayHud.TopRow()),
             "edited top-row cell reaches the BG3 plane the NMI latches");
         AssertTrue(!edited.GameplayHud.TopRow().SequenceEqual(original.GameplayHud.TopRow()),
@@ -126,11 +126,11 @@ internal static class GameplayHudPresentationVerification
         var stockHud = new HudState();
         stockHud.BindPresentation(original.GameplayHud);
         stockHud.Initialize(snapshot);
-        AssertEqual(stockHud.Tiles[70], editedHud.Tiles[68],
+        AssertEqual(stockHud.TileWords[70], editedHud.TileWords[68],
             "edited health anchor moves its first digit through production HUD setup");
-        AssertEqual(stockHud.Tiles[71], editedHud.Tiles[69],
+        AssertEqual(stockHud.TileWords[71], editedHud.TileWords[69],
             "edited health anchor moves its second digit through production HUD setup");
-        AssertTrue(editedHud.Tiles[10] != stockHud.Tiles[10],
+        AssertTrue(editedHud.TileWords[10] != stockHud.TileWords[10],
             "edited missile cell changes the installed icon");
 
         var rebind = new HudState();

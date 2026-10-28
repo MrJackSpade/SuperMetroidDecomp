@@ -208,7 +208,7 @@ internal static class RoomBlockPicturesVerification
         while (!typewriter.Step(out EscapeTypewriterGlyph? glyph))
         {
             if (glyph is { } typed)
-                overlay = overlay.With(typed.Cell, [typed.Tile.Raw]);
+                overlay = overlay.With(typed.Cell, [typed.Tile]);
         }
         ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay,
             RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,

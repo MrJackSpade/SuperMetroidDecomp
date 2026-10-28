@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -18,14 +19,17 @@ public sealed class HudState
     public const int WidthInTiles = 32;
     /// <summary>Number of mutable HUD rows the gameplay update rewrites, excluding the preceding static row.</summary>
     public const int MutableRowCount = 3;
-    /// <summary>Ninety-six mutable BG3 tile words, stored row-major across the three 32-cell HUD rows.</summary>
+    /// <summary>Ninety-six mutable BG3 tiles, stored row-major across the three 32-cell HUD rows.</summary>
     public const int MutableTileCount = WidthInTiles * MutableRowCount;
 
+    /// <summary>The colour variant the minimap's Samus cell blinks to on alternate eight-frame halves.</summary>
+    private const int LocationBlinkColourVariant = 7;
+
     /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
-    internal readonly ushort[] Tiles = new ushort[MutableTileCount];
+    internal readonly BackgroundTile[] Tiles = new BackgroundTile[MutableTileCount];
 
     /// <summary>The three mutable HUD rows the frame shows, row-major (#1348).</summary>
-    public ReadOnlySpan<ushort> MutableRows => Tiles;
+    public ReadOnlySpan<BackgroundTile> MutableRows => Tiles;
     /// <summary>Previous item selection used to update both icon palettes and sound edges.</summary>
     internal HudItem PreviousSelectedItem { get; set; }
     /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>
@@ -42,7 +46,7 @@ public sealed class HudState
         for (int x = 0; x < 5; x++)
         {
             var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
-            Tiles[presentation?.MinimapCellIndex(cell) ?? StockMinimapCellIndex(cell)] = (ushort)MapTileWords.HudBlank;
+            Tiles[presentation?.MinimapCellIndex(cell) ?? StockMinimapCellIndex(cell)] = MapTileWords.HudBlank.ToTile();
         }
     }
 
@@ -87,7 +91,7 @@ public sealed class HudState
             string.Equals(previous?.ContentIdentity, value.ContentIdentity, StringComparison.Ordinal))
             return;
 
-        var minimap = new ushort[15];
+        var minimap = new BackgroundTile[15];
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
         {
@@ -258,7 +262,7 @@ public sealed class HudState
                 int mapX = (centerX + outputX - 2) & 63;
                 if ((uint)mapY >= 32)
                 {
-                    Tiles[destination] = (ushort)MapTileWords.HudBlank;
+                    Tiles[destination] = MapTileWords.HudBlank.ToTile();
                     continue;
                 }
 
@@ -276,11 +280,11 @@ public sealed class HudState
                         frame.PresentationMap.IsDiscoverable(cell),
                         frame.MapRevealMode))
                 {
-                    Tiles[destination] = (ushort)MapTileWords.HudBlank;
+                    Tiles[destination] = MapTileWords.HudBlank.ToTile();
                     continue;
                 }
 
-                Tiles[destination] = (ushort)mapTile.ForHud(explored);
+                Tiles[destination] = mapTile.ForHud(explored).ToTile();
                 // The center slope also explores the corner above it. The native top
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.
@@ -290,14 +294,14 @@ public sealed class HudState
             }
         }
 
-        // Every eight NMI frames the native code ORs palette bits $1C00 into the center
-        // tile. The other half-cycle leaves its explored palette intact, producing the
-        // familiar blinking Samus location without a separate sprite.
+        // Every eight NMI frames the native code turns the center tile's colour variant to
+        // the last one. The other half-cycle leaves its explored variant intact, producing
+        // the familiar blinking Samus location without a separate sprite.
         if ((frame.FrameCounter & 8) == 0)
         {
             var centerCell = new Position16<TilemapCells>(2, 1);
             int center = presentation?.MinimapCellIndex(centerCell) ?? StockMinimapCellIndex(centerCell);
-            Tiles[center] = (ushort)new MapTileWord(Tiles[center]).WithLocationBlink();
+            Tiles[center] = Tiles[center] with { ColourVariant = LocationBlinkColourVariant };
         }
     }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Stable resource names and gameplay-HUD layout identities.</summary>
@@ -18,14 +20,14 @@ public static class GameplayHudDefinitions
     /// <summary>Thirty-two tile cells in the static minimap-border row.</summary>
     public const int TopRowCellCount = Width;
 
-    /// <summary>The canonical blank HUD word used by native icon guards and MANUAL clearing.</summary>
-    public const ushort BlankWord = 0x2c0f;
+    /// <summary>The canonical blank HUD tile used by native icon guards and MANUAL clearing: HUD glyph $0F in colour variant three, in the upper priority tier.</summary>
+    public static BackgroundTile Blank { get; } = new(0x0f, 3, highPriority: true);
 
-    /// <summary>The filled energy-tank word written by <c>$80:9BCF</c>.</summary>
-    public const ushort FilledEnergyTankWord = 0x2831;
+    /// <summary>The filled energy-tank tile written by <c>$80:9BCF</c>.</summary>
+    public static BackgroundTile FilledEnergyTank { get; } = new(0x31, 2, highPriority: true);
 
-    /// <summary>The empty energy-tank word written by <c>$80:9BCF</c>.</summary>
-    public const ushort EmptyEnergyTankWord = 0x3430;
+    /// <summary>The empty energy-tank tile written by <c>$80:9BCF</c>.</summary>
+    public static BackgroundTile EmptyEnergyTank { get; } = new(0x30, 5, highPriority: true);
 
     /// <summary>BG palette selector 4 used by $80:9BD3..9C20 to highlight the newly selected HUD item; this is an unpacked selector, not attribute bits.</summary>
     public const int SelectedPalette = 4;
@@ -73,8 +75,8 @@ public static class GameplayHudDefinitions
         ? 8 + cell % 2 + cell / 2 * Width
         : throw new ArgumentOutOfRangeException(nameof(cell));
     /// <summary>Both HUD digit rows at $80:9DBF/$9DD3 use palette three, priority, and glyphs 1..9 followed by zero.</summary>
-    internal static ushort DigitWord(int digit) => (uint)digit < 10
-        ? (ushort)(0x2c00 | (digit + 9) % 10)
+    internal static BackgroundTile DigitTile(int digit) => (uint)digit < 10
+        ? new BackgroundTile((digit + 9) % 10, 3, highPriority: true)
         : throw new ArgumentOutOfRangeException(nameof(digit));
     /// <summary>$9A:B530: HUD glyph $33 is the left arrow tip used above and below AUTO.</summary>
     private const int AutoArrowTipGlyph = 0x33;
@@ -94,14 +96,14 @@ public static class GameplayHudDefinitions
     private const int AutoFullPalette = 7, AutoEmptyPalette = 3;
 
     /// <summary>Builds one reflected AUTO label or arrow cell with palette seven for stored energy and palette three otherwise.</summary>
-    internal static ushort AutoReserveWord(int cell, bool containsEnergy)
+    internal static BackgroundTile AutoReserveTile(int cell, bool containsEnergy)
     {
         if ((uint)cell >= AutoReserveCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / 2, column = cell % 2;
         int glyph = row == 1 ? AutoArrowShaftGlyph + 1 + column
             : column == 0 ? AutoArrowTipGlyph : AutoArrowShaftGlyph;
         int palette = containsEnergy ? AutoFullPalette : AutoEmptyPalette;
-        return (ushort)(glyph | palette << 10 | 1 << 13 | (row == 2 ? 1 << 15 : 0));
+        return new BackgroundTile(glyph, palette, highPriority: true, row == 2 ? TileFlip.Vertical : TileFlip.None);
     }
     /// <summary>
     /// $80:988B-98CA: blank HUD upper row followed by the minimap's five-cell
@@ -114,22 +116,22 @@ public static class GameplayHudDefinitions
     private const int MinimapVisibleColumns = 5;
 
     /// <summary>The stock HUD top row.</summary>
-    internal static ushort[] StockTopRow()
+    internal static BackgroundTile[] StockTopRow()
     {
-        var row = new ushort[Width];
+        var row = new BackgroundTile[Width];
         for (int column = 0; column < row.Length; column++)
-            row[column] = TopRowWord(column);
+            row[column] = TopRowTile(column);
         return row;
     }
 
-    /// <summary>Builds a static top-row word, leaving the HUD blank until the right-aligned minimap border.</summary>
-    internal static ushort TopRowWord(int column)
+    /// <summary>Builds a static top-row tile, leaving the HUD blank until the right-aligned minimap border.</summary>
+    internal static BackgroundTile TopRowTile(int column)
     {
         if ((uint)column >= Width) throw new ArgumentOutOfRangeException(nameof(column));
         int firstEdge = Width - MinimapVisibleColumns - 1;
-        if (column < firstEdge) return BlankWord;
+        if (column < firstEdge) return Blank;
         int glyph = MinimapTopRightCapGlyph + (column == Width - 1 ? 0 : 1);
-        return (ushort)((BlankWord & ~0x3ff) | glyph);
+        return Blank with { Tile = glyph };
     }
     /// <summary>
     /// $80:994D-9953 ENERGY label: three adjacent fragments $0B..0D followed by
@@ -147,8 +149,11 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MinimapEmptyGlyph = 0x12, MinimapConnectorStartGlyph = 0x22;
 
+    /// <summary>The colour variant the starter picture's explored cells use; the blank's other cells use variant three.</summary>
+    private const int MinimapExploredColourVariant = 2;
+
     /// <summary>Builds one initial mutable HUD cell, including the energy label and native minimap starter picture.</summary>
-    internal static ushort TemplateWord(int index)
+    internal static BackgroundTile TemplateTile(int index)
     {
         if ((uint)index >= CellCount) throw new ArgumentOutOfRangeException(nameof(index));
         int row = index / Width, column = index % Width;
@@ -156,27 +161,27 @@ public static class GameplayHudDefinitions
         if (column >= firstMapColumn)
         {
             int x = column - firstMapColumn;
-            int style = BlankWord & ~0x3ff;
             if (x == MinimapVisibleColumns)
-                return (ushort)(style | MinimapTopRightCapGlyph + 2);
+                return Blank with { Tile = MinimapTopRightCapGlyph + 2 };
+            BackgroundTile style = Blank;
             int glyph = MinimapEmptyGlyph;
             if (x == 2)
             {
                 glyph = MinimapConnectorStartGlyph + (row == Height - 1 ? 2 : 1);
-                if (row == Height - 1) style |= 1 << 15;
+                if (row == Height - 1) style = style.WithFlip(TileFlip.Vertical);
             }
             else if (row == 1 && x < 2) glyph = MinimapConnectorStartGlyph;
             else if (row > 0 && x > 2) glyph = MinimapEmptyGlyph + 1 + (row - 1) * 2 + x - 3;
-            if ((row == 1 && x < 2) || (row > 0 && x is 2 or 3)) style &= ~(1 << 10);
-            return (ushort)(style | glyph);
+            if ((row == 1 && x < 2) || (row > 0 && x is 2 or 3)) style = style with { ColourVariant = MinimapExploredColourVariant };
+            return style with { Tile = glyph };
         }
         if (row == Height - 1)
         {
             if (column is >= 1 and <= 4)
-                return (ushort)((BlankWord & ~0x3ff) | (column == 4 ? EnergyLabelSuffixGlyph : EnergyLabelStartGlyph + column - 1));
-            if (column == 6) return DigitWord(0);
+                return Blank with { Tile = column == 4 ? EnergyLabelSuffixGlyph : EnergyLabelStartGlyph + column - 1 };
+            if (column == 6) return DigitTile(0);
         }
-        return BlankWord;
+        return Blank;
     }
     /// <summary>
     /// $80:99A3-99CE selects HUD item pictograms from $9A:B200 characters.
@@ -195,16 +200,15 @@ public static class GameplayHudDefinitions
         return item == 0 ? 3 : 2;
     }
 
-    /// <summary>Builds a reflected, deselected BG3 icon tile word for one row-major pictogram cell.</summary>
-    internal static ushort IconWord(int item, int cell)
+    /// <summary>Builds a reflected, deselected BG3 icon tile for one row-major pictogram cell.</summary>
+    internal static BackgroundTile IconTile(int item, int cell)
     {
         int width = IconWidth(item);
         if ((uint)cell >= width * 2) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / width, column = cell % width;
         int glyph = item == 0 ? MissileShaftStartGlyph + row + (column == 1 ? 0 : 2)
             : TwoColumnItemStartGlyph + (item - 1) * 2 + row;
-        int style = (BlankWord & ~0x1fff) | DeselectedPalette << 10;
-        return (ushort)(style | glyph | (column == width - 1 ? 1 << 14 : 0));
+        return new BackgroundTile(glyph, DeselectedPalette, highPriority: true, column == width - 1 ? TileFlip.Horizontal : TileFlip.None);
     }
     /// <summary>Resolves a zero-based HUD item layout index to its installed icon key.</summary>
     /// <param name="itemIndex">Icon index 0..4 for Missile, Super Missile, Power Bomb, Grapple or X-Ray respectively.</param>

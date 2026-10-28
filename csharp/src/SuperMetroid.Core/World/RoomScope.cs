@@ -149,15 +149,15 @@ internal sealed record RoomScope
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
 
-    /// <summary>Writes tilemap words over this room's BG1 from tilemap word <paramref name="firstWord"/> onward.</summary>
-    /// <param name="firstWord">The first BG1 tilemap word written.</param>
-    /// <param name="words">The tilemap words, in tilemap order.</param>
-    internal void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
-        Bg1Overlay = (Bg1Overlay ?? RoomTilemapOverlay.Empty).With(firstWord, words);
+    /// <summary>Writes tiles over this room's BG1 from tilemap position <paramref name="first"/> onward.</summary>
+    /// <param name="first">The first BG1 tilemap position written.</param>
+    /// <param name="tiles">The tiles, in tilemap order.</param>
+    internal void DrawBg1Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
+        Bg1Overlay = (Bg1Overlay ?? RoomTilemapOverlay.Empty).With(first, tiles);
 
-    /// <summary>Writes <paramref name="words"/> over BG2 from tilemap word <paramref name="firstWord"/> (#1348).</summary>
-    internal void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
-        Bg2Overlay = (Bg2Overlay ?? RoomTilemapOverlay.Empty).With(firstWord, words);
+    /// <summary>Writes <paramref name="tiles"/> over BG2 from tilemap position <paramref name="first"/> (#1348).</summary>
+    internal void DrawBg2Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
+        Bg2Overlay = (Bg2Overlay ?? RoomTilemapOverlay.Empty).With(first, tiles);
 
     /// <summary>Begins the Ceres elevator arrival in this room.</summary>
     /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>

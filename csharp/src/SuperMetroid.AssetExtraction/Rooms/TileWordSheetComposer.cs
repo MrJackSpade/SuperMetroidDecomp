@@ -74,7 +74,7 @@ internal static class TileWordSheetComposer
         // area's map tiles can show in any room.
         List<NamedPart> parts = [.. HudParts(inputs.Maps.GameplayHud), new NamedPart("Minimap", Minimap(Enum.GetValues<AreaId>().Select(inputs.Maps.Get))),
             .. uploads.FxTypes.Order().Select(type => new NamedPart($"Fx{type}", Page(inputs.Maps.RoomFxLayer3Tilemaps.Resolve(type).Span))),
-            Fill(Layer3Plane.ClearedCell)];
+            Fill(BackgroundTileWords.ToWord(Layer3Plane.ClearedCell))];
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             new TileWordBindings([RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
@@ -120,7 +120,7 @@ internal static class TileWordSheetComposer
                 var shownWord = new ShownWord(word, shown);
                 placed.Add(new PlacedWord(top, shownWord, cell));
                 if (pictured.Add(shownWord))
-                    tiles.Add(new TileWordSheetTile(new BgTileArtwork(word, shown), part.Name, Corner(cell)));
+                    tiles.Add(new TileWordSheetTile(new BgTileArtwork(BackgroundTileWords.ToTile(word.Raw), shown), part.Name, Corner(cell)));
             }
             top += part.Part.Rows;
         }
@@ -147,7 +147,7 @@ internal static class TileWordSheetComposer
         {
             var cell = new Position16<TilemapCells>((ushort)(index % PartTiles), (ushort)(index / PartTiles));
             Paint(new(cell.X, (ushort)(top + cell.Y)), rebound[index]);
-            tiles.Add(new TileWordSheetTile(new BgTileArtwork(rebound[index].Word, rebound[index].Shown),
+            tiles.Add(new TileWordSheetTile(new BgTileArtwork(BackgroundTileWords.ToTile(rebound[index].Word.Raw), rebound[index].Shown),
                 TileWordSheet.ReboundFrameName, Corner(cell)));
         }
 
@@ -277,16 +277,13 @@ internal static class TileWordSheetComposer
     /// <exception cref="InvalidDataException">No installed warning tilemap holds them.</exception>
     private static ushort[] OverlayWords(CeresEscapeOverlayTilemapCatalog overlays, CeresEscapeOverlayTilemapDefinition page)
     {
-        if (!overlays.TryResolve(page, out ReadOnlyMemory<byte> data))
+        if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
             throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");
-        var words = new ushort[page.WordCount];
-        for (int index = 0; index < words.Length; index++)
-            words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
-        return words;
+        return BackgroundTileWords.ToWords(tiles.Span);
     }
 
     /// <summary>The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the overlay cell it is typed over.</summary>
-    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase)
+    private static BodyPart Typed(EscapeTypewriterProgram program, BackgroundTile tileBase)
     {
         var runs = new List<BodyRun>();
         foreach (EscapeTypewriterLine line in program.Lines)
@@ -294,8 +291,8 @@ internal static class TileWordSheetComposer
             int cell = line.Cell;
             foreach (char character in line.Text)
             {
-                if (EscapeTypewriterState.GlyphOf((byte)character, new SnesBgTilemapWord(tileBase)) is { } glyph)
-                    runs.AddRange(Runs(cell, [glyph.Raw]));
+                if (EscapeTypewriterState.GlyphOf((byte)character, tileBase) is { } glyph)
+                    runs.AddRange(Runs(cell, [BackgroundTileWords.ToWord(glyph)]));
                 cell++;
             }
         }
@@ -314,13 +311,13 @@ internal static class TileWordSheetComposer
         var hud = new HudState();
         hud.BindPresentation(presentation);
         hud.Initialize(stocked);
-        ushort[] shown = [.. presentation.TopRow(), .. hud.MutableRows];
+        ushort[] shown = BackgroundTileWords.ToWords([.. presentation.TopRow(), .. hud.MutableRows]);
         yield return new NamedPart("Hud", Rows(shown));
         var glyphs = new SortedSet<ushort>();
         void Show(HudSnapshot snapshot)
         {
             hud.Initialize(snapshot);
-            glyphs.UnionWith(hud.MutableRows.ToArray());
+            glyphs.UnionWith(BackgroundTileWords.ToWords(hud.MutableRows));
         }
         for (int tanks = 0; tanks <= 14; tanks++)
         {
@@ -340,12 +337,12 @@ internal static class TileWordSheetComposer
         {
             Show(stocked with { SelectedItem = item });
             hud.ToggleItemHighlight(item, presentation.DeselectedPalette);
-            glyphs.UnionWith(hud.MutableRows.ToArray());
+            glyphs.UnionWith(BackgroundTileWords.ToWords(hud.MutableRows));
         }
         Show(stocked with { ReserveHealth = 0 });
         Show(stocked with { ReserveMode = ReserveTankMode.None });
         hud.ClearAutoReserveIndicator();
-        glyphs.UnionWith(hud.MutableRows.ToArray());
+        glyphs.UnionWith(BackgroundTileWords.ToWords(hud.MutableRows));
         Show(HudSnapshot.CeresDebug);
         glyphs.ExceptWith(shown);
         yield return new NamedPart("Glyphs", Rows([.. glyphs]));

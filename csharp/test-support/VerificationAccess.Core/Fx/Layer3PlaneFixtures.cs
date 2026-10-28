@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -13,7 +14,7 @@ internal static class Layer3PlaneFixtures
         var words = new ushort[Layer3Plane.Rows * Layer3Plane.Columns];
         for (int word = 0; word < words.Length; word++)
             words[word] = vram.ReadWord(GameplayVramLayoutConstants.HudTilemapWord + word);
-        return new Layer3Plane(words);
+        return new Layer3Plane(BackgroundTileWordBytes.Tiles(words));
     }
 
     /// <summary>
@@ -23,7 +24,7 @@ internal static class Layer3PlaneFixtures
     [PpuLayoutBoundary("test fixture: writes the room effect's BG3 plane where an oracle reads it")]
     internal static void WriteEffectPlane(SnesVram vram, RoomLayer3FxState fx)
     {
-        Layer3Plane plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
+        Layer3Plane plane = Layer3Plane.Compose(new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageTiles());
         vram.ExecuteWordTransfer(plane.Words[(Layer3Plane.HudRows * Layer3Plane.Columns)..].ToArray(),
             checked(GameplayVramLayoutConstants.HudTilemapWord + Layer3Plane.HudRows * Layer3Plane.Columns), 1);
     }
@@ -38,6 +39,6 @@ internal static class Layer3PlaneFixtures
             int at = (GameplayVramLayoutConstants.HudTilemapWord + word) * 2;
             words[word] = SnesLittleEndian.Word(vram[at], vram[at + 1]);
         }
-        return new Layer3Plane(words);
+        return new Layer3Plane(BackgroundTileWordBytes.Tiles(words));
     }
 }

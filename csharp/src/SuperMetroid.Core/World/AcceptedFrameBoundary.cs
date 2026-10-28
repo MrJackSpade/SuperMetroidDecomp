@@ -288,8 +288,8 @@ internal sealed class AcceptedFrameBoundary
         {
             image = background.Resolve(_backgrounds, animatedBlocks);
         }
-        // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
-        ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
+        // A boss body that owns BG2 draws each tile from its body sheet's picture over what the tile's character shows.
+        ImmutableArray<BackgroundTile>? body = latched.Bosses.KraidBody?.Tilemap.Tiles ?? latched.Bosses.EnemyBg2?.Tiles;
         ImmutableArray<BgTilePicture?> bodyPictures = body is { } bodyWords
             ? (scope.BodyPictures ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed tile word sheet."))
                 .Resolve(bodyWords, characters)
@@ -333,12 +333,12 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     internal Layer3Plane CaptureLayer3Plane()
     {
-        var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
+        var hudRows = new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns];
         // Without installed HUD artwork the HUD shows the stock top row.
-        ushort[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
+        BackgroundTile[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
         topRow.CopyTo(hudRows, 0);
         _hud.MutableRows.CopyTo(hudRows.AsSpan(Layer3Plane.Columns));
-        return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageWords() ?? []);
+        return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageTiles() ?? []);
     }
 
     /// <summary>The fixed colours effects chose during the previous main loop.</summary>

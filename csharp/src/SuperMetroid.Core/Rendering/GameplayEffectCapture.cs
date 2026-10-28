@@ -225,13 +225,13 @@ public static class GameplayEffectCapture
         static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));
     }
 
-    /// <summary>Resolves the published eye cone and ROM tangent table into inclusive color windows.</summary>
+    /// <summary>Resolves the latched eye-beam cone into the inclusive colour window it adds on each line.</summary>
     public static ColourAddBandsLayer? CaptureMorphBallEyeBeam(
-        MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
+        MorphBallEyeBeamCone beam, Position16<RoomPixels> layer1)
     {
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
-        Offset16<ScreenPixels> origin = beam.WorldPosition.RelativeToCamera(layer1);
+        Offset16<ScreenPixels> origin = beam.Origin.RelativeToCamera(layer1);
         int angle = beam.Angle.TableIndex;
         int angularWidth = unchecked((byte)beam.AngularWidth);
         ushort[] windowEdges = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);

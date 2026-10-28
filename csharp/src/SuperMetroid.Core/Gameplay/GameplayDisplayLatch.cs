@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="MainScreen">The layers gameplay shows on the main screen.</param>
 /// <param name="PerspectiveFloor">The Ceres perspective floor the frame shows in place of the ordinary layers, or null.</param>
 /// <param name="RoomLayer3Fx">Room-FX BG3 state.</param>
-/// <param name="MorphBallEyeBeam">Morph Ball eye beam geometry and color.</param>
+/// <param name="MorphBallEyeBeam">The Morph Ball eye beam's cone as the frame ends: its eye's position and aim, its width and colour; null while no beam exists.</param>
 /// <param name="Phantoon">Phantoon's wave, blend, and mosaic latches, when Phantoon exists.</param>
 /// <param name="TourianStatueVerticalOffset">
 /// Tourian statue BG2 vertical offset in pixels: the statue state's signed offset, which the capture adds to the
@@ -36,7 +36,7 @@ public sealed record GameplayDisplayLatch(
     ScreenLayers MainScreen,
     PerspectiveFloor? PerspectiveFloor,
     RoomLayer3FxRenderSnapshot? RoomLayer3Fx,
-    MorphBallEyeBeamRenderSnapshot? MorphBallEyeBeam,
+    MorphBallEyeBeamCone? MorphBallEyeBeam,
     PhantoonDisplaySnapshot? Phantoon,
     int TourianStatueVerticalOffset,
     GameplayLatchedScene Scene,

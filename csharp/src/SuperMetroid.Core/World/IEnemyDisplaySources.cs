@@ -37,7 +37,4 @@ internal interface IEnemyDisplaySources
 
     /// <summary>The morph-ball eye's beam.</summary>
     MorphBallEyeBeamState MorphBallEyeBeam { get; }
-
-    /// <summary>The morph-ball eye states by slot.</summary>
-    IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates { get; }
 }

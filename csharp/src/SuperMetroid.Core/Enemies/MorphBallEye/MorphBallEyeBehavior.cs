@@ -15,10 +15,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, slot, common);
 
-    /// <summary>Validates that the room-global beam still belongs to the retail body slot.</summary>
+    /// <summary>The room's enemy slots, which hold the eyes' mounts and bodies.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Uses native enemy-slot layout to bind the beam object to its eye body.</summary>
+    /// <summary>Owns the eyes found in the room's enemy slots.</summary>
     internal MorphBallEyeBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -41,7 +41,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates =>
         [.. _slotTable.Slots.Select(slot => slot.SpeciesState<MorphBallEyeEnemyState>())];
 
-    /// <summary>The room-global bank-$88 beam object spawned by an eye body.</summary>
+    /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
     /// <summary>Most recent library-two eye sound requested during this enemy frame.</summary>
@@ -74,9 +74,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MorphBallEyeAiFunction.MountNoOp;
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);
 
-        // Native clears all 256 window endpoint words from the mount initializer. Host
-        // geometry is generated from BeamState, so resetting that state is the equivalent
-        // room-load boundary and prevents a prior room's reveal from leaking forward.
+        // A mount clears any beam when the room loads, so a prior room's reveal never
+        // shows in this one.
         MorphBallEyeBeam.Reset();
     }
 
@@ -197,12 +196,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))).ReinterpretAsTableAngle().ToAngle();
 
-    /// <summary>Requires the body in retail slot one before scheduling the room-global bank-$88 beam for next frame.</summary>
+    /// <summary>Requires the body in retail slot one before scheduling the room-global beam to appear next frame.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {
-        // The native bank-$88 code addresses Enemy[1] and Eye.*+$40 literally. Refusing a
-        // different layout catches a malformed/custom population instead of quietly aiming
-        // the room-global beam from whichever actor happened to request it.
+        // The game's beam always follows the enemy in the room's second slot, whichever eye
+        // requested it. Refusing a different layout catches a malformed or custom population
+        // instead of quietly aiming the beam from an eye the game would not follow.
         if (eye.SlotIndex != 1 || eye.DefinitionId != EnemyDefinitionId.Eye)
         {
             throw new InvalidDataException(
@@ -210,12 +209,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         MorphBallEyeBeam.Reset();
-        MorphBallEyeBeam.BodySlotIndex = eye.SlotIndex;
+        MorphBallEyeBeam.Body = eye;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.PendingInitialization;
     }
 
     /// <summary>
-    /// Advances $88:E917-$EB57 before enemy AI, matching the native HDMA-object pass. A beam
+    /// Advances the beam before enemy AI, as the game advances it ahead of the enemies. A beam
     /// spawned by this frame's eye AI consequently initializes on the following frame.
     /// </summary>
     internal void StepMorphBallEyeBeam()
@@ -300,18 +299,18 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeBeam.FadeOneStep();
     }
 
-    /// <summary>Rejects a beam whose saved body slot is missing, wrong species, or a mount rather than the eye body.</summary>
+    /// <summary>Rejects a beam whose body is missing, of the wrong species, or a mount rather than the eye body.</summary>
     private RoomEnemySlot RequireMorphBallEyeBeamBody()
     {
-        int index = MorphBallEyeBeam.BodySlotIndex;
-        if ((uint)index >= _slotTable.Slots.Count ||
-            _slotTable.Slots[index].DefinitionId != EnemyDefinitionId.Eye ||
-            MorphBallEyePlacement.Of(_slotTable.Slots[index].Spawn.Population.Parameter2).IsBeamMount)
+        RoomEnemySlot body = MorphBallEyeBeam.Body
+            ?? throw new InvalidDataException("Morph-ball eye beam has no eye body.");
+        if (body.DefinitionId != EnemyDefinitionId.Eye ||
+            MorphBallEyePlacement.Of(body.Spawn.Population.Parameter2).IsBeamMount)
         {
             throw new InvalidDataException(
-                $"Morph-ball eye HDMA object lost its body in enemy slot {index}.");
+                $"Morph-ball eye beam lost its body in enemy slot {body.SlotIndex}.");
         }
-        return _slotTable.Slots[index];
+        return body;
     }
 
     /// <summary>Advances MorphBallEye's typed animation.</summary>

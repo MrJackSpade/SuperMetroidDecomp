@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
-/// <summary>The translated lifetime of the morph-ball eye's bank-$88 HDMA object.</summary>
+/// <summary>The lifetime of the Morph Ball eye's beam.</summary>
 public enum MorphBallEyeBeamPhase
 {
-    /// <summary>No reveal HDMA object is installed; beam accumulators and fixed-color components are at their reset values.</summary>
+    /// <summary>No beam exists; its width, growth and colour are at their reset values.</summary>
     Inactive,
-    /// <summary>The eye AI requested a beam, but its initialization instruction will run in the next HDMA-object pass, before the next enemy AI pass.</summary>
+    /// <summary>The eye AI requested a beam, which appears on the next beam update, before the next enemy AI pass.</summary>
     PendingInitialization,
-    /// <summary>The initialized object accelerates its 16.16 angular half-width until it reaches four of the 256 angle units per full turn.</summary>
+    /// <summary>The beam accelerates its 16.16 angular half-width until it reaches four of the 256 angle units per full turn.</summary>
     Widening,
-    /// <summary>The four-unit half-width beam tracks the body angle and cycles sixteen yellow brightness steps while the body's activation flag remains set.</summary>
+    /// <summary>The four-unit half-width beam follows the eye's aim and cycles sixteen yellow brightness steps while the eye stays activated.</summary>
     Full,
-    /// <summary>The object's fixed-color RGB components fade toward zero; reaching the green selector-only value deletes the beam on the following pass.</summary>
+    /// <summary>The beam's colour fades toward black; once its green has faded out the beam is removed on the following update.</summary>
     Deactivating,
 }

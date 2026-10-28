@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Installer acceptance for the source-inventoried presentation domains. Import is
@@ -94,10 +95,16 @@ internal static class InstallationOverrideLifecycleVerification
     }
 
     /// <summary>
-    /// Installed domains that hold gameplay data rather than presentation, so they have no
-    /// persistent override: room level streams are the block and collision data rooms run on (#1332).
+    /// Installed domains with no persistent override: room level streams are the block and collision data rooms run on
+    /// (#1332); room metatiles are the import pipeline's input the block sheets are composed from, and the block sheet is
+    /// what a player overrides (#1431); Samus's overreads are the stock cartridge bytes her overrun glitches read (#1444).
     /// </summary>
-    private static readonly string[] StockOnlyGameplayDomains = [nameof(GameInstallationLayout.RoomLevelStreamDirectoryName)];
+    private static readonly string[] StockOnlyDomains =
+    [
+        nameof(GameInstallationLayout.RoomLevelStreamDirectoryName),
+        nameof(GameInstallationLayout.RoomMetatileDirectoryName),
+        nameof(GameInstallationLayout.SamusOverreadDirectoryName),
+    ];
 
     /// <summary>Copies every declared installed domain into persistent overrides and adds an unrecognized user note.</summary>
     [ReflectionAudit("public coverage discovery: every override directory the installation exposes must match a declared installed domain")]
@@ -111,7 +118,7 @@ internal static class InstallationOverrideLifecycleVerification
         string[] declared = MetadataShape.Fields(typeof(GameInstallationLayout), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.FieldType == typeof(string) && field.Name.EndsWith("DirectoryName", StringComparison.Ordinal) &&
                 field.Name != nameof(GameInstallationLayout.ContentDirectoryName) &&
-                !StockOnlyGameplayDomains.Contains(field.Name))
+                !StockOnlyDomains.Contains(field.Name))
             .Select(field => (string)(field.GetValue(null) ?? throw new InvalidOperationException("Verification requires field.GetValue(null)."))).Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal).ToArray();
         Assert(directories.SequenceEqual(declared), "every declared installed domain exposes a persistent override directory");
@@ -136,9 +143,11 @@ internal static class InstallationOverrideLifecycleVerification
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         // This reflection is verification-only: enumerate declared loading APIs so
         // a future catalog cannot silently escape the persistence acceptance gate.
+        // Samus's overreads are the stock cartridge bytes her overrun glitches read; they have no override to persist.
         foreach (MethodInfo loader in typeof(GameInstallation).GetMethods()
                      .Where(method => method.Name.StartsWith("Load", StringComparison.Ordinal) &&
-                         method.GetParameters().Length == 0).OrderBy(method => method.Name, StringComparer.Ordinal))
+                         method.GetParameters().Length == 0 &&
+                         method.Name != nameof(GameInstallation.LoadSamusOverreads)).OrderBy(method => method.Name, StringComparer.Ordinal))
         {
             object catalog;
             try { catalog = (loader.Invoke(installation, null) ?? throw new InvalidOperationException("Verification requires loader.Invoke(installation, null).")); }
@@ -147,10 +156,18 @@ internal static class InstallationOverrideLifecycleVerification
                 ExceptionDispatchInfo.Capture(error.InnerException).Throw();
                 throw;
             }
-            string identity = catalog is InstalledProjectilePresentation projectile
-                ? projectile.SelectedSha256
-                : catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
-                    ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity.");
+            // The room catalogs' identities are the ones a host records for them, computed from their stored encodings
+            // by the import pipeline (#1444); every other catalog reports its own.
+            string identity = catalog switch
+            {
+                InstalledProjectilePresentation projectile => projectile.SelectedSha256,
+                RoomCharacterAtlasCatalog characters => RoomTilesetSources.CharacterIdentity(characters),
+                RoomStaticPaletteCatalog palettes => RoomTilesetSources.PaletteIdentity(palettes),
+                RoomBackgroundTilemapCatalog backgrounds => RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
+                RoomSkyTilemapCatalog skies => RoomPresentationIdentity.SkyIdentity(skies),
+                _ => catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
+                    ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity."),
+            };
             result.Add(loader.Name, identity);
         }
         return result;

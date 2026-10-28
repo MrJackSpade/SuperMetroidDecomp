@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
-public sealed class RoomSkyTilemapCatalog
+public sealed class RoomSkyTilemaps
 {
     /// <summary>The tiles of the seven selected sky pages, in scrolling order.</summary>
     private readonly BackgroundTile[] pages;
@@ -17,7 +17,7 @@ public sealed class RoomSkyTilemapCatalog
 
     /// <summary>Copies and validates the seven scrolling-sky pages in scrolling order.</summary>
     /// <param name="selectedPages">Exactly seven 32-by-32 compiled BG tilemap pages.</param>
-    public RoomSkyTilemapCatalog(IReadOnlyList<RoomBackgroundTilemapAtlas> selectedPages)
+    public RoomSkyTilemaps(IReadOnlyList<RoomBackgroundTilemapAtlas> selectedPages)
     {
         Ensure.NotNull(selectedPages);
         if (selectedPages.Count != RoomSkyTilemapFormat.PageCount)

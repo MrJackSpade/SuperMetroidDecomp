@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms;
 /// Each word contains only the native ten-bit block index and two parent flip bits;
 /// collision type and BTS remain in the application's unmodified level allocation.
 /// </summary>
-public sealed class RoomVisualLayout
+public sealed class RoomLevelArtwork
 {
     /// <summary>Copied BG1 visual words independent of the room's collision allocation.</summary>
     private readonly ushort[] foreground;
@@ -21,7 +21,7 @@ public sealed class RoomVisualLayout
     /// <param name="backgroundVisualWords">Row-major BG2 words with the same permitted bit fields; collision/type and BTS data are not supplied here.</param>
     /// <exception cref="ArgumentOutOfRangeException">A dimension is nonpositive.</exception>
     /// <exception cref="InvalidDataException">A plane has the wrong word count or includes bits 12..15.</exception>
-    public RoomVisualLayout(RoomLevelId level, Extent16<RoomBlocks> size,
+    public RoomLevelArtwork(RoomLevelId level, Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foregroundVisualWords,
         ReadOnlySpan<ushort> backgroundVisualWords)
     {
@@ -58,7 +58,7 @@ public sealed class RoomVisualLayout
     private static bool HasCollisionBits(ReadOnlySpan<ushort> words)
     {
         foreach (int word in words)
-            if ((word & 0xf000) != 0) return true;
+            if (!RoomLevelWord.IsValidVisualWord(word)) return true;
         return false;
     }
 }

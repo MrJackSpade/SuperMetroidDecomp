@@ -13,7 +13,7 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
         BlueDoorPlmProgramDefinitions.Programs;
 
     /// <summary>The facing this cap draws for.</summary>
-    private ColoredDoorOrientation Orientation => BlueDoorPlmProgramDefinitions.Orientation(Cursor.Program);
+    private ColoredDoorOrientation Orientation => BlueDoorPlmProgramDefinitions.Orientations[Cursor.Program];
 
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(BlueDoorFrame frame) => frame switch

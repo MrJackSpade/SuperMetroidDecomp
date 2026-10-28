@@ -63,10 +63,10 @@ internal static class RoomCallbackDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomCallbackDefinitions.PointerOf((RoomSetupCallback)byte.MaxValue),
             "room-setup reverse mapping rejects unknown typed identities");
-        AssertTrue(RoomCallbackDefinitions.SpawnsCeresHaze(
+        AssertTrue(RoomCallbackDefinitions.CeresHazeSetups.Contains(
                 RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze),
             "Ceres solid-door callback retains its haze side effect");
-        AssertTrue(!RoomCallbackDefinitions.SpawnsCeresHaze(
+        AssertTrue(!RoomCallbackDefinitions.CeresHazeSetups.Contains(
                 RoomSetupCallback.SetMediumHorizontalRoomShaking),
             "unrelated callback does not acquire Ceres haze");
 

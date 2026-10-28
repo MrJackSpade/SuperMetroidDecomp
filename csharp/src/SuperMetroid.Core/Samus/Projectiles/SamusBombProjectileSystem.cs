@@ -752,7 +752,7 @@ public sealed class SamusBombProjectileSystem
         int yWithinBlock = slot.Position.Y.Whole & 15;
         if (block.Bts.SlopeFlipsVertically)
             yWithinBlock ^= 15;
-        int height = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, xWithinBlock);
+        int height = SlopeHeights.Read(block.Bts.SlopeShape, xWithinBlock);
         return height <= yWithinBlock;
     }
 

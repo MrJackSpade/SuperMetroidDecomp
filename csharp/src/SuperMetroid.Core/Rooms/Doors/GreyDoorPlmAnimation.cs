@@ -13,7 +13,7 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
 
     /// <inheritdoc/>
     private protected override AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue> Programs =>
-        GreyDoorPlmProgramDefinitions.ProgramsFor(Variant);
+        GreyDoorPlmProgramDefinitions.Sets[Variant];
 
     /// <inheritdoc/>
     public void StartClosing() => Restart(GreyDoorProgram.Closing);
@@ -39,15 +39,15 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
                 if (context.Plms.DoorPlms.IsDoorOpened(slot))
                 {
                     slot.Family = null;
-                    slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Variant.Orientation)));
+                    slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.ClosedPrograms[Variant.Orientation]));
                 }
                 return null;
             case GreyDoorCue.LinkActivate:
                 SetLink(GreyDoorProgram.Activate);
                 return null;
             case GreyDoorCue.ArmCondition:
-                slot.PreInstruction = GreyDoorPreInstructions.Of(GreyDoorPlmProgramDefinitions.UnlockCheckOf(
-                    ((slot.Family as GreyDoorPlmState) ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition));
+                slot.PreInstruction = GreyDoorPreInstructions.Of(GreyDoorPlmProgramDefinitions.UnlockChecks[
+                    ((slot.Family as GreyDoorPlmState) ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition]);
                 return null;
             case GreyDoorCue.LinkHit:
                 SetLink(GreyDoorProgram.Hit);

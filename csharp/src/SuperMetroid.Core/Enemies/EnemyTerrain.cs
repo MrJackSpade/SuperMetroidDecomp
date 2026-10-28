@@ -597,7 +597,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
-        SlopeHeightDefinitions.Read(bts.SlopeShape, xWithinBlock);
+        SlopeHeights.Read(bts.SlopeShape, xWithinBlock);
     /// <summary>
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context is not persisted; every enemy frame supplies it again after debugger restoration.

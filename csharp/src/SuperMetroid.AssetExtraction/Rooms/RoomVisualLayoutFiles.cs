@@ -87,7 +87,7 @@ public static class RoomVisualLayoutFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, coverage, integrity, strict JSON, level identity, dimensions, or visual word arrays are invalid.</exception>
     /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static RoomVisualLayoutCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static RoomLevelArtworks Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
@@ -101,7 +101,7 @@ public static class RoomVisualLayoutFiles
             throw new InvalidDataException(
                 $"Room-layout manifest {manifestPath} does not cover the pinned retail levels.");
 
-        var selected = new Dictionary<RoomLevelId, RoomVisualLayout>();
+        var selected = new Dictionary<RoomLevelId, RoomLevelArtwork>();
         foreach ((string name, LayoutFileEntry entry) in manifest.Entries)
         {
             if (entry?.Level is null || name != LevelFileName(entry.Id) ||
@@ -128,10 +128,10 @@ public static class RoomVisualLayoutFiles
                 document.ForegroundVisualWords is null ||
                 document.BackgroundVisualWords is null)
                 throw new InvalidDataException($"Room layout {selectedPath} has incompatible dimensions or identity.");
-            RoomVisualLayout layout;
+            RoomLevelArtwork layout;
             try
             {
-                layout = new RoomVisualLayout(entry.Id, document.Size,
+                layout = new RoomLevelArtwork(entry.Id, document.Size,
                     document.ForegroundVisualWords, document.BackgroundVisualWords);
             }
             catch (InvalidDataException error)
@@ -141,7 +141,7 @@ public static class RoomVisualLayoutFiles
             if (!selected.TryAdd(entry.Id, layout))
                 throw new InvalidDataException($"Room-layout manifest {manifestPath} repeats a level.");
         }
-        return new RoomVisualLayoutCatalog(selected, RoomVisualLayoutSourceDefinitions.All);
+        return new RoomLevelArtworks(selected, RoomVisualLayoutSourceDefinitions.All);
     }
 
     /// <summary>Loads and validates every stock level through <see cref="Load"/> with no overrides, cartridge reads, or file writes.</summary>

@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// The installed pre-coloured room artwork (#1392): the block sheet of each tileset a room can load, and the image of each
 /// library background a room state loads.
 /// </summary>
-public sealed class RoomBlockSheetCatalog
+public sealed class InstalledRoomArtwork
 {
     /// <summary>
     /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the tile word
     /// sheets, each under its own tileset.
     /// </summary>
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
-    public RoomBlockSheetCatalog(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
+    public InstalledRoomArtwork(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords,
         IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
         IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> floorTiles)
@@ -101,7 +101,7 @@ public sealed class RoomBlockSheetCatalog
         Bg3Words.TryGetValue(tileset, out TileWordSheet? words) ? words : throw new InvalidDataException($"No BG3 word sheet is installed for {tileset}.");
 
     /// <summary>A content identity of every sheet, in tileset order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomBlockSheetCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomArtwork), content =>
     {
         foreach ((TilesetDefinition tileset, RoomBlockSheet sheet) in Sheets.OrderBy(entry => RoomBlockSheet.NameOf(entry.Key), StringComparer.Ordinal))
         {

@@ -138,21 +138,21 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
     /// <summary>Loads validated room character atlases, selecting compatible user tile artwork for each supplied replacement.</summary>
-    public RoomCharacterAtlasCatalog LoadRoomCharacters() =>
+    public RoomCharacterAtlases LoadRoomCharacters() =>
         RoomCharacterArtworkFiles.Load(RoomCharacterDirectory, RoomCharacterOverrideDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>
     public string RoomPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Validates stock room palette hashes and loads each existing replacement palette keyed by its source identity.</summary>
-    public RoomStaticPaletteCatalog LoadRoomPalettes() =>
+    public RoomStaticPalettes LoadRoomPalettes() =>
         RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory, RoomPaletteOverrideDirectory);
     /// <summary>Stock pre-coloured room block sheets under the replaceable content tree.</summary>
     public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
     /// <summary>Edited block pictures survive stock content replacement.</summary>
     public string RoomBlockSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBlockSheetDirectoryName);
     /// <summary>Loads every tileset's pre-coloured block sheet, preferring the player's edits (#1392).</summary>
-    public RoomBlockSheetCatalog LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory, RoomBlockSheetOverrideDirectory);
+    public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory, RoomBlockSheetOverrideDirectory);
     /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
     public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
@@ -160,12 +160,12 @@ public sealed record GameInstallation(string Root)
     /// <summary>Persistent replacements for visual room-block references, preserved during stock rebuilds.</summary>
     public string RoomVisualLayoutOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomVisualLayoutDirectoryName);
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
-    public RoomVisualLayoutCatalog LoadRoomVisualLayouts() =>
+    public RoomLevelArtworks LoadRoomVisualLayouts() =>
         RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
     /// <summary>Stock native room-level allocations under the replaceable content tree; this family has no override directory.</summary>
     public string RoomLevelStreamDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomLevelStreamDirectoryName);
     /// <summary>Validated stock collision/BTS and streaming allocations, independent of editable visual layouts.</summary>
-    public RoomLevelStreamCatalog LoadRoomLevelStreams() => RoomLevelStreamFiles.Load(RoomLevelStreamDirectory);
+    public InstalledRoomLevelStreams LoadRoomLevelStreams() => RoomLevelStreamFiles.Load(RoomLevelStreamDirectory);
     /// <summary>Stock definitions for shootable block appearances under the replaceable content tree.</summary>
     public string RoomPlmShotBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName);
     /// <summary>Persistent replacements for shootable block appearances, preserved during stock rebuilds.</summary>
@@ -392,10 +392,10 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     /// <summary>Loads validated room background tilemaps and compatible replacements from the persistent override tree.</summary>
-    public RoomBackgroundTilemapCatalog LoadRoomBackgroundTilemaps() =>
+    public RoomBackgroundTilemaps LoadRoomBackgroundTilemaps() =>
         RoomBackgroundTilemapArtworkFiles.Load(RoomBackgroundTilemapDirectory, RoomBackgroundTilemapOverrideDirectory);
     /// <summary>Loads validated sky tilemaps from the shared room-background directory and its compatible user replacements.</summary>
-    public RoomSkyTilemapCatalog LoadRoomSkyTilemaps() =>
+    public RoomSkyTilemaps LoadRoomSkyTilemaps() =>
         RoomSkyTilemapArtworkFiles.Load(RoomBackgroundTilemapDirectory, RoomBackgroundTilemapOverrideDirectory);
     /// <summary>Persistent projectile artwork and presentation replacements, preserved during stock rebuilds.</summary>
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);

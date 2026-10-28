@@ -28,7 +28,7 @@ internal static class RoomTilesetSources
         SnesAddress table = RoomTilesetSourceDefinitions.TilesetTable;
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            TilesetDefinition sets = RoomTilesetDefinitions.Get(graphicsSet);
+            TilesetDefinition sets = RoomTilesets.Get(graphicsSet);
             var entry = new SnesAddress(table.Bank,
                 RomDataReader.ReadWordFixedBank(cartridge, table.AddWithinBank(graphicsSet * sizeof(ushort))));
             Add(blocks, sets.Blocks, Source(cartridge, entry, RoomTilesetSourceDefinitions.BlocksPointerOffset));
@@ -41,13 +41,13 @@ internal static class RoomTilesetSources
     }
 
     /// <summary>The installed content identity of the selected character sheets.</summary>
-    internal static string CharacterIdentity(RoomCharacterAtlasCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(
-        nameof(RoomCharacterAtlasCatalog), catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
+    internal static string CharacterIdentity(RoomCharacterAtlases catalog) => SelectedPresentationHash.FromNamedTransfers(
+        nameof(RoomCharacterAtlases), catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
         atlas => atlas.Characters, catalog.Cre.Characters);
 
     /// <summary>The installed content identity of the selected room palettes.</summary>
-    internal static string PaletteIdentity(RoomStaticPaletteCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(
-        nameof(RoomStaticPaletteCatalog), catalog.Palettes.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
+    internal static string PaletteIdentity(RoomStaticPalettes catalog) => SelectedPresentationHash.FromNamedTransfers(
+        nameof(RoomStaticPalettes), catalog.Palettes.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
         palette => palette.PackedColours);
 
     /// <summary>The long pointer <paramref name="offset"/> bytes into the tileset entry at <paramref name="entry"/>.</summary>

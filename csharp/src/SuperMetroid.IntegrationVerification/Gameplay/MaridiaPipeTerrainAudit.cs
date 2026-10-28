@@ -27,7 +27,7 @@ internal static class MaridiaPipeTerrainAudit
         byte[] vram = runtime.ComposedVram();
         // The room's blocks as the cartridge composes them; extraction pictures them from the same compositions (#1431).
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidOperationException("The tube audit observed no room.");
-        BackgroundTile[] blockTiles = InstalledFixtures.StockBlockTiles(RoomTilesetDefinitions.Get(room.State.GraphicsSet), ceres: false);
+        BackgroundTile[] blockTiles = InstalledFixtures.StockBlockTiles(RoomTilesets.Get(room.State.GraphicsSet), ceres: false);
         foreach (bool background in new[] { false, true })
         {
             if (background && !(scroll.Layer2Scroll.Horizontal.Streams && scroll.Layer2Scroll.Vertical.Streams)) continue;

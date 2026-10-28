@@ -12,16 +12,16 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal sealed record LibraryBackgroundArtwork
 {
     /// <summary>The installed decompressed tilemaps, by the compressed stream each stands for.</summary>
-    public RoomBackgroundTilemapCatalog? TilemapArt { get; init; }
+    public RoomBackgroundTilemaps? TilemapArt { get; init; }
 
     /// <summary>The installed scrolling-sky tilemap pages.</summary>
-    public RoomSkyTilemapCatalog? SkyArt { get; init; }
+    public RoomSkyTilemaps? SkyArt { get; init; }
 
     /// <summary>The installed HUD characters, which Kraid's list moves.</summary>
     public HudTileAtlas? HudArt { get; init; }
 
     /// <summary>The installed room characters, which hold the Tourian statue ghost's.</summary>
-    public RoomCharacterAtlasCatalog? CharacterArt { get; init; }
+    public RoomCharacterAtlases? CharacterArt { get; init; }
 
     /// <summary>The bindings the list's characters bind into; null binds them into the replay's own.</summary>
     public BgArtworkBindings? Backgrounds { get; init; }

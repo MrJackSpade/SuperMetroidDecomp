@@ -64,19 +64,19 @@ public sealed record GameArtwork : IGameplayArtwork
     public EndingPaletteCatalog? EndingPaletteArt { get; init; }
 
     /// <summary>Room tileset characters.</summary>
-    public RoomCharacterAtlasCatalog? RoomCharacterArt { get; init; }
+    public RoomCharacterAtlases? RoomCharacterArt { get; init; }
 
     /// <summary>Room static palettes.</summary>
-    public RoomStaticPaletteCatalog? RoomPaletteArt { get; init; }
+    public RoomStaticPalettes? RoomPaletteArt { get; init; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    public RoomBlockSheetCatalog? RoomBlockSheets { get; init; }
+    public InstalledRoomArtwork? RoomBlockSheets { get; init; }
 
     /// <summary>Initial room foreground and background layouts.</summary>
-    public RoomVisualLayoutCatalog? RoomVisualLayouts { get; init; }
+    public RoomLevelArtworks? RoomVisualLayouts { get; init; }
 
     /// <summary>Stock native room-level allocations; not overridable.</summary>
-    public RoomLevelStreamCatalog? RoomLevelStreams { get; init; }
+    public InstalledRoomLevelStreams? RoomLevelStreams { get; init; }
 
     /// <summary>Room PLM shot block visuals.</summary>
     public RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; init; }
@@ -163,10 +163,10 @@ public sealed record GameArtwork : IGameplayArtwork
     public XrayRevealVisualCatalog? XrayRevealVisuals { get; init; }
 
     /// <summary>Room background tilemaps.</summary>
-    public RoomBackgroundTilemapCatalog? RoomBackgroundTilemapArt { get; init; }
+    public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; init; }
 
     /// <summary>Room sky tilemaps.</summary>
-    public RoomSkyTilemapCatalog? RoomSkyTilemapArt { get; init; }
+    public RoomSkyTilemaps? RoomSkyTilemapArt { get; init; }
 
     /// <summary>Samus projectile sprite compositions.</summary>
     public ProjectileSpriteCatalog? ProjectileCompositions { get; init; }

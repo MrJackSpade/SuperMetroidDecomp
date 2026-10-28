@@ -27,9 +27,9 @@ internal static class RoomBackgroundLibraryParityVerification
         Suite(nameof(VerifyCompiledLibraryBackgroundPrograms), () => VerifyCompiledLibraryBackgroundPrograms(inventoryBus));
         IReadOnlyList<LibraryBackgroundNativeOperand> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
-        RoomBackgroundTilemapCatalog backgrounds = installed.LoadRoomBackgroundTilemaps();
-        RoomSkyTilemapCatalog skies = installed.LoadRoomSkyTilemaps();
-        RoomCharacterAtlasCatalog characters = installed.LoadRoomCharacters();
+        RoomBackgroundTilemaps backgrounds = installed.LoadRoomBackgroundTilemaps();
+        RoomSkyTilemaps skies = installed.LoadRoomSkyTilemaps();
+        RoomCharacterAtlases characters = installed.LoadRoomCharacters();
         HudTileAtlas hud = installed.LoadMaps().HudTiles;
         int cases = 0;
 
@@ -113,8 +113,8 @@ internal static class RoomBackgroundLibraryParityVerification
     /// list fails to decode, naming the source.
     /// </summary>
     private static void VerifyInstalledBackgroundTransferFailures(
-        RoomBackgroundTilemapCatalog backgrounds, RoomSkyTilemapCatalog skies,
-        HudTileAtlas hud, RoomCharacterAtlasCatalog characters)
+        RoomBackgroundTilemaps backgrounds, RoomSkyTilemaps skies,
+        HudTileAtlas hud, RoomCharacterAtlases characters)
     {
         const ushort listPointer = 0xf000;
 

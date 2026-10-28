@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Complete host-selected set of compressed library-background visual tilemaps.</summary>
-public sealed class RoomBackgroundTilemapCatalog
+public sealed class RoomBackgroundTilemaps
 {
     /// <summary>Copied tilemap lookup; each selected atlas remains the caller's installed compilation.</summary>
     private readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
@@ -12,7 +12,7 @@ public sealed class RoomBackgroundTilemapCatalog
     /// <param name="byTilemap">Complete mapping from every <see cref="RoomBackgroundTilemap"/> to its nonnull selected tilemap.</param>
     /// <exception cref="ArgumentNullException"><paramref name="byTilemap"/> is null.</exception>
     /// <exception cref="InvalidDataException">The mapping does not contain exactly every tilemap with a nonnull atlas.</exception>
-    public RoomBackgroundTilemapCatalog(
+    public RoomBackgroundTilemaps(
         IReadOnlyDictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap)
     {
         Ensure.NotNull(byTilemap);

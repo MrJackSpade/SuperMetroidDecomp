@@ -4,21 +4,21 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Complete installed room-layout artwork selected by the room state's level.</summary>
-public sealed class RoomVisualLayoutCatalog
+public sealed class RoomLevelArtworks
 {
     /// <summary>Validated level selection for all installed room-level visual planes.</summary>
-    private readonly Dictionary<RoomLevelId, RoomVisualLayout> layouts;
+    private readonly Dictionary<RoomLevelId, RoomLevelArtwork> layouts;
 
     /// <summary>Copies a level-keyed installation and requires each of <paramref name="requiredLevels"/> to have a matching non-null layout.</summary>
-    /// <param name="layouts">Initial visual layouts keyed by their own <see cref="RoomVisualLayout.Level"/>.</param>
+    /// <param name="layouts">Initial visual layouts keyed by their own <see cref="RoomLevelArtwork.Level"/>.</param>
     /// <param name="requiredLevels">Every room level the installation must cover.</param>
     /// <exception cref="InvalidDataException">A value is null, its level differs from its key, or a required level is absent.</exception>
-    public RoomVisualLayoutCatalog(IReadOnlyDictionary<RoomLevelId, RoomVisualLayout> layouts,
+    public RoomLevelArtworks(IReadOnlyDictionary<RoomLevelId, RoomLevelArtwork> layouts,
         IEnumerable<RoomLevelId> requiredLevels)
     {
         Ensure.NotNull(layouts);
-        this.layouts = new Dictionary<RoomLevelId, RoomVisualLayout>(layouts);
-        foreach ((RoomLevelId level, RoomVisualLayout layout) in this.layouts)
+        this.layouts = new Dictionary<RoomLevelId, RoomLevelArtwork>(layouts);
+        foreach ((RoomLevelId level, RoomLevelArtwork layout) in this.layouts)
             if (layout is null || layout.Level != level)
                 throw new InvalidDataException(
                     $"Room visual layout key {level} must contain its matching nonnull layout.");
@@ -29,9 +29,9 @@ public sealed class RoomVisualLayoutCatalog
     }
 
     /// <summary>SHA-256 of selected room geometry and both ordered visual planes.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomVisualLayoutCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomLevelArtworks), content =>
     {
-        foreach ((RoomLevelId level, RoomVisualLayout layout) in this.layouts.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
+        foreach ((RoomLevelId level, RoomLevelArtwork layout) in this.layouts.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
         {
             content.AppendName("level", level.Name);
             content.Append("width", layout.Size.X);
@@ -45,8 +45,8 @@ public sealed class RoomVisualLayoutCatalog
     /// <param name="level">The level the room state names, used as the installation key.</param>
     /// <returns>The matching validated visual layout.</returns>
     /// <exception cref="InvalidDataException">The requested level is not installed.</exception>
-    public RoomVisualLayout Get(RoomLevelId level) =>
-        layouts.TryGetValue(level, out RoomVisualLayout? layout)
+    public RoomLevelArtwork Get(RoomLevelId level) =>
+        layouts.TryGetValue(level, out RoomLevelArtwork? layout)
             ? layout
             : throw new InvalidDataException(
                 $"Installed room visual layouts lack level {level}.");

@@ -35,7 +35,7 @@ public sealed class SkyTilemap
         {
             if (!ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out int page))
                 continue;
-            RoomSkyTilemapCatalog.Row(pages, page, row % RowsPerChunk).CopyTo(tiles.AsSpan(row * Columns, Columns));
+            RoomSkyTilemaps.Row(pages, page, row % RowsPerChunk).CopyTo(tiles.AsSpan(row * Columns, Columns));
             shown[row] = true;
         }
     }

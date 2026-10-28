@@ -12,9 +12,9 @@ public sealed record RoomAssetCatalogs
     /// <param name="visualLayouts">Compiled room layouts selected by their 24-bit level-data source.</param>
     /// <param name="levelStreams">Stock native level allocations selected by their 24-bit level-data source.</param>
     /// <param name="blockSheets">The pre-coloured block pictures of each tileset (#1392).</param>
-    public RoomAssetCatalogs(RoomCharacterAtlasCatalog characters, RoomStaticPaletteCatalog palettes,
-        RoomVisualLayoutCatalog visualLayouts, RoomLevelStreamCatalog levelStreams,
-        RoomBlockSheetCatalog blockSheets)
+    public RoomAssetCatalogs(RoomCharacterAtlases characters, RoomStaticPalettes palettes,
+        RoomLevelArtworks visualLayouts, InstalledRoomLevelStreams levelStreams,
+        InstalledRoomArtwork blockSheets)
     {
         BlockSheets = Ensure.NotNull(blockSheets);
         Characters = Ensure.NotNull(characters);
@@ -24,13 +24,13 @@ public sealed record RoomAssetCatalogs
     }
 
     /// <summary>Gets the complete room-character artwork installation.</summary>
-    public RoomCharacterAtlasCatalog Characters { get; init; }
+    public RoomCharacterAtlases Characters { get; init; }
     /// <summary>Gets the complete static room-palette installation.</summary>
-    public RoomStaticPaletteCatalog Palettes { get; init; }
+    public RoomStaticPalettes Palettes { get; init; }
     /// <summary>Gets the complete source-keyed room visual-layout installation.</summary>
-    public RoomVisualLayoutCatalog VisualLayouts { get; init; }
+    public RoomLevelArtworks VisualLayouts { get; init; }
     /// <summary>Gets the stock native collision/BTS and streaming allocations, which visual overrides never alter.</summary>
-    public RoomLevelStreamCatalog LevelStreams { get; init; }
+    public InstalledRoomLevelStreams LevelStreams { get; init; }
     /// <summary>Gets the pre-coloured block pictures of each tileset (#1392).</summary>
-    public RoomBlockSheetCatalog BlockSheets { get; init; }
+    public InstalledRoomArtwork BlockSheets { get; init; }
 }

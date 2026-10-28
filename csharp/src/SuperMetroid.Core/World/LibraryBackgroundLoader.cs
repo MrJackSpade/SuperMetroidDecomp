@@ -75,7 +75,7 @@ public static class LibraryBackgroundLoader
         Ensure.NotNull(artwork);
         if (transfer.Source == LibraryBackgroundSource.TourianStatueGhostCharacters)
         {
-            RoomCharacterAtlasCatalog characters = artwork.CharacterArt
+            RoomCharacterAtlases characters = artwork.CharacterArt
                 ?? throw new InvalidOperationException("The Tourian statue ghost's library characters have no installed character artwork.");
             ReadOnlyMemory<byte> ghost = characters.Get(RoomCharacterSet.TourianStatueGhost).Characters;
             if (transfer.ByteCount != ghost.Length)

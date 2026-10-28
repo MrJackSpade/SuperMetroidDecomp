@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// baseline. Each stream is the complete, unmodified decompressor output for one retail
 /// room level, extracted from the user's cartridge at installation. The catalog is
 /// stock-only: editable BG1/BG2 visual words are selected separately by
-/// <see cref="RoomVisualLayoutCatalog"/> and never rewrite this baseline.
+/// <see cref="RoomLevelArtworks"/> and never rewrite this baseline.
 /// </summary>
-public sealed class RoomLevelStreamCatalog
+public sealed class InstalledRoomLevelStreams
 {
     /// <summary>Smallest valid stream: the leading BG1 layer-size word.</summary>
     internal const int MinimumStreamByteCount = 2;
@@ -20,7 +20,7 @@ public sealed class RoomLevelStreamCatalog
     /// <param name="contentIdentity">SHA-256 of the installed stream manifest.</param>
     /// <param name="requiredLevels">Every retail room level, each of which the installation must hold.</param>
     /// <exception cref="InvalidDataException">A stream is null or shorter than its size word, or a level is missing or unknown.</exception>
-    internal RoomLevelStreamCatalog(IReadOnlyDictionary<RoomLevelId, byte[]> streams, string contentIdentity, IEnumerable<RoomLevelId> requiredLevels)
+    internal InstalledRoomLevelStreams(IReadOnlyDictionary<RoomLevelId, byte[]> streams, string contentIdentity, IEnumerable<RoomLevelId> requiredLevels)
     {
         Ensure.NotNull(streams);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);

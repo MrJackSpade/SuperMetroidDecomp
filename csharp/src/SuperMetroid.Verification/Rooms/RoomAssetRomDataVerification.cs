@@ -66,7 +66,7 @@ internal static class RoomAssetRomDataVerification
         // contexts above. This is definition metadata, not an editable visual payload.
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            TilesetDefinition compiled = RoomTilesetDefinitions.Get(graphicsSet);
+            TilesetDefinition compiled = RoomTilesets.Get(graphicsSet);
             int pointerAddress = RoomTilesetTableConstants.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
@@ -84,7 +84,7 @@ internal static class RoomAssetRomDataVerification
                 compiled.PaletteAddress,
                 $"graphics set ${graphicsSet:X2} compiled palette source");
         }
-        AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(RoomTilesetDefinitions.Count),
+        AssertThrows<InvalidDataException>(() => RoomTilesets.Get(RoomTilesetDefinitions.Count),
             "graphics set after the last retail entry fails rather than reading unrelated bank-$8F data");
 
         foreach (byte graphicsSet in graphicsSets)
@@ -166,7 +166,7 @@ internal static class RoomAssetRomDataVerification
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
+            int address = RoomTilesets.Get(graphicsSet).CharacterAddress;
             sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
         }
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
@@ -192,7 +192,7 @@ internal static class RoomAssetRomDataVerification
             AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
                 $"room atlas {name} uploads exactly the native character range");
         }
-        var catalog = new RoomCharacterAtlasCatalog((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
+        var catalog = new RoomCharacterAtlases((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -213,7 +213,7 @@ internal static class RoomAssetRomDataVerification
         }
 
         SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        int landingSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).CharacterAddress;
+        int landingSource = RoomTilesets.Get(landing.State.GraphicsSet).CharacterAddress;
         byte[] landingNative = RomDataReader.Decompress(bus, landingSource);
         int landingTiles = landingNative.Length / RoomCharacterAtlasFormat.BytesPerTile;
         int landingColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, landingTiles);
@@ -228,7 +228,7 @@ internal static class RoomAssetRomDataVerification
             landingImage.Colours);
         compiledBySource[landingSource] = RoomCharacterAtlasPng.Read(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
-        var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
+        var editedCatalog = new RoomCharacterAtlases(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
         AssertTrue(!editedRoom.TilesetCharactersIn(editedCatalog).Span.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
@@ -237,7 +237,7 @@ internal static class RoomAssetRomDataVerification
         // empty padding cells must fail rather than disappear silently.
         // Retail sources happen to end on complete 32-tile rows. A bounded 33-tile
         // prefix from a real source tests the partial-row policy independently.
-        int partialSource = RoomTilesetDefinitions.Get(0).CharacterAddress;
+        int partialSource = RoomTilesets.Get(0).CharacterAddress;
         byte[] partialNative = RomDataReader.Decompress(bus, partialSource)
             .AsSpan(0, 33 * RoomCharacterAtlasFormat.BytesPerTile).ToArray();
         int tileCount = partialNative.Length / RoomCharacterAtlasFormat.BytesPerTile;

@@ -6,8 +6,8 @@ internal static class RoomLayoutClosedContractDefinitions
     /// <summary>Requires the production room visual layout to install its complete compiled source set before resolving a room.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog", "room-layout-complete-required-source-installation", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs"),
+        new("SuperMetroid.Core.Rooms.RoomLevelArtworks", "room-layout-complete-required-source-installation", ["Get"],
+            [new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelArtworks.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomVisualLayoutSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/SelectedRoom.cs")]),

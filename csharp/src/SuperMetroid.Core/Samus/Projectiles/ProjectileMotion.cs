@@ -591,7 +591,7 @@ internal sealed class ProjectileMotion
             if (block.Bts.SlopeFlipsVertically)
                 yInBlock ^= 15;
 
-            int height = SlopeHeightDefinitions.Read(slopeShape, xInBlock);
+            int height = SlopeHeights.Read(slopeShape, xInBlock);
             return height <= yInBlock;
         }
 

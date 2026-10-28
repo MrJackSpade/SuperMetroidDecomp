@@ -64,7 +64,7 @@ internal static class ClosedPresentationIdentityDefinitions
              (int)InstalledArtworkId.KraidBg3RestoreQuarter1, (int)InstalledArtworkId.KraidBg3RestoreQuarter2,
              (int)InstalledArtworkId.KraidBg3RestoreQuarter3, (int)InstalledArtworkId.EscapeTimerFirstTiles,
              (int)InstalledArtworkId.EscapeTimerSecondTiles],
-        ("RoomBackgroundTilemapCatalog", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
+        ("RoomBackgroundTilemaps", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => (int)sheet.Sheet).ToArray(),
         ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All
@@ -81,7 +81,7 @@ internal static class ClosedPresentationIdentityDefinitions
     /// <summary>Returns audited finite named identities for a presentation call, or null when no closed set applies.</summary>
     internal static string[]? GetNames(string type, string method, string parameter) => new PresentationParameter(type, method, parameter) switch
     {
-        ("RoomVisualLayoutCatalog" or "RoomLevelStreamCatalog", "Get", "level.Name") =>
+        ("RoomLevelArtworks" or "InstalledRoomLevelStreams", "Get", "level.Name") =>
             RoomVisualLayoutSourceDefinitions.All.Select(level => level.Name).ToArray(),
         _ => null,
     };

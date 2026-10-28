@@ -39,7 +39,7 @@ internal static class RoomMetatilesVerification
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int address = RoomTilesetDefinitions.Get(graphicsSet).BlockDefinitionsAddress;
+            int address = RoomTilesets.Get(graphicsSet).BlockDefinitionsAddress;
             sources[RoomMetatileFormat.SourceFileName(address)] = address;
         }
         AssertEqual(sources.Count, files.Count,
@@ -70,7 +70,7 @@ internal static class RoomMetatilesVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
+            TilesetDefinition tileset = RoomTilesets.Get(header.State.GraphicsSet);
             bool ceres = header.AreaIndex == AreaId.Ceres;
             AssertTrue(RoomBlockComposition.StockTiles(stockCatalog, tileset.Blocks, ceres).AsSpan().SequenceEqual(
                     InstalledFixtures.StockBlockTiles(tileset, ceres)),

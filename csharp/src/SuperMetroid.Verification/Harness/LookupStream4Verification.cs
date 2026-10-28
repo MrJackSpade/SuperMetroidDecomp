@@ -1679,8 +1679,8 @@ internal static class LookupStream4Verification
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => RoomSpriteObjectDefinitions.Program((RoomSpriteObjectKind)invalid),
+            AssertThrows<KeyNotFoundException>(
+                () => _ = RoomSpriteObjectDefinitions.Programs[(RoomSpriteObjectKind)invalid],
                 "room sprite native kind domain rejects invalid selector");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
@@ -2011,13 +2011,13 @@ internal static class LookupStream4Verification
         {
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe7a7 + 2 * theme));
             int source = 0x8f0000 | pointer;
-            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            TilesetDefinition actual = RoomTilesets.Get(theme);
             AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
             AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
             AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
         }
         foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
-            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+            AssertThrows<InvalidDataException>(() => RoomTilesets.Get(invalid), "tileset exact graphics-theme domain");
         int Long(int address) => CartridgeImportSource.Require(rom).ReadCartridgeLong(address);
         int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
             .Where(instruction => instruction.Command == LibraryBackgroundCommand.Decompress)
@@ -2688,7 +2688,7 @@ internal static class LookupStream4Verification
         var definition = stock.reveal;
         AssertEqual(0, definition.edits.Count,
             "All210 native reveal words calculate without residual samples");
-        byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesetDefinitions.Get(9).PaletteAddress);
+        byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesets.Get(9).PaletteAddress);
         for (int color = 0; color < 14; color++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));

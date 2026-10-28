@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>The installed room background character sheets.</summary>
-public sealed class RoomCharacterAtlasCatalog
+public sealed class RoomCharacterAtlases
 {
     /// <summary>Copied lookup by character sheet; the RoomCharacterAtlas instances are shared and immutable.</summary>
     private readonly Dictionary<RoomCharacterSet, RoomCharacterAtlas> byRoomCharacterSet;
@@ -11,16 +11,16 @@ public sealed class RoomCharacterAtlasCatalog
     /// <summary>Copies the lookup and requires an entry for every retail graphics set's character sheet.</summary>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     /// <exception cref="InvalidDataException">A graphics set's character sheet is missing or null.</exception>
-    public RoomCharacterAtlasCatalog(RoomCharacterAtlas cre,
+    public RoomCharacterAtlases(RoomCharacterAtlas cre,
         IReadOnlyDictionary<RoomCharacterSet, RoomCharacterAtlas> sheets)
     {
         Cre = Ensure.NotNull(cre);
         Ensure.NotNull(sheets);
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomCharacterSet required = RoomTilesetDefinitions.Get(graphicsSet).Characters;
+            RoomCharacterSet required = RoomTilesets.Get(graphicsSet).Characters;
             if (!sheets.TryGetValue(required, out RoomCharacterAtlas? value) || value is null)
-                throw new InvalidDataException($"RoomCharacterAtlasCatalog lacks graphics set ${graphicsSet:X2}'s {required}.");
+                throw new InvalidDataException($"RoomCharacterAtlases lacks graphics set ${graphicsSet:X2}'s {required}.");
         }
         byRoomCharacterSet = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>(sheets);
     }

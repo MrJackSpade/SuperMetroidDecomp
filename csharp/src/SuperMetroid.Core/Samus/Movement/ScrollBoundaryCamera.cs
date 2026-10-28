@@ -190,7 +190,7 @@ public sealed class ScrollBoundaryCamera
             || context.MovementType == SamusMovementType.Moonwalking
             || context.TurningAgainstMomentum;
         bool useFacingRightTarget = backwards ^ !context.FacesLeft;
-        int targetOffset = HorizontalCameraTargetDefinitions.Offset(context.CameraDistanceIndex, useFacingRightTarget);
+        int targetOffset = HorizontalCameraTargets.Offset(context.CameraDistanceIndex, useFacingRightTarget);
         IdealPosition = IdealPosition.WithX(unchecked((ushort)(current.X.Whole - targetOffset)));
 
         if (IdealPosition.X == Position.X.Whole)

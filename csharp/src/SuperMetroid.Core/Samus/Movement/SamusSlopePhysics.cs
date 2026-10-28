@@ -45,7 +45,7 @@ public static class SamusSlopePhysics
         if (bts.SlopeFlipsVertically || verticalSpeed != 0)
             return displacement;
 
-        int multiplier = SlopeSpeedDefinitions.HorizontalMultiplier(bts.SlopeShape);
+        int multiplier = SlopeSpeeds.HorizontalMultiplier(bts.SlopeShape);
 
         // The 65816 discards the displacement's lowest eight fractional bits before the
         // unsigned 16×16 multiply. For negative values it negates that truncated 16-bit
@@ -74,7 +74,7 @@ public static class SamusSlopePhysics
         int sampledX = bts.SlopeFlipsHorizontally
             ? unchecked((ushort)(xPosition ^ 15))
             : xPosition;
-        return SlopeHeightDefinitions.Read(bts.SlopeShape, sampledX & 15);
+        return SlopeHeights.Read(bts.SlopeShape, sampledX & 15);
     }
 
     /// <summary>

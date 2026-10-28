@@ -75,7 +75,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             if (resident.Animation is IResidentDoorAnimation residentDoor)
                 residentDoor.StartClosing();
             else
-                ResidentDoorClosingDefinitions.Resolve(resident.Header).StartOn(resident);
+                ResidentDoorClosings.Resolve(resident.Header).StartOn(resident);
             resident.InstructionTimer = WrappingCountdown.Start(1);
             return true;
         }
@@ -206,7 +206,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         ColoredDoorPlmState door = (slot.Family as ColoredDoorPlmState)
             ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
         door.HitCounter++;
-        if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholdOf(door.Color))
+        if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholds[door.Color])
             return false;
         MarkDoorOpened(slot);
         return true;
@@ -278,7 +278,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.Header = blueDoorHeader;
         slot.BlockIndex = blockIndex;
         slot.RestoreLevelWord = 0;
-        slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
+        slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PreInstruction = PlmPreInstructions.Inert;
         slot.RoomArgument = 0;

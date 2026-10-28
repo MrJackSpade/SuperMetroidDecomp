@@ -163,7 +163,7 @@ internal static class RoomPlmPopulationVerification
             "Only the escape gate and the eye doors keep a closing start by identity");
         foreach (PlmHeaderId other in Enum.GetValues<PlmHeaderId>())
             if (!resolved.Contains(other))
-                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve(other),
+                AssertThrows<InvalidDataException>(() => ResidentDoorClosings.Resolve(other),
                     "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
@@ -175,7 +175,7 @@ internal static class RoomPlmPopulationVerification
             if (typedClosing is { } typed)
                 AssertEqual(expected, typed, $"resident door $84:{raw:X4} closing program begins at its header's list");
             else
-                AssertEqual(PlmProgramStartOracle.ForNativeList(expected), ResidentDoorClosingDefinitions.Resolve(header),
+                AssertEqual(PlmProgramStartOracle.ForNativeList(expected), ResidentDoorClosings.Resolve(header),
                     $"resident door $84:{raw:X4} resolves by identity");
 
             // Typed placement metadata supplies the first list only. The transition
@@ -213,7 +213,7 @@ internal static class RoomPlmPopulationVerification
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertTrue(typedClosing is null
-                    ? PlmProgramStartOracle.IsRunning(ResidentDoorClosingDefinitions.Resolve(header), slot)
+                    ? PlmProgramStartOracle.IsRunning(ResidentDoorClosings.Resolve(header), slot)
                     : slot.Animation is ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Closing }
                         or GreyDoorPlmAnimation { Program: GreyDoorProgram.Closing },
                 $"resident door $84:{raw:X4} starts its closing program");
@@ -221,7 +221,7 @@ internal static class RoomPlmPopulationVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.BlueDoorFacingLeft),
+            () => ResidentDoorClosings.Resolve(PlmHeaderId.BlueDoorFacingLeft),
             "nonresident blue-door collision header is outside resident closing domain");
     }
 

@@ -40,7 +40,7 @@ internal static class RoomSkyTilemapsVerification
             AssertTrue(pages[page].Bytes.Span.SequenceEqual(native),
                 $"scrolling-sky page {page} roundtrips every native BG word");
         }
-        var stock = new RoomSkyTilemapCatalog(pages);
+        var stock = new RoomSkyTilemaps(pages);
         AssertThrows<InvalidDataException>(
             () => stock.Page(0, 0x20),
             "sky catalog rejects a row: rows are drawn from the pages, not transferred (#1347)");
@@ -128,7 +128,7 @@ internal static class RoomSkyTilemapsVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
             RoomSkyTilemapFormat.PageByteCount);
         int shownRow = 0x0300 / 8 * SkyTilemap.Columns;
-        AssertTrue(new RoomSkyTilemapCatalog(pages).Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow] !=
+        AssertTrue(new RoomSkyTilemaps(pages).Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow] !=
                 stock.Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow],
             "editing a sky page changes the row the sky shows");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +

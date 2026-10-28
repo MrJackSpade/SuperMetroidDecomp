@@ -46,7 +46,7 @@ public static class RoomSkyTilemapArtworkFiles
     /// <param name="overrideDirectory">Optional directory with independently selected page replacements; each absent file retains verified stock.</param>
     /// <returns>The selected contiguous tilemap pages, with native page/row streaming and scrolling pointer arithmetic unchanged.</returns>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected page's BG tile-word format and transfer size is invalid.</exception>
-    public static RoomSkyTilemapCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static RoomSkyTilemaps Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, RoomSkyTilemapFormat.ManifestFileName);
@@ -85,7 +85,7 @@ public static class RoomSkyTilemapArtworkFiles
                 throw new InvalidDataException($"Invalid scrolling-sky page {selectedPath}: {error.Message}", error);
             }
         }
-        return new RoomSkyTilemapCatalog(pages);
+        return new RoomSkyTilemaps(pages);
     }
 
     /// <summary>Each sky page's file name before #1414, which carried its cartridge source, and its current name.</summary>

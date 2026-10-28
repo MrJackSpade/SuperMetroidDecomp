@@ -22,80 +22,99 @@ internal static class BlueDoorPlmProgramDefinitions
     /// <summary>How long each closing image shows.</summary>
     private const int ClosingFrameDuration = 2;
 
-    /// <summary>Every blue cap program.</summary>
-    internal static AnimationProgramSet<BlueDoorProgram, BlueDoorFrame, BlueDoorCue> Programs { get; } = new(Build());
-
-    /// <summary>The program a shot cap facing <paramref name="orientation"/> opens with.</summary>
-    internal static BlueDoorProgram Opening(ColoredDoorOrientation orientation) => orientation switch
+    /// <summary>Every blue cap program: each facing opens, closes and restores its closed cap the same way.</summary>
+    internal static AnimationProgramSet<BlueDoorProgram, BlueDoorFrame, BlueDoorCue> Programs { get; } =
+        new(new Dictionary<BlueDoorProgram, Step[]>
     {
-        ColoredDoorOrientation.Left => BlueDoorProgram.LeftOpening,
-        ColoredDoorOrientation.Right => BlueDoorProgram.RightOpening,
-        ColoredDoorOrientation.Up => BlueDoorProgram.UpOpening,
-        ColoredDoorOrientation.Down => BlueDoorProgram.DownOpening,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+        [BlueDoorProgram.LeftOpening] = OpeningSteps(),
+        [BlueDoorProgram.LeftClosing] = ClosingSteps(BlueDoorProgram.LeftClosed),
+        [BlueDoorProgram.LeftClosed] = ClosedSteps(),
+        [BlueDoorProgram.RightOpening] = OpeningSteps(),
+        [BlueDoorProgram.RightClosing] = ClosingSteps(BlueDoorProgram.RightClosed),
+        [BlueDoorProgram.RightClosed] = ClosedSteps(),
+        [BlueDoorProgram.UpOpening] = OpeningSteps(),
+        [BlueDoorProgram.UpClosing] = ClosingSteps(BlueDoorProgram.UpClosed),
+        [BlueDoorProgram.UpClosed] = ClosedSteps(),
+        [BlueDoorProgram.DownOpening] = OpeningSteps(),
+        [BlueDoorProgram.DownClosing] = ClosingSteps(BlueDoorProgram.DownClosed),
+        [BlueDoorProgram.DownClosed] = ClosedSteps(),
+    });
+
+    /// <summary>The program a shot cap of each facing opens with.</summary>
+    internal static IReadOnlyDictionary<ColoredDoorOrientation, BlueDoorProgram> OpeningPrograms { get; } =
+        new Dictionary<ColoredDoorOrientation, BlueDoorProgram>
+    {
+        [ColoredDoorOrientation.Left] = BlueDoorProgram.LeftOpening,
+        [ColoredDoorOrientation.Right] = BlueDoorProgram.RightOpening,
+        [ColoredDoorOrientation.Up] = BlueDoorProgram.UpOpening,
+        [ColoredDoorOrientation.Down] = BlueDoorProgram.DownOpening,
     };
 
-    /// <summary>The program a cap facing <paramref name="orientation"/> closes behind Samus with.</summary>
-    internal static BlueDoorProgram Closing(ColoredDoorOrientation orientation) => orientation switch
+    /// <summary>The program a cap of each facing closes behind Samus with.</summary>
+    internal static IReadOnlyDictionary<ColoredDoorOrientation, BlueDoorProgram> ClosingPrograms { get; } =
+        new Dictionary<ColoredDoorOrientation, BlueDoorProgram>
     {
-        ColoredDoorOrientation.Left => BlueDoorProgram.LeftClosing,
-        ColoredDoorOrientation.Right => BlueDoorProgram.RightClosing,
-        ColoredDoorOrientation.Up => BlueDoorProgram.UpClosing,
-        ColoredDoorOrientation.Down => BlueDoorProgram.DownClosing,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+        [ColoredDoorOrientation.Left] = BlueDoorProgram.LeftClosing,
+        [ColoredDoorOrientation.Right] = BlueDoorProgram.RightClosing,
+        [ColoredDoorOrientation.Up] = BlueDoorProgram.UpClosing,
+        [ColoredDoorOrientation.Down] = BlueDoorProgram.DownClosing,
     };
 
-    /// <summary>The program that restores a closed cap facing <paramref name="orientation"/>.</summary>
-    internal static BlueDoorProgram Closed(ColoredDoorOrientation orientation) => orientation switch
+    /// <summary>The program that restores a closed cap of each facing.</summary>
+    internal static IReadOnlyDictionary<ColoredDoorOrientation, BlueDoorProgram> ClosedPrograms { get; } =
+        new Dictionary<ColoredDoorOrientation, BlueDoorProgram>
     {
-        ColoredDoorOrientation.Left => BlueDoorProgram.LeftClosed,
-        ColoredDoorOrientation.Right => BlueDoorProgram.RightClosed,
-        ColoredDoorOrientation.Up => BlueDoorProgram.UpClosed,
-        ColoredDoorOrientation.Down => BlueDoorProgram.DownClosed,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+        [ColoredDoorOrientation.Left] = BlueDoorProgram.LeftClosed,
+        [ColoredDoorOrientation.Right] = BlueDoorProgram.RightClosed,
+        [ColoredDoorOrientation.Up] = BlueDoorProgram.UpClosed,
+        [ColoredDoorOrientation.Down] = BlueDoorProgram.DownClosed,
     };
 
-    /// <summary>The facing a blue program draws for.</summary>
-    internal static ColoredDoorOrientation Orientation(BlueDoorProgram program) => program switch
+    /// <summary>The facing each blue program draws for.</summary>
+    internal static IReadOnlyDictionary<BlueDoorProgram, ColoredDoorOrientation> Orientations { get; } =
+        new Dictionary<BlueDoorProgram, ColoredDoorOrientation>
     {
-        BlueDoorProgram.LeftOpening or BlueDoorProgram.LeftClosing or BlueDoorProgram.LeftClosed => ColoredDoorOrientation.Left,
-        BlueDoorProgram.RightOpening or BlueDoorProgram.RightClosing or BlueDoorProgram.RightClosed => ColoredDoorOrientation.Right,
-        BlueDoorProgram.UpOpening or BlueDoorProgram.UpClosing or BlueDoorProgram.UpClosed => ColoredDoorOrientation.Up,
-        BlueDoorProgram.DownOpening or BlueDoorProgram.DownClosing or BlueDoorProgram.DownClosed => ColoredDoorOrientation.Down,
-        _ => throw new InvalidOperationException($"Undefined {nameof(BlueDoorProgram)} {program}."),
+        [BlueDoorProgram.LeftOpening] = ColoredDoorOrientation.Left,
+        [BlueDoorProgram.LeftClosing] = ColoredDoorOrientation.Left,
+        [BlueDoorProgram.LeftClosed] = ColoredDoorOrientation.Left,
+        [BlueDoorProgram.RightOpening] = ColoredDoorOrientation.Right,
+        [BlueDoorProgram.RightClosing] = ColoredDoorOrientation.Right,
+        [BlueDoorProgram.RightClosed] = ColoredDoorOrientation.Right,
+        [BlueDoorProgram.UpOpening] = ColoredDoorOrientation.Up,
+        [BlueDoorProgram.UpClosing] = ColoredDoorOrientation.Up,
+        [BlueDoorProgram.UpClosed] = ColoredDoorOrientation.Up,
+        [BlueDoorProgram.DownOpening] = ColoredDoorOrientation.Down,
+        [BlueDoorProgram.DownClosing] = ColoredDoorOrientation.Down,
+        [BlueDoorProgram.DownClosed] = ColoredDoorOrientation.Down,
     };
 
-    /// <summary>Builds the three programs of each facing.</summary>
-    private static Dictionary<BlueDoorProgram, Step[]> Build()
-    {
-        var programs = new Dictionary<BlueDoorProgram, Step[]>();
-        foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
-        {
-            programs[Opening(orientation)] =
-            [
-                Step.Publish(BlueDoorCue.QueueOpenSound),
-                Step.Show(BlueDoorFrame.Blue1, OpeningFrameDuration),
-                Step.Show(BlueDoorFrame.Blue2, OpeningFrameDuration),
-                Step.Show(BlueDoorFrame.Blue3, OpeningFrameDuration),
-                Step.Show(BlueDoorFrame.Clear, OpenedDuration),
-                Step.Stop,
-            ];
-            programs[Closing(orientation)] =
-            [
-                Step.Show(BlueDoorFrame.Clear, ClosingFrameDuration),
-                Step.Show(BlueDoorFrame.Blue3, ClosingFrameDuration),
-                Step.Publish(BlueDoorCue.QueueCloseSound),
-                Step.Show(BlueDoorFrame.Blue2, ClosingFrameDuration),
-                Step.Show(BlueDoorFrame.Blue1, ClosingFrameDuration),
-                Step.FallInto(Closed(orientation)),
-            ];
-            programs[Closed(orientation)] =
-            [
-                Step.Publish(BlueDoorCue.RestoreBlueBts),
-                Step.Show(BlueDoorFrame.Blue0, 1),
-                Step.Stop,
-            ];
-        }
-        return programs;
-    }
+    /// <summary>A shot cap opens: the sound, three opening images, then the cleared cap until the PLM deletes.</summary>
+    private static Step[] OpeningSteps() =>
+    [
+        Step.Publish(BlueDoorCue.QueueOpenSound),
+        Step.Show(BlueDoorFrame.Blue1, OpeningFrameDuration),
+        Step.Show(BlueDoorFrame.Blue2, OpeningFrameDuration),
+        Step.Show(BlueDoorFrame.Blue3, OpeningFrameDuration),
+        Step.Show(BlueDoorFrame.Clear, OpenedDuration),
+        Step.Stop,
+    ];
+
+    /// <summary>A cap closes behind Samus and runs into <paramref name="closed"/>, its facing's closed program.</summary>
+    private static Step[] ClosingSteps(BlueDoorProgram closed) =>
+    [
+        Step.Show(BlueDoorFrame.Clear, ClosingFrameDuration),
+        Step.Show(BlueDoorFrame.Blue3, ClosingFrameDuration),
+        Step.Publish(BlueDoorCue.QueueCloseSound),
+        Step.Show(BlueDoorFrame.Blue2, ClosingFrameDuration),
+        Step.Show(BlueDoorFrame.Blue1, ClosingFrameDuration),
+        Step.FallInto(closed),
+    ];
+
+    /// <summary>A closed cap restores its blue BTS and shows its closed image.</summary>
+    private static Step[] ClosedSteps() =>
+    [
+        Step.Publish(BlueDoorCue.RestoreBlueBts),
+        Step.Show(BlueDoorFrame.Blue0, 1),
+        Step.Stop,
+    ];
 }

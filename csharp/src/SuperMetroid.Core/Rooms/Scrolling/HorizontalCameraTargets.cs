@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Horizontal camera target offsets consumed by $90:95A0.</summary>
-internal static class HorizontalCameraTargetDefinitions
+internal static class HorizontalCameraTargets
 {
     /// <summary>
     /// $90:963F/9647 select Samus's screen-relative target. Normal tracking places

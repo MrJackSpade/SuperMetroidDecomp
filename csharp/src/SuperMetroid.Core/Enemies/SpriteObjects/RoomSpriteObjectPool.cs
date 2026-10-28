@@ -47,7 +47,7 @@ internal sealed class RoomSpriteObjectPool
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(position);
             slot.Graphics = graphics;
-            slot.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectDefinitions.Program(kind));
+            slot.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectDefinitions.Programs[kind]);
             AdvanceProgram(slot);
             return slot;
         }

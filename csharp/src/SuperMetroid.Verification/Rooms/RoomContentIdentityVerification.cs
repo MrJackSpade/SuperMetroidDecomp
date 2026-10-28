@@ -70,7 +70,7 @@ internal static class RoomContentIdentityVerification
         RoomBlockSheet pictured = RoomBlockFixtures.Pictures(new BackgroundTile[4], new byte[64], new RgbColor[256]).Sheet;
         var sheet = new RoomBlockSheet(default(TilesetDefinition), pictured.Sheet,
             new RoomBlockCharacters(default(TilesetDefinition).Blocks, [[new RoomBlockCharacterRun(firstCharacter, 1)]]));
-        return new RoomBlockSheetCatalog(new Dictionary<TilesetDefinition, RoomBlockSheet> { [default] = sheet },
+        return new InstalledRoomArtwork(new Dictionary<TilesetDefinition, RoomBlockSheet> { [default] = sheet },
             new Dictionary<string, RoomBackgroundImage>(), new Dictionary<TilesetDefinition, TileWordSheet>(),
             new Dictionary<TilesetDefinition, TileWordSheet>(), new Dictionary<TilesetDefinition, MessageBoxSheet>(),
             new Dictionary<TilesetDefinition, FloorTileSheet>()).ContentIdentity;
@@ -117,7 +117,7 @@ internal static class RoomContentIdentityVerification
         if (reverse) sets = sets.Reverse();
         foreach (int set in sets)
         {
-            var definition = RoomTilesetDefinitions.Get((byte)set);
+            var definition = RoomTilesets.Get((byte)set);
             chars[definition.CharacterAddress] = character;
             colors[definition.PaletteAddress] = palette;
         }
@@ -128,29 +128,29 @@ internal static class RoomContentIdentityVerification
             backgrounds[page] = Page(edited == GameInstallationLayout.RoomBackgroundTilemapDirectoryName &&
                 page == Enum.GetValues<RoomBackgroundTilemap>()[0]);
         RoomBackgroundTilemapAtlas[] skies = Enumerable.Range(0, RoomSkyTilemapFormat.PageCount)
-            .Select(page => Page(edited == nameof(RoomSkyTilemapCatalog) && page == 0)).ToArray();
+            .Select(page => Page(edited == nameof(RoomSkyTilemaps) && page == 0)).ToArray();
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;
         RoomLevelId firstLevel = new("FixtureLevelA"), secondLevel = new("FixtureLevelB");
-        var layouts = new Dictionary<RoomLevelId, RoomVisualLayout>
+        var layouts = new Dictionary<RoomLevelId, RoomLevelArtwork>
         {
-            [firstLevel] = new RoomVisualLayout(firstLevel, new Extent16<RoomBlocks>(1, 2), [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
-            [secondLevel] = new RoomVisualLayout(secondLevel, new Extent16<RoomBlocks>(2, 1), [1, 0], [0, 1]),
+            [firstLevel] = new RoomLevelArtwork(firstLevel, new Extent16<RoomBlocks>(1, 2), [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
+            [secondLevel] = new RoomLevelArtwork(secondLevel, new Extent16<RoomBlocks>(2, 1), [1, 0], [0, 1]),
         };
         if (reverse) layouts = layouts.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
         return new RoomIdentityFixture(
-            new RoomCharacterAtlasCatalog(Characters(edited == "cre-characters"), chars.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value)),
-            new RoomStaticPaletteCatalog(colors.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)),
-            new RoomBackgroundTilemapCatalog(backgrounds), new RoomSkyTilemapCatalog(skies),
-            RoomVisualLayoutCatalog.FromLayoutsForVerification(layouts));
+            new RoomCharacterAtlases(Characters(edited == "cre-characters"), chars.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value)),
+            new RoomStaticPalettes(colors.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)),
+            new RoomBackgroundTilemaps(backgrounds), new RoomSkyTilemaps(skies),
+            RoomLevelArtworks.FromLayoutsForVerification(layouts));
 
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
     /// <summary>Five independent room presentation catalogs used to measure selected-content identity.</summary>
-    internal sealed record RoomIdentityFixture(RoomCharacterAtlasCatalog Characters,
-        RoomStaticPaletteCatalog Palettes,
-        RoomBackgroundTilemapCatalog Backgrounds, RoomSkyTilemapCatalog Skies,
-        RoomVisualLayoutCatalog Layouts)
+    internal sealed record RoomIdentityFixture(RoomCharacterAtlases Characters,
+        RoomStaticPalettes Palettes,
+        RoomBackgroundTilemaps Backgrounds, RoomSkyTilemaps Skies,
+        RoomLevelArtworks Layouts)
     {
         /// <summary>Per-domain hashes for the fixture's selected room artwork.</summary>
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(

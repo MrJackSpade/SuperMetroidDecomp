@@ -40,19 +40,19 @@ internal interface IGameplayArtwork
     SamusBodyArtworkCatalog? SamusBodyArt { get; }
 
     /// <summary>Room tileset characters.</summary>
-    RoomCharacterAtlasCatalog? RoomCharacterArt { get; }
+    RoomCharacterAtlases? RoomCharacterArt { get; }
 
     /// <summary>Room static palettes.</summary>
-    RoomStaticPaletteCatalog? RoomPaletteArt { get; }
+    RoomStaticPalettes? RoomPaletteArt { get; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    RoomBlockSheetCatalog? RoomBlockSheets { get; }
+    InstalledRoomArtwork? RoomBlockSheets { get; }
 
     /// <summary>Initial room foreground and background layouts.</summary>
-    RoomVisualLayoutCatalog? RoomVisualLayouts { get; }
+    RoomLevelArtworks? RoomVisualLayouts { get; }
 
     /// <summary>Stock native room-level allocations; not overridable.</summary>
-    RoomLevelStreamCatalog? RoomLevelStreams { get; }
+    InstalledRoomLevelStreams? RoomLevelStreams { get; }
 
     /// <summary>Room PLM shot block visuals.</summary>
     RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; }
@@ -139,10 +139,10 @@ internal interface IGameplayArtwork
     XrayRevealVisualCatalog? XrayRevealVisuals { get; }
 
     /// <summary>Room background tilemaps.</summary>
-    RoomBackgroundTilemapCatalog? RoomBackgroundTilemapArt { get; }
+    RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; }
 
     /// <summary>Room sky tilemaps.</summary>
-    RoomSkyTilemapCatalog? RoomSkyTilemapArt { get; }
+    RoomSkyTilemaps? RoomSkyTilemapArt { get; }
 
     /// <summary>Samus projectile sprite compositions.</summary>
     ProjectileSpriteCatalog? ProjectileCompositions { get; }

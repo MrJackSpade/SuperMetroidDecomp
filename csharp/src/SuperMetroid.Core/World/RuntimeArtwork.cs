@@ -312,24 +312,24 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
     /// <summary>Host-selected BG tilemaps, rebound after debugger-state restoration.</summary>
     [field: NonSerialized]
-    public RoomBackgroundTilemapCatalog? RoomBackgroundTilemapArt { get; set; }
+    public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; set; }
     /// <summary>Gets or binds the host-owned CRE and graphics-set character catalog used by subsequent room loads; the reference is excluded from debugger snapshots.</summary>
     [field: NonSerialized]
-    public RoomCharacterAtlasCatalog? RoomCharacterArt { get; set; }
+    public RoomCharacterAtlases? RoomCharacterArt { get; set; }
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    public RoomBlockSheetCatalog? RoomBlockSheets { get; set; }
+    public InstalledRoomArtwork? RoomBlockSheets { get; set; }
     /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
-    public RoomStaticPaletteCatalog? RoomPaletteArt { get; set; }
+    public RoomStaticPalettes? RoomPaletteArt { get; set; }
     /// <summary>Installed scrolling-sky pages, rebound after debugger-state restoration.</summary>
     [field: NonSerialized]
-    public RoomSkyTilemapCatalog? RoomSkyTilemapArt { get; set; }
+    public RoomSkyTilemaps? RoomSkyTilemapArt { get; set; }
     /// <summary>Host-selected visual room layouts, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
-    public RoomVisualLayoutCatalog? RoomVisualLayouts { get; set; }
+    public RoomLevelArtworks? RoomVisualLayouts { get; set; }
     /// <summary>Host-bound stock native level allocations, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
-    public RoomLevelStreamCatalog? RoomLevelStreams { get; set; }
+    public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>
     [field: NonSerialized]     public SamusBodyArtworkCatalog? SamusBodyArt
     {

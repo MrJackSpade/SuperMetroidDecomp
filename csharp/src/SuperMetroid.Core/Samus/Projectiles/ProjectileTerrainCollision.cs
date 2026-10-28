@@ -297,7 +297,7 @@ internal sealed class ProjectileTerrainCollision
             int y = slot.Position.Y.Whole & 15;
             if (block.Bts.SlopeFlipsHorizontally) x ^= 15;
             if (block.Bts.SlopeFlipsVertically) y ^= 15;
-            bool hit = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, x) <= y;
+            bool hit = SlopeHeights.Read(block.Bts.SlopeShape, x) <= y;
             // $94:A5DC/A5DE clears both scan counters on a surface hit. This overrides
             // earlier air rows and ends the span; Wave still discards collision carry.
             endSpan = hit;

@@ -52,7 +52,7 @@ public sealed class LoadedRoomAssets
     public TilesetDefinition Tileset { get; }
 
     /// <summary>The installed pre-coloured room artwork: block sheets and library background images (#1392).</summary>
-    public RoomBlockSheetCatalog Pictures { get; }
+    public InstalledRoomArtwork Pictures { get; }
 
     /// <summary>The pre-coloured pictures of the tileset's blocks the room's planes draw from (#1392).</summary>
     public RoomBlockSheet BlockSheet => Pictures.Get(Tileset);
@@ -63,10 +63,10 @@ public sealed class LoadedRoomAssets
         Ensure.NotNull(scrollStorage);
         Ensure.NotNull(header);
         Ensure.NotNull(catalogs);
-        RoomCharacterAtlasCatalog characterArt = catalogs.Characters;
-        RoomStaticPaletteCatalog paletteArt = catalogs.Palettes;
-        RoomVisualLayoutCatalog visualLayouts = catalogs.VisualLayouts;
-        TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
+        RoomCharacterAtlases characterArt = catalogs.Characters;
+        RoomStaticPalettes paletteArt = catalogs.Palettes;
+        RoomLevelArtworks visualLayouts = catalogs.VisualLayouts;
+        TilesetDefinition tileset = RoomTilesets.Get(header.State.GraphicsSet);
 
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation come from the stock-only installed level streams;
@@ -134,7 +134,7 @@ public sealed class LoadedRoomAssets
     private static RoomLevelData ParseLevelData(
         SelectedRoom header,
         byte[] levelStream,
-        RoomVisualLayout? visualLayout)
+        RoomLevelArtwork? visualLayout)
     {
         Extent16<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();
         int widthInBlocks = visibleSize.X;

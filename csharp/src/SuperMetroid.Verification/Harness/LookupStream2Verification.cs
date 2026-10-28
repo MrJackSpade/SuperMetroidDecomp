@@ -1139,7 +1139,7 @@ internal static class LookupStream2Verification
                 reversal == 3 ? SamusAccelerationMode.Turning : SamusAccelerationMode.Accelerating, facing, mode);
             bool right = reversal == 0 ? facing != 4 : facing == 4;
             ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + (int)mode);
-            AssertEqual(nativeOffset, HorizontalCameraTargetDefinitions.Offset(mode, right), "Native mode/facing target offset");
+            AssertEqual(nativeOffset, HorizontalCameraTargets.Offset(mode, right), "Native mode/facing target offset");
             var camera = new ScrollBoundaryCamera(grid);
             camera.SetPosition(new Position16<RoomPixels>(100, 0));
             camera.TrackMovedSamusHorizontally(

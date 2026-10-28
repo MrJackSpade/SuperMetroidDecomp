@@ -161,10 +161,10 @@ internal static class InstallationOverrideLifecycleVerification
             string identity = catalog switch
             {
                 InstalledProjectilePresentation projectile => projectile.SelectedSha256,
-                RoomCharacterAtlasCatalog characters => RoomTilesetSources.CharacterIdentity(characters),
-                RoomStaticPaletteCatalog palettes => RoomTilesetSources.PaletteIdentity(palettes),
-                RoomBackgroundTilemapCatalog backgrounds => RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
-                RoomSkyTilemapCatalog skies => RoomPresentationIdentity.SkyIdentity(skies),
+                RoomCharacterAtlases characters => RoomTilesetSources.CharacterIdentity(characters),
+                RoomStaticPalettes palettes => RoomTilesetSources.PaletteIdentity(palettes),
+                RoomBackgroundTilemaps backgrounds => RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
+                RoomSkyTilemaps skies => RoomPresentationIdentity.SkyIdentity(skies),
                 _ => catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity."),
             };

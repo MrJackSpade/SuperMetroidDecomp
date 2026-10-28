@@ -788,8 +788,8 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slope speed oracle revision");
         Suite(nameof(VerifyCompiledSlopeSpeeds), () => VerifyCompiledSlopeSpeeds(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(-1), "Slope family lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(32), "Slope family upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeeds.HorizontalMultiplier(-1), "Slope family lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeeds.HorizontalMultiplier(32), "Slope family upper bound");
         return 0;
     }
 

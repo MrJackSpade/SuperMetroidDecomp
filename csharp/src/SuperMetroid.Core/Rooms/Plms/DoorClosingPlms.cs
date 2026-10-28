@@ -14,10 +14,10 @@ public static class DoorClosingPlms
         DoorClosingBehavior.None => null,
         DoorClosingBehavior.BlueDoorCloses => orientation.Direction switch
         {
-            DoorDirection.Right => new(PlmHeaderId.BlueDoorClosingFacingRight, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Right))),
-            DoorDirection.Left => new(PlmHeaderId.BlueDoorClosingFacingLeft, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Left))),
-            DoorDirection.Down => new(PlmHeaderId.BlueDoorClosingFacingDown, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Down))),
-            DoorDirection.Up => new(PlmHeaderId.BlueDoorClosingFacingUp, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Up))),
+            DoorDirection.Right => new(PlmHeaderId.BlueDoorClosingFacingRight, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.ClosingPrograms[ColoredDoorOrientation.Right])),
+            DoorDirection.Left => new(PlmHeaderId.BlueDoorClosingFacingLeft, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.ClosingPrograms[ColoredDoorOrientation.Left])),
+            DoorDirection.Down => new(PlmHeaderId.BlueDoorClosingFacingDown, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.ClosingPrograms[ColoredDoorOrientation.Down])),
+            DoorDirection.Up => new(PlmHeaderId.BlueDoorClosingFacingUp, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.ClosingPrograms[ColoredDoorOrientation.Up])),
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
         },
         DoorClosingBehavior.EscapeGateCloses => new(PlmHeaderId.MotherBrainEscapeRoomGateClosing,

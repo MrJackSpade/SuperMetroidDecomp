@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>The installed base room palettes.</summary>
-public sealed class RoomStaticPaletteCatalog
+public sealed class RoomStaticPalettes
 {
     /// <summary>Copied lookup by palette; the RoomStaticPalette instances are shared and immutable.</summary>
     private readonly Dictionary<RoomPaletteSet, RoomStaticPalette> byRoomPaletteSet;
@@ -11,14 +11,14 @@ public sealed class RoomStaticPaletteCatalog
     /// <summary>Copies the lookup and requires an entry for every retail graphics set's palette.</summary>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     /// <exception cref="InvalidDataException">A graphics set's palette is missing or null.</exception>
-    public RoomStaticPaletteCatalog(IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> palettes)
+    public RoomStaticPalettes(IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> palettes)
     {
         Ensure.NotNull(palettes);
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomPaletteSet required = RoomTilesetDefinitions.Get(graphicsSet).Palette;
+            RoomPaletteSet required = RoomTilesets.Get(graphicsSet).Palette;
             if (!palettes.TryGetValue(required, out RoomStaticPalette? value) || value is null)
-                throw new InvalidDataException($"RoomStaticPaletteCatalog lacks graphics set ${graphicsSet:X2}'s {required}.");
+                throw new InvalidDataException($"RoomStaticPalettes lacks graphics set ${graphicsSet:X2}'s {required}.");
         }
         byRoomPaletteSet = new Dictionary<RoomPaletteSet, RoomStaticPalette>(palettes);
     }

@@ -42,16 +42,16 @@ internal static class RetailRuntimeFixtureVerification
     internal static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => InstalledFixtures.EnemyTiles;
 
     /// <summary>The installed character catalog <see cref="LoadFixtureRoomAssets"/> loads rooms from unless given another.</summary>
-    internal static RoomCharacterAtlasCatalog FixtureRoomCharacters => InstalledFixtures.RoomAssets.Characters;
+    internal static RoomCharacterAtlases FixtureRoomCharacters => InstalledFixtures.RoomAssets.Characters;
 
     /// <summary>
     /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
     /// catalogs a case supplies. The stock catalogs are the cartridge reference extracted from the ROM.
     /// </summary>
     internal static LoadedRoomAssets LoadFixtureRoomAssets(SelectedRoom room,
-        RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
-        RoomVisualLayoutCatalog? visualLayouts = null,
-        RoomLevelStreamCatalog? levelStreams = null) =>
+        RoomCharacterAtlases? characterArt = null, RoomStaticPalettes? paletteArt = null,
+        RoomLevelArtworks? visualLayouts = null,
+        InstalledRoomLevelStreams? levelStreams = null) =>
         LoadedRoomAssets.Load(new RoomScrollStorage(), room, InstalledFixtures.RoomAssets with
         {
             Characters = characterArt ?? InstalledFixtures.RoomAssets.Characters,

@@ -56,7 +56,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <returns>A catalog owning the selected ordered BG tilemap bytes, keyed by the background each pictures.</returns>
     /// <remarks>Always checks each stock hash before selection, then validates the chosen document against its manifest length. An override cannot alter which tilemap a file is or its page count.</remarks>
     /// <exception cref="InvalidDataException">The manifest, tilemap coverage, stock hash, length, or selected tilemap document is invalid.</exception>
-    public static RoomBackgroundTilemapCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static RoomBackgroundTilemaps Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
@@ -101,15 +101,15 @@ public static class RoomBackgroundTilemapArtworkFiles
             if (!selected.TryAdd(tilemap, atlas))
                 throw new InvalidDataException($"Room background manifest {manifestPath} repeats a tilemap.");
         }
-        return new RoomBackgroundTilemapCatalog(selected);
+        return new RoomBackgroundTilemaps(selected);
     }
 
     /// <summary>
     /// The installed content identity of the selected tilemaps, which hashes each with its cartridge source as before
     /// #1414, so recorded identities are unchanged.
     /// </summary>
-    internal static string ContentIdentity(RoomBackgroundTilemapCatalog catalog) => SelectedPresentationHash.FromTransfers(
-        nameof(RoomBackgroundTilemapCatalog),
+    internal static string ContentIdentity(RoomBackgroundTilemaps catalog) => SelectedPresentationHash.FromTransfers(
+        nameof(RoomBackgroundTilemaps),
         Ensure.NotNull(catalog).Tilemaps.ToDictionary(pair => RoomBackgroundSourceDefinitions.Tilemaps[pair.Key], pair => pair.Value),
         atlas => BackgroundTileWords.ToBytes(atlas.Tiles.Span));
 

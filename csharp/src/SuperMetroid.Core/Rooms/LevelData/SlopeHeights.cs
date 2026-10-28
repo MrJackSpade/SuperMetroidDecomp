@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Shared discrete collision heights for Samus, enemies, projectiles and bomb spread.</summary>
-public static class SlopeHeightDefinitions
+public static class SlopeHeights
 {
 
     /// <summary>Returns the native five-bit height for shape 0..31 and column 0..15.</summary>

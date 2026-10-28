@@ -465,7 +465,7 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The draw list a blue program's frame draws: the program names the facing.</summary>
     private static PlmDraw BlueDoorDrawList(BlueDoorProgram program, BlueDoorFrame frame)
     {
-        ColoredDoorOrientation orientation = BlueDoorPlmProgramDefinitions.Orientation(program);
+        ColoredDoorOrientation orientation = BlueDoorPlmProgramDefinitions.Orientations[program];
         return frame switch
         {
             BlueDoorFrame.Clear => DoorCaps.Clear(orientation),
@@ -562,7 +562,7 @@ internal static class RoomPlmProgramsVerification
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
             var entries = DoorPlmNativeListAddresses.ColoredEntries(color, orientation);
-            steps += CompareProgramSet(cartridge, ColoredDoorPlmProgramDefinitions.ProgramsFor(color, orientation), entries,
+            steps += CompareProgramSet(cartridge, ColoredDoorPlmProgramDefinitions.Sets[new(color, orientation)], entries,
                 frame => ColoredCapDraw(color, orientation, frame),
                 (IImportCartridgeSource source, ushort cursor, out ColoredDoorCue cue, out int length) =>
                     ColoredDoorCueAt(source, cursor, color, orientation, entries, out cue, out length),
@@ -592,7 +592,7 @@ internal static class RoomPlmProgramsVerification
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.GotoIfDoorBitSet:
-                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.Closed(orientation)).Entry,
+                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.ClosedPrograms[orientation]).Entry,
                     Word(2), $"{color} {orientation} door becomes its blue cap");
                 cue = ColoredDoorCue.BranchIfOpened;
                 length = 4;
@@ -603,12 +603,12 @@ internal static class RoomPlmProgramsVerification
                 length = 4;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPlmProgramDefinitions.WakeOf(color)), Word(2), $"{color} {orientation} door shot wake");
+                AssertEqual(DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPlmProgramDefinitions.Wakes[color]), Word(2), $"{color} {orientation} door shot wake");
                 cue = ColoredDoorCue.ArmWake;
                 length = 4;
                 return true;
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
-                AssertEqual(ColoredDoorPlmProgramDefinitions.HitThresholdOf(color), ReadOperandByte(cartridge, cursor + 2), $"{color} door hit threshold");
+                AssertEqual(ColoredDoorPlmProgramDefinitions.HitThresholds[color], ReadOperandByte(cartridge, cursor + 2), $"{color} door hit threshold");
                 AssertEqual(EntryOf(ColoredDoorProgram.Open), Word(3), $"{color} {orientation} door opens at its threshold");
                 cue = ColoredDoorCue.CountHit;
                 length = 5;
@@ -684,7 +684,7 @@ internal static class RoomPlmProgramsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int steps = 0;
         foreach (GreyDoorVariant variant in DoorPlmNativeListAddresses.GreyVariants)
-            steps += CompareProgramSet(cartridge, GreyDoorPlmProgramDefinitions.ProgramsFor(variant), DoorPlmNativeListAddresses.GreyEntries(variant),
+            steps += CompareProgramSet(cartridge, GreyDoorPlmProgramDefinitions.Sets[variant], DoorPlmNativeListAddresses.GreyEntries(variant),
                 frame => GreyCapDraw(variant.Orientation, frame),
                 (IImportCartridgeSource source, ushort cursor, out GreyDoorCue cue, out int length) =>
                     GreyDoorCueAt(source, cursor, variant, out cue, out length),
@@ -713,7 +713,7 @@ internal static class RoomPlmProgramsVerification
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.GotoIfDoorBitSet:
-                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.Closed(variant.Orientation)).Entry,
+                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.ClosedPrograms[variant.Orientation]).Entry,
                     Word(2), $"grey {variant} becomes its blue cap");
                 cue = GreyDoorCue.BranchIfOpened;
                 length = 4;
@@ -815,7 +815,7 @@ internal static class RoomPlmProgramsVerification
         {
             var entries = DoorPlmNativeListAddresses.EyeDoorEntries(orientation, component);
             covered.UnionWith(entries.Select(entry => entry.Program));
-            steps += CompareProgramSubset(cartridge, EyeDoorPlmProgramDefinitions.ProgramsFor(orientation), entries,
+            steps += CompareProgramSubset(cartridge, EyeDoorPlmProgramDefinitions.Sets[orientation], entries,
                 (EyeDoorPlmProgram _, EyeDoorPlmFrame frame) => EyeDoorDraws.DrawList(orientation, component, frame),
                 (IImportCartridgeSource source, ushort cursor, out EyeDoorPlmCue cue, out int length) =>
                     EyeDoorCueAt(source, cursor, orientation, entries, out cue, out length),
@@ -864,7 +864,7 @@ internal static class RoomPlmProgramsVerification
                 var near = new EyeDoorProximity(new(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3)), ProgramAt(Word(4)));
                 cue = Enum.GetValues<EyeDoorPlmCue>().Single(candidate => candidate is EyeDoorPlmCue.ActivateIfSamusNear
                     or EyeDoorPlmCue.CloseIfSamusInFront or EyeDoorPlmCue.WatchIfSamusNear or EyeDoorPlmCue.PulseIfSamusNear
-                    or EyeDoorPlmCue.KeepPulsingIfSamusNear && EyeDoorPlmProgramDefinitions.ProximityOf(candidate) == near);
+                    or EyeDoorPlmCue.KeepPulsingIfSamusNear && EyeDoorPlmProgramDefinitions.Proximities[candidate] == near);
                 length = 6;
                 return true;
             case RoomPlmInstruction.LinkInstruction:
@@ -942,7 +942,7 @@ internal static class RoomPlmProgramsVerification
                 return true;
             case RoomPlmInstruction.Goto:
                 ColoredDoorOrientation facing = orientation == EyeDoorOrientation.Right ? ColoredDoorOrientation.Right : ColoredDoorOrientation.Left;
-                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.Closed(facing)).Entry,
+                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.ClosedPrograms[facing]).Entry,
                     Word(2), $"{at}: the eye becomes its blue cap");
                 cue = EyeDoorPlmCue.BecomeBlueDoor;
                 length = 4;
@@ -1015,7 +1015,7 @@ internal static class RoomPlmProgramsVerification
     {
         if (!greyDoorAddresses.TryGetValue(variant, out var addresses))
         {
-            addresses = StepAddresses(CartridgeImportSource.Require(rom), GreyDoorPlmProgramDefinitions.ProgramsFor(variant),
+            addresses = StepAddresses(CartridgeImportSource.Require(rom), GreyDoorPlmProgramDefinitions.Sets[variant],
                 DoorPlmNativeListAddresses.GreyEntries(variant), frame => GreyCapDraw(variant.Orientation, frame),
                 (IImportCartridgeSource source, ushort cursor, out GreyDoorCue cue, out int length) => GreyDoorCueAt(source, cursor, variant, out cue, out length),
                 $"grey {variant}");

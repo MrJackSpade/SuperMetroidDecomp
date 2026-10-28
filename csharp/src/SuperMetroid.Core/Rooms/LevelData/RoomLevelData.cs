@@ -57,7 +57,7 @@ public sealed class RoomLevelData
         RoomLevelPlanes planes,
         RoomLevelStreaming streaming = default,
         IReadOnlyList<DoorListEntry>? doors = null,
-        RoomVisualLayout? visualLayout = null)
+        RoomLevelArtwork? visualLayout = null)
     {
         ReadOnlySpan<ushort> foregroundEntries = planes.Foreground;
         ReadOnlySpan<byte> behaviorBytes = planes.Behavior;

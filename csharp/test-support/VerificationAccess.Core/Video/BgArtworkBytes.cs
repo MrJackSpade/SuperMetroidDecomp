@@ -57,7 +57,7 @@ internal sealed class BgArtworkBytes
     }
 
     /// <summary>The common room elements' characters and every tileset's, as <paramref name="characters"/> installs them.</summary>
-    internal BgArtworkBytes WithRoomCharacters(RoomCharacterAtlasCatalog characters)
+    internal BgArtworkBytes WithRoomCharacters(RoomCharacterAtlases characters)
     {
         Ensure.NotNull(characters);
         Add(RoomBgArtwork.CommonRoomElements, () => characters.Cre.Characters);

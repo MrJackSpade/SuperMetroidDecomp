@@ -24,7 +24,7 @@ public static class RoomStaticPaletteExtractor
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomPaletteSet set = RoomTilesetDefinitions.Get(graphicsSet).Palette;
+            RoomPaletteSet set = RoomTilesets.Get(graphicsSet).Palette;
             SnesAddress address = sources.Palettes[set];
             string name = RoomStaticPaletteFormat.FileName(set);
             if (files.ContainsKey(name)) continue;

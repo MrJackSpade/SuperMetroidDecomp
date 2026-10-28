@@ -901,7 +901,7 @@ internal sealed class RoomLoader
             room.Definition);
         scope.Layer3Fx = roomLayer3Fx;
         roomLayer3Fx.PrimeViewport(destinationCamera.PixelPosition);
-        scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
+        scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.CeresHazeSetups.Contains(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door,

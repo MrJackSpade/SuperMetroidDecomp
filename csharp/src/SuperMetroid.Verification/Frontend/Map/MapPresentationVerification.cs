@@ -209,20 +209,20 @@ internal static class MapPresentationVerification
         /// <summary>Installed standard-object tiles required by the real-room fixture.</summary>
         private readonly RoomCharacterAtlas standardObjects;
         /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
-        private readonly RoomCharacterAtlasCatalog roomCharacters;
+        private readonly RoomCharacterAtlases roomCharacters;
         /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
-        private readonly RoomStaticPaletteCatalog roomPalettes;
+        private readonly RoomStaticPalettes roomPalettes;
 
         /// <summary>The pre-coloured block pictures room loads draw from (#1392).</summary>
-        private readonly RoomBlockSheetCatalog roomBlockSheets;
+        private readonly InstalledRoomArtwork roomBlockSheets;
         /// <summary>Installed room visual layouts selected at room entry.</summary>
-        private readonly RoomVisualLayoutCatalog visualLayouts;
+        private readonly RoomLevelArtworks visualLayouts;
         /// <summary>Installed room level streams supplying collision and BTS at room entry.</summary>
-        private readonly RoomLevelStreamCatalog levelStreams;
+        private readonly InstalledRoomLevelStreams levelStreams;
         /// <summary>Installed background tilemaps for the room renderer.</summary>
-        private readonly RoomBackgroundTilemapCatalog backgrounds;
+        private readonly RoomBackgroundTilemaps backgrounds;
         /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
-        private readonly RoomSkyTilemapCatalog skies;
+        private readonly RoomSkyTilemaps skies;
         /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
         private readonly BeamPaletteCatalog? beamPalettes;
         /// <summary>Installed trail appearances.</summary>

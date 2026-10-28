@@ -27,7 +27,7 @@ internal static class MapSpriteSheetComposer
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
-        List<SheetFrameSource> frames = [.. MapSpriteDefinitions.Frames.Select(frame =>
+        List<SheetFrameSource> frames = [.. MapSpriteNames.Frames.Select(frame =>
             new SheetFrameSource(frame.Name, sprites.Frame(frame.Id), MapSpriteArtwork.Of(sprites).Page, FrontendSheetPalette.FramePalette))];
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);

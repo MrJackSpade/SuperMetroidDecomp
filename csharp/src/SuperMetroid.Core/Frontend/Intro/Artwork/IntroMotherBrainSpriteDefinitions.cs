@@ -13,8 +13,4 @@ internal static class IntroMotherBrainSpriteDefinitions
         new("mother-brain-frame-1", new(1), 9),
         new("mother-brain-frame-2", new(2), 9),
     ];
-
-    /// <summary>The pose of Mother Brain frame <paramref name="frame"/>, 0 through 2.</summary>
-    internal static CinematicSpritePose FramePose(int frame) =>
-        Frames[Ensure.BetweenInclusive(0, 2, frame)].Pose;
 }

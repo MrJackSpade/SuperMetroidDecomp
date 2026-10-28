@@ -151,11 +151,11 @@ public sealed class FileSelectPresentation
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
     internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.CursorSpriteName(frame)), anchor);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's OAM anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.HelmetSpriteName(frame)),
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
             Point(document.HelmetAnchors, slot, "helmet"));
 
     /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
@@ -190,7 +190,7 @@ public sealed class FileSelectPresentation
             "file-select pages");
         ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.Patches.Select(FileSelectParts.PatchName),
             "file-select patches");
-        ValidateExactKeys(document.Sprites, FileSelectPresentationDefinitions.SpriteNames,
+        ValidateExactKeys(document.Sprites, FileSelectParts.SpriteNames,
             "file-select sprites");
         ValidateExactKeys(document.BorderAnchors,
             FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName), "file-select borders");
@@ -253,9 +253,9 @@ public sealed class FileSelectPresentation
             border => MenuHeadingBorder.CalculateIfMatching(FileSelectParts.Heading(border),
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.CursorSpriteName(frame))))];
+            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.CursorSpriteName(frame))))];
         SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.HelmetFrameCount).Select(frame =>
-            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.HelmetSpriteName(frame))))];
+            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.HelmetSpriteName(frame))))];
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);

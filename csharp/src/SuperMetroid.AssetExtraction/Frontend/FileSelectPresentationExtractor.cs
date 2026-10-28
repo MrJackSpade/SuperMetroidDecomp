@@ -118,10 +118,10 @@ public static class FileSelectPresentationExtractor
                 MenuSpriteExtractor.Read(bus, FileSelectNativeLayout.ClearBorderSpritemap),
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
-            sprites.Add(FileSelectPresentationDefinitions.CursorSpriteName(frame),
+            sprites.Add(FileSelectParts.CursorSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
-            sprites.Add(FileSelectPresentationDefinitions.HelmetSpriteName(frame),
+            sprites.Add(FileSelectParts.HelmetSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));
 
         using var output = new MemoryStream();

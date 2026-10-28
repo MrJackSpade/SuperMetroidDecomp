@@ -154,7 +154,7 @@ internal static class MapSpritesVerification
         var forbidden = new HashSet<int>();
         Add(MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount);
         Add(MapSourceDefinitions.FileSelectMap.LabelSpritemaps, 2);
-        foreach (var frame in MapSpriteDefinitions.Frames)
+        foreach (var frame in MapSpriteNames.Frames)
         {
             int entry = MapSourceDefinitions.Menu.SpritemapPointers + (int)frame.Id * 2;
             int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);

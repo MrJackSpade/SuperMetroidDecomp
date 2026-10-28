@@ -64,9 +64,9 @@ public static class FileSelectPresentationDefinitions
     /// <summary>The copy and clear pages' slot-letter anchors, in document order.</summary>
     public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Enum.GetValues<FileSelectAnchor>();
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
-    private static readonly string[] cursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
+    internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
     /// <summary>The JSON names of the helmet frame sprites, by frame.</summary>
-    private static readonly string[] helmetSpriteNames =
+    internal static readonly string[] HelmetSpriteNames =
         ["Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"];
 
     /// <summary>The JSON name of a foreground page.</summary>
@@ -120,22 +120,6 @@ public static class FileSelectPresentationDefinitions
             [FileSelectAnchor.CopyConfirmDestination] = "Copy.Confirm.Destination",
             [FileSelectAnchor.ClearConfirmSource] = "Clear.Confirm.Source",
         };
-
-    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
-    public static string CursorSpriteName(int frame) =>
-        Ensure.Element(cursorSpriteNames, frame);
-
-    /// <summary>The JSON name of a selected-slot helmet frame's sprite, for frames 0-7.</summary>
-    public static string HelmetSpriteName(int frame) =>
-        Ensure.Element(helmetSpriteNames, frame);
-
-    /// <summary>Every sprite the document names: the three borders, the four cursor frames and the eight helmet frames.</summary>
-    public static IEnumerable<string> SpriteNames =>
-        [.. Borders.Select(FileSelectParts.BorderSpriteName), .. cursorSpriteNames, .. helmetSpriteNames];
-
-    /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
-    public static IEnumerable<string> SheetFrames =>
-        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
 
     /// <summary>The menu heading a bordered heading draws.</summary>
     internal static readonly IReadOnlyDictionary<FileSelectBorder, MenuHeading> Headings =

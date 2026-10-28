@@ -793,7 +793,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsArtworkCells.ControllerLabelTile(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(GameOptionsArtworkCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();
@@ -849,7 +849,7 @@ internal static class LookupStream3Verification
                 Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
-                    MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(button))][cell];
+                    MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(button))][cell];
                     ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
                         (source.FlipX ? TileFlip.Horizontal : TileFlip.None) |
                         (source.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
@@ -3114,7 +3114,7 @@ internal static class LookupStream3Verification
         var stock = Load(original);
         for (int frame = 0; frame < 8; frame++)
         {
-            string name = FileSelectPresentationDefinitions.HelmetSpriteName(frame);
+            string name = FileSelectParts.HelmetSpriteName(frame);
             var composition = Composition(stock, frame);
             AssertTrue(composition.parts is FileSelectHelmetParts,
                 "stock helmet retains semantic frame only");
@@ -3162,7 +3162,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("File-select sprites: 114 border parts/456 edits, 42 helmet parts/378 field cases, ordering/count edits and actual helmet OAM pass; cursor dependency previously confirmed.");
         void Confirm(FileSelectPresentation actual, FileSelectPresentationDocument expected, int frame)
         {
-            string name = FileSelectPresentationDefinitions.HelmetSpriteName(frame);
+            string name = FileSelectParts.HelmetSpriteName(frame);
             var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);
             var selected = Composition(actual, frame);
             AssertEqual(expectedParts.PartCount, selected.PartCount, "helmet part count");

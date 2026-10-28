@@ -57,7 +57,7 @@ internal sealed class IntroEggSlimeDrop
                 throw new InvalidDataException(
                     $"Intro egg slime names invalid pre-instruction {sprite.PreInstruction}.");
             }
-            AddVelocity(axis: Axis.Horizontal, IntroEggMotionDefinitions.SlimeX(Drop));
+            AddVelocity(axis: Axis.Horizontal, IntroEggMotion.SlimeX(Drop));
 
             // BIT #1 selects two different gravity curves. This is the parameter's parity,
             // not an animation-frame toggle: odd drops begin at -2 px/frame, evens at -3.

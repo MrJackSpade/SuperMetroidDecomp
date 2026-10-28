@@ -56,4 +56,45 @@ internal static class IntroEggMotion
         frame >= FragmentCurveFrames && frame < FragmentCurveFrames + FragmentOverreads.Length
             ? FragmentOverreads[frame - FragmentCurveFrames]
             : Curve(frame, FragmentCurveFrames, 2);
+
+    /// <summary>Returns one shell fragment's final world-space spawn position.</summary>
+    /// <remarks>
+    /// Issues #625 and #975: $8B:A958 indexes six interleaved 16-bit X/Y
+    /// origin pairs at $8B:A97C..A993 with index*4, then adds $10 and $3B
+    /// respectively with native 16-bit wrap. Pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm give source pairs ($5C,$58), ($63,$58), ($59,$5D),
+    /// ($60,$5B), ($66,$5E), and ($63,$60); all twelve words match this
+    /// selector after the biases. The spawn opcode creates exactly indices
+    /// 0..5, and unknown indices throw. The irregular positions compose the
+    /// shell artwork, so retaining six explicit pairs is clearer than a
+    /// generated sequence or polynomial encoding.
+    /// </remarks>
+    public static Position16<ScreenPixels> FragmentInitialPosition(int index) => Ensure.Element(FragmentInitialPositions, index);
+
+    /// <summary>$8B:A9EA: six signed 16.16 shell-fragment horizontal velocities.</summary>
+    /// <remarks>
+    /// Issues #625 and #976: pinned NTSC J/U v1.0 ROM and bank_8B.asm
+    /// match all six high-word-first velocity pairs at $8B:A9EA..AA01:
+    /// FFFF:4000, 0000:4000, FFFF:8000, FFFF:2000, 0000:8000,
+    /// 0000:2000. $8B:A994 indexes them by the immutable fragment number
+    /// 0..5, scaled by four bytes; the caller adds the fraction before the
+    /// signed whole word and carries across. The directions and fractional
+    /// speeds vary irregularly by shell piece, so retain the six authored
+    /// launch velocities. Unknown indices throw rather than read adjacent data.
+    /// </remarks>
+    public static SignedSixteenSixteen FragmentX(int index) => Ensure.Element(FragmentXVelocities, index);
+
+    /// <summary>$8B:AB35: five authored horizontal slime records; four actors are normally spawned.</summary>
+    /// <remarks>
+    /// Issues #625 and #978: pinned NTSC J/U v1.0 ROM and bank_8B.asm
+    /// match all five high-word-first signed 16.16 pairs at $8B:AB35..AB48:
+    /// FFFF:0000, FFFF:8000, 0001:0000, 0000:8000, FFFF:8000.
+    /// $8B:AAB3 indexes by the actor timer's low byte with a four-byte
+    /// stride; the retail spawn path creates indices 0..3, while index 4 is
+    /// the fifth physical table entry. The first four form opposing full-
+    /// and half-pixel speeds, but the fifth repeats -0.5. Retain the five
+    /// explicit launch choices rather than hide this authored extra entry
+    /// behind a four-item symmetry rule. Unknown indices throw.
+    /// </remarks>
+    public static SignedSixteenSixteen SlimeX(int index) => Ensure.Element(SlimeXVelocities, index);
 }

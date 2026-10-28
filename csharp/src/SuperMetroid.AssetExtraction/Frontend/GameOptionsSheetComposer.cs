@@ -37,7 +37,7 @@ internal static class GameOptionsSheetComposer
         }
         for (int frame = 0; frame < GameOptionsPresentationDefinitions.CursorFrameCount; frame++)
         {
-            string name = GameOptionsPresentationDefinitions.CursorSpriteName(frame);
+            string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, options.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
         var cgram = new SnesCgram();

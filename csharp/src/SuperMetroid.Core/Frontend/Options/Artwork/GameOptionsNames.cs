@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using static SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsPresentationDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
@@ -37,4 +38,18 @@ public static class GameOptionsNames
     /// <returns>Five for primary, nine for controller including Exit and Reset, or three for special including Exit.</returns>
     internal static int CursorCount(GameOptionsPage page) =>
         Ensure.Listed(GameOptionsPresentationDefinitions.CursorCounts, page);
+
+    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
+    public static string CursorSpriteName(int frame) =>
+        Ensure.Element(CursorSpriteNames, frame);
+
+    /// <summary>The assignable button a native selector names.</summary>
+    /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
+    public static ControllerButton ControllerLabelButton(int index) =>
+        Ensure.Element(ControllerLabelButtons, index);
+
+    /// <summary>Every frame of the options sheet: each page's heading, then each cursor frame.</summary>
+    public static IEnumerable<string> SheetFrames =>
+        MenuPages.Select(HeadingSpriteName).Concat(Enumerable.Range(0, CursorFrameCount).Select(CursorSpriteName));
 }

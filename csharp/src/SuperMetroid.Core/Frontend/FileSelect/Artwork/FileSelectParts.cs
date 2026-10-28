@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using static SuperMetroid.Core.Frontend.FileSelect.Artwork.FileSelectPresentationDefinitions;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
@@ -55,4 +56,20 @@ public static class FileSelectParts
             _ => throw new ArgumentOutOfRangeException(nameof(patch)),
         });
     }
+
+    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
+    public static string CursorSpriteName(int frame) =>
+        Ensure.Element(CursorSpriteNames, frame);
+
+    /// <summary>The JSON name of a selected-slot helmet frame's sprite, for frames 0-7.</summary>
+    public static string HelmetSpriteName(int frame) =>
+        Ensure.Element(HelmetSpriteNames, frame);
+
+    /// <summary>Every sprite the document names: the three borders, the four cursor frames and the eight helmet frames.</summary>
+    public static IEnumerable<string> SpriteNames =>
+        [.. Borders.Select(FileSelectParts.BorderSpriteName), .. CursorSpriteNames, .. HelmetSpriteNames];
+
+    /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
+    public static IEnumerable<string> SheetFrames =>
+        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
 }

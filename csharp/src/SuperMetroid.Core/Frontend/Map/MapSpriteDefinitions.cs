@@ -8,39 +8,37 @@ public static class MapSpriteDefinitions
     /// <summary>Required named compositions in the map-sprite presentation document, one per <see cref="MapSpriteId"/>.</summary>
     public const int Count = 26;
 
-    /// <summary>The map sprite sheet's frames, one per named role.</summary>
-    public static IEnumerable<string> SheetFrames => Frames.Select(frame => frame.Name);
-
-    /// <summary>Enumerates named roles in the established presentation-document order.</summary>
-    public static IEnumerable<MapSpriteFrameName> Frames =>
+    /// <summary>The named roles in the established presentation-document order.</summary>
+    internal static readonly MapSpriteId[] FrameOrder =
     [
-        new(MapSpriteId.ArrowRight, MapSpriteNames.Name(MapSpriteId.ArrowRight)),
-        new(MapSpriteId.ArrowLeft, MapSpriteNames.Name(MapSpriteId.ArrowLeft)),
-        new(MapSpriteId.ArrowUp, MapSpriteNames.Name(MapSpriteId.ArrowUp)),
-        new(MapSpriteId.ArrowDown, MapSpriteNames.Name(MapSpriteId.ArrowDown)),
-        new(MapSpriteId.MarkerBoss, MapSpriteNames.Name(MapSpriteId.MarkerBoss)),
-        new(MapSpriteId.StationEnergy, MapSpriteNames.Name(MapSpriteId.StationEnergy)),
-        new(MapSpriteId.StationMissile, MapSpriteNames.Name(MapSpriteId.StationMissile)),
-        new(MapSpriteId.StationMap, MapSpriteNames.Name(MapSpriteId.StationMap)),
-        new(MapSpriteId.MarkerDefeatedBoss, MapSpriteNames.Name(MapSpriteId.MarkerDefeatedBoss)),
-        new(MapSpriteId.MarkerGunship, MapSpriteNames.Name(MapSpriteId.MarkerGunship)),
-        new(MapSpriteId.IndicatorBacking, MapSpriteNames.Name(MapSpriteId.IndicatorBacking)),
-        new(MapSpriteId.IndicatorFrame0, MapSpriteNames.Name(MapSpriteId.IndicatorFrame0)),
-        new(MapSpriteId.IndicatorFrame1, MapSpriteNames.Name(MapSpriteId.IndicatorFrame1)),
-        new(MapSpriteId.IndicatorFrame2, MapSpriteNames.Name(MapSpriteId.IndicatorFrame2)),
-        new(MapSpriteId.ElevatorCrateria, MapSpriteNames.Name(MapSpriteId.ElevatorCrateria)),
-        new(MapSpriteId.ElevatorBrinstar, MapSpriteNames.Name(MapSpriteId.ElevatorBrinstar)),
-        new(MapSpriteId.ElevatorNorfair, MapSpriteNames.Name(MapSpriteId.ElevatorNorfair)),
-        new(MapSpriteId.ElevatorWreckedShip, MapSpriteNames.Name(MapSpriteId.ElevatorWreckedShip)),
-        new(MapSpriteId.ElevatorMaridia, MapSpriteNames.Name(MapSpriteId.ElevatorMaridia)),
-        new(MapSpriteId.WorldTitle, MapSpriteNames.Name(MapSpriteId.WorldTitle)),
-        new(MapSpriteId.WorldCrateria, MapSpriteNames.Name(MapSpriteId.WorldCrateria)),
-        new(MapSpriteId.WorldBrinstar, MapSpriteNames.Name(MapSpriteId.WorldBrinstar)),
-        new(MapSpriteId.WorldNorfair, MapSpriteNames.Name(MapSpriteId.WorldNorfair)),
-        new(MapSpriteId.WorldWreckedShip, MapSpriteNames.Name(MapSpriteId.WorldWreckedShip)),
-        new(MapSpriteId.WorldMaridia, MapSpriteNames.Name(MapSpriteId.WorldMaridia)),
-        new(MapSpriteId.WorldTourian, MapSpriteNames.Name(MapSpriteId.WorldTourian)),
+        MapSpriteId.ArrowRight,
+        MapSpriteId.ArrowLeft,
+        MapSpriteId.ArrowUp,
+        MapSpriteId.ArrowDown,
+        MapSpriteId.MarkerBoss,
+        MapSpriteId.StationEnergy,
+        MapSpriteId.StationMissile,
+        MapSpriteId.StationMap,
+        MapSpriteId.MarkerDefeatedBoss,
+        MapSpriteId.MarkerGunship,
+        MapSpriteId.IndicatorBacking,
+        MapSpriteId.IndicatorFrame0,
+        MapSpriteId.IndicatorFrame1,
+        MapSpriteId.IndicatorFrame2,
+        MapSpriteId.ElevatorCrateria,
+        MapSpriteId.ElevatorBrinstar,
+        MapSpriteId.ElevatorNorfair,
+        MapSpriteId.ElevatorWreckedShip,
+        MapSpriteId.ElevatorMaridia,
+        MapSpriteId.WorldTitle,
+        MapSpriteId.WorldCrateria,
+        MapSpriteId.WorldBrinstar,
+        MapSpriteId.WorldNorfair,
+        MapSpriteId.WorldWreckedShip,
+        MapSpriteId.WorldMaridia,
+        MapSpriteId.WorldTourian,
     ];
+
     /// <summary>Selects the world-map label naming each key.</summary>
     internal static readonly IReadOnlyDictionary<AreaId, MapSpriteId> WorldLabels =
         new Dictionary<AreaId, MapSpriteId>

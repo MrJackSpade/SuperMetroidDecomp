@@ -26,7 +26,7 @@ internal static class IntroEggEffectProgramsVerification
         foreach (int invalid in new[] { int.MinValue, -1, 11, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "egg-effect catalog boundary");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroEggEffectSpriteDefinitions.FramePose(invalid), "egg-effect pointer boundary");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroEggEffectSpritePoses.FramePose(invalid), "egg-effect pointer boundary");
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "egg-effect enumeration order");
     }

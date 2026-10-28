@@ -42,7 +42,7 @@ public static class GameOptionsPresentationExtractor
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
         for (int index = 0; index < GameOptionsDefinitions.Rows.ControllerActionCount; index++)
         {
-            labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(index)), Cells(
+            labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(index)), Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
@@ -77,7 +77,7 @@ public static class GameOptionsPresentationExtractor
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
-            sprites.Add(GameOptionsPresentationDefinitions.CursorSpriteName(frame),
+            sprites.Add(GameOptionsNames.CursorSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         }
 

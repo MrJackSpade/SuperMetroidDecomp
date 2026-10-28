@@ -172,7 +172,7 @@ internal sealed class IntroRinkaSystem
         if (slot < LowestSlot)
             throw new InvalidOperationException("No free cinematic sprite slot for an intro Rinka.");
 
-        IntroRinkaPhysicalDefinition definition = IntroRinkaDefinitions.Rinka(parameter);
+        IntroRinkaPhysicalDefinition definition = IntroRinkaLaunches.Rinka(parameter);
         var rinka = new IntroDiscoverySprite(
             definition.Position,
             palette: IntroCinematicDefinitions.Objects.DiscoveryPalette,
@@ -198,7 +198,7 @@ internal sealed class IntroRinkaSystem
                 return;
 
             case CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus:
-                MoveHalfPixelX(rinka, IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
+                MoveHalfPixelX(rinka, IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
                 // $B90B compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
@@ -219,7 +219,7 @@ internal sealed class IntroRinkaSystem
 
             case CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus:
                 MoveHalfPixelX(rinka,
-                    IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
+                    IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
                 int y = unchecked((short)rinka.WholePosition.Y);
                 if (y < 16 || y >= 208 || motherBrainExploding)

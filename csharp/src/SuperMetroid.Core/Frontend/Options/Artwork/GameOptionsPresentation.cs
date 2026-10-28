@@ -126,7 +126,7 @@ public sealed class GameOptionsPresentation
     {
         if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
-        ControllerButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
+        ControllerButton label = GameOptionsNames.ControllerLabelButton(button);
         controllerLabels.TryGetValue(label, out BackgroundTile[]? cells);
         Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsArtworkCells.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
@@ -182,7 +182,7 @@ public sealed class GameOptionsPresentation
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
     internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<SpritePixels> point) =>
-        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.CursorSpriteName(frame)), point);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point);
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
     /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
@@ -223,7 +223,7 @@ public sealed class GameOptionsPresentation
             "options special toggles");
         ValidateExactKeys(document.Sprites,
             [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
-                .. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount).Select(GameOptionsPresentationDefinitions.CursorSpriteName)],
+                .. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
             "options sprites");
         string[] menuNames = [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.MenuName)];
         ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
@@ -282,7 +282,7 @@ public sealed class GameOptionsPresentation
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount)
             .Select(frame => MenuCursorParts.CalculateIfMatching(frame,
-                CompileSprite(document, GameOptionsPresentationDefinitions.CursorSpriteName(frame))))];
+                CompileSprite(document, GameOptionsNames.CursorSpriteName(frame))))];
         foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
         {
             string name = GameOptionsNames.MenuName(page);

@@ -81,7 +81,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
     {
         foreach (Pose pose in EndingRewardSpriteFrameSeries.Arm)
         {
-            if (shown != EndingRewardSpriteDefinitions.FramePose(pose)) continue;
+            if (shown != EndingRewardSpritePoses.FramePose(pose)) continue;
             bool split = pose == Pose.SamusArmFromEndingFrame2;
             int armCount = split ? 3 : 2;
             if (supplied.PartCount != armCount + 3) return supplied;

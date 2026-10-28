@@ -20,8 +20,4 @@ internal static class IntroScientistSpriteDefinitions
         new("examined-baby-3", new(24), 1),
         new("examined-baby-hold", new(25), 1),
     ];
-
-    /// <summary>The pose of scientist frame <paramref name="index"/>, 0 through 9.</summary>
-    internal static CinematicSpritePose FramePose(int index) =>
-        Frames[Ensure.BetweenInclusive(0, 9, index)].Pose;
 }

@@ -43,7 +43,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         for (int stage = 0; stage < EndingRewardSpriteFrameSeries.HairOpening.Count; stage++)
         {
             Pose pose = EndingRewardSpriteFrameSeries.HairOpening[stage];
-            if (shown != EndingRewardSpriteDefinitions.FramePose(pose)) continue;
+            if (shown != EndingRewardSpritePoses.FramePose(pose)) continue;
             if (supplied.PartCount != PartCount(stage)) return supplied;
             return supplied.CalculateIfMatching(new EndingRewardHairParts(stage, supplied));
         }

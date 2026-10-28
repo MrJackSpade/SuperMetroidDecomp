@@ -38,8 +38,8 @@ internal static class FileSelectNameCasesVerification
     internal static void VerifyFileSelectSpriteNames(byte[] source) => VerifyFileSelectNames(source, "Sprites",
         ["Border.Main", "Border.Copy", "Border.Clear", "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
          "Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"],
-        [.. FileSelectPresentationDefinitions.SpriteNames],
-        () => FileSelectPresentationDefinitions.HelmetSpriteName(FileSelectPresentationDefinitions.HelmetFrameCount));
+        [.. FileSelectParts.SpriteNames],
+        () => FileSelectParts.HelmetSpriteName(FileSelectPresentationDefinitions.HelmetFrameCount));
 
     /// <summary>Checks exact names and their codec's rejection of an undefined identity, then rejects missing, extra, or case-changed JSON keys.</summary>
     private static void VerifyFileSelectNames(byte[] source, string field, string[] expected,

@@ -84,8 +84,8 @@ internal static class GameOptionsPresentationVerification
         document.Pages[GameOptionsNames.TilemapName(GameOptionsTilemap.Primary)][0x144] =
             pageCell with { FlipX = !pageCell.FlipX };
         SpriteVisualPart cursorPart = document.Sprites[
-            GameOptionsPresentationDefinitions.CursorSpriteName(0)][0];
-        document.Sprites[GameOptionsPresentationDefinitions.CursorSpriteName(0)][0] =
+            GameOptionsNames.CursorSpriteName(0)][0];
+        document.Sprites[GameOptionsNames.CursorSpriteName(0)][0] =
             cursorPart with { FlipY = !cursorPart.FlipY };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides,

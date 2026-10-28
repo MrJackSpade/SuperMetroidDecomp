@@ -10,7 +10,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int stage = 0; stage < 6; stage++)
-            if (IntroDiscoveryActorSpriteDefinitions.EggFramePose(stage + 3) == shown)
+            if (IntroDiscoveryActorSpritePoses.EggFramePose(stage + 3) == shown)
                 return supplied.CalculateIfMatching(new IntroEggCrackingParts(stage));
         return supplied;
     }

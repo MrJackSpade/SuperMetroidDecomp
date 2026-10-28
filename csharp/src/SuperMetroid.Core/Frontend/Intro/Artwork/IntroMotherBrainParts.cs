@@ -12,7 +12,7 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroMotherBrainSpriteDefinitions.FramePose(frame) == shown)
+            if (IntroMotherBrainSpritePoses.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroMotherBrainParts(frame));
         return supplied;
     }

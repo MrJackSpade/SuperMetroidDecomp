@@ -84,7 +84,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         public static ExplosionActor CreateBig(int parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
-                IntroMotherBrainDefinitions.BigExplosion(parameter);
+                IntroMotherBrainExplosionPlacements.BigExplosion(parameter);
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
                 IntroMotherBrainDefinitions.BigExplosionActor.Program,
@@ -95,7 +95,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         public static ExplosionActor CreateSmall(int parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
-                IntroMotherBrainDefinitions.SmallExplosion(parameter);
+                IntroMotherBrainExplosionPlacements.SmallExplosion(parameter);
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
                 IntroMotherBrainDefinitions.SmallExplosionActor.Program,

@@ -36,7 +36,7 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>The missile cursor's looping animation frames.</summary>
     public const int CursorFrameCount = 4;
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
-    private static readonly string[] cursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
+    internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
 
     /// <summary>The JSON name of a foreground page.</summary>
     internal static readonly IReadOnlyDictionary<GameOptionsTilemap, string> TilemapNames =
@@ -67,10 +67,6 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsPage.Special] = "Heading.Special",
         };
 
-    /// <summary>Every frame of the options sheet: each page's heading, then each cursor frame.</summary>
-    public static IEnumerable<string> SheetFrames =>
-        MenuPages.Select(HeadingSpriteName).Concat(Enumerable.Range(0, CursorFrameCount).Select(CursorSpriteName));
-
     /// <summary>The menu heading a menu layout draws.</summary>
     internal static readonly IReadOnlyDictionary<GameOptionsPage, MenuHeading> Headings =
         new Dictionary<GameOptionsPage, MenuHeading>
@@ -79,10 +75,6 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsPage.Controller] = MenuHeading.OptionsController,
             [GameOptionsPage.Special] = MenuHeading.OptionsSpecial,
         };
-
-    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
-    public static string CursorSpriteName(int frame) =>
-        Ensure.Element(cursorSpriteNames, frame);
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
     internal static readonly IReadOnlyDictionary<ControllerButton, string> ControllerLabelNames =
@@ -104,12 +96,6 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsToggle.IconCancel] = "IconCancel",
             [GameOptionsToggle.Moonwalk] = "Moonwalk",
         };
-
-    /// <summary>The assignable button a native selector names.</summary>
-    /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
-    public static ControllerButton ControllerLabelButton(int index) =>
-        Ensure.Element(ControllerLabelButtons, index);
 
     /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
     internal const int AButtonTile = 0x90;

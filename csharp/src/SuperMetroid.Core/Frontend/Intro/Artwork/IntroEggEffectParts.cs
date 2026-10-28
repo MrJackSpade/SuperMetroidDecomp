@@ -11,7 +11,7 @@ internal static class IntroEggEffectParts
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 11; frame++)
-            if (IntroEggEffectSpriteDefinitions.FramePose(frame) == shown)
+            if (IntroEggEffectSpritePoses.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(Parts(frame));
         return supplied;
     }

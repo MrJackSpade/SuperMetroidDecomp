@@ -23,7 +23,7 @@ public static class EndingExplosionSpriteDefinitions
     }
 
     /// <summary>The ten four-part planet records: four damage, four flash and two lava frames.</summary>
-    private static readonly CinematicSpriteFrameDefinition[] PlanetRecords =
+    internal static readonly CinematicSpriteFrameDefinition[] PlanetRecords =
     [
         new("planet-damage-0", new(83), 4),
         new("planet-damage-1", new(84), 4),
@@ -38,7 +38,7 @@ public static class EndingExplosionSpriteDefinitions
     ];
 
     /// <summary>The composition each composite pose draws.</summary>
-    private static readonly Dictionary<Pose, CinematicSpriteFrameDefinition> Composites = new()
+    internal static readonly Dictionary<Pose, CinematicSpriteFrameDefinition> Composites = new()
     {
         [Pose.Glow] = new("glow-0", new(91), 12),
         [Pose.SupernovaFirst] = new("glow-1", new(92), 20),
@@ -51,12 +51,4 @@ public static class EndingExplosionSpriteDefinitions
     /// <summary>The ten four-part planet records, then the composite poses in <see cref="Pose"/> order.</summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
         [.. PlanetRecords, .. Enum.GetValues<Pose>().Select(pose => Composites[pose])];
-
-    /// <summary>The cinematic pose of planet record <paramref name="record"/>: four damage, four flash and two lava poses.</summary>
-    internal static CinematicSpritePose PlanetPose(int record) =>
-        Ensure.Element(PlanetRecords, record).Pose;
-
-    /// <summary>The cinematic pose of the composite <paramref name="pose"/>.</summary>
-    internal static CinematicSpritePose PoseOf(Pose pose) =>
-        Ensure.Listed(Composites, pose).Pose;
 }

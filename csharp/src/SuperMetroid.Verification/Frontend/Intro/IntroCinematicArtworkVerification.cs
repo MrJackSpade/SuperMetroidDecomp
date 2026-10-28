@@ -839,13 +839,13 @@ internal static class IntroCinematicArtworkVerification
         IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
+        CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), stockOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.Palette);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
+        CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), editedOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.Palette);
         editedOam.FinalizeFrame();

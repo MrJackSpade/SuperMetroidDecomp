@@ -17,4 +17,11 @@ public static class MapSpriteNames
     /// <summary>Selects the world-map label naming <paramref name="area"/>.</summary>
     public static MapSpriteId WorldLabel(AreaId area) =>
         Ensure.Listed(MapSpriteDefinitions.WorldLabels, area);
+
+    /// <summary>Enumerates named roles in the established presentation-document order.</summary>
+    public static IEnumerable<MapSpriteFrameName> Frames =>
+        MapSpriteDefinitions.FrameOrder.Select(id => new MapSpriteFrameName(id, Name(id)));
+
+    /// <summary>The map sprite sheet's frames, one per named role.</summary>
+    public static IEnumerable<string> SheetFrames => Frames.Select(frame => frame.Name);
 }

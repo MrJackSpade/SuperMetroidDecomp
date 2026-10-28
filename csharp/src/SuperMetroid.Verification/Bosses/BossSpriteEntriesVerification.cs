@@ -122,8 +122,13 @@ internal static class BossSpriteEntriesVerification
         sprites.FinalizeFrame();
         SpriteSource[] expected = [.. new[] { 6, 5, 4, 3, 2, 1, 0 }.Select(segment => new SpriteSource(SpriteSourceKind.RidleyTail, segment)),
             new SpriteSource(SpriteSourceKind.RidleyWings)];
-        AssertTrue(sprites.Draws.Select(draw => draw.Source).SequenceEqual(expected),
-            "Ridley publishes the tail tip, then segments five to the base, then the wings");
+        // A frame drawn over uploaded characters publishes one draw per layer picture, all under its piece's source (#1406),
+        // so the order is each piece once.
+        SpriteSource[] published = [.. sprites.Draws.Select(draw => draw.Source)
+            .Where((source, index) => index == 0 || sprites.Draws[index - 1].Source != source)];
+        AssertTrue(published.SequenceEqual(expected),
+            "Ridley publishes the tail tip, then segments five to the base, then the wings; published "
+            + string.Join(", ", published.Select(source => $"{source.Kind} {source.Instance}")));
         AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
         CeresEscapeTileCharacters characters = CeresEscapeTileCharactersConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 64, 128)

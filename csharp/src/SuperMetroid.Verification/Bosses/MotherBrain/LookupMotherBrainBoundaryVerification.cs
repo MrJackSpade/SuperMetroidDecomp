@@ -14,20 +14,20 @@ internal static class LookupMotherBrainBoundaryVerification
     /// <summary>Checks pointer ownership, two-run geometry, and bounds for the wall and door boundary records.</summary>
     internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
-        var exports = MotherBrainFakeDeathPlmDrawDefinitions.All.Take(2).ToArray();
+        var exports = MotherBrainFakeDeathDraws.All.Take(2).ToArray();
         ushort[] pointers = [0x94a3,0x94b1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             int index = Array.IndexOf(pointers, (ushort)raw);
-            AssertEqual(index >= 0, MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var shape),
+            AssertEqual(index >= 0, MotherBrainFakeDeathDraws.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var shape),
                 "Mother Brain wall/door ownership");
             if (index < 0)
             {
-                AssertEqual(default(MotherBrainFakeDeathPlmDrawDefinitions.BoundaryDraw), shape, "Mother Brain missing wall/door descriptor");
+                AssertEqual(default(MotherBrainFakeDeathDraws.BoundaryDraw), shape, "Mother Brain missing wall/door descriptor");
                 continue;
             }
             AssertEqual((ushort)raw, PlmDrawAddressCodec.Of(exports[index].Draw), "Mother Brain boundary export order");
-            MotherBrainFakeDeathPlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var dto);
+            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var dto);
             int cursor = raw;
             for (int run = 0; run < 2; run++)
             {
@@ -81,8 +81,8 @@ internal static class LookupMotherBrainBoundaryVerification
         foreach (ushort pointer in new ushort[] {0x94a3,0x94b1})
         {
             if (field == 1 && pointer != 0x94a3 || field == 2 && pointer != 0x94b1) continue;
-            MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathPlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
+            MotherBrainFakeDeathDraws.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
+            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
             int cursor = pointer;
             int mask = field == 0 ? 0xf000 : 0xfff;
             for (int run = 0; run < 2; run++)

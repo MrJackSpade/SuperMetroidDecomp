@@ -49,7 +49,7 @@ internal static class LookupMotherBrainStockVerification
         var stock = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock();
         var imported = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), words.ToDictionary(pair => MotherBrainFakeDeathPlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), words.ToDictionary(pair => MotherBrainFakeDeathDraws.VisualId(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Mother Brain original flattened hash");

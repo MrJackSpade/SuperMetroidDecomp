@@ -40,7 +40,7 @@ internal static class LookupMotherBrainGlassStockVerification
         var stock = RoomPlmMotherBrainGlassVisualCatalog.Stock();
         var imported = new RoomPlmMotherBrainGlassVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmMotherBrainGlassVisualCatalog), words.ToDictionary(pair => MotherBrainGlassPlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmMotherBrainGlassVisualCatalog), words.ToDictionary(pair => MotherBrainGlassDraws.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Glass original flattened identity");

@@ -37,10 +37,10 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         Suite(nameof(VerifyGlassLayoutVisuals), () => VerifyGlassLayoutVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            MotherBrainGlassDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Draw),
+                MotherBrainGlassDraws.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         RoomPlmVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");

@@ -177,8 +177,8 @@ internal static class PlmPresentationContractChecks
             new RoomPlmVisualEntry(BombTorizoHandPlmDrawDefinitions.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmBombTorizoHandVisualCatalog(entries));
-        ConfirmCoverage(MotherBrainGlassPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(MotherBrainGlassPlmDrawDefinitions.VisualId(frame.Draw),
+        ConfirmCoverage(MotherBrainGlassDraws.All, frame =>
+            new RoomPlmVisualEntry(MotherBrainGlassDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmMotherBrainGlassVisualCatalog(entries));
         ConfirmCoverage(NoobTubePlmDrawDefinitions.All, frame =>
@@ -235,8 +235,8 @@ internal static class PlmPresentationContractChecks
             new RoomPlmVisualEntry(CrocomireArenaDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmCrocomireVisualCatalog(entries));
-        ConfirmCoverage(MotherBrainFakeDeathPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(frame.Draw),
+        ConfirmCoverage(MotherBrainFakeDeathDraws.All, frame =>
+            new RoomPlmVisualEntry(MotherBrainFakeDeathDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries));
     }

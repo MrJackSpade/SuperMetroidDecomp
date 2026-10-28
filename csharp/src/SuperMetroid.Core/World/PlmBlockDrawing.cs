@@ -175,13 +175,13 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(crocomireDraw.Wall ? run : block)), checked((short)(crocomireDraw.Wall ? block : 0))), crocomireDraw.WordAt(run, block), CrocomireVisuals?.GetWord(draw, run, block));
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(draw, out var backgroundFakeDeath))
+        if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
         {
             for (int column = 0; column < 13; column++)
                 DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), 0), backgroundFakeDeath.WordAt(column), MotherBrainFakeDeathVisuals?.GetWord(draw, 0, column));
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(draw, out var regularFakeDeath))
+        if (MotherBrainFakeDeathDraws.TryDescribeRegular(draw, out var regularFakeDeath))
         {
             for (int run = 0; run < regularFakeDeath.RunCount; run++)
                 for (int block = 0; block < regularFakeDeath.Count(run); block++)
@@ -192,7 +192,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 }
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(draw, out var boundaryFakeDeath))
+        if (MotherBrainFakeDeathDraws.TryDescribeBoundary(draw, out var boundaryFakeDeath))
         {
             for (int run = 0; run < 2; run++)
                 for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
@@ -268,7 +268,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.WordAt(cell), EyeDoorVisuals?.GetWord(draw, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
             return;
         }
-        if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(draw, out var motherBrainGlass))
+        if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
         {
             Position16<RoomBlocks> glass = origin;
             for (int run = 0; run < motherBrainGlass.RunCount; run++)
@@ -349,7 +349,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(draw, out var escapeGate))
+        if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
         {
             for (int row = 0; row < 4; row++)
             {

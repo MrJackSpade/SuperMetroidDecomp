@@ -97,7 +97,7 @@ internal static class CrocomirePaintDefinitions
     /// <summary>Builds projectile glint, flame, violet, green, and neutral ramps for Crocomire's initial palette.</summary>
     internal static RgbColor InitialProjectile(int ink) => ink switch
     {
-        0 or 16 => Transparent,
+        0 => Transparent,
         1 => Rgb(ProjectileGlint, ProjectileGlint, 31),
         2 => Rgb(FlameLightRed, FlameLightGreen, 0),
         3 => Rgb(FloorGammaMidpoint(FlameLightRed, FlameDarkRed),

@@ -22,8 +22,11 @@ public static class BossColourDefinitions
     /// <summary>Crocomire initial wall.</summary>
     public static readonly SpriteColourRun CrocomireInitialWall = new(2, 0, 17);
 
-    /// <summary>Crocomire initial projectile.</summary>
-    public static readonly SpriteColourRun CrocomireInitialProjectile = new(5, 0, 17);
+    /// <summary>
+    /// Crocomire initial projectile: sprite set 5. The cartridge's transfer runs one colour further, onto sprite set 6's
+    /// colour 0, which is transparent and which no draw shows, so the port does not carry it (#1436).
+    /// </summary>
+    public static readonly SpriteColourRun CrocomireInitialProjectile = new(5, 0, 16);
 
     /// <summary>Crocomire skeleton arm.</summary>
     public static readonly SpriteColourRun CrocomireSkeletonArm = new(1, 0, 16);

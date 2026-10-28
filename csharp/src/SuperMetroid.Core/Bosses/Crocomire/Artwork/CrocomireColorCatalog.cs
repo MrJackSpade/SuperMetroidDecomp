@@ -83,7 +83,7 @@ public sealed class CrocomireColorCatalog
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
         content.AppendColors(label, transfer);
     }
-    /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
+    /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then sixteen projectile words at 208–223.</summary>
     public void ApplyInitial(GameplayColours colours)
     {
         Apply(new BossColours(colours).CrocomireInitialWall, Band.InitialWall);

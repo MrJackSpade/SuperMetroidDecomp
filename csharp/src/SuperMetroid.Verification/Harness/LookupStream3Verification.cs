@@ -1167,13 +1167,13 @@ internal static class LookupStream3Verification
         {
             ushort direction = (ushort)bucket;
             if ((bucket & 31) != 0 || bucket > 224)
-                AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.ForOrientationBucket(direction),
+                AssertThrows<InvalidDataException>(() => ShaktoolPrograms.ForOrientationBucket(direction),
                     "stream 3 invalid Shaktool orientation");
             else
             {
                 int address = 0xaadd15 + 2 * (bucket >> 5);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.ForOrientationBucket(direction)),
+                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(direction)),
                     "stream 3 native Shaktool orientation");
             }
         }
@@ -1181,12 +1181,12 @@ internal static class LookupStream3Verification
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.CollisionForSegment(segment)),
+            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(segment)),
                 "stream 3 native Shaktool collision program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.CollisionForSegment(invalid),
+            AssertThrows<InvalidDataException>(() => ShaktoolPrograms.CollisionForSegment(invalid),
                 "stream 3 invalid Shaktool collision segment");
         }
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));

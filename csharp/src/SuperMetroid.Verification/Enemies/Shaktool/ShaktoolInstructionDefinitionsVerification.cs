@@ -19,13 +19,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadd15 + (bucket >> 5) * 2)),
-                NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.ForOrientationBucket(bucket)),
+                NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(bucket)),
                 $"Shaktool orientation list {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadf13 + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.CollisionForSegment(index)),
+                NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(index)),
                 $"Shaktool collision list {index}");
         }
 
@@ -45,7 +45,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             orient(center, centerState);
             AssertEqual(bucket, centerState.OrientationBucket,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolInstructionDefinitions.ForOrientationBucket(bucket)),
+            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolPrograms.ForOrientationBucket(bucket)),
                 centerState.Program,
                 $"Shaktool production orientation list {bucket:X2}");
         }
@@ -56,19 +56,19 @@ internal static class ShaktoolInstructionDefinitionsVerification
         reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
-            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolInstructionDefinitions.CollisionForSegment(index)),
+            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolPrograms.CollisionForSegment(index)),
                 (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Program,
                 $"Shaktool production collision list {index}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => ShaktoolInstructionDefinitions.ForOrientationBucket(1),
+            () => ShaktoolPrograms.ForOrientationBucket(1),
             "unaligned Shaktool orientation bucket");
         AssertThrows<InvalidDataException>(
-            () => ShaktoolInstructionDefinitions.ForOrientationBucket(0x0100),
+            () => ShaktoolPrograms.ForOrientationBucket(0x0100),
             "Shaktool orientation bucket past table");
         AssertThrows<InvalidDataException>(
-            () => ShaktoolInstructionDefinitions.CollisionForSegment(-1),
+            () => ShaktoolPrograms.CollisionForSegment(-1),
             "negative Shaktool collision segment");
         Console.WriteLine(
             "Shaktool instruction definitions: 22 native selectors and all orientation and collision-reversal production handoffs pass with source tables forbidden.");

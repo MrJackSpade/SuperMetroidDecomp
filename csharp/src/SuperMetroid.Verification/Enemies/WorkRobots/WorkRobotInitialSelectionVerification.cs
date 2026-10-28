@@ -18,7 +18,7 @@ internal static class WorkRobotInitialSelectionVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             int address = EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 2 * parameter;
-            WorkRobotProgram expected = WorkRobotInitializationDefinitions.InitialProgram(parameter);
+            WorkRobotProgram expected = WorkRobotPoses.InitialProgram(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 NativeEnemyProgramOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
@@ -30,7 +30,7 @@ internal static class WorkRobotInitialSelectionVerification
             AssertEqual(AnimationProgramCursor<WorkRobotProgram>.Start(expected), state.Program,
                 $"Work Robot production selection {parameter} without cartridge access");
         }
-        AssertThrows<InvalidDataException>(() => WorkRobotInitializationDefinitions.InitialProgram(3),
+        AssertThrows<InvalidDataException>(() => WorkRobotPoses.InitialProgram(3),
             "Work Robot selector three overruns the table into code");
         {
             var system = new RoomEnemySystem(new EnemySession());
@@ -41,7 +41,7 @@ internal static class WorkRobotInitialSelectionVerification
         }
         foreach (int invalid in new[] { -1, 4, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => WorkRobotInitializationDefinitions.InitialProgram(invalid),
+                () => WorkRobotPoses.InitialProgram(invalid),
                 $"Work Robot unsupported selector {invalid}");
         Console.WriteLine("Work Robot switch: three original programs, the overrun selector's loud failure, production initialization and bounds pass.");
     }

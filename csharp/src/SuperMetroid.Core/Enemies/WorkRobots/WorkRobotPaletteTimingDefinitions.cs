@@ -14,7 +14,7 @@ internal static class WorkRobotPaletteTimingDefinitions
     /// <summary>Four color words plus one timer word per record.</summary>
     public const ushort RecordByteCount = 10;
 
-    /// <summary>Returns the duration for one aligned authored palette-record offset.</summary>
+    /// <summary>The duration of each authored palette record: a three-record cadence of 64 ticks then 16 and 16.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A8.asm:
     /// the six unsigned timer words at $A8:CCC9+10*i repeat a three-record cadence,
@@ -22,17 +22,5 @@ internal static class WorkRobotPaletteTimingDefinitions
     /// only 0,10,20,30,40,50 are durations. $A8:CCFD is the separate color terminator,
     /// resolved by NormalizeByteOffset at offset 60, never a seventh duration.
     /// </remarks>
-    public static ushort DurationForByteOffset(int byteOffset)
-    {
-        if (byteOffset % RecordByteCount != 0 ||
-            byteOffset >= RecordCount * RecordByteCount)
-        {
-            throw new InvalidDataException(
-                $"Work Robot palette timing offset {byteOffset} is not one of the " +
-                $"{RecordCount} authored {RecordByteCount}-byte records.");
-        }
-
-        int record = byteOffset / RecordByteCount;
-        return (ushort)(record % 3 == 0 ? 64 : 16);
-    }
+    internal static readonly ushort[] Durations = [64, 16, 16, 64, 16, 16];
 }

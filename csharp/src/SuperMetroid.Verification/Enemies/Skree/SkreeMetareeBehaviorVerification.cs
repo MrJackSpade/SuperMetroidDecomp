@@ -23,7 +23,7 @@ internal static class SkreeMetareeBehaviorVerification
         foreach (bool metaree in new[] { false, true })
         {
             string species = metaree ? "Metaree" : "Skree";
-            Func<SkreeMetareeAnimationPhase, SkreeMetareeProgram> program = metaree ? SkreeMetareeAnimationDefinitions.MetareeProgram : SkreeMetareeAnimationDefinitions.SkreeProgram;
+            Func<SkreeMetareeAnimationPhase, SkreeMetareeProgram> program = metaree ? SkreeMetareePrograms.MetareeProgram : SkreeMetareePrograms.SkreeProgram;
             SkreeMetareeProgram idle = program(SkreeMetareeAnimationPhase.Idling);
             (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationProgramCursor<SkreeMetareeProgram>> current, Action<SkreeMetareeProgram> start, Func<bool> attackReady) = Create(metaree);
             AssertEqual(AnimationProgramCursor<SkreeMetareeProgram>.Start(idle), current(), $"{species} starts idling");

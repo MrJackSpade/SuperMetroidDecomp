@@ -31,7 +31,7 @@ internal static class WaverBehaviorVerification
             state.SpinFinished = false;
             WaverBehavior.SetWaverProgram(slot, state);
 
-            WaverProgram program = WaverAnimationDefinitions.Program(selector);
+            WaverProgram program = WaverPrograms.Program(selector);
             ushort[] frames = WaverAnimationsConstants.Spritemaps(program).ToArray();
             // A one-update frame is still flagged new when the sleep runs on the next update; an eight-update frame's flag
             // has cleared by then.

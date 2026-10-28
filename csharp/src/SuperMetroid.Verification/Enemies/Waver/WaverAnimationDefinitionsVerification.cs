@@ -17,7 +17,7 @@ internal static class WaverAnimationDefinitionsVerification
         {
             var selector = (WaverAnimationSelector)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa386db + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(WaverNativeListAddresses.Entries, WaverAnimationDefinitions.Program(selector)),
+                NativeEnemyProgramOracle.EntryOf(WaverNativeListAddresses.Entries, WaverPrograms.Program(selector)),
                 $"Waver animation selector {selector}");
         }
 
@@ -40,7 +40,7 @@ internal static class WaverAnimationDefinitionsVerification
             WaverBehavior.SetWaverProgram(slot, state);
             AssertEqual(selector, state.CurrentInstructionListIndex,
                 $"production Waver current selector {selector}");
-            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(selector)),
+            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverPrograms.Program(selector)),
                 state.Program,
                 $"production Waver animation {selector}");
             AssertEqual(1, slot.InstructionTimer.RawValue,
@@ -63,13 +63,13 @@ internal static class WaverAnimationDefinitionsVerification
                 $"production Waver initial requested selector {parameter}");
             AssertEqual(expected, waver.CurrentInstructionListIndex,
                 $"production Waver initial current selector {parameter}");
-            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(expected)),
+            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverPrograms.Program(expected)),
                 waver.Program,
                 $"production Waver initial animation {parameter}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => WaverAnimationDefinitions.Program((WaverAnimationSelector)4),
+            () => WaverPrograms.Program((WaverAnimationSelector)4),
             "Waver animation selector past table");
         Console.WriteLine(
             "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");

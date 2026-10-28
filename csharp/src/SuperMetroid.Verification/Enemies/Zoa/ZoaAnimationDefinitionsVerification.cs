@@ -18,13 +18,13 @@ internal static class ZoaAnimationDefinitionsVerification
         {
             var selector = (ZoaAnimationSelector)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitions.ReferenceAddress + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(ZoaNativeListAddresses.Entries, ZoaAnimationDefinitions.Program(selector)),
+                NativeEnemyProgramOracle.EntryOf(ZoaNativeListAddresses.Entries, ZoaPrograms.Program(selector)),
                 $"Zoa animation selector {selector}");
         }
 
         foreach (ushort invalid in new ushort[] { 4, 5, 0x8000, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() =>
-                ZoaAnimationDefinitions.Program((ZoaAnimationSelector)invalid),
+                ZoaPrograms.Program((ZoaAnimationSelector)invalid),
                 "Zoa animation rejects unsupported flag combinations");
         if (definitionsOnly)
         {
@@ -36,7 +36,7 @@ internal static class ZoaAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(facingRight: true));
 
         AssertThrows<InvalidDataException>(
-            () => ZoaAnimationDefinitions.Program((ZoaAnimationSelector)4),
+            () => ZoaPrograms.Program((ZoaAnimationSelector)4),
             "Zoa animation selector past table");
         Console.WriteLine(
             "Zoa animation definitions: four native selectors, all four installs, and both complete live facing/rise/shoot handoffs pass with the pointer table forbidden.");
@@ -115,7 +115,7 @@ internal static class ZoaAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.PreviousInstructionListTableIndex,
             $"{context} installed selector");
-        AssertEqual(AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(expected)),
+        AssertEqual(AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(expected)),
             state.Program,
             $"{context} animation");
         AssertEqual(1, slot.InstructionTimer.RawValue, $"{context} instruction timer");

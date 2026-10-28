@@ -235,7 +235,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
         int direction = unchecked((byte)(state.AimAngle.RawValue + 16)) / 32;
         state.DirectionIndex = direction;
-        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawAnimationDefinitions.AttackForDirection(direction));
+        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(direction));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 

@@ -1155,7 +1155,7 @@ internal static class LookupStream3Verification
             int offset = 2 * (parameter & 3);
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
-            SparkMovementDefinition definition = SparkMovementDefinitions.InitialState((ushort)parameter);
+            SparkMovementDefinition definition = SparkStarts.InitialState((ushort)parameter);
             // Selector three's list word is the following main-AI function pointer, which starts no animation.
             AssertEqual(list, definition.Program is { } program
                     ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)

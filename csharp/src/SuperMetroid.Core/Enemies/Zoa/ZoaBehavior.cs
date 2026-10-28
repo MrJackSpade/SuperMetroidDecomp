@@ -60,7 +60,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
-        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(ZoaAnimationSelector.None));
+        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(ZoaAnimationSelector.None));
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
@@ -171,7 +171,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
             return;
         state.PreviousInstructionListTableIndex = state.InstructionListTableIndex;
-        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(state.InstructionListTableIndex));
+        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(state.InstructionListTableIndex));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

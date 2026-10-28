@@ -42,6 +42,6 @@ internal sealed class EndingAnimalEscapeDefinitions : ICinematicSpriteFrames
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
     /// <summary>A pod frame: its one small piece of <paramref name="character"/> in palette seven, priority three, centred on the actor.</summary>
     private static SpriteComposition Pod(int character) => new(
-        [new CompiledSpritePart(SpritePart.Create(-SpriteOffset, -SpriteOffset, large: false, character, palette: 7, priority: 3),
+        [new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(-SpriteOffset, -SpriteOffset), large: false, character, palette: 7, priority: 3),
             InheritPalette: false)]);
 }

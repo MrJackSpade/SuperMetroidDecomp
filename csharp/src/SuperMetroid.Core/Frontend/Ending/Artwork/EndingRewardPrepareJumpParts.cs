@@ -37,7 +37,7 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
             int x = 8 * (tile & 15) - 38;
             int y = 8 * (tile / 16 - 16) - 35;
             bool large = index is 1 or >= 8;
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3, 0), true);
         }
     }

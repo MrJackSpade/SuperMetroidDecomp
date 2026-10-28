@@ -56,7 +56,7 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
                 int atlasColumn = frame == 2 && middleSide ? column / 2 : column;
                 tile = IntroMotherBrainCellDefinitions.FirstPatch + 6 * frame + 32 * row + 2 * atlasColumn;
             }
-            return new(SpritePart.Create(-24 + 16 * column, -24 + 16 * row, true, tile, 0, 3, 0), true);
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-24 + 16 * column, -24 + 16 * row), true, tile, 0, 3, 0), true);
         }
     }
     /// <summary>Visits the portrait cells in spritemap order.</summary>

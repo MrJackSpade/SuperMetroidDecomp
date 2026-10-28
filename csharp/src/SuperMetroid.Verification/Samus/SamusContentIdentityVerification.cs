@@ -85,8 +85,8 @@ internal static class SamusContentIdentityVerification
         if (edit == "spritemap-entry") entries[0] = new SamusSpritemapId(1);
         SamusSpritemapDefinition[] definitions =
         [
-            new([SpritePart.Create(x: 0, y: edit == "spritemap-part" ? 1 : 0, large: false, character: 0, palette: 0, priority: 0)]),
-            new([SpritePart.Create(x: 1, y: 0, large: false, character: 1, palette: 0, priority: 0)]),
+            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, edit == "spritemap-part" ? 1 : 0), large: false, character: 0, palette: 0, priority: 0)]),
+            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, priority: 0)]),
         ];
         var spritemaps = new SamusSpritemapArtworkCatalog(topBases, bottomBases, entries, definitions);
         var one = new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];

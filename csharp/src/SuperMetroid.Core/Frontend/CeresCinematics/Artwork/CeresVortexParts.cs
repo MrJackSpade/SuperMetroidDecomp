@@ -56,7 +56,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<SpritePixels> anchor, 
             }
             else return stars[index - (index >= tip + 2 ? 2 : 0) - (index >= core + 11 ? 11 : 0)];
             Offset16<SpritePixels> position = anchor + offset;
-            return new(SpritePart.Create(position.X, position.Y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(position.X, position.Y), large,
                 tile, 0, 0, 0), true);
         }
     }

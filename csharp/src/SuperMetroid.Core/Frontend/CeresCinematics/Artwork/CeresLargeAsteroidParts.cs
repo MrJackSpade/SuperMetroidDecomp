@@ -82,7 +82,7 @@ internal sealed class CeresLargeAsteroidParts(
                 row = 4 - 2 * (piece / 2);
                 tile = CeresLargeAsteroidCellDefinitions.Lower;
             }
-            return new(SpritePart.Create(anchor.X + 8 * column, anchor.Y + 8 * row, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(anchor.X + 8 * column, anchor.Y + 8 * row), large,
                 tile + column + 16 * row, 0, priority, 0), true);
         }
     }

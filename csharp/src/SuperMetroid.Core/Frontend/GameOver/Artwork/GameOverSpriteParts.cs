@@ -48,14 +48,14 @@ internal sealed class GameOverSpriteParts : IReadOnlyList<CompiledSpritePart>
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             if (!Shell)
-                return new(SpritePart.Create(-8, -8, true,
+                return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-8, -8), true,
                     Tile, 0, 3, TileFlip.None), true);
             // The eight-pixel caps lie outside the centered sixteen-pixel Baby region.
             bool left = (index & 1) != 0;
             bool upper = index >= 2;
             var flips = (left ? TileFlip.None : TileFlip.Horizontal) |
                 (upper ? TileFlip.None : TileFlip.Vertical);
-            return new(SpritePart.Create(left ? -8 : 0, upper ? -16 : 8, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(left ? -8 : 0, upper ? -16 : 8), false,
                 Tile, 0, 3, flips), true);
         }
     }

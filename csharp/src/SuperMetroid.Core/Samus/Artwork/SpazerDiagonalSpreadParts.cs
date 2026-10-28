@@ -19,7 +19,7 @@ internal readonly struct SpazerDiagonalSpreadParts(int pose, int phase) : IReadO
             int distance = ProjectileSpritePartDefinitions.WaveDiagonalNumerator * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase) / ProjectileSpritePartDefinitions.WaveDiagonalDenominator;
             int dx = direction * distance * (pose >= 2 ? -1 : 1);
             int dy = direction * distance * (pose is 1 or 2 ? -1 : 1);
-            return new(seed.Part.At(seed.Part.Offset.X + dx, seed.Part.Offset.Y + dy), seed.InheritPalette);
+            return new(seed.Part.At(Offset16<ScreenPixels>.Of(seed.Part.Offset.X + dx, seed.Part.Offset.Y + dy)), seed.InheritPalette);
         }
     }
     /// <summary>Yields all three diagonal lanes in native order.</summary>

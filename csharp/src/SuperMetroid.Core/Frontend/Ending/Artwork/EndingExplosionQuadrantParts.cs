@@ -103,7 +103,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         bool right = pose != Pose.SupernovaSecond;
         int x = column * 8 - 24, y = row * 8 - 24;
         if (right) x = -x - (large ? 16 : 8);
-        return new(SpritePart.Create(x, y, large,
+        return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
             atlasOrigin + row * 16 + column, 0, 0, right ? TileFlip.Horizontal : 0), true);
     }
 
@@ -146,7 +146,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             int x = part.Part.Offset.X, y = part.Part.Offset.Y;
             TileFlip flips = part.Part.Flip ^
                 (reflectX ? TileFlip.Horizontal : 0) ^ (reflectY ? TileFlip.Vertical : 0);
-            return new(SpritePart.Create(reflectX ? -x - size : x, reflectY ? -y - size : y, part.Part.Large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(reflectX ? -x - size : x, reflectY ? -y - size : y), part.Part.Large,
                 part.Part.Character, part.Part.Palette, part.Part.Priority, flips),
                 part.InheritPalette);
         }

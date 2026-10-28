@@ -95,7 +95,7 @@ internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
                 int column = 2 * (40 - index);
                 x = -10 + 8 * column; y = -48; tile = CeresStationCellDefinitions.Top + column;
             }
-            return new(SpritePart.Create(x, y, index is 1 or 2 or >= 13,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), index is 1 or 2 or >= 13,
                 tile, 0, 0, 0), true);
         }
     }

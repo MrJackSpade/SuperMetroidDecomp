@@ -24,7 +24,7 @@ internal readonly struct SpazerAxialStartupParts(int group, int length) : IReadO
                 ? (vertical ? ProjectileSpritePartDefinitions.ChargedSpazerVerticalGlyph : ProjectileSpritePartDefinitions.ChargedSpazerHorizontalGlyph)
                 : (vertical ? ProjectileSpritePartDefinitions.SpazerVerticalGlyph : ProjectileSpritePartDefinitions.SpazerHorizontalGlyph);
             var flips = reflected ? (vertical ? TileFlip.Vertical : TileFlip.Horizontal) : 0;
-            return new(SpritePart.Create(x, y, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 glyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }

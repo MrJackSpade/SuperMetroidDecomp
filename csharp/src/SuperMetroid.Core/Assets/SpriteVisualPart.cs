@@ -35,7 +35,7 @@ public sealed record SpriteVisualPart
             throw new InvalidDataException($"A sprite part is {Size} pixels square; parts are 8 or 16.");
         try
         {
-            return SpritePart.Create(OffsetX, OffsetY, Size == 16, TileRow * tileColumns + TileColumn, Palette ?? 0, Priority,
+            return SpritePart.Create(Offset16<ScreenPixels>.Of(OffsetX, OffsetY), Size == 16, TileRow * tileColumns + TileColumn, Palette ?? 0, Priority,
                 (FlipX ? TileFlip.Horizontal : TileFlip.None) | (FlipY ? TileFlip.Vertical : TileFlip.None));
         }
         catch (ArgumentOutOfRangeException error)

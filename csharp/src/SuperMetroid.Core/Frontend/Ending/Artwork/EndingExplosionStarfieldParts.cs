@@ -45,7 +45,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             StarfieldPoint star = stars[index];
-            return new(SpritePart.Create(star.Offset.X, star.Offset.Y, star.Tile == CharacterSheetGrid.Cell(14, 13),
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(star.Offset.X, star.Offset.Y), star.Tile == CharacterSheetGrid.Cell(14, 13),
                 star.Tile, 0, 0), true);
         }
     }

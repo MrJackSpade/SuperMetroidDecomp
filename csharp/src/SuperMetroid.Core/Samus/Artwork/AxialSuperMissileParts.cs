@@ -24,7 +24,7 @@ internal readonly struct AxialSuperMissileParts(int pose) : IReadOnlyList<Compil
             }
             int tile = vertical ? ProjectileSpritePartDefinitions.SuperMissileVerticalGlyph + index : ProjectileSpritePartDefinitions.SuperMissileHorizontalGlyph - index;
             var flips = reflected ? (vertical ? TileFlip.Vertical : TileFlip.Horizontal) : 0;
-            return new(SpritePart.Create(x, y, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 tile, ProjectileSpritePartDefinitions.FixedProjectilePalette, ProjectileSpritePartDefinitions.SuperMissilePriority, flips), false);
         }
     }

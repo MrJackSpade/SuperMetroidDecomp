@@ -59,7 +59,7 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
                 x = -16 + 8 * ((tile & 15) - 10);
                 y = -13 + 8 * (tile / 16 - 6);
             }
-            return new(SpritePart.Create(x, y, index != 13,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), index != 13,
                 tile, 0, 3, 0), true);
         }
     }

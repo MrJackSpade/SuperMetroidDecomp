@@ -167,7 +167,7 @@ internal static class MapMarkerGeometry
                 throw new InvalidOperationException($"Undefined MapSpriteId {id}.");
         }
         var flips = (flipX ? TileFlip.Horizontal : 0) | (flipY ? TileFlip.Vertical : 0);
-        return new(SpritePart.Create(x, y, false,
+        return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
             tile, 0, priority, flips), true);
     }
 

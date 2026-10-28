@@ -82,7 +82,7 @@ public static class ProjectileSpritePartDefinitions
         int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
         var flips = (phase is >= 3 and <= 5 ? TileFlip.Horizontal : 0) |
             (phase >= 4 ? TileFlip.Vertical : 0);
-        return new(SpritePart.Create(-8 / 2, -8 / 2, false,
+        return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-8 / 2, -8 / 2), false,
             tile, PowerPalette, PowerPriority, flips), false);
     }
 
@@ -143,7 +143,7 @@ public static class ProjectileSpritePartDefinitions
             y += lobeDirection.Y * distance;
             tile += (step + 1) / 2;
         }
-        return new(SpritePart.Create(x, y, false,
+        return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
             tile, PowerPalette, PowerPriority, 0), false);
     }
 

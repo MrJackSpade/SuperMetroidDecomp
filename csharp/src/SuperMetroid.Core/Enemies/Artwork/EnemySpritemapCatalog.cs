@@ -81,7 +81,7 @@ public sealed class EnemySpritemapCatalog
             TileFlip flips =
                 (part.FlipX ? TileFlip.Horizontal : 0) |
                 (part.FlipY ? TileFlip.Vertical : 0);
-            parts[index] = SpritePart.Create(part.OffsetX, part.OffsetY, part.Size == 16,
+            parts[index] = SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                 part.TileRow * EnemySpritemapCatalog.TileColumns + part.TileColumn, part.Palette.Value, part.Priority, flips);
         }
         return parts;

@@ -35,7 +35,7 @@ internal readonly struct AlternateDiagonalStartupParts(bool reflected, int phase
             if (reflected) x = -size - x;
             var flips = (rotated != reflected ? TileFlip.Horizontal : 0) |
                 (rotated ? TileFlip.Vertical : 0);
-            return new(SpritePart.Create(x, y, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }

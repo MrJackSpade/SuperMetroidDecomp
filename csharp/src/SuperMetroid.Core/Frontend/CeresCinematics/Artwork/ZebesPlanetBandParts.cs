@@ -86,7 +86,7 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
                 int column = 2 * (49 - index);
                 x = -32 + 8 * column; y = -64; tile = ZebesPlanetBandCellDefinitions.TopCap + column;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 0, 0), true);
         }
     }

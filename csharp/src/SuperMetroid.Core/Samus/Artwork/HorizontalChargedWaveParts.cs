@@ -24,7 +24,7 @@ internal readonly struct HorizontalChargedWaveParts(int phase) : IReadOnlyList<C
             int tile = ProjectileSpritePartDefinitions.ChargedBeamTile + 1 - (phase + lobe) % 2;
             var flips = (column == 0 ? TileFlip.Horizontal : 0) |
                 (row == 0 ? TileFlip.Vertical : 0);
-            return new(SpritePart.Create(centerX - column * 8, -row * 8, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(centerX - column * 8, -row * 8), false,
                 tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }

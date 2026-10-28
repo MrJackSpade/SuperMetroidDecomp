@@ -105,7 +105,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
                 x = -12 + 8 * column; y = large ? -6 : -14;
                 tile = (large ? CharacterSheetGrid.Cell(5, 6) : CharacterSheetGrid.Cell(4, 6)) + column;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3, 0), true);
         }
     }

@@ -113,7 +113,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
                 x = 8 * ((tile & 15) - 12) - 16; y = 8 * (tile / 16) - 40;
                 large = true;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3, 0), true);
         }
     }

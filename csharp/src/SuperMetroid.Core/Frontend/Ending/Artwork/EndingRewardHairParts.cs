@@ -152,7 +152,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 x = forearm.X;
                 y = forearm.Y;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3, 0), true);
         }
     }

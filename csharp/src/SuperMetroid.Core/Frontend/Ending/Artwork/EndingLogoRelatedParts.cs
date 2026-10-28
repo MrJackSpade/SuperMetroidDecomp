@@ -56,7 +56,7 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
             CompiledSpritePart part = source.Part(offset + index);
             if (!rotate) return part;
             int size = part.Part.Large ? 16 : 8;
-            return new(SpritePart.Create(-part.Part.Offset.X - size, -part.Part.Offset.Y - size, part.Part.Large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-part.Part.Offset.X - size, -part.Part.Offset.Y - size), part.Part.Large,
                 part.Part.Character, part.Part.Palette, part.Part.Priority, part.Part.Flip ^
                     (TileFlip.Horizontal | TileFlip.Vertical)), part.InheritPalette);
         }

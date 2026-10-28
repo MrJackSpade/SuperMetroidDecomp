@@ -33,7 +33,7 @@ internal static class IntroCinematicSpriteCompiler
                 (part.FlipX ? TileFlip.Horizontal : 0) |
                 (part.FlipY ? TileFlip.Vertical : 0);
             compiled[index] = new CompiledSpritePart(
-                SpritePart.Create(part.OffsetX, part.OffsetY, part.Size == 16,
+                SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                     part.TileRow * TileColumns + part.TileColumn,
                     part.Palette ?? 0, part.Priority, flips),
                 part.Palette is null);

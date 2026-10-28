@@ -104,6 +104,6 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
     {
         int size = part.Large ? 16 : 8;
         int x = SpritePart.WrapX(-part.Offset.X - size);
-        return part.At(x, part.Offset.Y) with { Flip = part.Flip ^ TileFlip.Horizontal };
+        return part.At(Offset16<ScreenPixels>.Of(x, part.Offset.Y)) with { Flip = part.Flip ^ TileFlip.Horizontal };
     }
 }

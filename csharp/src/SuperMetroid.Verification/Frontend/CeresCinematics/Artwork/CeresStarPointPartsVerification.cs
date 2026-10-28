@@ -32,7 +32,7 @@ internal static class CeresStarPointPartsVerification
                 // across the signed Y offset range as the cartridge's Y byte does.
                 edited[index] = part with { Part = part.Part with { Priority = part.Part.Priority ^ 1 } };
                 AssertTrue(ReferenceEquals(edited, CeresStarPointParts.CalculateIfMatching(edited, reflected ? TileFlip.Horizontal : TileFlip.None)), "independent priority edit stays supplied");
-                edited[index] = part with { Part = part.Part.At(part.Part.Offset.X, unchecked((sbyte)(part.Part.Offset.Y + 1))) };
+                edited[index] = part with { Part = part.Part.At(Offset16<ScreenPixels>.Of(part.Part.Offset.X, unchecked((sbyte)(part.Part.Offset.Y + 1)))) };
                 var translated = CeresStarPointParts.CalculateIfMatching(edited, reflected ? TileFlip.Horizontal : TileFlip.None);
                 AssertTrue(!ReferenceEquals(edited, translated) && edited.SequenceEqual(translated), "point edits preserve calculated attributes");
             }

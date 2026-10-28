@@ -21,7 +21,7 @@ internal readonly struct PlasmaStartupCoreParts(int group) : IReadOnlyList<Compi
             bool reflected = orientation == 3;
             int x = -index * size;
             if (reflected) x = -size - x;
-            return new(SpritePart.Create(x, -size / 2, false,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, -size / 2), false,
                 ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, reflected ? TileFlip.Horizontal : 0), false);
         }
     }

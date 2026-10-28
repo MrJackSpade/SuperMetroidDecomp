@@ -38,7 +38,7 @@ public static class FileCopyArrowDefinitions
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
     /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>
     private static CompiledSpritePart Part(Offset16<SpritePixels> offset, int tile, TileFlip flip) => new(
-        SpritePart.Create(offset.X, offset.Y, false,
+        SpritePart.Create(Offset16<ScreenPixels>.Of(offset.X, offset.Y), false,
         tile, 1, 3, flip), true);
 
     /// <summary>Four native sprite orders, including interleaved shaft and arrowhead tiles for short/long and upward/downward arrows.</summary>

@@ -1005,7 +1005,7 @@ internal static class LookupStream2Verification
         // stock tile coverage. Native staging must still copy the same artwork rows.
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [EnemyFrameId.DeadTorizoStationary] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(70, 33, large: false, character: 0, palette: 7, priority: 3,
+            [EnemyFrameId.DeadTorizoStationary] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, priority: 3,
                 TileFlip.Horizontal)]),
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationary] = EnemyFrameId.DeadTorizoStationary };

@@ -56,7 +56,7 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
                 int pairsPerRow = (MapSpriteFormat.TileColumns - FirstVisorTile % MapSpriteFormat.TileColumns) / 2;
                 int tile = FirstVisorTile + phase % pairsPerRow * 2 + phase / pairsPerRow * MapSpriteFormat.TileColumns;
                 bool right = index == 0;
-                return new(SpritePart.Create(right ? 0 : -TileSide, VisorTop, false,
+                return new(SpritePart.Create(Offset16<ScreenPixels>.Of(right ? 0 : -TileSide, VisorTop), false,
                     tile + (right ? 1 : 0), 0, 3, default), true);
             }
             Corner corner = BodyCorner(index - (frame >= 3 ? 2 : 0));
@@ -64,7 +64,7 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
             int y = corner is Corner.BottomLeft or Corner.BottomRight ? 1 : 0;
             int side = BodyTileSide * TileSide, step = side - LargeSide;
             int bodyTile = FirstBodyTile + Math.Min(frame, 2) * BodyTileSide + x + y * MapSpriteFormat.TileColumns;
-            return new(SpritePart.Create(-side / 2 + x * step, -side / 2 + y * step, true,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-side / 2 + x * step, -side / 2 + y * step), true,
                 bodyTile, 0, 3, default), true);
         }
     }

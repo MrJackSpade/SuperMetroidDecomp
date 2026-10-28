@@ -1243,7 +1243,7 @@ internal static class LookupStream1Verification
         // Marker parts confirm selected supplied payload identity, not native artwork: every bit of the pointer lands in
         // the marker's character, palette row, priority or mirroring, so distinct pointers give distinct markers.
         static SpritePart Marker(ushort pointer) =>
-            SpritePart.Create(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8)), (pointer & 1) != 0, pointer & 511,
+            SpritePart.Create(Offset16<ScreenPixels>.Of(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8))), (pointer & 1) != 0, pointer & 511,
                 (pointer >> 9) & 7, (pointer >> 12) & 3,
                 ((pointer & 0x4000) != 0 ? TileFlip.Horizontal : TileFlip.None) | ((pointer & 0x8000) != 0 ? TileFlip.Vertical : TileFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)

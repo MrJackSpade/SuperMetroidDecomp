@@ -58,7 +58,7 @@ internal sealed class EndingRewardStandingParts(int armParts) : IReadOnlyList<Co
                 y = 8 * (tile / 16) - 56;
                 large = piece is 2 or >= 10;
             }
-            return new(SpritePart.Create(x, y, large,
+            return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
                 tile, 0, 3, 0), true);
         }
     }

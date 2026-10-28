@@ -75,7 +75,7 @@ internal static class ChozoStrideGeometryDefinitions
         /// <summary>Keeps the glyph's whole appearance; only its horizontal coordinate is recalculated.</summary>
         internal static FootAppearance From(SpritePart part) => new(part);
         /// <summary>The glyph at a new X coordinate, wrapped across the sprite plane, with its other fields intact.</summary>
-        internal SpritePart At(int x) => Part.At(SpritePart.WrapX(x), Part.Offset.Y);
+        internal SpritePart At(int x) => Part.At(Offset16<ScreenPixels>.Of(SpritePart.WrapX(x), Part.Offset.Y));
     }
 
     /// <summary>Projects relocated foot glyphs into their original slots among the supplied pose parts.</summary>

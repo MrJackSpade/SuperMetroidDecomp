@@ -94,7 +94,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
             int supportPalette = phase < 5 ? 1 : 2;
             int anchor = Part.Palette == supportPalette ? SupportFootX(phase) : DepartingFootX;
             int x = anchor + (Part.Character - FirstFootTile) * TilePixels;
-            return Part.At(SpritePart.WrapX(x), Part.Offset.Y);
+            return Part.At(Offset16<ScreenPixels>.Of(SpritePart.WrapX(x), Part.Offset.Y));
         }
     }
 

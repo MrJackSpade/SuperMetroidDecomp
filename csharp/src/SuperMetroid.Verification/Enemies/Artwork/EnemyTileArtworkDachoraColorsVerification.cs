@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -153,10 +154,11 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         void CheckLive(DachoraPalettePhase phase, int frame)
         {
-            int destination = 128 + ((slot.PaletteRow >> 9) & 7) * 16;
+            // The slot holds its palette row (#1458), whose colours are that sprite colour set's.
+            ColourRun live = cgram.Gameplay.SpriteSets.Set(slot.PaletteRow);
             for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(colors.Resolve(phase, frame, color),
-                    cgram.Colors[destination + color],
+                    live[color],
                     $"live Dachora {phase} frame {frame} color {color}");
         }
 

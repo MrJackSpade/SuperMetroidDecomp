@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification
@@ -57,8 +58,10 @@ internal static class RoomBackgroundLibraryParityVerification
                 bindings.ComposeOver(selectedImage, new BgArtworkBytes().WithHud(hud));
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
+                Range ghost = VerifyStatueGhostCharactersBindNowhere(program, nativeVram, selectedImage, characters);
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
                 {
+                    if (index >= ghost.Start.Value && index < ghost.End.Value) continue;
                     if (nativeVram.ReadByte(index) == selectedImage[index]) continue;
                     throw new InvalidDataException(
                         $"Library background $8F:{program.Pointer:X4}, door ${door:X4} differs " +
@@ -75,6 +78,30 @@ internal static class RoomBackgroundLibraryParityVerification
         Suite(nameof(VerifyInstalledBackgroundTransferFailures), () => VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters));
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
             "match installed VRAM without command-list or visual ROM-source reads.");
+    }
+
+    /// <summary>
+    /// The VRAM bytes a list's Tourian statue-ghost transfer covers, and the checks that stand for comparing them (#1454):
+    /// the native transfer writes the installed statue-ghost characters there, and the installed list binds them nowhere
+    /// (#1406), since only the statue ghost would draw them and it draws nothing, so the composed image leaves them unwritten.
+    /// An empty range when the list has no such transfer.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The native bytes differ from the installed characters, or the installed image writes the range.</exception>
+    private static Range VerifyStatueGhostCharactersBindNowhere(LibraryBackgroundProgram program, SnesVram nativeVram, byte[] selectedImage,
+        RoomCharacterAtlases characters)
+    {
+        LibraryBackgroundInstruction[] transfers = [.. program.Instructions
+            .Where(instruction => instruction.Transfers && instruction.Source == LibraryBackgroundSource.TourianStatueGhostCharacters)];
+        if (transfers.Length == 0) return 0..0;
+        AssertEqual(1, transfers.Length, $"{program.Name} transfers the statue ghost's characters once");
+        int start = LibraryBackgroundOperands.DestinationWord(transfers[0].Destination) * sizeof(ushort);
+        ReadOnlySpan<byte> installed = characters.Get(RoomCharacterSet.TourianStatueGhost).Characters.Span;
+        AssertEqual(installed.Length, transfers[0].ByteCount, $"{program.Name} transfers every statue-ghost character");
+        if (!nativeVram.Bytes.Slice(start, installed.Length).SequenceEqual(installed))
+            throw new InvalidDataException($"{program.Name}'s native statue-ghost transfer differs from the installed statue-ghost characters.");
+        if (selectedImage.AsSpan(start, installed.Length).ContainsAnyExcept((byte)0))
+            throw new InvalidDataException($"{program.Name}'s installed list writes the statue-ghost characters it binds nowhere.");
+        return start..(start + installed.Length);
     }
 
     /// <summary>

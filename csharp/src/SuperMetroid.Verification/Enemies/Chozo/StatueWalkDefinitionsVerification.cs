@@ -16,7 +16,7 @@ internal static class StatueWalkDefinitionsVerification
     internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 38; offset++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Torizo all complete native byte windows");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalk.Velocity(offset), "Torizo all complete native byte windows");
         var enemies = new RoomEnemySystem(new EnemySession());
         Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationProgramCursor<TorizoBodyProgram>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkInstruction;
         Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, int> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
@@ -58,7 +58,7 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
             AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalkDefinitions.Velocity(39), "Torizo incomplete byte window");
+        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(39), "Torizo incomplete byte window");
         AssertThrows<InvalidDataException>(() => ChozoCarryMotionDefinitions.Read(ChozoCarryMotionDefinitions.RecordCount), "Chozo record past the table remains invalid");
         AssertThrows<InvalidDataException>(() => ChozoCarryMotionDefinitions.Read(-1), "Chozo negative record remains invalid");
         Console.WriteLine("Statue walking: 39 Torizo byte windows, 96 Chozo words and 52 real movement/carry calls match without a bus.");

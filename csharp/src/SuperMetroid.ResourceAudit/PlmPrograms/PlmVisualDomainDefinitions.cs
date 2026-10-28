@@ -19,7 +19,7 @@ internal static class PlmVisualDomainDefinitions
     {
         "SuperMetroid.Core.Rooms.Plms.RoomPlmShotBlockVisualCatalog" => RoomPlmShotBlockDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmStationVisualCatalog" => RoomPlmStationDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Bosses.Torizo.Artwork.RoomPlmBombTorizoHandVisualCatalog" => BombTorizoHandPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Bosses.Torizo.Artwork.RoomPlmBombTorizoHandVisualCatalog" => BombTorizoHandDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainGlassVisualCatalog" => MotherBrainGlassDraws.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmNoobTubeVisualCatalog" => NoobTubePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmDownwardGateVisualCatalog" => DownwardGatePlmDrawDefinitions.All.ToArray(),

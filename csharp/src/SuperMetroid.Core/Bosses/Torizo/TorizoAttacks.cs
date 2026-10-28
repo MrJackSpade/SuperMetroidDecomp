@@ -271,7 +271,7 @@ internal sealed class TorizoAttacks
     /// <summary>Places a swipe explosion at the attack-table hand offset, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, int parameter)
     {
-        Offset16<RoomPixels> placement = BombTorizoAttackDefinitions.Swipe(parameter);
+        Offset16<RoomPixels> placement = BombTorizoAttacks.Swipe(parameter);
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -291,7 +291,7 @@ internal sealed class TorizoAttacks
     internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, int parameter)
     {
         Offset16<RoomPixels> placement =
-            BombTorizoAttackDefinitions.LowHealthExplosion(
+            BombTorizoAttacks.LowHealthExplosion(
                 parameter,
                 facingRight: _access.FacesRight(torizo));
 
@@ -338,7 +338,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectileDefinitions.BombChozoOrb(
+            TorizoRandomizedProjectiles.BombChozoOrb(
                 facingRight: _access.FacesRight(torizo)));
     }
 
@@ -401,7 +401,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(
+            TorizoRandomizedProjectiles.GoldenChozoOrb(
                 facingRight: _access.FacesRight(torizo)));
     }
 
@@ -423,7 +423,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectileDefinitions.GoldenEgg(
+            TorizoRandomizedProjectiles.GoldenEgg(
                 movingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight)));
     }
 
@@ -460,7 +460,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(facingRight));
+            TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight));
 
         int angle = ((_room.Random.Generate() & TorizoRandomDefinitions.EyeBeamSpreadMask) - 16 + 192 + (facingRight ? 0 : 128)) & TorizoRandomDefinitions.EyeBeamAngleMask;
         int sineIndex = angle >> 1;
@@ -798,7 +798,7 @@ internal sealed class TorizoAttacks
     {
         _room.EnsureLoaded();
         BombTorizoStatueFragmentDefinition definition =
-            BombTorizoStatueFragmentDefinitions.ForFragment(request.Fragment);
+            BombTorizoStatueFragments.ForFragment(request.Fragment);
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

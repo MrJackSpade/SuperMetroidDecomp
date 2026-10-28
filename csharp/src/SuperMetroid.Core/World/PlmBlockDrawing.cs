@@ -360,7 +360,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (BombTorizoHandPlmDrawDefinitions.TryDescribe(draw, out var bombTorizoHand))
+        if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))
         {
             for (int run = 0; run < bombTorizoHand.RunCount; run++)
                 for (int word = 0; word < bombTorizoHand.WordCount(run); word++)

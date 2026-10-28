@@ -16,7 +16,9 @@ internal sealed class BombTorizoHandPlmAnimation()
 
     /// <inheritdoc/>
     private protected override BombTorizoHandProgram? ProgramAfterSleep(BombTorizoHandProgram program) =>
-        BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(program);
+        BombTorizoHandPlmProgramDefinitions.ProgramsAfterSleep.TryGetValue(program, out BombTorizoHandProgram? next)
+            ? next
+            : throw new InvalidOperationException($"Undefined {nameof(BombTorizoHandProgram)} {program}.");
 
     /// <inheritdoc/>
     private protected override BombTorizoHandProgram? Publish(BombTorizoHandCue cue, PlmSlot slot, PlmStepContext context)

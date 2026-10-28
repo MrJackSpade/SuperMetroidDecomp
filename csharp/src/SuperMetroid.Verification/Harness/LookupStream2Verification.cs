@@ -2248,7 +2248,7 @@ internal static class LookupStream2Verification
                 parts[index] = original with { OffsetX = original.OffsetX + 1 };
                 Check(Load());
                 for (ushort offset = 0; offset <= 38; offset++)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalk.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
                 parts[index] = original;
                 edits++;
             }
@@ -2257,7 +2257,7 @@ internal static class LookupStream2Verification
         (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[selected[0].Name] = selected[1].Name;
         Check(Load());
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(10), "Golden Torizo phase upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStride.HorizontalAdvance(10), "Golden Torizo phase upper bound");
         Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,36independent foot-X edits,display rebind/hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
     }
 

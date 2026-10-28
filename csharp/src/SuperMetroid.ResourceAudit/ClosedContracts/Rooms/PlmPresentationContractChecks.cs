@@ -173,8 +173,8 @@ internal static class PlmPresentationContractChecks
         ConfirmCoverage(RoomPlmStationDrawDefinitions.All, frame =>
             new RoomPlmVisualRunEntry(RoomPlmStationDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)),
             entries => _ = new RoomPlmStationVisualCatalog(entries));
-        ConfirmCoverage(BombTorizoHandPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(BombTorizoHandPlmDrawDefinitions.VisualId(frame.Draw),
+        ConfirmCoverage(BombTorizoHandDraws.All, frame =>
+            new RoomPlmVisualEntry(BombTorizoHandDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmBombTorizoHandVisualCatalog(entries));
         ConfirmCoverage(MotherBrainGlassDraws.All, frame =>

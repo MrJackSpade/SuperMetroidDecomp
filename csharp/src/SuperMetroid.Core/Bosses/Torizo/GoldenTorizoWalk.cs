@@ -4,11 +4,11 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Golden Torizo's instruction-owned whole-pixel walking displacements.</summary>
-public static class GoldenTorizoWalkDefinitions
+public static class GoldenTorizoWalk
 {
     /// <summary>$AA:D59A, walking instruction velocities: twenty signed words in left/right groups.</summary>
     private static short Displacement(int index) =>
-        (short)((index < 10 ? -1 : 1) * GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(index % 10));
+        (short)((index < 10 ? -1 : 1) * GoldenTorizoStride.HorizontalAdvance(index % 10));
 
     /// <summary>Preserves complete byte-indexed word windows; normal instruction operands are even.</summary>
     public static ushort Velocity(int byteOffset)

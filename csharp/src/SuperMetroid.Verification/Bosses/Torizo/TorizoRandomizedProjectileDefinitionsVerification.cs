@@ -15,14 +15,14 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
     {
         TorizoRandomizedProjectileDefinitionsDefinition[] definitions =
         [
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac08, TorizoRandomizedProjectileDefinitions.BombChozoOrb(true), "Bomb orb right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac12, TorizoRandomizedProjectileDefinitions.BombChozoOrb(false), "Bomb orb left"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac99, TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(true), "Golden orb right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86aca3, TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(false), "Golden orb left"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b02f, TorizoRandomizedProjectileDefinitions.GoldenEgg(true), "Golden egg right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b039, TorizoRandomizedProjectileDefinitions.GoldenEgg(false), "Golden egg left"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b376, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(true), "Golden eye beam right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b380, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(false), "Golden eye beam left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac08, TorizoRandomizedProjectiles.BombChozoOrb(true), "Bomb orb right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac12, TorizoRandomizedProjectiles.BombChozoOrb(false), "Bomb orb left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac99, TorizoRandomizedProjectiles.GoldenChozoOrb(true), "Golden orb right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86aca3, TorizoRandomizedProjectiles.GoldenChozoOrb(false), "Golden orb left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b02f, TorizoRandomizedProjectiles.GoldenEgg(true), "Golden egg right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b039, TorizoRandomizedProjectiles.GoldenEgg(false), "Golden egg left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b376, TorizoRandomizedProjectiles.GoldenEyeBeam(true), "Golden eye beam right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b380, TorizoRandomizedProjectiles.GoldenEyeBeam(false), "Golden eye beam left"),
         ];
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
@@ -67,25 +67,25 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
                 (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
                 facingRight,
-                TorizoRandomizedProjectileDefinitions.BombChozoOrb(facingRight),
+                TorizoRandomizedProjectiles.BombChozoOrb(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
                 (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
                 facingRight,
-                TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(facingRight),
+                TorizoRandomizedProjectiles.GoldenChozoOrb(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
                 (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
                 facingRight,
-                TorizoRandomizedProjectileDefinitions.GoldenEgg(facingRight),
+                TorizoRandomizedProjectiles.GoldenEgg(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEyeBeam),
                 (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo, 0),
                 facingRight,
-                TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(facingRight),
+                TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight),
                 velocityIsReplaced: true);
         }
 

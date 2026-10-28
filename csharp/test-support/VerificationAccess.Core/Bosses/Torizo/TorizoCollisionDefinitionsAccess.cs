@@ -30,9 +30,6 @@ internal static class TorizoCollisionDefinitionsAccess
         internal static ushort RightStart => NativeRightStart;
         /// <summary>Advances past a native count word and all eight-byte component records.</summary>
         internal static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
-        /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
-        internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(ushort frame) =>
-            TorizoCollisionDefinitions.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
         /// <summary>Empty, mirrored facing, and jump-back frame totals.</summary>
         internal static int FrameCount => 2 + TorizoCollisionDefinitions.MirroredCount * 2 + TorizoCollisionDefinitions.JumpBackFrames.Length;
 
@@ -59,7 +56,7 @@ internal static class TorizoCollisionDefinitionsAccess
                 for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
                 {
                     yield return cursor;
-                    cursor = TorizoCollisionDefinitions.Next(cursor, TorizoCollisionDefinitions.LeftFacing(index).Length);
+                    cursor = TorizoCollisionDefinitions.Next(cursor, TorizoCollision.LeftFacing(index).Length);
                 }
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.JumpBackFrames)
                 {
@@ -78,11 +75,19 @@ internal static class TorizoCollisionDefinitionsAccess
             foreach (ushort pointer in TorizoCollisionDefinitions.FramePointers)
             {
                 if (pointer != frame) continue;
-                components = TorizoCollisionDefinitions.ComponentsAt(frame);
+                components = TorizoCollision.ComponentsAt(frame);
                 return true;
             }
             components = default;
             return false;
         }
+    }
+
+    /// <summary>Reads Torizo collision by native address.</summary>
+    extension(TorizoCollision)
+    {
+        /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
+        internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(ushort frame) =>
+            TorizoCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
     }
 }

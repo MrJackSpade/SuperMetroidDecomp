@@ -68,7 +68,7 @@ public static class EnemyExtendedFrameDocuments
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
                     new((short)component.OffsetX, (short)component.OffsetY),
-                    GoldenTorizoStrideGeometryDefinitions.Compile(definition.Frame,
+                    GoldenTorizoStride.Compile(definition.Frame,
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
             if (!frames.TryAdd(definition.Frame, compiled))

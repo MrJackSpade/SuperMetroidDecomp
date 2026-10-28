@@ -40,7 +40,7 @@ internal static class LookupBombTorizoHandStockVerification
         var stock = RoomPlmBombTorizoHandVisualCatalog.Stock();
         var imported = new RoomPlmBombTorizoHandVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmBombTorizoHandVisualCatalog), words.ToDictionary(pair => BombTorizoHandPlmDrawDefinitions.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmBombTorizoHandVisualCatalog), words.ToDictionary(pair => BombTorizoHandDraws.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Hand original flattened identity");

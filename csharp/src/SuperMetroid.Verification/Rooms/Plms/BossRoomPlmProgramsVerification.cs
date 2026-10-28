@@ -294,7 +294,7 @@ internal static class BossRoomPlmProgramsVerification
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandPlmProgramDefinitions.Programs, BombTorizoHandEntries,
             draw => PlmDraw.Of(draw), BombTorizoHandCueAt, "Bomb Torizo hand");
-        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(BombTorizoHandProgram.Sleeping),
+        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramsAfterSleep[BombTorizoHandProgram.Sleeping],
             "the woken hand continues after its sleep");
         AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,
             "the crumble list follows the sleeping list's sleep");

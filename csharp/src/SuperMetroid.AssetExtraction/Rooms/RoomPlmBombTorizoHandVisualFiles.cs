@@ -18,8 +18,8 @@ public static class RoomPlmBombTorizoHandVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Bomb Torizo hand", BombTorizoHandPlmDrawDefinitions.All,
-            BombTorizoHandPlmDrawDefinitions.VisualId);
+            VisualFileName, "Bomb Torizo hand", BombTorizoHandDraws.All,
+            BombTorizoHandDraws.VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Bomb Torizo hand override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Bomb Torizo hand JSON.</param>
@@ -28,7 +28,7 @@ public static class RoomPlmBombTorizoHandVisualFiles
     public static RoomPlmBombTorizoHandVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", BombTorizoHandPlmDrawDefinitions.All, BombTorizoHandPlmDrawDefinitions.VisualId, entries => new RoomPlmBombTorizoHandVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", BombTorizoHandDraws.All, BombTorizoHandDraws.VisualId, entries => new RoomPlmBombTorizoHandVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Bomb Torizo hand visuals.</summary>

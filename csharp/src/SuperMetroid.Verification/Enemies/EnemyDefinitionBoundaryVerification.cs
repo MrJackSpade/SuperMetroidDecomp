@@ -104,7 +104,7 @@ internal static class EnemyDefinitionBoundaryVerification
         var seenLists = new Dictionary<int, TorizoHitboxList>();
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {
-            ReadOnlySpan<GoldenTorizoCollisionComponent> components = TorizoCollisionDefinitions.ComponentsAt(frame);
+            ReadOnlySpan<GoldenTorizoCollisionComponent> components = TorizoCollision.ComponentsAt(frame);
             AssertEqual(rom.ReadCartridgeWordFixedBank(bank | frame), components.Length, "Torizo component count");
             for (int i = 0; i < components.Length; i++)
             {
@@ -130,7 +130,7 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             ushort left = TorizoCollisionDefinitions.FramePointers
                 .Skip(2).ElementAt(index);
-            GoldenTorizoCollisionComponent[] leftComponents = TorizoCollisionDefinitions.LeftFacing(index);
+            GoldenTorizoCollisionComponent[] leftComponents = TorizoCollision.LeftFacing(index);
             for (int i = 0; i < leftComponents.Length; i++)
             {
                 int leftList = bank | rom.ReadCartridgeWordFixedBank(bank | (left + 2 + i * 8 + 6));

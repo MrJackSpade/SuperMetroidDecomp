@@ -57,7 +57,7 @@ internal static class ClosedPresentationContractDefinitions
             ["LoadBackground", "Slot", "WriteDigit", "WriteSlotLetter", "CursorPosition",
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
             [new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectHelmetParts.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/FileSelect/Artwork/FileSelectHelmetParts.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuHeadingBorder.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuHeadingBorderDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuBorderParts.cs"),

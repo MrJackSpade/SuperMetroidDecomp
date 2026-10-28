@@ -1,18 +1,14 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>
-/// Immutable file-select pages, dynamic field artwork, actor compositions and layout.
+/// Immutable file-select pages, dynamic field artwork and layout the game binds. The actors are drawn from the installed
+/// file-select sheet, whose compositions belong to the import pipeline that reads the installed presentation (#1463).
 /// SRAM validation, menu navigation, copy/clear operations and fades remain compiled.
 /// </summary>
-public sealed class FileSelectPresentation
+public abstract class FileSelectPresentation
 {
     /// <summary>Named, compiled 32-by-32 BG2 tilemaps for the menu pages.</summary>
     private readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
@@ -24,37 +20,35 @@ public sealed class FileSelectPresentation
     internal readonly BackgroundTile[]? digits;
     /// <summary>Edited slot-letter glyphs, or null when every letter is the native consecutive glyph.</summary>
     internal readonly BackgroundTile[]? slotLetters;
-    /// <summary>Each bordered heading's sprite.</summary>
-    internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
-    /// <summary>The missile cursor's sprite by animation frame.</summary>
-    internal readonly SpriteComposition[] cursorSprites;
-    /// <summary>The selected slot's helmet sprite by animation frame.</summary>
-    internal readonly SpriteComposition[] helmetSprites;
     /// <summary>Each bordered heading's anchor.</summary>
     private readonly Dictionary<FileSelectBorder, Position16<SpritePixels>> borderAnchors;
     /// <summary>Each copy or clear page's slot-letter anchor.</summary>
     private readonly Dictionary<FileSelectAnchor, Position16<TilemapCells>> dynamicAnchors;
     /// <summary>Validated anchors and frame durations from the selected JSON presentation.</summary>
-    private readonly FileSelectPresentationDocument document;
+    private readonly FileSelectLayoutDocument document;
 
     /// <summary>Stores compiled artwork and collapses unedited glyph sequences to stock tile bases.</summary>
-    private FileSelectPresentation(
-        FileSelectPages pages,
+    /// <param name="document">The validated layout.</param>
+    /// <param name="pages">Each foreground page's compiled tiles.</param>
+    /// <param name="background">The common BG2 background's compiled tiles.</param>
+    /// <param name="patches">Each slot-field patch.</param>
+    /// <param name="digits">The ten digit glyphs.</param>
+    /// <param name="slotLetters">The three slot-letter glyphs.</param>
+    /// <param name="contentIdentity">The identity of the selected presentation's bytes.</param>
+    internal FileSelectPresentation(
+        FileSelectLayoutDocument document,
+        Dictionary<FileSelectPage, BackgroundTile[]> pages,
+        BackgroundTile[] background,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches,
         BackgroundTile[] digits,
         BackgroundTile[] slotLetters,
-        FileSelectSprites sprites,
-        FileSelectPresentationDocument document,
         string contentIdentity)
     {
-        this.pages = pages.Foreground;
-        background = pages.Background;
+        this.pages = pages;
+        this.background = background;
         this.patches = patches;
         this.digits = PreserveEditedGlyphs(digits, FileSelectLayout.DigitTileBase);
         this.slotLetters = PreserveEditedGlyphs(slotLetters, FileSelectLayout.SamusLetterTileBase);
-        borderSprites = sprites.Borders;
-        cursorSprites = sprites.Cursors;
-        helmetSprites = sprites.Helmets;
         borderAnchors = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
             border => document.BorderAnchors[FileSelectParts.BorderName(border)]);
         dynamicAnchors = FileSelectPresentationDefinitions.Anchors.ToDictionary(anchor => anchor,
@@ -158,250 +152,8 @@ public sealed class FileSelectPresentation
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
             Point(document.HelmetAnchors, slot, "helmet"));
 
-    /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
-    /// <param name="source">Readable JSON stream, consumed from its current position to the end and left open.</param>
-    /// <returns>A presentation owning the parsed layout and compiled artwork, independent of the source stream.</returns>
-    /// <exception cref="InvalidDataException">The JSON, schema version, required names, artwork, anchors, durations, or patch placements are invalid.</exception>
-    public static FileSelectPresentation Load(Stream source)
-    {
-        byte[] bytes;
-        using (var copy = new MemoryStream())
-        {
-            source.CopyTo(copy);
-            bytes = copy.ToArray();
-        }
-        FileSelectPresentationDocument document;
-        try
-        {
-            document = JsonAssetDocument.Read<FileSelectPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("File-select presentation document is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid file-select presentation JSON.", error);
-        }
-
-        if (document.Version != FileSelectPresentationDefinitions.Version)
-            throw new InvalidDataException(
-                $"File-select presentation version must be {FileSelectPresentationDefinitions.Version}.");
-        ValidateExactKeys(document.Pages,
-            [FileSelectPresentationDefinitions.BackgroundPageName, .. FileSelectPresentationDefinitions.Pages.Select(FileSelectParts.PageName)],
-            "file-select pages");
-        ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.Patches.Select(FileSelectParts.PatchName),
-            "file-select patches");
-        ValidateExactKeys(document.Sprites, FileSelectParts.SpriteNames,
-            "file-select sprites");
-        ValidateExactKeys(document.BorderAnchors,
-            FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName), "file-select borders");
-        ValidateExactKeys(document.DynamicAnchors,
-            FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName),
-            "file-select dynamic anchors");
-        if (document.Digits is null || document.Digits.Length != 10)
-            throw new InvalidDataException("File select requires ten digit cells.");
-        if (document.SlotLetters is null || document.SlotLetters.Length != 3)
-            throw new InvalidDataException("File select requires three slot-letter cells.");
-        if (document.MainSlots is null || document.MainSlots.Length != 3 ||
-            document.DataSlots is null || document.DataSlots.Length != 3)
-            throw new InvalidDataException("File select requires three main and three data slot layouts.");
-        ValidatePoints(document.MainCursorAnchors, 6, "main cursor");
-        ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
-        ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
-        ValidatePoints(document.HelmetAnchors, 3, "helmet");
-        foreach (string name in FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName))
-            ValidatePoint(document.BorderAnchors[name], $"{name} border");
-        foreach (string name in FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName))
-            ValidateTilePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
-        if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
-            throw new InvalidDataException("File-select object palette must be 0..7.");
-        if (document.CursorFrameDuration is < 1 or > ushort.MaxValue ||
-            document.HelmetFrameDuration is < 1 or > ushort.MaxValue)
-            throw new InvalidDataException("File-select actor durations must be 1..65535.");
-
-        var pages = FileSelectPresentationDefinitions.Pages.ToDictionary(page => page,
-            page => CompilePage(document, FileSelectParts.PageName(page)));
-        BackgroundTile[] background = CompilePage(document, FileSelectPresentationDefinitions.BackgroundPageName);
-        var patches = new Dictionary<FileSelectPatch, FileSelectCompiledPatch>();
-        foreach (FileSelectPatch kind in FileSelectPresentationDefinitions.Patches)
-        {
-            string name = FileSelectParts.PatchName(kind);
-            FileSelectPatchDocument patch = document.Patches[name] ??
-                throw new InvalidDataException($"File-select patch {name} is null.");
-            if (patch.Cells is null || patch.Cells.Length == 0)
-                throw new InvalidDataException($"File-select patch {name} is empty.");
-            var claimed = new HashSet<Position16<TilemapCells>>();
-            var compiled = new FileSelectCompiledPatchCell[patch.Cells.Length];
-            for (int index = 0; index < compiled.Length; index++)
-            {
-                FileSelectPatchCellDocument cell = patch.Cells[index] ??
-                    throw new InvalidDataException($"File-select patch {name} cell {index} is null.");
-                if (cell.X < 0 || cell.Y < 0 ||
-                    !claimed.Add(cell.Offset))
-                    throw new InvalidDataException(
-                        $"File-select patch {name} contains an invalid or duplicate coordinate.");
-                compiled[index] = new(cell.Offset - Position16<TilemapCells>.Zero,
-                    CompileCell(cell.Cell, $"file-select patch {name} cell {index}"));
-            }
-            patches.Add(kind, new(kind, compiled));
-        }
-
-        BackgroundTile[] digits = document.Digits.Select((cell, index) =>
-            CompileCell(cell, $"file-select digit {index}")).ToArray();
-        BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
-            CompileCell(cell, $"file-select slot letter {index}")).ToArray();
-        var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
-            border => MenuHeadingBorder.CalculateIfMatching(FileSelectParts.Heading(border),
-                MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.CursorSpriteName(frame))))];
-        SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.HelmetFrameCount).Select(frame =>
-            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.HelmetSpriteName(frame))))];
-
-        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
-            ValidateSlot(slot);
-        ValidatePatchPlacements(document, patches);
-        return new(new(pages, background), patches, digits, letters, new(borderSprites, cursorSprites, helmetSprites), document,
-            Convert.ToHexString(SHA256.HashData(bytes)));
-    }
-
-    /// <summary>Serializes an authored document and validates the serialized presentation before writing any bytes to the output.</summary>
-    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
-    /// <param name="document">Authored layout and artwork to validate and serialize; its collections are not modified.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails file-select presentation validation.</exception>
-    public static void Write(Stream output, FileSelectPresentationDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
-    }
-
-    /// <summary>Rejects authored field patches or time digits that would escape the 32-by-32 page.</summary>
-    private static void ValidatePatchPlacements(
-        FileSelectPresentationDocument document,
-        Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches)
-    {
-        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
-        {
-            ValidatePatch(slot.EnergyAnchor, patches[FileSelectPatch.Energy]);
-            ValidatePatch(slot.NoDataAnchor, patches[FileSelectPatch.NoData]);
-            ValidatePatch(slot.TimeValueAnchor + new Offset16<TilemapCells>(2, 0),
-                patches[FileSelectPatch.TimeColon]);
-            if (slot.TimeValueAnchor.X + 5 > FileSelectPresentationDefinitions.Width)
-                throw new InvalidDataException("File-select time field escapes its page.");
-        }
-
-        static void ValidatePatch(Position16<TilemapCells> anchor, FileSelectCompiledPatch patch)
-        {
-            for (int index = 0; index < patch.Count; index++)
-            {
-                Position16<TilemapCells> placed = anchor + patch.Cell(index).Offset;
-                if (placed.X >= FileSelectPresentationDefinitions.Width ||
-                    placed.Y >= FileSelectPresentationDefinitions.Height)
-                    throw new InvalidDataException("File-select patch placement escapes its page.");
-            }
-        }
-    }
-
-    /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
-    private static BackgroundTile[] CompilePage(FileSelectPresentationDocument document, string name)
-    {
-        MapPresentationCell[] cells = document.Pages[name];
-        if (cells is null || cells.Length != FileSelectPresentationDefinitions.CellCount)
-            throw new InvalidDataException($"File-select page {name} requires 1024 cells.");
-        return CompileCells(cells, $"file-select page {name}");
-    }
-
-    /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
-    private static SpriteComposition CompileSprite(FileSelectPresentationDocument document, string name) =>
-        MenuSpriteCompiler.Compile(document.Sprites[name], $"file-select {name}");
-
-    /// <summary>Compiles each authored cell of <paramref name="owner"/> to the tile it places.</summary>
-    private static BackgroundTile[] CompileCells(MapPresentationCell[] cells, string owner)
-    {
-        var tiles = new BackgroundTile[cells.Length];
-        for (int index = 0; index < tiles.Length; index++)
-            tiles[index] = CompileCell(cells[index], $"{owner} cell {index}");
-        return tiles;
-    }
-
-    /// <summary>Validates an authored cell's tile coordinates and palette and places its tile.</summary>
-    private static BackgroundTile CompileCell(MapPresentationCell? cell, string owner)
-    {
-        if (cell is null ||
-            (uint)cell.TileColumn >= FileSelectPresentationDefinitions.CharacterColumns ||
-            (uint)cell.TileRow >= FileSelectPresentationDefinitions.CharacterRows ||
-            (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-            throw new InvalidDataException($"{owner} has an invalid character or palette.");
-        return new BackgroundTile(cell.TileRow * FileSelectPresentationDefinitions.CharacterColumns + cell.TileColumn,
-            cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
-    }
-
-    /// <summary>Requires every save-slot field anchor to remain within a menu page.</summary>
-    private static void ValidateSlot([NotNull] FileSelectSlotFieldDocument? slot)
-    {
-        if (slot is null)
-            throw new InvalidDataException("File-select slot layout is null.");
-        ValidateTilePoint(slot.EnergyAnchor, "slot energy");
-        ValidateTilePoint(slot.HealthAnchor, "slot health");
-        ValidateTilePoint(slot.NoDataAnchor, "slot no-data");
-        ValidateTilePoint(slot.TimeValueAnchor, "slot time");
-    }
-
-    /// <summary>Requires an exact number of valid OAM pixel anchors for a menu layout.</summary>
-    private static void ValidatePoints(Position16<SpritePixels>[]? points, int count, string owner)
-    {
-        if (points is null || points.Length != count)
-            throw new InvalidDataException($"File-select {owner} requires {count} points.");
-        foreach (Position16<SpritePixels> point in points)
-            ValidatePoint(point, owner);
-    }
-
-    /// <summary>Restricts a sprite anchor to the sprite plane: X 0..511 and Y 0..255.</summary>
-    private static void ValidatePoint(Position16<SpritePixels> point, string owner)
-    {
-        if (point.X < 0 || point.X > SpritePart.PlaneWidth - 1 ||
-            (uint)point.Y > byte.MaxValue)
-            throw new InvalidDataException(
-                $"File-select {owner} requires X=0..511 and Y=0..255.");
-    }
-
-    /// <summary>Restricts a dynamic field anchor to the 32-by-32 tilemap.</summary>
-    private static void ValidateTilePoint(Position16<TilemapCells> point, string owner)
-    {
-        if (!FileSelectPresentationDefinitions.PageSize.Contains(point))
-            throw new InvalidDataException(
-                $"File-select {owner} requires a coordinate inside the 32x32 page.");
-    }
-
-    /// <summary>Requires the authored dictionary to contain precisely the schema's named entries.</summary>
-    private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
-        IEnumerable<string> expected, string owner)
-    {
-        int count = expected.Count();
-        if (values is null || values.Count != count)
-            throw new InvalidDataException($"{owner} requires exactly {count} entries.");
-        foreach (string name in expected)
-            if (!values.ContainsKey(name))
-                throw new InvalidDataException($"{owner} is missing {name}.");
-    }
-
     /// <summary>Reads an indexed OAM anchor, rejecting selections outside its layout.</summary>
     private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);
-
-    /// <summary>The compiled foreground menu pages and the common background page.</summary>
-    /// <param name="Foreground">Each foreground page's tiles.</param>
-    /// <param name="Background">The common BG2 background's tiles.</param>
-    private sealed record FileSelectPages(Dictionary<FileSelectPage, BackgroundTile[]> Foreground, BackgroundTile[] Background);
-
-    /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
-    /// <param name="Borders">Each bordered heading's composition.</param>
-    /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
-    /// <param name="Helmets">The selected slot's helmet composition by animation frame.</param>
-    private sealed record FileSelectSprites(
-        Dictionary<FileSelectBorder, SpriteComposition> Borders,
-        SpriteComposition[] Cursors,
-        SpriteComposition[] Helmets);
 }

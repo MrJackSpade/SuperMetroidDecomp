@@ -1,17 +1,18 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>$82:CAE9-CBCA: three turning helmet drawings followed by five visor glints.
 /// Shared atlas packing and overlapping part coordinates calculate; selected drawings, native part order and visor alignment are retained as this exact display design. Pixels, colors, anchors and timing are excluded.</summary>
 internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>$82:CAE9: first 24x24 helmet block begins at tileD0; three adjacent three-tile-wide poses share its atlas rows.</summary>
-    private const int FirstBodyTile = FileSelectPresentationDefinitions.HelmetFirstBodyCell;
+    private const int FirstBodyTile = FileSelectSpriteDefinitions.HelmetFirstBodyCell;
     /// <summary>$82:CB2B: first two-tile visor strip begins atD9, with consecutive pairs packed into available atlas columns.</summary>
-    private const int FirstVisorTile = FileSelectPresentationDefinitions.HelmetFirstVisorCell;
+    private const int FirstVisorTile = FileSelectSpriteDefinitions.HelmetFirstVisorCell;
     /// <summary>$82:CAE9-CBCA: each body pose is three8pixel tiles square, composed from four overlapping16pixel OBJs.</summary>
     private const int BodyTileSide = 3;
     /// <summary>$82:CB2B-CBCA: selected visor overlay top lies two pixels above the shared helmet anchor.</summary>

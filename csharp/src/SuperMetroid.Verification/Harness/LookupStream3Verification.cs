@@ -70,6 +70,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -319,7 +320,7 @@ internal static class LookupStream3Verification
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<FileSelectBorder, SpriteComposition> Load(FileSelectPresentationDocument document)
         {
-            var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var value = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             return value.borderSprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
@@ -341,7 +342,7 @@ internal static class LookupStream3Verification
                 "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
+            var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
             string anchorKey = FileSelectParts.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
@@ -600,7 +601,7 @@ internal static class LookupStream3Verification
             expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0] with { OffsetX = 17 }];
             Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
         }
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source).cursorSprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectSourcePresentation.Load(source).cursorSprites);
         ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).cursorSprites);
 
         void ConfirmCursorCaller(byte[] json, Func<Stream, SpriteComposition[]> load)
@@ -653,7 +654,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
-        FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
+        FileSelectSourcePresentation Load(FileSelectPresentationDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         foreach ((FileSelectPatch patch, int address, int count) in new[]
         {
@@ -1263,7 +1264,7 @@ internal static class LookupStream3Verification
             editedFrames[editedAngle] = original;
         }
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
-        var fileSelect = FileSelectPresentation.Load(new MemoryStream(fileSelectJson));
+        var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));
         foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
             AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
         var glyphTilemap = new BackgroundTile[1024];
@@ -1283,7 +1284,7 @@ internal static class LookupStream3Verification
                 int bit = field switch { "tileColumn" => 1, "tileRow" => 32, "palette" => 0x400, "priority" => 0x2000, "flipX" => 0x4000, _ => 0x8000 };
                 if (field is "priority" or "flipX" or "flipY") cell[field] = !cell.Required(field).GetValue<bool>();
                 else cell[field] = cell.Required(field).GetValue<int>() ^ 1;
-                var edited = FileSelectPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
+                var edited = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 if (digit) edited.WriteDigit(glyphTilemap, anchor, 2, index);
                 else edited.WriteSlotLetter(glyphTilemap, anchor, index);
                 AssertEqual((ushort)(expected ^ bit), BackgroundTileWords.ToWord(glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)]), "stream 3 independent file-select glyph attribute edit");
@@ -3108,9 +3109,9 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
-        FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
+        FileSelectSourcePresentation Load(FileSelectPresentationDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-        SpriteComposition Composition(FileSelectPresentation owner, int frame) => owner.helmetSprites[frame];
+        SpriteComposition Composition(FileSelectSourcePresentation owner, int frame) => owner.helmetSprites[frame];
         var original = Read();
         var stock = Load(original);
         for (int frame = 0; frame < 8; frame++)
@@ -3161,7 +3162,7 @@ internal static class LookupStream3Verification
             Confirm(stock, original, frame);
         }
         Console.WriteLine("File-select sprites: 114 border parts/456 edits, 42 helmet parts/378 field cases, ordering/count edits and actual helmet OAM pass; cursor dependency previously confirmed.");
-        void Confirm(FileSelectPresentation actual, FileSelectPresentationDocument expected, int frame)
+        void Confirm(FileSelectSourcePresentation actual, FileSelectPresentationDocument expected, int frame)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);
@@ -3595,7 +3596,7 @@ BranchesToSharedBody:true),
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var data = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
-        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectPresentation.Load(new MemoryStream(data))));
+        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectSourcePresentation.Load(new MemoryStream(data))));
         Console.WriteLine("File-select patches: native cells, zero stock fallback, independent edits and actual placement pass.");
         return 0;
     }

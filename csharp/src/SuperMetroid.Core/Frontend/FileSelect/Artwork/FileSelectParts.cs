@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Menus.Artwork;
 using static SuperMetroid.Core.Frontend.FileSelect.Artwork.FileSelectPresentationDefinitions;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
@@ -29,9 +28,6 @@ public static class FileSelectParts
     public static string AnchorName(FileSelectAnchor anchor) =>
         Ensure.Listed(FileSelectPresentationDefinitions.AnchorNames, anchor);
 
-    /// <summary>The menu heading a bordered heading draws.</summary>
-    internal static MenuHeading Heading(FileSelectBorder border) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.Headings, border);
 
     /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
     internal static int PatchCellCount(FileSelectPatch patch) =>

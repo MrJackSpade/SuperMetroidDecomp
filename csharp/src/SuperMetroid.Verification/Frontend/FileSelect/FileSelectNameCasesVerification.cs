@@ -2,6 +2,7 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
@@ -53,7 +54,7 @@ internal static class FileSelectNameCasesVerification
         var values = (root.Single(pair => pair.Key.Equals(field, StringComparison.OrdinalIgnoreCase)).Value ?? throw new InvalidOperationException("Verification requires the field's value.")).AsObject();
         AssertTrue(values.Select(pair => pair.Key).ToHashSet(StringComparer.Ordinal).SetEquals(expected),
             $"{field} independent extractor supplies precisely the required identities");
-        _ = FileSelectPresentation.Load(new MemoryStream(source));
+        _ = FileSelectSourcePresentation.Load(new MemoryStream(source));
         foreach (string name in expected)
         {
             JsonNode original = values.Required(name);
@@ -73,7 +74,7 @@ internal static class FileSelectNameCasesVerification
         void Reject(string reason)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(root.ToJsonString());
-            AssertThrows<InvalidDataException>(() => FileSelectPresentation.Load(new MemoryStream(bytes)),
+            AssertThrows<InvalidDataException>(() => FileSelectSourcePresentation.Load(new MemoryStream(bytes)),
                 $"{field} rejects {reason}");
         }
     }

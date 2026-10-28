@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -69,7 +69,7 @@ internal sealed class SpcMusicSequencer
     /// <summary>Derives the signed per-tick pitch-slide increment toward a transposed target note.</summary>
     private static void ComputePitchAdd(ManagedSpcMusicChannel channel, int pitch)
     {
-        channel.PitchTarget = unchecked((byte)(pitch & SpcDriverDefinitions.Music.NoteNumberMask));
+        channel.PitchTarget = unchecked((byte)SpcDriverBytes.NoteNumber(pitch));
         channel.PitchAddPerTick = SpcFixedPoint.DivideSigned(
             channel.PitchTarget - SpcFixedPoint.Whole(channel.Pitch), channel.PitchSlideLength);
     }
@@ -662,7 +662,7 @@ internal sealed class SpcMusicSequencer
         if (note >= SpcDriverDefinitions.Music.TieNote || (_voices.channelOnMask & _voices.currentChannelBit) != 0)
             return;
 
-        channel.Pitch = SpcFixedPoint.Compose((note & SpcDriverDefinitions.Music.NoteNumberMask) + globalTransposition +
+        channel.Pitch = SpcFixedPoint.Compose(SpcDriverBytes.NoteNumber(note) + globalTransposition +
             channel.ChannelTransposition, channel.FineTune);
         channel.VibratoCount = unchecked((byte)(channel.VibratoFadeTicks << 7));
         channel.VibratoHoldCount = 0;

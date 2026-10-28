@@ -38,7 +38,7 @@ internal sealed record SoundEffectProgramScan(bool RepeatsForever, IReadOnlyList
         Ensure.NotNull(samples);
         foreach (int instrument in Instruments)
         {
-            int index = (instrument & SpcDriverDefinitions.Instruments.PercussionMarker) != 0
+            int index = SpcDriverBytes.IsPercussion(instrument)
                 ? unchecked((byte)(instrument + SpcDriverDefinitions.Instruments.PercussionBias))
                 : instrument;
             if (index >= table.Count)

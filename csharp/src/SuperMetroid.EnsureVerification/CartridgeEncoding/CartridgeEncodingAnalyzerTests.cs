@@ -89,9 +89,10 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(int value) => (value >> 3) + (value & 7) + (value << 4); }")]);
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { const int Bank = 126 << 16; int M() => Bank; }")]);
         ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { static int M(int pointer) => pointer >> 16; }")]);
-        // A named catalog mask or shift states the width's meaning; byte.MaxValue only names a storage width.
+        // A named catalog mask still decodes a packed field by hand outside its owner, however it is spelled (#1461).
         ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerLayout { public const int PackedXMask = 255; }"),
-            new AnalyzerTestSource(functional, "class C { int M(int packed) => packed & WalkerLayout.PackedXMask; }")]);
+                new AnalyzerTestSource(functional, "class C { int M(int packed) => packed & WalkerLayout.PackedXMask; }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "a mask its catalog declares"));
         // A hexadecimal mask a catalog declares is a field layout, not data: applying it decodes a packed field by hand (#1452).
         const string hexMask = "static class WalkerLayout { public const int DoorIndexMask = 0x7f; }";
         ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/Game/WalkerLayout.cs", hexMask),

@@ -62,9 +62,9 @@ internal static class SquareSlopeDefinitionsVerification
         for (int index = 0; index < 20; index++)
         {
             byte actual = SquareSlopes.ReadEnemyQuadrant(index);
-            AssertEqual(rom.ReadCartridgeByte(SquareSlopeDefinitions.EnemyReferenceAddress + index), actual,
+            AssertEqual(rom.ReadCartridgeByte(SquareSlopes.EnemyReferenceAddress + index), actual,
                 $"enemy square quadrant byte {index}, including identity bits");
-            AssertEqual(rom.ReadCartridgeByte(SquareSlopeDefinitions.ProjectileReferenceAddress + index), actual,
+            AssertEqual(rom.ReadCartridgeByte(SquareSlopes.ProjectileReferenceAddress + index), actual,
                 $"enemy-projectile square quadrant copy {index}");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })

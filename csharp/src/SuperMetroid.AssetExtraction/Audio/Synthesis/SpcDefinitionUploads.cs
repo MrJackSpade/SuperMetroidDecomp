@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -69,7 +69,7 @@ internal sealed class SpcDefinitionUploads
                     $"Instrument bank index {index} contains identity {instrument.Instrument}.");
             }
             if (instrument.UsesNoise !=
-                ((instrument.SourceOrNoiseRate & SpcDriverDefinitions.Instruments.NoiseMarker) != 0))
+                (SpcDriverBytes.UsesNoise(instrument.SourceOrNoiseRate)))
             {
                 throw new InvalidDataException(
                     $"Instrument {index} has inconsistent usesNoise and sourceOrNoiseRate fields.");

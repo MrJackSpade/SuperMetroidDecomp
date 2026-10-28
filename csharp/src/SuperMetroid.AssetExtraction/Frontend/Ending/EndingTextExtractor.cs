@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Extracts bounded post-credit labels while validating native stream mechanics.</summary>
+[EncodingOwner("cartridge ending text script words")]
 public static class EndingTextExtractor
 {
     /// <summary>Imports post-credit labels, item-percentage wording, Japanese subtitle cells, and the final message while checking native text-stream mechanics.</summary>

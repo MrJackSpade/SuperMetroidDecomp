@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -58,7 +58,7 @@ internal sealed class SpcVoices
     /// <summary>Converts a fractional note through the twelve-semitone table and instrument pitch base into DSP frequency.</summary>
     internal void WritePitchInner(ManagedSpcMusicChannel channel, int pitch)
     {
-        int note = SpcFixedPoint.Whole(pitch) & SpcDriverDefinitions.Music.NoteNumberMask;
+        int note = SpcDriverBytes.NoteNumber(SpcFixedPoint.Whole(pitch));
         int octave = note / 12;
         int semitone = note % 12;
         int basis = SpcMusicTables.BaseNoteFrequency(semitone);
@@ -83,7 +83,7 @@ internal sealed class SpcVoices
     /// <summary>Installs an instrument's source, envelope, gain and pitch base without replacing the channel's remembered ID.</summary>
     internal void SetInstrumentWithoutSavingId(ManagedSpcMusicChannel channel, int instrument)
     {
-        if ((instrument & SpcDriverDefinitions.Instruments.PercussionMarker) != 0)
+        if (SpcDriverBytes.IsPercussion(instrument))
             instrument = unchecked((byte)(instrument + SpcDriverDefinitions.Instruments.PercussionBias + percussionBaseId));
         int address = SpcDriverDefinitions.Ram.InstrumentTable + instrument * SpcDriverDefinitions.Ram.InstrumentRecordSize;
         if ((channelOnMask & currentChannelBit) != 0)
@@ -91,9 +91,9 @@ internal sealed class SpcVoices
 
         SnesDspVoiceControls voice = Dsp.Voice(channel.Index);
         SpcInstrumentRecord record = ReadInstrument(address);
-        if ((record.SourceOrNoiseRate & SpcDriverDefinitions.Instruments.NoiseMarker) != 0)
+        if (SpcDriverBytes.UsesNoise(record.SourceOrNoiseRate))
         {
-            dspFlags = unchecked((byte)((dspFlags & SpcDriverDefinitions.Echo.WriteDisable) |
+            dspFlags = unchecked((byte)(SpcDriverBytes.EchoWriteDisableOf(dspFlags) |
                 DspFlags.NoiseRateOf(record.SourceOrNoiseRate)));
             noiseEnable = noiseEnable | currentChannelBit;
             voice.WriteSource(0);

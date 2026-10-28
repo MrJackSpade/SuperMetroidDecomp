@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// that crosses $xx:FFFF can change from a cartridge window to WRAM or an unmapped
 /// window without changing its bank register.
 /// </summary>
+[EncodingOwner("SNES bus bank mirroring")]
 internal static class SnesDmaSourceMap
 {
     /// <summary>Classifies one DMA A-bus address after offset wrapping, honoring direct WRAM, mirrors and LoROM windows; SRAM windows are unmapped.</summary>

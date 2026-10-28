@@ -149,7 +149,7 @@ public static class SpcAudioAssetExtractor
             int source = ram[address];
             instruments.Add(new AudioInstrumentMetadata(
                 instrument,
-                (source & SpcDriverDefinitions.Instruments.NoiseMarker) != 0,
+                SpcDriverBytes.UsesNoise(source),
                 source,
                 ram[address + 1],
                 ram[address + 2],

@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -15,9 +16,9 @@ internal static class IntroObjectPage
     /// <summary>The intro OBJ page of <paramref name="intro"/>.</summary>
     internal static SpriteArtwork Of(IntroCinematicArtwork intro)
     {
-        Ensure.NotNull(intro);
+        IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(Ensure.NotNull(intro));
         var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
-        return ObjCharacterPage.With(id, ObjCharacterPage.Create(id, intro.IntroObjectCharacters.Characters.Span),
-            intro.CinematicObjectCharacters.Characters.Span, ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
+        return ObjCharacterPage.With(id, ObjCharacterPage.Create(id, sources.IntroObjectCharacters.Characters.Span),
+            sources.CinematicObjectCharacters.Characters.Span, ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
     }
 }

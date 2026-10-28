@@ -15,6 +15,8 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -48,7 +50,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.EggEffectSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).EggEffectSprites).Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -75,7 +77,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         fragment.Step();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        fragment.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.EggEffectSprites));
+        fragment.Draw(stockOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).EggEffectSprites));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -85,7 +87,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             "installed egg fragment preserves native live-actor OAM");
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        fragment.Draw(editedOam, CinematicSheetFixtures.Drawer(edited.EggEffectSprites));
+        fragment.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).EggEffectSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.ImageEquals(editedOam) &&
                 stockOam.LowTable.Slice(0, 2).SequenceEqual(editedOam.LowTable.Slice(0, 2)),
@@ -97,7 +99,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             slime.Step();
             var slimeOam = ScreenSpritesFixtures.Blank();
             slimeOam.BeginFrame();
-            slime.Draw(slimeOam, CinematicSheetFixtures.Drawer(stock.EggEffectSprites));
+            slime.Draw(slimeOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).EggEffectSprites));
             slimeOam.FinalizeFrame();
         }
 

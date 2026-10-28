@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -22,12 +23,16 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(floorMaps, palette, sprites, actors, floorCharacters.Length / CeresFlightArtworkFormat.FloorCharacterBytes,
+        : base(floorMaps, palette, actors, floorCharacters.Length / CeresFlightArtworkFormat.FloorCharacterBytes,
             objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
     {
         FloorCharacters = floorCharacters;
         ObjectCharacters = objectCharacters;
+        Sprites = sprites;
     }
+
+    /// <summary>Selected six-frame compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction scene's sheets.</summary>
+    public CeresFlightSpritePresentation Sprites { get; }
 
     /// <summary>Owned $4000-byte stream of 256 chunky 8-bpp Mode-7 characters, imported from <c>Tiles_Gunship_Ceres_Mode7</c> at <c>$95:A82F</c>; also reused by the ending flyaway.</summary>
     public ReadOnlyMemory<byte> FloorCharacters { get; }

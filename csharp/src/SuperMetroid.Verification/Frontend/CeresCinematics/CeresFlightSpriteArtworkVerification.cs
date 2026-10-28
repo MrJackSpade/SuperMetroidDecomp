@@ -13,6 +13,9 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
@@ -40,7 +43,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.Sprites).Draw(frame.Pose, installed, new(120, y), 4, onScreen);
+                CinematicSheetFixtures.Drawer(CeresFlightCharacters.Of(stock).Sprites).Draw(frame.Pose, installed, new(120, y), 4, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

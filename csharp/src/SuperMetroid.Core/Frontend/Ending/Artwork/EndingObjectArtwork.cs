@@ -1,14 +1,13 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
 /// Editable character sheets and the waiting-scene BG2 map for the ending and credits.
-/// Actor instructions, palette selection and timing remain code; atmospheric
-/// cloud OAM compositions are a separate editable presentation resource.
+/// Actor instructions, palette selection and timing remain code; the actors are drawn from the installed sheets, whose
+/// compositions belong to the import pipeline that reads the installed artwork and names the content's identity (#1463).
 /// </summary>
-public sealed class EndingObjectArtwork
+public abstract class EndingObjectArtwork
 {
     /// <summary>Copied four-fragment sequence ordered by explosion VRAM destination page.</summary>
     private readonly RoomBackgroundTilemapAtlas[] fragments;
@@ -16,13 +15,14 @@ public sealed class EndingObjectArtwork
     /// <summary>The same fragments keyed by the explosion map each one holds.</summary>
     private readonly Dictionary<EndingObjectFragmentId, RoomBackgroundTilemapAtlas> fragmentsById;
 
-    /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>
-    /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
-    /// <remarks>Copies the fragment sequence but retains the supplied atlas and presentation objects. This constructor validates transfer sizes, not stock hashes or manifest provenance; installation loading performs those checks.</remarks>
-    /// <exception cref="ArgumentNullException">An atlas, composition resource, or fragment sequence is null.</exception>
+    /// <summary>Combines already compiled ending artwork, enforcing the native transfer lengths.</summary>
+    /// <param name="parts">The ending's object character atlases and tilemaps (#633).</param>
+    /// <remarks>Copies the fragment sequence but retains the supplied atlas objects. This constructor validates transfer sizes, not stock hashes or manifest provenance; installation loading performs those checks.</remarks>
+    /// <exception cref="ArgumentNullException">An atlas or fragment sequence is null.</exception>
     /// <exception cref="InvalidDataException">A transfer has an incorrect byte length, or the fragment sequence does not contain exactly four non-null, correctly sized entries.</exception>
-    public EndingObjectArtwork(EndingObjectArtworkParts parts)
+    internal EndingObjectArtwork(EndingObjectSceneParts parts)
     {
+        Ensure.NotNull(parts);
         Clouds = Ensure.NotNull(parts.Clouds);
         Explosion = Ensure.NotNull(parts.Explosion);
         WaitingSamus = Ensure.NotNull(parts.WaitingSamus);
@@ -33,11 +33,6 @@ public sealed class EndingObjectArtwork
         PostCreditsFragmentB = Ensure.NotNull(parts.PostCreditsFragmentB);
         PostShotLogoTiles = Ensure.NotNull(parts.PostShotLogoTiles);
         PostShotLogoMap = Ensure.NotNull(parts.PostShotLogoMap);
-        CloudSprites = Ensure.NotNull(parts.CloudSprites);
-        ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
-        CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
-        RewardSprites = Ensure.NotNull(parts.RewardSprites);
-        LogoSprites = Ensure.NotNull(parts.LogoSprites);
         Ensure.NotNull(parts.Fragments);
         if (!HasRequiredLength(Clouds, EndingObjectTransfer.Clouds) ||
             !HasRequiredLength(Explosion, EndingObjectTransfer.Explosion) ||
@@ -67,18 +62,8 @@ public sealed class EndingObjectArtwork
     private static bool HasRequiredLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
         bytes.Length == EndingObjectArtworkFormat.ByteCount(transfer);
 
-    /// <summary>Compiled 4-bpp atmospheric-cloud OBJ sheet imported from <c>$99:A56F</c> and uploaded at VRAM byte $C000; placement is supplied separately by <see cref="CloudSprites"/>.</summary>
+    /// <summary>Compiled 4-bpp atmospheric-cloud OBJ sheet imported from <c>$99:A56F</c> and uploaded at VRAM byte $C000.</summary>
     public RoomCharacterAtlas Clouds { get; }
-    /// <summary>Six editable atmospheric-cloud OAM compositions.</summary>
-    public EndingCloudSpritePresentation CloudSprites { get; }
-    /// <summary>Sixteen editable Zebes-explosion OAM compositions.</summary>
-    public EndingExplosionSpritePresentation ExplosionSprites { get; }
-    /// <summary>Fifty-six editable completion-message and clear-time OAM compositions.</summary>
-    public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
-    /// <summary>Thirty-seven editable post-credits Samus reward OAM compositions.</summary>
-    public EndingRewardSpritePresentation RewardSprites { get; }
-    /// <summary>Eight editable OAM compositions for the final assembling logo.</summary>
-    public EndingLogoSpritePresentation LogoSprites { get; }
     /// <summary>Compiled 4-bpp explosion OBJ sheet imported from <c>$98:8304</c> and uploaded at VRAM byte $8000; separate tilemap fragments occupy $E000-$FFFF.</summary>
     public RoomCharacterAtlas Explosion { get; }
     /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
@@ -98,28 +83,11 @@ public sealed class EndingObjectArtwork
     /// <summary>Post-shot logo's ordered 32x32 tile and palette references.</summary>
     public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
 
-    /// <summary>Identity of every selected ending/credits character, map and ordered OAM composition.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog", content =>
-    {
-        content.Append("clouds", Clouds.Characters.Span);
-        content.Append("explosion", Explosion.Characters.Span);
-        content.Append("waiting-samus", WaitingSamus.Characters.Span);
-        content.Append("shooting-screen", ShootingScreen.Characters.Span);
-        content.Append("suitless-samus", SuitlessSamus.Characters.Span);
-        content.AppendTiles("waiting-map", WaitingTilemap.Tiles.Span);
-        content.Append("post-credits-fragment-a", PostCreditsFragmentA.Characters.Span);
-        content.AppendTiles("post-credits-fragment-b", PostCreditsFragmentB.Tiles.Span);
-        content.Append("logo-characters", PostShotLogoTiles.Characters.Span);
-        content.AppendTiles("logo-map", PostShotLogoMap.Tiles.Span);
-        content.Append("fragment-count", fragments.Length);
-        foreach (RoomBackgroundTilemapAtlas fragment in fragments)
-            content.AppendTiles("fragment", fragment.Tiles.Span);
-        content.Append("cloud-sprites", Convert.FromHexString(CloudSprites.ContentIdentity));
-        content.Append("explosion-sprites", Convert.FromHexString(ExplosionSprites.ContentIdentity));
-        content.Append("completion-text-sprites", Convert.FromHexString(CompletionTextSprites.ContentIdentity));
-        content.Append("reward-sprites", Convert.FromHexString(RewardSprites.ContentIdentity));
-        content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
-    });
+    /// <summary>The four explosion maps in <see cref="EndingObjectFragmentId"/> order.</summary>
+    protected IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => fragments;
+
+    /// <summary>Identity of every selected ending/credits character, map and the compositions its sheets are composed from.</summary>
+    public abstract string ContentIdentity { get; }
 
     /// <summary>Returns one 32-by-32-cell explosion map.</summary>
     /// <param name="id">The explosion map; the copied fragment sequence holds the maps in its declaration order.</param>

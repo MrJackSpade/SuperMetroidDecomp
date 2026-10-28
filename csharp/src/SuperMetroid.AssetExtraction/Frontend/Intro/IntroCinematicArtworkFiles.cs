@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -17,6 +16,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
@@ -402,7 +403,7 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
-    public static IntroCinematicArtwork Load(string stockDirectory, string? overrideDirectory)
+    public static IntroCinematicSourceArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, IntroCinematicArtworkFormat.ManifestFileName);
@@ -425,9 +426,9 @@ public static class IntroCinematicArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Intro artwork manifest {manifestPath} does not describe this installation.");
 
-        return new IntroCinematicArtwork(new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        return new IntroCinematicSourceArtwork(new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Palette = LoadPalette(), CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction() });
+                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Palette = LoadPalette(), CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), CeresDestructionSprites = LoadCeresDestructionSprites() });
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {
@@ -630,7 +631,6 @@ public static class IntroCinematicArtworkFiles
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
             (string zebesMapPath, byte[] zebesMap) = ReadSelected(CeresDestructionArtworkFormat.ZebesMapFileName);
             (string zebesPngPath, byte[] zebesPng) = ReadSelected(CeresDestructionArtworkFormat.ZebesCharacterFileName);
-            (string spritesPath, byte[] sprites) = ReadSelected(CeresDestructionSpriteFormat.FileName);
             (string actorsPath, byte[] actors) = ReadSelected(CeresRevealActorLayoutFormat.FileName);
             (string destructionActorsPath, byte[] destructionActors) =
                 ReadSelected(CeresDestructionActorLayoutFormat.FileName);
@@ -640,15 +640,27 @@ public static class IntroCinematicArtworkFiles
                     new MemoryStream(ceres, writable: false),
                     new MemoryStream(zebesMap, writable: false),
                     RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
-                    new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false),
                     new MemoryStream(destructionActors, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}, {spritesPath}, {actorsPath}, {destructionActorsPath}): {error.Message}",
+                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}, {actorsPath}, {destructionActorsPath}): {error.Message}",
                     error);
+            }
+        }
+
+        CeresDestructionSpritePresentation LoadCeresDestructionSprites()
+        {
+            (string path, byte[] selected) = ReadSelected(CeresDestructionSpriteFormat.FileName);
+            try
+            {
+                return CeresDestructionSpritePresentation.Load(new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid destruction sprites {path}: {error.Message}", error);
             }
         }
 

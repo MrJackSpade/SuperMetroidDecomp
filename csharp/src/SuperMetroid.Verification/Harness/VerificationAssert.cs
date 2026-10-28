@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;
@@ -294,13 +293,14 @@ using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerificati
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Harness;
 

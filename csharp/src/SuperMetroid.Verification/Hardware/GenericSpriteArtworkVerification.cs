@@ -21,6 +21,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification
@@ -126,7 +127,7 @@ internal static class GenericSpriteArtworkVerification
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.MotherBrainExplosionSprites));
+        explosions.Draw(actual, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(introArtwork).MotherBrainExplosionSprites));
         actual.FinalizeFrame();
         expected = new OamBuffer();
         expected.BeginFrame();

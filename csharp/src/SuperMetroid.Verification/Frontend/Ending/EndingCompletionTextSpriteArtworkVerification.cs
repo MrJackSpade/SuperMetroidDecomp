@@ -14,6 +14,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -42,7 +44,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.CompletionTextSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).CompletionTextSprites).Draw(frame.Pose, installedOam,
                     new(120, y), 4, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

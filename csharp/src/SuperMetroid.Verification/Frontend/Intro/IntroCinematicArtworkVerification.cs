@@ -44,6 +44,8 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Checks installed opening and Ceres cinematic artwork, resource validation, and ROM-read guards.</summary>
 internal static class IntroCinematicArtworkVerification
@@ -63,15 +65,15 @@ internal static class IntroCinematicArtworkVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
             IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
-            AssertTrue(stock.BackgroundCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "installed intro BG PNG preserves every native tile byte");
-            AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(IntroCinematicSourceArtwork.Of(stock).IntroObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
-            AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(IntroCinematicSourceArtwork.Of(stock).CinematicObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount)),
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
@@ -364,13 +366,13 @@ internal static class IntroCinematicArtworkVerification
                 byte[] expected = nativeVram.ToArray();
                 // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
                 // the final $400 bytes of the first transfer are deliberately overwritten.
-                edited.BackgroundCharacters.Characters.Span.CopyTo(expected.AsSpan(
+                IntroCinematicSourceArtwork.Of(edited).BackgroundCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundCharacters.Offset * 2)));
                 BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
-                edited.IntroObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
+                IntroCinematicSourceArtwork.Of(edited).IntroObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.IntroObjectCharacters.Offset * 2)));
-                edited.CinematicObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
+                IntroCinematicSourceArtwork.Of(edited).CinematicObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.CinematicObjectCharacters.Offset * 2)));
                 // The final beam DMA wins over the $C600-$C6FF portion of the fixed
                 // OBJ sheet, including in a freshly constructed cinematic state.
@@ -535,7 +537,7 @@ internal static class IntroCinematicArtworkVerification
             GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed intro content disappeared during repair.");
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
-                    selected.BackgroundCharacters.Characters.Span),
+                    IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),
                 "stock repair preserves the external cinematic PNG override");
             File.Delete(backgroundStockPath);
             AssertThrows<FileNotFoundException>(() => repaired.LoadIntroCinematicArt(),
@@ -543,11 +545,11 @@ internal static class IntroCinematicArtworkVerification
             repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed intro content disappeared during missing-file repair.");
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
-                    selected.BackgroundCharacters.Characters.Span),
+                    IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),
                 "missing-stock repair also preserves the external cinematic PNG override");
             File.Delete(backgroundOverridePath);
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
-                    stock.BackgroundCharacters.Characters.Span),
+                    IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span),
                 "removing an override restores exact cartridge opening artwork");
             string pageStockPath = Path.Combine(installation.IntroCinematicDirectory,
                 IntroCinematicArtworkFormat.BackgroundPageFileName(0));
@@ -677,7 +679,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CaretSprites).Draw(definition.Pose, installed,
                 new(originX, originY), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -714,7 +716,7 @@ internal static class IntroCinematicArtworkVerification
             previousOam.FinalizeFrame();
             var stockOam = ScreenSpritesFixtures.Blank();
             stockOam.BeginFrame();
-            CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
+            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
                 new(originX, originY), palette);
             stockOam.FinalizeFrame();
             AssertTrue(previousOam.ImageEquals(stockOam),
@@ -732,7 +734,7 @@ internal static class IntroCinematicArtworkVerification
         changed.FinalizeFrame();
         var original = ScreenSpritesFixtures.Blank();
         original.BeginFrame();
-        CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
+        CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
             new(originX, originY), palette);
         original.FinalizeFrame();
         AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
@@ -817,7 +819,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainSprites).Draw(definition.Pose, installed,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
                 IntroMotherBrainSpriteState.Palette);
             installed.FinalizeFrame();
@@ -839,13 +841,13 @@ internal static class IntroCinematicArtworkVerification
         IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), stockOam,
+        CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), stockOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.Palette);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), editedOam,
+        CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), editedOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.Palette);
         editedOam.FinalizeFrame();
@@ -897,7 +899,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            CinematicSheetFixtures.Drawer(stock.MotherBrainExplosionSprites).Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainExplosionSprites).Draw(definition.Pose, installed,
                 new(x, y), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -924,11 +926,11 @@ internal static class IntroCinematicArtworkVerification
         explosions.Step(introCrossfadeTimer: 1);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.MotherBrainExplosionSprites));
+        explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainExplosionSprites));
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        explosions.Draw(editedOam, CinematicSheetFixtures.Drawer(edited.MotherBrainExplosionSprites));
+        explosions.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).MotherBrainExplosionSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
             "intro explosion palette edit changes production OAM attributes, not actor placement");

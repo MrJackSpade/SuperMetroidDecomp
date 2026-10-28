@@ -13,7 +13,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Audio;
@@ -29,6 +28,8 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -112,7 +113,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
     public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Loads validated opening-cinematic artwork, selecting compatible user PNG replacements where supplied.</summary>
-    public IntroCinematicArtwork LoadIntroCinematicArt() =>
+    public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
     /// <summary>Stock ending Mode 7 scene artwork under the replaceable content tree.</summary>
     public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
@@ -126,7 +127,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Ending OBJ edits remain outside replaceable stock content.</summary>
     public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Loads validated ending OBJ artwork and any compatible user replacements.</summary>
-    public EndingObjectArtwork LoadEndingObjectArt() =>
+    public EndingObjectSourceArtwork LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
     /// <summary>Stock ending-scene color palettes under the replaceable content tree.</summary>
     public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);

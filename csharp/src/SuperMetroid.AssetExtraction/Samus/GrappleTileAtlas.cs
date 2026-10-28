@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -124,7 +124,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
         InstalledArtworkId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
         InstalledArtworkId segments = GrappleTileDefinitions.SegmentAssetFor(orientation);
         return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
-            new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, SnesLittleEndian.Word(checked((byte)key.Segments), checked((byte)key.Point))),
+            new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, LittleEndianBytes.Word(checked((byte)key.Segments), checked((byte)key.Point))),
             [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));
     }
 

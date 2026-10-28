@@ -499,7 +499,7 @@ internal static class MapPresentationVerification
             var installed = new GameplayColours(new SpriteColourSets());
             int pointer = MotherBrainSourceDefinitions.Palettes.RainbowPointerTable + frame * sizeof(ushort);
             int palette = MotherBrainSourceDefinitions.Palettes.PaletteBank |
-                SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
+                LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainColorDestinations.BodyColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteDefinitions.ColorCount,
@@ -532,7 +532,7 @@ internal static class MapPresentationVerification
                 MotherBrainDrainedPaletteDefinitions.RevivalColors;
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainSourceDefinitions.Palettes.PaletteBank |
-                SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
+                LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainColorDestinations.BodyColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainColorDestinations.BrainColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
@@ -561,7 +561,7 @@ internal static class MapPresentationVerification
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
-            ushort nativeBeamColor = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
+            ushort nativeBeamColor = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
             AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out RgbColor beamColor) &&
                 beamColor == RgbColor.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }

@@ -1,8 +1,8 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRenderCaptureTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -116,7 +116,7 @@ internal static class IntroPoseHistoryVerification
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(after), (byte)SamusPoseMetadata.ReadMovementType(after));
+            ushort metadata = LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(after), (byte)SamusPoseMetadata.ReadMovementType(after));
             if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");

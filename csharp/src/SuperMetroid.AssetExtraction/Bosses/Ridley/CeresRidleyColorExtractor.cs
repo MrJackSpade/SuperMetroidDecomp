@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -58,7 +57,7 @@ public static class CeresRidleyColorExtractor
             var result = new PaletteRgb5[count];
             for (int color = 0; color < count; color++)
             {
-                ushort word = SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]);
+                ushort word = LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]);
                 result[color] = new PaletteRgb5
                 {
                     Red = word & 31,

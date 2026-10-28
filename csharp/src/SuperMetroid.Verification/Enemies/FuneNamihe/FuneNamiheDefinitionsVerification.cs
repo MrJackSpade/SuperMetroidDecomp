@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
@@ -54,7 +53,7 @@ internal static class FuneNamiheDefinitionsVerification
         ushort[] cursors = [0x96d3, 0x96d5, 0x96d7, 0x96d9, 0x96db, 0x96dd, 0x96df, 0x96e1];
         foreach (ushort cursor in cursors)
         {
-            ushort native = SnesLittleEndian.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
+            ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
             var state = new FuneNamiheEnemyState { VariantIndex = namihe ? 1 : 0, ShowsActiveAnimation = active, FacingRight = right };
             AssertEqual(native, NativeEnemyProgramOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheProgram(state)),

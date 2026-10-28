@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using System.Text.Json;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -49,7 +49,7 @@ internal static class AudioInstrumentsVerification
                 AssertEqual(instrument.Gain,
                     rawPlayer.ReadApuByteForVerification(address + 3),
                     $"{bank.Name} instrument {instrument.Instrument} gain");
-                AssertEqual(SnesLittleEndian.HighByte(checked((ushort)instrument.PitchBase)),
+                AssertEqual(LittleEndianBytes.HighByte(checked((ushort)instrument.PitchBase)),
                     rawPlayer.ReadApuByteForVerification(address + 4),
                     $"{bank.Name} instrument {instrument.Instrument} pitch high");
                 AssertEqual(unchecked((byte)instrument.PitchBase),
@@ -107,7 +107,7 @@ internal static class AudioInstrumentsVerification
             {
                 int address = SpcDriverDefinitions.Ram.InstrumentTable +
                     index * SpcDriverDefinitions.Ram.InstrumentRecordSize;
-                AssertEqual(SnesLittleEndian.HighByte(checked((ushort)installed[index].PitchBase)),
+                AssertEqual(LittleEndianBytes.HighByte(checked((ushort)installed[index].PitchBase)),
                     editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 4),
                     $"edited title instrument {index} pitch high");
                 AssertEqual(unchecked((byte)installed[index].PitchBase),

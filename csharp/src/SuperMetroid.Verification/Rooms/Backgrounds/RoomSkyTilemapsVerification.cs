@@ -62,7 +62,7 @@ internal static class RoomSkyTilemapsVerification
                 }
                 byte[] native = ReadRetailSkyBytes(bus, LibraryBackgroundOperands.SkyPageAddress(page) + row % 32 * 0x40, 0x40);
                 for (int column = 0; column < SkyTilemap.Columns; column++)
-                    AssertEqual(SnesLittleEndian.Word(native[column * 2], native[column * 2 + 1]), rows.Words[row * SkyTilemap.Columns + column],
+                    AssertEqual(LittleEndianBytes.Word(native[column * 2], native[column * 2 + 1]), rows.Words[row * SkyTilemap.Columns + column],
                         $"{table} sky row {row} column {column} is the native page word");
             }
         }

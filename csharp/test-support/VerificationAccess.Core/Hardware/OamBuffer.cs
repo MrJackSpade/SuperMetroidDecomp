@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 
@@ -152,7 +153,7 @@ public sealed class OamBuffer
         var highPair = new SnesOamHighTablePair(unchecked((byte)(
             (HighTableBytes[spriteIndex >> 2] >> highShift) & 3)));
         SnesObjAttributeWord attributes =
-            SnesLittleEndian.Word(LowTableBytes[lowOffset + 2], LowTableBytes[lowOffset + 3]);
+            LittleEndianBytes.Word(LowTableBytes[lowOffset + 2], LowTableBytes[lowOffset + 3]);
 
         return new OamEntry(
             Position: new Position16<SpritePixels>(
@@ -183,7 +184,7 @@ public sealed class OamBuffer
     internal void WriteAttributes(int lowOffset, SnesObjAttributeWord attributes)
     {
         LowTableBytes[lowOffset + 2] = unchecked((byte)attributes.Raw);
-        LowTableBytes[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);
+        LowTableBytes[lowOffset + 3] = LittleEndianBytes.HighByte(attributes.Raw);
     }
 
     /// <summary>Implements the native carry and sign test for hiding vertically wrapped generic parts.</summary>

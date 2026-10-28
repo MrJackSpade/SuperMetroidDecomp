@@ -947,7 +947,7 @@ internal static class LookupStream4Verification
             if (!unresolved)
             {
                 int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
-                AssertEqual(SnesLittleEndian.Word(palette[offset], palette[offset + 1]),
+                AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
                     SporeSpawnDeathColorDefinitions.InitialLevelColor(color), "Level basis matches exact original decoded room color");
             }
             for (int frame = 0; frame < 7; frame++)
@@ -1010,7 +1010,7 @@ internal static class LookupStream4Verification
         foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
         {
             int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
-            AssertEqual(SnesLittleEndian.Word(palette[offset], palette[offset + 1]),
+            AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
                 SporeSpawnDeathColorDefinitions.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -1236,7 +1236,7 @@ internal static class LookupStream4Verification
             for (int cell = 0; cell < expected.Length; cell++)
             {
                 int address = (EndingVramLayout.ResultPanelTilemapWord + destination + cell) * 2;
-                AssertEqual(expected[cell], SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
+                AssertEqual(expected[cell], LittleEndianBytes.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
             }
             state.InstructionTimer = WrappingCountdown.Start(1);
             state.Step(screen);
@@ -2703,7 +2703,7 @@ internal static class LookupStream4Verification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
             AssertEqual(expected, NorfairRidleyRevealPaintDefinitions.Endpoint(color), "Exact immutable room material endpoint");
-            AssertEqual(expected, SnesLittleEndian.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
+            AssertEqual(expected, LittleEndianBytes.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
                 "Identical room-theme9 occurrence remains separately accounted");
         }
         for (int edit = -1; edit < 630; edit++)

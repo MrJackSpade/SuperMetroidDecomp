@@ -90,7 +90,7 @@ internal static class RoomBackgroundLibraryParityVerification
         int commandAddress = LibraryBackgroundOperandDecoding.CommandListBank | listPointer;
         WriteTestWord(bus, commandAddress, LibraryBackgroundOperandDecoding.Word(LibraryBackgroundCommand.Transfer));
         WriteTestByte(bus, commandAddress + 2, unchecked((byte)sourceAddress));
-        WriteTestByte(bus, commandAddress + 3, SnesLittleEndian.HighByte(unchecked((ushort)sourceAddress)));
+        WriteTestByte(bus, commandAddress + 3, LittleEndianBytes.HighByte(unchecked((ushort)sourceAddress)));
         WriteTestByte(bus, commandAddress + 4, SnesLittleEndianConstants.BankByte(sourceAddress));
         WriteTestWord(bus, commandAddress + 5, 0x4800);
         WriteTestWord(bus, commandAddress + 7, byteCount);

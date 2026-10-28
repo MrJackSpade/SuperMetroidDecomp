@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Nuclear;
 namespace SuperMetroid.Verification.Enemies.Nuclear;
@@ -17,8 +17,8 @@ internal static class NuclearWaffleOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
-        slot.SetSpawnParameter1(SnesLittleEndian.Word(24, 32));
-        slot.SetSpawnParameter2(SnesLittleEndian.Word(1, 6));
+        slot.SetSpawnParameter1(LittleEndianBytes.Word(24, 32));
+        slot.SetSpawnParameter2(LittleEndianBytes.Word(1, 6));
         slot.Position = slot.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");

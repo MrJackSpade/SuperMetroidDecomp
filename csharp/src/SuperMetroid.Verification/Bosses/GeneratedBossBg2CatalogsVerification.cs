@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
@@ -100,7 +99,7 @@ internal static class GeneratedBossBg2CatalogsVerification
     /// <summary>Compares one family's exact frame domain, native stream markers, and extracted JSON bytes.</summary>
     private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, ImmutableArray<EnemySpritemapDefinition> frames, Bg2CatalogAccess access)
     {
-        ushort Word(int address) => SnesLittleEndian.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1));
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");
         for (int index = 0; index < expected.Length; index++)
         {

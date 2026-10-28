@@ -64,7 +64,7 @@ internal static class PauseMapArrowsVerification
             {
                 allArrowParts = expectedBytes / 4;
                 for (int offset = 2; offset < expectedBytes; offset += 4)
-                    arrowAttributes.Add(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1]));
+                    arrowAttributes.Add(LittleEndianBytes.Word(expected.LowTable[offset], expected.LowTable[offset + 1]));
             }
             var pixels = pause.Render();
             var actual = pause.screen.Objects;
@@ -72,7 +72,7 @@ internal static class PauseMapArrowsVerification
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;
             for (int offset = 2; offset < actual.LastFinalizedSpriteCount * 4; offset += 4)
-                if (arrowAttributes.Contains(SnesLittleEndian.Word(actual.LowTable[offset], actual.LowTable[offset + 1]))) drawnArrowParts++;
+                if (arrowAttributes.Contains(LittleEndianBytes.Word(actual.LowTable[offset], actual.LowTable[offset + 1]))) drawnArrowParts++;
             AssertEqual(expectedBytes / 4, drawnArrowParts, "unavailable arrows emit no leftover OAM parts");
             for (int color = 0; color < nativeArrowColors.Length; color++)
                 AssertEqual(nativeArrowColors[color], pause.screen.Palette.Colors[176 + color],

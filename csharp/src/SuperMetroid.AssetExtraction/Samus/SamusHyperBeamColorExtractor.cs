@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,7 +27,7 @@ public static class SamusHyperBeamColorExtractor
             frames[frame] = new PaletteRgb5[SamusHyperBeamColorFormat.ColorsPerFrame];
             for (int index = 0; index < frames[frame].Length; index++)
             {
-                ushort word = unchecked(SnesLittleEndian.Word(source[index * 2], source[index * 2 + 1]));
+                ushort word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
                 frames[frame][index] = new PaletteRgb5
                 {
                     Red = word & 31,

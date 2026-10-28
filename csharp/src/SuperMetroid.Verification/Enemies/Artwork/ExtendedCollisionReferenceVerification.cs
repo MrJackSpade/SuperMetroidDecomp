@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -23,7 +22,7 @@ internal static class ExtendedCollisionReferenceVerification
         arguments[4] = (ushort)0;
         int bank = (int)new SnesAddress(frameBank, 0);
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
-        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
+        ushort Word(int offset) => LittleEndianBytes.Word(Byte(offset), Byte(offset + 1));
         static bool Negative(int value) => unchecked((short)value) < 0;
         ushort targetLeft = unchecked((ushort)(x - radiusX));
         ushort targetRight = unchecked((ushort)(x + radiusX));

@@ -32,7 +32,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            SnesLittleEndian.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1));
+            LittleEndianBytes.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             GreyDoorPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
@@ -73,7 +73,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             const ushort population = 0x9000;
             SeedRoomPlmPopulation(bus, population,
             [
-                unchecked((byte)PlmNativeWords.Word(header)), SnesLittleEndian.HighByte(PlmNativeWords.Word(header)),
+                unchecked((byte)PlmNativeWords.Word(header)), LittleEndianBytes.HighByte(PlmNativeWords.Word(header)),
                 4, 4,
                 header == PlmHeaderId.BombTorizoGreyDoor ? (byte)0x1b : (byte)0,
                 header == PlmHeaderId.BombTorizoGreyDoor ? (byte)0x08 : (byte)0,

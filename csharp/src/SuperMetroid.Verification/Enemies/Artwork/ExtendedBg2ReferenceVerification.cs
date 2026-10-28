@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -15,7 +14,7 @@ internal static class ExtendedBg2ReferenceVerification
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {
         byte ReadByte(int address) => rom.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(address))))));
-        ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
+        ushort ReadWord(int address) => LittleEndianBytes.Word(ReadByte(address), ReadByte(address + 1));
         var vram = new byte[0x10000];
         if (!newInstructionFrame)
             return vram;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -23,11 +22,11 @@ internal static class PuyoHopDefinitionsVerification
                 continue; // Dropping bypasses hop initialization and uses constant speed.
             ushort time = 0, distance = 0;
             ushort height = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index));
-            ushort target = unchecked((ushort)((height << 8) | (SnesLittleEndian.HighByte(height))));
+            ushort target = unchecked((ushort)((height << 8) | (LittleEndianBytes.HighByte(height))));
             do
             {
                 time = unchecked((ushort)(time + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index))));
-                distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (SnesLittleEndian.HighByte(time)) * 8))));
+                distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (LittleEndianBytes.HighByte(time)) * 8))));
             } while (unchecked((short)(target - distance)) >= 0);
             state.HopRecord = index / PuyoHopDefinitions.RecordSize;
             calculate(state);

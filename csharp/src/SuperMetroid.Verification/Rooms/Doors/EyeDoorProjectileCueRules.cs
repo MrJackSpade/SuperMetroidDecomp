@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.EyeDoor;
@@ -25,7 +25,7 @@ internal static class EyeDoorProjectileCueRules
         {
             AssertEqual(Commands[(NativeEnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
             if (cue.Kind == EyeDoorProjectileCueKind.SetPreInstruction)
-                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
+                AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
         },
         cue => cue.Kind == EyeDoorProjectileCueKind.Delete);
 }

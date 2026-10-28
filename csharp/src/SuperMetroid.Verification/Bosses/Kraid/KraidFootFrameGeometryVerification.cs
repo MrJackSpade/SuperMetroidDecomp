@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
@@ -25,7 +24,7 @@ internal static class KraidFootFrameGeometryVerification
             AssertEqual(expected[index], KraidFootVisualDefinitionsConstants.Frame(index), "native Kraid foot identity and key");
             AssertEqual(expected[index], KraidFootVisualDefinitions.Frames[index], "Kraid foot indexed sequence");
             int address = 0xa70000 | expected[index].Pointer;
-            AssertEqual(2, SnesLittleEndian.Word(KraidFootFrameGeometryRomByte(rom, address), KraidFootFrameGeometryRomByte(rom, address + 1)), "native two-component frame size");
+            AssertEqual(2, LittleEndianBytes.Word(KraidFootFrameGeometryRomByte(rom, address), KraidFootFrameGeometryRomByte(rom, address + 1)), "native two-component frame size");
         }
         int ordinal = 0;
         foreach (var frame in KraidFootVisualDefinitions.Frames)

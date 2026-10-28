@@ -1,6 +1,6 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -146,10 +146,10 @@ public sealed class ManagedSnesDsp
                 voice.VolumeRight = unchecked((sbyte)value);
                 break;
             case DspVoiceRegister.PitchLow:
-                voice.Pitch = SnesLittleEndian.HighByteInPlace(checked((ushort)voice.Pitch)) & SnesDspRegisterLayout.Fields.PitchMask | value;
+                voice.Pitch = LittleEndianBytes.HighByteInPlace(checked((ushort)voice.Pitch)) & SnesDspRegisterLayout.Fields.PitchMask | value;
                 break;
             case DspVoiceRegister.PitchHigh:
-                voice.Pitch = SnesLittleEndian.Word(SnesLittleEndian.LowByte(checked((ushort)voice.Pitch)), value) & SnesDspRegisterLayout.Fields.PitchMask;
+                voice.Pitch = LittleEndianBytes.Word(LittleEndianBytes.LowByte(checked((ushort)voice.Pitch)), value) & SnesDspRegisterLayout.Fields.PitchMask;
                 break;
             case DspVoiceRegister.SourceNumber:
                 voice.SourceNumber = value;
@@ -256,7 +256,7 @@ public sealed class ManagedSnesDsp
                 // source IDs. Preserve the register mirror because software can read it back.
                 break;
             case DspGlobalRegister.EchoBufferAddress:
-                echoBufferAddress = SnesLittleEndian.Word(0, value);
+                echoBufferAddress = LittleEndianBytes.Word(0, value);
                 break;
             case DspGlobalRegister.EchoDelay:
                 echoDelay = unchecked((ushort)((value & SnesDspRegisterLayout.Fields.EchoDelayMask) * 512));
@@ -533,7 +533,7 @@ public sealed class ManagedSnesDsp
     /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
     private ushort ReadLoopAddress(int source)
     {
-        int directory = SnesLittleEndian.Word(0, registers[(byte)DspGlobalRegister.SourceDirectory]) +
+        int directory = LittleEndianBytes.Word(0, registers[(byte)DspGlobalRegister.SourceDirectory]) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
         return SpcRamWords.Read(apuRam, directory);
     }

@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -42,7 +42,7 @@ internal static class AudioMusicProgramsVerification
             {
                 int pointer = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
                 ushort actual = unchecked(
-                    SnesLittleEndian.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1)));
+                    LittleEndianBytes.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1)));
                 AssertEqual(bank.MusicTracks[track].Address, actual, $"{bank.Name} track {track} route");
             }
         }

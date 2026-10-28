@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Shutters.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Harness;
@@ -194,8 +193,8 @@ internal static class ShutterBehaviorVerification
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.CurrentInstruction = SnesLittleEndian.Word(0, primaryDirection);
-            slot.SetSpawnParameter1(SnesLittleEndian.Word(0, travelDistance));
+            slot.CurrentInstruction = LittleEndianBytes.Word(0, primaryDirection);
+            slot.SetSpawnParameter1(LittleEndianBytes.Word(0, travelDistance));
             ShuttersBehavior.InitializeHorizontalShutter(slot);
             HorizontalShutterEnemyState state = slot.SpeciesState<HorizontalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the horizontal shutter state.");
@@ -239,8 +238,8 @@ internal static class ShutterBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.CurrentInstruction = SnesLittleEndian.Word(speedIndex, primaryDirection);
-            slot.SetSpawnParameter1(SnesLittleEndian.Word(0, travelDistance));
+            slot.CurrentInstruction = LittleEndianBytes.Word(speedIndex, primaryDirection);
+            slot.SetSpawnParameter1(LittleEndianBytes.Word(0, travelDistance));
             ShuttersBehavior.InitializeVerticalShutter(slot);
             VerticalShutterEnemyState state = slot.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");

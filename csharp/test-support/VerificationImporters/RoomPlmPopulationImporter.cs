@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -63,7 +62,7 @@ internal static class RoomPlmPopulationImporter
 
         byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(((int)new SnesAddress(bank, offset)));
         ushort Word(byte bank, ushort offset) =>
-            SnesLittleEndian.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1))));
+            LittleEndianBytes.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1))));
         byte[] Scroll(ushort argument)
         {
             var pairs = new List<byte>();

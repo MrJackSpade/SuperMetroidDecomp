@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -24,8 +24,8 @@ internal static class SpcDriverSnapshot
         foreach (int word in words)
         {
             ushort value = checked((ushort)word);
-            state.Add(SnesLittleEndian.LowByte(value));
-            state.Add(SnesLittleEndian.HighByte(value));
+            state.Add(LittleEndianBytes.LowByte(value));
+            state.Add(LittleEndianBytes.HighByte(value));
         }
     }
 }

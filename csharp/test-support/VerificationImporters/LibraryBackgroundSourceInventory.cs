@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -87,7 +86,7 @@ internal static class LibraryBackgroundSourceInventory
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
     {
         int address = LibraryBackgroundOperandDecoding.CommandListBank | pointer;
-        return unchecked(SnesLittleEndian.Word(bus.ReadCartridgeByte(address), bus.ReadCartridgeByte(LibraryBackgroundOperandDecoding.CommandListBank |
+        return unchecked(LittleEndianBytes.Word(bus.ReadCartridgeByte(address), bus.ReadCartridgeByte(LibraryBackgroundOperandDecoding.CommandListBank |
                 unchecked((ushort)(pointer + 1)))));
     }
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -69,8 +68,8 @@ internal static class BombSpreadLaunchDefinitionsVerification
             foreach (ushort fraction in boundaries)
             {
                 // The cartridge decodes the byte-swapped word and steps the split X words with explicit carry or borrow.
-                ushort swapped = SnesLittleEndian.SwapBytes(checked((ushort)velocity.LaunchWord));
-                int subvelocity = SnesLittleEndian.HighByteInPlace(swapped);
+                ushort swapped = LittleEndianBytes.SwapBytes(checked((ushort)velocity.LaunchWord));
+                int subvelocity = LittleEndianBytes.HighByteInPlace(swapped);
                 int magnitude = swapped & 127;
                 bool left = (swapped & 1 << 7) != 0;
                 int fractionSum = left ? fraction - subvelocity : fraction + subvelocity;

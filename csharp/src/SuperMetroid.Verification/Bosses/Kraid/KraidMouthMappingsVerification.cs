@@ -11,7 +11,7 @@ internal static class KraidMouthMappingsVerification
     /// <summary>Compares all eight authored mouth shapes and rejects non-shape pointers between them.</summary>
     internal static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(SnesLittleEndian.Word(KraidMouthShapeCasesRomByte(rom, address), KraidMouthShapeCasesRomByte(rom, address + 1))));
+        short Word(int address) => unchecked((short)(LittleEndianBytes.Word(KraidMouthShapeCasesRomByte(rom, address), KraidMouthShapeCasesRomByte(rom, address + 1))));
         for (int entry = 0; entry < 8; entry++)
         {
             ushort pointer = (ushort)(0x9788 + 8 * entry);

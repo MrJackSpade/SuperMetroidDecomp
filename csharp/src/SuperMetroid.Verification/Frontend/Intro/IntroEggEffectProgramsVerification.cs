@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -18,11 +17,11 @@ internal static class IntroEggEffectProgramsVerification
         for (int index = 0; index < 11; index++)
         {
             int operand = index < 7 ? 0x8bcd3b + 8 * index : 0x8bcd73 + 4 * (index - 7);
-            ushort pointer = SnesLittleEndian.Word(IntroEggEffectFrameCatalogRomByte(rom, operand), IntroEggEffectFrameCatalogRomByte(rom, operand + 1));
+            ushort pointer = LittleEndianBytes.Word(IntroEggEffectFrameCatalogRomByte(rom, operand), IntroEggEffectFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "original egg-effect frame operand");
             AssertEqual(names[index], frames[index].Name, "published egg-effect name");
             AssertEqual(IntroEggEffectSpriteDefinitions.StockPartCount,
-                SnesLittleEndian.Word(IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "original one-part egg-effect record");
+                LittleEndianBytes.Word(IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "original one-part egg-effect record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 11, int.MaxValue })
         {

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -163,7 +163,7 @@ internal sealed class SpcMusicSequencer
                 break;
             case SpcMusicEffect.CallPattern:
                 channel.PatternStartPointer = unchecked(
-                    SnesLittleEndian.Word(argument, NextSequenceByte(ref channel.PatternOrderPointer)));
+                    LittleEndianBytes.Word(argument, NextSequenceByte(ref channel.PatternOrderPointer)));
                 channel.SubroutineLoops = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.SavedPatternPointer = channel.PatternOrderPointer;
                 channel.PatternOrderPointer = channel.PatternStartPointer;
@@ -498,7 +498,7 @@ internal sealed class SpcMusicSequencer
                 throw new InvalidDataException("SPC top-level music stream did not reach a pattern table.");
             ushort record = _voices.ReadWord(musicTopLevelPointer);
             musicTopLevelPointer = SpcDriverWrap.Word(musicTopLevelPointer + 2);
-            if (SnesLittleEndian.HighByte(record) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
+            if (LittleEndianBytes.HighByte(record) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
             {
                 patternTable = record;
                 break;

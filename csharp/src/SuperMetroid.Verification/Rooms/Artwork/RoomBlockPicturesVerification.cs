@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.World;
@@ -504,7 +505,7 @@ internal static class RoomBlockPicturesVerification
             for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
             {
                 int at = definition * RoomLevelPlaneDefinitionBytes + tile * sizeof(ushort);
-                var word = new SnesBgTilemapWord(SnesLittleEndian.Word(definitions[at], definitions[at + 1]));
+                var word = new SnesBgTilemapWord(LittleEndianBytes.Word(definitions[at], definitions[at + 1]));
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
                 bool animated = characters.Animated.TryShowing(word.CharacterIndex, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown);
                 if (!animated)

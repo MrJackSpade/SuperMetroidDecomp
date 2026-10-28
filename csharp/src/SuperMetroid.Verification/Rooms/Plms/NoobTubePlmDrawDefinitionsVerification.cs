@@ -77,7 +77,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         SeedRoomPlmPopulation(bus, 0x9400, 
         [
             unchecked((byte)PlmNativeWords.Word(PlmHeaderId.NoobTube)),
-            SnesLittleEndian.HighByte(PlmNativeWords.Word(PlmHeaderId.NoobTube)),
+            LittleEndianBytes.HighByte(PlmNativeWords.Word(PlmHeaderId.NoobTube)),
             originX, originY, 0, 0, 0, 0,
         ]);
         // The retail control stream is compiled and immutable. Draw each physical layout through

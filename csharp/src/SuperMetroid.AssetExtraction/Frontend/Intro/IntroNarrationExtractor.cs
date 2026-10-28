@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using System.Text;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -87,9 +86,9 @@ public static class IntroNarrationExtractor
             ushort dataPointer = ReadWord(bus, Add(cursor, 4));
             int column = packedPosition &
                 IntroNarrationScriptDefinitions.PackedPositionXMask;
-            int row = SnesLittleEndian.HighByte(packedPosition);
+            int row = LittleEndianBytes.HighByte(packedPosition);
             ushort drawFunction = ReadWord(bus, dataPointer);
-            int dimensions = SnesLittleEndian.Word(ReadByte(bus, Add(dataPointer, 2)), ReadByte(bus, Add(dataPointer, 3)));
+            int dimensions = LittleEndianBytes.Word(ReadByte(bus, Add(dataPointer, 2)), ReadByte(bus, Add(dataPointer, 3)));
             if (drawFunction != IntroNarrationScriptDefinitions.DrawCharacterFunction ||
                 dimensions != IntroNarrationScriptDefinitions.SingleTileDimensions)
                 throw new InvalidDataException(

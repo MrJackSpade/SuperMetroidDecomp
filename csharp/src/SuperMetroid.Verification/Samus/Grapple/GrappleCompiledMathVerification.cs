@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Bosses.MotherBrain;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -18,7 +17,7 @@ internal static class GrappleCompiledMathVerification
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)(SnesLittleEndian.Word(CompiledGrappleMathRomByte(rom, address), CompiledGrappleMathRomByte(rom, address + 1))));
+            native[i] = unchecked((short)(LittleEndianBytes.Word(CompiledGrappleMathRomByte(rom, address), CompiledGrappleMathRomByte(rom, address + 1))));
         }
 
         // No bus argument is accepted by either production delegate. This makes an

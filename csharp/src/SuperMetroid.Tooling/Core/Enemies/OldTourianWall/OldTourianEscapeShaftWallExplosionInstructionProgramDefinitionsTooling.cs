@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -41,7 +41,7 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     ];
 
     /// <summary>The scatter command's packed operand word for one axis: its mask in the low byte, its centre in the high.</summary>
-    private static ushort ScatterWord(int mask, int center) => SnesLittleEndian.Word(checked((byte)mask), checked((byte)center));
+    private static ushort ScatterWord(int mask, int center) => LittleEndianBytes.Word(checked((byte)mask), checked((byte)center));
 
     /// <summary>Includes fixed control words and one duration before each wall-explosion pose.</summary>
     public static int MechanicsWordCount => Words.Length;

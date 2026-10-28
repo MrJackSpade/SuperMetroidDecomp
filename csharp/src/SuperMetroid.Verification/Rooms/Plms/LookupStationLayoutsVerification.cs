@@ -91,20 +91,20 @@ internal static class LookupStationLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "Station layout native direction");
                     AssertEqual(count, shape.WordCount(run), "Station layout native calculated count");
-                    AssertEqual(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Station layout native calculated continuation");
+                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Station layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Station layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Station layout native DTO count");
-                        AssertEqual(offset, SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y), "Station layout native DTO offset");
+                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Station layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
                             level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
                             "Station native physical word at original absolute run position");
                     drawX = 8 + unchecked((sbyte)offset);
-                    drawY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
+                    drawY = 8 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
                         AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Station layout cell bounds");

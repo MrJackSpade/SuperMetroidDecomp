@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -59,7 +58,7 @@ internal static class ChootPatternDefinitionsVerification
 
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
-                    loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
+                    loopCount * (LittleEndianBytes.LowByte(definition.FallingPatternYDistance))));
                 AssertEqual<ChootFallingPath?>(definition.FallingPath, state.FallingPath,
                     $"Choot production pattern {patternIndex}/{loopCount}");
                 AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,

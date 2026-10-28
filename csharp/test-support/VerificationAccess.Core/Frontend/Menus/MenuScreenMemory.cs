@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -32,8 +33,8 @@ internal static class MenuScreenMemory
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)
         {
-            image[first + word * 2] = SnesLittleEndian.LowByte(tilemaps[word]);
-            image[first + word * 2 + 1] = SnesLittleEndian.HighByte(tilemaps[word]);
+            image[first + word * 2] = LittleEndianBytes.LowByte(tilemaps[word]);
+            image[first + word * 2 + 1] = LittleEndianBytes.HighByte(tilemaps[word]);
         }
         return image;
     }

@@ -145,11 +145,11 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         const ushort population = 0x9000;
         SeedRoomPlmPopulation(bus, population,
         [
-            unchecked((byte)headers[0]), SnesLittleEndian.HighByte(headers[0]), eyeX, eyeY,
+            unchecked((byte)headers[0]), LittleEndianBytes.HighByte(headers[0]), eyeX, eyeY,
             unchecked((byte)doorBit), 0,
-            unchecked((byte)headers[1]), SnesLittleEndian.HighByte(headers[1]), eyeX, eyeY + 2,
+            unchecked((byte)headers[1]), LittleEndianBytes.HighByte(headers[1]), eyeX, eyeY + 2,
             unchecked((byte)doorBit), 0,
-            unchecked((byte)headers[2]), SnesLittleEndian.HighByte(headers[2]), eyeX, eyeY + 4,
+            unchecked((byte)headers[2]), LittleEndianBytes.HighByte(headers[2]), eyeX, eyeY + 4,
             unchecked((byte)doorBit), 0,
             0, 0,
         ]);

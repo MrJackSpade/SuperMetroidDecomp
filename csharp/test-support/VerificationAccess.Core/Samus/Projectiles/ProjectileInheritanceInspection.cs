@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -16,5 +16,5 @@ internal readonly struct ProjectileInheritanceInspection(ProjectileInheritanceRe
     internal int ByteCount => Records.Length;
 
     /// <summary>The little-endian word whose low byte is <paramref name="byteOffset"/> bytes into the block.</summary>
-    internal ushort Word(int byteOffset) => SnesLittleEndian.Word(Records[byteOffset], Records[byteOffset + 1]);
+    internal ushort Word(int byteOffset) => LittleEndianBytes.Word(Records[byteOffset], Records[byteOffset + 1]);
 }

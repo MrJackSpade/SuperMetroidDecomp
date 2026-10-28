@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkKraidVerification
                 KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort));
             ReadOnlySpan<ushort> installed = (stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointer);
             for (int word = 0; word < installed.Length; word++)
-                AssertEqual(SnesLittleEndian.Word(native[word * 2], native[word * 2 + 1]),
+                AssertEqual(LittleEndianBytes.Word(native[word * 2], native[word * 2 + 1]),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
 
             (KraidEnemyState baseline, ushort[] nativeShown) = ReadImportedKraidHeadFrame(rom, pointer);

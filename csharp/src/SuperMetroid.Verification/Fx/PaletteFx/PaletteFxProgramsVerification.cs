@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -84,7 +83,7 @@ internal static class PaletteFxProgramsVerification
             }
             PaletteFxInstruction instruction = (PaletteFxInstruction)word;
             ushort operandWord = Word(cursor + 2);
-            byte operandByte = SnesLittleEndian.LowByte(operandWord);
+            byte operandByte = LittleEndianBytes.LowByte(operandWord);
             switch (instruction)
             {
                 case PaletteFxInstruction.Goto:

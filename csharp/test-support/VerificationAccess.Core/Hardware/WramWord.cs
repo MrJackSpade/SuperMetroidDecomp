@@ -30,6 +30,6 @@ internal readonly struct WramWord
     public void Write(ushort value)
     {
         bus.WriteByte(address, (byte)value);
-        bus.WriteByte(SnesAddressMath.AddWithinBank(address, 1), SnesLittleEndian.HighByte(value));
+        bus.WriteByte(SnesAddressMath.AddWithinBank(address, 1), LittleEndianBytes.HighByte(value));
     }
 }

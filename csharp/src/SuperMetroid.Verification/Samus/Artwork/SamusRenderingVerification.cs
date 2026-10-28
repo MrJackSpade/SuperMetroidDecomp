@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Movement;
@@ -213,7 +214,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x0308, samus.PoseHistory.LastDifferentDirectionAndMovement,
         "forward setup shifts packed direction/movement metadata");
     AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "forward setup commits new pose");
-    AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
+    AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
         samus.PoseHistory.PreviousDirectionAndMovement, "forward setup commits new metadata");
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(samus.Pose, samus.PoseHistory.LastDifferentPose,

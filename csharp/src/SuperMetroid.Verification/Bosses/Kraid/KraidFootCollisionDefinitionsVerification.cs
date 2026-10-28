@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootCoordinateMappingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -94,7 +93,7 @@ internal static class KraidFootCollisionDefinitionsVerification
             "installed path forbids ROM reads.");
 
         ushort ReadWord(ushort address) => unchecked(
-            SnesLittleEndian.Word(KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address), KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1)))));
+            LittleEndianBytes.Word(KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address), KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1)))));
 
         bool NativeHit(ushort frame, ushort originX, ushort originY,
             ushort x, ushort y, bool shot, out ushort callback)

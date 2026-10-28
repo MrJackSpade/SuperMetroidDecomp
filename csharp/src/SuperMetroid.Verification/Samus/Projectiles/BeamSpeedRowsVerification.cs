@@ -141,7 +141,7 @@ internal static class BeamSpeedRowsVerification
         public void SetWord(int address, ushort value)
         {
             WriteByte(address, (byte)value);
-            WriteByte(address + 1, SnesLittleEndian.HighByte(value));
+            WriteByte(address + 1, LittleEndianBytes.HighByte(value));
         }
     }
 

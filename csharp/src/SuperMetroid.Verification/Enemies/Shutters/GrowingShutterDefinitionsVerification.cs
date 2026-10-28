@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
@@ -16,7 +15,7 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
-        ushort Word(int address) => SnesLittleEndian.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot> initialize = ShuttersBehavior.InitializeGrowingShutter;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -56,7 +55,7 @@ internal static class GrowingShutterDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             int address = 0xa2ea4e + 2 * index;
-            ushort native = SnesLittleEndian.Word(GrowingShutterInitialSelectionRomByte(rom, address), GrowingShutterInitialSelectionRomByte(rom, address + 1));
+            ushort native = LittleEndianBytes.Word(GrowingShutterInitialSelectionRomByte(rom, address), GrowingShutterInitialSelectionRomByte(rom, address + 1));
             AssertEqual(native, ShuttersNativeWords.GrowingShutterFunctions.Word(GrowingShutterDefinitions.InitialFunction(index)),
                 "growing shutter named initial case matches original pointer");
         }
@@ -82,7 +81,7 @@ internal static class GrowingShutterDefinitionsVerification
         for (int index = 0; index < 24; index++)
         {
             int address = 0xa2ea56 + 4 * index + (fractional ? 2 : 0);
-            ushort native = SnesLittleEndian.Word(GrowingShutterSpeedFieldRomByte(rom, address), GrowingShutterSpeedFieldRomByte(rom, address + 1));
+            ushort native = LittleEndianBytes.Word(GrowingShutterSpeedFieldRomByte(rom, address), GrowingShutterSpeedFieldRomByte(rom, address + 1));
             for (int high = 0; high < 256; high++)
             {
                 var speed = GrowingShutterDefinitions.Speed((ushort)((high << 8) | index));

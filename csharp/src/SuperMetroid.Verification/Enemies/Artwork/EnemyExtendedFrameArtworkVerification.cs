@@ -1304,7 +1304,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin, ushort paletteBits = 0, ushort baseTileIndex = 0)
     {
         byte ReadByte(int address) => bus.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(address))))));
-        ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
+        ushort ReadWord(int address) => LittleEndianBytes.Word(ReadByte(address), ReadByte(address + 1));
         var oam = new OamBuffer();
         int count = ReadByte(pointer); // The high header byte is draw metadata.
         for (int index = 0; index < count; index++)
@@ -1445,7 +1445,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
             ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
             int spriteAddress = ((int)new SnesAddress(bank, sprite));
-            int parts = SnesLittleEndian.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((int)new SnesAddress(bank, unchecked((ushort)(sprite + 1)))));
+            int parts = LittleEndianBytes.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((int)new SnesAddress(bank, unchecked((ushort)(sprite + 1)))));
             if (parts == EnemyBg2FrameLayoutConstants.StreamMarker)
             {
                 Block(bank, sprite, 2);

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -129,7 +128,7 @@ internal static class LookupRoomFxFieldsVerification
             // bytes belong to another record and are not part of that caller-visible view.
             byte OriginalByte(int index) => terminator && index >= 2 ? (byte)0 : RoomFxFieldRomByte(rom, address + index);
             int expected = OriginalByte(offset);
-            if (width == 2) expected |= SnesLittleEndian.Word(0, OriginalByte(offset + 1));
+            if (width == 2) expected |= LittleEndianBytes.Word(0, OriginalByte(offset + 1));
             RoomFxRecordDefinition actual = RoomFxDefinitions.RecordAt(pointer);
             AssertEqual(expected, field(actual), $"FX {pointer:X4} field at {offset}");
             AssertEqual(expected, field(enumerated[pointer]), "FX enumeration field view");
@@ -137,7 +136,7 @@ internal static class LookupRoomFxFieldsVerification
             {
                 AssertEqual(OriginalByte(index), actual.ReadByte(index), "FX byte view");
                 if (index < 15)
-                    AssertEqual(SnesLittleEndian.Word(OriginalByte(index), OriginalByte(index + 1)),
+                    AssertEqual(LittleEndianBytes.Word(OriginalByte(index), OriginalByte(index + 1)),
                         actual.ReadWord(index), "FX overlapping word view");
             }
         }

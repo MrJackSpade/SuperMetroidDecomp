@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Compression;
 
@@ -23,7 +23,7 @@ public readonly record struct SmCompressionHeader
                 SmCompressionCodes.LongCommandShift) & SmCompressionCodes.CommandMask)
             : (SmCompressionCommand)(firstByte & SmCompressionCodes.CommandMask);
         Length = isLong
-            ? SnesLittleEndian.Word(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."),
+            ? LittleEndianBytes.Word(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."),
                 (byte)(firstByte & SmCompressionCodes.LongLengthHighMask)) + 1
             : (firstByte & SmCompressionCodes.ShortLengthMask) + 1;
         HeaderByteCount = isLong ? 2 : 1;

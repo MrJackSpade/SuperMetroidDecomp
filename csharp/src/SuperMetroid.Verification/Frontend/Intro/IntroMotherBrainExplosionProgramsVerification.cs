@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -18,8 +17,8 @@ internal static class IntroMotherBrainExplosionProgramsVerification
         for (int index = 0; index < frames.Count; index++)
         {
             int operand = (index < 6 ? 0x8bcdcd : 0x8bcdad) + 4 * (index % 6);
-            ushort pointer = SnesLittleEndian.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand), IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand + 1));
-            int count = SnesLittleEndian.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0001 + pointer));
+            ushort pointer = LittleEndianBytes.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand), IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand + 1));
+            int count = LittleEndianBytes.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "original explosion frame operand");
             AssertEqual(count, frames[index].StockPartCount, "original explosion part count");
             AssertEqual(names[index], frames[index].Name, "stable explosion asset name");

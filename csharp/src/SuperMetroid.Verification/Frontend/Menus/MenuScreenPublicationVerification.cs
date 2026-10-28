@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
@@ -91,7 +92,7 @@ internal static class MenuScreenPublicationVerification
         ReadOnlySpan<BackgroundTile> tilemaps = screen.Tilemaps.All;
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)
-            AssertEqual(tilemaps[word], BackgroundTileWords.ToTile(SnesLittleEndian.Word(vram[first + word * 2], vram[first + word * 2 + 1])),
+            AssertEqual(tilemaps[word], BackgroundTileWords.ToTile(LittleEndianBytes.Word(vram[first + word * 2], vram[first + word * 2 + 1])),
                 $"{menu} draws its own tilemap tile {word}");
         int last = first + tilemaps.Length * sizeof(ushort);
         AssertTrue(vram[..first].SequenceEqual(screen.Characters[..first]) && vram[last..].SequenceEqual(screen.Characters[last..]),

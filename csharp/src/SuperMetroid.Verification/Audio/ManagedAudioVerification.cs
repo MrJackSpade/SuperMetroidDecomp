@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using System.Runtime.InteropServices;
 using static SuperMetroid.Verification.Audio.AudioBankTransitionVerification;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
@@ -149,14 +149,14 @@ internal static class ManagedAudioVerification
         var upload = new List<byte>();
 
         AddSpcUploadRecord(upload, SpcDriverDefinitions.Ram.DefaultMusicPointer,
-            [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
+            [unchecked((byte)topLevel), LittleEndianBytes.HighByte(topLevel)]);
         AddSpcUploadRecord(upload, SpcDriverDefinitionsRamConstants.MusicTrackPointerTable,
-            [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
+            [unchecked((byte)topLevel), LittleEndianBytes.HighByte(topLevel)]);
         AddSpcUploadRecord(upload, topLevel,
-            [unchecked((byte)patternTable), SnesLittleEndian.HighByte(patternTable)]);
+            [unchecked((byte)patternTable), LittleEndianBytes.HighByte(patternTable)]);
         AddSpcUploadRecord(upload, patternTable,
             [
-                unchecked((byte)channelPattern), SnesLittleEndian.HighByte(channelPattern),
+                unchecked((byte)channelPattern), LittleEndianBytes.HighByte(channelPattern),
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             ]);
         AddSpcUploadRecord(upload, channelPattern,
@@ -192,9 +192,9 @@ internal static class ManagedAudioVerification
     private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
     {
         stream.Add(unchecked((byte)payload.Length));
-        stream.Add(SnesLittleEndian.HighByte(unchecked((ushort)payload.Length)));
+        stream.Add(LittleEndianBytes.HighByte(unchecked((ushort)payload.Length)));
         stream.Add(unchecked((byte)target));
-        stream.Add(SnesLittleEndian.HighByte(target));
+        stream.Add(LittleEndianBytes.HighByte(target));
         stream.AddRange(payload);
     }
 

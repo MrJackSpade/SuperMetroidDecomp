@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -19,7 +18,7 @@ internal static class IntroScientistFrameCatalogVerification
         int pointer = 0x8ccf;
         for (int index = 0; index < 10; index++)
         {
-            int count = SnesLittleEndian.Word(IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer));
+            int count = LittleEndianBytes.Word(IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual((ushort)pointer, CinematicSpritemapSources.Of(frames[index].Pose), "scientist frame follows original record chain");
             AssertEqual(count, frames[index].StockPartCount, "original scientist part count");
             AssertEqual(names[index], frames[index].Name, "published scientist asset key");

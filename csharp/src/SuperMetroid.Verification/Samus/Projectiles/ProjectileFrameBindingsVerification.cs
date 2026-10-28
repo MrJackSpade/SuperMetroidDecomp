@@ -38,7 +38,7 @@ internal static class ProjectileFrameBindingsVerification
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             int record = SamusSourceDefinitions.ProjectileDataBank.Value | pointer;
-            ushort Word(int offset) => SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
+            ushort Word(int offset) => LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
             var nativeShot = new SamusProjectileSlot(0)
             {
                 Cursor = SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(pointer + 8))),

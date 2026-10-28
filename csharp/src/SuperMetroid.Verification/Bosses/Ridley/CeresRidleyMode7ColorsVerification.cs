@@ -86,7 +86,7 @@ internal static class CeresRidleyMode7ColorsVerification
         for (int index = 0; index < 112; index++)
         {
             CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromIndex(index);
-            int row = SnesLittleEndian.HighByte(frame.Zoom);
+            int row = LittleEndianBytes.HighByte(frame.Zoom);
             visited.Add(row);
             select(checked((ushort)frame.Zoom));
             for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)

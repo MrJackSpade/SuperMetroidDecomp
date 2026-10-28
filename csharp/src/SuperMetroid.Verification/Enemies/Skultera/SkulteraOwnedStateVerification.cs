@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skultera;
 namespace SuperMetroid.Verification.Enemies.Skultera;
@@ -20,7 +20,7 @@ internal static class SkulteraOwnedStateVerification
         slot.Bind(EnemyDefinitionId.Skultera, slot.Definition);
         const int speedRecord = 3;
         slot.SetSpawnParameter1(speedRecord);
-        slot.SetSpawnParameter2(SnesLittleEndian.Word(20, 10));
+        slot.SetSpawnParameter2(LittleEndianBytes.Word(20, 10));
         SkulteraBehavior.InitializeSkultera(slot);
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");

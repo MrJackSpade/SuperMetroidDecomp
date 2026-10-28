@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -46,7 +45,7 @@ internal static class ElevatorInputDefinitionsVerification
             AssertEqual(tableByteOffset, elevator.DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
-            ControllerButton opposite = (ControllerButton)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
+            ControllerButton opposite = (ControllerButton)(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
             wait(slot, elevator, samus, opposite, null);

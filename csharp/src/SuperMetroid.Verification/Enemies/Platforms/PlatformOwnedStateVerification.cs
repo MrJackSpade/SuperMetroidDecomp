@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Platforms;
 namespace SuperMetroid.Verification.Enemies.Platforms;
@@ -22,7 +22,7 @@ internal static class PlatformOwnedStateVerification
         slot.SetSpawnParameter1((ushort)PlatformHorizontalMovement.Left);
         const int speedRecord = 5;
         const int accelerationCap = 3;
-        slot.SetSpawnParameter2(SnesLittleEndian.Word(speedRecord, accelerationCap));
+        slot.SetSpawnParameter2(LittleEndianBytes.Word(speedRecord, accelerationCap));
         slot.Position = slot.Position.WithWholeY(ushort.MaxValue);
         PlatformsBehavior.InitializePlatform(slot);
         PlatformEnemyState state = enemies.PlatformStates[0]

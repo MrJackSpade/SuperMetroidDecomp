@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -162,8 +163,8 @@ internal static class PpuLayoutBoundaryVerification
         SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, TileFlip.Vertical);
         bg1.Write([tile.Raw], 0x41);
         AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
-        AssertEqual(SnesLittleEndian.LowByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
-        AssertEqual(SnesLittleEndian.HighByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
+        AssertEqual(LittleEndianBytes.LowByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
+        AssertEqual(LittleEndianBytes.HighByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
 
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).ObjectRow(7);
@@ -274,8 +275,8 @@ internal static class PpuLayoutBoundaryVerification
         ReadOnlySpan<byte> low = oam.LowTable;
         AssertEqual((byte)0x10, low[0], "OBJ 0 X low byte");
         AssertEqual((byte)0x20, low[1], "OBJ 0 Y");
-        AssertEqual(SnesLittleEndian.LowByte(attributes.Raw), low[2], "OBJ 0 attribute low byte");
-        AssertEqual(SnesLittleEndian.HighByte(attributes.Raw), low[3], "OBJ 0 attribute high byte");
+        AssertEqual(LittleEndianBytes.LowByte(attributes.Raw), low[2], "OBJ 0 attribute low byte");
+        AssertEqual(LittleEndianBytes.HighByte(attributes.Raw), low[3], "OBJ 0 attribute high byte");
         AssertEqual((byte)0x80, low[4], "OBJ 1 keeps only X's low byte in the low table");
 
         ReadOnlySpan<byte> high = oam.HighTable;

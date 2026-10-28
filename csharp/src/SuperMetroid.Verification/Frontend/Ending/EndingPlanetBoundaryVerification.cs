@@ -100,8 +100,8 @@ internal static class EndingPlanetBoundaryVerification
         input.AddRange(snapshotVram);
         foreach (RgbColor color in snapshot.Paint.Colors)
         {
-            input.Add(SnesLittleEndian.LowByte(color.ToWord()));
-            input.Add(SnesLittleEndian.HighByte(color.ToWord()));
+            input.Add(LittleEndianBytes.LowByte(color.ToWord()));
+            input.Add(LittleEndianBytes.HighByte(color.ToWord()));
         }
         input.AddRange(oam.CreateUploadPayload());
         input.Add(objectSelection);

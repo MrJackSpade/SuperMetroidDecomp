@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -12,7 +11,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
     /// <summary>Compares every RNG selection, including table overread, while guarding migrated reads.</summary>
     internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int advances = 0;

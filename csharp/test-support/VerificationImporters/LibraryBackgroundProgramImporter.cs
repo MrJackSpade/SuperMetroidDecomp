@@ -73,8 +73,8 @@ internal static class LibraryBackgroundProgramImporter
         throw new InvalidDataException($"Import background list $8F:{pointer:X4} did not terminate.");
 
         byte Byte(ushort offset) => ReadImportByte(source, LibraryBackgroundOperandDecoding.CommandListBank | offset);
-        ushort Word(ushort offset) => SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1)));
-        int Long(ushort offset) => (int)new SnesAddress(Byte((ushort)(offset + 2)), SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1))));
+        ushort Word(ushort offset) => LittleEndianBytes.Word(Byte(offset), Byte((ushort)(offset + 1)));
+        int Long(ushort offset) => (int)new SnesAddress(Byte((ushort)(offset + 2)), LittleEndianBytes.Word(Byte(offset), Byte((ushort)(offset + 1))));
     }
 
     /// <summary>
@@ -130,8 +130,8 @@ internal static class LibraryBackgroundProgramImporter
             for (int i = 0; i < transfer.ByteCount; i += 2)
             {
                 int address = LibraryBackgroundListConstants.WorkRamBank | (transfer.WorkRamDestination + i);
-                source.WriteByte(address, SnesLittleEndian.LowByte(transfer.FillValue.Raw));
-                source.WriteByte(address + 1, SnesLittleEndian.HighByte(transfer.FillValue.Raw));
+                source.WriteByte(address, LittleEndianBytes.LowByte(transfer.FillValue.Raw));
+                source.WriteByte(address + 1, LittleEndianBytes.HighByte(transfer.FillValue.Raw));
             }
             ISnesMutableMemory memory = source as ISnesMutableMemory ?? throw new InvalidOperationException("Import staging requires WRAM.");
             if (includeKraidPage) vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress,

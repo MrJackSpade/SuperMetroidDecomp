@@ -54,7 +54,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 oam = oamFrame.FinalizeAsOam();
                 AssertEqual((byte)expected, oam.LowTable[2],
                     $"atmospheric type {type} frame {frame} low attribute uses imported art");
-                AssertEqual(SnesLittleEndian.HighByte(expected), oam.LowTable[3],
+                AssertEqual(LittleEndianBytes.HighByte(expected), oam.LowTable[3],
                     $"atmospheric type {type} frame {frame} high attribute uses imported art");
             }
 

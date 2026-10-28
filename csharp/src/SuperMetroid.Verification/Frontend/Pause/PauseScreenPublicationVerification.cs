@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -72,7 +73,7 @@ internal static class PauseScreenPublicationVerification
         for (int word = 0; word < expected.Length; word++)
         {
             int at = (firstWord + word) * sizeof(ushort);
-            AssertEqual(expected[word], SnesLittleEndian.Word(vram[at], vram[at + 1]), $"{context} word {word}");
+            AssertEqual(expected[word], LittleEndianBytes.Word(vram[at], vram[at + 1]), $"{context} word {word}");
         }
     }
 
@@ -82,7 +83,7 @@ internal static class PauseScreenPublicationVerification
         for (int cell = 0; cell < expected.Length; cell++)
         {
             int at = (firstWord + cell) * sizeof(ushort);
-            AssertEqual(expected[cell], BackgroundTileWords.ToTile(SnesLittleEndian.Word(vram[at], vram[at + 1])), $"{context} tile {cell}");
+            AssertEqual(expected[cell], BackgroundTileWords.ToTile(LittleEndianBytes.Word(vram[at], vram[at + 1])), $"{context} tile {cell}");
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -61,7 +62,7 @@ internal static class XraySetupVerification
         // Markers are tileset blocks whose four tile words no other definition holds, so a word of one in the reveal
         // can only have been copied from a block showing it; the room draws them from their installed pictures (#1392).
         byte[] table = level.BlockDefinitions.ToArray();
-        ushort[] words = [.. Enumerable.Range(0, table.Length / 2).Select(word => SnesLittleEndian.Word(table[word * 2], table[word * 2 + 1]))];
+        ushort[] words = [.. Enumerable.Range(0, table.Length / 2).Select(word => LittleEndianBytes.Word(table[word * 2], table[word * 2 + 1]))];
         Dictionary<ushort, int> uses = words.GroupBy(word => word).ToDictionary(group => group.Key, group => group.Count());
         int[] markers = [.. Enumerable.Range(CommonRoomElementBlocks, words.Length / 4 - CommonRoomElementBlocks)
             .Where(definition => Enumerable.Range(0, 4).All(corner => uses[words[definition * 4 + corner]] == 1)).Take(4)];

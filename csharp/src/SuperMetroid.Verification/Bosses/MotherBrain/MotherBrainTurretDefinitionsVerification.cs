@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -74,7 +73,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             {
                 var rotation = new RoomEnemyProjectileSlot(0)
                 {
-                    Position = new(new(0, 0), new(0, unchecked(SnesLittleEndian.Word(current, unchecked((byte)delta))))),
+                    Position = new(new(0, 0), new(0, unchecked(LittleEndianBytes.Word(current, unchecked((byte)delta))))),
                     DirectionParameter = parameter,
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
@@ -87,7 +86,7 @@ internal static class MotherBrainTurretDefinitionsVerification
 
                 MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(rotation);
                 AssertEqual(unchecked(
-                        SnesLittleEndian.Word(expectedDirection, unchecked((byte)expectedDelta))),
+                        LittleEndianBytes.Word(expectedDirection, unchecked((byte)expectedDelta))),
                     rotation.Position.Y.Fraction,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
             }

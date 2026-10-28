@@ -82,7 +82,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         SeedRoomPlmPopulation(bus, 0x9000,
         [
             unchecked((byte)PlmNativeWords.Word(PlmHeaderId.MotherBrainGlass)),
-            SnesLittleEndian.HighByte(PlmNativeWords.Word(PlmHeaderId.MotherBrainGlass)),
+            LittleEndianBytes.HighByte(PlmNativeWords.Word(PlmHeaderId.MotherBrainGlass)),
             originX, originY, 0x00, 0x80, 0x00, 0x00,
         ]);
         // The production control list is compiled and immutable. Draw each layout through the

@@ -137,7 +137,7 @@ internal static void VerifyRoomEnemyLoading()
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
-            ushort word = SnesLittleEndian.Word(paletteBytes[color * 2], paletteBytes[color * 2 + 1]);
+            ushort word = LittleEndianBytes.Word(paletteBytes[color * 2], paletteBytes[color * 2 + 1]);
             palette[color] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -1271,7 +1271,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             out ReadOnlyMemory<byte> emergencyBytes),
         "Ceres EMERGENCY text resolves the cartridge tilemap words");
     for (int word = 0; word < emergency.WordCount; word++)
-        AssertEqual(SnesLittleEndian.Word(emergencyBytes.Span[word * 2], emergencyBytes.Span[word * 2 + 1]),
+        AssertEqual(LittleEndianBytes.Word(emergencyBytes.Span[word * 2], emergencyBytes.Span[word * 2 + 1]),
             ceresOverlay.Words[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
     AssertEqual(emergency.WordCount, ceresOverlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten),
         "Ceres EMERGENCY writes only its own words over BG1");
@@ -1466,7 +1466,7 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
 {
     ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
-        .Select(color => SnesLittleEndian.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2)))
+        .Select(color => LittleEndianBytes.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2)))
         .ToArray();
     byte[] planar = Enumerable.Range(0, 0x20)
         .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
@@ -1500,7 +1500,7 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
 static void WriteTestLong(TestAddressSpace bus, int address, int value)
 {
     WriteTestByte(bus, address, unchecked((byte)value));
-    WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(unchecked((ushort)value)));
+    WriteTestByte(bus, address + 1, LittleEndianBytes.HighByte(unchecked((ushort)value)));
     WriteTestByte(bus, address + 2, SnesLittleEndianConstants.BankByte(value));
 }
 

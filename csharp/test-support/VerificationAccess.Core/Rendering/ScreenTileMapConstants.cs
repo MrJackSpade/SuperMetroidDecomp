@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 
@@ -24,7 +25,7 @@ internal static class ScreenTileMapConstants
             {
                 int offset = SnesVramAddressingConstants.ByteOffsetOfWord(geometry.EntryWordAddress(VramWordRange.Require(tilemapWord),
                     new Position16<TilemapCells>((ushort)x, (ushort)y)));
-                var word = new SnesBgTilemapWord(SnesLittleEndian.Word(image[offset], image[offset + 1]));
+                var word = new SnesBgTilemapWord(LittleEndianBytes.Word(image[offset], image[offset + 1]));
                 cells.Add(new BackgroundTile(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority));
             }
         }

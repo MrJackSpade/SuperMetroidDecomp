@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -32,8 +31,8 @@ internal static class PhantoonFlameSpawnsVerification
             var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = ClosedEnumWords.Decode<PhantoonFlameSpawnType>(
-                SnesLittleEndian.HighByte(parameter), "Phantoon flame spawn type");
-            int index = SnesLittleEndian.LowByte(parameter);
+                LittleEndianBytes.HighByte(parameter), "Phantoon flame spawn type");
+            int index = LittleEndianBytes.LowByte(parameter);
             AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");
             var flame = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             ushort angle = type switch

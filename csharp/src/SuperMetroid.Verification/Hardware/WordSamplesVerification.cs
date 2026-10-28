@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Hardware;
 /// <summary>Supplies representative word and byte classes for bounded arithmetic verification.</summary>
@@ -33,9 +33,9 @@ internal static class WordSamplesVerification
     {
         for (int high = 0; high < 0x100; high++)
         {
-            yield return SnesLittleEndian.Word(0, unchecked((byte)high));
-            yield return SnesLittleEndian.Word(0x7f, unchecked((byte)high));
-            yield return SnesLittleEndian.Word(0xff, unchecked((byte)high));
+            yield return LittleEndianBytes.Word(0, unchecked((byte)high));
+            yield return LittleEndianBytes.Word(0x7f, unchecked((byte)high));
+            yield return LittleEndianBytes.Word(0xff, unchecked((byte)high));
         }
     }
 }

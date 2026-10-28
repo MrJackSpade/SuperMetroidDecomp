@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>
@@ -140,7 +140,7 @@ public static class SmCompression
                         // Absolute commands encode an offset from the start of this output.
                         if (!Next(out byte low) || !Next(out byte high))
                             goto Invalid;
-                        copyFrom = SnesLittleEndian.Word(low, high);
+                        copyFrom = LittleEndianBytes.Word(low, high);
                     }
 
                     // Commands 5 and 7 XOR every copied byte with $FF.

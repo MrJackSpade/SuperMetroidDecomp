@@ -226,7 +226,7 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
         {
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (SamusAtmosphericEffectType)SnesLittleEndian.HighByte(packed), (byte)packed,
+            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (SamusAtmosphericEffectType)LittleEndianBytes.HighByte(packed), (byte)packed,
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }
@@ -384,7 +384,7 @@ internal static class NativeSnapshotImportVerification
             // The current frame record is [timer][operand]; the list pointer already follows it.
             EnemyProjectileNativeImportAccess.ShowNativeOperand(
                 projectile, unchecked((ushort)(instruction - 2)));
-            AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
+            AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), LittleEndianBytes.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
                 $"initial enemy projectile {projectile.SlotIndex} radii");
             ushort properties = checked((ushort)projectile.Damage);
             if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;

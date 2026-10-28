@@ -115,9 +115,9 @@ internal static class IntroEyeInstructionsVerification
                 if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
                     int position = Word(pointer + 2);
-                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.X, SnesLittleEndian.LowByte(checked((ushort)position)),
+                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.X, LittleEndianBytes.LowByte(checked((ushort)position)),
                         "native eye record draws at the portrait column");
-                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.Y, SnesLittleEndian.HighByte(checked((ushort)position)),
+                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.Y, LittleEndianBytes.HighByte(checked((ushort)position)),
                         "native eye record draws at the portrait row");
                     int record = Word(pointer + 4) - FrontendSourceDefinitions.IntroEyeFrameRecords;
                     AssertTrue(record >= 0 && record % FrontendSourceDefinitions.IntroEyeFrameRecordStride == 0,

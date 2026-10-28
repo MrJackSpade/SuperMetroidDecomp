@@ -35,7 +35,7 @@ internal static class ImportedVramOracle
             // reference transfer is even-sized and can use the word-port API.
             var words = new ushort[bytes.Length / 2];
             for (int i = 0; i < words.Length; i++)
-                words[i] = SnesLittleEndian.Word(bytes[i * 2], bytes[i * 2 + 1]);
+                words[i] = LittleEndianBytes.Word(bytes[i * 2], bytes[i * 2 + 1]);
             vram.ExecuteWordTransfer(words, (ushort)(encodedDestination & 0x7fff),
                 (encodedDestination & 0x8000) == 0 ? 1 : 32);
         }

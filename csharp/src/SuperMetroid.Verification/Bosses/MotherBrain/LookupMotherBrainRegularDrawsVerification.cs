@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -85,7 +84,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
         }
         AssertEqual(63, cells, "Mother Brain regular sixty-three original physical cells");
 
-        ushort ReadWord(int address) => SnesLittleEndian.Word(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address), MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1)));
+        ushort ReadWord(int address) => LittleEndianBytes.Word(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address), MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1)));
     }
 
     /// <summary>Reads a native Mother Brain PLM draw-list byte for the shape oracle.</summary>

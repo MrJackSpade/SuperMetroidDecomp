@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -12,7 +11,7 @@ internal static class KiHunterMotionDefinitionsVerification
     /// <summary>Compares retail constants and every 16-bit orbit position without gameplay bus reads.</summary>
     internal static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => SnesLittleEndian.Word(KiHunterMotionDefinitionsRomByte(rom, address), KiHunterMotionDefinitionsRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(KiHunterMotionDefinitionsRomByte(rom, address), KiHunterMotionDefinitionsRomByte(rom, address + 1));
         AssertEqual(Word(0xa8f180), KiHunterMotionDefinitions.SwoopTriggerDistance, "Native KiHunter proximity");
         ushort low = Word(0xa8f182), high = Word(0xa8f184);
         byte radius = KiHunterMotionDefinitionsRomByte(rom, 0xa8f186);

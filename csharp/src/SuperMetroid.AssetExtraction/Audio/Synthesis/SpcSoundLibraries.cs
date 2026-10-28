@@ -1,5 +1,5 @@
-﻿using SuperMetroid.Core.Compatibility;
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -305,7 +305,7 @@ internal sealed class SpcSoundLibraries
             if (command == 0xf9) // cartridge-encoding: allow(DomainDiscriminator) - SFX inline ADSR override
             {
                 soundChannel.AdsrSettings = ReadSoundByte(soundChannel);
-                soundChannel.AdsrSettings = soundChannel.AdsrSettings | SnesLittleEndian.Word(low: 0, high: ReadSoundByte(soundChannel));
+                soundChannel.AdsrSettings = soundChannel.AdsrSettings | LittleEndianBytes.Word(low: 0, high: ReadSoundByte(soundChannel));
                 soundChannel.PointerIndex = SpcDriverWrap.Byte(soundChannel.PointerIndex + 2);
                 soundChannel.UpdateAdsr = SpcDriverDefinitions.SoundEffects.Active;
                 goto NextCommand;
@@ -407,6 +407,6 @@ internal sealed class SpcSoundLibraries
     private void WriteSoundEffectAdsr(int voiceIndexTimesEight, int adsr)
     {
         dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterLayout.Voice.Adsr1)), unchecked((byte)adsr));
-        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterLayout.Voice.Adsr2)), SnesLittleEndian.HighByte(checked((ushort)adsr)));
+        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterLayout.Voice.Adsr2)), LittleEndianBytes.HighByte(checked((ushort)adsr)));
     }
 }

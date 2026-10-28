@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
@@ -291,7 +291,7 @@ public static class SaveRamCodec
         for (int offset = marker.Length - 2; offset >= 0; offset -= 2)
         {
             ushort sram = ReadWord(field, offset);
-            ushort text = SnesLittleEndian.Word(marker[offset], marker[offset + 1]);
+            ushort text = LittleEndianBytes.Word(marker[offset], marker[offset + 1]);
             if (sram != text)
                 return sram >= text;
         }
@@ -411,12 +411,12 @@ public static class SaveRamCodec
     ];
 
     /// <summary>Reads one little-endian word.</summary>
-    private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) => SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]);
+    private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);
 
     /// <summary>Writes one word in SNES byte order.</summary>
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {
         destination[offset] = unchecked((byte)value);
-        destination[offset + 1] = SnesLittleEndian.HighByte(value);
+        destination[offset + 1] = LittleEndianBytes.HighByte(value);
     }
 }

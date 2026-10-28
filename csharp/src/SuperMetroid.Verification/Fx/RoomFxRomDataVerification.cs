@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Fx.AreaAnimatedTileObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -330,7 +329,7 @@ internal static class RoomFxRomDataVerification
     {
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
-        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
+        ushort Word(int offset) => LittleEndianBytes.Word(Byte(offset), Byte(offset + 1));
         ushort door = Word(0);
         if (door == ushort.MaxValue)
             return RoomFxRecordCodec.Terminator;

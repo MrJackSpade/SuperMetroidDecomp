@@ -1,6 +1,6 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -191,7 +191,7 @@ static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort 
 {
     int offset = block * 8 + tile * 2;
     definitions[offset] = unchecked((byte)value);
-    definitions[offset + 1] = SnesLittleEndian.HighByte(value);
+    definitions[offset + 1] = LittleEndianBytes.HighByte(value);
 }
 
 /// <summary>Checks native crouch and stand transition timing, collision radii, floor clipping, and grounded movement.</summary>
@@ -577,12 +577,12 @@ static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
     {
         fixtureBus.WriteBytes(address, [
             0x02, 0x00,
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
             0x00, 0x01,
             0x02, 0x00,
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
             0x00, 0x00,
         ]);
     }
@@ -603,8 +603,8 @@ static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
     {
         fixtureBus.WriteBytes(address, [
             0x02, 0x80,
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
             0x00, 0x00,
         ]);
     }

@@ -266,14 +266,14 @@ internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace s
 private static void WriteLibraryWord(byte[] rom, ushort pointer, ushort value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
-    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(value));
+    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), LittleEndianBytes.HighByte(value));
 }
 
 /// <summary>Writes a three-byte source address into a synthetic bank-$8F command list.</summary>
 private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
-    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(unchecked((ushort)value)));
+    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), LittleEndianBytes.HighByte(unchecked((ushort)value)));
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), SnesLittleEndianConstants.BankByte(value));
 }
 

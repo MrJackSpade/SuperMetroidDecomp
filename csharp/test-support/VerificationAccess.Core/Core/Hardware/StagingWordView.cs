@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>A bounded table of little-endian words in a <see cref="VramStagingBuffer"/>, indexed by whole element.</summary>
@@ -27,13 +29,13 @@ public readonly struct StagingWordView
         get
         {
             int offset = Offset(index);
-            return SnesLittleEndian.Word(buffer[offset], buffer[offset + 1]);
+            return LittleEndianBytes.Word(buffer[offset], buffer[offset + 1]);
         }
         set
         {
             int offset = Offset(index);
-            buffer[offset] = SnesLittleEndian.LowByte(value);
-            buffer[offset + 1] = SnesLittleEndian.HighByte(value);
+            buffer[offset] = LittleEndianBytes.LowByte(value);
+            buffer[offset + 1] = LittleEndianBytes.HighByte(value);
         }
     }
 

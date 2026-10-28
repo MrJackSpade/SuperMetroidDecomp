@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -45,7 +44,7 @@ internal static class KraidMovementChoicesVerification
     /// <summary>Compares native records and optionally follows the production thinking transition without advancing RNG.</summary>
     internal static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int a) => SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1));
+        ushort Word(int a) => LittleEndianBytes.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1));
         var positions = new ushort[6];
         var targets = new ushort[6, 5];
         var timers = new ushort[6, 5];

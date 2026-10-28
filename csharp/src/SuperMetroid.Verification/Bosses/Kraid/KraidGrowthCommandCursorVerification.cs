@@ -60,7 +60,7 @@ internal static class KraidGrowthCommandCursorVerification
         foreach (KraidHeadNativeRecord record in native.Records)
         {
             int address = 0xa70000 | (record.Pointer + 2);
-            ushort word = SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1));
+            ushort word = LittleEndianBytes.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1));
             (ushort pointer, ushort timer) = KraidContourCaseMappingsVerification.NativeKraidGrowthResume(rom, word);
             KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(record.Cursor).Growth;
             AssertEqual(native.CursorAt(pointer), KraidHeadAnimations.GrowthResumeCursor(resume),

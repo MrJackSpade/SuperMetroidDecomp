@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
@@ -57,7 +58,7 @@ internal static class PauseHudPlaneVerification
         for (int i = 0; i < words.Length; i++)
         {
             int at = (GameplayVramLayoutConstants.HudTilemapWord + i) * 2;
-            words[i] = SnesLittleEndian.Word(vram[at], vram[at + 1]);
+            words[i] = LittleEndianBytes.Word(vram[at], vram[at + 1]);
         }
         return words;
     }

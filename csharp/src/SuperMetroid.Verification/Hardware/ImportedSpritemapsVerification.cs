@@ -39,7 +39,7 @@ internal static class ImportedSpritemapsVerification
         if (slot.InstructionTimer.IsZero) return;
         ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
         int bank = (int)new SnesAddress(slot.NativeHeader.Bank, 0);
-        ushort native = SnesLittleEndian.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1))));
+        ushort native = LittleEndianBytes.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1))));
         AssertEqual(native, slot.SpritemapPointer,
             $"executed enemy visual ${bank | operand:X6} matches cartridge selector");
         executedOperands.Add(operand);
@@ -55,7 +55,7 @@ internal static class ImportedSpritemapsVerification
     {
         if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
         ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
-        ushort nativePointer = SnesLittleEndian.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
+        ushort nativePointer = LittleEndianBytes.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
         executedOperands.Add(operand);
         ReadOnlyMemory<SpritePart> parts;
         if (projectile.PresentationOperandAddress != 0)

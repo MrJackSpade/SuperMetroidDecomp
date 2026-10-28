@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -34,7 +33,7 @@ internal static class KraidDefeatedPlmMappingsVerification
         {
             int address = arguments[index] + offset;
             ushort expected = offset == 2
-                ? SnesLittleEndian.Word(KraidDefeatedPlmFieldRomByte(rom, address), KraidDefeatedPlmFieldRomByte(rom, address + 1))
+                ? LittleEndianBytes.Word(KraidDefeatedPlmFieldRomByte(rom, address), KraidDefeatedPlmFieldRomByte(rom, address + 1))
                 : KraidDefeatedPlmFieldRomByte(rom, address);
             AssertEqual(expected, field(requests[index]), "Native defeated-room inline field");
             AssertEqual(expected, field(enumerated[index]), "Native defeated-room operation order");

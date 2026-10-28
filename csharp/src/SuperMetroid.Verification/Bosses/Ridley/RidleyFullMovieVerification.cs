@@ -340,10 +340,10 @@ internal static class RidleyFullMovieVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
             samus.PoseHistory.PreviousPose = pose;
             ushort direction = SamusPoseMetadata.ReadPoseXDirection(samus);
-            ushort spinMovement = SnesLittleEndian.Word(unchecked((byte)direction), (byte)SamusMovementType.SpinJumping);
+            ushort spinMovement = LittleEndianBytes.Word(unchecked((byte)direction), (byte)SamusMovementType.SpinJumping);
             samus.PoseHistory.PreviousDirectionAndMovement = spinMovement;
             samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
-            samus.PoseHistory.LastDifferentDirectionAndMovement = SnesLittleEndian.Word(unchecked((byte)direction), (byte)SamusMovementType.Running);
+            samus.PoseHistory.LastDifferentDirectionAndMovement = LittleEndianBytes.Word(unchecked((byte)direction), (byte)SamusMovementType.Running);
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
             AssertEqual(pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
@@ -1060,7 +1060,7 @@ internal static class RidleyFullMovieVerification
                             SheetFrameSources.CharacterDraw((ImageSpriteDraw)covers[0]).Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
-                Check("Cannon flags", SnesLittleEndian.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
+                Check("Cannon flags", LittleEndianBytes.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
                 Check("Cannon toggle", samus.ArmCannon.ToggleFlag, NativeSnapshotMemory.CannonToggle);
                 Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, NativeSnapshotMemory.CannonDrawingMode);
@@ -1552,7 +1552,7 @@ internal static class RidleyFullMovieVerification
                         mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
                 }
                 Check(owner + " InstructionTimer", projectile.InstructionTimer.RawValue, NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
-                Check(owner + " radii", SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)), NativeSnapshotMemory.EnemyProjectileRadius + index);
+                Check(owner + " radii", LittleEndianBytes.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)), NativeSnapshotMemory.EnemyProjectileRadius + index);
                 ushort properties = checked((ushort)projectile.Damage);
                 if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;
                 if (!projectile.CanDamageSamus) properties |= NativeSnapshotMemory.EnemyProjectileNoContact;

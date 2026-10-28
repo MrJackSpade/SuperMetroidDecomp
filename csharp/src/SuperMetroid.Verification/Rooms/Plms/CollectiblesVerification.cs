@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -270,9 +271,9 @@ internal static class CollectiblesVerification
         Position16<RoomBlocks> itemBlock = layout.Block ?? new(3, 3);
         int blockIndex = size.RowMajorIndex(itemBlock);
         SeedRoomPlmPopulation(bus, population, [
-            unchecked((byte)header), SnesLittleEndian.HighByte(header),
+            unchecked((byte)header), LittleEndianBytes.HighByte(header),
             unchecked((byte)itemBlock.X), unchecked((byte)itemBlock.Y),
-            unchecked((byte)roomArgument), SnesLittleEndian.HighByte(roomArgument),
+            unchecked((byte)roomArgument), LittleEndianBytes.HighByte(roomArgument),
             0x00, 0x00,
         ]);
 
@@ -321,7 +322,7 @@ internal static class CollectiblesVerification
                     ? sharedDynamicList
                     : (ushort)0xf000;
                 SeedPlmProgramBytes(bus, unchecked((ushort)(header + 2)), [
-                    unchecked((byte)instruction), SnesLittleEndian.HighByte(instruction),
+                    unchecked((byte)instruction), LittleEndianBytes.HighByte(instruction),
                 ]);
             }
         }
@@ -346,7 +347,7 @@ internal static class CollectiblesVerification
     internal static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
         SeedPlmProgramBytes(bus, unchecked((ushort)pointer), [
             0x01, 0x00,
-            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), LittleEndianBytes.HighByte(levelWord),
             0x00, 0x00,
         ]);
 
@@ -830,8 +831,8 @@ internal static class CollectiblesVerification
         AssertTrue(full.All(word => word == SuitPickupBeamDefinitions.FullScreenWindow.Word),
             "the final curved column covers every scanline");
         ushort[] widening = SuitPickupBeamWindowBuilder.Build(curved[0]);
-        AssertTrue(SnesLittleEndian.LowByte(widening[127]) < SnesLittleEndian.LowByte(widening[0])
-            && SnesLittleEndian.HighByte(widening[128]) > SnesLittleEndian.HighByte(widening[255]),
+        AssertTrue(LittleEndianBytes.LowByte(widening[127]) < LittleEndianBytes.LowByte(widening[0])
+            && LittleEndianBytes.HighByte(widening[128]) > LittleEndianBytes.HighByte(widening[255]),
             "the curved column is widest at the vertical center");
 
         SamusSuitPickupBeam[] closing = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.ClosingCurvedColumn)];
@@ -856,7 +857,7 @@ internal static class CollectiblesVerification
                 "stage five narrows eight pixels per side every update");
         ushort[] center = SuitPickupBeamWindowBuilder.Build(line[0]);
         AssertTrue(center.Select((word, y) => new CollectiblesVerifySuitPickupBeamSequenceCase(word, y)).All(row => row.Y == 128
-            ? row.Word == SnesLittleEndian.Word(7, 240)
+            ? row.Word == LittleEndianBytes.Word(7, 240)
             : row.Word == SuitPickupBeamDefinitions.EmptyWindow.Word),
             "stage five lights only the center scanline");
 
@@ -894,7 +895,7 @@ internal static class CollectiblesVerification
             var pickup = new SamusSuitPickupState();
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
+            ushort initialMetadata = LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
@@ -906,7 +907,7 @@ internal static class CollectiblesVerification
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
-            AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
+            AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
         }

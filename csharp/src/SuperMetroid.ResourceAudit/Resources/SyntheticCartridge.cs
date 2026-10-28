@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.ResourceAudit.Resources;
@@ -33,7 +32,7 @@ internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSo
     internal void SetWord(int address, int value)
     {
         SetByte(address, unchecked((byte)value));
-        SetByte(address + 1, SnesLittleEndian.HighByte(unchecked((ushort)value)));
+        SetByte(address + 1, LittleEndianBytes.HighByte(unchecked((ushort)value)));
     }
 
     /// <summary>Declares the <paramref name="count"/> bytes from <paramref name="start"/> readable as zero.</summary>

@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Security.Cryptography;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Audio;
 
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -386,7 +386,7 @@ public sealed class ExtractedAudioAssetCatalog
                 if (instruction.Opcode != (byte)SpcMusicEffect.CallPattern)
                     continue;
                 ushort target = unchecked(
-                    SnesLittleEndian.Word(instruction.Arguments[0], instruction.Arguments[1]));
+                    LittleEndianBytes.Word(instruction.Arguments[0], instruction.Arguments[1]));
                 if (!programs.ContainsKey(target))
                 {
                     throw new InvalidDataException(

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
@@ -21,7 +20,7 @@ internal static class FamilyTrigonometryVerification
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
-            short original = unchecked((short)(SnesLittleEndian.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
+            short original = unchecked((short)(LittleEndianBytes.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
             AssertEqual(original, Trigonometry.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
@@ -33,7 +32,7 @@ internal static class FamilyTrigonometryVerification
     /// <summary>Checks boundary-word Maw products, Bull movement, and linked Shaktool segment placement without runtime ROM reads.</summary>
     internal static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
-        short Read(int address) => unchecked((short)(SnesLittleEndian.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
+        short Read(int address) => unchecked((short)(LittleEndianBytes.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
         short[] native = Enumerable.Range(0, 256)
             .Select(i => Read(EnemyMathReferenceData.SignedSixteenBitSine + i * 2)).ToArray();
         short[] orbit = Enumerable.Range(0, 320)

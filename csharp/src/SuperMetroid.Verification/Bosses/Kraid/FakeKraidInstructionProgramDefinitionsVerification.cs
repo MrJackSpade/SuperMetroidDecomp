@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -32,8 +31,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
     {
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
-        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer(SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1)));
-        ushort extraProperties = SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11));
+        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer(LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1)));
+        ushort extraProperties = LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11));
         AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
         AssertTrue((extraProperties &

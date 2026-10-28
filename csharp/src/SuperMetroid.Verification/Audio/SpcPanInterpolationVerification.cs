@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Audio;
@@ -46,7 +45,7 @@ internal static class SpcPanInterpolationVerification
             // Execute the original straight-line interpolation block, not a second
             // copy of the host expression. X=0 selects this fixture's first channel.
             ram[0x10] = (byte)pan;
-            ram[0x11] = SnesLittleEndian.HighByte(pan);
+            ram[0x11] = LittleEndianBytes.HighByte(pan);
             ram[0x321] = checked((byte)channel.FinalVolume);
             byte a = 0, y = 0;
             bool carry = false;
@@ -66,7 +65,7 @@ internal static class SpcPanInterpolationVerification
                     case 0xcf: // MUL YA
                         int product = y * a;
                         a = unchecked((byte)product);
-                        y = SnesLittleEndian.HighByte(unchecked((ushort)product));
+                        y = LittleEndianBytes.HighByte(unchecked((ushort)product));
                         break;
                     case 0xdd: a = y; break; // MOV A,Y
                     case 0x60: carry = false; break; // CLRC
@@ -83,7 +82,7 @@ internal static class SpcPanInterpolationVerification
             AssertEqual(0x1c67, pc, "native interpolation block boundary");
             return y;
 
-            int Word() => SnesLittleEndian.Word(Instruction(pc++), Instruction(pc++));
+            int Word() => LittleEndianBytes.Word(Instruction(pc++), Instruction(pc++));
         }
     }
 

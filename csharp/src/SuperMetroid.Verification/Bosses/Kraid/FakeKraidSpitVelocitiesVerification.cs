@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -25,7 +24,7 @@ internal static class FakeKraidSpitVelocitiesVerification
             for (int projectile = 0; projectile < 2; projectile++)
             {
                 int address = 0xa69a48 + (right ? 8 : 0) + projectile * 4 + fieldOffset;
-                ushort expected = SnesLittleEndian.Word(FakeKraidSpitVelocityFieldRomByte(rom, address), FakeKraidSpitVelocityFieldRomByte(rom, address + 1));
+                ushort expected = LittleEndianBytes.Word(FakeKraidSpitVelocityFieldRomByte(rom, address), FakeKraidSpitVelocityFieldRomByte(rom, address + 1));
                 AssertEqual(expected, select(FakeKraidProjectileDefinitions.SpitLaunch(right, projectile)),
                     $"Fake Kraid spit field {fieldOffset}, facing {right}, projectile {projectile}");
             }

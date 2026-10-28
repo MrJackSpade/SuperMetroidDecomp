@@ -201,7 +201,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 
         // Reads a raw cartridge word for the independent palette oracle.
         ushort ReadReferenceWord(int address) =>
-            SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
+            LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         // Initializes the production Norfair Ridley actor with selected artwork and seeded CGRAM.
         static EnemyTileArtworkNorfairRidleyColorsCreateResult Create(

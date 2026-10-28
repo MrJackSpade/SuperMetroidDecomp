@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -117,7 +117,7 @@ internal sealed class SpcVoices
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
     internal SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
-        unchecked(SnesLittleEndian.Word(ram[address + 5], ram[address + 4])));
+        unchecked(LittleEndianBytes.Word(ram[address + 5], ram[address + 4])));
 
     /// <summary>Hardware voice bits currently borrowed by SFX libraries.</summary>
     internal int channelOnMask;

@@ -18,16 +18,27 @@ public static class PhantoonWaveTable
         int amplitude, int bg2Scroll, Span<ushort> destination)
     {
         if (mode == 0) throw new ArgumentOutOfRangeException(nameof(mode), "Inactive HDMA does not build a wave.");
-        int half = (mode & PhantoonWaveDefinitions.LongWaveModeBit) != 0
-            ? PhantoonWaveDefinitions.LongHalfCycle : PhantoonWaveDefinitions.ShortHalfCycle;
+        int half = PhantoonWaveModeWord.HalfCycle(mode);
         Ensure.LengthEqual(destination, half * 2);
-        int step = (PhantoonWaveDefinitions.PhaseMask + 1) / (half * 2);
+        int step = PhantoonWaveDefinitions.PhaseCycle / (half * 2);
         for (int i = 0; i < half; i++)
         {
             int displacement = CalculateDisplacement(phase + i * step, amplitude);
             destination[i] = unchecked((ushort)(bg2Scroll + displacement));
             destination[i + half] = unchecked((ushort)(bg2Scroll - displacement));
         }
+    }
+
+    /// <summary>
+    /// The position of <paramref name="phase"/> within one whole cycle, 0 through
+    /// <see cref="PhantoonWaveDefinitions.PhaseCycle"/> minus one. A phase below zero, as the setup's
+    /// <see cref="PhantoonWaveDefinitions.InitialPhase"/> is, counts back from the cycle's end.
+    /// </summary>
+    /// <param name="phase">Any phase.</param>
+    public static int PhaseInCycle(int phase)
+    {
+        int remainder = phase % PhantoonWaveDefinitions.PhaseCycle;
+        return remainder < 0 ? remainder + PhantoonWaveDefinitions.PhaseCycle : remainder;
     }
 
     /// <summary>
@@ -39,14 +50,14 @@ public static class PhantoonWaveTable
     /// <param name="phase">The byte phase, nonnegative; only its position within one cycle is read.</param>
     public static short ReadSineAtBytePhase(int phase)
     {
-        int offset = phase & PhantoonWaveDefinitions.PhaseMask;
+        int offset = PhaseInCycle(phase);
         int sample = offset / PhantoonWaveDefinitions.SampleBytes;
         int value = unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)sample)));
         if (offset % PhantoonWaveDefinitions.SampleBytes == 0) return unchecked((short)value);
         // The odd phase reads the little-endian word straddling this sample and the next.
         Span<byte> samples = stackalloc byte[2 * PhantoonWaveDefinitions.SampleBytes];
         BinaryPrimitives.WriteUInt16LittleEndian(samples, (ushort)value);
-        if (offset == PhantoonWaveDefinitions.PhaseMask)
+        if (offset == PhantoonWaveDefinitions.PhaseCycle - 1)
             samples[PhantoonWaveDefinitions.SampleBytes] = PhantoonWaveDefinitions.TrailingByte;
         else
             BinaryPrimitives.WriteUInt16LittleEndian(samples[PhantoonWaveDefinitions.SampleBytes..],

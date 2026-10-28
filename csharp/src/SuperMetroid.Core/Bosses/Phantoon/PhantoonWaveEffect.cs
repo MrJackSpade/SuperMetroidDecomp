@@ -71,7 +71,7 @@ public sealed class PhantoonWaveEffect
             Active = false; // The wave ends, keeping its last shape.
             return;
         }
-        Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveDefinitions.PhaseMask;
+        Phase = PhantoonWaveTable.PhaseInCycle(Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta);
         if (boss.Parts[boss.Eye.SlotIndex].WaveMode != _setupMode)
             throw new InvalidOperationException($"Phantoon's wave mode {boss.Parts[boss.Eye.SlotIndex].WaveMode} changed from its setup mode {_setupMode}.");
         _built = new(Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.Bg2Scroll.X);

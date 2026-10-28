@@ -48,11 +48,11 @@ internal static class WorldMapCharacterDefinitions
     /// <summary>The five original edge choices where an outlined numeral leaves its outline open.</summary>
     internal static readonly WorldMapCellPixel[] OutlinedDigitOpenPixels =
     [
-        new(0x03d, 0, 2),
-        new(0x040, 7, 0),
-        new(0x040, 7, 1),
-        new(0x045, 1, 7),
-        new(0x045, 2, 7),
+        new(0x03d, new(0, 2)),
+        new(0x040, new(7, 0)),
+        new(0x040, new(7, 1)),
+        new(0x045, new(1, 7)),
+        new(0x045, new(2, 7)),
     ];
 
     /// <summary>$8E:D600..DBFF: each calculated background cell's drawing; font and icon contours are supplied.</summary>

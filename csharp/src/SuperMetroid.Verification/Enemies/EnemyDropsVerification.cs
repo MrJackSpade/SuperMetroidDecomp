@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -78,13 +79,14 @@ internal static class EnemyDropsVerification
         enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
-        fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
+        var colours = new SamusColourRig();
+        fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = colours.Samus, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
         AssertEqual(EnemyAiRoutine.CommonNoOp, enemy.Definition.MainAi,
             "cached header follows replacement identity into native no-op AI");
-        fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
+        fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = colours.Samus, ResolveSamusContactBeforeAi = true });
         AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "placeholder cannot be killed twice");
     }

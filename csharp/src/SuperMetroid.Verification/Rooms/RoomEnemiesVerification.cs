@@ -112,7 +112,8 @@ internal static void VerifyRoomEnemyLoading()
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
         new(primaryDefinitionPointer, PaletteRow: 3),
-        new(specialDefinitionPointer, PaletteRow: 4, StagingBlock: 1));
+        // Row 4 is Samus's own colours (#1405), which no retail set loads an enemy into; the fixed-block member uses row 2.
+        new(specialDefinitionPointer, PaletteRow: 2, StagingBlock: 1));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         new RoomEnemyPopulationRecord(primaryDefinitionPointer, new(0x0456, 0x0789), 0xabcd, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0004), 0x1357, 0x2468));
@@ -177,7 +178,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0xc0, shown[0x1a00], "special enemy first tile byte");
     AssertEqual(0x2120, cgram.Colors[(3 + 8) * 16],
         "ordinary enemy palette destination and source");
-    AssertEqual(0x6160, cgram.Colors[(4 + 8) * 16],
+    AssertEqual(0x6160, cgram.Colors[(2 + 8) * 16],
         "special enemy palette destination and source");
 
     RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -205,7 +206,7 @@ internal static void VerifyRoomEnemyLoading()
     // The tile word decodes to the tile set's size and placement; where the tiles sit is the import's to read.
     AssertEqual(0x0040, definition.TileByteCount, "definition tile set size, the tile word's low fifteen bits");
     AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");
-    AssertEqual(EnemyTilePlacement.AtFixedBlock, RoomEnemyDefinitionCatalog.Get(enemies.GraphicsSet.Entries[1].DefinitionId).TilePlacement,
+    AssertEqual(EnemyTilePlacement.AtFixedBlock, bus.ReadEnemyDefinition(enemies.GraphicsSet.Entries[1].DefinitionId).TilePlacement,
         "special definition tile word's bit 15 places its tiles at the record's fixed block");
     AssertEqual((EnemyDropTable?)new EnemyDropTable(3), definition.DropChances,
         "definition item-drop table offset $3A");

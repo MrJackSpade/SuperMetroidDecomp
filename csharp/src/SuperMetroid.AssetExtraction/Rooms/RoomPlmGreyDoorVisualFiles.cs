@@ -22,8 +22,8 @@ public static class RoomPlmGreyDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Grey-door", GreyDoorPlmDrawDefinitions.All,
-            GreyDoorPlmDrawDefinitions.VisualId);
+            VisualFileName, "Grey-door", GreyDoorCaps.All,
+            GreyDoorCaps.VisualId);
 
     /// <summary>Validates stock grey-door and shared clear-cap artwork before selecting an optional complete visual replacement.</summary>
     /// <param name="stockDirectory">Family directory containing the required version-one manifest and stock JSON.</param>
@@ -35,7 +35,7 @@ public static class RoomPlmGreyDoorVisualFiles
     public static RoomPlmGreyDoorVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmGreyDoorVisualCatalog>(VisualFileName, "Grey-door", GreyDoorPlmDrawDefinitions.All, GreyDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmGreyDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmGreyDoorVisualCatalog>(VisualFileName, "Grey-door", GreyDoorCaps.All, GreyDoorCaps.VisualId, entries => new RoomPlmGreyDoorVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Runs stock manifest, hash, schema, and compiled-appearance checks without selecting overrides, reading a cartridge, or writing files.</summary>

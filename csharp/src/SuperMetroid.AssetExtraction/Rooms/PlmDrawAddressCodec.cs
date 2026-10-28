@@ -72,15 +72,15 @@ internal static class PlmDrawAddressCodec
         PlmFrameDraw<RoomPlmShotBlockDrawDefinitions.Draw> { Frame: var shot } => ShotBlock(shot),
         PlmFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(PlmDrawSourceDefinitions.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
         PlmFrameDraw<RoomPlmCollectibleDrawDefinitions.Draw> { Frame: var item } => Collectible(item),
-        PlmFrameDraw<BlueDoorPlmDrawDefinitions.Draw> { Frame: var blue } => Offset(PlmDrawSourceDefinitions.BlueDoorLeftAlias,
+        PlmFrameDraw<BlueDoorCaps.Draw> { Frame: var blue } => Offset(PlmDrawSourceDefinitions.BlueDoorLeftAlias,
             FacingIndex(blue.Orientation) * BlueFacingStride + (blue.Frame - BlueDoorPlmDrawDefinitions.AliasFrame) * CapStride),
-        PlmFrameDraw<GreyDoorPlmDrawDefinitions.Draw> { Frame: { Frame: GreyDoorPlmDrawDefinitions.ClearFrame } clear } =>
+        PlmFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: GreyDoorPlmDrawDefinitions.ClearFrame } clear } =>
             Offset(PlmDrawSourceDefinitions.DoorClearLeft, FacingIndex(clear.Orientation) * CapStride),
-        PlmFrameDraw<GreyDoorPlmDrawDefinitions.Draw> { Frame: var grey } => Offset(PlmDrawSourceDefinitions.GreyDoorLeft,
+        PlmFrameDraw<GreyDoorCaps.Draw> { Frame: var grey } => Offset(PlmDrawSourceDefinitions.GreyDoorLeft,
             FacingIndex(grey.Orientation) * CapFacingStride + grey.Frame * CapStride),
-        PlmFrameDraw<ColoredDoorPlmDrawDefinitions.Draw> { Frame: var colored } => Offset(PlmDrawSourceDefinitions.ColoredDoorYellowLeft,
+        PlmFrameDraw<ColoredDoorCaps.Draw> { Frame: var colored } => Offset(PlmDrawSourceDefinitions.ColoredDoorYellowLeft,
             ColorIndex(colored.Color) * ColorStride + FacingIndex(colored.Orientation) * CapFacingStride + colored.Frame * CapStride),
-        PlmFrameDraw<EyeDoorPlmDrawDefinitions.Draw> { Frame: var eye } => EyeDoor(eye),
+        PlmFrameDraw<EyeDoorDraws.Draw> { Frame: var eye } => EyeDoor(eye),
         PlmFrameDraw<CrateriaMainstreetEscapePassagePlmDefinitions.Draw> => PlmDrawSourceDefinitions.CrateriaPassageClearPair,
         PlmFrameDraw<OldTourianEscapeShaftWallPlmDefinitions.Draw> => PlmDrawSourceDefinitions.OldTourianShaftWallOpen,
         PlmFrameDraw<MaridiaElevatubePlmDefinitions.Draw> => PlmDrawSourceDefinitions.MaridiaElevatubeBlock,
@@ -125,15 +125,15 @@ internal static class PlmDrawAddressCodec
     };
 
     /// <summary>An eye-door draw: the right door's draws follow the left's at a fixed offset.</summary>
-    private static SnesAddress EyeDoor(EyeDoorPlmDrawDefinitions.Draw eye)
+    private static SnesAddress EyeDoor(EyeDoorDraws.Draw eye)
     {
         int side = eye.Left ? 0 : PlmDrawSourceDefinitions.EyeDoorRightOffset;
         return eye.Part switch
         {
-            EyeDoorPlmDrawDefinitions.Component.Clear => Offset(PlmDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
-            EyeDoorPlmDrawDefinitions.Component.Eye => Offset(PlmDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + eye.Frame * EyeStride),
-            EyeDoorPlmDrawDefinitions.Component.Middle => Offset(PlmDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + eye.Frame * OneBlockStride),
-            EyeDoorPlmDrawDefinitions.Component.Bottom => Offset(PlmDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + eye.Frame * OneBlockStride),
+            EyeDoorDraws.Component.Clear => Offset(PlmDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
+            EyeDoorDraws.Component.Eye => Offset(PlmDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + eye.Frame * EyeStride),
+            EyeDoorDraws.Component.Middle => Offset(PlmDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + eye.Frame * OneBlockStride),
+            EyeDoorDraws.Component.Bottom => Offset(PlmDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + eye.Frame * OneBlockStride),
             _ => throw new InvalidDataException($"Eye-door draw {eye} has no cartridge address."),
         };
     }

@@ -323,7 +323,7 @@ internal static class RoomPlmProgramsVerification
                 $"downward gate {next} continues {program} past its sleep");
         }
         ushort firstTrigger = DownwardGateEntries.Single(e => e.Program == DownwardGateProgram.TriggerBlueLeft).Entry;
-        AssertTrue(DownwardGatePlmProgramDefinitions.TriggerPrograms.SequenceEqual(
+        AssertTrue(DownwardGateShotBlockDefinitions.Triggers.Select(trigger => trigger.Program).SequenceEqual(
                 DownwardGateEntries.Where(e => e.Entry >= firstTrigger).OrderBy(e => e.Entry).Select(e => e.Program)),
             "downward gate triggers are selected in native list order");
         Console.WriteLine($"  Downward gate programs: {steps} typed steps match bank $84.");
@@ -468,11 +468,11 @@ internal static class RoomPlmProgramsVerification
         ColoredDoorOrientation orientation = BlueDoorPlmProgramDefinitions.Orientation(program);
         return frame switch
         {
-            BlueDoorFrame.Clear => DoorPlmDrawListDefinitions.Clear(orientation),
-            BlueDoorFrame.Blue0 => DoorPlmDrawListDefinitions.Blue(orientation, 0),
-            BlueDoorFrame.Blue1 => DoorPlmDrawListDefinitions.Blue(orientation, 1),
-            BlueDoorFrame.Blue2 => DoorPlmDrawListDefinitions.Blue(orientation, 2),
-            BlueDoorFrame.Blue3 => DoorPlmDrawListDefinitions.Blue(orientation, 3),
+            BlueDoorFrame.Clear => DoorCaps.Clear(orientation),
+            BlueDoorFrame.Blue0 => DoorCaps.Blue(orientation, 0),
+            BlueDoorFrame.Blue1 => DoorCaps.Blue(orientation, 1),
+            BlueDoorFrame.Blue2 => DoorCaps.Blue(orientation, 2),
+            BlueDoorFrame.Blue3 => DoorCaps.Blue(orientation, 3),
             _ => throw new InvalidOperationException($"Undefined {nameof(BlueDoorFrame)} {frame}."),
         };
     }
@@ -574,12 +574,12 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The draw list a coloured cap's frame draws.</summary>
     private static PlmDraw ColoredCapDraw(ColoredDoorColor color, ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
     {
-        DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(orientation),
-        DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Colored(color, orientation, 0),
-        DoorCapFrame.Closed1 => DoorPlmDrawListDefinitions.Colored(color, orientation, 1),
-        DoorCapFrame.Closed2 => DoorPlmDrawListDefinitions.Colored(color, orientation, 2),
-        DoorCapFrame.Closed3 => DoorPlmDrawListDefinitions.Colored(color, orientation, 3),
-        DoorCapFrame.BlueFlash => DoorPlmDrawListDefinitions.Blue(orientation, 0),
+        DoorCapFrame.Clear => DoorCaps.Clear(orientation),
+        DoorCapFrame.Closed0 => DoorCaps.Colored(color, orientation, 0),
+        DoorCapFrame.Closed1 => DoorCaps.Colored(color, orientation, 1),
+        DoorCapFrame.Closed2 => DoorCaps.Colored(color, orientation, 2),
+        DoorCapFrame.Closed3 => DoorCaps.Colored(color, orientation, 3),
+        DoorCapFrame.BlueFlash => DoorCaps.Blue(orientation, 0),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
     };
 
@@ -695,12 +695,12 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The draw list a grey cap's frame draws.</summary>
     private static PlmDraw GreyCapDraw(ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
     {
-        DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(orientation),
-        DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Grey(orientation, 0),
-        DoorCapFrame.Closed1 => DoorPlmDrawListDefinitions.Grey(orientation, 1),
-        DoorCapFrame.Closed2 => DoorPlmDrawListDefinitions.Grey(orientation, 2),
-        DoorCapFrame.Closed3 => DoorPlmDrawListDefinitions.Grey(orientation, 3),
-        DoorCapFrame.BlueFlash => DoorPlmDrawListDefinitions.Blue(orientation, 0),
+        DoorCapFrame.Clear => DoorCaps.Clear(orientation),
+        DoorCapFrame.Closed0 => DoorCaps.Grey(orientation, 0),
+        DoorCapFrame.Closed1 => DoorCaps.Grey(orientation, 1),
+        DoorCapFrame.Closed2 => DoorCaps.Grey(orientation, 2),
+        DoorCapFrame.Closed3 => DoorCaps.Grey(orientation, 3),
+        DoorCapFrame.BlueFlash => DoorCaps.Blue(orientation, 0),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
     };
 
@@ -816,7 +816,7 @@ internal static class RoomPlmProgramsVerification
             var entries = DoorPlmNativeListAddresses.EyeDoorEntries(orientation, component);
             covered.UnionWith(entries.Select(entry => entry.Program));
             steps += CompareProgramSubset(cartridge, EyeDoorPlmProgramDefinitions.ProgramsFor(orientation), entries,
-                (EyeDoorPlmProgram _, EyeDoorPlmFrame frame) => EyeDoorPlmDrawDefinitions.DrawList(orientation, component, frame),
+                (EyeDoorPlmProgram _, EyeDoorPlmFrame frame) => EyeDoorDraws.DrawList(orientation, component, frame),
                 (IImportCartridgeSource source, ushort cursor, out EyeDoorPlmCue cue, out int length) =>
                     EyeDoorCueAt(source, cursor, orientation, entries, out cue, out length),
                 $"{orientation} eye door {component}");

@@ -18,8 +18,8 @@ public static class RoomPlmEyeDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.Editable,
-            EyeDoorPlmDrawDefinitions.VisualId);
+            VisualFileName, "eye-door", EyeDoorDraws.Editable,
+            EyeDoorDraws.VisualId);
 
     /// <summary>Validates stock eye-door art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the eye-door JSON and its provenance/digest manifest.</param>
@@ -29,7 +29,7 @@ public static class RoomPlmEyeDoorVisualFiles
     public static RoomPlmEyeDoorVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmEyeDoorVisualCatalog>(VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.Editable, EyeDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmEyeDoorVisualCatalog>(VisualFileName, "eye-door", EyeDoorDraws.Editable, EyeDoorDraws.VisualId, entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Checks stock eye-door provenance, digest, schema, twenty-three-frame coverage, and equality with compiled visual words; ignores overrides.</summary>

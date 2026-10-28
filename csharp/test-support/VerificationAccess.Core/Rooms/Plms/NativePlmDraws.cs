@@ -45,11 +45,11 @@ internal static class NativePlmDraws
             .Concat(Enum.GetValues<GrappleBlockDraw>().Select(Of))
             .Concat(RoomPlmShotBlockDrawDefinitions.Calculated.Select(Of))
             .Concat(RoomPlmCollectibleDrawDefinitions.All.Select(frame => Of(frame.Draw)))
-            .Concat(BlueDoorPlmDrawDefinitions.Editable.Select(list => list.Draw))
-            .Concat(Enum.GetValues<ColoredDoorOrientation>().Select(BlueDoorPlmDrawDefinitions.Alias))
-            .Concat(GreyDoorPlmDrawDefinitions.All.Select(list => list.Draw))
-            .Concat(ColoredDoorPlmDrawDefinitions.All.Select(list => list.Draw))
-            .Concat(EyeDoorPlmDrawDefinitions.All.Select(list => list.Draw))
+            .Concat(BlueDoorCaps.Editable.Select(list => list.Draw))
+            .Concat(Enum.GetValues<ColoredDoorOrientation>().Select(BlueDoorCaps.Alias))
+            .Concat(GreyDoorCaps.All.Select(list => list.Draw))
+            .Concat(ColoredDoorCaps.All.Select(list => list.Draw))
+            .Concat(EyeDoorDraws.All.Select(list => list.Draw))
             .Concat([CrateriaMainstreetEscapePassagePlmDefinitions.ClearPairDraw, OldTourianEscapeShaftWallPlmDefinitions.OpenWallDraw,
                 MaridiaElevatubePlmDefinitions.BlockDraw, SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw]);
 

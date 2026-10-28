@@ -14,10 +14,10 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmColoredDoorVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in ColoredDoorPlmDrawDefinitions.All.OrderBy(item => ColoredDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
+        foreach (var frame in ColoredDoorCaps.All.OrderBy(item => ColoredDoorCaps.VisualId(item.Draw), StringComparer.Ordinal))
         {
             for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
-            content.AppendName("frame", ColoredDoorPlmDrawDefinitions.VisualId(frame.Draw));
+            content.AppendName("frame", ColoredDoorCaps.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
@@ -32,8 +32,8 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmColoredDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        customBlocks = new PlmVisualOverrides(entries, "Colored-door", ColoredDoorPlmDrawDefinitions.TryGetByVisualId,
-            ColoredDoorPlmDrawDefinitions.All.Count());
+        customBlocks = new PlmVisualOverrides(entries, "Colored-door", ColoredDoorCaps.TryGetByVisualId,
+            ColoredDoorCaps.All.Count());
     }
 
     /// <summary>Resolves one selected cap block without changing the physical collision word or door-opening rules.</summary>
@@ -44,7 +44,7 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the four-word run.</exception>
     internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!ColoredDoorPlmDrawDefinitions.TryDescribe(draw, out var shape))
+        if (!ColoredDoorCaps.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
                 $"Colored-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)

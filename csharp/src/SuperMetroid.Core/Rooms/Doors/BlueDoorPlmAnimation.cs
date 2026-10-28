@@ -18,11 +18,11 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(BlueDoorFrame frame) => frame switch
     {
-        BlueDoorFrame.Clear => DoorPlmDrawListDefinitions.Clear(Orientation),
-        BlueDoorFrame.Blue0 => DoorPlmDrawListDefinitions.Blue(Orientation, 0),
-        BlueDoorFrame.Blue1 => DoorPlmDrawListDefinitions.Blue(Orientation, 1),
-        BlueDoorFrame.Blue2 => DoorPlmDrawListDefinitions.Blue(Orientation, 2),
-        BlueDoorFrame.Blue3 => DoorPlmDrawListDefinitions.Blue(Orientation, 3),
+        BlueDoorFrame.Clear => DoorCaps.Clear(Orientation),
+        BlueDoorFrame.Blue0 => DoorCaps.Blue(Orientation, 0),
+        BlueDoorFrame.Blue1 => DoorCaps.Blue(Orientation, 1),
+        BlueDoorFrame.Blue2 => DoorCaps.Blue(Orientation, 2),
+        BlueDoorFrame.Blue3 => DoorCaps.Blue(Orientation, 3),
         _ => throw new InvalidOperationException($"Undefined {nameof(BlueDoorFrame)} {frame}."),
     };
 

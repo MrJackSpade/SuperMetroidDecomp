@@ -73,8 +73,7 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Installs a side trigger's selected instruction list and authored neighboring shot-block words.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, PlmSlot slot)
     {
-        DownwardGateShotBlockDefinition definition =
-            DownwardGateShotBlockDefinitions.Resolve(slot.RoomArgument);
+        DownwardGateShotBlockDefinition definition = DownwardGateShotBlock(slot.RoomArgument);
         slot.StartAnimation(new DownwardGatePlmAnimation(definition.Program));
 
         // Setup $C6E0 performs independent left and right writes even though every authored
@@ -84,6 +83,22 @@ internal sealed class GatePlms : IPlmFamilySource
             WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, definition.LeftBlockWord);
         if (definition.RightBlockWord != 0)
             WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, definition.RightBlockWord);
+    }
+
+    /// <summary>
+    /// The shot-block trigger an even room argument selects: half the argument is the trigger's position in
+    /// <see cref="DownwardGateShotBlockDefinitions.Triggers"/>. An odd argument, or one past the last trigger, names no
+    /// color and side and is rejected.
+    /// </summary>
+    internal static DownwardGateShotBlockDefinition DownwardGateShotBlock(int roomArgument)
+    {
+        int lastRoomArgument = (DownwardGateShotBlockDefinitions.Triggers.Count - 1) * sizeof(ushort);
+        if ((roomArgument & 1) != 0 || roomArgument > lastRoomArgument)
+        {
+            throw new InvalidDataException(
+                $"Downward gate shot-block argument ${roomArgument:X4} does not name one of the eight colors and sides.");
+        }
+        return DownwardGateShotBlockDefinitions.Triggers[roomArgument / sizeof(ushort)];
     }
 
     /// <summary>Writes a trigger's foreground word and its low-byte behavior to one collision block.</summary>

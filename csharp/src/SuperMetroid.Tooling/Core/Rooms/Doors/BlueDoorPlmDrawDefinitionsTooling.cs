@@ -10,10 +10,10 @@ internal static class BlueDoorPlmDrawDefinitionsTooling
     {
         get
         {
-            foreach (var frame in BlueDoorPlmDrawDefinitions.Editable) yield return frame;
+            foreach (var frame in BlueDoorCaps.Editable) yield return frame;
             for (int orientation = 0; orientation < 4; orientation++)
             {
-                BlueDoorPlmDrawDefinitions.TryGet(PlmDraw.Of(new BlueDoorPlmDrawDefinitions.Draw(
+                BlueDoorCaps.TryGet(PlmDraw.Of(new BlueDoorCaps.Draw(
                     DoorCapOrientations.FromTableIndex(orientation), BlueDoorPlmDrawDefinitions.AliasFrame)), out var draw);
                 yield return draw;
             }

@@ -14,10 +14,10 @@ public sealed class RoomPlmBlueDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmBlueDoorVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in BlueDoorPlmDrawDefinitions.Editable.OrderBy(item => BlueDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
+        foreach (var frame in BlueDoorCaps.Editable.OrderBy(item => BlueDoorCaps.VisualId(item.Draw), StringComparer.Ordinal))
         {
             for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
-            content.AppendName("frame", BlueDoorPlmDrawDefinitions.VisualId(frame.Draw));
+            content.AppendName("frame", BlueDoorCaps.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
@@ -32,8 +32,8 @@ public sealed class RoomPlmBlueDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, has invalid visual words, repeats a frame, or leaves coverage incomplete.</exception>
     public RoomPlmBlueDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        customBlocks = new PlmVisualOverrides(entries, "Blue-door", BlueDoorPlmDrawDefinitions.TryGetByVisualId,
-            BlueDoorPlmDrawDefinitions.Editable.Count());
+        customBlocks = new PlmVisualOverrides(entries, "Blue-door", BlueDoorCaps.TryGetByVisualId,
+            BlueDoorCaps.Editable.Count());
     }
 
     /// <summary>Resolves a selected blue-door visual word, normalizing physical alias pointers to their shared editable frame without changing collision or door timing.</summary>
@@ -44,12 +44,12 @@ public sealed class RoomPlmBlueDoorVisualCatalog
     /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>
     internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!BlueDoorPlmDrawDefinitions.TryDescribe(draw, out var shape))
+        if (!BlueDoorCaps.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
                 $"Blue-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(BlueDoorPlmDrawDefinitions.VisualSource(draw), out var words)
+        return customBlocks.TryGet(BlueDoorCaps.VisualSource(draw), out var words)
             ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
     }
 }

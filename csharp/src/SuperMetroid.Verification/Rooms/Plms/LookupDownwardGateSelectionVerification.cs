@@ -28,11 +28,11 @@ internal static class LookupDownwardGateSelectionVerification
             ushort argument = (ushort)raw;
             if (raw is not (0 or 2 or 4 or 6 or 8 or 10 or 12 or 14))
             {
-                AssertThrows<InvalidDataException>(() => DownwardGateShotBlockDefinitions.Resolve(argument),
+                AssertThrows<InvalidDataException>(() => GatePlms.DownwardGateShotBlock(argument),
                     "Downward gate rejects all unsupported arguments");
                 continue;
             }
-            DownwardGateShotBlockDefinition action = DownwardGateShotBlockDefinitions.Resolve(argument);
+            DownwardGateShotBlockDefinition action = GatePlms.DownwardGateShotBlock(argument);
             ushort native = ReadSamusEaterPlmWord(rom, source + raw);
             if (field == 0)
             {

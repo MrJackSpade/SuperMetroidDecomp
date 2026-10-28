@@ -33,9 +33,9 @@ internal sealed class SpcSoundLibraries
     /// <summary>The next byte of a sound-effect stream: the channel's stream pointer plus its index, wrapping at 16 bits.</summary>
     private byte ReadSoundByte(ManagedSpcSoundChannel channel)
     {
-        byte value = ram[unchecked((ushort)(channel.Pointer + channel.PointerIndex))];
+        int address = unchecked((ushort)(channel.Pointer + channel.PointerIndex));
         channel.PointerIndex = SpcDriverWrap.Byte(channel.PointerIndex + 1);
-        return value;
+        return ram[address];
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ internal sealed class SpcSoundLibraries
         ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Request ?? 0);
 
     /// <summary>Applies native library priority/cancellation gates, then selects a new sound stream or advances the active one.</summary>
-    private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
+    private void ApplySoundLibraryCommand(int libraryIndex, bool changed, int command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
         if (!changed || command == 0 || RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
@@ -81,7 +81,7 @@ internal sealed class SpcSoundLibraries
         library.CurrentPointer = SpcSoundEffectTables.StreamPointer(libraryIndex, command);
         library.CurrentSound = command;
 
-        byte configuration = SpcSoundEffectTables.Configuration(libraryIndex, command);
+        int configuration = SpcSoundEffectTables.Configuration(libraryIndex, command);
         ConfigureSoundLibrary(libraryIndex, library, configuration);
     }
 
@@ -240,7 +240,7 @@ internal sealed class SpcSoundLibraries
             ManagedSpcSoundOwnership.CaptureBorrowedMusicState(
                 channels[musicChannelIndex],
                 soundChannel);
-            byte voiceBit = unchecked((byte)(1 << musicChannelIndex));
+            int voiceBit = unchecked((byte)(1 << musicChannelIndex));
             _voices.channelOnMask = _voices.channelOnMask | voiceBit;
             _voices.currentChannelBit = _voices.currentChannelBit & unchecked((byte)~voiceBit);
             _voices.echoEnable = _voices.echoEnable & unchecked((byte)~voiceBit);
@@ -299,7 +299,7 @@ internal sealed class SpcSoundLibraries
                 _voices.noiseEnable = _voices.noiseEnable & soundChannel.ChannelMask;
             }
 
-            byte command;
+            int command;
         NextCommand:
             command = ReadSoundByte(soundChannel);
             if (command == 0xf9) // cartridge-encoding: allow(DomainDiscriminator) - SFX inline ADSR override

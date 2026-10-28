@@ -4,4 +4,4 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <typeparam name="TPolicy">The library's policy type.</typeparam>
 /// <param name="Stream">Where the effect's instruction stream starts in SPC RAM.</param>
 /// <param name="Policy">The voice count and priority its command handler allocates.</param>
-internal readonly record struct SpcSoundEffectDefinition<TPolicy>(ushort Stream, TPolicy Policy) where TPolicy : struct, Enum;
+internal readonly record struct SpcSoundEffectDefinition<TPolicy>(int Stream, TPolicy Policy) where TPolicy : struct, Enum;

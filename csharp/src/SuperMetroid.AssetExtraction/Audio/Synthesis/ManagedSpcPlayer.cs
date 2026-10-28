@@ -85,7 +85,7 @@ public sealed class ManagedSpcPlayer
     public void SetSampleBank(ManagedPcmSampleBank bank) => dsp.SetSampleBank(bank);
 
     /// <summary>Latches one CPU write to the music port; the sequencer consumes it at its next tempo tick.</summary>
-    public void WriteMusicPort(byte value) => Music.musicInputLatch = value;
+    public void WriteMusicPort(int value) => Music.musicInputLatch = Ensure.BetweenInclusive(0, byte.MaxValue, value);
 
     /// <summary>
     /// Advances one 60-Hz frame and returns the S-DSP's native

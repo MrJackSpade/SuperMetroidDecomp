@@ -146,7 +146,7 @@ internal sealed record MusicTrackAnalysis(
             ManagedSpcPlayer player = Required(renderer).Player;
             if (player.Music.musicPortToSnes != 0)
             {
-                byte tempo = player.ReadTempo();
+                int tempo = player.ReadTempo();
                 StartSample ??= tickSample;
                 if (TempoChanges.Count == 0 || TempoChanges[^1].Tempo != tempo)
                     TempoChanges.Add(new TempoChange(tickSample, tempo));

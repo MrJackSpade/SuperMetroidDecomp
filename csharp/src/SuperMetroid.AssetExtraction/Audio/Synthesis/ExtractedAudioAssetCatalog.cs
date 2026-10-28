@@ -385,7 +385,7 @@ public sealed class ExtractedAudioAssetCatalog
             {
                 if (instruction.Opcode != (byte)SpcMusicEffect.CallPattern)
                     continue;
-                ushort target = unchecked(
+                int target = unchecked(
                     LittleEndianBytes.Word(instruction.Arguments[0], instruction.Arguments[1]));
                 if (!programs.ContainsKey(target))
                 {
@@ -449,7 +449,7 @@ public sealed class ExtractedAudioAssetCatalog
                 AudioSoundEffectMetadata effect = library.Effects[effectIndex];
                 if (effect.ChannelPrograms is null)
                     throw new InvalidDataException($"Audio effect '{effect.Id}' has no channel-program list.");
-                byte command = unchecked((byte)(effectIndex + 1));
+                int command = effectIndex + 1;
                 string id = $"sfx-{library.Library}-{command:x2}";
                 if (effect.Command != command || effect.Id != id ||
                     effect.StreamPointer != SpcSoundEffectTables.StreamPointer(libraryIndex, command) ||

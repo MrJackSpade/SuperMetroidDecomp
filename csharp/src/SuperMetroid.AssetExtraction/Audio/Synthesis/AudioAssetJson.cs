@@ -31,7 +31,7 @@ internal static class AudioAssetJson
             if (reader.TokenType != JsonTokenType.StartObject)
                 throw new JsonException("Expected a music instruction object.");
             string? operation = null;
-            byte opcode = 0;
+            int opcode = 0;
             IReadOnlyList<byte>? timing = null, arguments = null;
             var bytes = (JsonConverter<IReadOnlyList<byte>>)options.GetConverter(typeof(IReadOnlyList<byte>));
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)

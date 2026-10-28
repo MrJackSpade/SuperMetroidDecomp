@@ -45,9 +45,9 @@ internal sealed class SpcVoices
 
             // SPC SBC stores an eight-bit result before MUL YA. Descending adjacent
             // RAM bytes therefore wrap the difference instead of multiplying a negative.
-            byte delta = unchecked((byte)(nextVolume - baseVolume));
-            byte interpolated = unchecked((byte)(baseVolume + SpcFixedPoint.Scale(delta, SpcFixedPoint.Fraction(volume))));
-            byte final = (byte)SpcFixedPoint.Scale(interpolated, channel.FinalVolume);
+            int delta = unchecked((byte)(nextVolume - baseVolume));
+            int interpolated = unchecked((byte)(baseVolume + SpcFixedPoint.Scale(delta, SpcFixedPoint.Fraction(volume))));
+            int final = (byte)SpcFixedPoint.Scale(interpolated, channel.FinalVolume);
             if (((channel.PanFlags << side) & 0x80) != 0) // cartridge-encoding: allow(BitMask) - phase-inversion bit
                 final = unchecked((byte)-final);
             Dsp.Voice(channel.Index).WriteVolume((DspStereoSide)side, unchecked((sbyte)final));
@@ -58,17 +58,19 @@ internal sealed class SpcVoices
     /// <summary>Converts a fractional note through the twelve-semitone table and instrument pitch base into DSP frequency.</summary>
     internal void WritePitchInner(ManagedSpcMusicChannel channel, int pitch)
     {
-        byte note = unchecked((byte)(SpcFixedPoint.Whole(pitch) & SpcDriverDefinitions.Music.NoteNumberMask));
-        byte octave = unchecked((byte)(note / 12));
-        byte semitone = unchecked((byte)(note % 12));
-        ushort basis = SpcMusicTables.BaseNoteFrequency(semitone);
+        int note = SpcFixedPoint.Whole(pitch) & SpcDriverDefinitions.Music.NoteNumberMask;
+        int octave = note / 12;
+        int semitone = note % 12;
+        int basis = SpcMusicTables.BaseNoteFrequency(semitone);
         int delta = unchecked((byte)(SpcMusicTables.BaseNoteFrequency(semitone + 1) - basis));
-        ushort frequency = unchecked((ushort)(basis + SpcFixedPoint.Scale(delta, SpcFixedPoint.Fraction(pitch))));
+        int frequency = unchecked((ushort)(basis + SpcFixedPoint.Scale(delta, SpcFixedPoint.Fraction(pitch))));
         frequency = unchecked((ushort)(frequency * 2));
+        // The driver's octave counter is a byte: a note above octave six counts up through its wrap to six again,
+        // shifting the frequency out entirely, so the counter keeps that wrap.
         while (octave != 6)
         {
             frequency >>= 1;
-            octave++;
+            octave = SpcDriverWrap.Byte(octave + 1);
         }
 
         frequency = unchecked((ushort)SpcFixedPoint.Scale(channel.InstrumentPitchBase, frequency));

@@ -118,11 +118,11 @@ public static class SpcAudioAssetExtractor
                 int entryAddress = tableAddress + track * 2;
                 if (entryAddress >= firstFollowingContent)
                     break;
-                ushort pointer = ReadWord(ram, entryAddress);
+                trackPointers.Add(ReadWord(ram, entryAddress));
+                int pointer = trackPointers[^1];
                 if (pointer != 0 && !written[pointer])
                     throw new InvalidDataException(
                         $"{definition.Name} track {track} points outside uploaded content at ${pointer:X4}.");
-                trackPointers.Add(pointer);
                 // Music data may precede the table, but the first pointer at or above the
                 // table is the exact boundary immediately following its final entry. Stop
                 // there instead of misreading that track's phrase-flow words as more tracks.
@@ -146,7 +146,7 @@ public static class SpcAudioAssetExtractor
         {
             int address = SpcDriverDefinitions.Ram.InstrumentTable +
                 instrument * SpcDriverDefinitions.Ram.InstrumentRecordSize;
-            byte source = ram[address];
+            int source = ram[address];
             instruments.Add(new AudioInstrumentMetadata(
                 instrument,
                 (source & SpcDriverDefinitions.Instruments.NoiseMarker) != 0,
@@ -158,7 +158,7 @@ public static class SpcAudioAssetExtractor
         }
 
         List<AudioSampleMetadata> samples = [];
-        ushort firstSampleAddress = ReadWord(ram, BrrDirectoryAddress);
+        int firstSampleAddress = ReadWord(ram, BrrDirectoryAddress);
         int directoryBytes = firstSampleAddress - BrrDirectoryAddress;
         if (directoryBytes <= 0 || directoryBytes % BrrDirectoryEntrySize != 0 ||
             directoryBytes / BrrDirectoryEntrySize > byte.MaxValue + 1)
@@ -170,8 +170,8 @@ public static class SpcAudioAssetExtractor
         for (int source = 0; source < sourceCount; source++)
         {
             int directory = BrrDirectoryAddress + source * BrrDirectoryEntrySize;
-            ushort start = ReadWord(ram, directory);
-            ushort loop = ReadWord(ram, directory + 2);
+            int start = ReadWord(ram, directory);
+            int loop = ReadWord(ram, directory + 2);
             if (start == 0 || !written[start])
                 continue;
             if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out _, out int? loopSample))
@@ -179,11 +179,11 @@ public static class SpcAudioAssetExtractor
 
             string sampleId = canonicalSamples.Add(
                 definition.DataIndex,
-                unchecked((byte)source),
+                source,
                 pcm,
                 loopSample);
             samples.Add(new AudioSampleMetadata(
-                unchecked((byte)source), start, loop, sampleId));
+                source, start, loop, sampleId));
         }
 
         return new AudioBankMetadata(
@@ -205,15 +205,15 @@ public static class SpcAudioAssetExtractor
         out IReadOnlyList<AudioSoundProgramMetadata> programs)
     {
         List<AudioSoundLibraryMetadata> libraries = [];
-        Dictionary<ushort, AudioSoundProgramMetadata> programsByAddress = [];
+        Dictionary<int, AudioSoundProgramMetadata> programsByAddress = [];
         for (int library = 0; library < SpcDriverDefinitions.SoundEffects.LibraryCount; library++)
         {
             int commandCount = SpcSoundEffectTables.CommandCount(library);
             List<AudioSoundEffectMetadata> effects = [];
             for (int index = 0; index < commandCount; index++)
             {
-                ushort streamPointer = SpcSoundEffectTables.StreamPointer(library, index + 1);
-                byte configuration = SpcSoundEffectTables.Configuration(library, index + 1);
+                int streamPointer = SpcSoundEffectTables.StreamPointer(library, index + 1);
+                int configuration = SpcSoundEffectTables.Configuration(library, index + 1);
                 int voiceCount = SpcSoundEffectTables.GetVoiceCount(library, configuration);
                 var channelPrograms = new string[voiceCount];
                 for (int channel = 0; channel < voiceCount; channel++)
@@ -226,7 +226,7 @@ public static class SpcAudioAssetExtractor
                             $"SFX library {library + 1} command ${index + 1:X2} channel {channel} " +
                             $"pointer at ${pointerAddress:X4} is outside common uploaded content.");
                     }
-                    ushort programAddress = ReadWord(commonRam, pointerAddress);
+                    int programAddress = ReadWord(commonRam, pointerAddress);
                     if (!programsByAddress.TryGetValue(programAddress, out AudioSoundProgramMetadata? program))
                     {
                         string id = $"sfx-program-{programAddress:x4}";
@@ -256,14 +256,14 @@ public static class SpcAudioAssetExtractor
     internal static bool TryDecodeBrr(
         byte[] ram,
         bool[] written,
-        ushort start,
-        ushort loop,
+        int start,
+        int loop,
         out short[] pcm,
         out int blockCount,
         out int? loopSampleIndex)
     {
         List<short> samples = [];
-        HashSet<ushort> blockAddresses = [];
+        HashSet<int> blockAddresses = [];
         Dictionary<BrrHistory, int> loopHistories = [];
         int address = start;
         int old = 0;
@@ -282,8 +282,8 @@ public static class SpcAudioAssetExtractor
                     goto Invalid;
             }
 
-            blockAddresses.Add(unchecked((ushort)address));
-            byte header = ram[address];
+            blockAddresses.Add(address);
+            int header = ram[address];
             int shift = header >> 4;
             int filter = (header >> 2) & 3;
             if (address == loop)
@@ -302,7 +302,7 @@ public static class SpcAudioAssetExtractor
             }
             for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
             {
-                byte packed = ram[address + 1 + sampleIndex / 2];
+                int packed = ram[address + 1 + sampleIndex / 2];
                 int sample = (sampleIndex & 1) == 0 ? packed >> 4 : packed & 0x0f; // cartridge-encoding: allow(Codec) - BRR low sample nibble
                 if (sample > 7)
                     sample -= 16;
@@ -375,7 +375,7 @@ public static class SpcAudioAssetExtractor
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload ended before its terminating length word.");
-            ushort length = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
+            int length = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length == 0)
             {
@@ -388,7 +388,7 @@ public static class SpcAudioAssetExtractor
             }
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload ended before a destination word.");
-            ushort destination = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
+            int destination = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException($"SPC upload record ${destination:X4} overruns its source stream.");
@@ -431,7 +431,7 @@ public static class SpcAudioAssetExtractor
         internal IReadOnlyList<AudioCanonicalSampleMetadata> Metadata => metadata;
 
         /// <summary>Reuses a matching waveform or writes a stable-ID WAV with its integrity hash.</summary>
-        internal string Add(byte dataIndex, byte source, short[] pcm, int? loopSampleIndex)
+        internal string Add(int dataIndex, int source, short[] pcm, int? loopSampleIndex)
         {
             byte[] pcmBytes = new byte[checked(pcm.Length * sizeof(short))];
             Buffer.BlockCopy(pcm, 0, pcmBytes, 0, pcmBytes.Length);

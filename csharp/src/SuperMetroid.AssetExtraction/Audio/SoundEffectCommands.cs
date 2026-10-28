@@ -43,9 +43,9 @@ internal static class SoundEffectCommands
     /// or none for zero.
     /// </summary>
     /// <exception cref="InvalidDataException">The word does not fit a request byte, or names no request of the library.</exception>
-    internal static SoundEffectId? DecodeOptional(SoundEffectLibrary library, ushort word)
+    internal static SoundEffectId? DecodeOptional(SoundEffectLibrary library, int word)
     {
-        if (word > byte.MaxValue)
+        if ((uint)word > byte.MaxValue)
             throw new InvalidDataException($"Sound word ${word:X4} for {library} does not fit a request byte.");
         return word == 0 ? null : Decode(library, word);
     }
@@ -57,8 +57,10 @@ internal static class SoundEffectCommands
         if (commands.Count != Enum.GetValues<TSound>().Length)
             throw new InvalidDataException($"{typeof(TSound).Name} gives {commands.Count} of its sounds a request number.");
         var sounds = new Dictionary<int, TSound>();
-        foreach ((TSound sound, byte command) in commands)
+        foreach (KeyValuePair<TSound, byte> entry in commands)
         {
+            TSound sound = entry.Key;
+            int command = entry.Value;
             if (command == 0 || !sounds.TryAdd(command, sound))
                 throw new InvalidDataException($"{typeof(TSound).Name}.{sound} has request ${command:X2}, zero or another sound's.");
         }

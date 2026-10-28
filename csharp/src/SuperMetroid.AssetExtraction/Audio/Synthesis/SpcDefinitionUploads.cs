@@ -24,7 +24,7 @@ internal sealed class SpcDefinitionUploads
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
     internal void WriteInstrument(int address, SpcInstrumentRecord record)
     {
-        ushort pitchBase = checked((ushort)record.PitchBase);
+        int pitchBase = checked((ushort)record.PitchBase);
         ram[address] = checked((byte)record.SourceOrNoiseRate);
         ram[address + 1] = checked((byte)record.Adsr1);
         ram[address + 2] = checked((byte)record.Adsr2);
@@ -40,8 +40,8 @@ internal sealed class SpcDefinitionUploads
             ram[unchecked((ushort)(address + index))] = bytes[index];
     }
 
-    /// <summary>Stores one compiled-definition byte at <paramref name="address"/>.</summary>
-    private void WriteByte(int address, byte value) => ram[address] = value;
+    /// <summary>Stores one compiled-definition byte at <paramref name="address"/>; a value outside a byte is a codec defect.</summary>
+    private void WriteByte(int address, int value) => ram[address] = checked((byte)value);
 
     /// <summary>
     /// Installs the manifest-owned source/noise selector, ADSR, gain, and pitch-base words
@@ -114,7 +114,7 @@ internal sealed class SpcDefinitionUploads
                             $"SFX effect '{effect.Id}' references unknown program " +
                             $"'{effect.ChannelPrograms[channel]}'.");
                     }
-                    ushort uploadedPointer = _voices.ReadPointerEntry(effect.StreamPointer, channel);
+                    int uploadedPointer = _voices.ReadPointerEntry(effect.StreamPointer, channel);
                     if (uploadedPointer != program.Address)
                     {
                         throw new InvalidDataException(
@@ -136,7 +136,7 @@ internal sealed class SpcDefinitionUploads
         for (int track = 0; track < bank.MusicTracks.Count; track++)
         {
             int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
-            ushort uploadedPointer = _voices.ReadWord(pointerAddress);
+            int uploadedPointer = _voices.ReadWord(pointerAddress);
             AudioMusicTrackMetadata definition = bank.MusicTracks[track];
             if (uploadedPointer != definition.Address || bank.TrackPointers[track] != definition.Address)
             {
@@ -145,8 +145,8 @@ internal sealed class SpcDefinitionUploads
                     $"not decoded address ${definition.Address:X4}.");
             }
         }
-        foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(bank))
-            WriteByte(address, value);
+        foreach (KeyValuePair<int, byte> compiled in SpcMusicDefinitionCodec.CompileBank(bank))
+            WriteByte(compiled.Key, compiled.Value);
     }
 
     /// <summary>
@@ -164,13 +164,13 @@ internal sealed class SpcDefinitionUploads
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its record length.");
-            ushort length = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
+            int length = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length == 0)
                 break;
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its destination word.");
-            ushort target = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
+            int target = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException(

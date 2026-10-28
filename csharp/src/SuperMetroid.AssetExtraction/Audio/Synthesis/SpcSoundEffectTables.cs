@@ -16,7 +16,7 @@ internal static class SpcSoundEffectTables
     };
 
     /// <summary>Selects the native instruction-list set for a one-based sound command.</summary>
-    internal static ushort StreamPointer(int libraryIndex, int command) => libraryIndex switch
+    internal static int StreamPointer(int libraryIndex, int command) => libraryIndex switch
     {
         0 => Effect(SpcSoundEffectDefinitions.Library1, command).Stream,
         1 => Effect(SpcSoundEffectDefinitions.Library2, command).Stream,

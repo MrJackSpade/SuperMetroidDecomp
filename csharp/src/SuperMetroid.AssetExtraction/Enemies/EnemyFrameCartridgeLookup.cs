@@ -19,7 +19,7 @@ internal static class EnemyFrameCartridgeLookup
     /// <exception cref="InvalidDataException">A binding selects a frame stored in another bank.</exception>
     internal static EnemySpritemapCatalog RequireSameBankDisplayBindings(EnemySpritemapCatalog catalog)
     {
-        foreach ((EnemyFrameId shown, EnemyFrameId selected) in catalog.displayFrames)
+        foreach ((EnemyFrameId shown, EnemyFrameId selected) in catalog.selection.DisplayFrames)
             if (Of(shown).Bank != Of(selected).Bank)
                 throw new InvalidDataException($"Enemy display binding {shown} must select a named frame in the same bank.");
         return catalog;

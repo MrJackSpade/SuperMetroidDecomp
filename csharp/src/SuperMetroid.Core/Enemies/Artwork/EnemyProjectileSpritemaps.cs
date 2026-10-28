@@ -16,12 +16,12 @@ internal static class EnemyProjectileSpritemaps
     internal static string ContentIdentity(EnemyProjectileSpritemapCatalog catalog) =>
         SelectedPresentationHash.Create("enemy-projectile-oam-v3", content =>
         {
-            foreach ((EnemyProjectileFrameId frame, SpritePart[] parts) in catalog.frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
+            foreach ((EnemyProjectileFrameId frame, SpritePart[] parts) in catalog.selection.Frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
                 content.AppendName("frame", frame.ToString());
                 content.AppendEnemyParts(parts);
             }
-            foreach ((EnemyProjectileFrameId frame, SpritePart[] parts) in catalog.programFrames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
+            foreach ((EnemyProjectileFrameId frame, SpritePart[] parts) in catalog.selection.ProgramFrames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
                 content.AppendName("program-frame", frame.ToString());
                 content.AppendEnemyParts(parts);
@@ -33,14 +33,14 @@ internal static class EnemyProjectileSpritemaps
     internal static ReadOnlyMemory<SpritePart> Get(EnemyProjectileSpritemapCatalog catalog, EnemyProjectileFrameId frame) =>
         frame == EnemyProjectileFrameId.Blank
             ? ReadOnlyMemory<SpritePart>.Empty
-            : catalog.frames.TryGetValue(frame, out SpritePart[]? parts)
+            : catalog.selection.Frames.TryGetValue(frame, out SpritePart[]? parts)
             ? parts
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no composition {frame}.");
 
     /// <summary>Gets the ordered OAM parts of installed timed program frame <paramref name="frame"/>; an uninstalled frame is rejected.</summary>
     internal static ReadOnlyMemory<SpritePart> GetProgramFrame(EnemyProjectileSpritemapCatalog catalog, EnemyProjectileFrameId frame) =>
-        catalog.programFrames.TryGetValue(frame, out SpritePart[]? parts)
+        catalog.selection.ProgramFrames.TryGetValue(frame, out SpritePart[]? parts)
             ? parts
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no program frame {frame}.");
@@ -69,10 +69,10 @@ internal static class EnemyProjectileSpritemaps
         // Older overrides retain their edited Ceres/debris frames. Newly introduced
         // shared-program frames come only from the hash-checked stock installation.
         var compiled = stock is not null && legacyOverride
-            ? new Dictionary<EnemyProjectileFrameId, SpritePart[]>(stock.frames)
+            ? new Dictionary<EnemyProjectileFrameId, SpritePart[]>(stock.selection.Frames)
             : new Dictionary<EnemyProjectileFrameId, SpritePart[]>();
         var compiledPrograms = stock is not null && legacyOverride
-            ? new Dictionary<EnemyProjectileFrameId, SpritePart[]>(stock.programFrames)
+            ? new Dictionary<EnemyProjectileFrameId, SpritePart[]>(stock.selection.ProgramFrames)
             : new Dictionary<EnemyProjectileFrameId, SpritePart[]>();
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames.Take(expectedFrames))
         {

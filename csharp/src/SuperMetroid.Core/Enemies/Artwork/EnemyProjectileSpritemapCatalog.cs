@@ -29,15 +29,13 @@ public sealed class EnemyProjectileSpritemapCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => EnemyProjectileSpritemaps.ContentIdentity(this);
 
-    /// <summary>Installed ordered OAM parts of each composition frame.</summary>
-    internal readonly Dictionary<EnemyProjectileFrameId, SpritePart[]> frames;
-    /// <summary>Installed ordered OAM parts of each timed program frame.</summary>
-    internal readonly Dictionary<EnemyProjectileFrameId, SpritePart[]> programFrames;
+    /// <summary>The installed compositions and timed program frames.</summary>
+    internal readonly EnemyProjectileSpritemapSelection selection;
 
     /// <summary>Retains independently validated compositions and timed-program visual bindings.</summary>
     internal EnemyProjectileSpritemapCatalog(Dictionary<EnemyProjectileFrameId, SpritePart[]> frames,
         Dictionary<EnemyProjectileFrameId, SpritePart[]> programFrames) =>
-        (this.frames, this.programFrames) = (frames, programFrames);
+        selection = new(frames, programFrames);
 
     /// <summary>Gets ordered compiled OAM parts by bank-$8D spritemap identity; the native $8000 zero-entry map returns no parts, while an uninstalled nonblank identity is rejected.</summary>
     public ReadOnlyMemory<SpritePart> Get(EnemyProjectileFrameId frame) => EnemyProjectileSpritemaps.Get(this, frame);

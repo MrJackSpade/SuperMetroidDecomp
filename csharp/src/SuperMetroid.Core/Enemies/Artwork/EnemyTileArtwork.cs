@@ -16,11 +16,11 @@ internal static class EnemyTileArtwork
     internal static string ContentIdentity(EnemyTileArtworkCatalog artwork) =>
         SelectedPresentationHash.Create("enemy-bundle-v1", content =>
         {
-            foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet) in artwork.sheets.OrderBy(pair => pair.Key))
+            foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet) in artwork.installed.Sheets.OrderBy(pair => pair.Key))
             {
                 content.Append("definition", System.Text.Encoding.UTF8.GetBytes(definition.ToString()));
                 content.Append("tiles", sheet.Characters.Span);
-                content.AppendIdentity("palette", artwork.palettes[definition].ContentIdentity);
+                content.AppendIdentity("palette", artwork.installed.Palettes[definition].ContentIdentity);
             }
             content.AppendIdentity("Spritemaps", artwork.Spritemaps?.ContentIdentity);
             content.AppendIdentity("ExtendedFrames", artwork.ExtendedFrames?.ContentIdentity);
@@ -36,14 +36,14 @@ internal static class EnemyTileArtwork
     /// <summary>The installed tiles of <paramref name="enemy"/>, as its room's graphics set shows them (#1406).</summary>
     /// <exception cref="InvalidDataException">The installed artwork holds no tile set for the enemy.</exception>
     internal static ReadOnlyMemory<byte> TilesOf(EnemyTileArtworkCatalog artwork, EnemyDefinitionId enemy) =>
-        artwork.sheets.TryGetValue(enemy, out RoomCharacterAtlas? atlas) ? atlas.Characters
+        artwork.installed.Sheets.TryGetValue(enemy, out RoomCharacterAtlas? atlas) ? atlas.Characters
             : throw new InvalidDataException($"Installed enemy artwork holds no {enemy} tile set.");
 
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
     /// <exception cref="InvalidDataException">The enemy has no installed palette.</exception>
     internal static void LoadPaletteTo(EnemyTileArtworkCatalog artwork, EnemyDefinitionId definitionId, ColourRun destination)
     {
-        if (!artwork.palettes.TryGetValue(definitionId, out EnemyPaletteSheet? palette))
+        if (!artwork.installed.Palettes.TryGetValue(definitionId, out EnemyPaletteSheet? palette))
             throw new InvalidDataException($"Enemy {definitionId} has no installed palette.");
         palette.LoadTo(destination);
     }

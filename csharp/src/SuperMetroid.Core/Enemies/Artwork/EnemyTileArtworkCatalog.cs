@@ -16,37 +16,46 @@ public sealed class EnemyTileArtworkCatalog
     /// </summary>
     public string ContentIdentity => EnemyTileArtwork.ContentIdentity(this);
 
-    /// <summary>Ordinary enemy tile sheets keyed by enemy definition.</summary>
-    internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
-    /// <summary>Palette paired with each installed ordinary enemy tile sheet.</summary>
-    internal readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
+    /// <summary>
+    /// The installed artwork: ordinary enemy tile sheets keyed by enemy definition, the palette paired with each sheet,
+    /// and the special catalogs.
+    /// </summary>
+    internal EnemyTileArtworkParts installed;
 
     /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
-    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
+    public EnemyAuxiliaryColorCatalog? AuxiliaryColors => installed.AuxiliaryColors;
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
-    public EnemySpritemapCatalog? Spritemaps { get; internal set; }
+    public EnemySpritemapCatalog? Spritemaps
+    {
+        get => installed.Spritemaps;
+        internal set => installed = installed with { Spritemaps = value };
+    }
 
     /// <summary>Installed extended visual frames; hitbox and AI data stay engine-owned.</summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames { get; internal set; }
+    public EnemyExtendedFrameCatalog? ExtendedFrames
+    {
+        get => installed.ExtendedFrames;
+        internal set => installed = installed with { ExtendedFrames = value };
+    }
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
-    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }
+    public GunshipLiftoffArtworkCatalog? GunshipLiftoff => installed.GunshipLiftoff;
 
     /// <summary>Installed bank-$8D projectile compositions; null for constructed fixtures.</summary>
-    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; }
+    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps => installed.ProjectileSpritemaps;
 
     /// <summary>Four editable color frames; the Magdollite draw hook retains timing.</summary>
-    public MagdollitePaletteCycle? MagdollitePaletteCycle { get; }
+    public MagdollitePaletteCycle? MagdollitePaletteCycle => installed.MagdollitePaletteCycle;
 
     /// <summary>Six editable Work Robot color records; timer/terminator stay compiled.</summary>
-    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; }
+    public WorkRobotPaletteCycle? WorkRobotPaletteCycle => installed.WorkRobotPaletteCycle;
 
     /// <summary>Editable Chozo statue and n00b-tube crack sprite-palette pairs.</summary>
-    public ChozoAndTubeColorCatalog? ChozoAndTubeColors { get; }
+    public ChozoAndTubeColorCatalog? ChozoAndTubeColors => installed.ChozoAndTubeColors;
 
     /// <summary>Editable Dachora default, speed and shine sprite colors.</summary>
-    public DachoraColorCatalog? DachoraColors { get; }
+    public DachoraColorCatalog? DachoraColors => installed.DachoraColors;
 
     /// <summary>The installed tiles of <paramref name="enemy"/>, as its room's graphics set shows them (#1406).</summary>
     /// <exception cref="InvalidDataException">The installed artwork holds no tile set for the enemy.</exception>
@@ -61,10 +70,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
     internal EnemyTileArtworkCatalog(EnemyTileArtworkParts parts) =>
-        (sheets, palettes, Spritemaps, ExtendedFrames, GunshipLiftoff, ProjectileSpritemaps, MagdollitePaletteCycle,
-            WorkRobotPaletteCycle, ChozoAndTubeColors, DachoraColors, AuxiliaryColors) =
-            (new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(EnemyTileArtwork.Paired(parts).Sheets),
-                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes), parts.Spritemaps, parts.ExtendedFrames,
-                parts.GunshipLiftoff, parts.ProjectileSpritemaps, parts.MagdollitePaletteCycle, parts.WorkRobotPaletteCycle,
-                parts.ChozoAndTubeColors, parts.DachoraColors, parts.AuxiliaryColors);
+        installed = EnemyTileArtwork.Paired(parts) with
+        {
+            Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets),
+            Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes),
+        };
 }

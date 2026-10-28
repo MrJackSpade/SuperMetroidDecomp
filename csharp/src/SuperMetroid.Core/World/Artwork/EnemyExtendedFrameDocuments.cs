@@ -29,7 +29,7 @@ public static class EnemyExtendedFrameDocuments
         bool legacyOverride = schema != EnemyExtendedFrameSchema.Current;
         if (document.Frames is null ||
             document.Frames.Count != expectedCount ||
-            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames.Count !=
+            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).selection.Frames.Count !=
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount))
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");
@@ -97,10 +97,10 @@ public static class EnemyExtendedFrameDocuments
         if (!legacyOverride)
             return new EnemyExtendedFrameCatalog(frames, displayFrames);
         var merged = new Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]>(
-            (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames);
+            (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).selection.Frames);
         foreach ((EnemyFrameId identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.displayFrames);
+        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.selection.DisplayFrames);
         if (schema.OwnsDisplayBindings)
         {
             if (document.DisplayFrames is null ||

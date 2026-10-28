@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// <summary>
 /// Canonical planted-foot geometry shared by Golden Torizo artwork and walking motion.
 /// The seven selected origins and all independent artwork remain required under Stream3's
-/// EnemyExtendedFrameCatalog.frames; none is exempted as a motion-table conversion.
+/// EnemyExtendedFrameCatalog frames; none is exempted as a motion-table conversion.
 /// </summary>
 internal static class GoldenTorizoStrideGeometryDefinitions
 {

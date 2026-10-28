@@ -184,7 +184,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.OrientationReversed)
             midpoint ^= RotationAngle.HalfTurn.RawValue;
 
-        int directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
+        int directionBucket = unchecked((ushort)((RotationAngle.FromRaw(checked((ushort)midpoint)).TableIndex + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket));
@@ -343,7 +343,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         int difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? unchecked((ushort)(state.OrbitAngle.RawValue - state.TargetAngle.RawValue))
             : unchecked((ushort)(state.TargetAngle.RawValue - state.OrbitAngle.RawValue));
-        state.AngularVelocity = 4 * SnesLittleEndian.HighByte(difference);
+        state.AngularVelocity = 4 * RotationAngle.FromRaw(checked((ushort)difference)).TableIndex;
     }
 
     /// <summary>Ports group synchronization at <c>$AA:DC6F</c>.</summary>

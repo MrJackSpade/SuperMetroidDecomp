@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -10,7 +9,7 @@ internal static class KraidNailContourMappingsVerification
     /// <summary>Checks all left-offset records and every relative Y selection against the native contour walk.</summary>
     internal static void VerifyKraidNailLeftOffsets(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => SnesLittleEndian.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1));
         AssertEqual(6, KraidNailContourDefinitions.RecordCount, "Bounded nail contour record count");
         for (int record = 0; record < 6; record++)
             AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContourDefinitions.LeftAt(record), "Original nail left word");
@@ -40,7 +39,7 @@ internal static class KraidNailContourMappingsVerification
         for (int record = 0; record < 6; record++)
         {
             int address = 0xa7bf1f + 4 * record;
-            ushort expected = SnesLittleEndian.Word(KraidNailTopBoundariesRomByte(rom, address), KraidNailTopBoundariesRomByte(rom, address + 1));
+            ushort expected = LittleEndianBytes.Word(KraidNailTopBoundariesRomByte(rom, address), KraidNailTopBoundariesRomByte(rom, address + 1));
             AssertEqual(expected, KraidNailContourDefinitions.TopAt(record), "Original nail top boundary");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(-1), "Negative nail top record");

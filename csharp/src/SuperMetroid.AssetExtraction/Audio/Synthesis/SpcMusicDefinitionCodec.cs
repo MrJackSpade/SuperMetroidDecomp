@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -57,7 +57,7 @@ internal static class SpcMusicDefinitionCodec
             switch (instruction.Operation)
             {
                 case AudioMusicInstructionOperations.PlayPhrase:
-                    if ((SnesLittleEndian.HighByte(checked((ushort)instruction.Value))) < SpcDriverDefinitions.Music.PatternPointerHighByteMinimum ||
+                    if ((LittleEndianBytes.HighByte(checked((ushort)instruction.Value))) < SpcDriverDefinitions.Music.PatternPointerHighByteMinimum ||
                         instruction.Target is not null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -81,7 +81,7 @@ internal static class SpcMusicDefinitionCodec
                     WriteWord(bytes, instruction.Value);
                     break;
                 case AudioMusicInstructionOperations.Repeat:
-                    if ((SnesLittleEndian.HighByte(checked((ushort)instruction.Value))) != 0 || instruction.Value == 0 ||
+                    if ((LittleEndianBytes.HighByte(checked((ushort)instruction.Value))) != 0 || instruction.Value == 0 ||
                         MusicTrackControls.TryDecode(instruction.Value, out _) || instruction.Target is null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -185,8 +185,8 @@ internal static class SpcMusicDefinitionCodec
                     }
                     address = program.Address;
                 }
-                bytes[channel * 2] = SnesLittleEndian.LowByte(checked((ushort)address));
-                bytes[channel * 2 + 1] = SnesLittleEndian.HighByte(checked((ushort)address));
+                bytes[channel * 2] = LittleEndianBytes.LowByte(checked((ushort)address));
+                bytes[channel * 2 + 1] = LittleEndianBytes.HighByte(checked((ushort)address));
             }
             Merge(writes, phrase.Address, bytes, phrase.Id);
         }
@@ -216,7 +216,7 @@ internal static class SpcMusicDefinitionCodec
         for (int count = 0; count < SpcDriverDefinitions.ApuRamSize; count++)
         {
             ushort value = ReadWord(ram, written, ref cursor, id);
-            if ((SnesLittleEndian.HighByte(value)) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
+            if ((LittleEndianBytes.HighByte(value)) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
             {
                 instructions.Add(new(AudioMusicInstructionOperations.PlayPhrase, value, null));
                 phrases.Add(value);
@@ -262,7 +262,7 @@ internal static class SpcMusicDefinitionCodec
         for (int channel = 0; channel < channelPrograms.Length; channel++)
         {
             ushort programAddress = ReadWord(ram, written, ref cursor, id);
-            if (SnesLittleEndian.HighByte(programAddress) == 0)
+            if (LittleEndianBytes.HighByte(programAddress) == 0)
                 continue;
             if (!written[programAddress])
             {
@@ -333,7 +333,7 @@ internal static class SpcMusicDefinitionCodec
                     arguments));
                 if (effect == SpcMusicEffect.CallPattern)
                 {
-                    ushort target = unchecked(SnesLittleEndian.Word(arguments[0], arguments[1]));
+                    ushort target = unchecked(LittleEndianBytes.Word(arguments[0], arguments[1]));
                     callTargets.Add(target);
                 }
             }
@@ -417,15 +417,15 @@ internal static class SpcMusicDefinitionCodec
     {
         byte low = ReadByte(ram, written, ref cursor, id);
         byte high = ReadByte(ram, written, ref cursor, id);
-        return unchecked(SnesLittleEndian.Word(low, high));
+        return unchecked(LittleEndianBytes.Word(low, high));
     }
 
     /// <summary>Appends a native little-endian word to an encoded music stream.</summary>
     private static void WriteWord(List<byte> bytes, int value)
     {
         ushort word = checked((ushort)value);
-        bytes.Add(SnesLittleEndian.LowByte(word));
-        bytes.Add(SnesLittleEndian.HighByte(word));
+        bytes.Add(LittleEndianBytes.LowByte(word));
+        bytes.Add(LittleEndianBytes.HighByte(word));
     }
 
     /// <summary>Creates a diagnostic for a track operation with invalid operand shape.</summary>

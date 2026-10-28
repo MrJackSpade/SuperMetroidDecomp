@@ -379,7 +379,7 @@ internal static void VerifySavedGameLoadAppearance()
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
     AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
     AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(runtime.Player.IntroducedSamus), (byte)SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus)),
+    AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(runtime.Player.IntroducedSamus), (byte)SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus)),
         appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { Control.AlphaLocked: false },
@@ -524,7 +524,7 @@ internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
     rom[offset] = unchecked((byte)value);
-    rom[offset + 1] = SnesLittleEndian.HighByte(value);
+    rom[offset + 1] = LittleEndianBytes.HighByte(value);
 }
 
 

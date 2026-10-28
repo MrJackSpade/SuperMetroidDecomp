@@ -71,7 +71,7 @@ internal sealed class ProjectileAnimation
         int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
         int screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
-            (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
+            ScreenConversions.IsOutsideSpriteRange(screenY))
         {
             return;
         }
@@ -149,14 +149,14 @@ internal sealed class ProjectileAnimation
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an
         // edge instead of applying the generic on-screen-origin parking rule.
-        if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
+        if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 
         int indexOffset = unchecked((ushort)(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
             : component switch { 0 => 0, 1 => 30, _ => 36 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
-        int tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge.FlareFrame(component)))));
+        int tableIndex = unchecked((ushort)(indexOffset + unchecked((byte)_charge.FlareFrame(component))));
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no

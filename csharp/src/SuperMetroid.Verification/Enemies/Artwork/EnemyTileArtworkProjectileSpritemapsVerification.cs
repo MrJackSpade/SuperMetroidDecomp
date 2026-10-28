@@ -114,12 +114,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var installedOam = new OamBuffer();
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
-            bool onScreen = (SnesLittleEndian.HighByteInPlace(originY)) == 0;
+            bool onScreen = (LittleEndianBytes.HighByteInPlace(originY)) == 0;
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, pointer,
                 new(originX, originY), graphicsIndex, onScreen);
             installedOam.AddEnemySpritemap(installed.Get(pointer).Span,
                 new Position16<SpritePixels>(originX, originY),
-                unchecked((ushort)(SnesLittleEndian.HighByteInPlace(graphicsIndex))),
+                unchecked((ushort)(LittleEndianBytes.HighByteInPlace(graphicsIndex))),
                 unchecked((byte)graphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: onScreen);
             AssertEqual(nativeOam.NextByteOffset, installedOam.NextByteOffset,

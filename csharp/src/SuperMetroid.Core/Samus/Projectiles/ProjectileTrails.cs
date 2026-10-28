@@ -174,7 +174,7 @@ internal sealed class ProjectileTrails
         // are skipped rather than wrapped or parked.
         int screenX = unchecked((ushort)(side.DisplayedPosition.X - layer1.X));
         int screenY = unchecked((ushort)(side.DisplayedPosition.Y - layer1.Y));
-        if ((SnesLittleEndian.HighByteInPlace(screenX)) != 0 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
+        if (ScreenConversions.IsOutsideSpriteRange(screenX) || ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 
         // A side allocated over an earlier trail keeps showing that trail's last pose until its own first one.

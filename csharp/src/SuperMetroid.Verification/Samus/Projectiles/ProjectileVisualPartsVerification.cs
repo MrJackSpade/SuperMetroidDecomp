@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -34,8 +35,8 @@ internal static class ProjectileVisualPartsVerification
             AssertEqual((byte)expectedX, parts.LowTable[offset], "Projectile X wraps without clipping");
             AssertEqual(unchecked((byte)(origin + yOffset)), parts.LowTable[offset + 1], "Projectile Y wraps rather than parking");
             AssertEqual((byte)attribute, parts.LowTable[offset + 2], "Projectile attributes preserve low byte");
-            AssertEqual(SnesLittleEndian.HighByte(attribute), parts.LowTable[offset + 3], "Projectile attributes preserve palette/priority/flip bits");
-            int expectedPair = ((SnesLittleEndian.HighByte(expectedX)) & 1) | ((rawX & 0x8000) != 0 ? 2 : 0);
+            AssertEqual(LittleEndianBytes.HighByte(attribute), parts.LowTable[offset + 3], "Projectile attributes preserve palette/priority/flip bits");
+            int expectedPair = ((LittleEndianBytes.HighByte(expectedX)) & 1) | ((rawX & 0x8000) != 0 ? 2 : 0);
             AssertEqual(expectedPair, (parts.HighTable[index / 4] >> ((index % 4) * 2)) & 3, "Projectile high OAM preserves size and X bit eight");
             AssertEqual(((index + 1) * 4) & 0x1ff, parts.NextByteOffset, "Projectile OAM write pointer wraps at 128 parts");
             AssertTrue(parts.ImageEquals(packed), "Authored part and packed-ROM draw paths publish identical OAM");

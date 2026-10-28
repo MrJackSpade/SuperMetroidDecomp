@@ -1,7 +1,6 @@
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -227,7 +226,7 @@ internal static class SamusEaterVisualsVerification
                     AssertEqual(count, dtoRun.DirectionAndCount, "plant DTO count");
                     AssertEqual(count, exportedRun.DirectionAndCount, "plant export count");
                     ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
-                    sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
+                    sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     AssertEqual(x, SamusEaterPlmDrawDefinitions.Draw.NextX(run), "plant signed horizontal offset");
                     AssertEqual(y, draw.NextY(run), "plant signed vertical offset");
                     AssertEqual(x, dtoRun.Next.X, "plant DTO horizontal offset");
@@ -276,7 +275,7 @@ internal static class SamusEaterVisualsVerification
                     "plant live placement follows native signed run offsets");
             ushort offset = ReadSamusEaterPlmWord(rom, nativeCursor + 2 + count * 2);
             expectedX = 8 + unchecked((sbyte)offset);
-            expectedY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
+            expectedY = 8 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
             nativeCursor += 4 + count * 2;
         }
     }

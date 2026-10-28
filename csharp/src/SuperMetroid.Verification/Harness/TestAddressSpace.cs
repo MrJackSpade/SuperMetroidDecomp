@@ -79,7 +79,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece)
     {
         int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
-        ushort Word(int offset) => SnesLittleEndian.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
+        ushort Word(int offset) => LittleEndianBytes.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
         return new RoomEnemyPopulationRecord(FixtureDefinitionId(Word(0)), new(Word(2), Word(4)), Word(6), EnemyPropertyWord.FromWord(Word(8)), EnemyExtraPropertyWord.FromWord(Word(10)), Word(12), Word(14));
     }
 
@@ -128,5 +128,5 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 
     /// <summary>Combines two seeded bus bytes in native little-endian order.</summary>
     private ushort ReadFixtureWord(int address) =>
-        SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
+        LittleEndianBytes.Word(ReadByte(address), ReadByte(address + 1));
 }

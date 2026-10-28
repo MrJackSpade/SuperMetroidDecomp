@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
@@ -179,8 +180,8 @@ internal static class LibraryBackgroundReplay
                 $"Library-background fill of {byteCount} bytes at $7E:{destination:X4} leaves the tilemap staging buffer.");
             for (int offset = 0; offset < byteCount; offset += sizeof(ushort))
             {
-                tilemap[first + offset] = SnesLittleEndian.LowByte(value);
-                tilemap[first + offset + 1] = SnesLittleEndian.HighByte(value);
+                tilemap[first + offset] = LittleEndianBytes.LowByte(value);
+                tilemap[first + offset + 1] = LittleEndianBytes.HighByte(value);
             }
         }
 

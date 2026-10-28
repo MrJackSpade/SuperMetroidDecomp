@@ -141,7 +141,7 @@ internal static class TitleGradientVerification
         {
             var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();
             int address = ((int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]));
-            ushort Word(int at) => SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1));
+            ushort Word(int at) => LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1));
             int count = Word(address);
             for (int part = 0; part < count; part++)
             {

@@ -91,7 +91,7 @@ internal sealed class PhantoonPresentation
         int remainingSteps = denominator - numerator + 1;
         int quotient = EightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return SnesLittleEndian.HighByte((ushort)(EightEight.FromWhole(current) + signedStep));
+        return UnsignedEightEight.Whole((ushort)(EightEight.FromWhole(current) + signedStep));
     }
 
     /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>

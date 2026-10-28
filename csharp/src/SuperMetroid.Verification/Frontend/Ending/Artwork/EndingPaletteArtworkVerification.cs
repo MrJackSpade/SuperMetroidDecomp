@@ -44,7 +44,7 @@ internal static class EndingPaletteArtworkVerification
             ushort word = rom.ReadCartridgeWord((0x8c0000 | (last - (15 - color) * 2)));
             int index = step * 32 + palette * 16 + color;
             original[index * 2] = (byte)word;
-            original[index * 2 + 1] = SnesLittleEndian.HighByte(word);
+            original[index * 2 + 1] = LittleEndianBytes.HighByte(word);
             colors[index] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
         var background = new ushort[16];
@@ -79,7 +79,7 @@ internal static class EndingPaletteArtworkVerification
         EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(reordered)
             ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
         for (int index = 0; index < 512; index++)
-            AssertEqual(SnesLittleEndian.Word(reordered[index * 2], reordered[index * 2 + 1]), reorderedFade.Color(index),
+            AssertEqual(LittleEndianBytes.Word(reordered[index * 2], reordered[index * 2 + 1]), reorderedFade.Color(index),
                 "temporal fade preserves edited endpoint order");
         EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(original)
             ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
@@ -93,7 +93,7 @@ internal static class EndingPaletteArtworkVerification
         int remaindersSeen = 0;
         for (int index = 0; index < 512; index++)
         {
-            ushort expected = SnesLittleEndian.Word(original[index * 2], original[index * 2 + 1]);
+            ushort expected = LittleEndianBytes.Word(original[index * 2], original[index * 2 + 1]);
             AssertEqual(expected, fade.Color(index), "all original logo fade colors computed exactly");
             AssertEqual(expected, loaded.Color(index), "computed fade reaches palette accessor");
             int palette = index / 16 % 2, step = index / 32;
@@ -110,7 +110,7 @@ internal static class EndingPaletteArtworkVerification
             for (int color = 0; color < 32; color++)
             {
                 int offset = (step * 32 + color) * 2;
-                AssertEqual(SnesLittleEndian.Word(original[offset], original[offset + 1]), cgram.Colors[64 + color],
+                AssertEqual(LittleEndianBytes.Word(original[offset], original[offset + 1]), cgram.Colors[64 + color],
                     "computed fade partial CGRAM transfer");
             }
         }
@@ -521,7 +521,7 @@ internal static class EndingPaletteArtworkVerification
                     {
                         int offset = (((nativeLogo.PaletteStep - 1) * 2 + palette) * 16 + color) * 2;
                         nativeCgram.SetColor((palette == 0 ? 16 : 240) + color,
-                            RgbColor.FromWord(SnesLittleEndian.Word(nativeColors[offset], nativeColors[offset + 1])));
+                            RgbColor.FromWord(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1])));
                     }
             }
             installedLogo.Step(installedCgram);

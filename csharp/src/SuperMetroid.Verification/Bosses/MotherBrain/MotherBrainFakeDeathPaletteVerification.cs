@@ -44,7 +44,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
             for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
-                ushort pointer = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, pointerAddress), CpuBusRegionRead.Read(rom, pointerAddress + 1));
+                ushort pointer = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, pointerAddress), CpuBusRegionRead.Read(rom, pointerAddress + 1));
                 AssertTrue(pointer != 0, "native Mother Brain fake-death palette frame exists");
                 SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     MotherBrainFakeDeathPaletteDefinitions.ColorCount,

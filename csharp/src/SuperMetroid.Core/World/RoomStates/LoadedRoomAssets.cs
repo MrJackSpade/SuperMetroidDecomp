@@ -280,10 +280,7 @@ public sealed class LoadedRoomAssets
 
         var bytes = new byte[allocationBytes];
         for (int index = 0; index < bytes.Length; index += 2)
-        {
-            bytes[index] = unchecked((byte)RoomLevelMemoryLayout.PrefilledLevelWord);
-            bytes[index + 1] = SnesLittleEndian.HighByte(RoomLevelMemoryLayout.PrefilledLevelWord);
-        }
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index), RoomLevelMemoryLayout.PrefilledLevelWord);
         payload.CopyTo(bytes);
         return ReadWords(bytes);
     }

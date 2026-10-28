@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -36,10 +35,10 @@ internal static class GameplayMessageTitlesVerification
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
             int content = HudSourceDefinitions.Messages.BankBase |
-                (SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
+                (LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
             ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
             for (int column = 0; column < width; column++)
-                AssertEqual(SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1)),
+                AssertEqual(LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1)),
                     row[column], $"installed UTF-8 gameplay title {id} column {column} matches the cartridge tilemap");
             comparedWords += width;
         }

@@ -241,7 +241,7 @@ public static class GameplayEffectCapture
         int red = ExpandFiveBit(beam.Color.Red), green = ExpandFiveBit(beam.Color.Green), blue = ExpandFiveBit(beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
-            int left = SnesLittleEndian.LowByte(windowEdges[y]), right = SnesLittleEndian.HighByte(windowEdges[y]);
+            int left = ScanlineSpanWord.Left(windowEdges[y]), right = ScanlineSpanWord.Right(windowEdges[y]);
             if (left <= right) windows[y] = new(left, right, red, green, blue);
         }
         return new(windows);
@@ -438,7 +438,7 @@ public static class GameplayEffectCapture
         int green = ExpandFiveBit(active.Color.Green);
         int blue = ExpandFiveBit(active.Color.Blue);
         for (int y = 0; y < Height; y++)
-            windows[y] = new(SnesLittleEndian.LowByte(endpoints[y]), SnesLittleEndian.HighByte(endpoints[y]), red, green, blue);
+            windows[y] = new(ScanlineSpanWord.Left(endpoints[y]), ScanlineSpanWord.Right(endpoints[y]), red, green, blue);
         return new(windows);
     }
 }

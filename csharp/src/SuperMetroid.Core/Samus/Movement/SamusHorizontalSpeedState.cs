@@ -305,14 +305,12 @@ public sealed class SamusHorizontalSpeedState
         if (!cadenceExpired)
             return false;
 
-        int tableSelection = SpeedBoostCounter.RawValue;
         int? echoSelection = null;
         if (!SpeedBoostCounter.HasActiveStageBit)
         {
             // Without the fourth-stage bit the counter is below 64512, so one more stage
             // cannot leave the sixteen-bit range.
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
-            tableSelection = SpeedBoostCounter.RawValue;
             if (SpeedBoostCounter.HasActiveStageBit)
             {
                 EchoSoundFlag = 1;
@@ -329,7 +327,7 @@ public sealed class SamusHorizontalSpeedState
             }
         }
 
-        int stage = echoSelection ?? SnesLittleEndian.HighByte(tableSelection);
+        int stage = echoSelection ?? SpeedBoostCounter.Stage;
         int nextCadence = SamusRunningCadenceDefinitions.ReadResetWord(stage);
         SpeedBoostCounter = SpeedBoostCounter.WithCadenceWord(nextCadence);
 

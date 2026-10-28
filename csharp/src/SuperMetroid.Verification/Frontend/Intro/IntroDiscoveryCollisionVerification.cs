@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -16,7 +15,7 @@ internal static class IntroDiscoveryCollisionVerification
         for (int index = 0; index < actual.Length; index++)
         {
             ushort expected = index < native.Length / 2
-                ? SnesLittleEndian.Word(native[2 * index], native[2 * index + 1]) : (ushort)0;
+                ? LittleEndianBytes.Word(native[2 * index], native[2 * index + 1]) : (ushort)0;
             AssertEqual(expected, actual[index], "original discovery collision and uncopied zero tail");
         }
         actual[0] = ushort.MaxValue;

@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -50,7 +49,7 @@ public static class SamusFullBodyCycleColorExtractor
                     var colors = new PaletteRgb5[SamusFullBodyCycleColorFormat.ColorsPerPalette];
                     for (int index = 0; index < colors.Length; index++)
                     {
-                        ushort word = SnesLittleEndian.Word(source[index * 2], source[index * 2 + 1]);
+                        ushort word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
                         colors[index] = new PaletteRgb5
                         {
                             Red = word & 31,

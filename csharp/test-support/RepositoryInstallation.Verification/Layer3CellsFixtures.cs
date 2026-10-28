@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -35,7 +36,7 @@ internal static class Layer3CellsFixtures
         for (int cell = 0; cell < words.Length; cell++)
         {
             int at = SnesVramAddressingConstants.ByteOffsetOfWord(GameplayVramLayoutConstants.HudTilemapWord + cell);
-            words[cell] = SnesLittleEndian.Word(image[at], image[at + 1]);
+            words[cell] = LittleEndianBytes.Word(image[at], image[at + 1]);
         }
         return FromWords(words, image, palette, characterWord);
     }

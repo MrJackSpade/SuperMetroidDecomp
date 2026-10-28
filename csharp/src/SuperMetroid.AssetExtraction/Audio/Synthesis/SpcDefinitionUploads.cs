@@ -1,5 +1,5 @@
-﻿using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -29,8 +29,8 @@ internal sealed class SpcDefinitionUploads
         ram[address + 1] = checked((byte)record.Adsr1);
         ram[address + 2] = checked((byte)record.Adsr2);
         ram[address + 3] = checked((byte)record.Gain);
-        ram[address + 4] = SnesLittleEndian.HighByte(pitchBase);
-        ram[address + 5] = SnesLittleEndian.LowByte(pitchBase);
+        ram[address + 4] = LittleEndianBytes.HighByte(pitchBase);
+        ram[address + 5] = LittleEndianBytes.LowByte(pitchBase);
     }
 
     /// <summary>Copies <paramref name="bytes"/> to APU RAM at <paramref name="address"/>, wrapping at 16 bits.</summary>
@@ -164,13 +164,13 @@ internal sealed class SpcDefinitionUploads
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its record length.");
-            ushort length = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
+            ushort length = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length == 0)
                 break;
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its destination word.");
-            ushort target = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
+            ushort target = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException(

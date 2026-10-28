@@ -40,7 +40,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 KraidPaletteSources.SourceAddress(source), count * sizeof(ushort));
             for (int index = 0; index < count; index++)
-                AssertEqual(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]),
+                AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]),
                     catalog.Resolve(source, index),
                     $"Kraid {source} stock RGB5 color {index}");
             for (int index = 0; index < count; index++)

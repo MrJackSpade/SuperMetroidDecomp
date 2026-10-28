@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>One S-DSP voice's registers, in its sixteen-byte block at $00 + 16 × voice.</summary>
@@ -27,7 +27,7 @@ internal readonly struct SnesDspVoiceControls
     public void WritePitch(ushort pitch)
     {
         Write(DspVoiceRegister.PitchLow, unchecked((byte)pitch));
-        Write(DspVoiceRegister.PitchHigh, SnesLittleEndian.HighByte(pitch));
+        Write(DspVoiceRegister.PitchHigh, LittleEndianBytes.HighByte(pitch));
     }
 
     /// <summary>VxSRCN ($x4): the sample directory entry the voice plays.</summary>

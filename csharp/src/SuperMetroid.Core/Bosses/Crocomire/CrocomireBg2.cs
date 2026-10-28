@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
@@ -125,7 +126,7 @@ internal sealed class CrocomireBg2
             xOffset = ~xOffset;
         int acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
         _spriteObjects.SpawnRoomSpriteObject(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((SnesLittleEndian.HighByte(random) & 31))))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - (SharedRandomState.UpperByte(random) & 31)))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
             graphics: default);
     }

@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -43,7 +43,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileInheritanc
     internal byte[] CaptureDistanceRecords() => Capture()[FirstRecordOffset..];
 
     /// <summary>The little-endian word whose low byte is <paramref name="offset"/> bytes into the block.</summary>
-    private ushort Word(int offset) => SnesLittleEndian.Word(Records[offset], Records[offset + 1]);
+    private ushort Word(int offset) => LittleEndianBytes.Word(Records[offset], Records[offset + 1]);
 
     /// <summary>Locates the left, right, up, or down distance record after camera subspeed.</summary>
     private static int RecordOffset(SamusCollisionDirection direction) => direction switch

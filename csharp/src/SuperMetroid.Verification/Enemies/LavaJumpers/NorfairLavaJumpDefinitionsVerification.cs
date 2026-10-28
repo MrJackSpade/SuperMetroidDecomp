@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -42,7 +41,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
             slot.Properties = EnemyPropertyWord.FromWord(0);
             runMain(slot, state);
 
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");

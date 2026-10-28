@@ -100,7 +100,7 @@ internal sealed class EscapeRoomEffects
             int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
                 unchecked((ushort)(_room.Camera.PixelPosition.X + (byte)random)),
-                unchecked((ushort)(_room.Camera.PixelPosition.Y + (SnesLittleEndian.HighByte(random)))));
+                unchecked((ushort)(_room.Camera.PixelPosition.Y + SharedRandomState.UpperByte(random))));
             int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
             if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex != ZebesEscapeDefinitions.BlankTile)
                 enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);

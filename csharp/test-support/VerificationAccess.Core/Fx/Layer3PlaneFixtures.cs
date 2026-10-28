@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -36,7 +37,7 @@ internal static class Layer3PlaneFixtures
         for (int word = 0; word < words.Length; word++)
         {
             int at = (GameplayVramLayoutConstants.HudTilemapWord + word) * 2;
-            words[word] = SnesLittleEndian.Word(vram[at], vram[at + 1]);
+            words[word] = LittleEndianBytes.Word(vram[at], vram[at + 1]);
         }
         return new Layer3Plane(words);
     }

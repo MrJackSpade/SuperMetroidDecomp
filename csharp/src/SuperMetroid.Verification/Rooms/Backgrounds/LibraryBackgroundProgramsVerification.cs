@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -87,14 +86,14 @@ internal static class LibraryBackgroundProgramsVerification
         ushort ReadWord(ushort pointer)
         {
             int address = LibraryBackgroundOperandDecoding.CommandListBank | pointer;
-            return unchecked(SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
+            return unchecked(LittleEndianBytes.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
         }
 
         int ReadLong(ushort pointer)
         {
             int address = LibraryBackgroundOperandDecoding.CommandListBank | pointer;
             return (int)new SnesAddress(CompiledLibraryBackgroundProgramsRomByte(bus, address + 2),
-                SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
+                LittleEndianBytes.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
         }
     }
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -54,7 +53,7 @@ internal static class FirefleaFxVerification
         {
             fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             int expectedIndex = (frame / 6) % 12;
-            int shade = SnesLittleEndian.HighByte(flash[expectedIndex]);
+            int shade = LittleEndianBytes.HighByte(flash[expectedIndex]);
             AssertEqual(expectedIndex, fx.Fireflea.Index, $"Fireflea index frame {frame}");
             AssertEqual(shade, fixedColor.Color.Red, $"Fireflea red frame {frame}");
             AssertEqual(shade, fixedColor.Color.Green, $"Fireflea second COLDATA write frame {frame}");
@@ -73,7 +72,7 @@ internal static class FirefleaFxVerification
             {
                 fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
                 int index = level < 10 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
-                byte shade = SnesLittleEndian.HighByte((ushort)(darkness[level / 2] + flash[index]));
+                byte shade = LittleEndianBytes.HighByte((ushort)(darkness[level / 2] + flash[index]));
                 AssertEqual(shade & RgbColor.MaxChannel, fixedColor.Color.Red, $"death offset {level}, frame {frame}: red");
                 AssertEqual(shade & RgbColor.MaxChannel, fixedColor.Color.Green, $"death offset {level}, frame {frame}: blue");
                 AssertEqual(shade & RgbColor.MaxChannel, fixedColor.Color.Blue, $"death offset {level}, frame {frame}: green");
@@ -103,8 +102,8 @@ internal static class FirefleaFxVerification
         for (ushort i = 0; i < 12; i++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
-            AssertEqual(SnesLittleEndian.HighByte(word), FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
-            AssertEqual((byte)0, SnesLittleEndian.LowByte(word), $"Original Fireflea flash {i} carries nothing");
+            AssertEqual(LittleEndianBytes.HighByte(word), FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
+            AssertEqual((byte)0, LittleEndianBytes.LowByte(word), $"Original Fireflea flash {i} carries nothing");
         }
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(12), "Flash upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
@@ -117,7 +116,7 @@ internal static class FirefleaFxVerification
     private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
-            AssertEqual(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + offset))),
+            AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + offset))),
                 FirefleaFxDefinitions.DarknessShade(offset), $"Original Fireflea darkness including the past-ramp level {offset}");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1), "Darkness odd offset");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");

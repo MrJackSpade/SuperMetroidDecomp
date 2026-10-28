@@ -33,7 +33,7 @@ internal static class InvalidBeamGraphicsVerification
             byte low = color == 0
                 ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
                 : bus.ReadCartridgeByte(highByteAddress - 1);
-            RgbColor native = RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
+            RgbColor native = RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(low, bus.ReadCartridgeByte(highByteAddress)));
             AssertEqual(native, ChainsawBeamGraphicsDefinitions.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }
@@ -51,9 +51,9 @@ internal static class InvalidBeamGraphicsVerification
             var ordinary = new SamusColourRig();
             SamusProjectileSystem.LoadBeamPalette(ordinary.Samus.Beam, (SamusBeamFlags)beam, artwork.Palettes);
             int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
-            int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
+            int source = (int)new SnesAddress(0x90, LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
-                AssertEqual((SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,
+                AssertEqual((LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,
                     ordinary.Colors[0xe0 + color], $"ordinary beam {beam} palette remains unchanged");
         }
         // Independent AC8D/ACCD CPU trace with bus-latch tracking, recorded in the

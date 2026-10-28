@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio;
@@ -58,7 +57,7 @@ public static class SpcUploadStreamReader
     {
         byte low = ReadByte(cartridge, ref cursor, bytes);
         byte high = ReadByte(cartridge, ref cursor, bytes);
-        return unchecked(SnesLittleEndian.Word(low, high));
+        return unchecked(LittleEndianBytes.Word(low, high));
     }
 
     /// <summary>Copies one source byte and advances over LoROM bank boundaries in file order.</summary>

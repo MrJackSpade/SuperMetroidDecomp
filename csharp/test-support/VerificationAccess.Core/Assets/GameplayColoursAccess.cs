@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Assets;
 
@@ -43,7 +43,7 @@ internal static class GameplayColoursAccess
                 throw new ArgumentOutOfRangeException(nameof(destinationIndex), "A palette load must remain within 256 colours.");
             RgbColor[] image = colours.Colors.ToArray();
             for (int color = 0; color < count; color++)
-                image[destinationIndex + color] = RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+                image[destinationIndex + color] = RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]));
             colours.LoadStartingImage(image);
         }
     }

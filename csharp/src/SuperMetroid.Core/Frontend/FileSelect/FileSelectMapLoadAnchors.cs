@@ -26,7 +26,7 @@ public static class FileSelectMapLoadAnchors
         RoomHeaderDefinition room = station.Room ??
             throw new InvalidOperationException($"{area} station {stationIndex} has no room.");
         Position16<RoomPixels> samus = station.SamusPosition;
-        return new((ushort)((room.MapPosition.X + (SnesLittleEndian.HighByte(samus.X))) << 3),
-            (ushort)((room.MapPosition.Y + (SnesLittleEndian.HighByte(samus.Y)) + 1) << 3));
+        return new((ushort)((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) << 3),
+            (ushort)((room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) << 3));
     }
 }

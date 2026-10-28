@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hardware;
 
@@ -90,8 +91,8 @@ internal static class SpriteFrameBufferAccess
                 ushort wrappedX = unchecked((ushort)(x & SnesSpritemapXWord.OffsetFieldMaximum));
                 low[slot * 4] = unchecked((byte)wrappedX);
                 low[slot * 4 + 1] = unchecked((byte)y);
-                low[slot * 4 + 2] = SnesLittleEndian.LowByte(attributes.Raw);
-                low[slot * 4 + 3] = SnesLittleEndian.HighByte(attributes.Raw);
+                low[slot * 4 + 2] = LittleEndianBytes.LowByte(attributes.Raw);
+                low[slot * 4 + 3] = LittleEndianBytes.HighByte(attributes.Raw);
                 high[slot / 4] |= (byte)(SnesOamHighTablePair.FromSprite(wrappedX, large).Raw << (slot % 4 * 2));
                 slot++;
             }

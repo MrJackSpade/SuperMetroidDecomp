@@ -47,7 +47,7 @@ internal static class RunningCadenceVerification
 
         for (byte stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         {
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(SnesLittleEndian.Word(0, unchecked(stage)));
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(LittleEndianBytes.Word(0, unchecked(stage)));
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2));
             for (ushort index = 0; index <= 10; index++)
             {
@@ -73,18 +73,18 @@ internal static class RunningCadenceVerification
         for (int stage = 0; stage <= 4; stage++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
-            int raw = SnesLittleEndian.Word(unchecked((byte)low), unchecked((byte)stage));
+            int raw = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)stage));
             bool admitted = momentum && running && dash;
             ushort decremented = unchecked((ushort)(raw - 1));
             bool intercept = admitted && (byte)decremented == 0;
             ushort next = admitted ? decremented : (ushort)raw;
             bool sound = intercept && (next & 0x0400) == 0 && ((next + 0x0100) & 0x0400) != 0;
             if (intercept && (next & 0x0400) == 0) next = unchecked((ushort)(next + 0x0100));
-            int selection = sound ? 5 : SnesLittleEndian.HighByte(next);
+            int selection = sound ? 5 : LittleEndianBytes.HighByte(next);
             ushort expectedTimer = intercept
                 ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + selection * 2))))))
                 : (ushort)0;
-            if (intercept) next = (ushort)((SnesLittleEndian.HighByteInPlace(next)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
+            if (intercept) next = (ushort)((LittleEndianBytes.HighByteInPlace(next)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter((ushort)raw);
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
@@ -108,7 +108,7 @@ internal static class RunningCadenceVerification
         for (int stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
-            int accumulator = SnesLittleEndian.Word(unchecked((byte)low), unchecked((byte)stage));
+            int accumulator = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)stage));
             bus.MutableDelay = (byte)accumulator;
             residue.Write(stageFiveOffset, bus.MutableDelay);
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
@@ -222,7 +222,7 @@ internal static class RunningCadenceVerification
         }
         /// <summary>Uses a constructed signature for unimplemented hardware addresses reached by restored indexes, and preserves the mutable delay alias.</summary>
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
-            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ SnesLittleEndian.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
+            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ LittleEndianBytes.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
         /// <summary>Exposes the mutable delay alias and otherwise forwards WRAM reads.</summary>
         public byte ReadWorkRamByte(int address) => address == 0x7e0303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
         /// <summary>Forwards writes without changing the constructed read behavior.</summary>

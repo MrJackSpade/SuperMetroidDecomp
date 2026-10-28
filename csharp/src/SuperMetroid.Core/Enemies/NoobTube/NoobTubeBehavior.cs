@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
@@ -457,10 +458,10 @@ internal sealed class NoobTubeBehavior
                 projectile.Position = projectile.Position.WithWholeX(oddFrame ? checked((ushort)projectile.Variable1) : NoobTubeDebrisDefinitions.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                projectile.Velocity = new(new SignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), NoobTubeDebrisDefinitions.ShardFallYVelocity);
+                projectile.Velocity = new(new SignedEightEight(SharedRandomState.UpperByte(_room.Random.Generate())), NoobTubeDebrisDefinitions.ShardFallYVelocity);
                 break;
             case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())));
+                projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(SharedRandomState.UpperByte(_room.Random.Generate())));
                 break;
             case NoobTubeProjectileCueKind.SetPreInstruction:
                 projectile.PreInstruction = cue.PreInstruction;

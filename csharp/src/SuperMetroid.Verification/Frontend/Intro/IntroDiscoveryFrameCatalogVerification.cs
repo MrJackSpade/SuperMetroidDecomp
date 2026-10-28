@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -29,9 +28,9 @@ internal static class IntroDiscoveryFrameCatalogVerification
             if (index == 19)
             {
                 AssertEqual(0x8fe0, pointer, "small baby record chain end");
-                pointer = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41), IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42));
+                pointer = LittleEndianBytes.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41), IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42));
             }
-            int count = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer));
+            int count = LittleEndianBytes.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual((ushort)pointer, CinematicSpritemapSources.Of(frames[index].Pose), "discovery original record pointer");
             AssertEqual(count, frames[index].StockPartCount, "discovery original part count");
             AssertEqual(names[index], frames[index].Name, "discovery published asset key");

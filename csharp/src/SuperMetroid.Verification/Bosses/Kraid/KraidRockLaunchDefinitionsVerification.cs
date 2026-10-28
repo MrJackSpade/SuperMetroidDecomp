@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -16,7 +15,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             int address = 0xa7bc65 + (raw & 14);
-            ushort expected = SnesLittleEndian.Word(KraidRockLaunchSpeedSelectionRomByte(rom, address), KraidRockLaunchSpeedSelectionRomByte(rom, address + 1));
+            ushort expected = LittleEndianBytes.Word(KraidRockLaunchSpeedSelectionRomByte(rom, address), KraidRockLaunchSpeedSelectionRomByte(rom, address + 1));
             AssertEqual(expected, KraidRockLaunchDefinitions.FromRandom((ushort)raw).RawValue,
                 "Every native Kraid rock velocity selection");
         }
@@ -34,7 +33,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             Console.WriteLine("Kraid spit speeds: all65536 RNG words match the eight native signed8.8 choices.");
             return;
         }
-        ushort Word(int address) => SnesLittleEndian.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int reads = 0;

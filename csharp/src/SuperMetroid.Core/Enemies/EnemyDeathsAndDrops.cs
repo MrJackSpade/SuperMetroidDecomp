@@ -173,7 +173,8 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>
     /// Shared implementation of the twelve <c>Enemy_ItemDrop_*</c> routines at
     /// $A0:B8EE-$BB9A. Each iteration advances RNG once for both coordinates; allocation
-    /// and drop selection then advance it independently inside pickup $F337.
+    /// and drop selection then advance it independently inside pickup $F337. The X scatter
+    /// masks the sample's lower random byte and the Y scatter its upper one.
     /// </summary>
     internal void SpawnEnemyDropScatter(
         EnemyDefinitionId definitionId,
@@ -188,7 +189,7 @@ internal sealed class EnemyDeathsAndDrops
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
                 unchecked((ushort)((random & xMask) + xBase)),
-                unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase))), definitionId);
+                unchecked((ushort)((SharedRandomState.UpperByte(random) & yMask) + yBase))), definitionId);
         }
     }
 
@@ -203,7 +204,7 @@ internal sealed class EnemyDeathsAndDrops
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
                 unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16)),
-                unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16))), definitionId);
+                unchecked((ushort)(origin.Y + (SharedRandomState.UpperByte(random) & EnemyDropMasks.ScatterBits) - 16))), definitionId);
         }
     }
 

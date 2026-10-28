@@ -39,6 +39,6 @@ internal static class TorizoRandomDefinitions
     /// <summary>Bomb Torizo's dying drop scatter: seven low bits across its 128-pixel region.</summary>
     internal const ushort BombDropXMask = 0x007f;
 
-    /// <summary>Both statues' dying drop scatter: six high-byte bits down a 64-pixel band.</summary>
-    internal const ushort DropYMask = 0x3f00;
+    /// <summary>Both statues' dying drop scatter: six bits of the sample's upper random byte down a 64-pixel band.</summary>
+    internal const ushort DropYMask = 0x003f;
 }

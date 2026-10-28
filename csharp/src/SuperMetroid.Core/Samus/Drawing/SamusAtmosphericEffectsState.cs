@@ -204,7 +204,7 @@ public sealed class SamusAtmosphericEffectsState
         int screenY = unchecked((ushort)(slot.Position.Y - drawing.Camera.Y));
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
-        if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
+        if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 
         drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),

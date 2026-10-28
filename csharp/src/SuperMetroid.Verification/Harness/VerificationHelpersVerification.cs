@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -113,7 +114,7 @@ internal static class VerificationHelpersVerification
     internal static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
         WriteTestByte(bus, address, (byte)value);
-        WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(value));
+        WriteTestByte(bus, address + 1, LittleEndianBytes.HighByte(value));
     }
 
     /// <summary>

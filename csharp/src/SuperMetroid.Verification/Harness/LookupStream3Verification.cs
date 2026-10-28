@@ -460,7 +460,7 @@ internal static class LookupStream3Verification
             {
                 ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
-                expected.Add(new(SnesLittleEndian.LowByte(position), SnesLittleEndian.HighByte(position), glyph, glyph == IntroNarrationDefinitions.CompileGlyph(' ')));
+                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyph, glyph == IntroNarrationDefinitions.CompileGlyph(' ')));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
@@ -1465,7 +1465,7 @@ internal static class LookupStream3Verification
             MotherBrainCorpseRotRow rotRow = rotRows[row];
             AssertEqual(row, rotRow.Row, "stream 3 corpse rot rows in row order");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
-            int nativeStaging = (int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
+            int nativeStaging = (int)new SnesAddress(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
             AssertEqual(nativeStaging, EnemySourceDefinitions.CorpseRottingHeap + rotRow.RottingOffset, "stream 3 native corpse rot row source");
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
@@ -2499,7 +2499,7 @@ internal static class LookupStream3Verification
                 case 0xa9: // LDA immediate
                     accumulator = bus.ReadCartridgeByte(pc++);
                     if (!accumulatorIsEightBit)
-                        accumulator |= SnesLittleEndian.Word(0, bus.ReadCartridgeByte(pc++));
+                        accumulator |= LittleEndianBytes.Word(0, bus.ReadCartridgeByte(pc++));
                     break;
 
                 case 0x8f: // STA long
@@ -2513,7 +2513,7 @@ internal static class LookupStream3Verification
                     {
                         if (storageIndex + 1 >= scrolls.Length)
                             throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
-                        scrolls[storageIndex + 1] = SnesLittleEndian.HighByte(accumulator);
+                        scrolls[storageIndex + 1] = LittleEndianBytes.HighByte(accumulator);
                     }
                     break;
 
@@ -3090,7 +3090,7 @@ internal static class LookupStream3Verification
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
                 AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),
-                    SnesLittleEndian.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
+                    LittleEndianBytes.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < 1024; word++)
             {

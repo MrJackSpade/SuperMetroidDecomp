@@ -1,6 +1,8 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
 
-/// <summary>Cartridge values and helpers of <see cref="SnesLittleEndian"/> that only verification reads.</summary>
+namespace SuperMetroid.Core.Hardware;
+
+/// <summary>Cartridge values and helpers of <see cref="LittleEndianBytes"/> that only verification reads.</summary>
 internal static class SnesLittleEndianConstants
 {
     /// <summary>Bits in one storage word, the distance from a long's low word to its bank byte.</summary>

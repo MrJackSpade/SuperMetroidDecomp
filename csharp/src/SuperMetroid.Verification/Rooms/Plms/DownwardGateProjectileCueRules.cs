@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Verification.Enemies;
 
@@ -14,9 +14,9 @@ internal static class DownwardGateProjectileCueRules
         [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.Delete)),
         [NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.ClearPreInstruction)),
         [NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetPreInstruction>(2, (operands, cue, at) =>
-            AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
+            AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
         [NativeEnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetYVelocity>(2, (operands, cue, at) =>
-            AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), cue.YVelocity.RawValue, $"{at}: Y velocity")),
+            AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), cue.YVelocity.RawValue, $"{at}: Y velocity")),
     };
 
     /// <summary>The oracle rules for the gate's programs.</summary>

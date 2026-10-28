@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>NTSC running cadence and boost-stage timing: gameplay rules, not editable art.</summary>
@@ -175,8 +177,12 @@ internal static class SamusRunningCadenceDefinitions
         RequireWindows(windows).RunningCadences + StreamOffset(cadence);
 
     /// <summary>Byte <paramref name="index"/> of the little-endian word <paramref name="word"/>.</summary>
-    private static byte WordByte(int word, int index) =>
-        index == 0 ? SnesLittleEndian.LowByte(unchecked((ushort)word)) : SnesLittleEndian.HighByte(unchecked((ushort)word));
+    private static byte WordByte(int word, int index)
+    {
+        Span<byte> bytes = stackalloc byte[sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes, unchecked((ushort)word));
+        return bytes[index == 0 ? 0 : 1];
+    }
 
     /// <summary>The installed window positions a read leaving the cadences needs.</summary>
     private static SamusAnimationWindows RequireWindows(SamusAnimationWindows? windows) => windows ?? throw new InvalidOperationException(

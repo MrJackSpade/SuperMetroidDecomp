@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -11,7 +10,7 @@ internal static class SamusStandaloneSpeedsVerification
     {
         static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {
-            ushort Word(int offset) => SnesLittleEndian.Word(readByte(a + offset), readByte(a + offset + 1));
+            ushort Word(int offset) => LittleEndianBytes.Word(readByte(a + offset), readByte(a + offset + 1));
             SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }

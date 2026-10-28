@@ -184,7 +184,7 @@ internal static class ProjectileTrailCoordinatesVerification
     /// <summary>The four positions native draws a trail at from the record at bank-$9B offset <paramref name="y"/>.</summary>
     private static ProjectileTrailCoordinatesExpected NativeSpawn(ISnesAddressSpace bus, ushort origin, ushort y)
     {
-        byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
+        byte Read(ushort operand, ushort index) => LittleEndianBytes.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
         ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
         return new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
     }
@@ -200,7 +200,7 @@ internal static class ProjectileTrailCoordinatesVerification
     /// <summary>Whether <paramref name="type"/> selects both trail programs.</summary>
     private static bool TrailProgramsSelected(ushort type)
     {
-        int family = SnesLittleEndian.HighByte(type);
+        int family = LittleEndianBytes.HighByte(type);
         int index = family == 0 ? type & 63 : family + 31;
         return ProjectileTrailDefinitions.Select(index, HorizontalDirection.Left) is not null &&
             ProjectileTrailDefinitions.Select(index, HorizontalDirection.Right) is not null;
@@ -260,9 +260,9 @@ internal static class ProjectileTrailCoordinatesVerification
             };
         }
 
-        byte low = ReadData(address, SnesLittleEndian.HighByte(operand));
+        byte low = ReadData(address, LittleEndianBytes.HighByte(operand));
         byte high = ReadData((address + 1) & SnesCpuAddressLayout.AddressMask, low);
-        return SnesLittleEndian.Word(low, high);
+        return LittleEndianBytes.Word(low, high);
     }
 
     /// <summary>Runs the trail-coordinate comparison against the local retail cartridge.</summary>

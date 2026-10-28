@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
@@ -1184,8 +1185,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         var foreground = new ushort[width * height];
         for (int byteOffset = 0; byteOffset < source.Length; byteOffset += 2)
         {
-            foreground[byteOffset / 2] = unchecked(
-                SnesLittleEndian.Word(source[byteOffset], source[byteOffset + 1]));
+            foreground[byteOffset / 2] = BinaryPrimitives.ReadUInt16LittleEndian(source[byteOffset..]);
         }
 
         // $8B:AF30 clears the complete 512-byte word-addressable BTS allocation. BG2 and

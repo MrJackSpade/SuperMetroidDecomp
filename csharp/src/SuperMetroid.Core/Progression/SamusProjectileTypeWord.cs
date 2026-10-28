@@ -9,7 +9,9 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// <summary>Native marker distinguishing a charged beam from an ordinary beam payload.</summary>
     internal const ushort ChargedBeamMarker = 1 << 4;
     /// <summary>Four-bit projectile family in native bits 8 through 11.</summary>
-    internal const ushort FamilyMask = 15 << 8;
+    internal const ushort FamilyMask = 15 << FamilyShift;
+    /// <summary>The bits below the family nibble.</summary>
+    private const int FamilyShift = 8;
     /// <summary>High-bit marker installed for active projectiles and resident PLM triggers.</summary>
     internal const ushort LiveMarker = 1 << 15;
     /// <summary>Payload bits retained when a projectile becomes a resident PLM trigger.</summary>
@@ -28,6 +30,8 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// family comparisons (explosions and later families compare at or above <see cref="SamusProjectileFamily.BeamExplosion"/>).
     /// </summary>
     public int FamilyValue => Raw & FamilyMask;
+    /// <summary>The family nibble as a table index, 0 through 15: the index per-family tables are read at.</summary>
+    public int FamilyIndex => FamilyValue >> FamilyShift;
     /// <summary>Named projectile family represented by the family nibble.</summary>
     public SamusProjectileFamily Family => (SamusProjectileFamily)FamilyValue;
     /// <summary>Whether the native charged-beam marker is set.</summary>

@@ -54,9 +54,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
     {
-        int directionParameter = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
-        int distanceIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
-        int speedIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int directionParameter = slot.Spawn.Population.Parameter1Settings.First;
+        int distanceIndex = slot.Spawn.Population.Parameter2Settings.First;
+        int speedIndex = slot.Spawn.Population.Parameter2Settings.Second;
         if (!CacatacProjectileDefinitions.Directions.TryDecode(directionParameter, out CacatacDirection direction))
         {
             throw new InvalidDataException(
@@ -76,7 +76,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
 
-        bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1)) != 0;
+        bool upsideUp = slot.Spawn.Population.Parameter1Settings.Second != 0;
         slot.Frame = EnemyFrameId.Empty;
 
         var travel = new Offset16<RoomPixels>(checked((short)CacatacMovementDefinitions.TravelDistance((byte)distanceIndex)), 0);

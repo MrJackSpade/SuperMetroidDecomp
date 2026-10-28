@@ -1,10 +1,13 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
-/// The SNES's little-endian byte order (#223): a 16-bit word stores its low byte first, and a 24-bit long adds its
+/// The cartridge's little-endian byte order (#223, #1422): a 16-bit word stores its low byte first, and a 24-bit long adds its
 /// bank byte third. This type owns splitting values into those byte lanes and composing them back. Byte sources that
-/// are not CPU address spaces (compiled definition tables, routed WRAM/ROM windows, test byte stores) compose their
-/// words here; address-space reads use <c>SnesWordReads</c> and the cartridge word reads.
+/// are not CPU address spaces (cartridge tables, routed WRAM/ROM windows, test byte stores) compose their words here;
+/// address-space reads use <see cref="CartridgeWordReads"/>. It belongs to the import pipeline and its verification:
+/// gameplay keeps no storage bytes, so it names each split for what the game means by it instead.
 /// </summary>
 /// <remarks>
 /// Use these only where the value really is split into storage bytes: a word written to or read from byte-wide
@@ -12,7 +15,7 @@ namespace SuperMetroid.Core.Hardware;
 /// by 256 for another reason (an 8.8 whole part, a 256-pixel screen, a fraction scale) belongs to that domain's type.
 /// </remarks>
 [EncodingOwner("little-endian byte order of stored words")]
-public static class SnesLittleEndian
+public static class LittleEndianBytes
 {
     /// <summary>Bits in one storage byte, the distance between adjacent byte lanes.</summary>
     public const int BitsPerByte = 8;

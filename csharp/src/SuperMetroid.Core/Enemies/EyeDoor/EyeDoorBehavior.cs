@@ -258,7 +258,7 @@ internal sealed class EyeDoorBehavior
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
             unchecked((short)(8 + placement.Base.X + (random & placement.RandomMask.X))),
-            unchecked((short)(8 + placement.Base.Y + ((SnesLittleEndian.HighByte(random)) & placement.RandomMask.Y)))));
+            unchecked((short)(8 + placement.Base.Y + (SharedRandomState.UpperByte(random) & placement.RandomMask.Y)))));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
         _room.Random.Generate();

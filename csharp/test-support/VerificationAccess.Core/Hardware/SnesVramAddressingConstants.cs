@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Core.Hardware;
 
@@ -10,7 +11,7 @@ internal static class SnesVramAddressingConstants
     public static ushort ReadWord(ReadOnlySpan<byte> vram, int wordAddress)
     {
         int byteOffset = SnesVramAddressingConstants.ByteOffsetOfWord(wordAddress);
-        return SnesLittleEndian.Word(vram[byteOffset], vram[byteOffset + 1]);
+        return LittleEndianBytes.Word(vram[byteOffset], vram[byteOffset + 1]);
     }
     /// <summary>Bytes in one VRAM word; the PPU addresses VRAM in 16-bit words.</summary>
     public const int BytesPerWord = 2;

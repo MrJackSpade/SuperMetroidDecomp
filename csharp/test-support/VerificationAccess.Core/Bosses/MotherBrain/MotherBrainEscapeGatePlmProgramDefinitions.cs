@@ -1,5 +1,5 @@
-﻿using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -25,7 +25,7 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
         if (address is < FirstAddress or >= LastAddress) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
-        value = SnesLittleEndian.Word(low, high);
+        value = LittleEndianBytes.Word(low, high);
         return true;
     }
 

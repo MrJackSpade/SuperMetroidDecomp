@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidSpitVelocitiesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -110,7 +109,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         for (int row = 0; row < 3; row++)
         {
             int address = 0x869e7d + row * 2;
-            short expected = unchecked((short)(SnesLittleEndian.Word(FakeKraidSpikeRowSelectionRomByte(rom, address), FakeKraidSpikeRowSelectionRomByte(rom, address + 1))));
+            short expected = unchecked((short)(LittleEndianBytes.Word(FakeKraidSpikeRowSelectionRomByte(rom, address), FakeKraidSpikeRowSelectionRomByte(rom, address + 1))));
             AssertEqual(expected, FakeKraidProjectileDefinitions.SpikeYOffset(row),
                 $"Fake Kraid original signed launch port {row}");
         }

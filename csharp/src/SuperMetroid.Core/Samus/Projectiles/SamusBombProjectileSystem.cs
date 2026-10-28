@@ -291,7 +291,7 @@ public sealed class SamusBombProjectileSystem
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
             int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
             int screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
-            if (screenX < -48 || screenX >= 304 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
+            if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
                 continue;
 
             SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
@@ -520,7 +520,7 @@ public sealed class SamusBombProjectileSystem
         // five slots or a nonzero LOW cooldown byte reject the edge. The high byte is not
         // part of this test; that oddity is intentional 65C816 SEP-width behavior.
         if (BombCounter != 0 &&
-            (BombCounter >= SlotCount || (SnesLittleEndian.LowByte(CooldownTimer.RawValue)) != 0))
+            (BombCounter >= SlotCount || CooldownTimer.EightBitCount != 0))
         {
             return false;
         }

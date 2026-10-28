@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -88,20 +87,20 @@ internal static class LookupChozoLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "Chozo layout native direction");
                     AssertEqual(count, shape.WordCount(run), "Chozo layout native calculated count");
-                    AssertEqual(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Chozo layout native calculated continuation");
+                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Chozo layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Chozo layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Chozo layout native DTO count");
-                        AssertEqual(offset, SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y), "Chozo layout native DTO offset");
+                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Chozo layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
                             level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
                             "Chozo native physical word at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
-                    drawY = 4 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
+                    drawY = 4 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
                         AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Chozo layout cell bounds");

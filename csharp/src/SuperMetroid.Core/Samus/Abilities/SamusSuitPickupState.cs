@@ -233,7 +233,7 @@ public sealed class SamusSuitPickupState
             SamusSuitPickupStage.LightBeamShrinks => checked((ushort)_lightBeamScanlines),
         SamusSuitPickupStage.UniformWidening or SamusSuitPickupStage.CurvedWidening or
             SamusSuitPickupStage.LightBeamDissipates or SamusSuitPickupStage.Finish =>
-            SnesLittleEndian.Word(checked((byte)_lightBeamLeft.X), checked((byte)_lightBeamRight.X)),
+            new SuitPickupBeamEdges(checked((byte)_lightBeamLeft.X), checked((byte)_lightBeamRight.X)).Word,
         _ => throw new InvalidDataException($"Unknown suit-pickup stage {Stage}."),
     };
 

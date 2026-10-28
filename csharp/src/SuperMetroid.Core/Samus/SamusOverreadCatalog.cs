@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -172,6 +173,6 @@ public sealed class SamusOverreadCatalog
     /// <summary>Reads one little-endian word of a range, rejecting an index outside it.</summary>
     private static ushort ReadWord(byte[] range, int index, string name) =>
         (uint)index < (uint)(range.Length / sizeof(ushort))
-            ? SnesLittleEndian.Word(range[index * sizeof(ushort)], range[index * sizeof(ushort) + 1])
+            ? BinaryPrimitives.ReadUInt16LittleEndian(range.AsSpan(index * sizeof(ushort)))
             : throw new ArgumentOutOfRangeException(nameof(index), index, $"The {name} range holds {range.Length / sizeof(ushort)} words.");
 }

@@ -562,7 +562,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Four teaching hops are counted. Native then clears only the count, keeping the
         // heading used by the airborne states. The count compares as the signed word the
         // cartridge subtracts from, so it wraps exactly as the high byte does.
-        state.TeachingHops = SnesLittleEndian.LowByte(state.TeachingHops + 1);
+        state.TeachingHops = unchecked((byte)(state.TeachingHops + 1));
         bool fewerThanFourTeachingJumps = unchecked((short)(state.TeachingHops * 256 - 1024)) < 0;
         if (!fewerThanFourTeachingJumps)
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterPlmProgramsVerification;
@@ -217,9 +218,9 @@ internal static class SpeedBoosterCollisionBlocksVerification
                  { crumbleDelay, crumbleDelay, crumbleDelay, 48, 4, 4, 4 })
         {
             bytes.Add(unchecked((byte)duration));
-            bytes.Add(SnesLittleEndian.HighByte(duration));
+            bytes.Add(LittleEndianBytes.HighByte(duration));
             bytes.Add(unchecked((byte)drawPointer));
-            bytes.Add(SnesLittleEndian.HighByte(drawPointer));
+            bytes.Add(LittleEndianBytes.HighByte(drawPointer));
         }
         bytes.Add(0x17);
         bytes.Add(0x8b);
@@ -236,9 +237,9 @@ internal static class SpeedBoosterCollisionBlocksVerification
                  { crumbleDelay, crumbleDelay, crumbleDelay, 1 })
         {
             bytes.Add(unchecked((byte)duration));
-            bytes.Add(SnesLittleEndian.HighByte(duration));
+            bytes.Add(LittleEndianBytes.HighByte(duration));
             bytes.Add(unchecked((byte)drawPointer));
-            bytes.Add(SnesLittleEndian.HighByte(drawPointer));
+            bytes.Add(LittleEndianBytes.HighByte(drawPointer));
         }
         bytes.Add(0xbc);
         bytes.Add(0x86);

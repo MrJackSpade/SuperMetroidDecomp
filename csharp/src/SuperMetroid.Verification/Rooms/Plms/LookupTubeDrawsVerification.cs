@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -74,13 +73,13 @@ internal static class LookupTubeDrawsVerification
                 {
                     AssertEqual((ushort)count, header, "Tube native horizontal run");
                     AssertEqual(count, shape.WordCount(run), "Tube native calculated count");
-                    AssertEqual(SnesLittleEndian.Word(0, unchecked((byte)shape.NextY(run))), offset, "Tube native calculated continuation");
+                    AssertEqual(LittleEndianBytes.Word(0, unchecked((byte)shape.NextY(run))), offset, "Tube native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Tube native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Tube native DTO count");
-                        AssertEqual(offset, SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y), "Tube native DTO offset");
+                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Tube native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

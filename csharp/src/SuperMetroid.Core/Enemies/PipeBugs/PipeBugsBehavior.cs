@@ -67,7 +67,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.LinearSpeedTableOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
+        state.LinearSpeedTableOffset = slot.Spawn.Population.Parameter2Settings.Second * EnemyLinearSpeedDefinitions.RecordSize;
         state.FormationCounter = 0;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -300,7 +300,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Only the first record has a nonzero low parameter byte. It is the formation
         // controller and may arm itself only while all four following physical records are
         // still at the dormant function. The native code addresses them at +$40 increments.
-        if ((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) == 0)
+        if (slot.Spawn.Population.Parameter2Settings.First == 0)
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
         if (formation.All(member =>

@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Compiled NTSC fixed-point speeds shared by enemy families.</summary>
@@ -31,7 +33,7 @@ public static class EnemyLinearSpeedDefinitions
     }
 
     /// <summary>Assembles two consecutive native bytes into a little-endian word, including unaligned windows.</summary>
-    private static ushort ReadWord(int offset) => SnesLittleEndian.Word(ReadByte(offset), ReadByte(offset + 1));
+    private static ushort ReadWord(int offset) => BinaryPrimitives.ReadUInt16LittleEndian([ReadByte(offset), ReadByte(offset + 1)]);
 
     /// <summary>
     /// Calculates a signed 16.16 record byte, selecting the negative half after byte four.

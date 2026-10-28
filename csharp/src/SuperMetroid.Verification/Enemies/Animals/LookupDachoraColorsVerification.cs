@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,7 +20,7 @@ internal static class LookupDachoraColorsVerification
     /// </summary>
     internal static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => SnesLittleEndian.Word(LookupDachoraColorsRomByte(rom, address), LookupDachoraColorsRomByte(rom, address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(LookupDachoraColorsRomByte(rom, address), LookupDachoraColorsRomByte(rom, address + 1));
         ushort[] Row(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
         ushort[] normal = Row(EnemySpeciesSourceDefinitions.Dachora.DefaultColors);
         ushort[][] speed = Enumerable.Range(0, 4).Select(frame => Row(EnemySpeciesSourceDefinitions.Dachora.SpeedColors + frame * EnemySpeciesSourceDefinitions.Dachora.ImageBytes)).ToArray();

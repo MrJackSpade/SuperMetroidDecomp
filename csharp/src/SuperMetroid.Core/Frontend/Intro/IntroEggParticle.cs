@@ -26,26 +26,35 @@ internal sealed class IntroEggParticle
         sprite.InstallPreInstruction(definition.PreInstruction);
     }
 
+    /// <summary>
+    /// The actor's timer word holds the fragment number below the frames the fragment has fallen, which each fall step
+    /// counts up by one; the frames wrap within their eight bits without touching the fragment. The two stay in the
+    /// actor's one timer word because instruction-program counter steps also count that word.
+    /// </summary>
+    private const int FragmentBits = 8;
+
+    /// <summary>The fragment number the spawn stores, 0 through 5; it never changes.</summary>
+    private int Fragment => unchecked((byte)sprite.GeneralTimer);
+
+    /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
+    private int FramesFallen => unchecked((byte)(sprite.GeneralTimer >> FragmentBits));
+
     /// <summary>Applies native 16.16 fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
             return;
-        if (sprite.PreInstruction != IntroEggEffectDefinitions.Particle(
-                SnesLittleEndian.LowByte(sprite.GeneralTimer)).PreInstruction)
+        if (sprite.PreInstruction != IntroEggEffectDefinitions.Particle(Fragment).PreInstruction)
         {
             throw new InvalidDataException(
                 $"Intro egg particle names invalid pre-instruction {sprite.PreInstruction}.");
         }
 
-        // $A994 uses the low timer byte as the immutable fragment number and the high byte
-        // as a gravity-table index. Each velocity is a signed 16.16 pair stored high-word
-        // first in ROM, exactly matching the actor's whole/subposition addition order.
-        int xIndex = SnesLittleEndian.LowByte(sprite.GeneralTimer);
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotionDefinitions.FragmentX(xIndex));
-
-        int yIndex = SnesLittleEndian.HighByte(sprite.GeneralTimer);
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotionDefinitions.FragmentY(yIndex));
+        // $A994 indexes the horizontal velocities by fragment and the gravity table by the
+        // frames fallen. Each velocity is a signed 16.16 pair stored high-word first in ROM,
+        // exactly matching the actor's whole/subposition addition order.
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotionDefinitions.FragmentX(Fragment));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotionDefinitions.FragmentY(FramesFallen));
         if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler

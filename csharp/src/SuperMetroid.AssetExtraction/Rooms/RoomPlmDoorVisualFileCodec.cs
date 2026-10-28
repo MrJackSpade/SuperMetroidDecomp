@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -134,7 +133,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 ushort nativeOffset = ReadWord(bus,
                     checked((ushort)(cursor + 2 + run.LevelWords.Length * 2)));
                 ushort compiledOffset =
-                    SnesLittleEndian.Word(unchecked((byte)run.Next.X), unchecked((byte)run.Next.Y));
+                    LittleEndianBytes.Word(unchecked((byte)run.Next.X), unchecked((byte)run.Next.Y));
                 if (nativeOffset != compiledOffset ||
                     (runIndex == draw.Runs.Length - 1) != (nativeOffset == 0))
                     throw new InvalidDataException(

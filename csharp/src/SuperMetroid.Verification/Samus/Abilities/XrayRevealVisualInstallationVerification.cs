@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -55,7 +54,7 @@ internal static class XrayRevealVisualInstallationVerification
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value | (pointer + index * 4));
-                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, SnesLittleEndian.HighByte(coordinates)), NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value |
+                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, LittleEndianBytes.HighByte(coordinates)), NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value |
                         (pointer + index * 4 + 2))), tiles[index],
                     $"stock X-ray room overlay ${pointer:X4} record {index}");
                 specialRecords++;
@@ -101,7 +100,7 @@ internal static class XrayRevealVisualInstallationVerification
         for (int i = 0; i < definitions.Length / 2; i++)
         {
             definitions[i * 2] = (byte)i;
-            definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
+            definitions[i * 2 + 1] = LittleEndianBytes.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
         level.SetPlmForegroundEntry(33, (int)RoomCollisionType.ShootableBlock << 12);

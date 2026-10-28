@@ -633,7 +633,7 @@ internal static class SamusPoseMetadata
     /// <returns>True when the pending low-byte direction was rejected and cleared.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
-        if (samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(checked((ushort)samus.BombJumpDirection))) != 0)
+        if (samus.BombJumpDirection == 0 || checked((ushort)samus.BombJumpDirection) > byte.MaxValue)
             return false;
         SamusMovementType movement = ReadMovementKind(samus);
         bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
@@ -658,7 +658,7 @@ internal static class SamusPoseMetadata
 
         Ensure.NotNull(level);
         if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) ||
-            samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(checked((ushort)samus.BombJumpDirection))) != 0)
+            samus.BombJumpDirection == 0 || checked((ushort)samus.BombJumpDirection) > byte.MaxValue)
             return false;
 
         SamusMovementType movementType = ReadMovementKind(samus);

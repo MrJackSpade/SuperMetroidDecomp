@@ -369,7 +369,7 @@ internal static class RoomPlmPopulationVerification
         SeedRoomPlmPopulation(bus, population,
         [
             0xf4, 0xba, doorX, doorY,
-            unchecked((byte)roomArgument), SnesLittleEndian.HighByte(roomArgument),
+            unchecked((byte)roomArgument), LittleEndianBytes.HighByte(roomArgument),
             0x00, 0x00,
         ]);
         RoomLevelData level = CreateRoom(new(width, height),
@@ -451,7 +451,7 @@ internal static class RoomPlmPopulationVerification
         [
             0x01,
             unchecked((byte)openingList),
-            SnesLittleEndian.HighByte(openingList),
+            LittleEndianBytes.HighByte(openingList),
         ]);
 
         // Preserve the exact byte widths of BE59: five timer/draw pairs with an odd-sized
@@ -476,11 +476,11 @@ internal static class RoomPlmPopulationVerification
         SeedRoomPlmPopulation(bus, population,
         [
             unchecked((byte)PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft)),
-            SnesLittleEndian.HighByte(PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft)),
+            LittleEndianBytes.HighByte(PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft)),
             doorX,
             doorY,
             unchecked((byte)roomArgument),
-            SnesLittleEndian.HighByte(roomArgument),
+            LittleEndianBytes.HighByte(roomArgument),
             0x00, 0x00,
         ]);
         RoomLevelData level = CreateRoom(new(width, height),

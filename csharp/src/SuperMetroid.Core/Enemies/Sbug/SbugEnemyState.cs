@@ -43,19 +43,19 @@ public sealed class SbugEnemyState
     public WrappingCountdown MovementTimer { get; internal set; }
 
     /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
-    public int Speed => SnesLittleEndian.LowByte(_slot.Spawn.Population.Parameter1);
+    public int Speed => _slot.Spawn.Population.Parameter1Settings.First;
 
     /// <summary>
     /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
     /// </summary>
-    public RotationAngle InitialAngle => RotationAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter1));
+    public RotationAngle InitialAngle => RotationAngle.FromTableIndex(_slot.Spawn.Population.Parameter1Settings.Second);
 
     /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
-    public int ActivationRadius => SnesLittleEndian.LowByte(_slot.Spawn.Population.Parameter2);
+    public int ActivationRadius => _slot.Spawn.Population.Parameter2Settings.First;
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
-        SbugMovementDefinitions.ActivationBehaviors.At(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter2));
+        SbugMovementDefinitions.ActivationBehaviors.At(_slot.Spawn.Population.Parameter2Settings.Second);
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }

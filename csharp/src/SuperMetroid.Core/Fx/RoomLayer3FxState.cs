@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.Artwork;
@@ -46,7 +47,7 @@ public sealed class RoomLayer3FxState
             "A room effect's page requires installed layer-3 tilemaps.")).Resolve(type).Span;
         var words = new ushort[page.Length / sizeof(ushort)];
         for (int word = 0; word < words.Length; word++)
-            words[word] = SnesLittleEndian.Word(page[word * 2], page[word * 2 + 1]);
+            words[word] = BinaryPrimitives.ReadUInt16LittleEndian(page[(word * sizeof(ushort))..]);
         return words;
     }
 

@@ -73,7 +73,7 @@ internal static class MapSpritesVerification
             authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited.Sprites), MapSpriteId.MarkerBoss, authored, new(100, 100), palette); authored.FinishFrame();
             AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
-            var attributes = new SnesObjAttributeWord(SnesLittleEndian.Word(authored.LowTable[2], authored.LowTable[3]));
+            var attributes = new SnesObjAttributeWord(LittleEndianBytes.Word(authored.LowTable[2], authored.LowTable[3]));
             AssertEqual(50, attributes.TileNumber, "authored tile region reaches OAM");
             AssertEqual(5, attributes.PaletteIndex, "explicit palette overrides caller blink palette");
             AssertEqual(3, attributes.Priority, "authored priority reaches OAM");

@@ -112,7 +112,7 @@ internal static class MetroidBombPlacementVerification
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
-            SnesLittleEndian.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround);
+            LittleEndianBytes.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround);
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         samus.PoseHistory.LastDifferentPose = 0;
         var target = runtime.Enemies.SlotTable.Slots[0];

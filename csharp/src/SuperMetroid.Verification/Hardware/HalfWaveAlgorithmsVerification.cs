@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Hardware;
 
@@ -34,7 +33,7 @@ internal static class HalfWaveAlgorithmsVerification
         for (int index = 0; index < 128; index++)
         {
             int address = EnemyMathReferenceData.UnsignedSine + index * 2;
-            ushort original = SnesLittleEndian.Word(UnsignedHalfWaveAlgorithmRomByte(rom, address), UnsignedHalfWaveAlgorithmRomByte(rom, address + 1));
+            ushort original = LittleEndianBytes.Word(UnsignedHalfWaveAlgorithmRomByte(rom, address), UnsignedHalfWaveAlgorithmRomByte(rom, address + 1));
             AssertEqual(original, Trigonometry.UnsignedHalfWave(index), $"Original unsigned sine {index}");
             if (index is 0 or 64) continue;
             decimal value = 65535 * Trigonometry.UnitHalfWave(index);

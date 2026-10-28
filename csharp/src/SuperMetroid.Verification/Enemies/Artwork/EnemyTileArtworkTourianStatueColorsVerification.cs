@@ -205,7 +205,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
 
         ushort ReadReferenceWord(int address) =>
-            SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
+            LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static SamusColourRig SeedColors()
         {

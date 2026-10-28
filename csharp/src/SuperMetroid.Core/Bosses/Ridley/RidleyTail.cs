@@ -116,7 +116,7 @@ internal sealed class RidleyTail
             else if (state.IdleTailWhipEnabled)
             {
                 // Read the existing seed; this branch never advances the cartridge RNG.
-                if ((SnesLittleEndian.LowByte(_room.Random.Read())) >= 240)
+                if (SharedRandomState.LowerByte(_room.Random.Read()) >= 240)
                     AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle((byte)(state.TailWhipRequest - 1))));
                 else if (samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: new ByteAngle(0));
@@ -367,7 +367,7 @@ internal sealed class RidleyTail
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
     {
         int random = _room.Random.Read();
-        if (SnesLittleEndian.HighByte(random) != byte.MaxValue)
+        if (SharedRandomState.UpperByte(random) != byte.MaxValue)
             return;
         state.IdealInterSegmentTailAngle = random % 16 + 7 + 1;
     }
@@ -535,7 +535,7 @@ internal sealed class RidleyTail
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&
-            ((SnesLittleEndian.LowByte(_room.Random.Read())) >= 240 ||
+            (SharedRandomState.LowerByte(_room.Random.Read()) >= 240 ||
              samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128) &&
             state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null)
         {

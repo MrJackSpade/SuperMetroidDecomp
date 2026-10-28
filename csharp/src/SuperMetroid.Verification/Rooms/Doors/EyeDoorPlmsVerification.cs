@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
@@ -261,9 +262,9 @@ internal static class EyeDoorPlmsVerification
         }
 
         SeedRoomPlmPopulation(bus, 0x9000, [
-            unchecked((byte)eyeHeader), SnesLittleEndian.HighByte(eyeHeader), 7, 4, 5, 0,
-            unchecked((byte)doorHeader), SnesLittleEndian.HighByte(doorHeader), 7, 6, 5, 0,
-            unchecked((byte)bottomHeader), SnesLittleEndian.HighByte(bottomHeader), 7, 8, 5, 0,
+            unchecked((byte)eyeHeader), LittleEndianBytes.HighByte(eyeHeader), 7, 4, 5, 0,
+            unchecked((byte)doorHeader), LittleEndianBytes.HighByte(doorHeader), 7, 6, 5, 0,
+            unchecked((byte)bottomHeader), LittleEndianBytes.HighByte(bottomHeader), 7, 8, 5, 0,
             0, 0,
         ]);
         SeedPlmProgramWords(bus, unchecked((ushort)(eyeHeader + 2)), 0x0400);
@@ -304,10 +305,10 @@ internal static class EyeDoorPlmsVerification
     {
         int address = 0x840000 | list;
         bus.WriteBytes(address, [
-            0x72, 0x8a, unchecked((byte)openedTarget), SnesLittleEndian.HighByte(openedTarget),
-            0x24, 0x8a, unchecked((byte)openedTarget), SnesLittleEndian.HighByte(openedTarget),
+            0x72, 0x8a, unchecked((byte)openedTarget), LittleEndianBytes.HighByte(openedTarget),
+            0x24, 0x8a, unchecked((byte)openedTarget), LittleEndianBytes.HighByte(openedTarget),
             0xc1, 0x86, 0x53, 0xd7,
-            0x01, 0x00, unchecked((byte)draw), SnesLittleEndian.HighByte(draw),
+            0x01, 0x00, unchecked((byte)draw), LittleEndianBytes.HighByte(draw),
             0xb4, 0x86,
         ]);
         SeedPlmProgramWords(bus, openedTarget, (ushort)RoomPlmInstruction.Delete);

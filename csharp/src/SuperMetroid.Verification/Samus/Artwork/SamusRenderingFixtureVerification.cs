@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
@@ -49,7 +48,7 @@ internal static class SamusRenderingFixtureVerification
     internal static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {
         SamusBodyArtworkCatalog stock = renderingFixtureStock.Value;
-        ushort Word(int address) => SnesLittleEndian.Word(bus.ReadByte(address), bus.ReadByte(address + 1));
+        ushort Word(int address) => LittleEndianBytes.Word(bus.ReadByte(address), bus.ReadByte(address + 1));
         ushort[] Words(int address, int count) => Enumerable.Range(0, count)
             .Select(index => Word(address + index * 2)).ToArray();
         ushort[] OverrideWords(int address, ushort[] original)

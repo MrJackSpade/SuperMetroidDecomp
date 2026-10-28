@@ -38,9 +38,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
         for (int page = 0; page < 5; page++)
         {
             int record = 0xa6c4d9 + 7 * page;
-            int count = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record), CpuBusRegionRead.Read(rom, record + 1));
-            int source = (int)new SnesAddress(CpuBusRegionRead.Read(rom, record + 4), SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + 2), CpuBusRegionRead.Read(rom, record + 3)));
-            int destination = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + 5), CpuBusRegionRead.Read(rom, record + 6));
+            int count = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record), CpuBusRegionRead.Read(rom, record + 1));
+            int source = (int)new SnesAddress(CpuBusRegionRead.Read(rom, record + 4), LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + 2), CpuBusRegionRead.Read(rom, record + 3)));
+            int destination = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + 5), CpuBusRegionRead.Read(rom, record + 6));
             cartridgeVram.LoadBytes(destination * 2, RomDataReader.ReadFixedBank(rom, source, count));
         }
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)

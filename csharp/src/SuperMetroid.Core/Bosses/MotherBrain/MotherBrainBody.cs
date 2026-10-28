@@ -509,7 +509,7 @@ internal sealed class MotherBrainBody
 
         // The turret is stationary, so the initializer repurposes its Y-subposition word: direction in the low byte
         // and signed rotation delta (+1 initially) in the high byte.
-        turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word(checked((byte)MotherBrainTurretDefinitions.Ring.PositionOf(direction)), 1));
+        turret.Position = turret.Position.WithFractionY(MotherBrainProjectiles.TurretRotationState(checked((byte)MotherBrainTurretDefinitions.Ring.PositionOf(direction)), 1));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
 
         // X/Y velocity are likewise timers for a stationary turret. Each initializer makes

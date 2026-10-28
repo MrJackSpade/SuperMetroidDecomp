@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rendering;
@@ -54,6 +55,6 @@ internal sealed class IntroTilemaps
     private static void Load(Span<ushort> destination, ReadOnlySpan<byte> littleEndianWords)
     {
         for (int word = 0; word < littleEndianWords.Length / sizeof(ushort); word++)
-            destination[word] = SnesLittleEndian.Word(littleEndianWords[word * 2], littleEndianWords[word * 2 + 1]);
+            destination[word] = BinaryPrimitives.ReadUInt16LittleEndian(littleEndianWords[(word * sizeof(ushort))..]);
     }
 }

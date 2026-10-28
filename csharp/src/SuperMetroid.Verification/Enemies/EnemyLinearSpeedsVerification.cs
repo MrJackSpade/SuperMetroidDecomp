@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Stoke;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -46,7 +45,7 @@ internal static class EnemyLinearSpeedsVerification
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818b + index * 8)), leftFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818d + index * 8));
             var expected = new VerifyCompiledLinearEnemySpeedsCase(right, rightFraction, left, leftFraction);
             slot.SetSpawnParameter1(0);
-            slot.SetSpawnParameter2(SnesLittleEndian.Word(0, unchecked((byte)index)));
+            slot.SetSpawnParameter2(LittleEndianBytes.Word(0, unchecked((byte)index)));
             slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0];

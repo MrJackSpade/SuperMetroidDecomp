@@ -32,9 +32,9 @@ public readonly record struct BombSpreadHorizontalVelocity
     /// </summary>
     public static BombSpreadHorizontalVelocity FromLaunchWord(int launchWord)
     {
-        int high = SnesLittleEndian.HighByte(launchWord);
+        int high = UnsignedEightEight.Whole(launchWord);
         bool movingLeft = high >= LeftwardBit;
-        return new(movingLeft, movingLeft ? high - LeftwardBit : high, SnesLittleEndian.LowByte(launchWord));
+        return new(movingLeft, movingLeft ? high - LeftwardBit : high, UnsignedEightEight.Fraction(launchWord));
     }
 
     /// <summary>The same speed in the opposite direction, as a wall collision leaves it.</summary>

@@ -53,7 +53,7 @@ internal static class RoomFxLayer3TilemapsVerification
                 out CartridgeReadGuard guarded);
             int first = Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns;
             for (int index = 0; index < native.Length / sizeof(ushort); index++)
-                AssertEqual(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]), plane.Words[first + index],
+                AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]), plane.Words[first + index],
                     $"room-FX {type} installed page word {index} is shown on the BG3 plane");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"room-FX {type} installed load reads no tilemap ROM or pointer table");

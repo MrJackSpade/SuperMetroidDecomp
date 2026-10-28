@@ -225,8 +225,8 @@ public sealed class VramWriteQueue
         var bytes = new byte[byteCount];
         for (int index = 0; index < byteCount; index += sizeof(ushort))
         {
-            bytes[index] = SnesLittleEndian.LowByte(words[index / sizeof(ushort)]);
-            bytes[index + 1] = SnesLittleEndian.HighByte(words[index / sizeof(ushort)]);
+            bytes[index] = LittleEndianBytes.LowByte(words[index / sizeof(ushort)]);
+            bytes[index + 1] = LittleEndianBytes.HighByte(words[index / sizeof(ushort)]);
         }
         return bytes;
     }

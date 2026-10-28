@@ -165,7 +165,7 @@ public sealed class EscapeTimer
         {
             // STZ TimerXPosition-1 clears only the aliased counter/subpixel byte. The
             // visible high-byte X coordinate remains $80 until movement begins.
-            Position = Position.WithX((ushort)(SnesLittleEndian.HighByteInPlace(Position.X)));
+            Position = Position.WithX(UnsignedEightEight.WithoutFraction(Position.X));
             AdvanceState();
         }
 
@@ -245,7 +245,7 @@ public sealed class EscapeTimer
     private void IncrementXLowByte()
     {
         int nextCounter = unchecked((byte)((byte)Position.X + 1));
-        Position = Position.WithX((ushort)((SnesLittleEndian.HighByteInPlace(Position.X)) | nextCounter));
+        Position = Position.WithX((ushort)(UnsignedEightEight.WithoutFraction(Position.X) | nextCounter));
     }
 
     /// <summary>Selects the next step of the running sequence, keeping the timer active.</summary>

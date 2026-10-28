@@ -116,7 +116,7 @@ internal sealed class TourianUnlockBehavior
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
                 // top screen row, that first happens when it wraps above the room's top edge.
-                int soulScreenRow = SnesLittleEndian.HighByte(projectile.Position.Y.Whole);
+                int soulScreenRow = RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole);
                 if (soulScreenRow % 2 != 0)
                 {
                     projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
@@ -131,7 +131,7 @@ internal sealed class TourianUnlockBehavior
                 bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
                 if (submergedBefore != submergedAfter)
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
-                if (SnesLittleEndian.HighByte(projectile.Position.Y.Whole) == 1)
+                if (RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole) == 1)
                 {
                     projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }

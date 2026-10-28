@@ -233,7 +233,7 @@ internal sealed class BeamFiring
         // frame and cooldown `$0CCC` supplies the native rate limit; charged releases reach
         // the same gate once.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
-            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
+            sharedProjectiles.CooldownTimer.EightBitCount != 0)
         {
             return new BeamShot(null, null);
         }
@@ -338,7 +338,7 @@ internal sealed class BeamFiring
         // `$90:AC39` is shared with normal beams: five counted ordinary slots and a nonzero
         // low cooldown byte reject firing before any slot fields are touched.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
-            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
+            sharedProjectiles.CooldownTimer.EightBitCount != 0)
         {
             return new BeamShot(null, null);
         }
@@ -427,7 +427,7 @@ internal sealed class BeamFiring
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
-            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
+            sharedProjectiles.CooldownTimer.EightBitCount != 0)
         {
             return new BeamShot(null, null);
         }

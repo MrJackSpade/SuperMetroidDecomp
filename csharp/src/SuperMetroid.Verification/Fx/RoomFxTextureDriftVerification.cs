@@ -1,7 +1,7 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
@@ -54,7 +54,7 @@ internal static class RoomFxTextureDriftVerification
         }
 
         // An accumulator's whole pixels: its signed high byte, sign-extended into the scroll word.
-        static ushort WholePixels(ushort accumulator) => unchecked((ushort)(sbyte)SnesLittleEndian.HighByte(accumulator));
+        static ushort WholePixels(ushort accumulator) => unchecked((ushort)(sbyte)LittleEndianBytes.HighByte(accumulator));
 
         static RoomLayer3FxFrame Frame() =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false };

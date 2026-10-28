@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Core.Fx;
@@ -16,11 +16,11 @@ internal static class RoomFxRecordDefinitionAccess
         internal byte ReadByte(int offset) => offset switch
         {
             0 => (byte)self.DoorPointer,
-            1 => SnesLittleEndian.HighByte(self.DoorPointer),
+            1 => LittleEndianBytes.HighByte(self.DoorPointer),
             2 => (byte)self.BaseYPosition,
-            3 => SnesLittleEndian.HighByte(self.BaseYPosition),
+            3 => LittleEndianBytes.HighByte(self.BaseYPosition),
             4 => (byte)self.TargetYPosition,
-            5 => SnesLittleEndian.HighByte(self.TargetYPosition),
+            5 => LittleEndianBytes.HighByte(self.TargetYPosition),
             6 => (byte)self.PackedYVelocity,
             7 => (byte)(EightEight.WholeOf(self.PackedYVelocity)),
             8 => checked((byte)self.Timer),
@@ -39,7 +39,7 @@ internal static class RoomFxRecordDefinitionAccess
         {
             if ((uint)offset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
                 throw new ArgumentOutOfRangeException(nameof(offset));
-            return SnesLittleEndian.Word(self.ReadByte(offset), self.ReadByte(offset + 1));
+            return LittleEndianBytes.Word(self.ReadByte(offset), self.ReadByte(offset + 1));
         }
     }
 }

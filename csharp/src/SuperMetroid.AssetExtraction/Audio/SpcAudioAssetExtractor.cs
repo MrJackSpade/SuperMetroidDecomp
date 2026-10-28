@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.AssetExtraction.Audio.SpcSampleExtractionDefinitions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -155,7 +154,7 @@ public static class SpcAudioAssetExtractor
                 ram[address + 1],
                 ram[address + 2],
                 ram[address + 3],
-                unchecked(SnesLittleEndian.Word(ram[address + 5], ram[address + 4]))));
+                unchecked(LittleEndianBytes.Word(ram[address + 5], ram[address + 4]))));
         }
 
         List<AudioSampleMetadata> samples = [];
@@ -376,7 +375,7 @@ public static class SpcAudioAssetExtractor
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload ended before its terminating length word.");
-            ushort length = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
+            ushort length = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length == 0)
             {
@@ -389,7 +388,7 @@ public static class SpcAudioAssetExtractor
             }
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload ended before a destination word.");
-            ushort destination = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
+            ushort destination = unchecked(LittleEndianBytes.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException($"SPC upload record ${destination:X4} overruns its source stream.");
@@ -403,7 +402,7 @@ public static class SpcAudioAssetExtractor
 
     /// <summary>Reads an SPC pointer from two little-endian RAM bytes.</summary>
     private static ushort ReadWord(byte[] bytes, int address) =>
-        unchecked(SnesLittleEndian.Word(bytes[address], bytes[address + 1]));
+        unchecked(LittleEndianBytes.Word(bytes[address], bytes[address + 1]));
 
     /// <summary>
     /// Assigns the first cartridge occurrence of a unique waveform/loop pair a readable,

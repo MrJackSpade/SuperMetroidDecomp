@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -28,7 +27,7 @@ internal static class KraidFootCoordinateMappingsVerification
     /// <summary>Compares 35 animation frames and the shared frame with native foot-component offsets.</summary>
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
     {
-        ushort Word(int pointer) => SnesLittleEndian.Word(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer), KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1)));
+        ushort Word(int pointer) => LittleEndianBytes.Word(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer), KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1)));
         for (int ordinal = 0; ordinal <= 35; ordinal++)
         {
             ushort pointer = ordinal == 35 ? (ushort)0xa565 : (ushort)(0x8ce3 + 18 * ordinal);
@@ -55,7 +54,7 @@ internal static class KraidFootCoordinateMappingsVerification
     /// <summary>Checks the shared foot rectangle and exhaustive native component-frame membership.</summary>
     internal static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int pointer) => SnesLittleEndian.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1)));
+        ushort Word(int pointer) => LittleEndianBytes.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1)));
         var boxes = KraidFootCollisionDefinitionsConstants.HitboxesAt(0x9453);
         AssertEqual(Word(0x9453), boxes.Length, "Native shared rectangle count");
         KraidCollisionHitbox shared = boxes[0];

@@ -154,13 +154,21 @@ public sealed class CrocomireEnemyState
     internal CrocomireFightFunction SavedFightFunction { get; set; }
 
     /// <summary>
+    /// The bits of the shared word below <see cref="VerticalSubpixel"/>, which the sink sequence clears and then leaves
+    /// alone. The subpixel stays in that word because the projectile counter and the skeleton's whole position use it
+    /// too, at other times.
+    /// </summary>
+    private const int SinkClearedBits = 8;
+
+    /// <summary>
     /// While the body sinks or rises: the 1/256-pixel vertical position carried between frames. The cartridge keeps it
     /// in the word's high byte and leaves the low byte as the sequence cleared it.
     /// </summary>
     public int VerticalSubpixel
     {
-        get => SnesLittleEndian.HighByte(checked((ushort)_projectileSubpixelOrSkeletonWholeWord));
-        internal set => _projectileSubpixelOrSkeletonWholeWord = SnesLittleEndian.Word(SnesLittleEndian.LowByte(checked((ushort)_projectileSubpixelOrSkeletonWholeWord)), checked((byte)value));
+        get => unchecked((byte)(checked((ushort)_projectileSubpixelOrSkeletonWholeWord) >> SinkClearedBits));
+        internal set => _projectileSubpixelOrSkeletonWholeWord =
+            unchecked((byte)checked((ushort)_projectileSubpixelOrSkeletonWholeWord)) | checked((byte)value) << SinkClearedBits;
     }
 
     /// <summary>

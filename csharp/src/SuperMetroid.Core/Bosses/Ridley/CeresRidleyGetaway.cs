@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
@@ -209,7 +210,7 @@ internal sealed class CeresRidleyGetaway
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
-        int zoomHighByte = SnesLittleEndian.HighByte(zoom);
+        int zoomHighByte = UnsignedEightEight.Whole(zoom);
         if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
             zoomHighByte < CeresRidleyPaletteDefinitions.GetawayZoomRowCount)
         {
@@ -361,7 +362,7 @@ internal sealed class CeresRidleyGetaway
             throw new InvalidDataException($"Installed Ceres escape has no editable {page.Name} tilemap.");
         var words = new ushort[page.WordCount];
         for (int index = 0; index < words.Length; index++)
-            words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
+            words[index] = BinaryPrimitives.ReadUInt16LittleEndian(data.Span[(index * sizeof(ushort))..]);
         _room.Services.DrawBg1Overlay(page.Cell, words);
     }
 

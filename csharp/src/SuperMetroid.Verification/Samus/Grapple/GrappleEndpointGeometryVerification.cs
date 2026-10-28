@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
@@ -44,7 +45,7 @@ internal static class GrappleEndpointGeometryVerification
             OamBuffer oam = oamFrame.FinalizeAsOam();
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));
-            bool visible = swinging || (SnesLittleEndian.HighByteInPlace(relativeY)) == 0;
+            bool visible = swinging || (LittleEndianBytes.HighByteInPlace(relativeY)) == 0;
             string context = $"pose {(int)pose:X2}, camera {camera}, offsets {offsetX}/{offsetY}";
             AssertEqual(visible ? 4 : 0, (oam.LastFinalizedSpriteCount * 4), "Native endpoint vertical gate: " + context);
             if (!visible) continue;
@@ -54,7 +55,7 @@ internal static class GrappleEndpointGeometryVerification
             ushort y = unchecked((ushort)(endpointY - camera - 4 - (swinging && endpointY < camera ? 1 : 0)));
             AssertEqual((byte)x, oam.LowTable[0], "Native endpoint X: " + context);
             AssertEqual((byte)y, oam.LowTable[1], "Native endpoint Y: " + context);
-            AssertEqual((byte)((SnesLittleEndian.HighByte(x)) & 1), oam.HighTable[0], "Native endpoint high-X bit: " + context);
+            AssertEqual((byte)((LittleEndianBytes.HighByte(x)) & 1), oam.HighTable[0], "Native endpoint high-X bit: " + context);
             AssertEqual((byte)0x20, oam.LowTable[2], "Native endpoint character");
             AssertEqual((byte)0x3a, oam.LowTable[3], "Native endpoint palette/priority");
         }

@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Scroll-data calculation performed by the wavy Phantoon HDMA pre-instruction.</summary>
@@ -41,10 +43,15 @@ public static class PhantoonWaveTable
         int sample = offset / PhantoonWaveDefinitions.SampleBytes;
         int value = unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)sample)));
         if (offset % PhantoonWaveDefinitions.SampleBytes == 0) return unchecked((short)value);
-        return unchecked((short)SnesLittleEndian.Word(
-            SnesLittleEndian.HighByte(value),
-            offset == PhantoonWaveDefinitions.PhaseMask ? PhantoonWaveDefinitions.TrailingByte :
-                SnesLittleEndian.LowByte(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(sample + 1)))))));
+        // The odd phase reads the little-endian word straddling this sample and the next.
+        Span<byte> samples = stackalloc byte[2 * PhantoonWaveDefinitions.SampleBytes];
+        BinaryPrimitives.WriteUInt16LittleEndian(samples, (ushort)value);
+        if (offset == PhantoonWaveDefinitions.PhaseMask)
+            samples[PhantoonWaveDefinitions.SampleBytes] = PhantoonWaveDefinitions.TrailingByte;
+        else
+            BinaryPrimitives.WriteUInt16LittleEndian(samples[PhantoonWaveDefinitions.SampleBytes..],
+                unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(sample + 1)))));
+        return unchecked((short)BinaryPrimitives.ReadUInt16LittleEndian(samples[1..]));
     }
 
     /// <summary>

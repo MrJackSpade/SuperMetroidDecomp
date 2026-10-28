@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerif
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -38,7 +37,7 @@ internal static class PoseDispatchDefinitionsVerification
                 AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType(samus), "Live movement discriminator matches native");
                 AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType((SamusPoseId)pose), "Prospective movement discriminator matches native");
                 commit(samus, source);
-                AssertEqual(SnesLittleEndian.Word(facing, movement), samus.PoseHistory.PreviousDirectionAndMovement,
+                AssertEqual(LittleEndianBytes.Word(facing, movement), samus.PoseHistory.PreviousDirectionAndMovement,
                     "Actual history publisher retains native facing/movement word");
             }
             else

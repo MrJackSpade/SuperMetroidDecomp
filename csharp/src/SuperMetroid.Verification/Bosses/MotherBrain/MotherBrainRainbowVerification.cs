@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.SignedSineFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
@@ -23,7 +23,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     // The helpers add a signed 8.8 velocity to the whole Y word and only the high
     // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.
     static ushort YEightEight(SamusState state) =>
-        unchecked((ushort)((EightEight.FromWhole(state.Position.Y.Whole)) | SnesLittleEndian.HighByte(state.Kinematics.Position.Y.Fraction)));
+        unchecked((ushort)((EightEight.FromWhole(state.Position.Y.Whole)) | LittleEndianBytes.HighByte(state.Kinematics.Position.Y.Fraction)));
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var samus = new SamusState

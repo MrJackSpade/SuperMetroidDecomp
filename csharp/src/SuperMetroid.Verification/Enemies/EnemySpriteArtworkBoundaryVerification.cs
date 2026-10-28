@@ -46,8 +46,8 @@ internal static class EnemySpriteArtworkBoundaryVerification
             { new VerifyEnemySpriteArtworkBoundaryCase(128, 96, false), new VerifyEnemySpriteArtworkBoundaryCase(511, 1, true), new VerifyEnemySpriteArtworkBoundaryCase(0, ushort.MaxValue, true) })
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
-            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<SpritePixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
+            DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (LittleEndianBytes.HighByteInPlace(y)) == 0 });
+            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<SpritePixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (LittleEndianBytes.HighByteInPlace(y)) == 0 });
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 
@@ -95,7 +95,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             var position = actor.Position;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, actor.SpritemapPointer,
-                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics), (SnesLittleEndian.HighByteInPlace(position.Y)) == 0);
+                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics), (LittleEndianBytes.HighByteInPlace(position.Y)) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 

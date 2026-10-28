@@ -52,7 +52,7 @@ internal static class GrappleRopeGeometryVerification
                 {
                     visited++;
                     ushort sx = FixedCoordinate.WholeOf(x), sy = FixedCoordinate.WholeOf(y);
-                    if (SnesLittleEndian.HighByte(unchecked((ushort)(sx | sy))) != 0) break;
+                    if (LittleEndianBytes.HighByte(unchecked((ushort)(sx | sy))) != 0) break;
                     expected.Add(new GrappleRopeGeometryExpected((byte)sx, (byte)sy));
                     x = unchecked(x + dx); y = unchecked(y + dy);
                 }

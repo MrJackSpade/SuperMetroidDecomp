@@ -27,6 +27,15 @@ public readonly record struct WrappingCountdown
     [IntegerQuantity("the countdown's remaining count")]
     public ushort RawValue { get; }
 
+    /// <summary>
+    /// The count an eight-bit read of the countdown sees: its low eight bits. Routines that run with an eight-bit
+    /// accumulator test, reload or clear only this count and leave the rest of the word as it was.
+    /// </summary>
+    public byte EightBitCount => unchecked((byte)RawValue);
+
+    /// <summary>The countdown with its eight-bit count replaced by <paramref name="count"/> and the rest of the word kept.</summary>
+    public WrappingCountdown WithEightBitCount(byte count) => new((ushort)(RawValue - EightBitCount + count));
+
     /// <summary>Whether the stored word is <c>$0000</c> (LDA then BEQ/BNE).</summary>
     public bool IsZero => RawValue == 0;
 

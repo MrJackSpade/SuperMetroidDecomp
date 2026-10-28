@@ -81,7 +81,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             const ushort population = 0x9000;
             bus.WriteBytes(0x8f0000 | population,
             [
-                unchecked((byte)PlmNativeWords.Word(header)), SnesLittleEndian.HighByte(PlmNativeWords.Word(header)),
+                unchecked((byte)PlmNativeWords.Word(header)), LittleEndianBytes.HighByte(PlmNativeWords.Word(header)),
                 4, 4, 0, 0,
                 0, 0,
             ]);

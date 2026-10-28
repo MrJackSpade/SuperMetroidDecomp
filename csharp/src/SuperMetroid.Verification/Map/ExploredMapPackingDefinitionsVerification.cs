@@ -1,6 +1,5 @@
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Progression;
@@ -32,7 +31,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => unchecked(
-            SnesLittleEndian.Word(ExploredMapPackingDefinitionsRomByte(retail, address), ExploredMapPackingDefinitionsRomByte(retail, address + 1)));
+            LittleEndianBytes.Word(ExploredMapPackingDefinitionsRomByte(retail, address), ExploredMapPackingDefinitionsRomByte(retail, address + 1)));
 
         int exportedByteCount = 0;
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)

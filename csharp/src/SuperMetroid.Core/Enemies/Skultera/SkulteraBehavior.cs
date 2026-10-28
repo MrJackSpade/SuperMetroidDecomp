@@ -61,7 +61,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         // magnitude stores adjacent {right whole, right fraction, left whole, left fraction}
         // words. Keep the byte offset visible; treating it as an array index is a common
         // source of subtly wrong half-pixel speeds in ports of this AI.
-        bool startsLeft = (SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1)) != 0;
+        bool startsLeft = slot.Spawn.Population.Parameter1Settings.Second != 0;
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(startsLeft
             ? SkulteraProgram.SwimmingLeft
             : SkulteraProgram.SwimmingRight);
@@ -69,7 +69,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
 
-        int speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * 8));
+        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1Settings.First * 8));
         SignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightVelocity = right;
         SignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
@@ -77,8 +77,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Parameter two packs radius in its low byte and unsigned initial angle delta in
         // its high byte. The delta becomes negative only when a turn negates it.
-        state.Radius = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
-        state.AngleDelta = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        state.Radius = slot.Spawn.Population.Parameter2Settings.First;
+        state.AngleDelta = slot.Spawn.Population.Parameter2Settings.Second;
         state.Angle = RotationAngle.Zero;
         state.TurnFinished = false;
         state.CurrentYOffset = 0;

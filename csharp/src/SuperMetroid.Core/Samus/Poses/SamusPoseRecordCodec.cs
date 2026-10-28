@@ -37,6 +37,9 @@ internal static class SamusPoseRecordCodec
             ? irregular
             : FacingByte(SamusPoseDispatchDefinitions.ReadFacing(pose));
 
+    /// <summary>The bits of a history word's facing byte, below its movement byte.</summary>
+    private const int FacingBits = 8;
+
     /// <summary>The record facing byte that stores a typed facing.</summary>
     private static byte FacingByte(SamusFacingDirection facing) => facing switch
     {
@@ -51,12 +54,12 @@ internal static class SamusPoseRecordCodec
     /// the movement byte. A pose whose movement byte lies beyond the dispatcher fails, as reading its movement does.
     /// </summary>
     internal static ushort HistoryWord(SamusPoseId pose) =>
-        SnesLittleEndian.Word(FacingByte(pose), MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose)));
+        (ushort)(FacingByte(pose) | MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose)) << FacingBits);
 
     /// <summary>The movement type a history word records, or null when its movement byte names none.</summary>
     internal static SamusMovementType? HistoryMovement(ushort word)
     {
-        byte movement = SnesLittleEndian.HighByte(word);
+        byte movement = unchecked((byte)(word >> FacingBits));
         return movement <= MovementByte(SamusMovementType.Special) ? (SamusMovementType)movement : null;
     }
 

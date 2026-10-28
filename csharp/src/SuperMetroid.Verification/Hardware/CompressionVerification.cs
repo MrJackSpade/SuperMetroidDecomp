@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Compression;
@@ -34,7 +34,7 @@ internal static class CompressionVerification
             byte longHeader = unchecked((byte)(
                 SmCompressionCodes.LongHeaderMarker |
                 ((byte)command >> 5 << 2) |
-                SnesLittleEndian.HighByte(unchecked((ushort)encodedLength))));
+                LittleEndianBytes.HighByte(unchecked((ushort)encodedLength))));
             SmCompressionHeader longDecoded = SmCompressionHeader.Decode(
                 longHeader,
                 unchecked((byte)encodedLength));

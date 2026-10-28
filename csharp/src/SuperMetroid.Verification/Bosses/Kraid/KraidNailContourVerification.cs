@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNailContourMappingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -14,7 +13,7 @@ internal static class KraidNailContourVerification
     /// <summary>Runs signed edge and velocity probes, including reads into adjacent contour words.</summary>
     internal static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => SnesLittleEndian.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1));
+        ushort Word(int a) => LittleEndianBytes.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

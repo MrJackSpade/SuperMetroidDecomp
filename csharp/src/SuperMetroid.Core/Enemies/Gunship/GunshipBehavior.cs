@@ -620,7 +620,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
         GunshipPartState bottomPart = Part(bottom);
         bottomPart.EscapeVelocity = unchecked((ushort)(bottomPart.EscapeVelocity + GunshipMotionDefinitions.EscapeAcceleration));
-        if ((SnesLittleEndian.HighByteInPlace(bottomPart.EscapeVelocity)) >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
+        if (UnsignedEightEight.WithoutFraction(bottomPart.EscapeVelocity) >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
             bottomPart.EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
 
         uint samusY = samus.Kinematics.Position.Y.RawValue;

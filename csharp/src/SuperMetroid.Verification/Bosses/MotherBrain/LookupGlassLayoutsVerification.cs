@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -75,13 +74,13 @@ internal static class LookupGlassLayoutsVerification
                 {
                     AssertEqual((ushort)(count | (shape.Vertical(run) ? 0x8000 : 0)), header, "Glass layout native direction");
                     AssertEqual(count, shape.WordCount(run), "Glass layout native calculated count");
-                    AssertEqual(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Glass layout native calculated continuation");
+                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Glass layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Glass layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Glass layout native DTO count");
-                        AssertEqual(offset, SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y), "Glass layout native DTO offset");
+                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Glass layout native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

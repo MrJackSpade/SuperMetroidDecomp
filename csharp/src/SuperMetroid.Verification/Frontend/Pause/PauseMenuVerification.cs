@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Projectiles.InvalidBeamSelectionVerification;
@@ -280,7 +281,7 @@ internal static class PauseMenuVerification
     {
         int offset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
         rom[offset] = unchecked((byte)value);
-        rom[offset + 1] = SnesLittleEndian.HighByte(unchecked((ushort)value));
+        rom[offset + 1] = LittleEndianBytes.HighByte(unchecked((ushort)value));
         rom[offset + 2] = SnesLittleEndianConstants.BankByte(value);
     }
 

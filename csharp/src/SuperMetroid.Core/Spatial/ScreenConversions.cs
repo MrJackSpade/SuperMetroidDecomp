@@ -28,6 +28,14 @@ public static class ScreenConversions
     /// </summary>
     public static Position16<SpritePixels> ToSpritePosition(this Position16<ScreenPixels> screen) => new(screen.X, screen.Y);
 
+    /// <summary>
+    /// Whether a wrapped unsigned sixteen-bit screen coordinate, 0 through 65535, lies outside the 256 rows or columns
+    /// a sprite origin can name. Drawing routines that test only that range skip the sprite instead of wrapping it, so
+    /// a coordinate left of or above the screen (a large wrapped word) is outside too.
+    /// </summary>
+    public static bool IsOutsideSpriteRange(int coordinate) =>
+        Ensure.BetweenInclusive(0, ushort.MaxValue, coordinate) > byte.MaxValue;
+
     /// <summary>The whole screen pixels of an unsigned 8.8 screen position: each axis's high byte.</summary>
     public static Position16<ScreenPixels> WholePixels(this Position16<ScreenSubpixels> position) =>
         new((ushort)(position.X >> 8), (ushort)(position.Y >> 8));

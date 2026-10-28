@@ -1,7 +1,6 @@
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -155,7 +154,7 @@ internal static class NativeEnemyProjectileProgramOracle
             AssertTrue(rules.OperandBytes(word) is not null, $"{at}: native command ${word:X4} is known");
             int count = rules.OperandBytes(word) ?? 0;
             var cueStep = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.CueStep>(Next("command"), $"{at}: command");
-            byte[] operands = [.. Enumerable.Range(0, count).Select(item => SnesLittleEndian.LowByte(cartridge.ReadCartridgeWord(address + 2 + item)))];
+            byte[] operands = [.. Enumerable.Range(0, count).Select(item => LittleEndianBytes.LowByte(cartridge.ReadCartridgeWord(address + 2 + item)))];
             rules.CompareCue(word, operands, cueStep.Cue, at);
             if (rules.ShowsFrame?.Invoke(word) == true)
             {

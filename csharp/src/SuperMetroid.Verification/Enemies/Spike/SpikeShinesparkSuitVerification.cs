@@ -1,7 +1,7 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -184,7 +184,7 @@ internal static class SpikeShinesparkSuitVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
-            SnesLittleEndian.Word(8, (byte)SamusMovementType.MorphBallGround);
+            LittleEndianBytes.Word(8, (byte)SamusMovementType.MorphBallGround);
         samus.PoseHistory.LastDifferentPose = 0;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(

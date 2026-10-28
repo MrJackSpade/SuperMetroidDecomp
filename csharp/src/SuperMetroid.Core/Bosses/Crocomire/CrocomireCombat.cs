@@ -482,7 +482,7 @@ internal sealed class CrocomireCombat
         // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
         // fractional velocity byte; carry advances the signed integral velocity byte, which
         // is then capped by this physical slot's maximum.
-        int velocityFractionSum = (EightEight.FractionOf(projectile.Velocity.X.RawValue)) + (SnesLittleEndian.HighByte(acceleration));
+        int velocityFractionSum = (EightEight.FractionOf(projectile.Velocity.X.RawValue)) + UnsignedEightEight.Whole(acceleration);
         // Each byte keeps its eight-bit wrap: the fraction drops its carry into the whole byte,
         // and the whole byte is capped by a signed eight-bit comparison.
         int velocityFraction = unchecked((byte)velocityFractionSum);
@@ -491,12 +491,13 @@ internal sealed class CrocomireCombat
         int maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole)));
+        ushort xVelocity = UnsignedEightEight.FromParts(whole: (byte)velocityWhole, fraction: (byte)velocityFraction);
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(xVelocity));
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
         FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-            .AddEightEightToHighFraction(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole));
+            .AddEightEightToHighFraction(xVelocity);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -65,7 +64,7 @@ internal static class ProjectileInheritanceProbeVerification
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.
                 ushort upWord = records.WordBefore(SamusCollisionDirection.Up);
-                int up = (SnesLittleEndian.HighByteInPlace(upWord)) == 0 ? 0 : (upWord >> 2) | UpwardShiftSignFill;
+                int up = (LittleEndianBytes.HighByteInPlace(upWord)) == 0 ? 0 : (upWord >> 2) | UpwardShiftSignFill;
                 short expectedX = unchecked((short)(direction switch
                 {
                     1 or 2 or 3 => baseSpeed + records.WordBefore(SamusCollisionDirection.Right),
@@ -105,18 +104,18 @@ internal static class ProjectileInheritanceProbeVerification
             {
                 short speed = (short)(direction is 1 or 3 or 6 or 8 ? DiagonalBaseSpeed : StraightBaseSpeed);
                 // These overlapping words are a native load across adjacent fields, not net displacement.
-                int upward = SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[4]), unchecked((byte)snapshot[5]));
-                int up = SnesLittleEndian.HighByte(unchecked((ushort)upward)) == 0 ? 0 : (unchecked((ushort)upward) >> 2) | UpwardShiftSignFill;
+                int upward = LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[4]), unchecked((byte)snapshot[5]));
+                int up = LittleEndianBytes.HighByte(unchecked((ushort)upward)) == 0 ? 0 : (unchecked((ushort)upward) >> 2) | UpwardShiftSignFill;
                 short x = unchecked((short)(direction switch
                 {
-                    1 or 2 or 3 => speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[2]), unchecked((byte)snapshot[3])),
-                    6 or 7 or 8 => -speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[0]), unchecked((byte)snapshot[1])),
+                    1 or 2 or 3 => speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[2]), unchecked((byte)snapshot[3])),
+                    6 or 7 or 8 => -speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[0]), unchecked((byte)snapshot[1])),
                     _ => 0,
                 }));
                 short y = unchecked((short)(direction switch
                 {
                     0 or 1 or 8 or 9 => -speed + up,
-                    3 or 4 or 5 or 6 => speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
+                    3 or 4 or 5 or 6 => speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
                     _ => 0,
                 }));
                 AssertEqual(new EightEightVector<RoomPixels>(x, y), inheritance.ReadVelocity(direction, speed),
@@ -194,7 +193,7 @@ internal static class ProjectileInheritanceProbeVerification
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame(ControllerButton.Right);
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
-        AssertTrue((SnesLittleEndian.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
+        AssertTrue((LittleEndianBytes.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
         short expected = unchecked((short)(inherited +
             (weapon == 0 ? ReadPowerBeamLaunchSpeedSum(bus) : 0x0100)));
         using var stateStream = new MemoryStream();

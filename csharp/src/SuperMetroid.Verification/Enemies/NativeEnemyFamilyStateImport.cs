@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -59,7 +60,6 @@ using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies;
@@ -173,8 +173,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             shitroidRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ShitroidAiFunctions.Decode(words.A, "recorded ShitroidAiFunction");
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            shitroidRecord.PalettePhase = SnesLittleEndian.LowByte(words.D);
-            shitroidRecord.PaletteTimer = SnesLittleEndian.HighByte(words.D);
+            shitroidRecord.PalettePhase = LittleEndianBytes.LowByte(words.D);
+            shitroidRecord.PaletteTimer = LittleEndianBytes.HighByte(words.D);
             shitroidRecord.PaletteDelay = words.E;
             shitroidRecord.StateTimer = WrappingCountdown.FromRaw(words.F);
         }
@@ -182,7 +182,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             dachoraRecord.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
             dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
-            dachoraRecord.SetPaletteCycle(frame: SnesLittleEndian.HighByte(words.E), ticks: SnesLittleEndian.LowByte(words.E));
+            dachoraRecord.SetPaletteCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
             dachoraRecord.Function = words.F == 0 ? null : AnimalsNativeWords.DachoraAiFunctions.Decode(words.F, "recorded DachoraAiFunction");
         }
         if (slot.SpeciesState<PipeBugEnemyState>() is { } pipeBugRecord)
@@ -202,7 +202,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             sbugRecord.StraightMovementTimer = WrappingCountdown.FromRaw(words.A);
             sbugRecord.Function = words.B == 0 ? null : SbugNativeWords.SbugEnemyFunctions.Decode(words.B, "recorded SbugEnemyFunction");
-            sbugRecord.FaceCustomHeading(RotationAngle.FromTableIndex(SnesLittleEndian.LowByte(words.C)));
+            sbugRecord.FaceCustomHeading(RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = WrappingCountdown.FromRaw(words.F);
         }
         if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
@@ -480,7 +480,7 @@ internal static class NativeEnemyFamilyStateImport
             skultera.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             skultera.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
             // Only the angle word's low byte is ever read; movement discards its high byte.
-            skultera.Angle = RotationAngle.FromTableIndex(SnesLittleEndian.LowByte(words.F));
+            skultera.Angle = RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.F));
         }
         if (slot.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
         {
@@ -597,7 +597,7 @@ internal static class NativeEnemyFamilyStateImport
             waver.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
             waver.CurrentInstructionListIndex = (WaverAnimationSelector)words.C;
             // Only the phase word's low byte is ever read.
-            waver.Angle = RotationAngle.FromTableIndex(SnesLittleEndian.LowByte(words.D));
+            waver.Angle = RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.D));
             waver.SpinFinished = words.E != 0;
             waver.RequestedInstructionListIndex = (WaverAnimationSelector)words.F;
         }

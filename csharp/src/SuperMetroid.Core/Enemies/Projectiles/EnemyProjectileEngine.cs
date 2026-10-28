@@ -776,7 +776,7 @@ internal sealed class EnemyProjectileEngine
         int random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(new(
             unchecked((ushort)(projectile.Position.X.Whole + (random & mask) - center)),
-            unchecked((ushort)(projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center))),
+            unchecked((ushort)(projectile.Position.Y.Whole + (SharedRandomState.UpperByte(random) & mask) - center))),
             kind, graphics: default);
     }
 

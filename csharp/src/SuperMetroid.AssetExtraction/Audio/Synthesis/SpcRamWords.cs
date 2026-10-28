@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -15,12 +15,12 @@ internal static class SpcRamWords
 
     /// <summary>Reads the little-endian word at <paramref name="address"/>, low byte first.</summary>
     public static ushort Read(ReadOnlySpan<byte> ram, int address) =>
-        SnesLittleEndian.Word(ram[address & AddressMask], ram[(address + 1) & AddressMask]);
+        LittleEndianBytes.Word(ram[address & AddressMask], ram[(address + 1) & AddressMask]);
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="address"/>, low byte first.</summary>
     public static void Write(Span<byte> ram, int address, ushort value)
     {
         ram[address & AddressMask] = unchecked((byte)value);
-        ram[(address + 1) & AddressMask] = SnesLittleEndian.HighByte(value);
+        ram[(address + 1) & AddressMask] = LittleEndianBytes.HighByte(value);
     }
 }

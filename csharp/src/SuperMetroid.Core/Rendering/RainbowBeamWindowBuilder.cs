@@ -11,10 +11,10 @@ internal static class RainbowBeamWindowBuilder
     /// The working edge word of a line the beam misses: the rasterization packs each line's left column in the low
     /// byte and its right column in the high byte, and compares those words against its off-screen sentinels.
     /// </summary>
-    private static readonly ushort MissedLineWord = SnesLittleEndian.Word(checked((byte)MotherBrainBeamLine.None.Left), checked((byte)MotherBrainBeamLine.None.Right));
+    private static readonly ushort MissedLineWord = ScanlineSpanWord.Of(checked((byte)MotherBrainBeamLine.None.Left), checked((byte)MotherBrainBeamLine.None.Right));
 
     /// <summary>The working edge word's right column at the rightmost screen pixel, with the left column empty.</summary>
-    private static readonly ushort RightScreenEdge = SnesLittleEndian.Word(0, byte.MaxValue);
+    private static readonly ushort RightScreenEdge = ScanlineSpanWord.Of(0, byte.MaxValue);
 
     /// <summary>The working table's two leading entries that precede the first beam line.</summary>
     private const int DataPrefixWords = 2;
@@ -88,7 +88,7 @@ internal static class RainbowBeamWindowBuilder
             if (!up && row >= FirstRunLines)
                 index = row - FirstRunLines + (right
                     ? RightSecondRunWord : DownSecondRunWord);
-            windows[y] = new MotherBrainBeamLine(SnesLittleEndian.LowByte(data[index]), SnesLittleEndian.HighByte(data[index]));
+            windows[y] = new MotherBrainBeamLine(ScanlineSpanWord.Left(data[index]), ScanlineSpanWord.Right(data[index]));
         }
         return windows;
 

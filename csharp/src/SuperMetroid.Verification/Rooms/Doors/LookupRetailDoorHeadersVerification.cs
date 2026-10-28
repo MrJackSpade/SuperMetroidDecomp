@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Doors;
@@ -109,7 +108,7 @@ internal static class LookupRetailDoorHeadersVerification
         {
             int address = (0x830000 | pointer) + offset;
             int raw = DoorHeaderFieldRomByte(rom, address);
-            if (width == 2) raw |= SnesLittleEndian.Word(0, DoorHeaderFieldRomByte(rom, address + 1));
+            if (width == 2) raw |= LittleEndianBytes.Word(0, DoorHeaderFieldRomByte(rom, address + 1));
             DoorDefinition actual = DoorDefinitions.Get(pointer);
             AssertEqual(decode(raw), field(actual), $"Door {pointer:X4} native field at {offset}");
         }

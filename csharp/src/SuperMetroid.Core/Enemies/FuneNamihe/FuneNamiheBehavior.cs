@@ -78,8 +78,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             ShowsActiveAnimation = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = slot.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.VariantBits,
-            YProximity = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2),
-            CooldownTime = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1),
+            YProximity = slot.Spawn.Population.Parameter2Settings.Second,
+            CooldownTime = slot.Spawn.Population.Parameter1Settings.Second,
             CooldownTimer = 0,
             // Any bit in parameter one's upper low-byte nibble selects right-facing art. The
             // code does not mask to a single direction flag before making this decision.

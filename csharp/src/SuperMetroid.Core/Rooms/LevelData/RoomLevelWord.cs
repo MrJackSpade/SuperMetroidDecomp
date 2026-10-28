@@ -29,6 +29,12 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
     public ushort VisualBlockIndex => (ushort)(Raw & VisualBlockIndexMask);
 
+    /// <summary>
+    /// The low eight bits of <see cref="VisualBlockIndex"/>: a downward gate's trigger block writes them as its
+    /// behavior too, so the trigger's visual block also selects its colour and side.
+    /// </summary>
+    public byte VisualBlockIndexLowByte => unchecked((byte)Raw);
+
     /// <summary>Independent parent-block horizontal and vertical flip bits.</summary>
     public LevelBlockFlipFlags VisualFlipFlags =>
         (LevelBlockFlipFlags)(Raw & VisualFlipMask);

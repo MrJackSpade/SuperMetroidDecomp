@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
@@ -52,7 +51,7 @@ internal static class SamusProjectileProgramsVerification
                     AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Frame.Record), $"{at}: record address");
                     AssertEqual(Word(cursor + 2), record.Spritemap, $"{at}: spritemap");
                     ushort radii = Word(cursor + 4);
-                    AssertEqual(new Extent16<RoomPixels>(SnesLittleEndian.LowByte(radii), SnesLittleEndian.HighByte(radii)), record.Radius, $"{at}: radii");
+                    AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
                     AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");
                     records.Add(cursor);
                     cursor = unchecked((ushort)(cursor + SamusProjectileListLayout.TimedRecordByteCount));

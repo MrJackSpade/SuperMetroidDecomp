@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
@@ -95,8 +94,8 @@ internal static class LookupTourianProgramVerification
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));
                     break;
                 case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
-                    AssertEqual(definition.BossArea, (AreaId)SnesLittleEndian.HighByte(operand), $"{at}: boss area");
-                    AssertEqual(definition.DefeatedBossBits, (BossBits)SnesLittleEndian.LowByte(operand), $"{at}: boss bits");
+                    AssertEqual(definition.BossArea, (AreaId)LittleEndianBytes.HighByte(operand), $"{at}: boss area");
+                    AssertEqual(definition.DefeatedBossBits, (BossBits)LittleEndianBytes.LowByte(operand), $"{at}: boss bits");
                     steps.Add(Cue(TourianStatueTileCueKind.GoToIfBossDefeated,
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));
                     break;

@@ -89,7 +89,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // Parameter two's low byte selects the body's record in the shared linear-speed
             // table, whose positive half is the downward velocity and negative half the upward
             // one. The high byte is the steady-state number of frames between direction changes.
-            int speedRecord = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
+            int speedRecord = slot.Spawn.Population.Parameter2Settings.First;
             int speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
             SignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
             state.DownVelocity = down;
@@ -127,7 +127,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             };
             return WrappingCountdown.Start(source.Field == EvirHalfCycleSourceField.Palette
                 ? value
-                : SnesLittleEndian.HighByte(value) / 2);
+                : PopulationParameterSettings.Of(value).Second / 2);
         }
         throw new InvalidDataException(
             $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
@@ -195,7 +195,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementTimer = step.Remaining;
         if (step.IsNegative)
         {
-            state.MovementTimer = WrappingCountdown.Start(SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2));
+            state.MovementTimer = WrappingCountdown.Start(slot.Spawn.Population.Parameter2Settings.Second);
             state.MovingDown = !state.MovingDown;
         }
     }

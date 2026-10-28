@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
@@ -281,7 +282,7 @@ internal static class TileWordSheetComposer
             throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");
         var words = new ushort[page.WordCount];
         for (int index = 0; index < words.Length; index++)
-            words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
+            words[index] = LittleEndianBytes.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
         return words;
     }
 
@@ -376,7 +377,7 @@ internal static class TileWordSheetComposer
     {
         var words = new ushort[page.Length / sizeof(ushort)];
         for (int word = 0; word < words.Length; word++)
-            words[word] = SnesLittleEndian.Word(page[word * 2], page[word * 2 + 1]);
+            words[word] = LittleEndianBytes.Word(page[word * 2], page[word * 2 + 1]);
         return Rows(words);
     }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -35,13 +37,13 @@ public readonly struct StagingByteView
     public void Fill(byte value) => Span.Fill(value);
 
     /// <summary>Reads the little-endian word whose low byte is at <paramref name="byteOffset"/>.</summary>
-    public ushort ReadWord(int byteOffset) => SnesLittleEndian.Word(this[byteOffset], this[byteOffset + 1]);
+    public ushort ReadWord(int byteOffset) => LittleEndianBytes.Word(this[byteOffset], this[byteOffset + 1]);
 
     /// <summary>Writes the little-endian word whose low byte is at <paramref name="byteOffset"/>, low byte first.</summary>
     public void WriteWord(int byteOffset, ushort value)
     {
-        this[byteOffset] = SnesLittleEndian.LowByte(value);
-        this[byteOffset + 1] = SnesLittleEndian.HighByte(value);
+        this[byteOffset] = LittleEndianBytes.LowByte(value);
+        this[byteOffset + 1] = LittleEndianBytes.HighByte(value);
     }
 
     /// <summary>The view's bytes.</summary>

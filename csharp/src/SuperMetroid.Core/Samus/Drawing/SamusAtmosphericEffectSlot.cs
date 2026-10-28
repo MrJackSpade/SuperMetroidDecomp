@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>One debugger-visible packed atmospheric slot.</summary>
 public sealed class SamusAtmosphericEffectSlot
 {
+    /// <summary>
+    /// The bits of the slot word's animation frame, below its graphics type. The two stay one word because the
+    /// animation steps the whole word: a frame advancing past its eight bits carries into the type.
+    /// </summary>
+    private const int AnimationFrameBits = 8;
+
     /// <summary>Low byte animation frame, high byte graphics type; 0 through 65535.</summary>
     [PackedFields("packed slot word: low byte animation frame, high byte graphics type; zero marks an empty slot")]
     public int FrameAndType
@@ -27,7 +33,7 @@ public sealed class SamusAtmosphericEffectSlot
     ];
 
     /// <summary>The slot's graphics type, held in the packed word's high byte; <see cref="SamusAtmosphericEffectType.Inactive"/> when cleared.</summary>
-    public SamusAtmosphericEffectType Type => TypeOrder[SnesLittleEndian.HighByte(checked((ushort)FrameAndType))];
+    public SamusAtmosphericEffectType Type => TypeOrder[FrameAndType >> AnimationFrameBits];
 
     /// <summary>Packs a graphics type and its animation frame into the slot word.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The type is not one the word can hold.</exception>
@@ -36,7 +42,7 @@ public sealed class SamusAtmosphericEffectSlot
         int position = Array.IndexOf(TypeOrder, type);
         if (position < 0)
             throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must be one of the eight native types.");
-        FrameAndType = SnesLittleEndian.Word(checked((byte)animationFrame), checked((byte)position));
+        FrameAndType = checked((byte)animationFrame) | checked((byte)position) << AnimationFrameBits;
     }
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>

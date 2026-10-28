@@ -5,7 +5,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
@@ -317,7 +316,7 @@ public static class XrayRevealVisualFiles
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
             tiles.Add(new XrayRoomOverlayTileDocument((byte)coordinate,
-                SnesLittleEndian.HighByte(coordinate), word));
+                LittleEndianBytes.HighByte(coordinate), word));
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }

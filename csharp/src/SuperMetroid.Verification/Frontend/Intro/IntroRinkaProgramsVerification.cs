@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -17,11 +16,11 @@ internal static class IntroRinkaProgramsVerification
         for (int index = 0; index < 3; index++)
         {
             int operand = 0x8bcded + 4 * index;
-            ushort pointer = SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1));
+            ushort pointer = LittleEndianBytes.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "native Rinka frame operand");
             AssertEqual(names[index], frames[index].Name, "published Rinka asset key");
             AssertEqual(IntroRinkaSpriteDefinitions.StockPartCount,
-                SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "native four-part Rinka record");
+                LittleEndianBytes.Word(IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "native four-part Rinka record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {

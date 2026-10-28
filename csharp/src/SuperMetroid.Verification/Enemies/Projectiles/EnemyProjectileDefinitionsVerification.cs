@@ -526,7 +526,7 @@ internal static class EnemyProjectileDefinitionsVerification
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.
             ushort radiusWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6);
-            AssertEqual(new Extent16<RoomPixels>(SnesLittleEndian.LowByte(radiusWord), SnesLittleEndian.HighByte(radiusWord)),
+            AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radiusWord), LittleEndianBytes.HighByte(radiusWord)),
                 definition.Radius, $"{kind} radius");
             ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
             AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");

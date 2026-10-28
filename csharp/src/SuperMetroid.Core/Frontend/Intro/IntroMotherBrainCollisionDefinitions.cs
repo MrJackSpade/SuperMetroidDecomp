@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -51,8 +52,7 @@ internal static class IntroMotherBrainCollisionDefinitions
             {
                 int word = Block(row, column);
                 int offset = (row * Columns + column) * sizeof(ushort);
-                bytes[offset] = (byte)word;
-                bytes[offset + 1] = SnesLittleEndian.HighByte(word);
+                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), checked((ushort)word));
             }
         return bytes;
     }

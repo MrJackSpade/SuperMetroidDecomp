@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Text;
 
 namespace SuperMetroid.Core.Audio;
@@ -139,7 +140,7 @@ public static class PcmWaveFile
 
     /// <summary>Decodes a two-byte little-endian RIFF field from a validated chunk span.</summary>
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) =>
-        unchecked(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
+        BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..]);
 
     /// <summary>Decodes a four-byte little-endian RIFF size or sample-rate field.</summary>
     private static uint ReadDword(ReadOnlySpan<byte> bytes, int offset) =>

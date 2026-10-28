@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -88,8 +89,8 @@ internal static class CrocomireStateQuantitiesVerification
     /// </summary>
     private static void VerifySinkMatchesNativeBytes()
     {
-        CompareSink(SnesLittleEndian.Word(0, 8), 0, 0, 144, "resting sink");
-        CompareSink(SnesLittleEndian.Word(200, 47), SnesLittleEndian.Word(250, 3), SnesLittleEndian.Word(77, 250), 150,
+        CompareSink(LittleEndianBytes.Word(0, 8), 0, 0, 144, "resting sink");
+        CompareSink(LittleEndianBytes.Word(200, 47), LittleEndianBytes.Word(250, 3), LittleEndianBytes.Word(77, 250), 150,
             "clamped sink");
     }
 
@@ -99,8 +100,8 @@ internal static class CrocomireStateQuantitiesVerification
     /// </summary>
     private static void VerifyRiseMatchesNativeBytes()
     {
-        CompareRise(0, SnesLittleEndian.Word(0, 3), 0, 280, "resting rise");
-        CompareRise(SnesLittleEndian.Word(0, 30), SnesLittleEndian.Word(5, 0), SnesLittleEndian.Word(77, 9), 400,
+        CompareRise(0, LittleEndianBytes.Word(0, 3), 0, 280, "resting rise");
+        CompareRise(LittleEndianBytes.Word(0, 30), LittleEndianBytes.Word(5, 0), LittleEndianBytes.Word(77, 9), 400,
             "stalled rise");
     }
 
@@ -173,20 +174,20 @@ internal static class CrocomireStateQuantitiesVerification
     {
         if (unchecked((short)(y - 280)) >= 0)
             return false;
-        byte accelerationFraction = SnesLittleEndian.LowByte(acceleration);
+        byte accelerationFraction = LittleEndianBytes.LowByte(acceleration);
         int accelerationCarry = accelerationFraction + 128 > byte.MaxValue ? 1 : 0;
         accelerationFraction = unchecked((byte)(accelerationFraction + 128));
-        int accelerationWhole = Math.Min(SnesLittleEndian.HighByte(acceleration) + 3 + accelerationCarry, 48);
-        acceleration = SnesLittleEndian.Word(accelerationFraction, checked((byte)accelerationWhole));
+        int accelerationWhole = Math.Min(LittleEndianBytes.HighByte(acceleration) + 3 + accelerationCarry, 48);
+        acceleration = LittleEndianBytes.Word(accelerationFraction, checked((byte)accelerationWhole));
 
-        byte speedFraction = SnesLittleEndian.LowByte(speed);
+        byte speedFraction = LittleEndianBytes.LowByte(speed);
         int speedCarry = speedFraction + accelerationWhole > byte.MaxValue ? 1 : 0;
         speedFraction = unchecked((byte)(speedFraction + accelerationWhole));
-        int speedWhole = Math.Min(SnesLittleEndian.HighByte(speed) + speedCarry, 3);
-        speed = SnesLittleEndian.Word(speedFraction, checked((byte)speedWhole));
+        int speedWhole = Math.Min(LittleEndianBytes.HighByte(speed) + speedCarry, 3);
+        speed = LittleEndianBytes.Word(speedFraction, checked((byte)speedWhole));
 
-        int subpositionSum = SnesLittleEndian.HighByte(subposition) + speedFraction;
-        subposition = SnesLittleEndian.Word(SnesLittleEndian.LowByte(subposition), unchecked((byte)subpositionSum));
+        int subpositionSum = LittleEndianBytes.HighByte(subposition) + speedFraction;
+        subposition = LittleEndianBytes.Word(LittleEndianBytes.LowByte(subposition), unchecked((byte)subpositionSum));
         y = unchecked((ushort)(y + speedWhole + (subpositionSum > byte.MaxValue ? 1 : 0)));
         return true;
     }
@@ -201,22 +202,22 @@ internal static class CrocomireStateQuantitiesVerification
         if (unchecked((short)(y - 218)) < 0)
             return false;
         acceleration = unchecked((ushort)Math.Min(acceleration + EightEight.FromWhole(1), EightEight.FromWhole(31)));
-        int accelerationWhole = SnesLittleEndian.HighByte(acceleration);
+        int accelerationWhole = LittleEndianBytes.HighByte(acceleration);
 
-        byte speedFraction = SnesLittleEndian.LowByte(speed);
+        byte speedFraction = LittleEndianBytes.LowByte(speed);
         bool speedBorrow = speedFraction < accelerationWhole;
         speedFraction = unchecked((byte)(speedFraction - accelerationWhole));
-        int speedWhole = SnesLittleEndian.HighByte(speed) - (speedBorrow ? 1 : 0);
+        int speedWhole = LittleEndianBytes.HighByte(speed) - (speedBorrow ? 1 : 0);
         if (speedWhole < 0)
         {
             speedFraction = byte.MaxValue;
             speedWhole = 0;
         }
-        speed = SnesLittleEndian.Word(speedFraction, checked((byte)speedWhole));
+        speed = LittleEndianBytes.Word(speedFraction, checked((byte)speedWhole));
 
-        byte subpositionHigh = SnesLittleEndian.HighByte(subposition);
+        byte subpositionHigh = LittleEndianBytes.HighByte(subposition);
         bool subpositionBorrow = subpositionHigh < speedFraction;
-        subposition = SnesLittleEndian.Word(SnesLittleEndian.LowByte(subposition), unchecked((byte)(subpositionHigh - speedFraction)));
+        subposition = LittleEndianBytes.Word(LittleEndianBytes.LowByte(subposition), unchecked((byte)(subpositionHigh - speedFraction)));
         y = unchecked((ushort)(y - speedWhole - (subpositionBorrow ? 1 : 0)));
         return true;
     }
@@ -257,7 +258,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 1; frame <= 400; frame++)
         {
             NativeAccelerate(ref fraction, ref whole, SixteenSixteen.FromEightEight(8u), 5);
-            position = position.WithY(NativeAdvance(position.Y, SnesLittleEndian.Word(0, 224), 0));
+            position = position.WithY(NativeAdvance(position.Y, LittleEndianBytes.Word(0, 224), 0));
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             behavior.Skeleton.RunCrocomireSkeletonArc(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton arc frame {frame}");

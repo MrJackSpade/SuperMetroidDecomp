@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly record struct LowByteCountdownStep(ushort Remaining)
 {
     /// <summary>The decremented low byte.</summary>
-    public byte Low => SnesLittleEndian.LowByte(Remaining);
+    public byte Low => unchecked((byte)Remaining);
 
     /// <summary>Whether the 8-bit DEC produced <c>$00</c> (DEC then BEQ/BNE).</summary>
     public bool IsZero => Low == 0;

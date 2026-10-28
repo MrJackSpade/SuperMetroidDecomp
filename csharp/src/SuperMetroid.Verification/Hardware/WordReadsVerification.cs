@@ -46,7 +46,7 @@ internal static class WordReadsVerification
         AssertEqual((ushort)0x5678, bytes.ReadCartridgeWord(0x8f8000), "cartridge word: low byte first");
         AssertSequenceEqual(CartridgeWordReads, bytes.Reads, "cartridge word: low then high, once each");
 
-        AssertEqual((ushort)0xbeef, SnesLittleEndian.Word(0xef, 0xbe), "named composition: low then high");
+        AssertEqual((ushort)0xbeef, LittleEndianBytes.Word(0xef, 0xbe), "named composition: low then high");
     }
 
     /// <summary>Distinguishes linear cross-bank reads from fixed-bank wrapping at $FFFF.</summary>

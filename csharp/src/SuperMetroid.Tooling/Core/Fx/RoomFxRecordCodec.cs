@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
@@ -68,7 +67,7 @@ internal static class RoomFxRecordCodec
             Slots(native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset]),
             RoomFxRecordWords.PaletteBlends.Decode(native[RoomFxRomDataRecordTooling.PaletteBlendOffset], $"{context} palette blend"));
 
-        static ushort Word(ReadOnlySpan<byte> bytes, int offset) => SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]);
+        static ushort Word(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);
     }
 
     /// <summary>The liquid options a record's options byte selects; every bit is kept, tested or not.</summary>

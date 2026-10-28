@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Progression;
@@ -170,10 +171,11 @@ public sealed class SharedGameState
             _mapStations[offset - ProgressionSliceLayout.MapStationsOffset] = (byte)value;
         else
         {
-            int word = SaveFieldValue.Encode(SavedLoadingGameState, nameof(SavedLoadingGameState));
-            SavedLoadingGameState = offset == ProgressionSliceLayout.LoadingGameStateOffset
-                ? SnesLittleEndian.Word((byte)value, SnesLittleEndian.HighByte(word))
-                : SnesLittleEndian.Word(SnesLittleEndian.LowByte(word), (byte)value);
+            // The slice stores the loading state as a little-endian word; a byte write replaces one of its two bytes.
+            Span<byte> word = stackalloc byte[sizeof(ushort)];
+            BinaryPrimitives.WriteUInt16LittleEndian(word, SaveFieldValue.Encode(SavedLoadingGameState, nameof(SavedLoadingGameState)));
+            word[offset == ProgressionSliceLayout.LoadingGameStateOffset ? 0 : 1] = (byte)value;
+            SavedLoadingGameState = BinaryPrimitives.ReadUInt16LittleEndian(word);
         }
     }
 
@@ -551,7 +553,7 @@ public sealed class SharedGameState
                 "Opened-door word index must leave its high byte in the native 64-byte table.");
         }
 
-        return SnesLittleEndian.Word(_openedDoorBits[byteIndex], _openedDoorBits[byteIndex + 1]);
+        return BinaryPrimitives.ReadUInt16LittleEndian(_openedDoorBits.AsSpan(byteIndex));
     }
 
     /// <summary>Returns one raw opened-door byte from the native 64-byte table.</summary>

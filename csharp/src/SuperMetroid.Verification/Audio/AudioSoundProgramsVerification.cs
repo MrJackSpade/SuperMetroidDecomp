@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -44,7 +44,7 @@ internal static class AudioSoundProgramsVerification
                     AudioSoundProgramMetadata program = programs[effect.ChannelPrograms[channel]];
                     int pointer = effect.StreamPointer + channel * 2;
                     ushort address = unchecked(
-                        SnesLittleEndian.Word(rawPlayer.ReadApuByteForVerification(pointer), rawPlayer.ReadApuByteForVerification(pointer + 1)));
+                        LittleEndianBytes.Word(rawPlayer.ReadApuByteForVerification(pointer), rawPlayer.ReadApuByteForVerification(pointer + 1)));
                     AssertEqual(program.Address, address, $"{effect.Id} channel {channel} routing");
                 }
             }

@@ -465,7 +465,7 @@ internal sealed class MotherBrainProjectiles
 
         // Native tests the whole-coordinate high byte rather than camera visibility. A shard
         // is deleted as soon as wrapped Y leaves page zero; X may freely leave the viewport.
-        if (SnesLittleEndian.HighByte(shard.Position.Y.Whole) != 0)
+        if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
         {
             shard.Clear();
             return;
@@ -529,8 +529,8 @@ internal sealed class MotherBrainProjectiles
         int angleRandom = _room.Random.Generate();
         ByteAngle scatterAngle = new ByteAngle(unchecked((byte)state.HandBeamNextAngle)).AddTableUnits(unchecked((byte)angleRandom));
         int speedRandom = _room.Random.Generate();
-        // Bits 8 to 10 of the random word: a whole speed of zero to seven.
-        int scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
+        // Three bits of the sample's upper random byte: a whole speed of zero to seven.
+        int scatterSpeed = UnsignedEightEight.FromParts(whole: (byte)(SharedRandomState.UpperByte(speedRandom) & 7), fraction: 0);
         beam.Velocity = beam.Velocity.WithX(new SignedEightEight(EnemyMath.MultiplySineSample((ushort)scatterSpeed, scatterAngle)));
         beam.Velocity = beam.Velocity.WithY(new SignedEightEight(EnemyMath.MultiplySineSample(
             (ushort)scatterSpeed,
@@ -769,11 +769,24 @@ internal sealed class MotherBrainProjectiles
         }
     }
 
+    /// <summary>
+    /// The bits of the stationary turret's ring position, below its signed rotation step: the turret repurposes its
+    /// Y-subposition word as its rotation state, and each of the two keeps its own eight-bit wrap.
+    /// </summary>
+    private const int TurretDirectionBits = 8;
+
+    /// <summary>The turret rotation state facing ring position <paramref name="direction"/> and turning by <paramref name="rotationDelta"/>.</summary>
+    internal static ushort TurretRotationState(int direction, int rotationDelta) =>
+        (ushort)(unchecked((byte)direction) | unchecked((byte)rotationDelta) << TurretDirectionBits);
+
+    /// <summary>The signed ring step a turret rotation state turns by.</summary>
+    private static int TurretRotationDelta(ushort state) => unchecked((sbyte)(state >> TurretDirectionBits));
+
     /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
     internal static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
         int currentDirection = unchecked((byte)turret.Position.Y.Fraction);
-        int rotationDelta = unchecked((sbyte)SnesLittleEndian.HighByte(turret.Position.Y.Fraction));
+        int rotationDelta = TurretRotationDelta(turret.Position.Y.Fraction);
         int candidate = (currentDirection + rotationDelta) & 7;
         bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
             turret.DirectionParameter,
@@ -781,7 +794,7 @@ internal sealed class MotherBrainProjectiles
 
         if (allowed)
         {
-            turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word((byte)candidate, SnesLittleEndian.HighByte(turret.Position.Y.Fraction)));
+            turret.Position = turret.Position.WithFractionY(TurretRotationState(candidate, rotationDelta));
             return;
         }
 
@@ -790,8 +803,7 @@ internal sealed class MotherBrainProjectiles
         // The direction and the delta each keep eight bits, so the reversed step wraps the
         // way the stored bytes do.
         rotationDelta = -rotationDelta;
-        turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word(
-            unchecked((byte)(currentDirection + rotationDelta)), unchecked((byte)rotationDelta)));
+        turret.Position = turret.Position.WithFractionY(TurretRotationState(currentDirection + rotationDelta, rotationDelta));
     }
 
     /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>

@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -37,7 +37,7 @@ internal static class EvirInitTimerVerification
                 0x3f => checked((ushort)aliased.Spawn.Population.Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
-            AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,
+            AssertEqual((ushort)((LittleEndianBytes.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,
                 $"Evir body in slot {slot.SlotIndex} takes its first half-cycle from aliased enemy RAM");
             checkedBodies++;
         }

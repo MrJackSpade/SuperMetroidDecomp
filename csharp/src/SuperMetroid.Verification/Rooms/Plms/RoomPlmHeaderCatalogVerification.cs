@@ -1,5 +1,4 @@
 using System.Globalization;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
@@ -97,7 +96,7 @@ internal static class RoomPlmHeaderCatalogVerification
     /// <summary>Reads a native population word while scanning retail PLM records.</summary>
     private static ushort ReadRoomPlmWord(SuperMetroidAddressSpace bus, ushort pointer) =>
         unchecked(
-            SnesLittleEndian.Word(bus.ReadCartridgeByte((int)new SnesAddress(0x8f, pointer)), bus.ReadCartridgeByte((int)new SnesAddress(
+            LittleEndianBytes.Word(bus.ReadCartridgeByte((int)new SnesAddress(0x8f, pointer)), bus.ReadCartridgeByte((int)new SnesAddress(
                 0x8f,
                 unchecked((ushort)(pointer + 1))))));
 }

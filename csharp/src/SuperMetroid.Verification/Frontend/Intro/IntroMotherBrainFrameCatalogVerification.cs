@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -16,9 +15,9 @@ internal static class IntroMotherBrainFrameCatalogVerification
         for (int frame = 0; frame < 3; frame++)
         {
             int operand = 0x8bcb07 + 4 * frame;
-            ushort pointer = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, operand), IntroMotherBrainFrameCatalogRomByte(rom, operand + 1));
+            ushort pointer = LittleEndianBytes.Word(IntroMotherBrainFrameCatalogRomByte(rom, operand), IntroMotherBrainFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[frame].Pose), "original Mother Brain frame operand");
-            int count = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
+            int count = LittleEndianBytes.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
             AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");
         }

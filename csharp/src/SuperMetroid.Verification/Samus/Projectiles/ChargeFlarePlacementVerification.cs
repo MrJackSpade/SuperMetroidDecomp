@@ -76,7 +76,7 @@ internal static class ChargeFlarePlacementVerification
             ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));
             ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
-            if ((SnesLittleEndian.HighByteInPlace(y)) == 0) DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
+            if ((LittleEndianBytes.HighByteInPlace(y)) == 0) DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
                 new ChargeFlareArtwork { Placement = stock, Objects = objects },
                 new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));

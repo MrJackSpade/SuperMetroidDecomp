@@ -497,8 +497,7 @@ public sealed class SamusPowerBombExplosionState
     {
         // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
         // DEC turned zero into FFFF; retaining FF is observable, not unused scratch.
-        _afterglowTimer = WrappingCountdown.FromRaw((ushort)((SnesLittleEndian.HighByteInPlace(_afterglowTimer.RawValue)) |
-            PowerBombExplosionDefinitions.AfterglowTimerReload));
+        _afterglowTimer = _afterglowTimer.WithEightBitCount(PowerBombExplosionDefinitions.AfterglowTimerReload);
     }
 
     /// <summary>Loads the installed fixed-color triplet for a sequence and radius-derived index.</summary>

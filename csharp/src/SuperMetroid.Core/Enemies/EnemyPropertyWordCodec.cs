@@ -22,14 +22,15 @@ internal static class EnemyPropertyWordCodec
     /// <exception cref="InvalidDataException">The high byte holds a flag <see cref="EnemyProperties"/> does not name.</exception>
     internal static EnemyPropertyWord Decode(ushort word)
     {
-        var flags = (EnemyProperties)SnesLittleEndian.HighByteInPlace(word);
+        byte familyData = unchecked((byte)word);
+        var flags = (EnemyProperties)(word - familyData);
         if ((flags & ~EnemyPropertyFlagExtensions.NamedProperties) != 0)
         {
             throw new InvalidDataException(
                 $"Enemy property word ${word:X4} contains an unnamed high-byte flag.");
         }
 
-        return new EnemyPropertyWord(flags, SnesLittleEndian.LowByte(word));
+        return new EnemyPropertyWord(flags, familyData);
     }
 
     /// <summary>An extra-property value as its stored word: the translated flags beside the untranslated bits.</summary>

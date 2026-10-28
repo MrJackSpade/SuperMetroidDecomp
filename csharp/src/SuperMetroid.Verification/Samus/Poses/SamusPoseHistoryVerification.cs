@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Verification.Samus.Poses;
@@ -29,7 +29,7 @@ internal static class SamusPoseHistoryVerification
 
         for (int movement = 0; movement <= byte.MaxValue; movement++)
         {
-            history.LastDifferentDirectionAndMovement = SnesLittleEndian.Word(0xa5, unchecked((byte)movement));
+            history.LastDifferentDirectionAndMovement = LittleEndianBytes.Word(0xa5, unchecked((byte)movement));
             AssertEqual(movement is 3 or 20, history.AllowsWallJumpProbe,
                 "native wall probe movement-byte gate ignores direction byte");
         }

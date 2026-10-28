@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
@@ -49,7 +50,7 @@ public sealed class SnesVram
         if ((uint)wordAddress >= WordCount)
             throw new ArgumentOutOfRangeException(nameof(wordAddress));
         int byteOffset = wordAddress * 2;
-        return SnesLittleEndian.Word(_bytes[byteOffset], _bytes[byteOffset + 1]);
+        return LittleEndianBytes.Word(_bytes[byteOffset], _bytes[byteOffset + 1]);
     }
 
     /// <summary>
@@ -68,8 +69,8 @@ public sealed class SnesVram
         foreach (int word in words)
         {
             int byteOffset = destination * 2;
-            _bytes[byteOffset] = SnesLittleEndian.LowByte(word);
-            _bytes[byteOffset + 1] = SnesLittleEndian.HighByte(word);
+            _bytes[byteOffset] = LittleEndianBytes.LowByte(word);
+            _bytes[byteOffset + 1] = LittleEndianBytes.HighByte(word);
             destination = (destination + wordIncrement) & WordAddressMask;
         }
     }

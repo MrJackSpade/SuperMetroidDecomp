@@ -1,6 +1,6 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -14,7 +14,7 @@ internal static class MotherBrainEffectCueRules
         [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.Delete)),
         [NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.ClearPreInstruction)),
         [NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetPreInstruction>(2, (operands, cue, at) =>
-            AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
+            AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
         [NativeEnemyProjectileInstruction.XYRadiusInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetRadius>(2, (operands, cue, at) =>
             AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii")),
         [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.UsePaletteZero)),

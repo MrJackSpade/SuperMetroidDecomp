@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
@@ -43,7 +43,7 @@ internal static class SuitPickupSharedScratchVerification
             context => AssertScratch(samus, 0, checked((ushort)pickup.Beam.Progress), context));
         AssertScratch(samus, 1, SuitPickupBeamDefinitions.NarrowBeamEdges.Word, "uniform widening starts");
         pickup.Step(samus, cgram.Samus);
-        AssertScratch(samus, 1, SnesLittleEndian.Word(119, 121), "first uniform widening call");
+        AssertScratch(samus, 1, LittleEndianBytes.Word(119, 121), "first uniform widening call");
 
         // Columns: the word is the edge pair, left column in the low byte, until the curved stage reaches full width.
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.UniformWidening,
@@ -62,7 +62,7 @@ internal static class SuitPickupSharedScratchVerification
         AssertScratch(samus, 5, SuitPickupBeamDefinitions.DissipationStart.Word, "dissipation starts");
         pickup.Step(samus, cgram.Samus);
         AssertEqual(7, pickup.Beam.Left.X, "the first dissipation call wraps the left column from 255 to 7");
-        AssertScratch(samus, 5, SnesLittleEndian.Word(7, 240), "first dissipation call");
+        AssertScratch(samus, 5, LittleEndianBytes.Word(7, 240), "first dissipation call");
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamDissipates,
             context => AssertScratch(samus, 5, BeamEdgeWord(pickup), context));
         AssertScratch(samus, 6, BeamEdgeWord(pickup), "the last centre line awaits cleanup");
@@ -89,7 +89,7 @@ internal static class SuitPickupSharedScratchVerification
 
     /// <summary>The published beam's edge columns as one word, left column in the low byte.</summary>
     private static ushort BeamEdgeWord(SamusSuitPickupState pickup) =>
-        SnesLittleEndian.Word(checked((byte)pickup.Beam.Left.X), checked((byte)pickup.Beam.Right.X));
+        LittleEndianBytes.Word(checked((byte)pickup.Beam.Left.X), checked((byte)pickup.Beam.Right.X));
 
     /// <summary>Checks that the spark acceleration and Crystal Flash ammunition timer hold the expected scratch words.</summary>
     private static void AssertScratch(SamusState samus, ushort stageNumber, ushort lightBeamWord, string context)

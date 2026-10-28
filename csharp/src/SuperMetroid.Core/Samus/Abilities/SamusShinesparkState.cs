@@ -885,6 +885,12 @@ false);
     }
 
     /// <summary>
+    /// The bits of the shared echo index word below the crash's orbit stage: its orbit radius. The two stay one word
+    /// because the speed echoes read the same word as their own index.
+    /// </summary>
+    private const int CrashEchoStageShift = 8;
+
+    /// <summary>
     /// The speed-echo index word the crash shares with the speed echoes: the orbit radius in its low byte and the
     /// orbit stage number, 0 through 2, in its high byte. The echo drawer and the next boost read that word.
     /// </summary>
@@ -897,7 +903,7 @@ false);
             ShinesparkCrashOrbitStage.Contracting => 2,
             _ => throw new InvalidOperationException($"Shinespark crash orbit stage {CrashOrbitStage} is undefined."),
         };
-        return SnesLittleEndian.Word(checked((byte)CrashRadius), (byte)stageNumber);
+        return (ushort)(checked((byte)CrashRadius) | stageNumber << CrashEchoStageShift);
     }
 
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>

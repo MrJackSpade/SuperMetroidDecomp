@@ -222,7 +222,7 @@ internal sealed class PhantoonDeath
             xBase: 64,
             xMask: 127,
             yBase: 96,
-            yMask: SnesLittleEndian.Word(0, 63));
+            yMask: 63);
         state.ItemDropRequested = true;
         EnemyPropertyWord deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;

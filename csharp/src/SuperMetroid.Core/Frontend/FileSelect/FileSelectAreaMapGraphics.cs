@@ -182,7 +182,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         PrepareLabels(usedStationMasks);
         LayeredScene backgrounds = CaptureBackgrounds(colorMath);
-        return new(backgrounds.Paint, [.. backgrounds.Layers, new SpritesLayer()], FadeLevel.Full);
+        return new(backgrounds.Paint, [.. backgrounds.Layers, new SpritesLayer()], DisplayBrightness.Full);
     }
 
     /// <summary>The area map's BG1 foreground with its additive BG3 background, without the labels.</summary>
@@ -197,6 +197,6 @@ public sealed class FileSelectAreaMapGraphics
             foreground,
             new AddedScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.AreaBackground, ScreenTilesViewportLayer.MapSize,
                     tiles.Background),
-                colorMath == AreaMapColorMath.WithBackdrop ? null : foreground) }, FadeLevel.Full);
+                colorMath == AreaMapColorMath.WithBackdrop ? null : foreground) }, DisplayBrightness.Full);
     }
 }

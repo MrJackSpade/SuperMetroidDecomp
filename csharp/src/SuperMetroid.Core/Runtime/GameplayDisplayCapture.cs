@@ -150,7 +150,7 @@ public static class GameplayDisplayCapture
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
         return new(frame.Paint, new DisplayLayer[] { layer },
-            FadeLevel.Full);
+            DisplayBrightness.Full);
     }
 
     /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
@@ -240,7 +240,7 @@ public static class GameplayDisplayCapture
             : null;
         var layer = new TurningRoomLayer(transform, Bg3(latched), (latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
-        return new(frame.Paint, new DisplayLayer[] { layer }, FadeLevel.Full);
+        return new(frame.Paint, new DisplayLayer[] { layer }, DisplayBrightness.Full);
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>

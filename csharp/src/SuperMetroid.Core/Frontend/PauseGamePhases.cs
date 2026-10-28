@@ -29,7 +29,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
                 "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayLayer3 = session.GameplayRuntime.AcceptedLayer3Plane, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation, SpriteSheets = session.Artwork.SpriteSheets }));
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.ActivePauseMenu);
-        session.ApplyDisplayBrightness(session.PauseBrightness);
+        session.SetDisplayBrightness(session.PauseBrightness);
         session.GameState = SuperMetroidGameState.PausedA;
     }
 
@@ -40,7 +40,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.AdvanceScreenFadeIn();
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingIn);
         session.display.PublishMenu(session.ActivePauseMenu);
-        session.ApplyDisplayBrightness(session.PauseBrightness);
+        session.SetDisplayBrightness(session.PauseBrightness);
         if (session.PauseBrightness == PauseFadeTiming.FullyLit)
             session.GameState = SuperMetroidGameState.PausedB;
     }

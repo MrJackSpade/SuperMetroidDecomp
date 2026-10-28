@@ -25,11 +25,11 @@ internal static void VerifyStrictFailureBoundaries()
         "duplicate persisted controller binding is rejected");
 
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = new FadeLevel(-1),
-        "negative fade brightness is rejected");
+        () => _ = DisplayBrightness.Require(-1),
+        "negative display brightness is rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = new FadeLevel(FadeLevel.Full + 1),
-        "fade brightness above full is rejected");
+        () => _ = DisplayBrightness.Require(DisplayBrightness.Full + 1),
+        "display brightness above full is rejected");
 
     AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(
             PlmHeaderId.YellowDoorFacingLeft),

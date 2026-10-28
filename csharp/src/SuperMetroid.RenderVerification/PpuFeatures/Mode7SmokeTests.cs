@@ -35,7 +35,7 @@ internal static class Mode7SmokeTests
         {
             var registers = new AffineTransform(scale, 113, -113, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
             var frame = new DisplayPacket(new(++count, 1, 0),
-                new FloorScene(memory, registers, 13, floor: map), [new FadeLevel(11)]);
+                new FloorScene(memory, registers, DisplayBrightness.Combine(13, 11), floor: map));
             Check(frame);
             Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new DisplayLayer[] { new SpritesLayer(), new TurningFloorLayer(registers, map),

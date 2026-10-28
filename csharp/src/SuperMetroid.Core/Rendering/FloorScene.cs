@@ -43,7 +43,7 @@ public sealed record FloorScene
             throw new ArgumentException("A floor's transform and its map come together.", nameof(floor));
         Floor = floor;
         Ensure.NotNull(paint);
-        Brightness = Ensure.BetweenInclusive(0, FadeLevel.Full, brightness);
+        Brightness = DisplayBrightness.Require(brightness);
         Paint = paint;
         Background = background;
         if (!gradient.IsEmpty && gradient.Length != ScreenGeometry.ScreenHeightPixels)

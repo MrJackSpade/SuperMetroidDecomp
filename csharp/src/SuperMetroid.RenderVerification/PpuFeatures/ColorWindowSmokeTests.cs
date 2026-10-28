@@ -81,7 +81,7 @@ internal static class ColorWindowSmokeTests
         {
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    windows, new ScreenTintLayer(1, 2, 3), windows }, 13), [new FadeLevel(11)]);
+                    windows, new ScreenTintLayer(1, 2, 3), windows }, DisplayBrightness.Combine(13, 11)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }

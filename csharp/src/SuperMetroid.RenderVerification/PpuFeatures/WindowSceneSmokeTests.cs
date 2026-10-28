@@ -48,7 +48,7 @@ internal static class WindowSceneSmokeTests
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,
                 new DisplayLayer[] { new SpriteDepthLayer(0), window,
                     background,
-                    new SpriteDepthLayer(3), window, new ScreenTintLayer(1,2,3) }, 13), [new FadeLevel(11)]);
+                    new SpriteDepthLayer(3), window, new ScreenTintLayer(1,2,3) }, DisplayBrightness.Combine(13, 11)));
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
@@ -56,10 +56,10 @@ internal static class WindowSceneSmokeTests
             int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;
             // Each scene uploads at least its backdrop colour (#1408).
             long memoryAndConstantBytes = (1 + children) * sizeof(uint)
-                + (7 + children * 4) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
+                + (6 + children * 4) * D3D11ShaderLayout.ConstantWords * sizeof(uint);
             // Each scene uploads its colours and sprite draws, then one constant buffer per composition pass; the sprite
             // layer's quads draw without one (#1408).
-            long expectedCalls = (1 + children) * 2 + 7 + children * 4;
+            long expectedCalls = (1 + children) * 2 + 6 + children * 4;
             long bytes = after.Bytes - before.Bytes;
             long firstBytes = bytesByChildren.TryGetValue(children, out long seen) ? seen : bytesByChildren[children] = bytes;
             if (after.Calls - before.Calls != expectedCalls || bytes <= memoryAndConstantBytes || bytes != firstBytes)

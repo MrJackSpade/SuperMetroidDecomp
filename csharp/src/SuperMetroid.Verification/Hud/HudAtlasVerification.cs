@@ -136,7 +136,7 @@ internal static class HudAtlasVerification
             var layer = new GameplaySceneLayer(new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 new Extent16<TilemapCells>(32, 32), ScreenLayers.Overlay), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Colours.Colors, []),
-                new DisplayLayer[] { layer }, FadeLevel.Full));
+                new DisplayLayer[] { layer }, DisplayBrightness.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
         }
     }

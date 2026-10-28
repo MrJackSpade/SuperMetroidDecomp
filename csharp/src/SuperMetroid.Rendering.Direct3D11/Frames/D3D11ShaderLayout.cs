@@ -3,12 +3,11 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>CPU/HLSL upload-layout identities; changes require matching shader and verification changes.</summary>
 internal static class D3D11ShaderLayout
 {
-    /// <summary>Four control words precede the variable brightness-pass levels in the solid shader buffer.</summary>
-    internal const int SolidHeaderWords = 4;
-    /// <summary>Caps the per-frame brightness commands accepted by the solid shader upload.</summary>
-    internal const int MaximumBrightnessPasses = 1024;
-    /// <summary>Allocates the solid constant buffer for its header and worst-case brightness commands.</summary>
-    internal const int SolidConstantWords = SolidHeaderWords + MaximumBrightnessPasses;
+    /// <summary>
+    /// Words in the constant buffer every compute pass shares: room for the largest pass's parameters, its header, a
+    /// row for each visible line and the words that follow them.
+    /// </summary>
+    internal const int ConstantWords = 1028;
     /// <summary>Compute dispatches cover the target in eight-pixel workgroup tiles.</summary>
     internal const int DispatchTileEdge = 8;
     /// <summary>Per-scanline shader parameters begin after the fixed dispatch header.</summary>

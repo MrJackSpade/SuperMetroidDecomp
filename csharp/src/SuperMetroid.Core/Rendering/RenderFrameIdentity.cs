@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Host identity, independent of the cartridge counter's wrap and debugger-state rewind.
+/// The host's identity for a published frame, independent of the game's frame counter wrapping or a debugger state rewinding it.
 /// Sequence increases for every published host frame; generation increases on load/reset.
 /// </summary>
 /// <param name="Sequence">Positive host publication sequence, kept monotonic across simulation counter wraps and load/reset generations.</param>

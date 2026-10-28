@@ -4,16 +4,16 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Room and enemy definition values used by CanXrayShowBlocks ($91:D143).</summary>
+/// <summary>How the X-ray beam shows each room: which rooms it reveals blocks in, and how it blends them.</summary>
 public static class XrayRoomDisplayRules
 {
-    /// <summary>True only for the excluded room whose preserved display also drops BG2 ($88:81A4).</summary>
+    /// <summary>True only for the room where X-ray, keeping the room's backgrounds, also hides the background layer.</summary>
     public static bool RemovesBg2(RoomHeaderDefinition room) => room == RoomHeaderDefinitions.GlassTunnel;
-    /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
+    /// <summary>The dark grey backdrop shown while the X-ray beam is out.</summary>
     public static RgbColor ActiveBackdrop => new(3, 3, 3);
 
     /// <summary>
-    /// How X-ray blends the room ($88:817B, $88:81A4 and $88:81DB): a reveal room and Fireflea's room blend both
+    /// How X-ray blends the room: a reveal room and Fireflea's room blend both
     /// backgrounds, the sprites and the backdrop, an excluded room the foreground and the backdrop; Fireflea's room
     /// always subtracts unhalved, the others halve and keep the room's own subtraction.
     /// </summary>
@@ -27,7 +27,7 @@ public static class XrayRoomDisplayRules
         return sources | ColorBlend.Half | (subtract ? ColorBlend.Subtract : 0);
     }
 
-    /// <summary>Preserves the native Fireflea precedence over the ordinary room/boss exclusions.</summary>
+    /// <summary>Fireflea's room takes its own blend before the ordinary room and boss exclusions apply.</summary>
     public static XrayRoomBlendMode Select(RoomHeaderDefinition room, RoomFxType fx, int bossId)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;

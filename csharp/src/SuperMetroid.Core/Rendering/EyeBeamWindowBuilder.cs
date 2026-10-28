@@ -2,11 +2,11 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Bank-$91 scanline edge accumulation used by the bank-$88 scanner eye.</summary>
+/// <summary>The X-ray and scanner-eye beam's edges, accumulated line by line.</summary>
 internal static class EyeBeamWindowBuilder
 {
     /// <summary>
-    /// Translates CalculateXrayHdmaTableInner and its on/off-screen branches. In
+    /// Traces the beam from an origin on or off the screen. In
     /// particular, a zero-width diagonal is a ray, not an infinite line, and the
     /// integer endpoints are accumulated before each row is written.
     /// </summary>
@@ -97,7 +97,7 @@ internal static class EyeBeamWindowBuilder
         !offScreen ? origin : origin + (positive ? -EyeWindowRenderDefinitions.FixedPointSpan : EyeWindowRenderDefinitions.FixedPointSpan);
 
     /// <summary>
-    /// Fills scanlines between off-screen upper and lower rays as the native rectangle branch does; the rays travel
+    /// Fills screen lines between off-screen upper and lower rays as the native rectangle branch does; the rays travel
     /// <paramref name="distance"/> fixed-point units from the origin before they enter the screen.
     /// </summary>
     private static void FillOffScreenMiddle(ushort[] rows, int up, int down, int distance,
@@ -121,14 +121,14 @@ internal static class EyeBeamWindowBuilder
         if ((uint)entryRow >= rows.Length) return;
         int leftSteps = leftStep == 0 ? start + 1 : Math.Min(start + 1, origin / leftStep + 1);
         int finalLeft = unchecked((ushort)(origin - leftSteps * leftStep));
-        // The first right-edge write in native $91:C234 reads DP_Temp23 (the
-        // completed LEFT accumulator), not DP_Temp25. Subsequent rows use the
+        // The first entering row's right edge takes the completed LEFT
+        // accumulator, not the right one. Subsequent rows use the
         // right accumulator. Preserve this cartridge quirk rather than correcting
         // its one-row discontinuity with mathematically ideal cone geometry.
         rows[entryRow] = ScanlineSpanWord.Of(ScanlineSpanWord.Left(rows[entryRow]), ScanlineSpanWord.Right(finalLeft));
     }
 
-    /// <summary>Writes one encoded scanline window, a sixteen-bit table word, if its row falls inside the HDMA table.</summary>
+    /// <summary>Writes one line's encoded edges, a sixteen-bit word, if its row falls inside the beam's table.</summary>
     private static void Set(ushort[] rows, int y, int window)
     {
         if ((uint)y < rows.Length) rows[y] = checked((ushort)window);

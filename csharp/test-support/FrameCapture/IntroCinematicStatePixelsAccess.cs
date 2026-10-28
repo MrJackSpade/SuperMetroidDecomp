@@ -19,7 +19,7 @@ internal static class IntroCinematicStatePixelsAccess
         internal RgbaPixel[] RenderArtwork()
         {
             LayeredScene shown = scene.CaptureTranslatedRenderSnapshot();
-            return FrontendScenePixelsAccess.Pixels(new LayeredScene(shown.Paint, shown.Layers, FadeLevel.Full));
+            return FrontendScenePixelsAccess.Pixels(new LayeredScene(shown.Paint, shown.Layers, DisplayBrightness.Full));
         }
     }
 }

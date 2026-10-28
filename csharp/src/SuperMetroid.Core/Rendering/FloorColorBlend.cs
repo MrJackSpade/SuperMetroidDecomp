@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>The exclusive colour blends a turning floor takes in the renderer shader contract.</summary>
+/// <summary>How a turning floor blends: not at all, or one of two ways.</summary>
 public enum FloorColorBlend
 {
-    /// <summary>Insert the background without color arithmetic.</summary>
+    /// <summary>The floor is drawn without blending.</summary>
     None = 0,
     /// <summary>The floor minus the sprites.</summary>
     SubtractSprites = 1,
-    /// <summary>BG1/OBJ main plus BG1 subscreen; only eligible layers/palettes participate.</summary>
+    /// <summary>The floor's colour is added over the floor and the blending sprites; the backdrop and the other sprites are unchanged.</summary>
     AddForeground = 2,
 }

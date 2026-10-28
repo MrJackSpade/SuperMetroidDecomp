@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Exclusive byte-domain equations used by the current room FX reference.</summary>
+/// <summary>How a layer drawn on its own combines with the screen behind it.</summary>
 public enum BlendOperation
 {
-    /// <summary>Adds the expanded background RGB channels to the existing output channels, clamping each sum to 255 and preserving output alpha.</summary>
+    /// <summary>Adds the layer's colour to the screen's, each eight-bit channel clamped at 255, keeping the screen's opacity.</summary>
     Add,
-    /// <summary>Subtracts the expanded background RGB channels from the existing output channels, clamping each difference to zero and preserving output alpha.</summary>
+    /// <summary>Subtracts the layer's colour from the screen's, each eight-bit channel clamped at zero, keeping the screen's opacity.</summary>
     Subtract
 }

@@ -138,6 +138,6 @@ public sealed class FileSelectRoomMapGraphics
             screen.Objects.FinishFrame();
         }
         return new(screen.Paint(), layers.ToArray(),
-            FadeLevel.Full);
+            DisplayBrightness.Full);
     }
 }

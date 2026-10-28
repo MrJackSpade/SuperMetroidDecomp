@@ -3,9 +3,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Immutable full-screen Mode 7/backdrop followed by OBJ and master brightness.
-/// This composition is one supported packet shape, not a substitute for mixed-mode
-/// gameplay, windows or main/subscreen color math.
+/// A frame showing a turning floor over the backdrop with the sprites in front, then the frame's brightness.
+/// It is the frame for a screen that shows only a floor and sprites; gameplay with several layers,
+/// bands or blends is a layered scene.
 /// </summary>
 public sealed record FloorScene
 {
@@ -16,21 +16,21 @@ public sealed record FloorScene
 
     /// <summary>The floor's map and tiles (#1403), present exactly when <see cref="Background"/> is.</summary>
     public AffineFloor? Floor { get; }
-    /// <summary>Master brightness 0..15 applied after BG1, OBJ, and optional gradient color math.</summary>
+    /// <summary>The frame's one brightness, 0 (black) through 15, applied after the floor, the sprites and the gradient.</summary>
     public int Brightness { get; }
-    /// <summary>Owned per-scanline fixed-color controls copied from the caller at snapshot construction.</summary>
+    /// <summary>The scene's own copy of each line's gradient colour.</summary>
     private readonly SuperMetroid.Core.Rendering.TitleGradientLine[] gradient;
     /// <summary>
-    /// Owned fixed-color controls indexed by visible scanline 0..223, or empty to disable title color math.
-    /// $A1 subtracts from BG1/backdrop; $31 adds to BG1/backdrop and winning OBJ palettes 4..7.
+    /// The gradient colour on each screen line 0..223, or empty for no gradient. Each line's colour is subtracted from
+    /// the floor and backdrop, or added to them and to the frontmost sprites that blend.
     /// </summary>
     public ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> Gradient => gradient;
 
-    /// <summary>Captures a 256-by-224-pixel BG1/backdrop-then-OBJ composition, copying only the optional gradient.</summary>
+    /// <summary>Captures a 256-by-224 frame of floor and backdrop with the sprites in front, copying only the optional gradient.</summary>
     /// <param name="paint">The frame's colours and sprite draws; retained rather than recaptured.</param>
-    /// <param name="background">The floor's transform, or null to leave the backdrop below OBJ. Sampling uses screen X starting at zero and physical scanline one for the first visible row.</param>
-    /// <param name="brightness">Final master brightness from 0 through 15 inclusive; zero produces black.</param>
-    /// <param name="gradient">Empty, or exactly 224 scanline controls whose CGADSUB control subtracts from BG1 and the backdrop or adds to them and the OBJs; copied into owned storage.</param>
+    /// <param name="background">The floor's transform, or null to show the backdrop behind the sprites. The floor is measured from screen column zero, with the first visible row at line one.</param>
+    /// <param name="brightness">The frame's brightness, 0 (black) through 15.</param>
+    /// <param name="gradient">Empty, or exactly 224 lines of gradient colour, each subtracted from the floor and backdrop or added to them and the sprites; copied.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <param name="floor">The floor's map and tiles, given exactly when <paramref name="background"/> is.</param>
@@ -43,18 +43,18 @@ public sealed record FloorScene
             throw new ArgumentException("A floor's transform and its map come together.", nameof(floor));
         Floor = floor;
         Ensure.NotNull(paint);
-        Brightness = Ensure.BetweenInclusive(0, FadeLevel.Full, brightness);
+        Brightness = DisplayBrightness.Require(brightness);
         Paint = paint;
         Background = background;
         if (!gradient.IsEmpty && gradient.Length != ScreenGeometry.ScreenHeightPixels)
-            throw new ArgumentException("Title gradient requires 224 scanlines.", nameof(gradient));
+            throw new ArgumentException("A title gradient covers all 224 screen lines.", nameof(gradient));
         foreach (var line in gradient)
             if (!IsTitleGradientControl(line.Control))
-                throw new ArgumentException("Title gradient has an unsupported CGADSUB control.", nameof(gradient));
+                throw new ArgumentException("A title gradient line blends in an unsupported way.", nameof(gradient));
         this.gradient = gradient.ToArray();
     }
 
-    /// <summary>The two CGADSUB settings the title gradient uses: subtracting from BG1 and the backdrop, or adding to them and the OBJs.</summary>
+    /// <summary>The two blends the title gradient uses: subtracting from the floor and backdrop, or adding to them and the sprites.</summary>
     private static bool IsTitleGradientControl(ColorBlend control) => control is
         (ColorBlend.Subtract | ColorBlend.Backdrop | ColorBlend.Bg1) or
         (ColorBlend.Backdrop | ColorBlend.Sprites | ColorBlend.Bg1);

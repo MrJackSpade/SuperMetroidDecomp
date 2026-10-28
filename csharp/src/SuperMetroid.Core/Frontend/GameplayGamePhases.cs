@@ -113,7 +113,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresReachedForcedBlank = session.ceresDeparture.StepFadeAfterGameplay();
-        session.ApplyDisplayBrightness(checked((byte)session.ceresDeparture.Brightness));
+        session.SetDisplayBrightness(checked((byte)session.ceresDeparture.Brightness));
         if (ceresReachedForcedBlank)
         {
             // GameState_33 saves the live area-six/station-zero slot only after
@@ -161,7 +161,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.display.PublishGameplay(session.GameplayRuntime);
         // HandleFadingOut ($80:8924) reloads the counter from ScreenFadeDelay, which
         // $A2:AD26 zeroed, so the brightness falls one step on every call.
-        session.ApplyDisplayBrightness(session.EscapeFade.Darken());
+        session.SetDisplayBrightness(session.EscapeFade.Darken());
         if (session.EscapeFade.Brightness == 0)
         {
             // $82:84D3-$8527 resets PPU ownership, stops the escape timer/music,

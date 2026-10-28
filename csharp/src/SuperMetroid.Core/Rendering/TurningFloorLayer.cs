@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Inserts a turning, scaling floor at an explicit position among the sprite priorities (#1403).</summary>
+/// <summary>Draws a turning, scaling floor at its place among the sprite depths (#1403).</summary>
 /// <param name="Transform">How the floor is turned, scaled and scrolled onto the screen.</param>
 /// <param name="Floor">The floor's map and tiles.</param>
 /// <param name="SubtractsSprites">Subtracts the frontmost sprite from the floor.</param>
-/// <param name="AddsForeground">Owns floor/OBJ main selection and adds the floor to eligible main pixels, without halving. Backdrop and OBJ palettes zero through three are excluded.</param>
-[IndependentFlag("independent colour-math settings: object subtraction and floor addition")]
+/// <param name="AddsForeground">Adds the floor's colour, unhalved, over the floor and the blending sprites; the backdrop and the sprites that do not blend are unchanged.</param>
+[IndependentFlag("independent blends: subtracting the sprites, and adding the floor")]
 public sealed record TurningFloorLayer(AffineTransform Transform, AffineFloor Floor, bool SubtractsSprites = false,
     bool AddsForeground = false) : DisplayLayer
 {

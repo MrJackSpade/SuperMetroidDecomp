@@ -1,4 +1,4 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>One immutable insertion into an explicitly ordered PPU priority ladder.</summary>
+/// <summary>One immutable layer of a frame's scene, drawn in the scene's order from back to front.</summary>
 public abstract record DisplayLayer;

@@ -157,17 +157,17 @@ internal sealed class FrontendSession
     internal int StepScreenFadeIn()
     {
         int brightness = AdvanceScreenFadeIn();
-        ApplyDisplayBrightness(brightness);
+        SetDisplayBrightness(brightness);
         return brightness;
     }
     /// <summary>Steps the shared screen fade one frame toward black, publishes the level and returns it.</summary>
     internal int StepScreenFadeOut()
     {
         int brightness = PauseBrightness = screenFade.Darken(PauseBrightness);
-        ApplyDisplayBrightness(brightness);
+        SetDisplayBrightness(brightness);
         return brightness;
     }
-    /// <summary>Records the brightness register at full, as a fade-in that wrote $51 = $0F leaves it.</summary>
+    /// <summary>Records the screen brightness at full, as a completed fade-in leaves it.</summary>
     internal void RecordFullBrightness() => PauseBrightness = PauseFadeTiming.FullyLit;
     /// <summary>Palette transition for Samus's death sequence, when active.</summary>
     internal GradualPaletteTransition? DeathPaletteFade { get; private set; }
@@ -366,13 +366,12 @@ internal sealed class FrontendSession
         EscapeFade.Start(15, 0);
         GameState = SuperMetroidGameState.SamusEscapesFromZebes;
     }
-    /// <summary>Writes frontend brightness and retains its last level for pause fades.</summary>
-    internal void ApplyDisplayBrightness(int brightness)
+    /// <summary>Sets the screen's brightness on the published frame and retains it for pause fades.</summary>
+    internal void SetDisplayBrightness(int brightness)
     {
-        // Every published level is a write of the brightness register $51; pause entry
-        // fades from the last one.
+        // Pause entry fades from the last level the screen was shown at.
         PauseBrightness = brightness;
-        display.ApplyBrightness(checked((byte)brightness));
+        display.SetBrightness(brightness);
     }
     /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade words reloaded.</summary>
     internal void BeginPauseFade(int initialBrightness)

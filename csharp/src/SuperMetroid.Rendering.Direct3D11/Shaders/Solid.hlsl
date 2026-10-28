@@ -3,10 +3,10 @@
 cbuffer SolidParameters : register(b0)
 {
     uint PackedColor;
-    uint FadeCount;
+    // The frame's one brightness, black (zero) through full (15).
+    uint Level;
     uint Width;
     uint Height;
-    uint4 FadeLevels[256];
 };
 RWTexture2D<uint> Output : register(u0);
 
@@ -17,7 +17,6 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint4 color = uint4(PackedColor & 255, (PackedColor >> 8) & 255,
         (PackedColor >> 16) & 255, PackedColor >> 24);
     if (color.a != 0)
-        for (uint i = 0; i < FadeCount; i++)
-            color.rgb = color.rgb * FadeLevels[i / 4][i % 4] / 15;
+        color.rgb = color.rgb * Level / 15;
     Output[id.xy] = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24);
 }

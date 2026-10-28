@@ -85,7 +85,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);
-        session.ApplyDisplayBrightness(session.DeathFade.Darken());
+        session.SetDisplayBrightness(session.DeathFade.Darken());
         if (session.DeathFade.Brightness == 0)
         {
             session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;

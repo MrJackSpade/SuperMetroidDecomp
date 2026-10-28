@@ -482,12 +482,12 @@ internal static class RoomFxRetailInventoryVerification
         OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
             Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram.Colors));
         return DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []),
-            layer is null ? [] : new DisplayLayer[] { layer }, FadeLevel.Full));
+            layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }
 
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>
     private static RgbaPixel[] RenderRoomFxBackdrop(GameplayColours cgram) =>
-        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), [], FadeLevel.Full));
+        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), [], DisplayBrightness.Full));
 
     /// <summary>The BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348).</summary>
     private static Layer3Plane EffectPlane(RoomLayer3FxState fx) =>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -47,15 +48,15 @@ internal sealed class KraidBodyLayer
     private KraidWorkingMap? workingMap;
 
     /// <summary>The body the installed artwork composes; a rebound installation recomposes it.</summary>
-    internal ushort[] WorkingMap()
+    internal BackgroundTile[] WorkingMap()
     {
         KraidBackgroundArtwork art = RequireBackgroundArtwork();
         if (workingMap is { } composed && ReferenceEquals(composed.Art, art))
-            return composed.Words;
-        ushort[] words = KraidBodyTilemap.ComposeWorkingMap(art);
-        workingMap = new KraidWorkingMap(art, words);
+            return composed.Tiles;
+        BackgroundTile[] tiles = KraidBodyTilemap.ComposeWorkingMap(art);
+        workingMap = new KraidWorkingMap(art, tiles);
         bodyTilemap = null;
-        return words;
+        return tiles;
     }
 
     /// <summary>Kraid's installed BG2 artwork.</summary>

@@ -762,14 +762,15 @@ Phantoon's stock body, eye, tentacles, and mouth use BG2 tilemap writes rather t
 ordinary OAM parts. Copy `game/enemy-tiles/phantoon-bg2-frames.json` to
 `overrides/enemy-tiles/` to edit its 22 named visual frames. Each ordered write
 has `x` and `y` coordinates in the 32-by-64 BG2 tilemap and a horizontal `tiles`
-array of SNES tile words. Its multipart `displayFrames` bindings select the
+array of cells, each naming its character-sheet `tileColumn` and `tileRow`, its
+`palette`, `priority`, `flipX` and `flipY`, as the room background tilemaps do. Its multipart `displayFrames` bindings select the
 matching BG2 pose and any authored OAM components together. Physical frame
 selection and write timing stay in the engine;
 the JSON contains no hitbox, damage, or instruction data. Invalid or missing
 frames fail during load, and the stock file is manifest-hash checked.
 Draygon's 34 BG2 frames use the same visual-only tilemap format in
 `game/enemy-tiles/draygon-bg2-frames.json`. Copy it to `overrides/enemy-tiles/`
-to edit the ordered tile words or their 32-by-64 tilemap positions. Its native
+to edit the ordered tiles or their 32-by-64 tilemap positions. Its native
 frame selectors, producer timing, hitboxes, and damage callbacks remain outside
 the appearance file. The stock file is hash-checked and malformed overrides
 fail during load.

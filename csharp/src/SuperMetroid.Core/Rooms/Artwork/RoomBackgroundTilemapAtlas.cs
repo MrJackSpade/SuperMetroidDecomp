@@ -15,13 +15,10 @@ public sealed class RoomBackgroundTilemapAtlas
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     public ReadOnlyMemory<BackgroundTile> Tiles => tiles;
 
-    /// <summary>The tiles as little-endian tilemap words, for the code #1422 has not yet moved off them.</summary>
-    public ReadOnlyMemory<byte> Bytes => BackgroundTileWords.ToBytes(tiles);
-
     /// <summary>Compiles an editable tile-reference document into one or two native BG tilemap pages.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
     /// <param name="expectedByteCount">Required compiled byte length: $0800 for one page or $1000 for two.</param>
-    /// <returns>An atlas owning newly encoded words, with each cell's character index, palette, priority, and flips preserved.</returns>
+    /// <returns>An atlas owning the placed tiles, with each cell's tile, colour variant, priority, and mirroring preserved.</returns>
     /// <remarks>Page order is retained without inferring horizontal or vertical placement; the consuming background/PPU configuration determines that layout. Parsing accepts property-name casing differences but rejects unknown and duplicate properties.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The requested size, JSON schema, page/cell counts, or character/palette selectors are invalid.</exception>

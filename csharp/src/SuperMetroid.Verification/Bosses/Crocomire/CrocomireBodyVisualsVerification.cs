@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -155,7 +156,7 @@ internal static class CrocomireBodyVisualsVerification
                     installed.Span[index].FirstCell,
                     $"Crocomire BG2 frame $A4:{frame.Pointer:X4} write {index} destination");
                 AssertTrue(native[index].Tiles.SequenceEqual(
-                        installed.Span[index].Tiles.Span),
+                        installed.Span[index].Words),
                     $"Crocomire BG2 frame $A4:{frame.Pointer:X4} write {index} tiles");
             }
         }
@@ -168,7 +169,7 @@ internal static class CrocomireBodyVisualsVerification
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemySpritemapDefinition editedFrame = CrocomireBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument lastWrite = authored.Frames[editedFrame.Name][^1];
-        lastWrite.Tiles[0] ^= 1;
+        lastWrite.Tiles[0] = RoomBackgroundTilemapCellWords.Cell(lastWrite.Tiles[0].PackedWord ^ 1);
         string overridePath = Path.Combine(overrideDirectory,
             CrocomireBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(authored,

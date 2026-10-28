@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -107,7 +108,7 @@ internal static class EndingScreenImage
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingArtworkExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingArtworkExtentDefinitions.ShootingCharacterBytes]);
-        ending.WaitingTilemap.Load(objects.WaitingTilemap.Bytes.Span[..EndingArtworkExtentDefinitions.WaitingTilemapBytes]);
+        ending.WaitingTilemap.Load(BackgroundTileWords.ToBytes(objects.WaitingTilemap.Tiles.Span).AsSpan(0, EndingArtworkExtentDefinitions.WaitingTilemapBytes));
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
         ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
         ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
@@ -125,7 +126,7 @@ internal static class EndingScreenImage
             EndingPostShotUploadSource.Subtitle => Font(artwork).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset, length),
             EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
                 transfer.Offset, length),
-            EndingPostShotUploadSource.LogoMap => Objects(artwork).PostShotLogoMap.Bytes.Span[..length],
+            EndingPostShotUploadSource.LogoMap => BackgroundTileWords.ToBytes(Objects(artwork).PostShotLogoMap.Tiles.Span).AsSpan(0, length),
             _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
         };
         vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);

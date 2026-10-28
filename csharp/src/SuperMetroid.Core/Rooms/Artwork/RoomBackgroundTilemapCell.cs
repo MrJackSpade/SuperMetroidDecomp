@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Decoded fields of one sixteen-bit SNES BG tilemap word, separating the character-sheet selector from its destination cell.</summary>
@@ -15,4 +17,12 @@ public sealed record RoomBackgroundTilemapCell
     public required bool FlipX { get; init; }
     /// <summary>Whether native bit 15 mirrors the selected character vertically when rendered.</summary>
     public required bool FlipY { get; init; }
+
+    /// <summary>The tile this cell places, or null when its tile or palette lies outside the schema.</summary>
+    internal BackgroundTile? Placement() =>
+        (uint)TileColumn < RoomBackgroundTilemapFormat.TileColumns &&
+        (uint)TileRow < RoomBackgroundTilemapFormat.TileRows &&
+        (uint)Palette < RoomBackgroundTilemapFormat.PaletteCount
+            ? new BackgroundTile(TileRow * RoomBackgroundTilemapFormat.TileColumns + TileColumn, Palette, FlipX, FlipY, Priority)
+            : null;
 }

@@ -35,7 +35,7 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
+        ReadOnlySpan<BackgroundTile> tilemap = RequireCrocomireMeltingTilemap(
             CrocomireMeltingIllustration.First);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingOneTopRow);
 
@@ -54,7 +54,7 @@ internal sealed class CrocomireMelting
         }
 
         // $A4:938D-93A2 clears the first $400 bytes.
-        WriteCrocomireMeltingTilemap(tilemap, clearedWords: 512);
+        WriteCrocomireMeltingTilemap(tilemap, clearedCells: 512);
     }
 
     /// <summary>
@@ -63,16 +63,16 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
+        ReadOnlySpan<BackgroundTile> tilemap = RequireCrocomireMeltingTilemap(
             CrocomireMeltingIllustration.Second);
         _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingTwoTopRow);
         // $A4:940E-941D clears the first $800 bytes.
-        WriteCrocomireMeltingTilemap(tilemap, clearedWords: 1024);
+        WriteCrocomireMeltingTilemap(tilemap, clearedCells: 1024);
     }
 
     /// <summary>Requires a complete installed melting map before phase, actor, scratch, or VRAM state changes.</summary>
-    internal ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration illustration) =>
+    internal ReadOnlySpan<BackgroundTile> RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration illustration) =>
         (_bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed tilemap artwork.")).Tilemap(illustration);
 
@@ -84,16 +84,16 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>Stages the melting map with its native blank lead-in and uploads the bounded BG2 span.</summary>
-    private void WriteCrocomireMeltingTilemap(ReadOnlySpan<ushort> tilemap, int clearedWords)
+    private void WriteCrocomireMeltingTilemap(ReadOnlySpan<BackgroundTile> tilemap, int clearedCells)
     {
-        Span<ushort> working = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
-        working[..clearedWords].Fill(CrocomireBg2.CrocomireBlankBg2Tile);
-        int copiedWords = tilemap.Length;
+        Span<BackgroundTile> working = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
+        working[..clearedCells].Fill(CrocomireBg2.CrocomireBlankBg2Tile);
+        int copiedCells = tilemap.Length;
         tilemap.CopyTo(working[32..]);
 
         // $A4:93BE receives byte count `tilemap bytes + $0400`, so the initial upload also
-        // includes 512 blank leading words and retains blank space after the compact image.
-        _bg2.WriteCrocomireBg2Words(0, 512 + copiedWords);
+        // includes 512 blank leading cells and retains blank space after the compact image.
+        _bg2.WriteCrocomireBg2Cells(0, 512 + copiedCells);
     }
 
     /// <summary>
@@ -264,7 +264,7 @@ internal sealed class CrocomireMelting
     {
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         _bg2.ClearCrocomireBg2WorkingTilemap();
-        _bg2.WriteCrocomireBg2Words(0, 1024);
+        _bg2.WriteCrocomireBg2Cells(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 }

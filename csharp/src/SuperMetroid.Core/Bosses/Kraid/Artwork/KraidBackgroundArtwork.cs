@@ -10,15 +10,15 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 public sealed class KraidBackgroundArtwork
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v2", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v3", content =>
         {
-            content.Append("upper", Upper.Bytes.Span);
-            content.Append("lower", Lower.Bytes.Span);
+            content.AppendTiles("upper", Upper.Tiles.Span);
+            content.AppendTiles("lower", Lower.Tiles.Span);
             content.Append("background-tiles", RoomBackgroundTiles.Characters.Span);
             foreach ((int mouthStage, KraidHeadTilemapAtlas head) in heads.OrderBy(pair => pair.Key))
             {
                 content.Append("head-mouth-stage", mouthStage);
-                content.AppendWords("head-words", head.Words.Span);
+                content.AppendTiles("head-tiles", head.Tiles.Span);
             }
         });
 
@@ -54,9 +54,9 @@ public sealed class KraidBackgroundArtwork
     internal IReadOnlyDictionary<int, KraidHeadTilemapAtlas> Heads => heads;
 
     /// <summary>The installed head image <paramref name="frame"/> shows, without changing its timing or hitboxes.</summary>
-    internal ReadOnlySpan<ushort> HeadWords(KraidHeadFrame frame) =>
+    internal ReadOnlySpan<BackgroundTile> HeadTiles(KraidHeadFrame frame) =>
         heads.TryGetValue(frame.MouthStage, out KraidHeadTilemapAtlas? image)
-            ? image.Words.Span
+            ? image.Tiles.Span
             : throw new InvalidDataException(
                 $"Kraid head mouth stage {frame.MouthStage} has no installed tilemap.");
 }

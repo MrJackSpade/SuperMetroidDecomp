@@ -94,12 +94,10 @@ internal sealed class MotherBrainRainbowAndDeath
             state.DeathBg2Cleared = true;
             state.DeathBg2Hidden = false;
             state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
-            var words = new ushort[MotherBrainBg2Definitions.DeathClearLastByte / 2 + 1];
-            Array.Fill(words, MotherBrainBg2Definitions.BlankTile);
-            ushort[] bg2 = _room.Staging.EnemyBg2Tilemap;
-            for (int i = 0; i < words.Length; i++)
-                bg2[i] = words[i];
-            _presentation.RequireBg2Image().Write(0, words);
+            var cleared = new BackgroundTile[MotherBrainBg2Definitions.DeathClearLastByte / 2 + 1];
+            Array.Fill(cleared, MotherBrainBg2Definitions.BlankTile);
+            cleared.CopyTo(_room.Staging.EnemyBg2Tilemap.AsSpan());
+            _presentation.RequireBg2Image().Write(0, cleared);
             state.EnemyBg2TilemapSize = MotherBrainBg2Definitions.DeathClearLastByte;
             state.EnemyBg2TilemapTransferRequested = true;
         }

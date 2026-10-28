@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
@@ -243,7 +244,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
         var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);
-        image.Write(0, screen);
+        image.Write(0, BackgroundTileWordBytes.Tiles(screen));
         runtime.Enemies.Presentation.AttachBg2Image(image);
     }
 

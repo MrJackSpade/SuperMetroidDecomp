@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -50,24 +51,24 @@ internal sealed class EnemyInstructionInterpreter
                 $"Installed {family} frame {selected} has no BG2 presentation.");
         if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
             foreach (EnemyBg2TilemapWrite write in writes.Span)
-                ApplyExtendedEnemyBg2Words(write.FirstCell, write.Tiles.Span);
+                ApplyExtendedEnemyBg2Tiles(write.FirstCell, write.Tiles.Span);
     }
 
     /// <summary>
     /// Common $A0:96CA destination semantics for cartridge and installed
-    /// tilemap streams. Only the source of the visual words changes.
+    /// tilemap streams. Only the source of the visual tiles changes.
     /// </summary>
-    private void ApplyExtendedEnemyBg2Words(int destinationWord, ReadOnlySpan<ushort> words)
+    private void ApplyExtendedEnemyBg2Tiles(int destinationCell, ReadOnlySpan<BackgroundTile> tiles)
     {
-        if (destinationWord < 0 || words.Length == 0 ||
-            destinationWord + words.Length > EnemyBg2FrameLayout.TilemapWordCount)
+        if (destinationCell < 0 || tiles.Length == 0 ||
+            destinationCell + tiles.Length > EnemyBg2FrameLayout.TilemapCellCount)
             throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
-        _bossCopies.Write(destinationWord, words);
+        _bossCopies.Write(destinationCell, tiles);
         // A boss that owns the enemy BG2 image draws into it (#1353); every owner attaches it at initialization. Mother
         // Brain only stages her body until her phase-two transition attaches the image (#1356), as native uploads
         // nothing before then.
         if (_presentation.Bg2Image is { } image)
-            image.Write(destinationWord, words);
+            image.Write(destinationCell, tiles);
         else if (!_bossCopies.StagesBody)
             throw new InvalidOperationException("An enemy BG2 frame was drawn before its owner attached the BG2 image it draws into.");
     }

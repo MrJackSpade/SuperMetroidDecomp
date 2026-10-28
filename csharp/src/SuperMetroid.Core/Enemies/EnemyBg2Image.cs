@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
@@ -8,30 +9,30 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyBg2Image
 {
-    /// <summary>The image's words, row by row, 32 per row.</summary>
-    private readonly ushort[] words;
+    /// <summary>The image's tiles, row by row, 32 per row.</summary>
+    private readonly BackgroundTile[] tiles;
 
     /// <summary>The last published image, until a write changes it.</summary>
     [NonSerialized]
     private EnemyBg2ImageSnapshot? published;
 
-    /// <summary>Creates an image with every word <paramref name="fill"/>, as a boss's initialization clears it.</summary>
-    public EnemyBg2Image(int fill)
+    /// <summary>Creates an image with every cell showing <paramref name="fill"/>, as a boss's initialization clears it.</summary>
+    public EnemyBg2Image(BackgroundTile fill)
     {
-        words = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
-        words.AsSpan().Fill(checked((ushort)fill));
+        tiles = new BackgroundTile[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
+        tiles.AsSpan().Fill(fill);
     }
 
-    /// <summary>Writes <paramref name="tiles"/> from word <paramref name="firstWord"/> onward.</summary>
+    /// <summary>Places <paramref name="written"/> from cell <paramref name="firstCell"/> onward.</summary>
     /// <exception cref="InvalidDataException">The run leaves the image.</exception>
-    public void Write(int firstWord, ReadOnlySpan<ushort> tiles)
+    public void Write(int firstCell, ReadOnlySpan<BackgroundTile> written)
     {
-        if (firstWord < 0 || firstWord + tiles.Length > words.Length)
-            throw new InvalidDataException($"An enemy BG2 write of {tiles.Length} words at {firstWord} leaves the {words.Length}-word image.");
-        tiles.CopyTo(words.AsSpan(firstWord));
+        if (firstCell < 0 || firstCell + written.Length > tiles.Length)
+            throw new InvalidDataException($"An enemy BG2 write of {written.Length} tiles at {firstCell} leaves the {tiles.Length}-cell image.");
+        written.CopyTo(tiles.AsSpan(firstCell));
         published = null;
     }
 
     /// <summary>The image as it stands, shared until the next write.</summary>
-    public EnemyBg2ImageSnapshot Publish() => published ??= new EnemyBg2ImageSnapshot([.. words]);
+    public EnemyBg2ImageSnapshot Publish() => published ??= new EnemyBg2ImageSnapshot([.. tiles]);
 }

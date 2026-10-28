@@ -28,9 +28,10 @@ public sealed class IntroCinematicArtworkCatalog
         {
             RoomBackgroundTilemapAtlas page = parts.BackgroundPages[index]
                 ?? throw new InvalidDataException($"Opening BG page {index} is missing.");
-            if (page.Bytes.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+            byte[] pageBytes = BackgroundTileWords.ToBytes(page.Tiles.Span);
+            if (pageBytes.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
-            page.Bytes.Span.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
+            pageBytes.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                 IntroCinematicArtworkFormat.BackgroundPageByteCount));
         }
         if (!pages.SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
@@ -56,9 +57,9 @@ public sealed class IntroCinematicArtworkCatalog
 
         static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {
-            if (page is null || page.Bytes.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+            if (page is null || page.Tiles.Length * sizeof(ushort) != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Opening cinematic {name} tilemap must contain one 32x32 page.");
-            return page.Bytes;
+            return BackgroundTileWords.ToBytes(page.Tiles.Span);
         }
     }
 

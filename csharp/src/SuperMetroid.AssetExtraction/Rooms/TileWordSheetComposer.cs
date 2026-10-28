@@ -74,7 +74,7 @@ internal static class TileWordSheetComposer
         // area's map tiles can show in any room.
         List<NamedPart> parts = [.. HudParts(inputs.Maps.GameplayHud), new NamedPart("Minimap", Minimap(Enum.GetValues<AreaId>().Select(inputs.Maps.Get))),
             .. uploads.FxTypes.Order().Select(type => new NamedPart($"Fx{type}", Page(inputs.Maps.RoomFxLayer3Tilemaps.Resolve(type).Span))),
-            Fill(BackgroundTileWords.ToWord(Layer3Plane.ClearedCell))];
+            Fill(Layer3Plane.ClearedCell)];
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             new TileWordBindings([RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
@@ -220,14 +220,14 @@ internal static class TileWordSheetComposer
             case TileWordWriter.Draygon:
                 foreach (NamedPart part in FrameParts((bosses.DraygonBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
-                yield return Fill(EnemyBg2SurfaceDefinitions.BlankTile.Raw);
+                yield return Fill(EnemyBg2SurfaceDefinitions.BlankTile);
                 break;
             case TileWordWriter.Crocomire:
                 foreach (NamedPart part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(writer);
                 foreach (CrocomireMeltingIllustration image in Enum.GetValues<CrocomireMeltingIllustration>())
-                    yield return new NamedPart($"Melting{image}Tilemap", Rows(melting.Tilemap(image).ToArray()));
+                    yield return new NamedPart($"Melting{image}Tilemap", Rows(BackgroundTileWords.ToWords(melting.Tilemap(image))));
                 yield return Fill(CrocomireBg2.CrocomireBlankBg2Tile);
                 break;
             case TileWordWriter.MotherBrain:
@@ -243,15 +243,15 @@ internal static class TileWordSheetComposer
     /// <summary>Kraid's body pages, with and without the priority his growth sets, and his head frames.</summary>
     private static IEnumerable<NamedPart> KraidParts(KraidBackgroundArtwork art)
     {
-        ushort[] working = KraidBodyTilemap.ComposeWorkingMap(art);
-        ushort[] upper = working[..KraidBackgroundDefinitions.PageCells];
-        ushort[] lower = working.AsSpan(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells).ToArray();
-        yield return new NamedPart("Upper", Rows(upper));
+        BackgroundTile[] working = KraidBodyTilemap.ComposeWorkingMap(art);
+        BackgroundTile[] upper = working[..KraidBackgroundDefinitions.PageCells];
+        BackgroundTile[] lower = working.AsSpan(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells).ToArray();
+        yield return new NamedPart("Upper", Rows(BackgroundTileWords.ToWords(upper)));
         yield return new NamedPart("UpperPriority", Rows(WithPriority(upper)));
-        yield return new NamedPart("Lower", Rows(lower));
+        yield return new NamedPart("Lower", Rows(BackgroundTileWords.ToWords(lower)));
         yield return new NamedPart("LowerPriority", Rows(WithPriority(lower)));
         foreach ((int mouthStage, KraidHeadTilemapAtlas head) in art.Heads.OrderBy(entry => entry.Key))
-            yield return new NamedPart($"Head{mouthStage}", Rows(head.Words.ToArray()));
+            yield return new NamedPart($"Head{mouthStage}", Rows(BackgroundTileWords.ToWords(head.Tiles.Span)));
         yield return Fill(KraidBackgroundDefinitions.BlankTile);
     }
 
@@ -374,10 +374,10 @@ internal static class TileWordSheetComposer
     /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
     private static IEnumerable<NamedPart> FrameParts(EnemyBg2FrameCatalog catalog) =>
         catalog.Frames.OrderBy(frame => frame.Key.ToString(), StringComparer.Ordinal).Select(frame => new NamedPart(frame.Key.ToString(),
-            new BodyPart([.. frame.Value.SelectMany(write => Runs(write.FirstCell, write.Tiles.ToArray()))])));
+            new BodyPart([.. frame.Value.SelectMany(write => Runs(write.FirstCell, BackgroundTileWords.ToWords(write.Tiles.Span)))])));
 
-    /// <summary>The tiles a boss fills its tilemap with, as one part.</summary>
-    private static NamedPart Fill(params ushort[] words) => new("Fill", new BodyPart([new BodyRun(default, [.. words.Distinct()])]));
+    /// <summary>The tile a boss fills its tilemap with, as one part.</summary>
+    private static NamedPart Fill(BackgroundTile tile) => new("Fill", new BodyPart([new BodyRun(default, [BackgroundTileWords.ToWord(tile)])]));
 
     /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row.</summary>
     private static BodyPart Rows(ushort[] words) => new([.. Runs(0, words)]);
@@ -393,8 +393,8 @@ internal static class TileWordSheetComposer
         }
     }
 
-    /// <summary><paramref name="words"/> with BG2 priority set, as Kraid shows his body once grown.</summary>
-    private static ushort[] WithPriority(ushort[] words) => [.. words.Select(word => (ushort)(word | SnesBgTilemapWord.PriorityMask))];
+    /// <summary>The words of <paramref name="tiles"/> in the upper priority tier, as Kraid shows his body once grown.</summary>
+    private static ushort[] WithPriority(BackgroundTile[] tiles) => [.. tiles.Select(tile => BackgroundTileWords.ToWord(tile with { HighPriority = true }))];
 
     /// <summary>The failure for a writer whose installed artwork is missing.</summary>
     private static InvalidDataException Missing(TileWordWriter writer) => new($"The installed enemy artwork has no {writer} body.");

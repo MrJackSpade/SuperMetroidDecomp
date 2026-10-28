@@ -4,6 +4,8 @@ using System.Text.Json;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -17,7 +19,10 @@ internal static class EnemyBg2FrameFiles
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
 
-    /// <summary>Extracts ordered BG2 tile writes from each extended frame, skipping mixed OAM components when allowed.</summary>
+    /// <summary>
+    /// Extracts ordered BG2 tile writes from each extended frame, skipping mixed OAM components when allowed; each
+    /// cartridge tilemap entry is decoded once into the editable cell of the tile it places.
+    /// </summary>
     internal static byte[] Extract(ISnesAddressSpace bus,
         ImmutableArray<EnemySpritemapDefinition> definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)
@@ -80,9 +85,9 @@ internal static class EnemyBg2FrameFiles
                         x + count > EnemyBg2FrameLayout.TilemapWidth)
                         throw new InvalidDataException(
                             $"{family} BG2 stream ${bank:X2}:{stream:X4} crosses its tilemap row.");
-                    var tiles = new int[count];
+                    var tiles = new RoomBackgroundTilemapCell[count];
                     for (int tile = 0; tile < count; tile++)
-                        tiles[tile] = CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4 + tile * 2));
+                        tiles[tile] = BackgroundTileCells.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4 + tile * 2)));
                     writes.Add(new EnemyBg2WriteDocument
                     {
                         X = x,

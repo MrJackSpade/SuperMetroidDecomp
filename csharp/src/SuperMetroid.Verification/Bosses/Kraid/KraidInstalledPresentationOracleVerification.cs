@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -30,7 +31,7 @@ internal static class KraidInstalledPresentationOracleVerification
             byte[] bytes = word < KraidBackgroundDefinitions.PageCells ? upper : lower;
             ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(selected * 2));
             result[word] = word >= KraidBackgroundDefinitions.BlankRowFirstCell
-                ? KraidBackgroundDefinitions.BlankTile : word >= KraidBackgroundDefinitions.PreservedLowerTailFirstWord
+                ? KraidBackgroundDefinitions.BlankTile.PackedWord : word >= KraidBackgroundDefinitions.PreservedLowerTailFirstWord
                 ? value : (ushort)(value & ~SnesBgTilemapWord.PriorityMask);
         }
         return result;
@@ -51,7 +52,7 @@ internal static class KraidInstalledPresentationOracleVerification
         var state = new KraidEnemyState();
         return new ReadImportedKraidHeadFrameResult(state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
 
-        static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundDefinitions.BlankTile, KraidBackgroundDefinitions.PageCells).ToArray();
+        static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundDefinitions.BlankTile.PackedWord, KraidBackgroundDefinitions.PageCells).ToArray();
     }
 
     /// <summary>Checks every typed head step and cursor read against the authored control words before the RAM-only clock fixture runs.</summary>

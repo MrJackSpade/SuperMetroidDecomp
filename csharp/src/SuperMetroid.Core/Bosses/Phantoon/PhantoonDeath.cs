@@ -190,7 +190,7 @@ internal sealed class PhantoonDeath
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         body.Position = body.Position.WithWhole(new(384, 128));
 
-        ushort[] clearedTilemap = new ushort[512];
+        var clearedTilemap = new BackgroundTile[512];
         Array.Fill(clearedTilemap, PhantoonBg2FrameDefinitions.BlankTile);
         _presentation.RequireBg2Image().Write(0, clearedTilemap);
     }

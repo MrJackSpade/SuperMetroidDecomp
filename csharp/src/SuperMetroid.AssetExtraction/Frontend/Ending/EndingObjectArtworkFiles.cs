@@ -202,7 +202,7 @@ public static class EndingObjectArtworkFiles
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
             RoomBackgroundTilemapAtlas compiled = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(json, writable: false), count);
-            if (!compiled.Bytes.Span.SequenceEqual(native))
+            if (!BackgroundTileWords.ToBytes(compiled.Tiles.Span).AsSpan().SequenceEqual(native))
                 throw new InvalidDataException($"Ending map JSON {name} changed native BG2 words.");
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))

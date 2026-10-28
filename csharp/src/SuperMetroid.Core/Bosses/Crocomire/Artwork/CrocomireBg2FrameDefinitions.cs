@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 internal static class CrocomireBg2FrameDefinitions
 {
     /// <summary>Schema version for the selected mixed-frame BG2 artwork file.</summary>
-    internal const int Version = 1;
+    internal const int Version = 2;
     /// <summary>Installed BG2 visual resource for Crocomire's mixed fight frames.</summary>
     internal const string FileName = "crocomire-bg2-frames.json";
 

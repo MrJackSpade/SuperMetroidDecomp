@@ -22,11 +22,11 @@ public sealed class PhantoonBg2FrameCatalog
     internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         Writes.TryGet(frame, out writes);
 
-    /// <summary>Compiles version-one BG2 artwork for all twenty-two bank-$A7 body/eye, tentacle, and mouth roots selected by Phantoon's compiled instruction programs.</summary>
-    /// <param name="json">Caller-owned JSON stream, left open, with every named frame containing ordered horizontal runs of unsigned 16-bit tile words in 32-by-64 tilemap-cell coordinates.</param>
+    /// <summary>Compiles BG2 artwork for all twenty-two bank-$A7 body/eye, tentacle, and mouth roots selected by Phantoon's compiled instruction programs.</summary>
+    /// <param name="json">Caller-owned JSON stream, left open, with every named frame containing ordered horizontal runs of placed tiles in 32-by-64 tilemap-cell coordinates.</param>
     /// <returns>Installed visual writes keyed by extended-frame roots; body/eye hitboxes, gaze selection, instruction timing, and new-frame write gating remain engine-owned.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON properties/schema, required frame identities, command counts, destinations, or tile words are invalid.</exception>
+    /// <exception cref="InvalidDataException">JSON properties/schema, required frame identities, command counts, destinations, or tiles are invalid.</exception>
     public static PhantoonBg2FrameCatalog Load(Stream json) =>
         new(EnemyBg2FrameCatalog.Load(json, PhantoonBg2FrameDefinitions.Frames,
             PhantoonBg2FrameDefinitions.Version, "Phantoon"));

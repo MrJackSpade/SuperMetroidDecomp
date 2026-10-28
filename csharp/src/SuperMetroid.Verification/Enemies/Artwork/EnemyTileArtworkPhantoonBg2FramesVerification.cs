@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification
@@ -68,7 +69,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                     checked((ushort)(PhantoonBg2FrameDefinitions.WorkingRamBase +
                         write.FirstCell * 2)),
                     $"Phantoon {frame.Name} write {index} preserves BG2 destination");
-                AssertTrue(write.Tiles.Span.SequenceEqual(native[index].Tiles),
+                AssertTrue(write.Words.SequenceEqual(native[index].Tiles),
                     $"Phantoon {frame.Name} write {index} preserves native tiles");
             }
         }
@@ -86,9 +87,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string frameName = "body_invulnerable";
         EnemyBg2WriteDocument first = document.Frames[frameName][0];
-        int originalTile = first.Tiles[0];
-        int[] editedTiles = (int[])first.Tiles.Clone();
-        editedTiles[0] ^= 1;
+        int originalTile = first.Tiles[0].PackedWord;
+        var editedTiles = (RoomBackgroundTilemapCell[])first.Tiles.Clone();
+        editedTiles[0] = RoomBackgroundTilemapCellWords.Cell(originalTile ^ 1);
         document.Frames[frameName][0] = first with { Tiles = editedTiles };
         string overrideDirectory = Path.Combine(stockDirectory, "phantoon-bg2-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -103,13 +104,13 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             PhantoonBg2FrameDefinitions.Frames[0].Frame,
             out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "Phantoon BG2 edited frame is installed");
-        AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Tiles.Span[0],
+        AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Words[0],
             "Phantoon BG2 override changes the selected tile reference");
         AssertEqual((ushort)originalTile,
             (stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> stockFrame)
-                ? stockFrame.Span[0].Tiles.Span[0] : (ushort)0,
+                ? stockFrame.Span[0].Words[0] : (ushort)0,
             "Phantoon BG2 override leaves stock frame intact");
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
@@ -132,7 +133,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue((reloaded.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
-            reloadedFrame.Span[0].Tiles.Span[0] == (ushort)(originalTile ^ 1),
+            reloadedFrame.Span[0].Words[0] == (ushort)(originalTile ^ 1),
             "Phantoon BG2 override survives catalog reload");
 
         document.Frames[frameName][0] = first with { X = 32 };

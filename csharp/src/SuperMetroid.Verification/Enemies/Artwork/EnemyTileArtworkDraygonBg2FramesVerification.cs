@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
@@ -75,7 +76,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     checked((ushort)(EnemyBg2FrameLayoutConstants.WorkingRamBase +
                         write.FirstCell * 2)),
                     $"Draygon {frame.Name} write {index} preserves destination");
-                AssertTrue(write.Tiles.Span.SequenceEqual(native[index].Tiles),
+                AssertTrue(write.Words.SequenceEqual(native[index].Tiles),
                     $"Draygon {frame.Name} write {index} preserves tile words");
             }
             writeCount += native.Count;
@@ -103,9 +104,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemySpritemapDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[editedIdentity.Name][0];
-        int changedTile = first.Tiles[0] ^ 1;
-        int[] editedTiles = (int[])first.Tiles.Clone();
-        editedTiles[0] = changedTile;
+        int changedTile = first.Tiles[0].PackedWord ^ 1;
+        var editedTiles = (RoomBackgroundTilemapCell[])first.Tiles.Clone();
+        editedTiles[0] = RoomBackgroundTilemapCellWords.Cell(changedTile);
         document.Frames[editedIdentity.Name][0] = first with { Tiles = editedTiles };
         string overrideDirectory = Path.Combine(stockDirectory, "draygon-bg2-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -129,7 +130,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             stockDirectory, overrideDirectory);
         AssertTrue((reloaded.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
-            reloadedFrame.Span[0].Tiles.Span[0] == (ushort)changedTile,
+            reloadedFrame.Span[0].Words[0] == (ushort)changedTile,
             "Draygon BG2 override survives reload");
         document.Frames[editedIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,

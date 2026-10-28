@@ -117,8 +117,8 @@ internal static class MotherBrainBodyPresentationVerification
             Version = MotherBrainBodyVisualDefinitions.Bg2Version,
             Frames = MotherBrainBodyVisualDefinitions.Bg2Frames.SelectToArray((frame, index) =>
                 KeyValuePair.Create(frame.Name, new EnemyBg2WriteDocument[]
-                { new() { X = edited ? 3 : 0, Y = edited ? 2 : 0, Tiles = [100 + index, 200 + index] },
-                  new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = [300 + index, edited ? 600 + index : 400 + index] } })).ToDictionary(),
+                { new() { X = edited ? 3 : 0, Y = edited ? 2 : 0, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
+                  new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = RoomBackgroundTilemapCellWords.Cells(300 + index, edited ? 600 + index : 400 + index) } })).ToDictionary(),
         };
     }
 
@@ -145,14 +145,14 @@ internal static class MotherBrainBodyPresentationVerification
         AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
     }
 
-    /// <summary>Checks the exact BG2 tilemap words and destinations written for a selected body pose.</summary>
+    /// <summary>Checks the exact BG2 tilemap words, each authored cell's tile encoded through the codec, and destinations written for a selected body pose.</summary>
     private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, string oamName)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
         if (authored.Frames.TryGetValue(oamName.Replace("_oam_", "_bg2_", StringComparison.Ordinal), out var writes))
             foreach (EnemyBg2WriteDocument write in writes)
                 for (int tile = 0; tile < write.Tiles.Length; tile++)
-                    expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + tile] = checked((ushort)write.Tiles[tile]);
+                    expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + tile] = write.Tiles[tile].PackedWord;
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index], actual[index], "body BG2 exact ordered runs and destinations");
     }
@@ -193,7 +193,7 @@ internal static class MotherBrainBodyPresentationVerification
         var document = RequiredJson.Deserialize<EnemyBg2FrameDocument>(parsed,
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         EnemyBg2WriteDocument[] first = document.Frames.Values.First();
-        first[0].Tiles[0] ^= 1;
+        first[0].Tiles[0] = RoomBackgroundTilemapCellWords.Cell(first[0].Tiles[0].PackedWord ^ 1);
         Directory.CreateDirectory(overridePath);
         string selectedFile = Path.Combine(overridePath, MotherBrainBodyVisualDefinitions.Bg2FileName);
         using (var json = author.Json(document)) File.WriteAllBytes(selectedFile, json.ToArray());

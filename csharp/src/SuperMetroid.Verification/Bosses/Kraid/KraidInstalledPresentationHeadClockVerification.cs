@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Bosses;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
@@ -31,7 +32,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(word * 2),
                     (ushort)(replacement[word] ^ SnesBgTilemapWord.PriorityMask));
             File.WriteAllBytes(Path.Combine(overrides, KraidBackgroundArtworkFormat.HeadFileNameAt(pointers[index])),
-                KraidHeadTilemapAtlas.Encode(words));
+                KraidHeadTilemapFiles.Encode(words));
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "head replacement contributes to selected identity");

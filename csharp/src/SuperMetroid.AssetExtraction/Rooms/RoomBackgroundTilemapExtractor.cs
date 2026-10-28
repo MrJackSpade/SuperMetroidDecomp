@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -40,17 +40,7 @@ public static class RoomBackgroundTilemapExtractor
             for (int cell = 0; cell < cells.Length; cell++)
             {
                 int offset = (page * cells.Length + cell) * sizeof(ushort);
-                var word = new SnesBgTilemapWord(
-                    BinaryPrimitives.ReadUInt16LittleEndian(native[offset..]));
-                cells[cell] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[cell] = BackgroundTileCells.Of(BinaryPrimitives.ReadUInt16LittleEndian(native[offset..]));
             }
             pages[page] = new RoomBackgroundTilemapPage { Cells = cells };
         }
@@ -64,8 +54,8 @@ public static class RoomBackgroundTilemapExtractor
         byte[] serialized = json.ToArray();
         RoomBackgroundTilemapAtlas roundtrip = RoomBackgroundTilemapAtlas.Load(
             new MemoryStream(serialized, writable: false), native.Length);
-        if (!roundtrip.Bytes.Span.SequenceEqual(native))
-            throw new InvalidDataException("Room background tilemap JSON changed native tile words.");
+        if (!roundtrip.Tiles.Span.SequenceEqual(BackgroundTileWords.ToTiles(native)))
+            throw new InvalidDataException("Room background tilemap JSON changed native tiles.");
         return serialized;
     }
 }

@@ -21,6 +21,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks stock boss display roots and installed BG2 bindings against cartridge artwork.</summary>
 internal static class BossDisplayBindingsStockVerification
@@ -75,7 +76,7 @@ internal static class BossDisplayBindingsStockVerification
                     "stock packed OAM matches independently decoded native records");
                 AssertBossBg2(fixture.Vram, native.Bg2.Select(write => new EnemyBg2WriteDocument
                 { X = write.FirstCell % EnemyBg2FrameLayout.TilemapWidth, Y = write.FirstCell / EnemyBg2FrameLayout.TilemapWidth,
-                    Tiles = write.Tiles.Span.SelectToArray(value => (int)value) }).ToArray());
+                    Tiles = RoomBackgroundTilemapCellWords.Cells(write.Tiles.Span) }).ToArray());
             }
         }
         Suite(nameof(VerifyBossDisplayInstallation), () => VerifyBossDisplayInstallation(path, overrides, installed));

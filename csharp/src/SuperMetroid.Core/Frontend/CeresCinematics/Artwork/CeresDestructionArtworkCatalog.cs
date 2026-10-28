@@ -42,7 +42,7 @@ public sealed class CeresDestructionArtworkCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresDestructionArtworkCatalog), content =>
     {
         content.Append("ceres-maps", CeresMaps.Span);
-        content.Append("zebes-map", ZebesMap.Bytes.Span);
+        content.AppendTiles("zebes-map", ZebesMap.Tiles.Span);
         content.Append("zebes-characters", ZebesCharacters.Characters.Span);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("reveal-actors", Convert.FromHexString(RevealActors.ContentIdentity));

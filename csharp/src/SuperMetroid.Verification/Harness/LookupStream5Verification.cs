@@ -95,30 +95,30 @@ internal static class LookupStream5Verification
             {
                 CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
                 native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
-                var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, native[phase]);
+                var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
                 AssertEqual(0, calculated.edits.Count,
                     "Every native melt tilemap word calculates without fallback");
-                AssertTrue(calculated.Words().SequenceEqual(native[phase]), "All native melt words");
-                AssertTrue((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
+                AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "All native melt words");
+                AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
                 VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                     ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
                 for (int index = 0; index < 256; index++)
                 {
                     ushort[] edited = (ushort[])native[phase].Clone(); edited[index] ^= 0xffff;
-                    var independent = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, edited);
+                    var independent = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(edited));
                     edited[index] = native[phase][index];
                     ushort[] expected = (ushort[])native[phase].Clone(); expected[index] ^= 0xffff;
-                    AssertTrue(independent.Words().SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
-                    AssertTrue(calculated.Words().SequenceEqual(native[phase]), "Edited map does not mutate stock");
+                    AssertTrue(BackgroundTileWordBytes.Words(independent.Tiles()).SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
+                    AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "Edited map does not mutate stock");
                 }
-                AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new ushort[255]), "Short melt map rejects");
+                AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new BackgroundTile[255]), "Short melt map rejects");
             }
             var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
             var second = art.second;
-            string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
+            string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
             {
                 content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);
-                content.AppendWords("first-map", native[0]); content.AppendWords("second-map", native[1]);
+                content.AppendTiles("first-map", BackgroundTileWordBytes.Tiles(native[0])); content.AppendTiles("second-map", BackgroundTileWordBytes.Tiles(native[1]));
             });
             AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
             AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(0); }, "Unknown map identity rejects");

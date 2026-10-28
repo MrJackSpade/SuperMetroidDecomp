@@ -65,7 +65,7 @@ internal sealed class DraygonParts
 
         // $7E:2000 is the enemy BG2 staging surface: all $800 words are filled, not merely the currently visible page.
         // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
-        _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile.Raw));
+        _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile));
 
         body.PaletteRow = 7;
         body.InstructionTimer = WrappingCountdown.Start(1);

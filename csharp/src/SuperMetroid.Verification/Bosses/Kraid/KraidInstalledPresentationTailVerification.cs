@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
@@ -38,7 +39,7 @@ internal static class KraidInstalledPresentationTailVerification
                 ? word : word - KraidBackgroundDefinitions.LowerPageFirstCell;
             ushort expected = BinaryPrimitives.ReadUInt16LittleEndian(source[(sourceWord * 2)..]);
             if (word < KraidBackgroundDefinitions.PreservedLowerTailFirstWord) expected &= unchecked((ushort)~SnesBgTilemapWord.PriorityMask);
-            if (word >= KraidBackgroundDefinitions.BlankRowFirstCell) expected = KraidBackgroundDefinitions.BlankTile;
+            if (word >= KraidBackgroundDefinitions.BlankRowFirstCell) expected = KraidBackgroundDefinitions.BlankTile.PackedWord;
             AssertEqual(expected, working[word], "Kraid native copied/untouched/blank boundary at word " + word);
         }
         Console.WriteLine("PASS Kraid working map: all 2,048 words, copied priority clear, 224 untouched tail words and 32-word blank row.");

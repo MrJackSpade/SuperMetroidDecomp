@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -29,7 +30,7 @@ internal static class EndingScreenPlanes
                     if (IsText(upload, EndingTextTilemap.FinalText))
                         Words(upload).CopyTo(words);
                     else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Load(Objects(objects).WaitingTilemap.Bytes.Span[..EndingArtworkExtentDefinitions.WaitingTilemapBytes], words);
+                        Load(BackgroundTileWords.ToBytes(Objects(objects).WaitingTilemap.Tiles.Span).AsSpan(0, EndingArtworkExtentDefinitions.WaitingTilemapBytes), words);
                     break;
                 case EndingPlane.TextLower:
                     if (upload.Kind == EndingUploadKind.PostShotLowerTilemap)
@@ -38,7 +39,7 @@ internal static class EndingScreenPlanes
                 case EndingPlane.Logo:
                     if (upload.Kind == EndingUploadKind.PostShotTransfer &&
                         EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk) is { Source: EndingPostShotUploadSource.LogoMap } logoMap)
-                        Load(Objects(objects).PostShotLogoMap.Bytes.Span[..logoMap.Length], words);
+                        Load(BackgroundTileWords.ToBytes(Objects(objects).PostShotLogoMap.Tiles.Span).AsSpan(0, logoMap.Length), words);
                     break;
                 case EndingPlane.WavySamus:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)

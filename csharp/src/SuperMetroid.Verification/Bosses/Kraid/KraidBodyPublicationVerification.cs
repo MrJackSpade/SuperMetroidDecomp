@@ -64,7 +64,7 @@ internal static class KraidBodyPublicationVerification
         // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
         state.DisplayedBody = KraidBodyFrame.Blank;
         BossBg2Layer cleared = Published(runtime);
-        AssertTrue(cleared.Tilemap.Words.All(word => word == KraidBackgroundDefinitions.BlankTile),
+        AssertTrue(cleared.Tilemap.Tiles.All(tile => tile == KraidBackgroundDefinitions.BlankTile),
             "the cleared body publishes only the blank tile");
         var dead = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(dead, runtime), "BG2 shows the cleared map, not the room's");

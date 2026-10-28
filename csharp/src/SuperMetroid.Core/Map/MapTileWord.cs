@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Map.MapTileWordMasks;
 namespace SuperMetroid.Core.Map;
 
 /// <summary>
@@ -17,6 +16,35 @@ namespace SuperMetroid.Core.Map;
 [EncodingOwner("area map cell word")]
 public readonly record struct MapTileWord(ushort Raw)
 {
+    /// <summary>Ten low bits selecting the BG map character independently of its attributes.</summary>
+    internal const ushort CharacterMask = 0x03ff;
+
+    /// <summary>Three BG palette bits, including the explored-cell bit.</summary>
+    internal const ushort PaletteMask = 0x1c00;
+
+    /// <summary>The BG priority bit preserved when presenting a tile.</summary>
+    internal const ushort PriorityMask = 0x2000;
+
+    /// <summary>The map cell's horizontal-mirror bit.</summary>
+    internal const ushort HorizontalFlipMask = 0x4000;
+
+    /// <summary>The map cell's vertical-mirror bit.</summary>
+    internal const ushort VerticalFlipMask = 0x8000;
+
+    /// <summary>Horizontal and vertical BG flip bits preserved by HUD projection.</summary>
+    internal const ushort FlipMask = HorizontalFlipMask | VerticalFlipMask;
+
+    /// <summary>Downloaded-map palette bit cleared when a cell has been explored.</summary>
+    internal const ushort ExploredPaletteBit = 0x0400;
+
+    /// <summary>HUD palette and priority for a visited minimap cell.</summary>
+    internal const ushort HudExploredAttributes = 0x2800;
+
+    /// <summary>HUD palette and priority for an unvisited minimap cell.</summary>
+    internal const ushort HudUnexploredAttributes = 0x2c00;
+
+    /// <summary>Alternating Samus marker palette bits applied during minimap blink.</summary>
+    internal const ushort HudLocationBlinkAttributes = 0x1c00;
 
     /// <summary>Low ten-bit map character selected by this cell.</summary>
     public ushort CharacterIndex => (ushort)(Raw & CharacterMask);

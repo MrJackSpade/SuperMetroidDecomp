@@ -49,7 +49,7 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(0x9ab200, MapSourceDefinitions.Artwork.HudCharacters, "HUD characters");
         AssertEqual(0x82964a, MapSourceDefinitions.AreaMaps.TilemapPointers, "area tilemap pointers");
         AssertEqual(0x1000, MapSourceDefinitions.AreaMaps.TilemapBytes, "area tilemap bytes");
-        AssertEqual(0xc000, MapTileWordMasks.FlipMask, "map tile flip bits");
+        AssertEqual(0xc000, MapTileWord.FlipMask, "map tile flip bits");
 
         // FileSelectTilemapDefinitions moved to extraction whole.
         AssertEqual(0xb40a, FileSelectTilemapSourceDefinitions.SamusData, "SAMUS DATA stream");

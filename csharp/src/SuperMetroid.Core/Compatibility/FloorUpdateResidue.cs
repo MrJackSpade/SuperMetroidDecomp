@@ -10,10 +10,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// readers consult it whenever Samus's animation reads past its tables.
 /// </summary>
 [CompatibilityService("bounded over-read: the delays Samus's running stage five and the invalid poses read past their tables")]
+[EncodingOwner("the floor update descriptors' residue bytes Samus's animation reads as delays")]
 public sealed class FloorUpdateResidue : IFloorUpdateResidue
 {
     /// <summary>The residue's bytes.</summary>
-    public const int ByteCount = 0x60;
+    public const int ByteCount = 96;
 
     /// <summary>
     /// Where the half of an animation window that aliases the residue ends: a delay over-read at a window position below

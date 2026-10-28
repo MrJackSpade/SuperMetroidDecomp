@@ -27,20 +27,24 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
     /// <summary>Fixed afterglow and lava program descriptors in native definition order.</summary>
     private static readonly ZebesExplosionAmbientPaletteFxColorDefinition[] Definitions =
     [
-        new(
-            ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
-            paletteFxObject: PaletteFxObject.ZebesExplosionPlanetAfterglow,
-            program: PaletteFxProgram.ZebesExplosionPlanetAfterGlow1,
-            colorByteIndex: 0x01c2,
-            colorsPerFrame: 8,
-            cycleFrames: 96),
-        new(
-            ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
-            paletteFxObject: PaletteFxObject.ExplodingZebesLava,
-            program: PaletteFxProgram.ExplodingZebesLava1,
-            colorByteIndex: 0x0080,
-            colorsPerFrame: 1,
-            cycleFrames: 70),
+        new()
+        {
+            Owner = ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
+            Object = PaletteFxObject.ZebesExplosionPlanetAfterglow,
+            ColorByteIndex = 0x01c2,
+            ColorsPerFrame = 8,
+            CycleFrames = 96,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.ZebesExplosionPlanetAfterGlow1, 8),
+        },
+        new()
+        {
+            Owner = ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
+            Object = PaletteFxObject.ExplodingZebesLava,
+            ColorByteIndex = 0x0080,
+            ColorsPerFrame = 1,
+            CycleFrames = 70,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.ExplodingZebesLava1, 1),
+        },
     ];
 
     /// <summary>The afterglow and lava programs in definition order.</summary>

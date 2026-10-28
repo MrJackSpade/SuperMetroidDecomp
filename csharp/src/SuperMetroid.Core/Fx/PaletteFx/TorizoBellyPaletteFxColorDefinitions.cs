@@ -21,7 +21,17 @@ public static class TorizoBellyPaletteFxColorDefinitions
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxColorDefinition> All { get; } =
     [
-        new(TorizoBellyPaletteOwner.BombTorizo, PaletteFxObject.BombTorizoBelly, PaletteFxProgram.BombTorizoBelly1),
-        new(TorizoBellyPaletteOwner.GoldenTorizo, PaletteFxObject.GoldenTorizoBelly, PaletteFxProgram.GoldenTorizoBelly1),
+        new()
+        {
+            Owner = TorizoBellyPaletteOwner.BombTorizo,
+            Object = PaletteFxObject.BombTorizoBelly,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.BombTorizoBelly1, ColorsPerFrame),
+        },
+        new()
+        {
+            Owner = TorizoBellyPaletteOwner.GoldenTorizo,
+            Object = PaletteFxObject.GoldenTorizoBelly,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.GoldenTorizoBelly1, ColorsPerFrame),
+        },
     ];
 }

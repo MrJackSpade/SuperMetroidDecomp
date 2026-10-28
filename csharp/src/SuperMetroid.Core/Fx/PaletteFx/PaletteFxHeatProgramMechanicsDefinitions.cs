@@ -17,11 +17,23 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
     /// <summary>Compiled heat palette control for the Power Suit.</summary>
-    private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power, PaletteFxProgram.SamusInHeatPowerSuit1);
+    private static readonly PaletteFxHeatProgramDefinition Power = new()
+    {
+        Suit = PaletteFxHeatSuit.Power,
+        Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusInHeatPowerSuit1, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+    };
     /// <summary>Compiled heat palette control for the Varia Suit.</summary>
-    private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia, PaletteFxProgram.SamusInHeatVariaSuit2);
+    private static readonly PaletteFxHeatProgramDefinition Varia = new()
+    {
+        Suit = PaletteFxHeatSuit.Varia,
+        Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusInHeatVariaSuit2, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+    };
     /// <summary>Compiled heat palette control for the Gravity Suit.</summary>
-    private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity, PaletteFxProgram.SamusInHeatGravitySuit2);
+    private static readonly PaletteFxHeatProgramDefinition Gravity = new()
+    {
+        Suit = PaletteFxHeatSuit.Gravity,
+        Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusInHeatGravitySuit2, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+    };
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
     public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = [Power, Varia, Gravity];

@@ -12,7 +12,7 @@ internal static class EnemyTileArtworkCatalogToolingExtensions
         /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
         public void LoadTo(EnemyDefinitionId definitionPointer, int byteCount, VramRegion destination, int byteOffset)
         {
-            if (!self.installed.Sheets.TryGetValue(definitionPointer, out RoomCharacterAtlas? atlas))
+            if (!self.TryGetSheet(definitionPointer, out RoomCharacterAtlas? atlas))
                 throw new InvalidDataException($"Enemy {definitionPointer} has no installed tile sheet.");
             if (atlas.Characters.Length != byteCount)
                 throw new InvalidDataException(

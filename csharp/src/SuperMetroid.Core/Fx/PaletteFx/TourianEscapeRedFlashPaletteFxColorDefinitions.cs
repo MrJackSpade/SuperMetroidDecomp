@@ -12,10 +12,24 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
     /// <summary>Shutter and background loops with distinct CGRAM starts, frame durations, and color extents.</summary>
     private static readonly TourianEscapeRedFlashPaletteFxColorDefinition[] Definitions =
     [
-        new(TourianEscapeRedFlashPaletteOwner.Shutter,
-            PaletteFxObject.TourianShutterRedFlashing, PaletteFxProgram.Tourian81, 0x0132, 2, 6),
-        new(TourianEscapeRedFlashPaletteOwner.Background,
-            PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxProgram.Tourian101, 0x0070, 4, 4),
+        new()
+        {
+            Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
+            Object = PaletteFxObject.TourianShutterRedFlashing,
+            ColorByteIndex = 0x0132,
+            Duration = 2,
+            ColorsPerFrame = 6,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.Tourian81, 6),
+        },
+        new()
+        {
+            Owner = TourianEscapeRedFlashPaletteOwner.Background,
+            Object = PaletteFxObject.TourianBackgroundRedFlashing,
+            ColorByteIndex = 0x0070,
+            Duration = 4,
+            ColorsPerFrame = 4,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.Tourian101, 4),
+        },
     ];
 
     /// <summary>The shutter and background red-flash programs in definition order.</summary>

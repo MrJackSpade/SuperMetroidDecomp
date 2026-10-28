@@ -21,8 +21,14 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
             int regular = index - FirstRegularProgram;
             int palette = heat ? HeatPalette : RegularFirstPalette + regular;
             int color = heat ? HeatFirstColor : RegularFirstColor;
-            return new(owner, Objects[index], NorfairEnvironmentalPaletteFxColorDefinitions.Programs[index],
-                (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
+            return new()
+            {
+                Owner = owner,
+                Object = Objects[index],
+                ColorByteIndex = (ushort)((palette * 16 + color) * sizeof(ushort)),
+                PublishesHeatPhase = heat,
+                Rows = PaletteFxColorRows.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Programs[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
+            };
         }
     }
     /// <summary>Visits the heat-phase program followed by palette-four, five, and six programs.</summary>

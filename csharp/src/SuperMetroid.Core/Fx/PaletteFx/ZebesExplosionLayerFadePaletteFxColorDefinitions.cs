@@ -27,18 +27,22 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
     /// <summary>Crust and grey-cloud one-shot fades with distinct destinations and authored holds.</summary>
     private static readonly ZebesExplosionLayerFadePaletteFxColorDefinition[] Definitions =
     [
-        new(
-            ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
-            paletteFxObject: PaletteFxObject.FadeOutExplodingZebesCrust,
-            program: PaletteFxProgram.FadeOutExplodingZebesCrust,
-            colorByteIndex: 0x0082,
-            frameDuration: 20),
-        new(
-            ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
-            paletteFxObject: PaletteFxObject.FadeOutExplodingZebesGreyClouds,
-            program: PaletteFxProgram.FadeOutExplodingZebesGreyClouds,
-            colorByteIndex: 0x00a2,
-            frameDuration: 14),
+        new()
+        {
+            Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
+            Object = PaletteFxObject.FadeOutExplodingZebesCrust,
+            ColorByteIndex = 0x0082,
+            FrameDuration = 20,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutExplodingZebesCrust, ColorsPerFrame),
+        },
+        new()
+        {
+            Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
+            Object = PaletteFxObject.FadeOutExplodingZebesGreyClouds,
+            ColorByteIndex = 0x00a2,
+            FrameDuration = 14,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutExplodingZebesGreyClouds, ColorsPerFrame),
+        },
     ];
 
     /// <summary>The crust and grey-cloud programs in definition order.</summary>

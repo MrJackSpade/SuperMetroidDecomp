@@ -24,13 +24,28 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
     public const int ColorsPerFrame = 16;
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
-        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, PaletteFxObject.SamusLoadingPowerSuit, PaletteFxProgram.SamusLoadingPowerSuit1);
+        new()
+        {
+            Owner = SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
+            Object = PaletteFxObject.SamusLoadingPowerSuit,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusLoadingPowerSuit1, ColorsPerFrame),
+        };
     /// <summary>Native Varia-suit definition $8D:E1F8 selects program $DCC8.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
-        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, PaletteFxObject.SamusLoadingVariaSuit, PaletteFxProgram.SamusLoadingVairaSuit1);
+        new()
+        {
+            Owner = SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
+            Object = PaletteFxObject.SamusLoadingVariaSuit,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusLoadingVairaSuit1, ColorsPerFrame),
+        };
     /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
-        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, PaletteFxObject.SamusLoadingGravitySuit, PaletteFxProgram.SamusLoadingGravitySuit1);
+        new()
+        {
+            Owner = SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
+            Object = PaletteFxObject.SamusLoadingGravitySuit,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusLoadingGravitySuit1, ColorsPerFrame),
+        };
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
     /// <remarks>Named program identities replace the former indexed descriptor array.

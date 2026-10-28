@@ -25,6 +25,6 @@ public sealed class CrocomireBg2FrameCatalog
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON properties/schema, required frame identities, command counts, destinations, or tiles are invalid.</exception>
     public static CrocomireBg2FrameCatalog Load(Stream json) =>
-        new(EnemyBg2FrameCatalog.Load(json, CrocomireBg2FrameDefinitions.Frames,
+        new(EnemyBg2Frames.Load(json, CrocomireBg2FrameDefinitions.Frames,
             CrocomireBg2FrameDefinitions.Version, "Crocomire"));
 }

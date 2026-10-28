@@ -8,6 +8,8 @@ using static SuperMetroid.Verification.Rooms.TilemapJsonContractsEnvironmentVeri
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Bosses;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -55,10 +57,10 @@ internal static class TilemapJsonContractsVerification
         }
 
         byte[] headWords = TilemapContractWords(KraidBackgroundDefinitions.HeadImageCells);
-        string headJson = Encoding.UTF8.GetString(KraidHeadTilemapAtlas.Encode(headWords));
+        string headJson = Encoding.UTF8.GetString(KraidHeadTilemapFiles.Encode(headWords));
         void LoadHead(string text)
         {
-            ReadOnlySpan<ushort> actual = KraidHeadTilemapAtlas.Load(TilemapContractStream(text)).Words.Span;
+            ReadOnlySpan<ushort> actual = BackgroundTileWordBytes.Words(KraidHeadTilemapAtlas.Load(TilemapContractStream(text)).Tiles.Span);
             for (int word = 0; word < actual.Length; word++)
                 AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(headWords.AsSpan(word * 2)),
                     actual[word], "head map preserves every tile/palette/priority/flip bit");

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
@@ -28,9 +29,12 @@ internal static class KraidHeadArtworkAccess
     /// <summary>Head images by address.</summary>
     extension(KraidBackgroundArtwork artwork)
     {
-        /// <summary>The installed head image stored at bank-$A7 address <paramref name="address"/>.</summary>
-        internal ReadOnlySpan<ushort> HeadWords(ushort address) =>
-            artwork.HeadWords(KraidHeadFrame.ByMouthStage[KraidHeadFrameDefinitions.MouthStageAt(address)]);
+        /// <summary>
+        /// The installed head image stored at bank-$A7 address <paramref name="address"/>, each tile encoded through the
+        /// codec as the cartridge's tilemap entry.
+        /// </summary>
+        internal ReadOnlySpan<ushort> HeadWords(ushort address) => BackgroundTileWordBytes.Words(
+            artwork.HeadTiles(KraidHeadFrame.ByMouthStage[KraidHeadFrameDefinitions.MouthStageAt(address)]));
     }
 
     /// <summary>Installed head file names by address.</summary>

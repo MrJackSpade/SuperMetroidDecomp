@@ -299,7 +299,7 @@ public static class EnemyTileArtworkFiles
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
                 KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort));
-            byte[] json = KraidHeadTilemapAtlas.Encode(native);
+            byte[] json = KraidHeadTilemapFiles.Encode(native);
             File.WriteAllBytes(Path.Combine(directory,
                 KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
             kraidHeadHashes.Add(head.MouthStage, Convert.ToHexString(SHA256.HashData(json)));

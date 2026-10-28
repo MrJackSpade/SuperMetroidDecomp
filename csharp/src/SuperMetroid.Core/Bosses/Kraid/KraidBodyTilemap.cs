@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Hardware;
-using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
@@ -14,66 +13,64 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal static class KraidBodyTilemap
 {
-    /// <summary>The first word of the lower-left screen, where the lower page shows.</summary>
-    private const int LowerScreenWord = 2 * KraidBackgroundDefinitions.PageCells;
+    /// <summary>The first cell of the lower-left screen, where the lower page shows.</summary>
+    private const int LowerScreenCell = 2 * KraidBackgroundDefinitions.PageCells;
 
     /// <summary>
     /// Ports the working-map construction performed by <c>$A7:AAC6</c>: the body's upper page over its lower page, as
     /// every body upload copies them.
     /// </summary>
-    /// <exception cref="InvalidDataException">An installed source does not decompress to the native size.</exception>
-    internal static ushort[] ComposeWorkingMap(KraidBackgroundArtwork art)
+    /// <exception cref="InvalidDataException">An installed source does not hold the native number of cells.</exception>
+    internal static BackgroundTile[] ComposeWorkingMap(KraidBackgroundArtwork art)
     {
         Ensure.NotNull(art);
-        ReadOnlySpan<byte> upper = art.Upper.Bytes.Span;
-        ReadOnlySpan<byte> lower = art.Lower.Bytes.Span;
-        if (upper.Length != KraidBackgroundDefinitions.SourceTilemapBytes ||
-            lower.Length != KraidBackgroundDefinitions.SourceTilemapBytes)
+        ReadOnlySpan<BackgroundTile> upper = art.Upper.Tiles.Span;
+        ReadOnlySpan<BackgroundTile> lower = art.Lower.Tiles.Span;
+        if (upper.Length != KraidBackgroundDefinitions.SourceTilemapCells ||
+            lower.Length != KraidBackgroundDefinitions.SourceTilemapCells)
         {
             throw new InvalidDataException(
-                $"Kraid BG2 sources must each decompress to " +
-                $"${KraidBackgroundDefinitions.SourceTilemapBytes:X} bytes; " +
-                $"upper=${upper.Length:X}, lower=${lower.Length:X}.");
+                $"Kraid BG2 sources must each hold {KraidBackgroundDefinitions.SourceTilemapCells} cells; " +
+                $"upper={upper.Length}, lower={lower.Length}.");
         }
 
-        var working = new ushort[KraidBackgroundDefinitions.WorkingMapCells];
+        var working = new BackgroundTile[KraidBackgroundDefinitions.WorkingMapCells];
         // The lower stream is decompressed directly over `$7E:2000-$2FFF`, which is also
         // Kraid's working tilemap. `$A7:AB19` then copies only its first $600 bytes upward
         // to `$2800` before the upper stream replaces `$2000-$27FF`. The untouched
         // `$2E00-$2FFF` tail therefore remains lower-stream data. Priority is cleared only
         // in the copied regions, not that untouched tail. Clearing the managed buffer
-        // first left those eight rows as tile word zero; once growth raised BG2 and
+        // first left those eight rows as tile zero; once growth raised BG2 and
         // enabled priority, character zero became a conspicuous repeated rectangle above
         // Kraid's head.
-        for (int word = 0; word < KraidBackgroundDefinitions.WorkingMapCells; word++)
-            working[word] = BinaryPrimitives.ReadUInt16LittleEndian(lower[(word * sizeof(ushort))..]);
-        for (int word = 0; word < KraidBackgroundDefinitions.LowerSourceCopiedCells; word++)
-            working[KraidBackgroundDefinitions.LowerPageFirstCell + word] = WithoutPriority(working[word]);
-        for (int word = 0; word < KraidBackgroundDefinitions.PageCells; word++)
-            working[word] = WithoutPriority(BinaryPrimitives.ReadUInt16LittleEndian(upper[(word * sizeof(ushort))..]));
+        lower[..KraidBackgroundDefinitions.WorkingMapCells].CopyTo(working);
+        for (int cell = 0; cell < KraidBackgroundDefinitions.LowerSourceCopiedCells; cell++)
+            working[KraidBackgroundDefinitions.LowerPageFirstCell + cell] = working[cell] with { HighPriority = false };
+        for (int cell = 0; cell < KraidBackgroundDefinitions.PageCells; cell++)
+            working[cell] = upper[cell] with { HighPriority = false };
         working.AsSpan(KraidBackgroundDefinitions.BlankRowFirstCell, ScreenGeometry.TilemapScreenWidthInTiles)
             .Fill(KraidBackgroundDefinitions.BlankTile);
         return working;
     }
 
     /// <summary>The tilemap <paramref name="frame"/> shows, from Kraid's composed <paramref name="working"/> map and <paramref name="art"/>.</summary>
-    internal static BossBg2Tilemap Resolve(KraidBodyFrame frame, ReadOnlySpan<ushort> working, KraidBackgroundArtwork art)
+    internal static BossBg2Tilemap Resolve(KraidBodyFrame frame, ReadOnlySpan<BackgroundTile> working, KraidBackgroundArtwork art)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(art);
         Extent16<TilemapCells> size = KraidBackgroundDefinitions.BodyPlaneSize;
-        var words = new ushort[size.X * size.Y];
-        words.AsSpan().Fill(KraidBackgroundDefinitions.BlankTile);
-        Page(frame.Top, working[..KraidBackgroundDefinitions.PageCells], words.AsSpan(0, KraidBackgroundDefinitions.PageCells));
+        var tiles = new BackgroundTile[size.X * size.Y];
+        tiles.AsSpan().Fill(KraidBackgroundDefinitions.BlankTile);
+        Page(frame.Top, working[..KraidBackgroundDefinitions.PageCells], tiles.AsSpan(0, KraidBackgroundDefinitions.PageCells));
         if (frame.Head is { } head)
-            art.HeadWords(head).CopyTo(words);
+            art.HeadTiles(head).CopyTo(tiles);
         Page(frame.Bottom, working.Slice(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells),
-            words.AsSpan(LowerScreenWord, KraidBackgroundDefinitions.PageCells));
-        return new BossBg2Tilemap(ImmutableArray.Create(words), size);
+            tiles.AsSpan(LowerScreenCell, KraidBackgroundDefinitions.PageCells));
+        return new BossBg2Tilemap(ImmutableArray.Create(tiles), size);
     }
 
     /// <summary>Writes what <paramref name="page"/> shows of <paramref name="body"/> into <paramref name="destination"/>.</summary>
-    private static void Page(KraidBodyPage page, ReadOnlySpan<ushort> body, Span<ushort> destination)
+    private static void Page(KraidBodyPage page, ReadOnlySpan<BackgroundTile> body, Span<BackgroundTile> destination)
     {
         switch (page)
         {
@@ -84,14 +81,11 @@ internal static class KraidBodyTilemap
                 body.CopyTo(destination);
                 break;
             case KraidBodyPage.PriorityBody:
-                for (int word = 0; word < destination.Length; word++)
-                    destination[word] = (ushort)(body[word] | SnesBgTilemapWord.PriorityMask);
+                for (int cell = 0; cell < destination.Length; cell++)
+                    destination[cell] = body[cell] with { HighPriority = true };
                 break;
             default:
                 throw new InvalidDataException($"Undefined Kraid body page {page}.");
         }
     }
-
-    /// <summary>Clears the BG2 priority bit from a Kraid background tile word.</summary>
-    private static ushort WithoutPriority(int word) => (ushort)(word & ~SnesBgTilemapWord.PriorityMask);
 }

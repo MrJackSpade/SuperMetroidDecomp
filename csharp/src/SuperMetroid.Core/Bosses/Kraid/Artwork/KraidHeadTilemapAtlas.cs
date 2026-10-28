@@ -1,24 +1,21 @@
-using SuperMetroid.Core.Hardware;
-using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
-/// <summary>One editable 32-by-11 Kraid head frame of ordered SNES BG2 tile words.</summary>
+/// <summary>One editable 32-by-11 Kraid head frame of placed BG2 tiles.</summary>
 public sealed class KraidHeadTilemapAtlas
 {
-    /// <summary>Owned 32-column BG2 tile words used by the native Kraid head-copy operation.</summary>
-    private readonly ushort[] words;
-    /// <summary>Retains the validated native-word frame compiled from JSON.</summary>
-    private KraidHeadTilemapAtlas(ushort[] words) => this.words = words;
+    /// <summary>Owned 32-column BG2 tiles the Kraid head-copy operation places.</summary>
+    private readonly BackgroundTile[] tiles;
+    /// <summary>Retains the validated frame compiled from JSON.</summary>
+    private KraidHeadTilemapAtlas(BackgroundTile[] tiles) => this.tiles = tiles;
 
-    /// <summary>Read-only view of all 352 compiled BG2 tile words in 32-column row-major order, preserving character, palette, priority, and flip bits for the native head-copy operation at $A7:AF3D.</summary>
-    public ReadOnlyMemory<ushort> Words => words;
+    /// <summary>Read-only view of all 352 placed BG2 tiles in 32-column row-major order, with each tile's colour variant, priority and mirroring, for the head-copy operation at $A7:AF3D.</summary>
+    public ReadOnlyMemory<BackgroundTile> Tiles => tiles;
 
-    /// <summary>Compiles one supported 32x11 JSON head frame into SNES BG tile words, rejecting ambiguous or unknown properties and invalid artwork references.</summary>
+    /// <summary>Compiles one supported 32x11 JSON head frame into placed tiles, rejecting ambiguous or unknown properties and invalid artwork references.</summary>
     /// <param name="json">JSON stream read from its current position to the end and left open.</param>
     /// <returns>An installed head frame independent of the boss's animation timing, attack instructions, and hitboxes.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -34,63 +31,14 @@ public sealed class KraidHeadTilemapAtlas
             document.Cells.Length != KraidBackgroundDefinitions.HeadImageCells)
             throw new InvalidDataException("Kraid head tilemap must have 32 by 11 ordered cells.");
 
-        var words = new ushort[document.Cells.Length];
-        for (int index = 0; index < words.Length; index++)
-        {
-            RoomBackgroundTilemapCell? cell = document.Cells[index];
-            if (cell is null ||
-                (uint)cell.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                (uint)cell.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                (uint)cell.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                throw new InvalidDataException($"Kraid head tilemap cell {index} is invalid.");
-            TileFlip flips =
-                (cell.FlipX ? TileFlip.Horizontal : 0) |
-                (cell.FlipY ? TileFlip.Vertical : 0);
-            words[index] = SnesBgTilemapWord.Create(
-                cell.TileRow * RoomBackgroundTilemapFormat.TileColumns + cell.TileColumn,
-                cell.Palette, cell.Priority, flips).Raw;
-        }
-        return new KraidHeadTilemapAtlas(words);
+        var tiles = new BackgroundTile[document.Cells.Length];
+        for (int index = 0; index < tiles.Length; index++)
+            tiles[index] = document.Cells[index]?.Placement()
+                ?? throw new InvalidDataException($"Kraid head tilemap cell {index} is invalid.");
+        return new KraidHeadTilemapAtlas(tiles);
     }
 
-    /// <summary>Converts one native head frame to indented camel-case UTF-8 JSON, then reloads it and verifies that every tile word round-trips unchanged.</summary>
-    /// <param name="tilemap">Exactly 704 bytes containing 352 little-endian BG tile words in 32-column row-major order.</param>
-    /// <returns>A new JSON byte array expressing character coordinates, palette, priority, and horizontal/vertical flips for every cell.</returns>
-    /// <exception cref="InvalidDataException">The source length is incorrect or the JSON round-trip changes a native tile word.</exception>
-    public static byte[] Encode(ReadOnlySpan<byte> tilemap)
-    {
-        if (tilemap.Length != KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort))
-            throw new InvalidDataException("Kraid head tilemap source has wrong length.");
-        var cells = new RoomBackgroundTilemapCell[KraidBackgroundDefinitions.HeadImageCells];
-        for (int index = 0; index < cells.Length; index++)
-        {
-            var word = new SnesBgTilemapWord(
-                BinaryPrimitives.ReadUInt16LittleEndian(tilemap[(index * 2)..]));
-            cells[index] = new RoomBackgroundTilemapCell
-            {
-                TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                Palette = word.PaletteIndex,
-                Priority = word.HasPriority,
-                FlipX = word.FlipHorizontally,
-                FlipY = word.FlipVertically,
-            };
-        }
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new KraidHeadTilemapDocument
-        {
-            Version = KraidHeadTilemapFormat.Version,
-            Width = KraidHeadTilemapFormat.Width,
-            Height = KraidHeadTilemapFormat.Height,
-            Cells = cells,
-        }, JsonOptions);
-        KraidHeadTilemapAtlas roundtrip = Load(new MemoryStream(json, writable: false));
-        for (int index = 0; index < roundtrip.words.Length; index++)
-            if (roundtrip.words[index] != BinaryPrimitives.ReadUInt16LittleEndian(tilemap[(index * 2)..]))
-                throw new InvalidDataException("Kraid head JSON changed a native tile word.");
-        return json;
-    }
-
-    /// <summary>Strict camel-case artwork schema settings shared by load and encode.</summary>
+    /// <summary>Strict camel-case artwork schema settings.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

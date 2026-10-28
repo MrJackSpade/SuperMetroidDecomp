@@ -172,21 +172,21 @@ internal static class RoomBlockPicturesVerification
         CheckBody(RoomHeaderDefinitions.Kraid, runtime =>
         {
             KraidBackgroundArtwork art = runtime.BossArtwork.Installed.KraidBackground ?? throw new InvalidOperationException("No Kraid artwork.");
-            ushort[] working = KraidBodyTilemap.ComposeWorkingMap(art);
+            BackgroundTile[] working = KraidBodyTilemap.ComposeWorkingMap(art);
             return art.Heads.Keys.Order().SelectMany(stage => new[]
             {
                 ($"head {stage}", KraidBodyTilemap.Resolve(new KraidBodyFrame(KraidBodyPage.Body, KraidHeadFrame.Closed with { MouthStage = stage },
-                    KraidBodyPage.Body), working, art).Words),
+                    KraidBodyPage.Body), working, art).Tiles),
                 ($"grown head {stage}", KraidBodyTilemap.Resolve(new KraidBodyFrame(KraidBodyPage.PriorityBody,
-                    KraidHeadFrame.Closed with { MouthStage = stage }, KraidBodyPage.PriorityBody), working, art).Words),
-            }).Append(("blank", KraidBodyTilemap.Resolve(KraidBodyFrame.Blank, working, art).Words));
+                    KraidHeadFrame.Closed with { MouthStage = stage }, KraidBodyPage.PriorityBody), working, art).Tiles),
+            }).Append(("blank", KraidBodyTilemap.Resolve(KraidBodyFrame.Blank, working, art).Tiles));
         });
         CheckBody(RoomHeaderDefinitions.Phantoon, runtime => BodyFrames(
             (runtime.BossArtwork.Installed.PhantoonBg2Frames ?? throw new InvalidOperationException("No Phantoon frames.")).Writes,
             PhantoonBg2FrameDefinitions.BlankTile));
         CheckBody(RoomHeaderDefinitions.Draygon, runtime => BodyFrames(
             (runtime.BossArtwork.Installed.DraygonBg2Frames ?? throw new InvalidOperationException("No Draygon frames.")).Writes,
-            EnemyBg2SurfaceDefinitions.BlankTile.Raw));
+            EnemyBg2SurfaceDefinitions.BlankTile));
         CheckBody(RoomHeaderDefinitions.Crocomire, runtime => BodyFrames(
             (runtime.BossArtwork.Installed.CrocomireBg2Frames ?? throw new InvalidOperationException("No Crocomire frames.")).Writes,
             CrocomireBg2.CrocomireBlankBg2Tile));
@@ -234,32 +234,32 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>Each frame of <paramref name="catalog"/> written over an image filled with <paramref name="fill"/>.</summary>
-    private static IEnumerable<(string, ImmutableArray<ushort>)> BodyFrames(EnemyBg2FrameCatalog catalog, ushort fill) =>
+    private static IEnumerable<(string, ImmutableArray<BackgroundTile>)> BodyFrames(EnemyBg2FrameCatalog catalog, BackgroundTile fill) =>
         catalog.Frames.Select(frame =>
         {
             var image = new EnemyBg2Image(fill);
             foreach (EnemyBg2TilemapWrite write in frame.Value)
                 image.Write(write.FirstCell, write.Tiles.Span);
-            return (frame.Key.ToString(), image.Publish().Words);
+            return (frame.Key.ToString(), image.Publish().Tiles);
         });
 
     /// <summary>Loads boss room <paramref name="room"/> and checks each body tilemap <paramref name="bodies"/> gives resolves to its pictures.</summary>
-    private static void CheckBody(RoomHeaderDefinition room, Func<SuperMetroidRuntime, IEnumerable<(string Name, ImmutableArray<ushort> Words)>> bodies)
+    private static void CheckBody(RoomHeaderDefinition room, Func<SuperMetroidRuntime, IEnumerable<(string Name, ImmutableArray<BackgroundTile> Tiles)>> bodies)
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         TileWordSheet sheet = (runtime.Room.Scope?.BodyPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         int frames = 0;
-        foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
+        foreach ((string name, ImmutableArray<BackgroundTile> tiles) in bodies(runtime))
         {
-            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve([.. BackgroundTileWordBytes.Tiles(words.AsSpan())],
+            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(tiles,
                 RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,
                 RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
-            for (int tile = 0; tile < words.Length; tile++)
+            for (int tile = 0; tile < tiles.Length; tile++)
             {
                 BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"{sheet.Name} {name}: tile {tile} draws from its character.");
-                var word = new SnesBgTilemapWord(words[tile]);
+                var word = new SnesBgTilemapWord(tiles[tile].PackedWord);
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)
                 {

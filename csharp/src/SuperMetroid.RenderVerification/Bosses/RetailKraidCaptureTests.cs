@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;
@@ -156,8 +157,8 @@ internal static class RetailKraidCaptureTests
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
         var shown = new SortedSet<ushort>(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
             ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
-        if (shown.Any(word => word != KraidBackgroundDefinitions.BlankTile))
-            throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundDefinitions.BlankTile:X4} remains on the cartridge.");
+        if (shown.Any(word => word != KraidBackgroundDefinitions.BlankTile.PackedWord))
+            throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundDefinitions.BlankTile.PackedWord:X4} remains on the cartridge.");
     }
 
     /// <summary>

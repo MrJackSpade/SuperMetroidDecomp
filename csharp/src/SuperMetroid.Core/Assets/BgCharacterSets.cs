@@ -11,6 +11,12 @@ public static class BgCharacterSets
         _ => throw new ArgumentOutOfRangeException(nameof(set), set, "Unknown background character set."),
     };
 
+    /// <summary>The whole characters of <paramref name="set"/> that <paramref name="byteCount"/> bytes hold.</summary>
+    /// <exception cref="InvalidDataException">The bytes are not whole characters of the set.</exception>
+    public static int CharactersIn(this BgCharacterSet set, int byteCount) => byteCount % set.CharacterBytes() == 0
+        ? byteCount / set.CharacterBytes()
+        : throw new InvalidDataException($"{byteCount} bytes are not whole {set} characters.");
+
     /// <summary>The characters <paramref name="set"/> holds.</summary>
     public static int CharacterCount(this BgCharacterSet set) => set switch
     {

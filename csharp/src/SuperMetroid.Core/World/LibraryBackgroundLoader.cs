@@ -87,10 +87,10 @@ public static class LibraryBackgroundLoader
         {
             if (transfer.Command != LibraryBackgroundCommand.TransferForKraid)
                 throw new InvalidDataException($"A library background's {transfer.Command} moves the HUD's characters, which only Kraid's list copies.");
-            HudTileAtlas hud = artwork.HudArt
-                ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
+            if (artwork.HudArt is null)
+                throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
             artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.Source), BgCharacterSet.KraidLayer3, 0,
-                hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
+                BgCharacterSet.KraidLayer3.CharactersIn(HudTileAtlasFormat.CharacterByteCount));
             return true;
         }
         return false;

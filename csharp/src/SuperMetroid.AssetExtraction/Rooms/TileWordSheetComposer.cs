@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
@@ -23,7 +24,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -66,7 +66,7 @@ internal static class TileWordSheetComposer
     /// </summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
     internal static ComposedTileWordSheet ComposeBg3(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
-        IReadOnlyList<BgCharacterPlacement> bg3Uploads)
+        IReadOnlyList<BgCharacterUpload> bg3Uploads)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
@@ -92,8 +92,7 @@ internal static class TileWordSheetComposer
     {
         Ensure.NotNull(content);
         int characterWords = TileWordSheet.CharacterWordsOf(layer);
-        IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
-            inputs.Characters.Get(tileset.Characters).Characters);
+        IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(bindings.Options).Concat(bindings.Bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
@@ -131,7 +130,7 @@ internal static class TileWordSheetComposer
             int character = word.CharacterIndex;
             foreach (BgCharacterSet set in bindings.Sets)
             {
-                foreach (BgCharacterPlacement placement in bindings.Options.Where(placement => placement.Covers(set, character)))
+                foreach (BgCharacterUpload placement in bindings.Options.Where(placement => placement.Covers(set, character)))
                 {
                     var again = new ShownWord(word, placement.ShownAt(character));
                     if (pictured.Add(again))
@@ -444,6 +443,6 @@ internal static class TileWordSheetComposer
     /// <param name="Options">Artwork any room binds over the layer's characters, each word pictured again over.</param>
     /// <param name="Sets">The character sets the layer reads, the first the one its words are read in.</param>
     /// <param name="Bound">Artwork the room binds beyond its load.</param>
-    private sealed record TileWordBindings(IReadOnlyList<BgCharacterPlacement> Options, BgCharacterSet[] Sets, IReadOnlyList<BgCharacterPlacement> Bound);
+    private sealed record TileWordBindings(IReadOnlyList<BgCharacterUpload> Options, BgCharacterSet[] Sets, IReadOnlyList<BgCharacterUpload> Bound);
 }
 

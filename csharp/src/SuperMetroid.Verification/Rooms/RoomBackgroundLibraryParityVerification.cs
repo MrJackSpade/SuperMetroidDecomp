@@ -54,7 +54,7 @@ internal static class RoomBackgroundLibraryParityVerification
                 var bindings = new BgArtworkBindings();
                 LibraryBackgroundExecutionResult selected = LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters, Backgrounds = bindings });
                 byte[] selectedImage = selectedVram.Bytes.ToArray();
-                bindings.ComposeOver(selectedImage);
+                bindings.ComposeOver(selectedImage, new BgArtworkBytes().WithHud(hud));
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)

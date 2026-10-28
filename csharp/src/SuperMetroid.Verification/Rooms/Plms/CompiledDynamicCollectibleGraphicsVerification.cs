@@ -41,8 +41,11 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         ReadOnlySpan<byte> expected =
             RoomPlmDynamicCollectibleGraphicsDefinitions.Get(
                 InWorldCollectibleKind.Bombs).Tiles.Span;
+        // The bound graphics are named; the image composes them as the loader selected them, with no installed selection.
+        BgArtworkBytes collectibles = new BgArtworkBytes().WithCollectibles(null)
+            .WithSuppliedCollectibles(RoomPlmPopulationDefinitions.Get(0x83fe));
         for (int offset = 0; offset < expected.Length; offset++)
-            AssertEqual(expected[offset], BgArtworkFixtures.Composed(vram)[0x3e00 * 2 + offset],
+            AssertEqual(expected[offset], BgArtworkFixtures.Composed(vram, collectibles)[0x3e00 * 2 + offset],
                 $"retail Bombs item VRAM character byte {offset}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail collectible loader does not reread compiled character or palette bytes");

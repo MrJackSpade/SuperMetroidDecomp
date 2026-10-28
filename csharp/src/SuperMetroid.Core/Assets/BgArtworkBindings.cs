@@ -10,25 +10,20 @@ public sealed class BgArtworkBindings
     /// <summary>The live bindings, oldest first.</summary>
     private readonly List<BgArtworkBinding> bindings = [];
 
-    /// <summary>One owned copy of each artwork bound, by identity: a tileset or animation frame bound again reuses it.</summary>
-    [NonSerialized] private Dictionary<BgArtworkIdentity, byte[]>? owned;
-
     /// <summary>What each set's characters show, as a layer reading them asks.</summary>
     [NonSerialized] private Dictionary<BgCharacterSet, IBgCharacterArtwork>? views;
 
-    /// <summary>Binds <paramref name="bytes"/> of <paramref name="identity"/> over <paramref name="set"/>'s characters from <paramref name="firstCharacter"/> onward.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The bytes are not whole characters inside the set there.</exception>
-    public void Bind(BgArtworkIdentity identity, BgCharacterSet set, int firstCharacter, ReadOnlySpan<byte> bytes)
+    /// <summary>
+    /// Binds the first <paramref name="characterCount"/> characters of <paramref name="identity"/> over
+    /// <paramref name="set"/>'s characters from <paramref name="firstCharacter"/> onward.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The characters do not lie inside the set there.</exception>
+    public void Bind(BgArtworkIdentity identity, BgCharacterSet set, int firstCharacter, int characterCount)
     {
-        int characterBytes = set.CharacterBytes();
-        if (bytes.IsEmpty || bytes.Length % characterBytes != 0 || firstCharacter < 0
-            || firstCharacter + bytes.Length / characterBytes > set.CharacterCount())
+        if (characterCount <= 0 || firstCharacter < 0 || firstCharacter + characterCount > set.CharacterCount())
             throw new ArgumentOutOfRangeException(nameof(firstCharacter), firstCharacter,
-                $"{bytes.Length} bytes are not whole characters inside the {set} characters there.");
-        owned ??= [];
-        if (!owned.TryGetValue(identity, out byte[]? copy) || !bytes.SequenceEqual(copy))
-            owned[identity] = copy = bytes.ToArray();
-        var binding = new BgArtworkBinding(identity, set, firstCharacter, copy);
+                $"{characterCount} characters do not lie inside the {set} characters there.");
+        var binding = new BgArtworkBinding(identity, set, firstCharacter, characterCount);
         // A binding a newer one covers entirely can no longer show.
         bindings.RemoveAll(older => older.Set == set && older.FirstCharacter >= binding.FirstCharacter &&
             older.FirstCharacter + older.CharacterCount <= binding.FirstCharacter + binding.CharacterCount);
@@ -74,7 +69,7 @@ public sealed class BgArtworkBindings
         return false;
     }
 
-    /// <summary>The live bindings, oldest first, for extraction's composition of what they show.</summary>
+    /// <summary>The live bindings, oldest first, for verification's composition of what they show.</summary>
     internal IReadOnlyList<BgArtworkBinding> Bound => bindings;
 
     /// <summary>What one set's characters show.</summary>

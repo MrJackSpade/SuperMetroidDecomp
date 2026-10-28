@@ -481,7 +481,7 @@ internal static class RoomFxRetailInventoryVerification
         Layer3Plane plane)
     {
         FxPlaneBlendRenderLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
-            Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram).Bytes, cgram.Colors));
+            Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram.Colors));
         return DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []),
             layer is null ? [] : new RenderLayer[] { layer }, FadeLevel.Full));
     }

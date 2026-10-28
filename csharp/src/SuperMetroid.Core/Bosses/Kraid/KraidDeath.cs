@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -329,9 +328,9 @@ internal sealed class KraidDeath
     {
         if ((uint)quarter >= KraidHudRestoration.QuarterCount)
             throw new ArgumentOutOfRangeException(nameof(quarter));
-        HudTileAtlas hud = _bossArtwork.HudTileArtwork ?? throw new InvalidDataException(
-            "Installed Kraid death restoration has no standard BG3 artwork.");
-        KraidHudRestoration.Placement(quarter, hud.KraidRestoreQuarter(quarter).ToArray()).BindTo(_presentation.Backgrounds);
+        if (_bossArtwork.HudTileArtwork is null)
+            throw new InvalidDataException("Installed Kraid death restoration has no standard BG3 artwork.");
+        KraidHudRestoration.Placement(quarter).BindTo(_presentation.Backgrounds);
 
         state.RestoredBg3Quarters++;
         state.Parts[body.SlotIndex].Function = next;

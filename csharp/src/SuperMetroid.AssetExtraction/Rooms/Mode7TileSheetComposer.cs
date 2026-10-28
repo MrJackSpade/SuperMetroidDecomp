@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core;
@@ -24,10 +25,10 @@ internal static class Mode7TileSheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(content);
-        // The room tile characters' bytes as their bindings leave them, a later binding over an earlier.
+        // The room tile characters' bytes as the room's load leaves them, a later upload over an earlier.
         var tiles = new byte[BgCharacterSet.Tiles.CharacterCount() * BgCharacterSet.Tiles.CharacterBytes()];
-        foreach (BgArtworkBinding binding in content.Bound.Where(binding => binding.Set == BgCharacterSet.Tiles))
-            binding.Bytes.Span.CopyTo(tiles.AsSpan(binding.FirstCharacter * BgCharacterSet.Tiles.CharacterBytes()));
+        foreach (BgCharacterUpload upload in RoomBlockUploads.LoadUploads(inputs, tileset).Where(upload => upload.Set == BgCharacterSet.Tiles))
+            upload.Bytes.Span.CopyTo(tiles.AsSpan(upload.FirstCharacter * BgCharacterSet.Tiles.CharacterBytes()));
         RgbColor[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.

@@ -32,8 +32,8 @@ public sealed class HudTileAtlas
     public void ShowCharactersAgain(BgArtworkBindings backgrounds, BgCharacterSet set)
     {
         Ensure.NotNull(backgrounds);
-        ReadOnlySpan<byte> characters = bytes.AsSpan(0, HudTileAtlasFormat.CharacterByteCount);
-        BgArtworkShown shown = backgrounds.Showing(set, 0, characters.Length / set.CharacterBytes());
+        int characters = set.CharactersIn(HudTileAtlasFormat.CharacterByteCount);
+        BgArtworkShown shown = backgrounds.Showing(set, 0, characters);
         if (shown.WordOffset != 0)
             throw new InvalidDataException($"{shown.Artwork.Name} shows the HUD characters from word {shown.WordOffset} of its artwork, not its first.");
         backgrounds.Bind(shown.Artwork, set, 0, characters);

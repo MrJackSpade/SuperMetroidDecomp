@@ -58,7 +58,7 @@ internal static class TreadmillVisualVerification
             {
                 ArtworkFrame? latched = runtime.Room.LoadedScope.ArtworkFrames.TryShown(treadmill, out ArtworkFrame selected) ? selected : null;
                 runtime.StepFrame(0);
-                byte[] shown = BgArtworkFixtures.Composed(runtime.Vram, runtime.BgArtwork);
+                byte[] shown = BgArtworkFixtures.Composed(runtime.Vram, runtime.BgArtwork, runtime.BackgroundArtwork());
                 if (latched is { } latchedFrame)
                     AnimatedTileFrameArtwork.Bytes(latchedFrame.Artwork, animatedTiles).Span.CopyTo(
                         shown.AsSpan(AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2));

@@ -206,7 +206,7 @@ private static (SnesVram Shown, LibraryBackgroundExecutionResult Result) ReplayS
     LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program, FixtureRoomHeaders.UnmatchedDoor,
         artwork with { Backgrounds = bindings });
     byte[] image = vram.Bytes.ToArray();
-    bindings.ComposeOver(image);
+    bindings.ComposeOver(image, artwork.HudArt is { } hud ? new BgArtworkBytes().WithHud(hud) : new BgArtworkBytes());
     var shown = new SnesVram();
     shown.LoadBytes(0, image);
     return (shown, result);

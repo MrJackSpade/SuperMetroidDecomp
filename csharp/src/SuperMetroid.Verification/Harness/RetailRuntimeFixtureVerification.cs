@@ -41,6 +41,9 @@ internal static class RetailRuntimeFixtureVerification
     /// <summary>The shared installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => InstalledFixtures.EnemyTiles;
 
+    /// <summary>The installed character catalog <see cref="LoadFixtureRoomAssets"/> loads rooms from unless given another.</summary>
+    internal static RoomCharacterAtlasCatalog FixtureRoomCharacters => InstalledFixtures.RoomAssets.Characters;
+
     /// <summary>
     /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
     /// catalogs a case supplies. The stock catalogs are the cartridge reference extracted from the ROM.

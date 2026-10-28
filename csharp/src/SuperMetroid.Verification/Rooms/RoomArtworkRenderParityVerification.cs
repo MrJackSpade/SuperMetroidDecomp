@@ -44,7 +44,7 @@ internal static class RoomArtworkRenderParityVerification
                     "Landing Site enters through its real landing door with its scrolling sky");
             }
             else
-                AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.RoomCharacters.Length >
+                AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.TilesetCharacterCount * BgCharacterSet.Tiles.CharacterBytes() >
                     RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.ComposedVram().AsSpan().SequenceEqual(installed.ComposedVram()),

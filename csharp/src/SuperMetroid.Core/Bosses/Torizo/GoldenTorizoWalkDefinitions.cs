@@ -14,12 +14,12 @@ public static class GoldenTorizoWalkDefinitions
     public static ushort Velocity(int byteOffset)
     {
         if (byteOffset is < 0 or > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
-        ushort value = unchecked((ushort)Displacement(byteOffset >> 1));
+        int value = unchecked((ushort)Displacement(byteOffset >> 1));
         if ((byteOffset & 1) == 0)
-            return value;
+            return (ushort)value;
         // An odd offset reads the little-endian word straddling two table words.
         Span<byte> table = stackalloc byte[2 * sizeof(ushort)];
-        BinaryPrimitives.WriteUInt16LittleEndian(table, value);
+        BinaryPrimitives.WriteUInt16LittleEndian(table, (ushort)value);
         BinaryPrimitives.WriteUInt16LittleEndian(table[sizeof(ushort)..], unchecked((ushort)Displacement((byteOffset >> 1) + 1)));
         return BinaryPrimitives.ReadUInt16LittleEndian(table[1..]);
     }

@@ -491,13 +491,13 @@ internal sealed class CrocomireCombat
         int maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        ushort xVelocity = UnsignedEightEight.FromParts(whole: (byte)velocityWhole, fraction: (byte)velocityFraction);
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(xVelocity));
+        var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: (byte)velocityWhole, fraction: (byte)velocityFraction));
+        projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
         FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-            .AddEightEightToHighFraction(xVelocity);
+            .AddEightEightToHighFraction(xVelocity.RawValue);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.

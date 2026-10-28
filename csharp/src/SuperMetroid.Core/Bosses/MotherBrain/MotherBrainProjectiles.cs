@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -780,7 +780,7 @@ internal sealed class MotherBrainProjectiles
         (ushort)(unchecked((byte)direction) | unchecked((byte)rotationDelta) << TurretDirectionBits);
 
     /// <summary>The signed ring step a turret rotation state turns by.</summary>
-    private static int TurretRotationDelta(ushort state) => unchecked((sbyte)(state >> TurretDirectionBits));
+    private static int TurretRotationDelta(int state) => unchecked((sbyte)(state >> TurretDirectionBits));
 
     /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
     internal static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)

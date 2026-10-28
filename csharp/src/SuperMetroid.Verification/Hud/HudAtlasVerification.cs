@@ -71,8 +71,10 @@ internal static class HudAtlasVerification
         int characterEnd = characterStart + HudTileAtlasFormat.CharacterByteCount;
         displayed.Vram.LoadBytes(characterEnd, Enumerable.Repeat((byte)0x5a, HudTileAtlasFormat.CharacterByteCount).ToArray());
         byte[] previousDisplay = displayed.ComposedVram();
+        BgArtworkBinding[] previousBindings = [.. displayed.BgArtwork.Bound];
         displayed.Artwork.MapPresentation = edited;
-        AssertTrue(previousDisplay.AsSpan().SequenceEqual(displayed.ComposedVram()), "catalog binding shows nothing new before the accepted NMI");
+        // Bindings name artwork rather than holding its bytes, so what is shown before the NMI is the set of names bound.
+        AssertTrue(previousBindings.SequenceEqual(displayed.BgArtwork.Bound), "catalog binding binds nothing new before the accepted NMI");
         displayed.FrameBoundary.BeginAcceptedFrame(0);
         byte[] shownAfterRebind = displayed.ComposedVram();
         AssertTrue(edited.Resolve(InstalledArtworkId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]

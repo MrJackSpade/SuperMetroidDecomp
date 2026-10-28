@@ -23,7 +23,7 @@ internal static class GunshipDustDefinitionsVerification
         {
             short dx = unchecked((short)Word(EnemyRomTablePointersGunship.DustXOffsetWords + parameter));
             ushort instruction = Word(EnemyRomTablePointersGunship.DustInstructionPointers + parameter);
-            var definition = GunshipDustDefinitions.ForParameter(parameter);
+            var definition = GunshipDust.ForParameter(parameter);
             AssertEqual(dx, definition.XOffset, "All native dust signed X offsets");
             AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Program), "All native dust instruction selections");
             for (int origin = 0; origin <= ushort.MaxValue; origin++)

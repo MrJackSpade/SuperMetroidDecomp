@@ -20,7 +20,7 @@ internal static class FirefleaMovementDefinitionsVerification
         {
             ushort address = checked((ushort)(radiusTable + radiusIndex * 2));
             ushort native = LittleEndianBytes.Word(FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | address), FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | (address + 1)));
-            AssertEqual(native, FirefleaMovementDefinitions.Radius(radiusIndex),
+            AssertEqual(native, FirefleaOrbit.Radius(radiusIndex),
                 $"compiled Fireflea radius {radiusIndex}");
 
             slot.SetSpawnParameter1(0x0002);
@@ -31,9 +31,9 @@ internal static class FirefleaMovementDefinitionsVerification
                 $"Fireflea initializer radius {radiusIndex}");
         }
 
-        AssertThrows<InvalidDataException>(() => FirefleaMovementDefinitions.Radius(8),
+        AssertThrows<InvalidDataException>(() => FirefleaOrbit.Radius(8),
             "Fireflea radius beyond authored table");
-        AssertThrows<InvalidDataException>(() => FirefleaMovementDefinitions.Radius(byte.MaxValue),
+        AssertThrows<InvalidDataException>(() => FirefleaOrbit.Radius(byte.MaxValue),
             "Fireflea restored radius selector does not read adjacent code");
 
         Console.WriteLine(

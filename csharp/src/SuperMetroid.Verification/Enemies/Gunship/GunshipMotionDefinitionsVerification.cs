@@ -89,9 +89,9 @@ internal static class GunshipMotionDefinitionsVerification
     {
         for (ushort frame = 0; frame < 17; frame++)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
-                GunshipMotionDefinitions.LandingBrakeYDelta(frame), $"Original gunship brake {frame}");
-        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(17), "Brake upper bound");
-        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(ushort.MaxValue), "Brake invalid maximum");
+                GunshipMotion.LandingBrakeYDelta(frame), $"Original gunship brake {frame}");
+        AssertThrows<InvalidDataException>(() => GunshipMotion.LandingBrakeYDelta(17), "Brake upper bound");
+        AssertThrows<InvalidDataException>(() => GunshipMotion.LandingBrakeYDelta(ushort.MaxValue), "Brake invalid maximum");
     }
 
     /// <summary>Checks all four idle-bob timer reloads and invalid phase rejection.</summary>
@@ -99,9 +99,9 @@ internal static class GunshipMotionDefinitionsVerification
     {
         for (ushort phase = 0; phase < 4; phase++)
             AssertEqual(GunshipHoverTimerAlgorithmRomByte(rom, GunshipMotionDefinitions.HoverTimerReferenceAddress + 2 * phase),
-                GunshipMotionDefinitions.IdleBob(phase).Timer, $"Original gunship hover timer {phase}");
-        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover timer upper bound");
-        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover timer invalid maximum");
+                GunshipMotion.IdleBob(phase).Timer, $"Original gunship hover timer {phase}");
+        AssertThrows<InvalidDataException>(() => GunshipMotion.IdleBob(4), "Hover timer upper bound");
+        AssertThrows<InvalidDataException>(() => GunshipMotion.IdleBob(ushort.MaxValue), "Hover timer invalid maximum");
     }
 
     /// <summary>Reads a native hover timer byte for comparison with compiled phase data.</summary>
@@ -112,9 +112,9 @@ internal static class GunshipMotionDefinitionsVerification
     {
         for (ushort phase = 0; phase < 4; phase++)
             AssertEqual(unchecked((sbyte)GunshipHoverDeltaSelectionRomByte(rom, GunshipMotionDefinitions.HoverDeltaReferenceAddress + 2 * phase)),
-                GunshipMotionDefinitions.IdleBob(phase).YDelta, $"Original gunship hover delta {phase}");
-        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover delta upper bound");
-        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover delta invalid maximum");
+                GunshipMotion.IdleBob(phase).YDelta, $"Original gunship hover delta {phase}");
+        AssertThrows<InvalidDataException>(() => GunshipMotion.IdleBob(4), "Hover delta upper bound");
+        AssertThrows<InvalidDataException>(() => GunshipMotion.IdleBob(ushort.MaxValue), "Hover delta invalid maximum");
     }
 
     /// <summary>Reads a native signed bob displacement byte for comparison.</summary>

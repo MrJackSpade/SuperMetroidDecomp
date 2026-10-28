@@ -328,7 +328,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
-        int yDelta = GunshipMotionDefinitions.LandingBrakeYDelta(checked((ushort)Part(top).LandingBrakeStep));
+        int yDelta = GunshipMotion.LandingBrakeYDelta(checked((ushort)Part(top).LandingBrakeStep));
         samus.Position += new Offset16<RoomPixels>(0, checked((short)yDelta));
         for (int component = 0; component < 3; component++)
         {
@@ -408,7 +408,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!bobTimer.IsZeroOrNegative)
             return;
 
-        GunshipIdleBobDefinition bob = GunshipMotionDefinitions.IdleBob(
+        GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(
             unchecked((ushort)(Part(top).BobPhase & 3)));
         Part(top).BobTimer = bob.Timer;
         int yDelta = bob.YDelta;

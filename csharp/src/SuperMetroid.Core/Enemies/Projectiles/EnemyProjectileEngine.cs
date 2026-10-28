@@ -916,7 +916,7 @@ internal sealed class EnemyProjectileEngine
     internal void SpawnGunshipLiftoffDustCloud(int parameter, SamusState samus)
     {
         // Validate before allocation, including when the native projectile pool is full.
-        var definition = GunshipDustDefinitions.ForParameter(parameter);
+        var definition = GunshipDust.ForParameter(parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)

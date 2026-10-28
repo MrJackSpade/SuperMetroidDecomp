@@ -140,7 +140,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             DrawCompiledBlockInstruction(level, openWall, origin);
             return;
         }
-        if (EscapeAnimalPlmDrawDefinitions.TryGet(draw, out var animalWall))
+        if (EscapeAnimalWalls.TryGet(draw, out var animalWall))
         {
             DrawCompiledBlockInstruction(level, animalWall, origin);
             return;

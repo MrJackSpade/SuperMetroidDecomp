@@ -3,98 +3,47 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
 internal static class YardDirectionDefinitions
 {
-    /// <summary>The eight directions in the order the authored direction number counts them.</summary>
-    private static readonly IdentitySequence<SurfaceDirection> Directions = new(
-        SurfaceDirection.UpsideRightMovingUp, SurfaceDirection.UpsideRightMovingDown,
-        SurfaceDirection.UpsideLeftMovingUp, SurfaceDirection.UpsideLeftMovingDown,
-        SurfaceDirection.UpsideDownMovingLeft, SurfaceDirection.UpsideDownMovingRight,
-        SurfaceDirection.UpsideUpMovingLeft, SurfaceDirection.UpsideUpMovingRight);
-
-    /// <summary>The eight mutually exclusive surface orientations at $A3:CD42.</summary>
-    private enum SurfaceDirection
-    {
-        /// <summary>Right-side wall orientation with upward crawl.</summary>
-        UpsideRightMovingUp,
-        /// <summary>Right-side wall orientation with downward crawl.</summary>
-        UpsideRightMovingDown,
-        /// <summary>Left-side wall orientation with upward crawl.</summary>
-        UpsideLeftMovingUp,
-        /// <summary>Left-side wall orientation with downward crawl.</summary>
-        UpsideLeftMovingDown,
-        /// <summary>Ceiling orientation with leftward crawl.</summary>
-        UpsideDownMovingLeft,
-        /// <summary>Ceiling orientation with rightward crawl.</summary>
-        UpsideDownMovingRight,
-        /// <summary>Floor orientation with leftward crawl.</summary>
-        UpsideUpMovingLeft,
-        /// <summary>Floor orientation with rightward crawl.</summary>
-        UpsideUpMovingRight,
-    }
+    /// <summary>
+    /// $A3:CD42, $CDC2 and $CDD2: each of the eight surface orientations' crawling and hiding animations, airborne
+    /// facing, opposite direction and native movement callback, by direction number: right-side wall moving up and
+    /// down, left-side wall moving up and down, ceiling moving left and right, floor moving left and right. Direction
+    /// pairs reverse motion on the same surface. Property bit zero selects positive motion and bit one vertical motion.
+    /// </summary>
+    internal static readonly YardDirectionDefinition[] Directions =
+    [
+        new(YardProgram.CrawlingUpsideRightMovingUp, 2,
+            YardProgram.HidingUpsideRightMovingUp, YardAirborneFacing.Left, 1,
+            YardMovementFunction.CrawlingUpsideDownMovingLeft),
+        new(YardProgram.CrawlingUpsideRightMovingDown, 3,
+            YardProgram.HidingUpsideRightMovingDown, YardAirborneFacing.Right, 0,
+            YardMovementFunction.CrawlingUpsideRightMovingDown),
+        new(YardProgram.CrawlingUpsideLeftMovingUp, 2,
+            YardProgram.HidingUpsideLeftMovingUp, YardAirborneFacing.Right, 3,
+            YardMovementFunction.CrawlingUpsideLeftMovingUp),
+        new(YardProgram.CrawlingUpsideLeftMovingDown, 3,
+            YardProgram.HidingUpsideLeftMovingDown, YardAirborneFacing.Left, 2,
+            YardMovementFunction.CrawlingUpsideLeftMovingDown),
+        new(YardProgram.CrawlingUpsideDownMovingLeft, 0,
+            YardProgram.HidingUpsideDownMovingLeft, YardAirborneFacing.Right, 5,
+            YardMovementFunction.CrawlingUpsideRightMovingUp),
+        new(YardProgram.CrawlingUpsideDownMovingRight, 1,
+            YardProgram.HidingUpsideDownMovingRight, YardAirborneFacing.Left, 4,
+            YardMovementFunction.CrawlingUpsideDownMovingRight),
+        new(YardProgram.CrawlingUpsideUpMovingLeft, 0,
+            YardProgram.HidingUpsideUpMovingLeft, YardAirborneFacing.Left, 7,
+            YardMovementFunction.CrawlingUpsideUpMovingLeft),
+        new(YardProgram.CrawlingUpsideUpMovingRight, 1,
+            YardProgram.HidingUpsideUpMovingRight, YardAirborneFacing.Right, 6,
+            YardMovementFunction.CrawlingUpsideUpMovingRight),
+    ];
 
     /// <summary>
-    /// Dispatches the physical orientation to its crawling/hiding animations and native
-    /// movement callback ($A3:CD42, $CDC2 and $CDD2). Direction pairs reverse motion on
-    /// the same surface. Property bit zero selects positive motion and bit one vertical motion.
+    /// The visible and hidden airborne animations by facing. Native detach, contact-kick and shot-launch repeat these
+    /// pairs at $A3:D1AB, $D50F and $D5A4.
     /// </summary>
-    internal static YardDirectionDefinition ForDirection(int direction)
+    internal static readonly Dictionary<YardAirborneFacing, YardAirborneInstructionDefinition> AirborneFacings = new()
     {
-        var selected = (Directions.TryAt(direction, out SurfaceDirection surface)
-            ? surface
-            : throw new InvalidDataException($"Yard direction ${direction:X4} exceeds its eight cartridge definitions.")) switch
-        {
-            SurfaceDirection.UpsideRightMovingUp => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideRightMovingUp, 0,
-                YardProgram.HidingUpsideRightMovingUp, YardAirborneFacing.Left, 0,
-                YardMovementFunction.CrawlingUpsideDownMovingLeft),
-            SurfaceDirection.UpsideRightMovingDown => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideRightMovingDown, 0,
-                YardProgram.HidingUpsideRightMovingDown, YardAirborneFacing.Right, 0,
-                YardMovementFunction.CrawlingUpsideRightMovingDown),
-            SurfaceDirection.UpsideLeftMovingUp => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideLeftMovingUp, 0,
-                YardProgram.HidingUpsideLeftMovingUp, YardAirborneFacing.Right, 0,
-                YardMovementFunction.CrawlingUpsideLeftMovingUp),
-            SurfaceDirection.UpsideLeftMovingDown => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideLeftMovingDown, 0,
-                YardProgram.HidingUpsideLeftMovingDown, YardAirborneFacing.Left, 0,
-                YardMovementFunction.CrawlingUpsideLeftMovingDown),
-            SurfaceDirection.UpsideDownMovingLeft => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideDownMovingLeft, 0,
-                YardProgram.HidingUpsideDownMovingLeft, YardAirborneFacing.Right, 0,
-                YardMovementFunction.CrawlingUpsideRightMovingUp),
-            SurfaceDirection.UpsideDownMovingRight => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideDownMovingRight, 0,
-                YardProgram.HidingUpsideDownMovingRight, YardAirborneFacing.Left, 0,
-                YardMovementFunction.CrawlingUpsideDownMovingRight),
-            SurfaceDirection.UpsideUpMovingLeft => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideUpMovingLeft, 0,
-                YardProgram.HidingUpsideUpMovingLeft, YardAirborneFacing.Left, 0,
-                YardMovementFunction.CrawlingUpsideUpMovingLeft),
-            SurfaceDirection.UpsideUpMovingRight => new YardDirectionDefinition(
-                YardProgram.CrawlingUpsideUpMovingRight, 0,
-                YardProgram.HidingUpsideUpMovingRight, YardAirborneFacing.Right, 0,
-                YardMovementFunction.CrawlingUpsideUpMovingRight),
-            _ => throw new InvalidDataException(
-                $"Yard direction ${direction:X4} exceeds its eight cartridge definitions."),
-        };
-        return selected with
-        {
-            PropertyBits = (byte)((direction & 1) | (direction < 4 ? 2 : 0)),
-            OppositeDirection = (ushort)(direction ^ 1),
-        };
-    }
-
-    /// <summary>
-    /// Chooses visible and hidden airborne animations by facing. Native detach,
-    /// contact-kick and shot-launch repeat these pairs at $A3:D1AB, $D50F and $D5A4.
-    /// </summary>
-    internal static YardAirborneInstructionDefinition ForAirborneFacing(YardAirborneFacing facing) => facing switch
-    {
-        YardAirborneFacing.Left => new(YardProgram.AirborneFacingLeft,
-            YardProgram.HiddenUpsideUpMovingLeft),
-        YardAirborneFacing.Right => new(YardProgram.AirborneFacingRight,
-            YardProgram.HiddenUpsideUpMovingRight),
-        _ => throw new InvalidDataException(
-            $"Yard airborne facing {facing} exceeds its two cartridge definitions."),
+        [YardAirborneFacing.Left] = new(YardProgram.AirborneFacingLeft, YardProgram.HiddenUpsideUpMovingLeft),
+        [YardAirborneFacing.Right] = new(YardProgram.AirborneFacingRight, YardProgram.HiddenUpsideUpMovingRight),
     };
 }

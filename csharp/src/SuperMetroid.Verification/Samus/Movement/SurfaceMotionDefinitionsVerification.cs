@@ -25,7 +25,7 @@ internal static class SurfaceMotionDefinitionsVerification
         for (int speed = 0; speed <= ushort.MaxValue; speed++)
         {
             int address = 0xa3d517 + Math.Min(speed, 15) * 4;
-            var actual = YardKickDefinitions.ForHorizontalSpeed((ushort)speed);
+            var actual = YardKicks.ForHorizontalSpeed((ushort)speed);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Fraction, "Yard native capped kick fraction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), actual.WholeWord, "Yard native capped kick whole");
         }

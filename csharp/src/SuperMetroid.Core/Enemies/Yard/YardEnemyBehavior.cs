@@ -61,7 +61,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 if ((uint)setDirection.Direction >= 8)
                     throw new InvalidDataException($"Yard animation selected invalid direction {setDirection.Direction}.");
                 state.Direction = setDirection.Direction;
-                state.AirborneFacingDirection = YardDirectionDefinitions.ForDirection(state.Direction).AirborneFacingDirection;
+                state.AirborneFacingDirection = YardDirections.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
             case YardCue.MoveBy moveBy:
                 slot.Position += moveBy.Offset;
@@ -108,7 +108,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
 
-        YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
+        YardDirectionDefinition definition = YardDirections.ForDirection(direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
         slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
@@ -124,7 +124,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ValidateYardSpeedIndex(checked((ushort)state.CrawlingSpeedIndex));
         int speed = CrawlerSpeeds.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
-        state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
+        state.CrawlingVelocity = YardCrawlVelocity.Apply(speed, direction);
     }
 
     /// <summary>Rejects a crawl speed selector outside Yard's native signed speed table.</summary>
@@ -275,7 +275,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardMovementFunction.CrawlingUpsideRightMovingUp or
             YardMovementFunction.CrawlingUpsideRightMovingDown or
             YardMovementFunction.CrawlingUpsideLeftMovingUp;
-        YardTurnDefinition turn = YardTurnDefinitions.ForMovement(
+        YardTurnDefinition turn = YardTurns.ForMovement(
             state.MovementFunction ?? throw new InvalidOperationException("A turning Yard has no movement function."),
             state.TurnTransitionDisabled);
 
@@ -488,7 +488,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state)
     {
         YardAirborneInstructionDefinition definition =
-            YardDirectionDefinitions.ForAirborneFacing(state.AirborneFacingDirection);
+            YardDirections.ForAirborneFacing(state.AirborneFacingDirection);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.VisibleProgram);
         state.HidingProgram = definition.HidingProgram;
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -516,8 +516,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return false;
         }
 
-        state.Direction = YardDirectionDefinitions.ForDirection(state.Direction).OppositeDirection;
-        YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(state.Direction);
+        state.Direction = YardDirections.ForDirection(state.Direction).OppositeDirection;
+        YardDirectionDefinition definition = YardDirections.ForDirection(state.Direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
         slot.Properties = slot.Properties.WithFamilyData(
             (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
@@ -541,7 +541,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
 
         var horizontal = SignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
-        SignedSixteenSixteen kick = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
+        SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.WholeWord);
         if ((SamusPoseMetadata.ReadPoseXDirection(samus) & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(

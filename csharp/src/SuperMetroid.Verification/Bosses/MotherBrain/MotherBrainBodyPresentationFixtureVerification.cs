@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Provides a mutable-RAM Mother Brain body fixture for instruction and drawing verification.</summary>
 internal static class MotherBrainBodyPresentationFixtureVerification
@@ -34,11 +35,13 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Body.Bind(bodyId, Body.Definition);
             Body.Bind(Body.DefinitionId, RoomEnemyHeaders.Get(bodyId));
             Body.Position = Body.Position.WithWhole(new(128, 128));
-            Body.PaletteRow = Body.TileIndexBase = 0;
+            // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
+            // palette row it gives her (#1459).
+            SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
-            // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356).
-            Inner.Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(default));
+            // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356), filled with her blank tile.
+            ClearBg2();
             Inner.Enemies.Drawing.Enqueue(0, Body.EnemyIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
         }
@@ -65,12 +68,14 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>The words of the BG2 image her body draws into.</summary>
         internal ushort[] Bg2Words => [.. Inner.Enemies.Presentation.RequireBg2Image().Publish().Words];
 
+        /// <summary>The tile her BG2 image holds where none of her frames has drawn.</summary>
+        internal static BackgroundTile Bg2FillTile => MotherBrainBg2Definitions.BlankTile;
+
         /// <summary>Writes <paramref name="word"/> at the start of her BG2 image.</summary>
         internal void MarkBg2(ushort word) => Inner.Enemies.Presentation.RequireBg2Image().Write(0, [BackgroundTileWordBytes.Tile(word)]);
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
-        /// <summary>Clears her BG2 image before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.RequireBg2Image().Write(0,
-            new BackgroundTile[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight]);
+        /// <summary>Attaches a fresh BG2 image holding her fill, as her phase-two transition does, before checking fresh publication.</summary>
+        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(Bg2FillTile));
     }
 }

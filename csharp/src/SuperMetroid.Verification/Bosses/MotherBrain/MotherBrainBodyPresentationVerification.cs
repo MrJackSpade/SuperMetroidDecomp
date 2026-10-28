@@ -83,7 +83,7 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(stockOam)) }), new BossArtworkCatalog(), new AreaArtworkBundle()));
+        var missing = new MotherBrainPresentationFixture(Build(stockOam, bg2: null));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
@@ -91,9 +91,16 @@ internal static class MotherBrainBodyPresentationVerification
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, mixed remaps, new-frame gating, " +
             $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, and missing-art rejection. RAM-only.");
 
-        InstalledEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2) => author.Build(
-            extendedFrames: EnemyExtendedFrameDocuments.Load(author.Json(oam)),
-            motherBrainBodyBg2Frames: MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)));
+        // She draws from sheets composed over the installed enemy artwork, so the fixture starts from it and replaces only
+        // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
+        InstalledEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument? bg2)
+        {
+            EnemyTileArtworkCatalog tiles = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
+            tiles.ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(oam));
+            return new(tiles,
+                new BossArtworkCatalog { MotherBrainBodyBg2Frames = bg2 is null ? null : MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
+                new AreaArtworkBundle());
+        }
 
         EnemyExtendedFrameDocument BodyOam(bool edited)
         {
@@ -149,7 +156,9 @@ internal static class MotherBrainBodyPresentationVerification
     /// <summary>Checks the exact BG2 tilemap words, each authored cell's tile encoded through the codec, and destinations written for a selected body pose.</summary>
     private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, string oamName)
     {
-        var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
+        // Her body draws into the BG2 image she owns (#1459); cells no write reaches keep the image's fill.
+        var expected = Enumerable.Repeat(BackgroundTileWordBytes.Words([MotherBrainPresentationFixture.Bg2FillTile])[0],
+            EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight).ToArray();
         if (authored.Frames.TryGetValue(oamName.Replace("_oam_", "_bg2_", StringComparison.Ordinal), out var writes))
             foreach (EnemyBg2WriteDocument write in writes)
                 for (int tile = 0; tile < write.Tiles.Length; tile++)

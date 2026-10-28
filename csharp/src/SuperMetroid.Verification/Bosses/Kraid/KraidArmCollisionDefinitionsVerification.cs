@@ -42,14 +42,14 @@ internal static class KraidArmCollisionDefinitionsVerification
         {
             ushort candidate = (ushort)pointer;
             if (!selected.Contains(candidate))
-                AssertThrows<InvalidDataException>(() => KraidArmCollisionDefinitions.HitboxesAt(candidate),
+                AssertThrows<InvalidDataException>(() => KraidArmCollision.HitboxesAt(candidate),
                     $"Non-arm-list identity {candidate:X4} is rejected");
         }
         int hitboxCount = 0;
         foreach (ushort pointer in original)
         {
             System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> compiled =
-                KraidArmCollisionDefinitions.HitboxesAt(pointer);
+                KraidArmCollision.HitboxesAt(pointer);
             AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length,
                 $"Kraid arm hitbox count $A7:{pointer:X4}");
             for (int index = 0; index < compiled.Length; index++)

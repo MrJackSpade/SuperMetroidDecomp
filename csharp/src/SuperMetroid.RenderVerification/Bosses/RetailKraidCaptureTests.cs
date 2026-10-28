@@ -182,7 +182,7 @@ internal static class RetailKraidCaptureTests
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
         // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
-        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(
+        var (left, top, bottom) = KraidMouthHitboxes.ResolveCollision(
             boss.DisplayedHeadFrame?.InvulnerableShape ?? throw new InvalidOperationException("Kraid shows no inner mouth shape to strike."));
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];

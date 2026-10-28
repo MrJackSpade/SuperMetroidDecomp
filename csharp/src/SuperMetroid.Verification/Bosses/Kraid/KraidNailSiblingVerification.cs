@@ -39,7 +39,7 @@ internal static class KraidNailSiblingVerification
             {
                 int record = 0xa70000 | Word(table + randomOffset);
                 AssertEqual(Word(record + fieldOffset),
-                    field(KraidNailLaunchDefinitions.FromSiblingVelocity((ushort)raw)),
+                    field(KraidNailLaunch.FromSiblingVelocity((ushort)raw)),
                     $"Kraid launch field {fieldOffset}, sibling {raw}, RNG offset {randomOffset}");
             }
         }

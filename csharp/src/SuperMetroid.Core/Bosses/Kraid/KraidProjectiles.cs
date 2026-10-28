@@ -269,7 +269,7 @@ internal sealed class KraidProjectiles
         int siblingIndex = nail.SlotIndex == 6 ? 7 : 6;
         KraidPartState siblingPart = _access.RequireKraidState(nail).Parts[siblingIndex];
         int random = _room.Random.Read();
-        part.NailVelocity = KraidNailLaunchDefinitions.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
+        part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
         part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
@@ -313,7 +313,7 @@ internal sealed class KraidProjectiles
     {
         RoomEnemySlot body = _slotTable.Slots[0];
         int contourX = unchecked((ushort)(
-            body.Position.X.Whole + KraidNailContourDefinitions.LeftOffset(
+            body.Position.X.Whole + KraidNailContour.LeftOffset(
                 unchecked((ushort)(nail.Position.Y.Whole - body.Position.Y.Whole)))));
         return unchecked((short)(nail.Position.X.Whole + nail.Radius.X - contourX)) >= 0 &&
             _access.Part(nail).NailVelocity.X.WholePixels >= 0;

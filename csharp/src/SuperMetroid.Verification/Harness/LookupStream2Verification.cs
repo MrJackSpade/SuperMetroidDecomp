@@ -1236,7 +1236,7 @@ internal static class LookupStream2Verification
         {
             var lint = enemies.SlotTable.Slots[slot];
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
-            AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
+            AssertEqual(expected, KraidLints.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
             AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer, "Actual post-growth timer write");
             AssertEqual(0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
@@ -1250,7 +1250,7 @@ internal static class LookupStream2Verification
             }
         }
         foreach (KraidLintPart invalid in new[] { (KraidLintPart)0, (KraidLintPart)1, (KraidLintPart)5 })
-            AssertThrows<InvalidOperationException>(() => KraidLintInitializationDefinitions.InitialDelay(invalid), "Only lint slots have launch policy");
+            AssertThrows<InvalidOperationException>(() => KraidLints.InitialDelay(invalid), "Only lint slots have launch policy");
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
 
@@ -1983,8 +1983,8 @@ internal static class LookupStream2Verification
         {
             int deviations = band switch
             {
-                KraidColorCatalog.StockBand stored => stored.deviations.Count,
-                KraidColorCatalog.HealthPalette palette => palette.deviations.Count,
+                KraidStockBand stored => stored.deviations.Count,
+                KraidHealthBands palette => palette.deviations.Count,
                 _ => throw new InvalidDataException($"Stock Kraid {name} is not a deviation-storing band."),
             };
             AssertEqual(0, deviations, $"Stock Kraid {name} stores no colors beyond the calculated paint");
@@ -1992,7 +1992,7 @@ internal static class LookupStream2Verification
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPalettes.ColorCount(source); index++)
             AssertEqual(ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index),
-                KraidPaintDefinitions.Color(source, index), $"Kraid {source} stock paint {index}");
+                KraidPaint.Color(source, index), $"Kraid {source} stock paint {index}");
         Check(stock, document);
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {

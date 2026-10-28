@@ -12,9 +12,9 @@ internal static class KraidNailContourMappingsVerification
         ushort Word(int address) => LittleEndianBytes.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1));
         AssertEqual(6, KraidNailContourDefinitions.RecordCount, "Bounded nail contour record count");
         for (int record = 0; record < 6; record++)
-            AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContourDefinitions.LeftAt(record), "Original nail left word");
-        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.LeftAt(-1), "Negative nail left record");
-        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.LeftAt(6), "Past nail left record");
+            AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContour.LeftAt(record), "Original nail left word");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.LeftAt(-1), "Negative nail left record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.LeftAt(6), "Past nail left record");
         // Independent original-word walk confirms signed wrapping and bounded overreads.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -25,7 +25,7 @@ internal static class KraidNailContourMappingsVerification
                 if (record >= 256) throw new InvalidOperationException("Native nail contour walk did not terminate.");
             }
             AssertTrue(record < 6, "Native nail contour terminates within bounded window");
-            AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContourDefinitions.LeftOffset((ushort)raw),
+            AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContour.LeftOffset((ushort)raw),
                 "Every relative Y selects the native left offset");
         }
     }
@@ -40,10 +40,10 @@ internal static class KraidNailContourMappingsVerification
         {
             int address = 0xa7bf1f + 4 * record;
             ushort expected = LittleEndianBytes.Word(KraidNailTopBoundariesRomByte(rom, address), KraidNailTopBoundariesRomByte(rom, address + 1));
-            AssertEqual(expected, KraidNailContourDefinitions.TopAt(record), "Original nail top boundary");
+            AssertEqual(expected, KraidNailContour.TopAt(record), "Original nail top boundary");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(-1), "Negative nail top record");
-        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(6), "Past nail top record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.TopAt(-1), "Negative nail top record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.TopAt(6), "Past nail top record");
     }
 
     /// <summary>Reads a source byte for the independent Kraid nail top-boundary oracle.</summary>

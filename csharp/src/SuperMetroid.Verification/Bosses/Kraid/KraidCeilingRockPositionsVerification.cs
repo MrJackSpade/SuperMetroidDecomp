@@ -15,9 +15,9 @@ internal static class KraidCeilingRockPositionsVerification
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1));
         for (int offset = 0; offset <= 18; offset++)
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
-                KraidCeilingRockPositionDefinitions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
+                KraidCeilingRocks.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
         foreach (int invalid in new[] { int.MinValue, -1, 19, 20, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidCeilingRockPositionDefinitions.AtByteOffset(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidCeilingRocks.AtByteOffset(invalid),
                 "Ceiling rock byte-window bounds");
     }
 

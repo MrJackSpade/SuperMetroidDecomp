@@ -258,7 +258,7 @@ internal sealed class KraidCombat
 
     /// <summary>Converts a mouth shape into wrapped world-space collision bounds.</summary>
     internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, KraidMouthHitbox shape) =>
-        LoadKraidCollisionScratch(body, KraidMouthHitboxDefinitions.ResolveCollision(shape));
+        LoadKraidCollisionScratch(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position, wrapping as the cartridge does.</summary>
     internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(
@@ -315,7 +315,7 @@ internal sealed class KraidCombat
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-            KraidFootCollisionDefinitions.TryGetComponents(enemy.Frame, out var footComponents)))
+            KraidFootCollision.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
 
         // Kraid's foot art is replaceable, but each native extended frame
@@ -346,7 +346,7 @@ internal sealed class KraidCombat
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidArm &&
-            KraidArmCollisionDefinitions.TryGetComponents(enemy.Frame, out var kraidComponents)))
+            KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
 
         // Kraid's arm art is editable, but the native extended spritemap

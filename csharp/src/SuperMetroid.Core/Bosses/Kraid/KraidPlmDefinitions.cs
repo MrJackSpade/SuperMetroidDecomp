@@ -21,8 +21,23 @@ public static class KraidPlmDefinitions
     /// <summary>$A7:C171 SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
     private static PlmSpawnRequest ClearSpikes => new(new(0x05, 0x1b), PlmHeaderId.ClearKraidSpikes);
 
-    /// <summary>The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2.</summary>
-    public static IReadOnlyList<PlmSpawnRequest> GrowthCeiling { get; } = new GrowthCeilingSequence();
+    /// <summary>
+    /// The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2: the ceiling callbacks at ACD7..AD3A
+    /// selected by $A7:ACC5. Each block lies directly above its paired rock center on row 18; column 2 uses the
+    /// left-edge background, then odd and even columns alternate variants 2 and 3.
+    /// </summary>
+    public static IReadOnlyList<PlmSpawnRequest> GrowthCeiling { get; } = new List<PlmSpawnRequest>
+    {
+        new(new(6, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(13, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(2, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground1),
+        new(new(10, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(5, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(12, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(3, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(11, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(4, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+    }.AsReadOnly();
 
     /// <summary>
     /// The hardcoded PLMs spawned by defeated-room initialization at
@@ -32,55 +47,19 @@ public static class KraidPlmDefinitions
     public static IReadOnlyList<PlmSpawnRequest> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 
     /// <summary>
-    /// $A7:ACC5 selects the ceiling callbacks at ACD7..AD3A. Each block lies
-    /// directly above its paired rock center; row18 is constant. Column2 uses
-    /// the left-edge background, then odd/even columns alternate variants2/3.
+    /// The platform mutation paired with each sinking-table callback, or none for the no-operation callback. The
+    /// surviving platforms share the ceiling row and alternate background blocks by column parity, as in the native
+    /// C691..C714 inline arguments.
     /// </summary>
-    private sealed class GrowthCeilingSequence : IReadOnlyList<PlmSpawnRequest>
-    {
-        /// <summary>Nine ceiling blocks are paired with the growth-stage rock centers.</summary>
-        public int Count => 9;
-        /// <summary>Selects the block above one rock center and its column-dependent background variant.</summary>
-        public PlmSpawnRequest this[int index]
+    public static IReadOnlyDictionary<KraidSinkCallback, PlmSpawnRequest?> SinkMutations { get; } =
+        new Dictionary<KraidSinkCallback, PlmSpawnRequest?>
         {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                // Every rock center lies inside Kraid's room, so its block column is below 256.
-                int column = KraidCeilingRockPositionDefinitions.AtByteOffset(2 * index) >> 4;
-                PlmHeaderId header = column == 2 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground1
-                    : (column & 1) == 0 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground3
-                    : PlmHeaderId.CrumbleKraidCeilingIntoBackground2;
-                return new(new(checked((ushort)column), 0x12), header);
-            }
-        }
-        /// <summary>Visits ceiling mutations in growth-stage callback order.</summary>
-        public IEnumerator<PlmSpawnRequest> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes growth-stage ordering through non-generic enumeration.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-    /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
-    public static PlmSpawnRequest? ForSinkCallback(KraidSinkCallback callback)
-    {
-        int column;
-        switch (callback)
-        {
-            case KraidSinkCallback.NoOperation: return null;
-            case KraidSinkCallback.CrumbleLeftPlatformLeft: column = 7; break;
-            case KraidSinkCallback.CrumbleLeftPlatformMiddle: column = 8; break;
-            case KraidSinkCallback.CrumbleLeftPlatformRight: column = 9; break;
-            case KraidSinkCallback.CrumbleRightPlatformLeft: column = 14; break;
-            case KraidSinkCallback.CrumbleRightPlatformMiddle: column = 15; break;
-            case KraidSinkCallback.CrumbleRightPlatformRight: column = 16; break;
-            default: throw new InvalidOperationException($"Undefined KraidSinkCallback {callback}.");
-        }
-        // The surviving platforms share the ceiling row and alternate background
-        // blocks by column parity, as in the native C691..C714 inline arguments.
-        return new(new(checked((ushort)column), 0x12), (column & 1) != 0
-            ? PlmHeaderId.CrumbleKraidPlatformVariant1
-            : PlmHeaderId.CrumbleKraidPlatformVariant2);
-    }
+            [KraidSinkCallback.NoOperation] = null,
+            [KraidSinkCallback.CrumbleLeftPlatformLeft] = new PlmSpawnRequest(new(7, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant1),
+            [KraidSinkCallback.CrumbleLeftPlatformMiddle] = new PlmSpawnRequest(new(8, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant2),
+            [KraidSinkCallback.CrumbleLeftPlatformRight] = new PlmSpawnRequest(new(9, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant1),
+            [KraidSinkCallback.CrumbleRightPlatformLeft] = new PlmSpawnRequest(new(14, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant2),
+            [KraidSinkCallback.CrumbleRightPlatformMiddle] = new PlmSpawnRequest(new(15, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant1),
+            [KraidSinkCallback.CrumbleRightPlatformRight] = new PlmSpawnRequest(new(16, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant2),
+        };
 }

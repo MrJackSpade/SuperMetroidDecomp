@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

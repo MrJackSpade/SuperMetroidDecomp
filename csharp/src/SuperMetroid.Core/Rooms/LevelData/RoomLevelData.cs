@@ -39,9 +39,8 @@ public sealed class RoomLevelData
     /// <summary>BTS storage paired with native PLM indices, including their bounded tail.</summary>
     internal readonly byte[] PlmBehaviorAllocation;
     /// <summary>The BG1 plane last published for display, until the next visual write; derived, never saved.</summary>
-    [NonSerialized] private RoomLevelPlane? foregroundPlane;
-    /// <summary>The BG2 plane last published for display; derived, never saved.</summary>
-    [NonSerialized] private RoomLevelPlane? backgroundPlane;
+    [field: NonSerialized]
+    private RoomLevelPlane? PublishedForeground { get; set; }
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
@@ -183,10 +182,11 @@ public sealed class RoomLevelData
     /// BG1 as the level data shows it (#1346). The same immutable plane is returned until a block write, so frames that
     /// change nothing share it.
     /// </summary>
-    public RoomLevelPlane ForegroundPlane => foregroundPlane ??= new(Size, VisualStreamingForegroundAllocation);
+    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, VisualStreamingForegroundAllocation);
 
-    /// <summary>The layer-2 plane as the level data shows it.</summary>
-    public RoomLevelPlane BackgroundPlane => backgroundPlane ??= new(Size, VisualStreamingBackgroundAllocation);
+    /// <summary>The layer-2 plane as the level data shows it; nothing writes BG2's visual words after loading, so it is built once.</summary>
+    [field: NonSerialized]
+    public RoomLevelPlane BackgroundPlane => field ??= new(Size, VisualStreamingBackgroundAllocation);
 
     /// <summary>
     /// Converts a 16-pixel block coordinate using the same row-major multiplication as
@@ -289,7 +289,7 @@ public sealed class RoomLevelData
             StreamingForegroundAllocation[blockIndex] = word.Raw;
         if (blockIndex < VisualStreamingForegroundAllocation.Length)
             VisualStreamingForegroundAllocation[blockIndex] = word.WithVisualWord(visualWord).Raw;
-        foregroundPlane = null;
+        PublishedForeground = null;
     }
 
     /// <summary>Applies a bank-$84 BTS write, one byte (0 through 255), through the bounded native PLM allocation.</summary>
@@ -457,7 +457,7 @@ public sealed class RoomLevelData
             StreamingForegroundAllocation[blockIndex] = word.Raw;
         if (blockIndex < VisualStreamingForegroundAllocation.Length)
             VisualStreamingForegroundAllocation[blockIndex] = word.Raw;
-        foregroundPlane = null;
+        PublishedForeground = null;
     }
 
     /// <summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

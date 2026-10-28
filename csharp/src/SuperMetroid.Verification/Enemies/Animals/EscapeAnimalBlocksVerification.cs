@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
